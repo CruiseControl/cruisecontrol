@@ -36,17 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.io.File;
+import java.util.Hashtable;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-import org.jdom.Element;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
-import java.util.List;
+import org.jdom.Element;
 
 /**
  * Exec builder test class.
@@ -160,7 +160,7 @@ public class ExecBuilderTest extends TestCase {
     /*
      * test a succesful build
      */
-    public void testBuild_BuildSuccess() throws IOException {
+    public void testBuild_BuildSuccess() {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_SUCCESS, eb, goodTestScript.toString());
     } // testBuild_BuildSuccess
@@ -168,7 +168,7 @@ public class ExecBuilderTest extends TestCase {
     /*
      * test a buid failure - exit
      */
-    public void testBuild_BuildFailure() throws IOException {
+    public void testBuild_BuildFailure() {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_EXIT_FAILURE, eb, exitTestScript.toString());
     } // testBuild_BuildFailure
@@ -176,7 +176,7 @@ public class ExecBuilderTest extends TestCase {
     /*
      * test a build failure - error in output
      */
-    public void testBuild_OutputFailure() throws IOException {
+    public void testBuild_OutputFailure() {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_OUTPUT_FAILURE, eb, outputTestScript.toString());
     } // testBuild_OutputFailure
@@ -184,7 +184,7 @@ public class ExecBuilderTest extends TestCase {
     /*
      * execute the build and check results
      */
-    protected void internalTestBuild(String statusType, ExecBuilder eb, String script) throws IOException {
+    protected void internalTestBuild(String statusType, ExecBuilder eb, String script) {
         Element logElement = null;
         try {            
             eb.setCommand(script);

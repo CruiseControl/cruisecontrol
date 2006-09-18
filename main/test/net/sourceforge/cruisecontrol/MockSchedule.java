@@ -49,14 +49,14 @@ public class MockSchedule extends Schedule {
     public MockSchedule() {
         //a schedule isn't valid without at least one builder.
         add(new Builder() {            
-            public Element build(Map properties) throws CruiseControlException { return null; }
-            public Element buildWithTarget(Map properties, String target) throws CruiseControlException { return null; }
+            public Element build(Map map) throws CruiseControlException { return null; }
+            public Element buildWithTarget(Map map, String target) throws CruiseControlException { return null; }
         });
     }
 
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget)
+    public Element build(int buildNumber, Date lastBuild, Date now, Map propMap, String buildTarget)
       throws CruiseControlException {
-        this.properties = properties;
+        this.properties = propMap;
         return new Element("build");
     }
 

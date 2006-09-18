@@ -34,15 +34,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import org.jdom.JDOMException;
-
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * Test class for AllFusionHarvestCM511.
@@ -68,7 +66,7 @@ public class AllFusionHarvestCM511Test extends TestCase {
     /**
      * Method used to test the validation of an AllFusionHarvestCM511 object.
      */
-    public void testValidate() throws CruiseControlException, IOException {
+    public void testValidate() {
         try {
             harvest.validate();
             fail("should throw an exception when no attributes are set");
@@ -93,7 +91,7 @@ public class AllFusionHarvestCM511Test extends TestCase {
      * Method used to test the creation of the command used to retrieve a list of modifications from
      * AllFusion Harvest CM 5.1.1.
      */
-    public void testBuildHistoryCommand() throws CruiseControlException {
+    public void testBuildHistoryCommand() {
         String brokerName = "myBroker";
         String userName = "myUserId";
         String passWord = "myPassword";
@@ -133,7 +131,7 @@ public class AllFusionHarvestCM511Test extends TestCase {
         }
     }
 
-    public void testParseModifications() throws JDOMException, ParseException, IOException {
+    public void testParseModifications() throws IOException {
         File tmpHarvestRsltsFile = File.createTempFile("Harvest", ".rslts");
 
         Date checkTime = new Date();

@@ -88,11 +88,11 @@ public class AccurevMockRunner implements Runner {
   public void setScriptRoot(String scriptRoot) {
     this.scriptRoot = scriptRoot;
   }
-  public void addScript(String path, int returnCode) {
+  public void addScript(String path, int rCode) {
     if (scriptRoot != null) {
       path = scriptRoot + "/" + path;
     }
-    Script script = new Script(path, returnCode);
+    Script script = new Script(path, rCode);
     scriptList.add(script);
   }
   private Script nextScript() {

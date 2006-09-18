@@ -150,7 +150,7 @@ public class CruiseControlControllerTest extends TestCase {
         assertEquals(2, ccController.getProjects().size());
     }
 
-    public void testSetConfigFileShouldFailWithDuplicateProjects() throws IOException, CruiseControlException {
+    public void testSetConfigFileShouldFailWithDuplicateProjects() throws IOException {
         ccController = new CruiseControlController();
 
         FileWriter configOut = new FileWriter(configFile);

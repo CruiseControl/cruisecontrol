@@ -173,7 +173,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      * Turn a stream containing the results of running the AlienBrain 
      * command-line client into a list of Modifications.
      */ 
-    protected List parseModifications(List modifications) throws IOException {
+    protected List parseModifications(List modifications) {
         List mods = new ArrayList();
         
         for (Iterator it = modifications.iterator(); it.hasNext(); ) {

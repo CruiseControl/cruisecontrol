@@ -241,7 +241,7 @@ public class CruiseControlConfig {
     private void handleNodeProperties(Element pluginElement, String pluginName) {
         List properties = new ArrayList();
         for (Iterator i = pluginElement.getChildren("property").iterator(); i.hasNext();) {
-            properties.add((Element) i.next());
+            properties.add(i.next());
         }
         if (properties.size() > 0) {
             templatePluginProperties.put(pluginName, properties);

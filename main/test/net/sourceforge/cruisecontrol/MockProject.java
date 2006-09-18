@@ -113,7 +113,7 @@ public class MockProject extends Project {
      * 
      * @see net.sourceforge.cruisecontrol.Project#checkLogDirectory()
      */
-    protected void checkLogDirectory() throws CruiseControlException {
+    protected void checkLogDirectory() {
     }
 
 }

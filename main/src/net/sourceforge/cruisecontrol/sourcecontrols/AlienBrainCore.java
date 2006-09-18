@@ -56,7 +56,7 @@ import java.io.IOException;
  */
 public class AlienBrainCore {
     
-    protected static final Logger LOG = Logger.getLogger(AlienBrainCore.class);
+    private static final Logger LOG = Logger.getLogger(AlienBrainCore.class);
     
     protected static final String AB_NO_SESSION = "Invalid session please logon!";
     

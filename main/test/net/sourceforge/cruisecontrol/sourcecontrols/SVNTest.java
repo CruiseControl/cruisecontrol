@@ -71,7 +71,7 @@ public class SVNTest extends TestCase {
         originalTimeZone = null;
     }
 
-    public void testValidate() throws CruiseControlException, IOException {
+    public void testValidate() throws IOException {
         try {
             svn.validate();
             fail("should throw an exception when no attributes are set");

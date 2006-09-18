@@ -281,13 +281,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
         LOG.info("Checking for modification since " + lastBuildTime
                 + " at current time of " + now + "!");
 
-        try {
-            command = buildHistoryCommand(lastBuildTime, now);
-        } catch (CruiseControlException e) {
-            LOG.error("Error building history command", e);
-
-            return modifications;
-        }
+        command = buildHistoryCommand(lastBuildTime, now);
 
         try {
             modifications = execHistoryCommand(command, lastBuildTime, now);
@@ -313,8 +307,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
      *         </li>
      *         </ul>
      */
-    Commandline buildHistoryCommand(Date lastBuildTime, Date ccSystemTime)
-            throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuildTime, Date ccSystemTime) {
         Commandline command = new Commandline();
         command.setExecutable("hsql");
 
@@ -471,8 +464,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
      * @throws IOException
      * @throws UnsupportedEncodingException
      */
-    List parseFile(File harvestRsltsFile, Date lastBuildTime,
-                   Date ccSystemTime) throws IOException, UnsupportedEncodingException {
+    List parseFile(File harvestRsltsFile, Date lastBuildTime, Date ccSystemTime) {
         // Create a FileChannel, get the file size and map the file to a ByteBuffer
         Vector rows;
         BufferedReader fileBR;

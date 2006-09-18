@@ -164,21 +164,21 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(17, config.getProjectNames().size());
     }
 
-    public void testGlobalProperty() throws CruiseControlException {
+    public void testGlobalProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
         Properties props = projConfig.getProperties();
         assertEquals(6, props.size()); // 4 in file, 1 global passed to constructor +
         assertEquals("works!", props.getProperty("global"));
     }
 
-    public void testProjectNameProperty() throws CruiseControlException {
+    public void testProjectNameProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("project1", props.getProperty("project.name"));
     }    
 
-    public void testProjectNameInGlobalProperty() throws CruiseControlException {
+    public void testProjectNameInGlobalProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
@@ -187,14 +187,14 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("project=project1", props.getProperty("project.global"));
     }    
 
-    public void testSimpleProperty() throws CruiseControlException {
+    public void testSimpleProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
         Properties props = projConfig.getProperties();
         assertEquals(6, props.size());
         assertEquals("success!", props.getProperty("simple"));
     }
 
-    public void testMultipleProperties() throws CruiseControlException {
+    public void testMultipleProperties() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("multiprops");
         Properties props = projConfig.getProperties();
         assertEquals(9, props.size());
@@ -204,7 +204,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("one.two$three", props.getProperty("multi"));
     }
 
-    public void testNestedProperties() throws CruiseControlException {
+    public void testNestedProperties() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("nestedprops");
         Properties props = projConfig.getProperties();
         assertEquals(11, props.size());
@@ -216,14 +216,14 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("threeLevelsDeep", props.getProperty("nested"));
     }
 
-    public void testPropertyEclipsing() throws CruiseControlException {
+    public void testPropertyEclipsing() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("eclipseprop");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("eclipsed", props.getProperty("global"));
     }
     
-    public void testLoadPropertiesFromFile() throws CruiseControlException {
+    public void testLoadPropertiesFromFile() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("propsfromfile");
         Properties props = projConfig.getProperties();
         assertEquals(10, props.size());
@@ -234,7 +234,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     // test that we are capable of resolving properties in all property attributes
-    public void testPropertiesInProperties() throws CruiseControlException {
+    public void testPropertiesInProperties() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("propsinpropsdef");
         Properties props = projConfig.getProperties();
         // these ones where defined normally, shouldn't be any problem
@@ -431,7 +431,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
     */
 
-    public void testGetBootstrappers() throws CruiseControlException {
+    public void testGetBootstrappers() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
 
         List bootstrappers = projConfig.getBootstrappers();
@@ -442,7 +442,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(1, bootstrappers.size());
     }
 
-    public void testGetSchedule() throws CruiseControlException {
+    public void testGetSchedule() {
         ProjectConfig projConfig;
         // TODO
         /*
@@ -459,7 +459,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(20 * ONE_SECOND, schedule.getInterval());
     }
 
-    public void testGetModificationSet() throws CruiseControlException {
+    public void testGetModificationSet() {
         ProjectConfig projConfig;
         // TODO
         /*
@@ -490,7 +490,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertFalse(incrementer.isValidLabel("build#9"));
     }
 
-    public void testGetLog() throws CruiseControlException {
+    public void testGetLog() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         assertEquals("logs" + File.separatorChar + "project1", projConfig.getLog().getLogDir());
 
@@ -520,7 +520,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(2, loggers.length);
     }
 
-    public void testGetListeners() throws CruiseControlException {
+    public void testGetListeners() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         List listeners = projConfig.getListeners();
         assertEquals(0, listeners.size());

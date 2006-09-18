@@ -217,7 +217,7 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
-    public void testGetAntLogAsElement() throws IOException, CruiseControlException {
+    public void testGetAntLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempAntLog.xml");
         filesToClear.add(logFile);

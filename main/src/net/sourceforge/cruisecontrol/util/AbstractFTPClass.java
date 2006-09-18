@@ -145,7 +145,7 @@ public abstract class AbstractFTPClass {
     }
     
     
-    protected void closeFTP(FTPClient ftp) throws CruiseControlException {
+    protected void closeFTP(FTPClient ftp) {
         if (ftp != null && ftp.isConnected()) {
             try {
                 LOG.info("disconnecting");

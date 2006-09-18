@@ -36,11 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
-import java.io.IOException;
-
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * Retrieves change history from SnapshotCM source control using whist command.
@@ -49,7 +46,7 @@ import junit.framework.TestCase;
  */
 public class SnapshotCMBootstrapperTest extends TestCase {
 
-    public void testValidate() throws CruiseControlException, IOException {
+    public void testValidate() {
 
         SnapshotCMBootstrapper bootstrapper = new SnapshotCMBootstrapper();
 
@@ -70,7 +67,7 @@ public class SnapshotCMBootstrapperTest extends TestCase {
         // test validity of the path format?
     }
 
-    public void testBuildUpdateCommand() throws IOException, CruiseControlException {
+    public void testBuildUpdateCommand() {
 
         SnapshotCMBootstrapper bootstrapper = new SnapshotCMBootstrapper();
         bootstrapper.setFile("somefile");

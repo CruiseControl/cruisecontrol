@@ -94,7 +94,7 @@ public class HttpFileTest extends TestCase {
         assertEquals(0, httpFile.getModifications(new Date(), new Date()).size());
     }
 
-    public void testShouldGetEmptyModificationnListWhenURLMalformed() throws MalformedURLException {
+    public void testShouldGetEmptyModificationnListWhenURLMalformed() {
         HttpFile httpFile = new HttpFile();
         httpFile.setURL("THISISAMALFORMEDURL");
         assertEquals(0, httpFile.getModifications(new Date(), new Date()).size());
