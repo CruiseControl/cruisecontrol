@@ -47,7 +47,6 @@ import javax.management.ObjectName;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Project;
-import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
@@ -99,7 +98,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         }
     }
 
-    private boolean checkSourceProject(ProjectInterface sourceProject) {
+    private boolean checkSourceProject(Project sourceProject) {
         boolean projectsMatch = false;
         if (project == sourceProject) {
             projectsMatch = true;
