@@ -58,9 +58,10 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -175,7 +176,7 @@ public class SVN implements SourceControl {
         List modifications = new ArrayList();
         Commandline command;
         try {
-            command = buildHistoryCommand(lastBuild, now);
+            command = buildHistoryCommand(lastBuild, now, Util.isWindows());
         } catch (CruiseControlException e) {
             LOG.error("Error building history command", e);
             return modifications;
@@ -197,7 +198,7 @@ public class SVN implements SourceControl {
      *
      * 'svn log --non-interactive --xml -v -r "{lastbuildTime}":"{checkTime}" repositoryLocation'
      */
-    Commandline buildHistoryCommand(Date lastBuild, Date checkTime) throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows) throws CruiseControlException {
         Commandline command = new Commandline();
         command.setExecutable("svn");
 
@@ -210,8 +211,13 @@ public class SVN implements SourceControl {
         command.createArgument("--xml");
         command.createArgument("-v");
         command.createArgument("-r");
-        command.createArgument("\"{" + formatSVNDate(lastBuild) + "}\"" + ":"
-                + "\"{" + formatSVNDate(checkTime) + "}\"");
+        if (isWindows) {
+            command.createArgument("\"{" + formatSVNDate(lastBuild) + "}\"" + ":"
+                    + "\"{" + formatSVNDate(checkTime) + "}\"");
+        } else {
+            command.createArgument("{" + formatSVNDate(lastBuild) + "}" + ":"
+                    + "{" + formatSVNDate(checkTime) + "}");            
+        }
 
         if (userName != null) {
             command.createArguments("--username", userName);

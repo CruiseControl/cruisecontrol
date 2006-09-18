@@ -120,7 +120,7 @@ public class SVNTest extends TestCase {
         }
     }
 
-    public void testBuildHistoryCommand() throws CruiseControlException {
+    public void testBuildHistoryCommandForWindows() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
         Date checkTime = new Date();
@@ -136,7 +136,7 @@ public class SVNTest extends TestCase {
                 "-v",
                 "-r",
                 "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\""};
-        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
+        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
@@ -151,7 +151,7 @@ public class SVNTest extends TestCase {
                 "-r",
                 "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setUsername("lee");
@@ -171,7 +171,27 @@ public class SVNTest extends TestCase {
                 "--password",
                 "secret",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime).getCommandline();
+        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+    }
+
+    public void testBuildHistoryCommandForNotWindows() throws CruiseControlException {
+        svn.setLocalWorkingCopy(".");
+
+        Date checkTime = new Date();
+        long tenMinutes = 10 * 60 * 1000;
+        Date lastBuild = new Date(checkTime.getTime() - tenMinutes);
+
+        String[] expectedCmd =
+            new String[] {
+                "svn",
+                "log",
+                "--non-interactive",
+                "--xml",
+                "-v",
+                "-r",
+                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}"};
+        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, false).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
     }
 

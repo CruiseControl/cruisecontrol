@@ -145,7 +145,7 @@ SVN
 ----------------------
 * Reset modified property to null if no modifications. Patch by Paul Hammant
 * Remove race condition on closing error stream.
-* Surround dates with double quotes (CC-447).  Patch by Marco Tedone.
+* Surround dates with double quotes when on windows (CC-447).  Patch by Marco Tedone.
 
 UCM
 ----------------------
