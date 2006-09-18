@@ -44,6 +44,7 @@ public class ProjectConfigTest extends TestCase {
 
     protected void setUp() {
         config = new ProjectConfig();
+        config.setName("test");
     }
 
     protected void tearDown() {

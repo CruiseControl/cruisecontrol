@@ -21,4 +21,6 @@ public interface ProjectInterface {
 
     void configureProject() throws CruiseControlException;
 
+    void validate() throws CruiseControlException;
+
 }

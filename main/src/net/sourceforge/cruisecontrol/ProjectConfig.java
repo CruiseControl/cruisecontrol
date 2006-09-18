@@ -99,9 +99,11 @@ public class ProjectConfig implements ProjectInterface {
             listeners.validate();
         }
 
-        if (log != null) {
-            log.validate();
+        if (log == null) {
+            log = new Log();
         }
+        log.setProjectName(name);            
+        log.validate();
 
         if (modificationSet != null) {
             modificationSet.validate();
@@ -118,11 +120,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    // TODO think about how to turn properties into plugins
-    void setProperties(Map properties) {
-        this.properties = properties;
     }
 
     public void setBuildAfterFailed(boolean buildAfterFailed) {
@@ -184,11 +181,27 @@ public class ProjectConfig implements ProjectInterface {
 
     public String getName() { return name; }
 
-    // TODO: keep as Map ??
-    public Properties getProperties() {
+    /**
+     * only used for tests. should be removed.
+     * 
+     * @deprecated
+     * @return properties used to configure plugin
+     */
+    Properties getProperties() {
+        // TODO only used for tests? remove...
         Properties props = new Properties();
         props.putAll(properties);
         return props;
+    }
+
+    /**
+     * only used for tests. should be removed.
+     * 
+     * @deprecated
+     */
+    void setProperties(Map properties) {
+        // TODO only used for tests? remove...
+        this.properties = properties;
     }
 
     public void writeLogFile(Date now) throws CruiseControlException {

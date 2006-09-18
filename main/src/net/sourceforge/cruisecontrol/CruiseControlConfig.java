@@ -313,40 +313,34 @@ public class CruiseControlConfig {
 
         LOG.debug("**************** configuring project" + projectName + " *******************");
         ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
-        ProjectConfig projectConfig = (ProjectConfig) projectHelper.configurePlugin(projectElement, false);
+        ProjectInterface project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
 
-        projectConfig.setProperties(thisProperties);
+        if (project instanceof ProjectConfig) {
+            ProjectConfig projectConfig = (ProjectConfig) project;
+            projectConfig.setProperties(thisProperties);
 
-        if (projectConfig.getLabelIncrementer() == null) {
-            LabelIncrementer labelIncrementer;
-            Class labelIncrClass = projectPlugins.getPluginClass(LABEL_INCREMENTER);
-            try {
-                labelIncrementer = (LabelIncrementer) labelIncrClass.newInstance();
-            } catch (Exception e) {
-                LOG.error("Error instantiating label incrementer named "
-                    + labelIncrClass.getName()
-                    + "in project "
-                    + projectName 
-                    + ". Using DefaultLabelIncrementer instead.",
-                    e);
-                labelIncrementer = new DefaultLabelIncrementer();
+            if (projectConfig.getLabelIncrementer() == null) {
+                LabelIncrementer labelIncrementer;
+                Class labelIncrClass = projectPlugins.getPluginClass(LABEL_INCREMENTER);
+                try {
+                    labelIncrementer = (LabelIncrementer) labelIncrClass.newInstance();
+                } catch (Exception e) {
+                    LOG.error("Error instantiating label incrementer named "
+                        + labelIncrClass.getName()
+                        + "in project "
+                        + projectName 
+                        + ". Using DefaultLabelIncrementer instead.",
+                        e);
+                    labelIncrementer = new DefaultLabelIncrementer();
+                }
+                projectConfig.add(labelIncrementer);
             }
-            projectConfig.add(labelIncrementer);
         }
 
-        Log log = projectConfig.getLog();
-        if (log == null) {
-            log = new Log();
-        }
-
-        log.setProjectName(projectName);
-        log.validate();
-        projectConfig.add(log);
-
-        projectConfig.validate();
+        project.validate();
         LOG.debug("**************** end configuring project" + projectName + " *******************");
 
-        this.projects.put(projectName, projectConfig);
+        this.projects.put(projectName, project);
         this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
