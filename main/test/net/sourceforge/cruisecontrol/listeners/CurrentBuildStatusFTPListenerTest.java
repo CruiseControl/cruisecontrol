@@ -72,9 +72,9 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
             this.expectedPath = expectedPath;
         }
 
-        protected void sendFileToFTPPath(String text, String path) throws CruiseControlException {
-            this.text = text;
-            this.path = path;
+        protected void sendFileToFTPPath(String textToSend, String ftpPath) throws CruiseControlException {
+            this.text = textToSend;
+            this.path = ftpPath;
         }
 
         void ensureFileSent() {

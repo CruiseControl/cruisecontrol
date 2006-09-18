@@ -40,20 +40,19 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.Delete;
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.types.PatternSet.NameEntry;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
+
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.Delete;
+import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.PatternSet.NameEntry;
 
 /**
  * This test references several resources from the same package.  It also
@@ -71,9 +70,9 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         public InputStream in;
         public Commandline cmd;
 
-        protected void runP4Cmd(Commandline cmd, P4CmdParser parser)
+        protected void runP4Cmd(Commandline command, P4CmdParser parser)
                 throws CruiseControlException {
-            this.cmd = cmd;
+            this.cmd = command;
             if (exceptionText != null) {
                 throw new CruiseControlException(exceptionText);
             }
@@ -131,10 +130,10 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     public static class MockDelete extends Delete {
         public FileSet fs;
         public boolean executed = false;
-        public void addFileset(FileSet fs) {
+        public void addFileset(FileSet fileSet) {
             assertNull("Already set the fileset", this.fs);
-            this.fs = fs;
-            super.addFileset(fs);
+            this.fs = fileSet;
+            super.addFileset(fileSet);
         }
 
         public void execute() {
@@ -186,7 +185,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         }
     }
 
-    public void testBuildBaseP4Command() throws ParseException {
+    public void testBuildBaseP4Command() {
         MockP4ChangelistLabelIncrementer p4 =
             new MockP4ChangelistLabelIncrementer();
 

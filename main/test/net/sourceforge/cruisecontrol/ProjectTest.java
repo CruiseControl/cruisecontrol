@@ -94,8 +94,7 @@ public class ProjectTest extends TestCase {
         IO.delete(filesToClear);
     }
 
-    public void testNotifyListeners() throws CruiseControlException {
-
+    public void testNotifyListeners() {
         MockListener listener = new MockListener();
         ProjectConfig.Listeners listeners = new ProjectConfig.Listeners();
         listeners.add(listener);
@@ -108,7 +107,7 @@ public class ProjectTest extends TestCase {
         assertTrue(listener.wasNotified());
     }
 
-    public void testBuild() throws Exception {
+    public void testBuild() throws CruiseControlException, IOException {
         Date now = new Date();
         MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
@@ -364,7 +363,7 @@ public class ProjectTest extends TestCase {
         assertNull(DateUtil.getFormattedTime(null));
     }
 
-    public void testGetModifications() throws CruiseControlException {
+    public void testGetModifications() {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
@@ -387,7 +386,7 @@ public class ProjectTest extends TestCase {
         assertNotNull(project.getModifications(true));
     }
     
-    public void testGetModifications_requireModificationsTrue() throws CruiseControlException {
+    public void testGetModifications_requireModificationsTrue() {
         MockModificationSet modSet = new MockModificationSet();
 //        Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
@@ -398,7 +397,7 @@ public class ProjectTest extends TestCase {
         assertNull(project.getModifications(false));
     }
 
-    public void testGetModifications_requireModificationsFalse() throws CruiseControlException {
+    public void testGetModifications_requireModificationsFalse() {
         MockModificationSet modSet = new MockModificationSet();
 //        Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
@@ -642,7 +641,7 @@ public class ProjectTest extends TestCase {
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
     }
     
-    public void testGetTimeToNextBuild_AfterShortBuild() throws CruiseControlException {
+    public void testGetTimeToNextBuild_AfterShortBuild() {
         Schedule schedule = new Schedule();
         MockBuilder noonBuilder = new MockBuilder();
         noonBuilder.setTime("1200");

@@ -63,7 +63,7 @@ public class SnapshotCMTest extends TestCase {
         return new SimpleDateFormat(SnapshotCM.OUT_DATE_FORMAT).parse(dateString);
     }
 
-    public void testValidate() throws CruiseControlException, IOException {
+    public void testValidate() {
         SnapshotCM snaphotCM = new SnapshotCM();
 
         try {

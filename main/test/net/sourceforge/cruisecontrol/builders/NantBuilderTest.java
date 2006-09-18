@@ -167,7 +167,7 @@ public class NantBuilderTest extends TestCase {
     }
 
     public void testTranslateNantErrorElementsWithFailureElements()
-        throws CruiseControlException, DataConversionException {
+        throws CruiseControlException {
         Element buildLogElement = new Element("buildresults");
         Element failureElement = new Element("failure");
         buildLogElement.addContent(failureElement);
@@ -243,7 +243,7 @@ public class NantBuilderTest extends TestCase {
 //        assertEquals(2, initCount);
     }
     
-    public void testGetCommandLineArgs_DebugAndQuiet() throws CruiseControlException {
+    public void testGetCommandLineArgs_DebugAndQuiet() {
         builder.setUseDebug(true);
         builder.setUseQuiet(true);
         try {
@@ -347,7 +347,7 @@ public class NantBuilderTest extends TestCase {
         assertFalse(savedLog.exists());
     }
     
-    public void testGetNantLogAsElement() throws IOException, CruiseControlException {
+    public void testGetNantLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempNantLog.xml");
         filesToClear.add(logFile);
@@ -358,7 +358,7 @@ public class NantBuilderTest extends TestCase {
         assertEquals(buildLogElement.toString(), builder.getNantLogAsElement(logFile).toString());
     }
 
-    public void testGetNantLogAsElement_NoLogFile() throws IOException {
+    public void testGetNantLogAsElement_NoLogFile() {
         File doesNotExist = new File("blah blah blah does not exist");
         try {
             builder.getNantLogAsElement(doesNotExist);

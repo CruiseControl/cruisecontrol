@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import junit.framework.TestCase;
@@ -63,14 +62,6 @@ public class UCMTest extends TestCase {
 //        return testStream;
 //    }
 
-    protected void setUp() {
-        // TODO
-    }
-
-    public void testClearCaseStream() {
-        // TODO
-    }
-
     public void testValidate() {
         UCM ucmV = new UCM();
 
@@ -90,10 +81,6 @@ public class UCMTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("UCM should not throw exceptions when required attributes are set.");
         }
-    }
-
-    public void testOutput() throws IOException {
-        
     }
 
     public static void main(java.lang.String[] args) {

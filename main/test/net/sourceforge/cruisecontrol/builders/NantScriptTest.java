@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class NantScriptTest extends TestCase {
@@ -58,7 +57,7 @@ public class NantScriptTest extends TestCase {
 
    
 
-    public void testGetCommandLineArgs() throws CruiseControlException {
+    public void testGetCommandLineArgs() {
         String[] resultInfo = { nantCmd, 
                 "-listener:NAnt.Core.XmlLogger", 
                 "-D:XmlLogger.file=log.xml",
@@ -83,7 +82,7 @@ public class NantScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
     }
 
-    public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
+    public void testGetCommandLineArgs_EmptyLogger() {
         String[] resultInfo = { nantCmd, 
                 "-listener:NAnt.Core.XmlLogger", 
                 "-D:XmlLogger.file=log.xml",
@@ -107,7 +106,7 @@ public class NantScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
     }
 
-    public void testGetCommandLineArgs_Debug() throws CruiseControlException {
+    public void testGetCommandLineArgs_Debug() {
         String[] resultDebug = { nantCmd, 
                 "-logger:NAnt.Core.XmlLogger", 
                 "-logfile:log.xml", 
@@ -123,7 +122,7 @@ public class NantScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
     }
 
-    public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
+    public void testGetCommandLineArgs_Quiet() {
         String[] resultQuiet = { nantCmd, 
                 "-logger:NAnt.Core.XmlLogger", 
                 "-logfile:log.xml", 

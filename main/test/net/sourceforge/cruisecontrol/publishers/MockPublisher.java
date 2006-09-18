@@ -99,23 +99,23 @@ public class MockPublisher implements Publisher {
     }
 
     public class MockPublisherChild {
-        private int someInt;
-        private String someString;
+        private int myInt;
+        private String myString;
 
         public void setSomeString(String someString) {
-            this.someString = someString;
+            this.myString = someString;
         }
 
         public void setSomeInt(int someInt) {
-            this.someInt = someInt;
+            this.myInt = someInt;
         }
 
         public int getSomeInt() {
-            return someInt;
+            return myInt;
         }
 
         public String getSomeString() {
-            return someString;
+            return myString;
         }
     }
 }

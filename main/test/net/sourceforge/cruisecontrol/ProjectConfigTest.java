@@ -93,7 +93,7 @@ public class ProjectConfigTest extends TestCase {
         assertTrue(log.validateWasCalled());
     }
     
-    public void testReadProject() throws CruiseControlException {
+    public void testReadProject() {
         String tempDir = System.getProperty("java.io.tmpdir");
         ProjectConfig projectConfig = new ProjectConfig();
         Project project = projectConfig.readProject(tempDir);

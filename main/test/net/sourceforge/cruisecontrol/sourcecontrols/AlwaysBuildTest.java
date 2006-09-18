@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -49,12 +48,12 @@ public class AlwaysBuildTest extends TestCase {
         super(name);
     }
 
-    public void testDefaultUserName() throws IOException {
+    public void testDefaultUserName() {
         AlwaysBuild alwaysBuild = new AlwaysBuild();        
         checkUserName("User", alwaysBuild);
     }
 
-    public void testProvidedUserName() throws IOException {
+    public void testProvidedUserName() {
         AlwaysBuild alwaysBuild = new AlwaysBuild();
         alwaysBuild.setUserName("epugh");
         checkUserName("epugh", alwaysBuild);

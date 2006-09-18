@@ -615,7 +615,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Initialize the project. Uses ProjectXMLHelper to parse a project file.
      */
-    protected void init() throws CruiseControlException {
+    protected void init() {
         if (projectConfig == null) {
             throw new IllegalStateException("projectConfig must be set on project before calling init()");
         }

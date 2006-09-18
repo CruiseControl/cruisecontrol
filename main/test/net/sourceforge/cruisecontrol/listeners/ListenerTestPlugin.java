@@ -117,12 +117,12 @@ public class ListenerTestPlugin implements Listener {
         return stringWrapper = new StringWrapper();
     }
 
-    public void add(ListenerTestNestedPlugin nested) {
-        this.nested = nested;
+    public void add(ListenerTestNestedPlugin nestedPlugin) {
+        this.nested = nestedPlugin;
     }
 
-    public void add(ListenerTestSelfConfiguringPlugin selfConfiguring) {
-        this.selfConfiguring = selfConfiguring;
+    public void add(ListenerTestSelfConfiguringPlugin selfConfiguringPlugin) {
+        this.selfConfiguring = selfConfiguringPlugin;
     }
 
     public String getString() {
