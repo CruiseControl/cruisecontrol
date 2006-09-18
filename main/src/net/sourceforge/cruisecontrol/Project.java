@@ -215,7 +215,7 @@ public class Project implements Serializable, Runnable {
             projectConfig.getLog().addContent(buildLog.detach());
 
             boolean buildSuccessful = projectConfig.wasBuildSuccessful();
-            fireResultEvent(new BuildResultEvent(projectConfig, buildSuccessful));
+            fireResultEvent(new BuildResultEvent(this, buildSuccessful));
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
                 label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
@@ -597,7 +597,7 @@ public class Project implements Serializable, Runnable {
         state = newState;
         info(getStatus());
         notifyListeners(new ProjectStateChangedEvent(name, getState()));
-        fireProgressEvent(new BuildProgressEvent(projectConfig, getState()));
+        fireProgressEvent(new BuildProgressEvent(this, getState()));
     }
 
     public void setBuildQueue(BuildQueue buildQueue) {

@@ -50,9 +50,9 @@ import java.util.Properties;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
-import org.apache.log4j.Logger;
-
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /** 
  * A plugin that represents the project node
