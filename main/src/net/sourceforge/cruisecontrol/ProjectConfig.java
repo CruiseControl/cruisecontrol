@@ -345,7 +345,7 @@ public class ProjectConfig implements ProjectInterface {
         return name.hashCode();
     }
 
-    public void update(ProjectInterface oldProject) throws CruiseControlException {
+    public void getStateFromOldProject(ProjectInterface oldProject) throws CruiseControlException {
         ProjectConfig oldProjectConfig = (ProjectConfig) oldProject;
         project = oldProjectConfig.project;
         project.init();

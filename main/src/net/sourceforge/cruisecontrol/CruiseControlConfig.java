@@ -176,7 +176,7 @@ public class CruiseControlConfig {
     /** Properties of a particular node. Mapped by the node name. Doesn't handle rootProperties yet */
     private Map templatePluginProperties = new HashMap();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
-    private Map projectConfigs = new LinkedHashMap();
+    private Map projects = new LinkedHashMap();
     // for test purposes only
     private Map projectPluginRegistries = new TreeMap();
 
@@ -203,19 +203,20 @@ public class CruiseControlConfig {
 
     private boolean isProject(String nodeName) throws CruiseControlException {
         return rootPlugins.isPluginRegistered(nodeName)
-            &&  ProjectConfig.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
+            &&  ProjectInterface.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
     }
 
     private boolean isProjectTemplate(Element pluginElement) {
         String pluginName = pluginElement.getAttributeValue("name");
         String pluginClassName = pluginElement.getAttributeValue("classname");
+        // TODO: clean up later
         // pretty ugly... we should reuse more of the PluginRegistry
         if (pluginClassName == null) {
             pluginClassName = "net.sourceforge.cruisecontrol.ProjectConfig";
         }
         try {
             Class pluginClass = rootPlugins.instanciatePluginClass(pluginClassName, pluginName);
-            return ProjectConfig.class.isAssignableFrom(pluginClass);
+            return ProjectInterface.class.isAssignableFrom(pluginClass);
         } catch (CruiseControlException e) {
             // this is only triggered by tests today, when a class is not loadable.
             // I didn't want to propagate the exception
@@ -256,7 +257,7 @@ public class CruiseControlConfig {
 
         String projectName = getProjectName(projectElement);
 
-        if (projectConfigs.containsKey(projectName)) {
+        if (projects.containsKey(projectName)) {
             final String duplicateEntriesMessage = "Duplicate entries in config file for project name " + projectName;
             throw new CruiseControlException(duplicateEntriesMessage);
         }
@@ -345,7 +346,7 @@ public class CruiseControlConfig {
         projectConfig.validate();
         LOG.debug("**************** end configuring project" + projectName + " *******************");
 
-        this.projectConfigs.put(projectName, projectConfig);
+        this.projects.put(projectName, projectConfig);
         this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
@@ -357,12 +358,12 @@ public class CruiseControlConfig {
         return ProjectXMLHelper.parsePropertiesInString(rootProperties, rawName, false);
     }
 
-    public ProjectConfig getConfig(String name) {
-        return (ProjectConfig) this.projectConfigs.get(name);
+    public ProjectInterface getProject(String name) {
+        return (ProjectInterface) this.projects.get(name);
     }
 
     public Set getProjectNames() {
-        return Collections.unmodifiableSet(this.projectConfigs.keySet());
+        return Collections.unmodifiableSet(this.projects.keySet());
     }
 
     PluginRegistry getRootPlugins() {

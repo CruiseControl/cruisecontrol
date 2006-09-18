@@ -97,7 +97,8 @@ public class CruiseControlController {
         loadConfig();
     }
 
-    private void addProject(ProjectInterface project) {
+    private void addProject(ProjectInterface project) throws CruiseControlException {
+        project.configureProject();
         projects.add(project);
         for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
             LOG.debug("Informing listener of added project " + project.getName());
@@ -156,14 +157,13 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    private List getAllProjects(XMLConfigManager configManager) throws CruiseControlException {
+    private List getAllProjects(XMLConfigManager configManager) {
         Set projectNames = configManager.getCruiseControlConfig().getProjectNames();
         List allProjects = new ArrayList(projectNames.size());
         for (Iterator it = projectNames.iterator(); it.hasNext();) {
             String projectName = (String) it.next();
             LOG.info("projectName = [" + projectName + "]");
-            ProjectConfig projectConfig = getConfigManager().getProjectConfig(projectName);
-            projectConfig.configureProject();
+            ProjectInterface projectConfig = getConfigManager().getProject(projectName);
             allProjects.add(projectConfig);
         }
         if (allProjects.size() == 0) {
@@ -223,8 +223,8 @@ public class CruiseControlController {
             List newProjects = new ArrayList(projectsFromFile);
             newProjects.removeAll(projects);
 
-            List retainedProjects = new ArrayList(projectsFromFile);
-            retainedProjects.removeAll(newProjects);
+            List retainedProjects = new ArrayList(projects);
+            retainedProjects.removeAll(removedProjects);
 
             //Handled removed projects
             Iterator removed = removedProjects.iterator();
@@ -249,11 +249,11 @@ public class CruiseControlController {
         }
     }
 
-    private void updateProject(ProjectInterface project) throws CruiseControlException {
-        ProjectConfig projectConfig = getConfigManager().getProjectConfig(project.getName());
-        projects.remove(project);
-        projectConfig.update(project);
-        projects.add(projectConfig);
+    private void updateProject(ProjectInterface oldProject) throws CruiseControlException {
+        ProjectInterface newProject = getConfigManager().getProject(oldProject.getName());
+        projects.remove(oldProject);
+        newProject.getStateFromOldProject(oldProject);
+        projects.add(newProject);
     }
 
     public static interface Listener extends EventListener {

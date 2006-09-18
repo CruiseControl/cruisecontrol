@@ -107,21 +107,21 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGlobalProperty() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("simpleprops");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
         Properties props = projConfig.getProperties();
         assertEquals(6, props.size()); // 4 in file, 1 global passed to constructor +
         assertEquals("works!", props.getProperty("global"));
     }
 
     public void testProjectNameProperty() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("project1", props.getProperty("project.name"));
     }    
 
     public void testProjectNameInGlobalProperty() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("works!", props.getProperty("global"));
@@ -130,14 +130,14 @@ public class CruiseControlConfigTest extends TestCase {
     }    
 
     public void testSimpleProperty() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("simpleprops");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
         Properties props = projConfig.getProperties();
         assertEquals(6, props.size());
         assertEquals("success!", props.getProperty("simple"));
     }
 
     public void testMultipleProperties() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("multiprops");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("multiprops");
         Properties props = projConfig.getProperties();
         assertEquals(9, props.size());
         assertEquals("one", props.getProperty("first"));
@@ -147,7 +147,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testNestedProperties() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("nestedprops");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("nestedprops");
         Properties props = projConfig.getProperties();
         assertEquals(11, props.size());
         assertEquals("one", props.getProperty("first"));
@@ -159,14 +159,14 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testPropertyEclipsing() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("eclipseprop");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("eclipseprop");
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("eclipsed", props.getProperty("global"));
     }
     
     public void testLoadPropertiesFromFile() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("propsfromfile");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("propsfromfile");
         Properties props = projConfig.getProperties();
         assertEquals(10, props.size());
         assertEquals("/home/cruise", props.getProperty("dir1"));
@@ -177,7 +177,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     // test that we are capable of resolving properties in all property attributes
     public void testPropertiesInProperties() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("propsinpropsdef");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("propsinpropsdef");
         Properties props = projConfig.getProperties();
         // these ones where defined normally, shouldn't be any problem
         assertEquals("true", props.getProperty("env.toupper"));
@@ -224,7 +224,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     // TODO this a test of the PluginHelper
     public void testGetPluginConfigNoOverride() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         PluginRegistry registry = config.getProjectPlugins("project1");
 
         assertEquals(ListenerTestNestedPlugin.class, registry.getPluginClass("testnested"));
@@ -250,7 +250,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     // TODO this a test of the PluginHelper
     public void testGetPluginConfig() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project4");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
         PluginRegistry registry = config.getProjectPlugins("project4");
 
         final ProjectXMLHelper helper
@@ -279,7 +279,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testPluginConfiguration() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project4");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
         PluginRegistry plugins = config.getProjectPlugins("project4");
 
         assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
@@ -314,7 +314,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testPluginConfigurationClassOverride() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project5");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project5");
         PluginRegistry plugins = config.getProjectPlugins("project5");
 
         assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
@@ -335,7 +335,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testPropertiesInFullProjectTemplate() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project6");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project6");
         assertNotNull(config.getProjectPlugins("project6"));
 
         Schedule schedule = projConfig.getSchedule();
@@ -374,12 +374,12 @@ public class CruiseControlConfigTest extends TestCase {
     */
 
     public void testGetBootstrappers() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
 
         List bootstrappers = projConfig.getBootstrappers();
         assertEquals(0, bootstrappers.size());
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         bootstrappers = projConfig.getBootstrappers();
         assertEquals(1, bootstrappers.size());
     }
@@ -396,7 +396,7 @@ public class CruiseControlConfigTest extends TestCase {
         }
         */
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         Schedule schedule = projConfig.getSchedule();
         assertEquals(20 * ONE_SECOND, schedule.getInterval());
     }
@@ -413,7 +413,7 @@ public class CruiseControlConfigTest extends TestCase {
         }
         */
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         ModificationSet modSet = projConfig.getModificationSet();
         assertEquals(10 * ONE_SECOND, modSet.getQuietPeriod());
     }
@@ -423,35 +423,35 @@ public class CruiseControlConfigTest extends TestCase {
         pluginElement.setAttribute("name", CruiseControlConfig.LABEL_INCREMENTER);
         pluginElement.setAttribute("classname", DefaultLabelIncrementer.class.getName());
         PluginRegistry.registerToRoot(pluginElement);
-        ProjectConfig projConfig = config.getConfig("project2");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project2");
         DefaultLabelIncrementer incrementer = (DefaultLabelIncrementer) projConfig.getLabelIncrementer();
         assertTrue(incrementer.isValidLabel("build#9"));
 
-        projConfig = config.getConfig("project1");
+        projConfig = (ProjectConfig) config.getProject("project1");
         incrementer = (DefaultLabelIncrementer) projConfig.getLabelIncrementer();
         assertFalse(incrementer.isValidLabel("build#9"));
     }
 
     public void testGetLog() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         assertEquals("logs" + File.separatorChar + "project1", projConfig.getLog().getLogDir());
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         assertEquals(tempDirectory.getAbsolutePath() + "/foo", projConfig.getLog().getLogDir());
 
-        projConfig = config.getConfig("project3");
+        projConfig = (ProjectConfig) config.getProject("project3");
         assertEquals("logs" + File.separatorChar + "project3", projConfig.getLog().getLogDir());
 
-        projConfig = config.getConfig("project3bis");
+        projConfig = (ProjectConfig) config.getProject("project3bis");
         assertEquals("logs/project3bis", projConfig.getLog().getLogDir());
         assertNull(projConfig.getLog().getLogXmlEncoding());
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         assertEquals("utf-8", projConfig.getLog().getLogXmlEncoding());
     }
 
     public void testPreconfigureLog() throws Exception {
-        ProjectConfig projConfig = config.getConfig("logpreconfigured");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("logpreconfigured");
 
         final Log log = projConfig.getLog();
         assertEquals("mylogs/logpreconfigured", log.getLogDir());
@@ -463,11 +463,11 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetListeners() throws CruiseControlException {
-        ProjectConfig projConfig = config.getConfig("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
         List listeners = projConfig.getListeners();
         assertEquals(0, listeners.size());
 
-        projConfig = config.getConfig("project2");
+        projConfig = (ProjectConfig) config.getProject("project2");
         listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
     }
