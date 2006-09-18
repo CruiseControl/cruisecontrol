@@ -94,15 +94,7 @@ public class CruiseControlController {
             configManager = new XMLConfigManager(configFile);
         }
 
-        loadConfigFromConfigManager();
-    }
-
-    private List parseConfigFile() throws CruiseControlException {
-        List allProjects = getAllProjects(configManager);
-        if (allProjects.size() == 0) {
-            LOG.warn("no projects found in config file");
-        }
-        return allProjects;
+        loadConfig();
     }
 
     private void addProject(ProjectInterface project) {
@@ -170,16 +162,14 @@ public class CruiseControlController {
         for (Iterator it = projectNames.iterator(); it.hasNext();) {
             String projectName = (String) it.next();
             LOG.info("projectName = [" + projectName + "]");
-            ProjectInterface project = configureProject(projectName);
-            allProjects.add(project);
+            ProjectConfig projectConfig = getConfigManager().getProjectConfig(projectName);
+            projectConfig.configureProject();
+            allProjects.add(projectConfig);
+        }
+        if (allProjects.size() == 0) {
+            LOG.warn("no projects found in config file");
         }
         return allProjects;
-    }
-
-    protected ProjectInterface configureProject(String projectName) throws CruiseControlException {
-        ProjectConfig projectConfig = getConfigManager().getProjectConfig(projectName);
-        ProjectInterface project = projectConfig.configureProject();
-        return project;
     }
 
     protected XMLConfigManager getConfigManager() {
@@ -212,7 +202,7 @@ public class CruiseControlController {
         
                 if (reloaded) {
                     LOG.debug("config file changed");
-                    loadConfigFromConfigManager();
+                    loadConfig();
                 } else {
                     LOG.debug("config file didn't change.");
                 }
@@ -223,9 +213,9 @@ public class CruiseControlController {
         return reloaded;
     }
 
-    private void loadConfigFromConfigManager() {
+    private void loadConfig() {
         try {
-            List projectsFromFile = parseConfigFile();
+            List projectsFromFile = getAllProjects(configManager);
 
             List removedProjects = new ArrayList(projects);
             removedProjects.removeAll(projectsFromFile);
@@ -261,7 +251,9 @@ public class CruiseControlController {
 
     private void updateProject(ProjectInterface project) throws CruiseControlException {
         ProjectConfig projectConfig = getConfigManager().getProjectConfig(project.getName());
-        projectConfig.update();
+        projects.remove(project);
+        projectConfig.update(project);
+        projects.add(projectConfig);
     }
 
     public static interface Listener extends EventListener {

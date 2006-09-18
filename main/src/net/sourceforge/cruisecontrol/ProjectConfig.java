@@ -47,6 +47,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.management.JMException;
+import javax.management.MBeanServer;
+
 import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -55,7 +58,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * A plugin that represents the project node
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
-public class ProjectConfig {
+public class ProjectConfig implements ProjectInterface {
     private static final Logger LOG = Logger.getLogger(ProjectConfig.class);
 
     private String name;
@@ -270,13 +273,12 @@ public class ProjectConfig {
         this.requiremodification = requiremodification;
     }
     
-    public ProjectInterface configureProject() throws CruiseControlException {
+    public void configureProject() throws CruiseControlException {
         Project myProject = readProject(name);
         myProject.setName(name);
         myProject.setProjectConfig(this);
         myProject.init();
         this.project = myProject;
-        return myProject;
     }
 
     /**
@@ -326,11 +328,51 @@ public class ProjectConfig {
         return serializedProjectFile;
     }
 
-    public void update() throws CruiseControlException {
-        if (project == null) {
-            configureProject();
-        } else {
-            project.init();
+    public boolean equals(Object arg0) {
+        if (arg0 == null) {
+            return false;
         }
+
+        if (arg0.getClass().getName().equals(getClass().getName())) {
+            ProjectConfig thatProject = (ProjectConfig) arg0;
+            return thatProject.name.equals(name);
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public void update(ProjectInterface oldProject) throws CruiseControlException {
+        ProjectConfig oldProjectConfig = (ProjectConfig) oldProject;
+        project = oldProjectConfig.project;
+        project.init();
+    }
+
+    public void execute() {
+        project.execute();
+    }
+
+    public void register(MBeanServer server) throws JMException {
+        project.register(server);
+    }
+
+    public void setBuildQueue(BuildQueue buildQueue) {
+        project.setBuildQueue(buildQueue);
+    }
+
+    public void start() {
+        project.start();
+    }
+
+    public void stop() {
+        project.start();
+    }
+    
+    // TODO remove this. only here till tests are fixed up.
+    Project getProject() {
+        return project;
     }
 }

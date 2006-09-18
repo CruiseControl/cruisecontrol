@@ -193,7 +193,7 @@ public class CruiseControlControllerTest extends TestCase {
         ccController.setConfigFile(configFile);
         assertEquals(configFile, ccController.getConfigFile());
         assertEquals(1, ccController.getProjects().size());
-        final Project project = ((Project) ccController.getProjects().get(0));
+        final Project project = ((ProjectConfig) ccController.getProjects().get(0)).getProject();
         assertEquals("project name can be resolved", "testProject1", project.getName());
 
         assertEquals("project name can be resolved", "testProject1", project.getLog().getProjectName());
@@ -352,6 +352,7 @@ public class CruiseControlControllerTest extends TestCase {
         writeFooterAndClose(configOut);
 
         ccController.setConfigFile(configFile);
+        ProjectConfig originalProject = (ProjectConfig) ccController.getProjects().get(0);
 
         // no change - no reload
         assertFalse(ccController.parseConfigFileIfNecessary());
@@ -363,6 +364,10 @@ public class CruiseControlControllerTest extends TestCase {
         writeFooterAndClose(configOut);
 
         assertTrue(ccController.parseConfigFileIfNecessary());
+        ProjectConfig modifiedProject = (ProjectConfig) ccController.getProjects().get(0);
+        
+        assertEquals(30 * 1000, originalProject.getSchedule().getInterval());
+        assertEquals(60 * 1000, modifiedProject.getSchedule().getInterval());
     }
 
     public void testRegisterPlugins() throws IOException, CruiseControlException {

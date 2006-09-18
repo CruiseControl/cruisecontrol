@@ -51,7 +51,7 @@ public class BuildQueueTest extends TestCase {
         TestListener listener = new TestListener();
         queue.addListener(listener);
         assertFalse(listener.wasBuildRequested());
-        queue.requestBuild(new Project());
+        queue.requestBuild(new ProjectConfig());
         assertTrue(listener.wasBuildRequested());
     }
     
@@ -63,7 +63,7 @@ public class BuildQueueTest extends TestCase {
         };
         
         queue.addListener(listener);
-        queue.requestBuild(new Project());
+        queue.requestBuild(new ProjectConfig());
     }
 
     class TestListener implements Listener {
