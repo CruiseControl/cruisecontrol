@@ -300,7 +300,7 @@ public class CruiseControlController {
     }
 
     public PluginRegistry getPluginRegistry() {
-        return ((XMLConfigManager) configManager).getCruiseControlConfig().getRootPlugins();
+        return configManager.getCruiseControlConfig().getRootPlugins();
     }
 
     private static PluginDetail[] getPluginsByType(PluginDetail[] details, PluginType type) {
