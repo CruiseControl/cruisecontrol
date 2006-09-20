@@ -214,8 +214,8 @@ public class MavenSnapshotDependencyTest extends TestCase {
     }
     
     private String getPOMPath(String file) {
-        URL url = 
-           ClassLoader.getSystemResource("net/sourceforge/cruisecontrol/sourcecontrols/" + file);
+        String resource = "net/sourceforge/cruisecontrol/sourcecontrols/" + file;
+        URL url = MavenSnapshotDependencyTest.class.getClassLoader().getResource(resource);
         return url.getPath();
     }
     
