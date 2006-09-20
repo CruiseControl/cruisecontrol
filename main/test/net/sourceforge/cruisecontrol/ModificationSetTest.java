@@ -267,14 +267,15 @@ public class ModificationSetTest extends TestCase {
 
         SourceControl invalidSC = new MockSourceControl() {
             public void validate() throws CruiseControlException {
-                throw new TestMockValidationFailedException();
+                throw new CruiseControlException("validation was called");
             }
         };
         modSet.add(invalidSC);
         try {
             modSet.validate();
             fail("validate should be called on child source controls");
-        } catch (TestMockValidationFailedException expected) {
+        } catch (CruiseControlException expected) {
+            assertEquals("validation was called", expected.getMessage());
         }
     }
 
@@ -303,7 +304,6 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
-
         final DateFormat formatter = DateFormatFactory.getDateFormat();
         final List modifications = new ArrayList();
 
@@ -344,10 +344,41 @@ public class ModificationSetTest extends TestCase {
         expectedModifications.add(mod2);
 
         assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
-
     }
     
-    class TestMockValidationFailedException extends CruiseControlException {        
-    }
+    public void testFilterIgnoredFilesInMultipleSubdirectories() throws CruiseControlException, ParseException {
+        final DateFormat formatter = DateFormatFactory.getDateFormat();
+        final List modifications = new ArrayList();
 
+        final Modification mod1 = new Modification();
+        mod1.type = "Checkin";
+        mod1.userName = "user1";
+        mod1.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod1.comment = "comment1";
+        mod1.createModifiedFile("file1", "dir1");
+        modifications.add(mod1);
+
+        final Modification mod2 = new Modification();
+        mod2.type = "Checkin";
+        mod2.userName = "user2";
+        mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod2.comment = "comment2";
+        mod2.createModifiedFile("file1", "dir2");
+        modifications.add(mod2);
+
+        final Modification mod3 = new Modification();
+        mod3.type = "Checkin";
+        mod3.userName = "user3";
+        mod3.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod3.comment = "comment1";
+        mod3.createModifiedFile("file3", "dir1");
+        modifications.add(mod3);
+
+        // Now set a filter
+        modSet.setIgnoreFiles("*/file1");
+        modSet.filterIgnoredModifications(modifications);
+        assertEquals (1, modifications.size());
+
+        assertEquals(mod3, modifications.get(0));
+    }
 }
