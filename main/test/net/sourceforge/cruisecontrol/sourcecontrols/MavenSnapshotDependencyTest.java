@@ -58,7 +58,7 @@ public class MavenSnapshotDependencyTest extends TestCase {
     private static final String TEST_REPOSITORY;
 
     static {
-        URL projectUrl = ClassLoader.getSystemResource(PROJECT_XML_RELATIVE_PATH);
+        URL projectUrl = MavenSnapshotDependencyTest.class.getClassLoader().getResource(PROJECT_XML_RELATIVE_PATH);
         try {
             TEST_PROJECT_XML = URLDecoder.decode(projectUrl.getPath(), "utf-8");
         } catch (UnsupportedEncodingException e) {
