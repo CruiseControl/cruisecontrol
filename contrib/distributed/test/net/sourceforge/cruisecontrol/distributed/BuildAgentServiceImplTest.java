@@ -2,12 +2,15 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import junit.framework.TestCase;
 
-import java.util.Arrays;
-import java.util.Date;
+import java.util.Properties;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Date;
+
 import java.io.File;
 import java.io.IOException;
+
 import java.rmi.RemoteException;
 
 import org.jdom.Element;
@@ -35,12 +38,16 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static final File DIR_LOGS = new File(PropertiesHelper.RESULT_TYPE_LOGS);
     private static final File DIR_OUTPUT = new File(PropertiesHelper.RESULT_TYPE_OUTPUT);
 
+    private Properties origSysProps;
+
     protected void setUp() throws Exception {
         DIR_LOGS.delete();
         DIR_OUTPUT.delete();
+        origSysProps = System.getProperties();
     }
 
     protected void tearDown() throws Exception {
+        System.setProperties(origSysProps);
         deleteDirConfirm(DIR_LOGS);
         deleteDirConfirm(DIR_OUTPUT);
     }
@@ -176,10 +183,10 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertNotNull(agentImpl.getPendingKillSince());
 
         agentImpl.setBusy(false); // fake build finish
+        assertTrue("Pending kill should keep agent marked busy", agentImpl.isBusy());
         agentAsString = agentImpl.asString();
         assertTrue("Wrong value: " + agentAsString,
-                agentAsString.indexOf("Busy: false;\tSince: null;\tModule: null\n\t"
-                + "Pending Restart: false;\tPending Restart Since: null\n\t"
+                agentAsString.indexOf("Pending Restart: false;\tPending Restart Since: null\n\t"
                 + "Pending Kill: true;\tPending Kill Since: ") > -1);
         assertNotNull(agentImpl.getPendingKillSince());
     }
@@ -303,20 +310,28 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertNull(agentImpl.getPendingRestartSince());
         assertFalse(agentImpl.isPendingRestart());
         assertNull(agentImpl.getPendingRestartSince());
+        assertNull(agentImpl.getLastDelayedAction());
         agentImpl.restart(true);
         assertTrue(agentImpl.isBusy());
         assertFalse(agentImpl.isPendingKill());
         assertTrue(agentImpl.isPendingRestart());
         assertNotNull(agentImpl.getPendingRestartSince());
 
+        // use a fairly short delay in unit test
+        final int delay = 1500;
+        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, delay + "");
+
         // fake finish agent build
-        try {
-            agentImpl.setBusy(false);
-            fail("Restart should fail outside of webstart");
-        } catch (RuntimeException e) {
-            assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
-                    e.getMessage());
-        }
+        assertTrue(agentImpl.isBusy());
+        agentImpl.setBusy(false);
+        assertTrue("Agent should still be busy due to pending restart", agentImpl.isBusy());
+        assertNotNull(agentImpl.getLastDelayedAction());
+        assertEquals(BuildAgentServiceImpl.DelayedAction.Type.RESTART,
+                agentImpl.getLastDelayedAction().getType());
+        // wait for Restart() outside of webstart exception
+        Thread.sleep(delay * 2);
+        assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
+                agentImpl.getLastDelayedAction().getThrown().getMessage());
     }
 
     public void testRecursiveFilesExist() throws Exception {
@@ -601,14 +616,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testClaim() {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
-        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
-
-        assertFalse(agentImpl.isBusy());
-        assertNull(agentImpl.getDateClaimed());
-        agentImpl.claim();
-        assertTrue(agentImpl.isBusy());
-        assertNotNull(agentImpl.getDateClaimed());
+        final BuildAgentServiceImpl agentImpl = createAndClaimNewBuildAgent();
         final Date firstClaimDate = agentImpl.getDateClaimed();
 
         try {
@@ -622,7 +630,55 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
         assertEquals(firstClaimDate, agentImpl.getDateClaimed());
 
-        // @todo should agent expose a release() method to clear busy flag?
+        releaseClaimedAgent(agentImpl, firstClaimDate);
+    }
+
+    // NOTE: Can't do test w/ RestartPending, since Restart requires Agent running in Webstart.
+    public void testClaimWhileKillPending() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createAndClaimNewBuildAgent();
+        final Date firstClaimDate = agentImpl.getDateClaimed();
+
+        // use a fairly short delay in unit test
+        final int delay = 1500;
+        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, delay + "");
+
+        // set a pending Restart
+        agentImpl.kill(true);
+
+        assertFalse("Kill should not have executed.", agentImpl.isDoKillExecuted());
+
+        // call doBuild() on agent
+        callDoBuildWithNulls(agentImpl, firstClaimDate);
+
+        assertEquals("Agent kill should be delayed " + delay
+                + " milliseconds, and agent should be busy during delay.",
+                true, agentImpl.isBusy());
+        assertFalse("Kill should not have executed.", agentImpl.isDoKillExecuted());
+
+        // wait long enough for doKill to execute
+        Thread.sleep(delay * 2);
+        assertTrue("Kill should have executed.", agentImpl.isDoKillExecuted());
+
+        // Agent will still show as "claimed" in unit tests (since it can't system.exit).
+        // That is the correct behavior since is prevents agent from being acquired while
+        // an action is pending.
+        assertEquals("Agent should be busy after doKill executes in unit test.",
+                true, agentImpl.isBusy());
+        assertEquals(firstClaimDate, agentImpl.getDateClaimed());
+    }
+
+
+    // @todo should agent expose a release() method to clear busy flag?
+    private static void releaseClaimedAgent(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
+    {
+        callDoBuildWithNulls(agentImpl, firstClaimDate);
+
+        assertFalse("Expected agent busy flag to be false after cleanup call.", agentImpl.isBusy());
+        assertNull(agentImpl.getDateClaimed());
+    }
+
+    private static void callDoBuildWithNulls(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
+    {
         try {
             agentImpl.doBuild(null, null, null);
             fail("Should have failed to build");
@@ -637,7 +693,18 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         // we now avoid NPE error during cleanup since logDir and outputDir can be null
         agentImpl.clearOutputFiles();
-        assertFalse("Expected agent busy flag to be false after cleanup call.", agentImpl.isBusy());
+    }
+
+    private static BuildAgentServiceImpl createAndClaimNewBuildAgent() {
+
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        assertFalse(agentImpl.isBusy());
         assertNull(agentImpl.getDateClaimed());
+        agentImpl.claim();
+        assertTrue(agentImpl.isBusy());
+        assertNotNull(agentImpl.getDateClaimed());
+        return agentImpl;
     }
 }

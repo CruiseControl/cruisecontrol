@@ -82,6 +82,15 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     static final String DEFAULT_USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
 
+    /**
+     * The number of milliseconds a restart() or kill() should delay before executing
+     * in order to allow remote calls to complete, and thereby allow successful builds
+     * to complete on the Distributed Master.
+     */
+    static final int DEFAULT_DELAY_MS_KILLRESTART = 5 * 1000;
+    /** Name of system property who's value, if defined, will override the default delay. */
+    static final String SYSPROP_CCDIST_DELAY_MS_KILLRESTART = "cc.dist.delayMSKillRestart";
+
     /** Cache host name. */
     private final String machineName;
     
@@ -174,15 +183,85 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return agentPropertiesFilename;
     }
 
+    private DelayedAction lastDelayedAction;
+    DelayedAction getLastDelayedAction() { return lastDelayedAction; }
+    private void setLastDelayedAction(DelayedAction lastDelayedAction) { this.lastDelayedAction = lastDelayedAction; }
+
+    /**
+     * Executes the {@link #execAction()} method after a fixed delay has expired.
+     */
+    abstract static class DelayedAction extends Thread {
+        static final class Type {
+            public static final Type RESTART = new Type("restart");
+            public static final Type KILL = new Type("kill");
+
+            private final String name;
+
+            private Type(final String name) { this.name = name; }
+
+            public String toString() { return name; }
+        }
+
+        private Throwable thrown;
+        private final int delay;
+        private final Type type;
+
+        DelayedAction(final Type type) {
+            delay = Integer.getInteger(
+                    SYSPROP_CCDIST_DELAY_MS_KILLRESTART, DEFAULT_DELAY_MS_KILLRESTART).intValue();
+            this.type = type;
+            start();
+        }
+
+        public final void run() {
+            try {
+                LOG.info("Executing Agent " + type + " in " + delay + " milliseconds...");
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+
+            try {
+                execAction();
+            } catch (Throwable t) {
+                thrown = t;
+                LOG.error("Error executing delayed action.", t);
+            }
+        }
+
+        public Throwable getThrown() { return thrown; }
+
+        public Type getType() { return type; }
+
+        /**
+         * Implement in order to run the desired Action
+         */
+        public abstract void execAction() throws Throwable;
+    }
+
+
     private final String busyLock = "busyLock";
     void setBusy(final boolean newIsBusy) {
         if (!newIsBusy) { // means the claim is being released
+
             if (isPendingRestart()) {
-                // restart now
-                doRestart();
+                // restart after delay to allow in progress remote calls to finish
+                setLastDelayedAction(new DelayedAction(DelayedAction.Type.RESTART) {
+                    public void execAction() {
+                        doRestart();
+                    }
+                });
+                // do NOT reset busy state, since action is pending
+                return;
             } else if (isPendingKill()) {
-                // kill now
-                doKill();
+                // kill now after delay to allow in progress remote calls to finish
+                setLastDelayedAction(new DelayedAction(DelayedAction.Type.KILL) {
+                    public void execAction() {
+                        doKill();
+                    }
+                });
+                // do NOT reset busy state, since action is pending
+                return;
             }
 
             // clear out distributed build agent props
@@ -503,7 +582,13 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             }
         }
         BuildAgent.kill();
+        doKillExecuted = true;
     }
+
+    /** Intended only for unit tests, indicating if doKill() call has completed. */
+    private boolean doKillExecuted;
+    boolean isDoKillExecuted() { return doKillExecuted; }
+
 
     public void kill(final boolean afterBuildFinished) throws RemoteException {
         setPendingKill(true);
