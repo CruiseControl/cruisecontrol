@@ -163,7 +163,7 @@ public class ProjectXMLHelper implements ProjectHelper {
         // from the given filename.
         if (fileName != null && fileName.trim().length() > 0) {
             File file = new File(fileName);
-            // FIXME add exists check.
+            // TODO FIXME add exists check.
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 // Read the file line by line, expanding macros
