@@ -34,7 +34,7 @@
 * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
-<%@ page errorPage="/error.jsp" %>
+<%@ page errorPage="/error.jsp" contentType="text/html; charset=UTF-8"%>
 <%@ page import="net.sourceforge.cruisecontrol.*" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
