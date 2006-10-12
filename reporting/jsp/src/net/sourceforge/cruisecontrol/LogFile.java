@@ -49,6 +49,9 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.zip.GZIPInputStream;
+import org.jdom.Document;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 
 /**
@@ -182,5 +185,17 @@ public class LogFile implements Serializable {
             in = new GZIPInputStream(in);
         }
         return in;
+    }
+
+    public Document asDocument() throws JDOMException, IOException {
+        SAXBuilder builder = new SAXBuilder();
+        InputStream in = getInputStream();
+        Document log = null;
+        try {
+            log = builder.build(in, getFile().getAbsolutePath());
+        } finally {
+            in.close();
+        }
+        return log;
     }
 }

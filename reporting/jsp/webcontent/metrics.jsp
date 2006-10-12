@@ -33,3 +33,19 @@
 </cewolf:chart>
 <cewolf:img chartid="chart" renderer="cewolf" width="400" height="300"/>
 
+<hr />
+<jsp:useBean id="xpathData" class="net.sourceforge.cruisecontrol.chart.XPathChartData" />
+<%
+    xpathData.add("CheckStyle", "count(/cruisecontrol/checkstyle/file/error)");
+    xpathData.add("PMD", "count(/cruisecontrol/pmd/file/violation)");
+    xpathData.add("Javadoc", "count(/cruisecontrol/build//target/task[@name='javadoc'])");
+%>
+<cewolf:chart id="chart" title="Coding violations" type="timeseries"  xaxislabel="date" yaxislabel="violations">
+    <cewolf:data>
+        <cewolf:producer id="xpathData">
+          <cewolf:param name="buildInfo" value="<%=build_info%>" />
+        </cewolf:producer>
+    </cewolf:data>
+    <cewolf:chartpostprocessor id="xpathData" />
+</cewolf:chart>
+<cewolf:img chartid="chart" renderer="cewolf" width="400" height="300"/>
