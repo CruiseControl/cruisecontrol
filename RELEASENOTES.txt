@@ -178,6 +178,10 @@ FileServlet
 ----------------------
 * Fix problem where urls in directory might have double slashes. Fix by Edward Kuns
 
+metrics.jsp
+----------------------
+* New charts calculated by evaluation an XPath expression on all build logs.
+
 nant.xsl
 ----------------------
 * Update to work with nested builds.

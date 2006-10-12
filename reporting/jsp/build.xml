@@ -76,6 +76,7 @@
             <include name="commons-lang*.jar"/>
             <include name="commons-logging*.jar"/>
             <include name="jcommon*.jar"/>
+            <include name="jaxen*.jar"/>
             <include name="jdom*.jar"/>
             <include name="jfreechart*.jar"/>
             <include name="junit*.jar"/>

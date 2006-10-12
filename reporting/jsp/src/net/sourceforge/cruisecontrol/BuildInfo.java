@@ -142,6 +142,10 @@ public class BuildInfo implements Comparable, Serializable {
         return logFile.getName();
     }
 
+    public LogFile getLogFile() {
+        return logFile;
+    }
+
     public static BuildInfoSummary loadFromDir(File logDir) throws CruiseControlWebAppException {
         File [] logFileNames = logDir.listFiles(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
