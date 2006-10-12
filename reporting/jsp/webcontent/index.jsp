@@ -35,9 +35,11 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ********************************************************************************--%>
 <%@ page errorPage="/error.jsp" contentType="text/html; charset=UTF-8"%>
+<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%@ page import="net.sourceforge.cruisecontrol.*" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
+<%@ page import="java.net.URL" %>
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.io.File" %>
 <%@ page import="java.util.Arrays" %>
@@ -120,33 +122,12 @@
   statuses.add(ProjectState.PAUSED, "dull");
   statuses.add(ProjectState.STOPPED, "dull");
 %>
-
+<cruisecontrol:jmxbase id="jmxBase"/>
 <%
   String name = System.getProperty("ccname", "");
   String hostname = InetAddress.getLocalHost().getHostName();
-  String jmxhostname = application.getInitParameter("cruisecontrol.jmxhost");
-  if (jmxhostname == null) {
-    try {
-      jmxhostname = InetAddress.getLocalHost().getCanonicalHostName(); 
-    }
-    catch(IOException e) {
-	  try {
-        jmxhostname = InetAddress.getLocalHost().getHostName();
-      }
-      catch(IOException e2) {
-        jmxhostname = "localhost";
-      }
-    }
-  }
-  String port = System.getProperty("cruisecontrol.jmxport");
-  String webXmlPort = application.getInitParameter("cruisecontrol.jmxport");
-  if (port == null && webXmlPort != null) {
-      port = webXmlPort;
-  } else if (port == null) {
-      port = "8000";
-  }
-  boolean jmxEnabled = true;//port != null;
-  String jmxURLPrefix = "http://" + jmxhostname + ":" + port + "/invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D";
+  boolean jmxEnabled = true;
+  URL jmxURLPrefix = new URL(jmxBase, "invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D");
 
   final String statusFileName = application.getInitParameter("currentBuildStatusFile");
 
@@ -521,7 +502,7 @@
 
               <% if (jmxEnabled) { %>
               <td class="data"><input id="<%= "force_" + info[i].project %>" type="button"
-                                      onclick="callServer('<%= jmxURLPrefix + info[i].project %>', '<%=info[i].project%>')"
+                                      onclick="callServer('<%= jmxURLPrefix.toExternalForm() + info[i].project %>', '<%=info[i].project%>')"
                                       value="Build"/></td>
               <% } %>
             </tr>

@@ -1,4 +1,4 @@
-<%--********************************************************************************
+/********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
  * 651 W Washington Ave. Suite 600
@@ -33,27 +33,21 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- ********************************************************************************--%>
-<%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-<%@page import="java.net.*,java.io.*"%>
-<cruisecontrol:jmxbase id="jmxBase"/>
-<%
-    URL jmx = new URL(jmxBase, "mbean?objectname=CruiseControl+Project%3Aname%3D" +
-            request.getPathInfo().substring(1));
-%>
-<p>
-<table width="100%" align="center" cellpadding="0" cellspacing="0">
-    <tr>
-        <td align="center">
-            <h2>JMX Control Panel</h2>
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <iframe name="controlPanelFrame" id="controlPanelFrame" height="520" marginheight="0" frameborder="1"
-                marginwidth="0" src="<%= jmx.toExternalForm() %>" height="600" width="90%">
-            </iframe>
-        </td>
-    </tr>
-</table>
-</p>
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol.taglib;
+
+import javax.servlet.jsp.tagext.TagData;
+import javax.servlet.jsp.tagext.TagExtraInfo;
+import javax.servlet.jsp.tagext.VariableInfo;
+
+public class JmxBaseTagExtraInfo extends TagExtraInfo {
+
+    public VariableInfo[] getVariableInfo(TagData data) {
+        return new VariableInfo[] {
+            new VariableInfo(data.getId(),
+                             "java.net.URL",
+                             true,
+                             VariableInfo.AT_BEGIN),
+        };
+    }
+}

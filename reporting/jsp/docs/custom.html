@@ -59,10 +59,13 @@
             commandline argument</dd>
 
             <dt>cruisecontrol.jmxport</dt>
-            <dd>port where the CruiseControl JMX agent's HTTP adaptor is listening. If specified enables the force
-            button on the index page.</dd>
-            <dd class="default-value">The binaryrelease sets this to the <code>-jmxport</code> value given as a
+            <dd>port where the CruiseControl JMX agent's HTTP adaptor is listening.</dd>
+            <dd class="default-value">Default value is 8000. The binaryrelease sets this to the <code>-jmxport</code> value given as a
             commandline argument (by default 8000)</dd>
+
+            <dt>cruisecontrol.jmxhost</dt>
+            <dd>host where the CruiseControl JMX agent's HTTP adaptor is listening</dd>
+            <dd class="default-value">If not specified CruiseControl will trying to guess the host name running the reporting application</dd>
 
             <dt>cruisecontrol.rmiport</dt>
             <dd>port where CruiseControl JMX agent's RMI adaptor is listening. If specified enables the experimental
@@ -112,9 +115,15 @@
                 Let empty or comment out to disable indexes.</dd>
             <dd class="default-value">The default values are: <code>index.htm index.html</code></dd>
 
+            <dt>cruisecontrol.jmxhost</dt>
+            <dd>The host for the JMX HttpAdaptor to which CruiseControl will connect for forcing builds and
+                viewing the control panel. The parameter may be overridden using the system property with
+                the same name.</dd>
+            <dd class="default-value">The default value is: <code>localhost</code></dd>
+
             <dt>cruisecontrol.jmxport</dt>
             <dd>The port for the JMX HttpAdaptor to which CruiseControl will connect for forcing builds and
-                viewing the control panel. The parameter may be overridden using the environment variable with
+                viewing the control panel. The parameter may be overridden using the system property with
                 the same name.</dd>
             <dd class="default-value">The default value is: <code>8000</code></dd>
 

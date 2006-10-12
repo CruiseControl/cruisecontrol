@@ -222,4 +222,15 @@
             <required>true</required>
         </attribute>
     </tag>
+    <tag>
+        <name>jmxbase</name>
+        <tagclass>net.sourceforge.cruisecontrol.taglib.JmxBaseTag</tagclass>
+        <teiclass>net.sourceforge.cruisecontrol.taglib.JmxBaseTagExtraInfo</teiclass>
+        <bodycontent>empty</bodycontent>
+        <info>Extracts the JMX base URL from configuration</info>
+        <attribute>
+            <name>id</name>
+            <required>true</required>
+        </attribute>
+    </tag>
 </taglib>
