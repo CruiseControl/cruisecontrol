@@ -62,6 +62,7 @@ import net.sourceforge.cruisecontrol.util.FileUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.jdom.Element;
 
 import javax.jnlp.ServiceManager;
@@ -283,12 +284,25 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap, 
                            final Map distributedAgentProperties) throws RemoteException {
+
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
                 setBusy(true); // we could remove this, since claim() is called during lookup...
             }
         }
+
+        final Level origLogLevel = LOG.getLevel(); // @todo why is this null?
+        final boolean isDebugBuild = Boolean.valueOf(
+                (String) distributedAgentProperties.get(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG)).booleanValue();
+        boolean isDebugOverriden = false;
         try {
+            // Override log level if needed
+            if (isDebugBuild && !LOG.isDebugEnabled()) {
+                LOG.info("Switching Agent log level to Debug for build.");
+                Logger.getRootLogger().setLevel(Level.DEBUG);
+                isDebugOverriden = true;
+            }
+
             logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
             distributedAgentProps.putAll(distributedAgentProperties);
             
@@ -334,6 +348,17 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             logPrefixError("doBuild threw exception, setting busy to false.");
             setBusy(false);
             throw e; // rethrow original exception
+        } finally {
+            // restore original log level if overriden
+            if (isDebugOverriden) {
+                if (origLogLevel == null) { // @todo why is this null? (see above)
+                    Logger.getRootLogger().setLevel(Level.INFO);
+                    LOG.info("Restored Agent log level to: " + Level.INFO);
+                } else {
+                    Logger.getRootLogger().setLevel(origLogLevel);
+                    LOG.info("Restored Agent log level to: " + origLogLevel);
+                }
+            }
         }
     }
 

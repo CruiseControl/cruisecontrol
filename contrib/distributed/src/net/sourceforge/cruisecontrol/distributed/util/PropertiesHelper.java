@@ -55,6 +55,8 @@ public final class PropertiesHelper {
     public static final String DISTRIBUTED_AGENT_LOGDIR = "distributed.agentlogdir";
     public static final String DISTRIBUTED_AGENT_OUTPUTDIR = "distributed.agentoutputdir";
 
+    public static final String DISTRIBUTED_AGENT_DEBUG = "distributed.agentdebug";
+
     public static final String RESULT_TYPE_LOGS = "logs";
     public static final String RESULT_TYPE_OUTPUT = "output";
 

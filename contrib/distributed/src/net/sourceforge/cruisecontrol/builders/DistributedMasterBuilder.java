@@ -400,6 +400,12 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
+
+                // set Build Agent logging to debug if the Master has debug enabled
+                if (LOG.isDebugEnabled()) {
+                    distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG, "true");
+                }
+
                 LOG.debug("Distributed Agent Props: " + distributedAgentProps.toString());
                 
                 LOG.debug("Project Props: " + projectProperties.toString());
