@@ -75,7 +75,13 @@
     			</fileset>
                 <path refid="jnlpServiceAPI.classpath"/>
     		</classpath>
-    	</java>
+
+            <!-- To enable debug fulltime on the Agent, alter the log4j.properties file. Change:
+            log4j.rootCategory=INFO,A1,FILE
+            to
+            log4j.rootCategory=DEBUG,A1,FILE
+            Debug will always be enabled on the Agent during builds if the Master has debug enabled. -->
+        </java>
     </target>
 
 </project>
