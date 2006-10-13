@@ -291,7 +291,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             }
         }
 
-        final Level origLogLevel = LOG.getLevel(); // @todo why is this null?
+        final Level origLogLevel = Logger.getRootLogger().getLevel();
         final boolean isDebugBuild = Boolean.valueOf(
                 (String) distributedAgentProperties.get(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG)).booleanValue();
         boolean isDebugOverriden = false;
@@ -351,13 +351,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         } finally {
             // restore original log level if overriden
             if (isDebugOverriden) {
-                if (origLogLevel == null) { // @todo why is this null? (see above)
-                    Logger.getRootLogger().setLevel(Level.INFO);
-                    LOG.info("Restored Agent log level to: " + Level.INFO);
-                } else {
-                    Logger.getRootLogger().setLevel(origLogLevel);
-                    LOG.info("Restored Agent log level to: " + origLogLevel);
-                }
+                Logger.getRootLogger().setLevel(origLogLevel);
+                LOG.info("Restored Agent log level to: " + origLogLevel);
             }
         }
     }
