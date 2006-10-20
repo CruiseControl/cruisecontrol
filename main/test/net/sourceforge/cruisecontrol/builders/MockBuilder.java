@@ -44,21 +44,51 @@ import org.jdom.Element;
 import java.util.Map;
 
 /**
- *  Mock implementation of <code>Builder</code> for testing.
+ * Mock implementation of <code>Builder</code> for testing.
  */
 public class MockBuilder extends Builder {
 
     private Element buildLog = new Element("build");
+    private boolean buildCalled = false;
+    private String target;
+    private String name;
+
+    public MockBuilder() {
+
+    }
+
+    public MockBuilder(String n) {
+        setName(n);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Element build(Map properties) {
+        buildCalled = true;
         return buildLog;
     }
 
     public void setBuildLogXML(Element buildLog) {
         this.buildLog = buildLog;
     }
-    
+
     public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        this.target = target;
+        buildCalled = true;
         return build(properties);
+    }
+
+    public boolean isBuildCalled() {
+        return buildCalled;
+    }
+
+    public String getTarget() {
+        return target;
     }
 }

@@ -119,10 +119,12 @@
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
+<a href="#execbootstrapper">&lt;execbootstrapper&gt;</a>
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#email">&lt;email&gt;</a>
 <a href="#exec">&lt;exec&gt;</a>
+<a href="#composite">&lt;composite&gt;</a>
 <a href="#execute">&lt;execute&gt;</a>
 <a href="#filesystem">&lt;filesystem&gt;</a>
 <a href="#forceonly">&lt;forceonly&gt;</a>
@@ -232,6 +234,7 @@
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
+         <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
          <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
          <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper/&gt;</a>
@@ -277,6 +280,7 @@
          <a href="#pause">&lt;pause/&gt;</a>
          <a href="#nant">&lt;nant/&gt;</a>
          <a href="#exec">&lt;exec/&gt;</a>
+         <a href="#composite">&lt;composite/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -1166,6 +1170,11 @@ password=P@ssW0rd!
                 <td>Bootstraps resources from CVS</td>
             </tr>
             <tr>
+                <td><a href="#execbootstrapper">&lt;execbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Execute a command for bootstrapping</td>
+            </tr>
+            <tr>
                 <td><a href="#lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Creates the lock file if it doesn't already exist</td>
@@ -1753,6 +1762,23 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
+        </div>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="execbootstrapper">&lt;execbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;execbootstrapper&gt;</pre>
+        </div>
+
+        <p>This bootstrapper executes a command. As it is based on the <a href="#exec">ExecBuilder</a>, it has the same
+        attributes</p>
+        
         </div>
 
         <div class="elementdocumentation">
@@ -4863,7 +4889,72 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        </div>
 
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="composite">&lt;composite&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;composite&gt;</pre>
+        </div>
+
+        <p>The CompositeBuilder executes a list of builders. This is necessary
+        for builds in an empty directory (see keyword CRISP-builds in Pragmatic Project Automation
+        from Mike Clark) </p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="#ant">&lt;ant&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Ant.</td>
+            </tr>
+            <tr>
+                <td><a href="#maven2">&lt;maven2&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Maven2.</td>
+            </tr>
+            <tr>
+                <td><a href="#maven">&lt;maven&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Maven.</td>
+            </tr>
+            <tr>
+                <td><a href="#pause">&lt;pause&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Pauses the build.</td>
+            </tr>
+            <tr>
+                <td><a href="#nant">&lt;nant&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using NAnt.</td>
+            </tr>
+            <tr>
+                <td><a href="#exec">&lt;exec&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using the ExecBuilder.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+        
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         </div>

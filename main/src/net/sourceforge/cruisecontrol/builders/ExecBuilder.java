@@ -185,6 +185,14 @@ public class ExecBuilder extends Builder {
     public void setCommand(String cmd) {
         this.command = cmd;
     } // setCommand
+
+    /**
+     * Gets the command to execute.
+     * @return the command to execute.
+     */
+    public String getCommand() {
+        return command;
+    }
     
     /**
      * Sets the arguments for the command to execute
