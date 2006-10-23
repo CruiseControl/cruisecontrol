@@ -28,24 +28,6 @@ public class CompositeBuilder extends Builder {
         builders.add(builder);
     }
 
-    public Element build(Map properties) throws CruiseControlException {
-        boolean errorOcurred = false;
-        final Element compositeBuildResult = new Element("build");
-        final Iterator iter = builders.iterator();
-        while (iter.hasNext() & !errorOcurred) {
-            try {
-                Builder builder = (Builder) iter.next();
-                final Element buildResult = builder.build(properties);
-                errorOcurred = processBuildResult(buildResult, compositeBuildResult);
-            } catch (CruiseControlException e) {
-                LOG.error("error building with composite builder");
-            } catch (Exception e) {
-                LOG.error("error adding content to buildResult");
-            }
-        }
-        return compositeBuildResult;
-    }
-
     private static boolean processBuildResult(Element buildResult, Element compositeBuildResult) {
         Iterator elements = buildResult.getChildren().iterator();
         while (elements.hasNext()) {
@@ -75,6 +57,18 @@ public class CompositeBuilder extends Builder {
         return errorOcurred;
     }
 
+    public Element build(Map properties) throws CruiseControlException {
+        boolean errorOcurred = false;
+        final Element compositeBuildResult = new Element("build");
+        final Iterator iter = builders.iterator();
+        while (iter.hasNext() & !errorOcurred) {
+            final Builder builder = (Builder) iter.next();
+            final Element buildResult = builder.build(properties);
+            errorOcurred = processBuildResult(buildResult, compositeBuildResult);
+        }
+        return compositeBuildResult;
+    }
+
     public Element buildWithTarget(Map properties, String target)
             throws CruiseControlException {
 
@@ -82,15 +76,9 @@ public class CompositeBuilder extends Builder {
         final Element compositeBuildResult = new Element("build");
         final Iterator iter = builders.iterator();
         while (iter.hasNext() & !errorOcurred) {
-            try {
-                Builder builder = (Builder) iter.next();
-                final Element buildResult = builder.buildWithTarget(properties, target);
-                errorOcurred = processBuildResult(buildResult, compositeBuildResult);
-            } catch (CruiseControlException e) {
-                LOG.error("error building with composite builder");
-            } catch (Exception e) {
-                LOG.error("error adding content to buildResult");
-            }
+            final Builder builder = (Builder) iter.next();
+            final Element buildResult = builder.buildWithTarget(properties, target);
+            errorOcurred = processBuildResult(buildResult, compositeBuildResult);
         }
         return compositeBuildResult;
     }
