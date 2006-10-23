@@ -94,7 +94,7 @@ public class ExecBootstrapper implements Bootstrapper {
      */
     public void setTimeout(long timeout) {
         delegate.setTimeout(timeout);
-    } // setTimeout
+    }
 
     /**
      * Sets the command to execute
@@ -103,7 +103,7 @@ public class ExecBootstrapper implements Bootstrapper {
      */
     public void setCommand(String cmd) {
         delegate.setCommand(cmd);
-    } // setCommand
+    }
 
     /**
      * Sets the arguments for the command to execute
@@ -112,7 +112,7 @@ public class ExecBootstrapper implements Bootstrapper {
      */
     public void setArgs(String args) {
         delegate.setArgs(args);
-    } // setArgs
+    }
 
     /**
      * Sets the error string to search for in the command output
@@ -121,7 +121,7 @@ public class ExecBootstrapper implements Bootstrapper {
      */
     public void setErrorStr(String errStr) {
         delegate.setErrorStr(errStr);
-    } // setErrorStr
+    }
 
     /**
      * Sets the working directory where the command is to be executed
@@ -130,5 +130,5 @@ public class ExecBootstrapper implements Bootstrapper {
      */
     public void setWorkingDir(String dir) {
         delegate.setWorkingDir(dir);
-    } // setWorkingDir
+    }
 }

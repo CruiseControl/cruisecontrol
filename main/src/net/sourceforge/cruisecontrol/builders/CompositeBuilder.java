@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
@@ -96,11 +97,7 @@ public class CompositeBuilder extends Builder {
 
     public void validate() throws CruiseControlException {
 
-        // we throw an exception, when no builder is added
-        if (builders.isEmpty()) {
-            LOG.error("no builders added");
-            throw(new CruiseControlException("no builders added"));
-        }
+        ValidationHelper.assertFalse(builders.isEmpty(), "no builders added");
         super.validate();
     }
 }
