@@ -74,16 +74,16 @@ public class ExecBootstrapper implements Bootstrapper {
         if (result == null) {
             LOG.error("ExecBootstrapper failed.\n\n");
             throw new CruiseControlException("ExecBootstrapper failed with null result");
+        }
+
+        final Attribute error = result.getAttribute("error");
+        if (error == null) {
+            LOG.info("ExecBootstrapper successful.");
         } else {
-            Attribute error = result.getAttribute("error");
-            if (error == null) {
-                LOG.info("ExecBootstrapper successful.");
-            } else {
-                LOG.error("ExecBootstrapper failed.\n\n"
-                        + error.getValue()
-                        + "\n");
-                throw new CruiseControlException("ExecBootstrapper failed: " + error.getValue());
-            }
+            LOG.error("ExecBootstrapper failed.\n\n"
+                    + error.getValue()
+                    + "\n");
+            throw new CruiseControlException("ExecBootstrapper failed: " + error.getValue());
         }
     }
 
