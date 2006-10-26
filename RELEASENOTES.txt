@@ -39,6 +39,10 @@ bootstrappers
 ----------------------
 * Update all bootstrappers to throw CruiseControlExceptions on errors instead of log and continue (CC-449).  Reported by Sylvain Benoist.
 
+BuildQueue
+----------------------
+* Fix synchronization bug (CC-540). Patch by Benjamin Burgess
+
 BuildStatus
 ----------------------
 * Better error message when log directory doesn't exist (CC-487). Submitted by Sven Strohschein

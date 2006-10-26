@@ -99,7 +99,11 @@ public class BuildQueue implements Runnable {
         while (!queue.isEmpty()) {
             ProjectInterface nextProject;
             synchronized (queue) {
-                nextProject = (ProjectInterface) queue.remove(0);
+                if (!queue.isEmpty()) {
+                    nextProject = (ProjectInterface) queue.remove(0);
+                } else {
+                    break;
+                }
             }
             if (nextProject != null) {
                 LOG.info("now adding to the thread queue: " + nextProject.getName());
