@@ -7,17 +7,17 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip, win-installer"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, win-installer" description="Create release artifacts (zip, bin, installer)"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
     </target>
 
-    <target name="clean">
+    <target name="clean" description="Clean dirs">
         <delete dir="target" failonerror="false"/>
     </target>
 
-    <target name="build" depends="checklabel">
+    <target name="build" depends="checklabel" description="Create core lib and webapp">
         <ant inheritAll="false" dir="main">
             <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
@@ -28,7 +28,7 @@
         </ant>
     </target>
 
-    <target name="website" depends="checklabel">
+    <target name="website" depends="checklabel" description="Create documentation website">
         <fixcrlf srcdir="."
             eol="lf"
             eof="remove"
@@ -85,7 +85,7 @@
         </xmlvalidate>
     </target>
 
-    <target name="zip" depends="checklabel,build">
+    <target name="zip" depends="checklabel,build" description="Create zip files">
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true">
             <fileset dir=".">
@@ -117,7 +117,7 @@
         </zip>
     </target>
 
-    <target name="bin-zip" depends="build, website">
+    <target name="bin-zip" depends="build, website" description="Create binary zip">
         <defaultexcludes remove="**/.svn"/>
         <defaultexcludes remove="**/.svn/**"/>
 
@@ -171,7 +171,7 @@
         </condition>
     </target>
 
-    <target name="win-installer" depends="check-win-installer, bin-zip" if="should-create-win-installer">
+    <target name="win-installer" depends="check-win-installer, bin-zip" if="should-create-win-installer" description="Create win installer">
 		<property name="win-installer-stage" location="target/windows-install"/>
 		<mkdir dir="${win-installer-stage}"/>
 		<unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>
