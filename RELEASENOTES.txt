@@ -38,6 +38,8 @@ AntBuilder
 bootstrappers
 ----------------------
 * Update all bootstrappers to throw CruiseControlExceptions on errors instead of log and continue (CC-449).  Reported by Sylvain Benoist.
+* VSSBoostrapper fix for intermitent "java.io.IOException: The handle is invalid" errors (CC-535). 
+* Add ExecBootstrapper which executes a command (like the ExecBuilder) during the bootstrap process (CC-538). Submitted by Frederic Mockel
 
 BuildQueue
 ----------------------
@@ -60,6 +62,10 @@ ConcurrentVersionSystem
 * Remove race condition on closing error stream.
 * Make empty string in tag an alias for HEAD (CC-511). Fix by Benjamin Burgess
 
+CompositeBuilder 
+---------------------- 
+* Add CompositeBuilder to run a list of builders and have the results of the builds combined (CC-538). Submitted by Frederic Mockel 
+
 cruisecontrol.bat
 ----------------------
 * Was failing to execute java when JAVA_HOME wasn't set (CC-492).
@@ -76,6 +82,7 @@ CruiseControlController
 default-plugins.properties
 ----------------------
 * Add ClearCaseViewstrapper (CC-482). Reported by Andy Stevens
+* Add ExecBootstrapper and CompositeBuilder (CC-538).
 
 EmailPublisher
 ----------------------
