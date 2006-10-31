@@ -57,7 +57,7 @@ public class ThreadQueueTest extends TestCase {
             assertEquals(i, ThreadQueue.numTotalTasks());
         }
 
-        sleep(TENTH_OF_SECOND);
+        sleep(3 * TENTH_OF_SECOND);
     }
 
     protected void tearDown() {
