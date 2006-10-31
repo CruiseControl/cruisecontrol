@@ -105,7 +105,7 @@ public class BuildAgentTest extends TestCase {
             agentService.getMachineName();
             fail("Agent should be dead");
         } catch (Exception e) {
-            ; // good, this is what we want.
+            // good, this is what we want.
         }
         // find the newly relaunched agent
         final BuildAgentService agentService2 = (BuildAgentService) findAgent(reg, 3, true, entries);
@@ -121,8 +121,8 @@ public class BuildAgentTest extends TestCase {
         final Thread t = new Thread() {
             public void run() {
                 BuildAgent.main(new String[] {
-                    BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                    BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
+                    "-" + BuildAgent.MAIN_ARG_AGENT_PROPS, BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
+                    "-" + BuildAgent.MAIN_ARG_USER_PROPS, BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
                     "-" + BuildAgent.MAIN_ARG_SKIP_UI
                 });
             }
@@ -155,8 +155,8 @@ public class BuildAgentTest extends TestCase {
         final Thread t = new Thread() {
             public void run() {
                 BuildAgent.main(new String[] {
-                    BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                    BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
+                    "-" + BuildAgent.MAIN_ARG_AGENT_PROPS, BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
+                    "-" + BuildAgent.MAIN_ARG_USER_PROPS, BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
                 });
             }
         };

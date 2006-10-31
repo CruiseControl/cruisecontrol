@@ -71,6 +71,8 @@ import org.apache.log4j.Logger;
 public class BuildAgent implements DiscoveryListener,
             ServiceIDListener {
 
+    static final String MAIN_ARG_AGENT_PROPS = "agentprops";
+    static final String MAIN_ARG_USER_PROPS = "userprops";
     static final String MAIN_ARG_SKIP_UI = "skipUI";
 
     // package visible to allow BuildAgentUI console logger access to this Logger
@@ -308,19 +310,21 @@ public class BuildAgent implements DiscoveryListener,
 
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
 
-        final boolean isSkipUI = MainArgs.argumentPresent(args, MAIN_ARG_SKIP_UI);
-
-        final BuildAgent buildAgent;
-        if (args.length > 0) {
-            if (args.length > 1) {
-                buildAgent = new BuildAgent(args[0], args[1], isSkipUI);
-            } else {
-                buildAgent = new BuildAgent(args[0], BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
-                        isSkipUI);
-            }
-        } else {
-            buildAgent = new BuildAgent(isSkipUI);
+        if (shouldPrintUsage(args)) {
+            printUsage();
         }
+
+        final BuildAgent buildAgent = new BuildAgent(
+                MainArgs.parseArgument(args, MAIN_ARG_AGENT_PROPS,
+                        BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
+                        BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE),
+
+                MainArgs.parseArgument(args, MAIN_ARG_USER_PROPS,
+                        BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
+                        BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE),
+                
+                MainArgs.argumentPresent(args, MAIN_ARG_SKIP_UI)
+        );
 
 
         setMainThread(Thread.currentThread());
@@ -335,6 +339,31 @@ public class BuildAgent implements DiscoveryListener,
                 buildAgent.terminate();
            }
         }
+    }
+
+
+    static boolean shouldPrintUsage(String[] args) {
+        return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND
+                || MainArgs.findIndex(args, "help") != MainArgs.NOT_FOUND;
+    }
+
+    public static void printUsage() {
+        System.out.println("");
+        System.out.println("Usage:");
+        System.out.println("");
+        System.out.println("Starts a distributed Build Agent");
+        System.out.println("");
+        System.out.println(BuildAgent.class.getName() + " [options]");
+        System.out.println("");
+        System.out.println("Build Agent options are:");
+        System.out.println("");
+        System.out.println("  -" + MAIN_ARG_AGENT_PROPS + " file     agent properties file; default "
+                + BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE);
+        System.out.println("  -" + MAIN_ARG_USER_PROPS + " file      user defined properties file; default "
+                + BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE);
+        System.out.println("  -" + MAIN_ARG_SKIP_UI + "              run in headless mode");
+        System.out.println("  -? or -help          print this usage message");
+        System.out.println("");
     }
 
     public static void kill() {
