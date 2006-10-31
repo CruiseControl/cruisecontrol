@@ -54,6 +54,8 @@
     <property name="classes" value="${target}/classes"/>
     <property name="test.classes" value="${target}/test-classes" />
 
+    <property name="junit.results" value="${target}/test-results" />
+
     <property name="src" value="${basedir}/src"/>
     <property name="test" value="${basedir}/test"/>
 
@@ -108,8 +110,29 @@
         <path refid="jnlpServiceAPI.classpath"/>
     </path>
 
+    <path id="ccdist.project.runtime.classpath">
+        <pathelement path="${classes}"/>
+        <pathelement path="${test.classes}"/>
+        <fileset dir="${dir.main.dist}">
+            <include name="cruisecontrol.jar" />
+        </fileset>
+        <fileset dir="${dir.main.lib}">
+            <include name="log4j.jar" />
+            <include name="jdom.jar" />
+            <include name="jakarta-oro-2.0.3.jar" />
+            <patternset refid="jarnames.xml"/>
+            <include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent -->
+        </fileset>
+        <fileset dir="lib">
+            <include name="reggie-dl.jar" />
+            <include name="jini-core.jar" />
+            <include name="jini-ext.jar" />
+        </fileset>
+        <path refid="jnlpServiceAPI.classpath"/>
+    </path>
 
-	<target name="build" depends="clean, compile-test, checkstyle, test, jar-agent, zip-agent" />
+
+    <target name="build" depends="clean, compile-test, checkstyle, test, jar-agent, zip-agent" />
 
 	<target name="clean" description="Deletes 'target' and 'dist' directories">
         <delete dir="${target}"/>
@@ -120,7 +143,8 @@
 
 	<target name="init" description="Initializes master, agent, and target directories">
 		<mkdir dir="dist" />
-		<antcall target="init-master" />
+        <mkdir dir="${junit.results}" />
+        <antcall target="init-master" />
 		<antcall target="init-agent" />
 
         <mkdir dir="${classes}"/>
@@ -252,48 +276,45 @@
     </target>
 
 
-	<target name="test" depends="compile-test" description="Runs unit tests for distributed extensions to Cruise Control">
-
+    <target name="setupTestEntry">
         <!-- @todo find a cleaner way to prevent collision of multiple test runs on same subnet? -->
         <tstamp>
             <format property="start.time" pattern="yyyy.MM.dd.HH:mm:ss.SSS"/>
         </tstamp>
+        <copy todir="${test.classes}" file="${test}/testdist.user-defined.properties" overwrite="true"/>
         <replace file="${test.classes}/testdist.user-defined.properties"
             token="build.type=test" value="build.type=${start.time}_test"/>
+    </target>
+
+    <target name="test" depends="compile-test, setupTestEntry" description="Runs unit tests for distributed extensions to Cruise Control">
 
         <!-- @todo haltonfailure? -->
-        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true">
-            <classpath >
-            	<pathelement path="${classes}"/>
-            	<pathelement path="${test.classes}"/>
-            	<pathelement path="${test.classes}"/>
-				<fileset dir="${dir.main.dist}">
-					<include name="cruisecontrol.jar" />
-				</fileset>
-				<fileset dir="${dir.main.lib}">
-					<include name="log4j.jar" />
-					<include name="jdom.jar" />
-                                        <include name="jakarta-oro-2.0.3.jar" />
-                    <patternset refid="jarnames.xml"/>
-<include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent --> 
-				</fileset>
-				<fileset dir="lib">
-					<include name="reggie-dl.jar" />
-					<include name="jini-core.jar" />
-					<include name="jini-ext.jar" />
-				</fileset>
-                <path refid="jnlpServiceAPI.classpath"/>
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true"><!--dir="${target}" -->
+            <classpath>
+                <path refid="ccdist.project.runtime.classpath"/>
             </classpath>
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
-            <batchtest todir="dist">
+            <batchtest todir="${junit.results}">
                 <fileset dir="${test.classes}" includes="**/*Test.class" />
             </batchtest>
         </junit>
 
 	</target>
 
-	<target name="jar-agent" depends="compile" description="Creates cc-agent.jar and cc-agent-dl.jar">
+    <target name="test-one" depends="compile-test, setupTestEntry" description="Executes one distributed unit test" if="testcase">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" ><!--dir="${target}" -->
+            <classpath>
+                <path refid="ccdist.project.runtime.classpath" />
+            </classpath>
+            <formatter type="brief" usefile="false" />
+            <formatter type="xml" />
+            <test name="${testcase}" todir="${junit.results}" />
+        </junit>
+    </target>
+
+
+    <target name="jar-agent" depends="compile" description="Creates cc-agent.jar and cc-agent-dl.jar">
 		<jar destfile="dist/agent/lib/cc-agent.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
