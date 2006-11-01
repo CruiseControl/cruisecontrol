@@ -67,13 +67,29 @@
 					<ol type="A">
 						<li>You may have noticed the <i>user-defined.properties</i> file in the <i>conf</i> directory for the agent. These properties are, as you might expect, user-defined. Any unique properties you would like to indicate characteristics of THIS SPECIFIC agent should be added here in canonical property form (i.e. "<code>key=value</code>", without the quotes). In the CC configuration file an attribute can be added to the <![CDATA[<distributed>]]> tag containing semicolon-delimited entries used to match this agent with the projects that should be built on it. For instance, changing the example above to:
 <pre>&lt;distributed entries="agent.name=number2"&gt;</pre>
-						will ensure that the agent with <code>agent.name=number2</code> in its <i>user-defined.properties</i> file will be the recipient of this project's build requests. Note that if multiple agents match a given set of entries it is indeterminate which will receive the build request. Even if no entries are listed in the <i>user-defined.properties</i> file three entries are programatically registered with every agent. These are <code>os.name</code> and <code>java.vm.version</code>, containing the Java system properties of the same names, and <code>hostname</code> containing the hostname on which the agent is running. A more useful example than the previous one might be:
+						will ensure that the agent with <code>agent.name=number2</code> in its <i>user-defined.properties</i> file will be the recipient of this project's build requests. Note that if multiple agents match a given set of entries it is indeterminate which will receive the build request. Even if no entries are listed in the <i>user-defined.properties</i> file, three entries are programatically registered with every agent. These are <code>os.name</code> and <code>java.vm.version</code>, containing the Java system properties of the same names, and <code>hostname</code> containing the hostname on which the agent is running. A more useful example than the previous one might be:
 <pre>&lt;distributed entries="os.name=Windows XP"&gt;</pre>
 						or
 <pre>&lt;distributed entries="os.name=Linux"&gt;</pre>
-						By configuring one project twice, with two different <code>os.name</code> properties, you could ensure that your project builds correctly on two different operating systems with only one instance of Cruise Control running. Note that this requires two project configurations on the build master--currently there is no way to have one configuration build on two different agent-types. Here's a more complex example:
+						By configuring one project twice, with two different <code>os.name</code> properties, you could ensure that your project builds correctly on two different operating systems with only one instance of Cruise Control running. Note that this requires two project configurations on the build master. Here's a more complex example:
 <pre>&lt;distributed entries="os.name=Windows XP;dotnet.version=1.1;fixpack=SP2"&gt;</pre>
-						</li>
+                        New approaches to multi-builds are now possible using the recently added <i>builders</i> tag in your config.xml file. The <i>builders</i> tag is a "composite builder" which defines a list of builders that will be executed sequentially and treated as a single build. The config below causes a set of <i>ant</i> builds to be performed sequentially on the <i>same</i> Build Agent:
+<pre>&lt;project ...&gt;</pre>
+<pre>   &lt;schedule ...&gt;</pre>
+<pre>       &lt;distributed entries="..."&gt;</pre>
+<pre>           &lt;builders&gt;</pre>
+<pre>               &lt;ant (build 1)...&gt;</pre>
+<pre>               &lt;ant (build 2)...&gt;</pre>
+                        or to cause a set of builds to be performed sequentially on the <i>different</i> agents (each with say a different OS):
+<pre>&lt;project ...&gt;</pre>
+<pre>   &lt;schedule ...&gt;</pre>
+<pre>       &lt;builders&gt;</pre>
+<pre>           &lt;distributed entries="os.name=Windows XP"&gt;</pre>
+<pre>               &lt;ant (build 1)...&gt;</pre>
+<pre>           &lt;distributed entries="os.name=Linux"&gt;</pre>
+<pre>               &lt;ant (build 1)...&gt;</pre>
+                        This second example will require both the Windows and Linux builds to complete successfully before the entire Composite Build is considered successful.
+                        </li>
 						<li>If you plan to rebuild the CC extensions note that any configuration files under the <i>dist</i> directory are liable to be cleaned and replaced. The originals reside in <i>contrib/distributed/conf</i> and you may find it preferable to change them there before your build. Since <i>user-defined.properties</i> and <i>agent.properties</i> are copied into the <i>cc-agent.zip</i> you'll need to unzip and make your changes locally on the agent.</li>
 						<li>Jini as used in these distributed extensions has several configuration options. Beware of the <i>start-jini.config</i>, however--it is not likely you will need to make changes to it.
 							<ol type="1">
