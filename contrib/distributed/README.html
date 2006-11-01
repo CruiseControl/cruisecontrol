@@ -74,20 +74,20 @@
 						By configuring one project twice, with two different <code>os.name</code> properties, you could ensure that your project builds correctly on two different operating systems with only one instance of Cruise Control running. Note that this requires two project configurations on the build master. Here's a more complex example:
 <pre>&lt;distributed entries="os.name=Windows XP;dotnet.version=1.1;fixpack=SP2"&gt;</pre>
                         New approaches to multi-builds are now possible using the recently added <i>builders</i> tag in your config.xml file. The <i>builders</i> tag is a "composite builder" which defines a list of builders that will be executed sequentially and treated as a single build. The config below causes a set of <i>ant</i> builds to be performed sequentially on the <i>same</i> Build Agent:
-<pre>&lt;project ...&gt;</pre>
-<pre>   &lt;schedule ...&gt;</pre>
-<pre>       &lt;distributed entries="..."&gt;</pre>
-<pre>           &lt;builders&gt;</pre>
-<pre>               &lt;ant (build 1)...&gt;</pre>
-<pre>               &lt;ant (build 2)...&gt;</pre>
+<pre>&lt;project ...&gt;
+   &lt;schedule ...&gt;
+       &lt;distributed entries="..."&gt;
+           &lt;builders&gt;
+               &lt;ant (build 1)...&gt;
+               &lt;ant (build 2)...&gt;</pre>
                         or to cause a set of builds to be performed sequentially on the <i>different</i> agents (each with say a different OS):
-<pre>&lt;project ...&gt;</pre>
-<pre>   &lt;schedule ...&gt;</pre>
-<pre>       &lt;builders&gt;</pre>
-<pre>           &lt;distributed entries="os.name=Windows XP"&gt;</pre>
-<pre>               &lt;ant (build 1)...&gt;</pre>
-<pre>           &lt;distributed entries="os.name=Linux"&gt;</pre>
-<pre>               &lt;ant (build 1)...&gt;</pre>
+<pre>&lt;project ...&gt;
+   &lt;schedule ...&gt;
+       &lt;builders&gt;
+           &lt;distributed entries="os.name=Windows XP"&gt;
+               &lt;ant (build 1)...&gt;
+           &lt;distributed entries="os.name=Linux"&gt;
+               &lt;ant (build 1)...&gt;</pre>
                         This second example will require both the Windows and Linux builds to complete successfully before the entire Composite Build is considered successful.
                         </li>
 						<li>If you plan to rebuild the CC extensions note that any configuration files under the <i>dist</i> directory are liable to be cleaned and replaced. The originals reside in <i>contrib/distributed/conf</i> and you may find it preferable to change them there before your build. Since <i>user-defined.properties</i> and <i>agent.properties</i> are copied into the <i>cc-agent.zip</i> you'll need to unzip and make your changes locally on the agent.</li>
