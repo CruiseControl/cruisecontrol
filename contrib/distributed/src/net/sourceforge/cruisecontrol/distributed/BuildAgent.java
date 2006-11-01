@@ -105,6 +105,7 @@ public class BuildAgent implements DiscoveryListener,
         registrarCount--;
     }
 
+    /** @deprecated Use {@link #BuildAgent(String, String, boolean)} instead. */
     public BuildAgent(final boolean isSkipUI) {
         this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
@@ -139,24 +140,25 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
-        // use a Unicast Lookup Locater if defined (useful if multicast isn't working)
-        // @todo Improvement: handle multiple comma separated urls in the property file. 
-        // For now it handles only one ip address. It also could have a virtual url called 
-        // "multicast", to make the property file more readable and understandable
-        final String registryURL = configProperties.getProperty(REGISTRY_URL);
+        // Use a comma separated list of Unicast Lookup Locaters (URL's) if defined. Useful if multicast isn't working.
+        // @todo It also could have a virtual url called "multicast",
+        // to make the property file more readable and understandable
+        final String registryURLList = configProperties.getProperty(REGISTRY_URL);
         final LookupLocatorDiscovery lld; 
-        if (registryURL == null) {
+        if (registryURLList == null) {
             lld = null;
         } else {
-            final LookupLocator lookup;
-            try {
-                lookup = new LookupLocator(registryURL);
-            } catch (MalformedURLException e) {
-                final String message = "Error creating unicast lookup locator";
-                LOG.error(message, e);
-                throw new RuntimeException(message, e);
+            final String[] registryURLs = registryURLList.split(",");
+            final LookupLocator[] lookups = new LookupLocator[registryURLs.length];
+            for (int i = 0; i < registryURLs.length; i++) {
+                try {
+                    lookups[i] = new LookupLocator(registryURLs[i]);
+                } catch (MalformedURLException e) {
+                    final String message = "Error creating unicast lookup locator: " + registryURLs[i];
+                    LOG.error(message, e);
+                    throw new RuntimeException(message, e);
+                }
             }
-            final LookupLocator[] lookups = new LookupLocator[] { lookup };
             lld = new LookupLocatorDiscovery(lookups);
         }
 
