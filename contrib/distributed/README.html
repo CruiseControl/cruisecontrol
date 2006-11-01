@@ -103,7 +103,7 @@
 						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <code>dist/master</code> dir will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
 						This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.</li>
  						<li>Build Agent UI: Build agents now default to showing a simple User Interface. This UI can be bypassed by passing the switch: <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).</li>
- 						<li>Build Agent Unicast Lookup URL: To make BuildAgents find a Lookup Service via unicast, create the property: registry.url in the user-defined.properties file and set it's value to the url of the Lookup Service. This can be useful in environments where multicast is not working or practical.</li>
+ 						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: registry.url in the user-defined.properties file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical.</li>
 					</ol>
 				</li>
 			</ol>
