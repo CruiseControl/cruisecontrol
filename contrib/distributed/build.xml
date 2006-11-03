@@ -49,6 +49,8 @@
 
 <project name="project" default="build" basedir=".">
 
+    <property environment="env"/>
+
     <property name="target" value="${basedir}/target"/>
 
     <property name="classes" value="${target}/classes"/>
@@ -67,13 +69,19 @@
     <property name="dir.webstart" value="${dir.webcontent}/webstart"/>
 
     <property name="checkstyle.fail.on.violation" value="true"/>
-    <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-3.1.jar"/>
 
 
-    <patternset id="jarnames.xml">
+    <!-- xml apis and parsers -->
+    <patternset id="ps.jarnames-xml-libs">
         <include name="xml-apis-*.jar" />
         <include name="xercesImpl-*.jar" />
         <include name="saxon*.jar" />
+    </patternset>
+
+    <!-- commonly reused libs from main/lib -->
+    <patternset id="ps.main.lib-common">
+        <include name="log4j*.jar" />
+        <include name="jdom*.jar" />
     </patternset>
 
     <!-- JNLP Service API classes -->
@@ -85,6 +93,7 @@
              <include name="javaws/javaws.jar"/>
          </fileset>
     </path>
+
 
     <path id="compile.classpath">
         <fileset dir="lib">
@@ -100,9 +109,8 @@
             <include name="holowaa-dl.jar" />
         </fileset>
         <fileset dir="${dir.main.lib}">
-            <include name="log4j.jar" />
-            <include name="jdom.jar" />
-            <include name="junit.jar" />
+            <patternset refid="ps.main.lib-common" />
+            <include name="junit*.jar" />
         </fileset>
         <fileset dir="${dir.main.dist}">
             <include name="cruisecontrol.jar" />
@@ -117,10 +125,9 @@
             <include name="cruisecontrol.jar" />
         </fileset>
         <fileset dir="${dir.main.lib}">
-            <include name="log4j.jar" />
-            <include name="jdom.jar" />
-            <include name="jakarta-oro-2.0.3.jar" />
-            <patternset refid="jarnames.xml"/>
+            <patternset refid="ps.main.lib-common" />
+            <patternset refid="ps.jarnames-xml-libs"/>
+            <include name="jakarta-oro*.jar" />
             <include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent -->
         </fileset>
         <fileset dir="lib">
@@ -141,8 +148,41 @@
 		<delete dir="${dir.webstart}/lib"/>
 	</target>
 
-	<target name="init" description="Initializes master, agent, and target directories">
-		<mkdir dir="dist" />
+    <target name="checkRequiredLibs" description="make sure required libraries are available">
+
+        <!-- check for JNLP Service API -->
+        <available classname="javax.jnlp.ServiceManager" classpathref="jnlpServiceAPI.classpath" property="jnlpServiceAPI-present" />
+        <fail unless="jnlpServiceAPI-present" >
+        Missing Webstart JNLP Service API (javaws.jar).
+        Is the JAVA_HOME environment variable set? (Current java.home=${java.home})
+        This file is usually located in:
+            ${java.home}/lib/javaws.jar
+        or:
+            ${java.home}/javaws/javaws.jar
+
+        NOTE: Currently, Sun's 64-bit java does not provide webstart support,
+        so you may need to compile using a 32-bit jdk.
+        </fail>
+
+        <!-- check for ANT_HOME environment variable -->
+        <antcall target="warnANT_HOME"/>
+
+        <!-- check for junit.jar -->
+        <available classname="junit.framework.TestCase" property="JUnit-present" />
+        <fail unless="JUnit-present" >
+        Is the junit.jar in ant's library path?
+        </fail>
+    </target>
+
+    <target name="warnANT_HOME" unless="env.ANT_HOME">
+        <echo>
+***** Is the ANT_HOME environment variable set? (Required by unit tests). *****
+        </echo>
+    </target>
+
+
+    <target name="init" depends="checkRequiredLibs" description="Initializes master, agent, and target directories">
+        <mkdir dir="dist" />
         <mkdir dir="${junit.results}" />
         <antcall target="init-master" />
 		<antcall target="init-agent" />
@@ -192,9 +232,8 @@
 				<include name="holowaa-dl.jar" />
 			</fileset>
 			<fileset dir="${dir.main.lib}">
-				<include name="log4j.jar" />
-				<include name="jdom.jar" />
-				<include name="jakarta-oro-2.0.3.jar" />
+                <patternset refid="ps.main.lib-common" />
+				<include name="jakarta-oro*.jar" />
 			</fileset>
 			<fileset dir="${dir.main.dist}">
 				<include name="cruisecontrol.jar" />
@@ -226,10 +265,9 @@
 				<include name="start.jar" />
 			</fileset>
 			<fileset dir="${dir.main.lib}">
-				<include name="log4j.jar" />
-				<include name="jdom.jar" />
-                <include name="jakarta-oro-2.0.3.jar" />
-                <patternset refid="jarnames.xml"/>
+                <patternset refid="ps.main.lib-common" />
+                <patternset refid="ps.jarnames-xml-libs"/>
+                <include name="jakarta-oro*.jar" />
 			</fileset>
 			<fileset dir="${dir.main.dist}">
 				<include name="cruisecontrol.jar" />
@@ -266,7 +304,11 @@
     </target>
 
     <target name="checkstyle" depends="init" description="Run CheckStyle on code">
-        <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
+        <taskdef resource="checkstyletask.properties" >
+            <classpath>
+                <fileset dir="${dir.main.lib}" includes="checkstyle-all*.jar"/>
+            </classpath>
+        </taskdef>
         <checkstyle config="${dir.main}/checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
             <formatter type="plain"/>
             <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
