@@ -16,7 +16,13 @@
 					<h4>Building the code</h4>
 					<ol type="A">
                         <li>Build Cruise Control in the usual way.</li>
-						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. <p><b>NOTE: Requires jdk1.4 or greater.</b> If you get a compile error like: <code>"class file has wrong version 48.0, should be 47.0"</code>, check your jdk version.</p> A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
+						<li>In the directory in which you found this file, run <code>ant</code>. The default target will build the distributed extensions. <p>You need the <code>ANT_HOME</code> environment variable set, and a <i>junit.jar</i> available to to ant. Junit ant tasks don't work unless <i>junit.jar</i> is on ant's "boot" classpath. You can either copy a <i>junit.jar</i> file into your <code>ANT_HOME/lib</code> directory, or define the <code>ANT_ARGS</code> environment variable with a <i>"-lib"</i> directive pointing to a <i>junit.jar</i>. For example:
+<pre>
+export ANT_HOME=~/devtools/apache-ant-1.6.5
+export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
+</pre>
+                        <p>You may also need to set the <code>JAVA_HOME</code> environment variable if the JNLP API (<i>javaws.jar</i>) can not be located otherwise.</p>
+                        A new directory will be created called <i>dist</i> that contains subdirectories entitled <i>master</i> and <i>agent</i>. Also, a file will be created called <i>cc-agent.zip</i>. The zip file contents are identical to the <i>agent</i> subdirectory. The zip file can easily be transferred to any machine you wish to serve as a build agent while the <i>agent</i> subdirectory can be used for testing by running a build agent locally (more below).</li>
 					</ol>
 				</li>
 				<li>
