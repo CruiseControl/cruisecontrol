@@ -554,4 +554,12 @@ public class Commandline implements Cloneable {
         return process;
     }
 
+    /**
+     * Executes the command and wait for it to finish.
+     * @param log where the output and error streams are logged
+     * @return the process' exit value
+     */
+    public int executeAndWait(Logger log) throws IOException, InterruptedException {
+        return new CommandExecutor(this, log).executeAndWait();
+    }
 }

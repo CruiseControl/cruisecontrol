@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.Processes;
 
 import org.apache.log4j.Logger;
 
@@ -81,11 +80,8 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
     public void bootstrap() throws CruiseControlException {
         Commandline commandLine = buildUpdateCommand();
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Executing: " + commandLine.toString());
-        }
         try {
-            Processes.executeFully(commandLine);
+            commandLine.executeAndWait(LOG);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing SnapshotCM update command", e);
         }

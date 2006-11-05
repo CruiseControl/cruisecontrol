@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import org.apache.log4j.Logger;
 
 /**
  * Utility methods for interacting with Java processes.
@@ -45,6 +45,7 @@ import java.io.PrintWriter;
  * @see Process
  */
 public final class Processes {
+    private static final Logger LOG = Logger.getLogger(Processes.class);
     private static Executor runtime = new RuntimeExecutor();
 
     private Processes() {
@@ -59,9 +60,41 @@ public final class Processes {
 
     public static Process execute(Commandline c) throws IOException {
         Process p = runtime.exec(c);
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
+        StreamPumper errorPumper = StreamLogger.getWarnPumper(LOG, p);
         new Thread(errorPumper).start();
         return p;
+    }
+
+    /**
+     * Waits for a process to finish executing and logs the output.
+     *
+     * @param proc the process.
+     * @param log where to log both standard and error output.
+     * @return the process' exit value
+     */
+    public static int waitFor(Process proc, Logger log) throws IOException, InterruptedException {
+        return waitFor(proc, StreamLogger.getInfoLogger(log), StreamLogger.getWarnLogger(log));
+    }
+
+    /**
+     * Waits for a process to finish executing.
+     * @param proc the process.
+     * @param output consumes the process' standard output.
+     * @param error consumes the process' error output.
+     * @return the process' exit value
+     */
+    public static int waitFor(Process proc, StreamConsumer output, StreamConsumer error)
+            throws IOException, InterruptedException {
+        proc.getOutputStream().close();
+ 
+        Thread stderr = new Thread(new StreamPumper(proc.getErrorStream(), error));
+        stderr.start();
+
+        new StreamPumper(proc.getInputStream(), output).run();
+
+        int exitValue = proc.waitFor();
+        stderr.join();
+        return exitValue;
     }
 
     static void setRuntime(Executor e) {

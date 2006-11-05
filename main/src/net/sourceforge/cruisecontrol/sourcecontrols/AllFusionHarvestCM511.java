@@ -41,7 +41,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,7 +57,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -395,10 +394,11 @@ public class AllFusionHarvestCM511 implements SourceControl {
             p = Runtime.getRuntime().exec(cmd);
 
             //Log any errors.
-            logErrorStream(p);
+            Thread stderr = logErrorStream(p);
 
             //Wait for command to finish.
             p.waitFor();
+            stderr.join();
 
             //Parse the results
             modifications = parseFile(rsltsFile, lastBuildTime, ccSystemTime);
@@ -447,10 +447,10 @@ public class AllFusionHarvestCM511 implements SourceControl {
      *
      * @param p
      */
-    private void logErrorStream(Process p) {
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(),
-                new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
+    private Thread logErrorStream(Process p) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p));
+        stderr.start();
+        return stderr;
     }
 
     /**

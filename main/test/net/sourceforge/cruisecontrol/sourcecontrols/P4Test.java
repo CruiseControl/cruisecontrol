@@ -51,6 +51,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Perl5Compiler;
@@ -252,9 +253,6 @@ public class P4Test extends TestCase {
     public void testParseInfoResponse() throws IOException {
         BufferedInputStream input = new BufferedInputStream(loadTestLog("p4_info.txt"));
 
-        P4 p4 = new P4();
-        p4.setCorrectForServerTime(true);
-
         Calendar cal = Calendar.getInstance();
         //this date is encoded in p4_info.txt.  Note month is indexed from 0
         cal.set(2005, 6, 29, 20, 39, 06);
@@ -262,8 +260,9 @@ public class P4Test extends TestCase {
         long ccServerTime = System.currentTimeMillis();
         long expectedOffset = p4ServerTime - ccServerTime;
 
-        long offset = p4.parseServerInfo(input);
-        input.close();
+        P4.ServerInfoConsumer serverInfo = new P4.ServerInfoConsumer();
+        new StreamPumper(input, serverInfo).run();
+        long offset = serverInfo.getOffset();
 
         //Need to accept some difference in the expected offset and the actual
         //offset, because the test takes some time to run.  To be safe, we'll

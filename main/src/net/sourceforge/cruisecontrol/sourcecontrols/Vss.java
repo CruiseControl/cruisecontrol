@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,9 +46,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 
@@ -181,9 +180,10 @@ public class Vss implements SourceControl {
         try {
             LOG.info("Getting modifications for " + vssPath);
             p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), VSSHelper.loadVSSEnvironment(serverPath));
-            logErrorStream(p.getErrorStream());
+            Thread stderr = logErrorStream(p.getErrorStream());
 
             p.waitFor();
+            stderr.join();
 
             parseTempFile(modifications);
         } catch (Exception e) {
@@ -201,9 +201,10 @@ public class Vss implements SourceControl {
         return modifications;
     }
 
-    private void logErrorStream(InputStream is) {
-        StreamPumper errorPumper = new StreamPumper(is, new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
+    private Thread logErrorStream(InputStream is) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, is));
+        stderr.start();
+        return stderr;
     }
 
     private void parseTempFile(List modifications) throws IOException, CruiseControlException {

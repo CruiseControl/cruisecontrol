@@ -39,14 +39,11 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 /**
  * The SVNBootstrapper will handle updating a single file from Subversion
@@ -123,7 +120,7 @@ public class SVNBootstrapper implements Bootstrapper {
     public void bootstrap() throws CruiseControlException {
         try {
             Commandline commandLine = buildUpdateCommand();
-            execUpdateCommand(commandLine);
+            commandLine.executeAndWait(LOG);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing svn update command", e);
         }
@@ -159,32 +156,5 @@ public class SVNBootstrapper implements Bootstrapper {
         LOG.debug("SVNBootstrapper: Executing command = " + command);
 
         return command;
-    }
-
-    private void execUpdateCommand(Commandline command)
-        throws IOException, InterruptedException {
-            
-        Process p = command.execute();
-
-        logErrorStream(p);
-        logOutStream(p);
-
-        p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        // closing the error stream handled by logErrorStream(p);
-        // p.getErrorStream().close();
-    }
-
-    private void logErrorStream(Process p) {
-        StreamPumper errorPumper =
-            new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
-    }
-
-    private void logOutStream(Process p) {
-        StreamPumper outPumper =
-            new StreamPumper(p.getInputStream(), new PrintWriter(System.out, true));
-        new Thread(outPumper).start();
     }
 }

@@ -74,7 +74,7 @@ public class StreamPumperTest extends TestCase {
             System.setOut(new PrintStream(newOut));
             InputStream input = new ByteArrayInputStream(
                     "some input".getBytes());
-            new StreamPumper(input, null, null).run();
+            new StreamPumper(input, null).run();
             assertEquals(0, newOut.toByteArray().length);
         } finally {
             System.setOut(oldOut);

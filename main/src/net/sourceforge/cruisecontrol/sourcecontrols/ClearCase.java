@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,10 +54,11 @@ import java.util.Vector;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.DiscardConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 
@@ -244,13 +244,14 @@ public class ClearCase implements SourceControl {
         List modifications = null;
         try {
             Process p = Runtime.getRuntime().exec(command, null, root);
-            logErrorStream(p.getErrorStream());
+            Thread stderr = logErrorStream(p);
             
             InputStream input = p.getInputStream();
             modifications = parseStream(input);
 
             getRidOfLeftoverData(input);
             p.waitFor();
+            stderr.join();
             IO.close(p);
         } catch (Exception e) {
             LOG.error("Error in executing the Clear Case command : ", e);
@@ -263,20 +264,14 @@ public class ClearCase implements SourceControl {
         return modifications;
     }
 
-    private void logErrorStream(InputStream error) {
-        StreamConsumer warnLogger = new StreamConsumer() {
-            public void consumeLine(String line) {
-                LOG.warn(line);
-            }
-        };
-        StreamPumper errorPumper =
-                new StreamPumper(error, null, warnLogger);
-        new Thread(errorPumper).start();
+    private Thread logErrorStream(Process process) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
+        stderr.start();
+        return stderr;
     }    
     
     private void getRidOfLeftoverData(InputStream stream) {
-        StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
-        new Thread(outPumper).start();
+        new StreamPumper(stream, new DiscardConsumer()).run();
     }
     
     /**

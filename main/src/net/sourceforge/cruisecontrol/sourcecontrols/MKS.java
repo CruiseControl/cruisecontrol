@@ -40,8 +40,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +50,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -168,7 +166,7 @@ public class MKS implements SourceControl {
             LOG.debug(cmd);
             Process proc = Runtime.getRuntime()
                     .exec(cmd, null, localWorkingDir);
-            logStream(proc.getInputStream(), System.out);
+            Thread stdout = logStream(proc.getInputStream());
             InputStream in = proc.getErrorStream();
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(in));
@@ -214,6 +212,7 @@ public class MKS implements SourceControl {
                 properties.modificationFound();
             }
             proc.waitFor();
+            stdout.join();
             IO.close(proc);
         } catch (Exception ex) {
             LOG.warn(ex.getMessage(), ex);
@@ -254,7 +253,7 @@ public class MKS implements SourceControl {
             
             Process proc = commandLine.execute();
             
-            logStream(proc.getErrorStream(), System.err);
+            Thread stderr = logStream(proc.getErrorStream());
             InputStream in = proc.getInputStream();
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(in));
@@ -272,6 +271,7 @@ public class MKS implements SourceControl {
             modification.comment = line.substring(idx + 1);
             
             proc.waitFor();
+            stderr.join();
             IO.close(proc);
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
@@ -280,9 +280,9 @@ public class MKS implements SourceControl {
         }
     }
 
-    private static void logStream(InputStream inStream, OutputStream outStream) {
-        StreamPumper errorPumper = new StreamPumper(inStream, new PrintWriter(
-                outStream, true));
-        new Thread(errorPumper).start();
+    private static Thread logStream(InputStream inStream) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, inStream));
+        stderr.start();
+        return stderr;
     }
 }

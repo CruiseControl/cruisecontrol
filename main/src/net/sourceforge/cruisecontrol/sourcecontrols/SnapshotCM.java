@@ -53,7 +53,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
 
@@ -158,12 +158,14 @@ public class SnapshotCM implements SourceControl {
             try {
                 Process p = Runtime.getRuntime().exec(command);
 
-                StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-                new Thread(errorPumper).start();
+                Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p));
+                stderr.start();
 
                 InputStream input = p.getInputStream();
                 modificationList.addAll(parseStream(input));
 
+                p.waitFor();
+                stderr.join();
                 IO.close(p);
             } catch (Exception e) {
                 LOG.error("Error in executing the SnapshotCM command : ", e);

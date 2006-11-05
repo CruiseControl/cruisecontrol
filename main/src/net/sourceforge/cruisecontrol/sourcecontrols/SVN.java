@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
@@ -59,7 +58,7 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -247,20 +246,21 @@ public class SVN implements SourceControl {
 
         Process p = command.execute();
 
-        logErrorStream(p);
+        Thread stderr = logErrorStream(p);
         InputStream svnStream = p.getInputStream();
         List modifications = parseStream(svnStream, lastBuild);
 
         p.waitFor();
+        stderr.join();
         IO.close(p);
 
         return modifications;
     }
 
-    private void logErrorStream(Process p) {
-        StreamPumper errorPumper =
-            new StreamPumper(p.getErrorStream(), new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
+    private Thread logErrorStream(Process p) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
+        stderr.start();
+        return stderr;
     }
 
     private List parseStream(InputStream svnStream, Date lastBuild)

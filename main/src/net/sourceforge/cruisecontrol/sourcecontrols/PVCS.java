@@ -52,7 +52,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Processes;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -187,15 +187,12 @@ public class PVCS implements SourceControl {
     }
 
     protected void exec(String command) throws IOException, InterruptedException {
+
+        // FIXME: convert this class to use Commandline instead of trying
+        //        construct a string command
         LOG.debug("Command to execute: " + command);
         Process p = Runtime.getRuntime().exec(command);
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream());
-        new Thread(errorPumper).start();
-        p.getInputStream();
-        p.waitFor();
-        p.getOutputStream();
-        p.getInputStream();
-        p.getErrorStream();
+        Processes.waitFor(p, LOG);
     }
 
     /**

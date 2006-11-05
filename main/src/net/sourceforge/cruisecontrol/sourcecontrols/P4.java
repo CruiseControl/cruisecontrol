@@ -40,7 +40,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -58,11 +57,15 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.CommandExecutor;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.DiscardConsumer;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -106,9 +109,6 @@ public class P4 implements SourceControl {
 
     private static final String SERVER_DATE = "Server date: ";
     private static final String P4_SERVER_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
-
-    private final SimpleDateFormat p4ServerDateFormatter =
-            new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
 
     public void setPort(String p4Port) {
         this.p4Port = p4Port;
@@ -191,10 +191,9 @@ public class P4 implements SourceControl {
             throws IOException, InterruptedException {
 
         Commandline command = buildDescribeCommand(changelistNumbers);
-        LOG.info(command.toString());
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        Process p = command.execute();
 
-        logErrorStream(p.getErrorStream());
+        Thread error = logErrorStream(p.getErrorStream());
         InputStream p4Stream = p.getInputStream();
         List mods = parseChangeDescriptions(p4Stream);
         getRidOfLeftoverData(p4Stream);
@@ -205,6 +204,7 @@ public class P4 implements SourceControl {
         }
 
         p.waitFor();
+        error.join();
         IO.close(p);
 
         return mods;
@@ -252,7 +252,7 @@ public class P4 implements SourceControl {
 
         Commandline command = buildUserCommand(username);
         LOG.info(command.toString());
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        Process p = command.execute();
 
         logErrorStream(p.getErrorStream());
         InputStream p4Stream = p.getInputStream();
@@ -286,23 +286,22 @@ public class P4 implements SourceControl {
             throws IOException, InterruptedException {
 
         Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
-        LOG.debug("Executing: " + command.toString());
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
+        Process p = command.execute();
 
-        logErrorStream(p.getErrorStream());
+        Thread error = logErrorStream(p.getErrorStream());
         InputStream p4Stream = p.getInputStream();
 
         String[] changelistNumbers = parseChangelistNumbers(p4Stream);
 
         p.waitFor();
+        error.join();
         IO.close(p);
 
         return changelistNumbers;
     }
 
     private void getRidOfLeftoverData(InputStream stream) {
-        StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
-        new Thread(outPumper).start();
+        new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
     protected String[] parseChangelistNumbers(InputStream is) throws IOException {
@@ -415,9 +414,10 @@ public class P4 implements SourceControl {
         return changelists;
     }
 
-    private void logErrorStream(InputStream is) {
-        StreamPumper errorPumper = new StreamPumper(is, new PrintWriter(System.err, true));
-        new Thread(errorPumper).start();
+    private Thread logErrorStream(InputStream is) {
+        Thread errorThread = new Thread(StreamLogger.getWarnPumper(LOG, is));
+        errorThread.start();
+        return errorThread;
     }
 
     /**
@@ -443,6 +443,10 @@ public class P4 implements SourceControl {
             } catch (IOException ioe) {
                 LOG.error("Unable to execute \'p4 info\' to get server time: "
                         + ioe.getMessage()
+                        + "\nProceeding without time offset value.");
+            } catch (InterruptedException iex) {
+                LOG.error("Interrupted while executing \'p4 info\' to get server time: "
+                        + iex.getMessage()
                         + "\nProceeding without time offset value.");
             }
         } else {
@@ -500,14 +504,13 @@ public class P4 implements SourceControl {
      * indicates that the Perforce server time is before the CruiseControl
      * server.
      */
-    protected long calculateServerTimeOffset() throws IOException {
-        Commandline command = buildInfoCommand();
-
-        LOG.info("Executing: " + command.toString());
-        Process p = Runtime.getRuntime().exec(command.getCommandline());
-        logErrorStream(p.getErrorStream());
-
-        return parseServerInfo(p.getInputStream());
+    protected long calculateServerTimeOffset() throws IOException, InterruptedException {
+        ServerInfoConsumer serverInfo = new ServerInfoConsumer();
+        CommandExecutor executor = new CommandExecutor(buildInfoCommand());
+        executor.logErrorStreamTo(LOG);
+        executor.setOutputConsumer(serverInfo);
+        executor.executeAndWait();
+        return serverInfo.getOffset();
     }
 
     Commandline buildInfoCommand() {
@@ -515,36 +518,6 @@ public class P4 implements SourceControl {
         command.createArgument("info");
         return command;
     }
-
-    protected long parseServerInfo(InputStream is) throws IOException {
-
-        BufferedReader p4reader = new BufferedReader(new InputStreamReader(is));
-
-        Date ccServerTime = new Date();
-        Date p4ServerTime;
-
-        String line;
-        long offset = 0;
-        while ((line = p4reader.readLine()) != null && offset == 0) {
-            if (line.startsWith(SERVER_DATE)) {
-                try {
-                    String dateString = line.substring(SERVER_DATE.length(),
-                            SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
-                    p4ServerTime = p4ServerDateFormatter.parse(dateString);
-                    offset = p4ServerTime.getTime() - ccServerTime.getTime();
-                } catch (ParseException pe) {
-                    LOG.error("Unable to parse p4 server time from line \'"
-                            + line
-                            + "\'.  " + pe.getMessage()
-                            + "; Proceeding without time offset.");
-                }
-            }
-        }
-
-        LOG.info("Perforce server time offset: " + offset + " ms");
-        return offset;
-    }
-
 
     private Commandline buildBaseP4Command() {
         boolean prependField = true;
@@ -641,5 +614,43 @@ public class P4 implements SourceControl {
 
     static String getQuoteChar(boolean isWindows) {
         return isWindows ? "\"" : "'";
+    }
+
+    protected static class ServerInfoConsumer implements StreamConsumer {
+        private boolean found;
+        private long offset;
+        private final SimpleDateFormat p4ServerDateFormatter =
+                new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
+
+        private Date ccServerTime = new Date();
+
+        public void consumeLine(String line) {
+            Date p4ServerTime;
+
+            // Consume the full stream after we have found the offset
+            if (found) {
+                return;
+            }
+
+            if (line.startsWith(SERVER_DATE)) {
+                try {
+                    String dateString = line.substring(SERVER_DATE.length(),
+                            SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
+                    p4ServerTime = p4ServerDateFormatter.parse(dateString);
+                    offset = p4ServerTime.getTime() - ccServerTime.getTime();
+                    found = true;
+                } catch (ParseException pe) {
+                    LOG.error("Unable to parse p4 server time from line \'"
+                            + line
+                            + "\'.  " + pe.getMessage()
+                            + "; Proceeding without time offset.");
+                }
+            }
+        }
+
+        public long getOffset() {
+            LOG.info("Perforce server time offset: " + offset + " ms");
+            return offset;
+        }
     }
 }

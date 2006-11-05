@@ -49,9 +49,9 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.BuildException;
@@ -473,14 +473,15 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     protected void runP4Cmd(Commandline cmd, P4CmdParser parser)
             throws CruiseControlException {
         try {
-            LOG.info("Executing commandline [" + cmd + "]");
-            Process p = Runtime.getRuntime().exec(cmd.getCommandline());
-            
+            Process p = cmd.execute();
+
             try {
-                new Thread(new StreamPumper(p.getErrorStream())).start();
-                
+                Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p));
+                stderr.start();
+
                 InputStream p4Stream = p.getInputStream();
                 parseStream(p4Stream, parser);
+                stderr.join();                        
             } finally {
                 p.waitFor();
                 IO.close(p);

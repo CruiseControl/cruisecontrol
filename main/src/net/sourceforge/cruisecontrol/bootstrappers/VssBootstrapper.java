@@ -39,17 +39,13 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import net.sourceforge.cruisecontrol.util.Processes;
 
 
 public class VssBootstrapper implements Bootstrapper {
@@ -68,53 +64,17 @@ public class VssBootstrapper implements Bootstrapper {
 
         final String[] env = VSSHelper.loadVSSEnvironment(serverPath);
 
-        final Process p;
         try {
-            p = Runtime.getRuntime().exec(commandLine, env);
+            Process p = Runtime.getRuntime().exec(commandLine, env);
+            Processes.waitFor(p, LOG);
         } catch (IOException ex) {
-            LOG.debug("exception trying to exec ss.exe", ex);
+            LOG.warn("exception trying to exec ss.exe", ex);
             throw new CruiseControlException(ex);
-        }
-
-        try {
-            p.getOutputStream().close();
-        } catch (IOException ex) {
-            LOG.debug("exception trying to close output stream on ss.exe process", ex);
-            throw new CruiseControlException(ex);
-        }
-
-        final Thread pumpInStream = logStream(p.getInputStream(), System.out);
-        final Thread pumpErrStream = logStream(p.getErrorStream(), System.err);
-
-        try {
-            p.waitFor();
-            pumpInStream.join();
-            pumpErrStream.join();
         } catch (InterruptedException ex) {
-            LOG.debug("interrupted during get", ex);
+            LOG.warn("interrupted during get", ex);
             throw new CruiseControlException(ex);
         }
-
-        IO.close(p);
     }
-
-    private Thread logStream(final InputStream inStream, final OutputStream outStream)
-            throws CruiseControlException {
-
-        try {
-            final StreamPumper streamPumper =
-                new StreamPumper(inStream, new PrintWriter(outStream, true));
-
-            final Thread streamPumpThread = new Thread(streamPumper);
-
-            streamPumpThread.start();
-
-            return streamPumpThread;
-        } catch (Exception e) {
-            throw new CruiseControlException("Error reading ss.exe process stream.", e);
-        }
-    }
-
 
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(vssPath != null && localDirectory != null,
