@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,8 +55,9 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.DiscardConsumer;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -315,7 +315,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 }
 
                 p = commandLine.execute();
-                logErrorStream(p);
+                Thread stderr = logErrorStream(p);
                 InputStream is = p.getInputStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
@@ -324,6 +324,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 log.debug("cvs server version: " + cvsServerVersion);
 
                 p.waitFor();
+                stderr.join();
                 IO.close(p);
             } catch (IOException e) {
                 log.error("Failed reading cvs server version", e);
@@ -485,7 +486,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 }
 
                 p = commandLine.execute();
-                logErrorStream(p);
+                Thread stderr = logErrorStream(p);
                 InputStream is = p.getInputStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(is));
 
@@ -495,6 +496,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 }
 
                 p.waitFor();
+                stderr.join();
                 IO.close(p);
             } catch (Exception e) {
                 log.error("Failed reading mail aliases", e);
@@ -616,19 +618,19 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     private void getRidOfLeftoverData(InputStream stream) {
-        StreamPumper outPumper = new StreamPumper(stream, (PrintWriter) null);
-        new Thread(outPumper).start();
+        new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
     private List execHistoryCommand(Commandline command) throws Exception {
         Process p = command.execute();
 
-        logErrorStream(p);
+        Thread stderr = logErrorStream(p);
         InputStream cvsLogStream = p.getInputStream();
         List mods = parseStream(cvsLogStream);
 
         getRidOfLeftoverData(cvsLogStream);
         p.waitFor();
+        stderr.join();
         IO.close(p);
 
         return mods;
@@ -638,18 +640,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
         this.mailAliases = mailAliases;
     }
 
-    private static void logErrorStream(Process p) {
-        logErrorStream(p.getErrorStream());
+    private static Thread logErrorStream(Process p) {
+        return logErrorStream(p.getErrorStream());
     }
-    static void logErrorStream(InputStream error) {
-        StreamConsumer warnLogger = new StreamConsumer() {
-            public void consumeLine(String line) {
-                log.warn(line);
-            }
-        };
-        StreamPumper errorPumper =
-                new StreamPumper(error, null, warnLogger);
-        new Thread(errorPumper).start();
+    static Thread logErrorStream(InputStream error) {
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(log, error));
+        stderr.start();
+        return stderr;
     }
 
     //(PENDING) Extract CVSEntryParser class

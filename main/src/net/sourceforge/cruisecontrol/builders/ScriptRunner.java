@@ -42,9 +42,11 @@ import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.CompositeConsumer;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 
@@ -107,11 +109,15 @@ public class ScriptRunner  {
         StreamPumper errorPumper;
         StreamPumper outPumper;
         if (script instanceof StreamConsumer) {
-            errorPumper = new StreamPumper(p.getErrorStream(), (StreamConsumer) script);
-            outPumper = new StreamPumper(p.getInputStream(), (StreamConsumer) script);
+            CompositeConsumer consumer = new CompositeConsumer((StreamConsumer) script);
+            consumer.add(StreamLogger.getWarnLogger(LOG));
+            errorPumper = new StreamPumper(p.getErrorStream(), consumer);
+            consumer = new CompositeConsumer((StreamConsumer) script);
+            consumer.add(StreamLogger.getInfoLogger(LOG));
+            outPumper = new StreamPumper(p.getInputStream(), consumer);
         } else {
-            errorPumper = new StreamPumper(p.getErrorStream());
-            outPumper = new StreamPumper(p.getInputStream());
+            errorPumper = StreamLogger.getWarnPumper(LOG, p);
+            outPumper = StreamLogger.getInfoPumper(LOG, p);
         }
         
         
@@ -135,9 +141,6 @@ public class ScriptRunner  {
                     + " CruiseControl will continue, assuming that it completed");
         }
 
-        outPumper.flush();
-        errorPumper.flush();
-        
         script.setExitCode(exitCode);
         
         return !killer.processKilled();

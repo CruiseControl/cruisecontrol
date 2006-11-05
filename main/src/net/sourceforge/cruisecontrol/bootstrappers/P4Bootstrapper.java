@@ -41,7 +41,6 @@ import java.io.IOException;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -153,13 +152,7 @@ public class P4Bootstrapper implements Bootstrapper {
     // TODO: Refactor this into a class. Then we can mock it and unit test bootstrap()
     private void executeCommandLine(Commandline commandline) throws CruiseControlException {
         try {
-            LOG.info(commandline.toString());
-            Process p = Runtime.getRuntime().exec(commandline.getCommandline());
-
-            new Thread(new StreamPumper(p.getInputStream())).start();
-            new Thread(new StreamPumper(p.getErrorStream())).start();
-            p.waitFor();
-
+            commandline.executeAndWait(LOG);
         } catch (IOException e) {
             throw new CruiseControlException("Problem trying to execute command line process", e);
         } catch (InterruptedException e) {

@@ -41,7 +41,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.Processes;
 
 import org.apache.log4j.Logger;
 
@@ -88,9 +87,8 @@ public class ClearCaseViewstrapper implements Bootstrapper {
      */
     public void bootstrap() throws CruiseControlException {
         Commandline commandLine = buildStartViewCommand();
-        LOG.debug("Executing: " + commandLine);
         try {
-            Processes.executeFully(commandLine);
+            commandLine.executeAndWait(LOG);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing ClearCase startview command", e);
         }
@@ -100,9 +98,8 @@ public class ClearCaseViewstrapper implements Bootstrapper {
             String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
                 commandLine = buildMountVOBCommand(vobs[i]);
-                LOG.debug("Executing: " + commandLine);
                 try {
-                    Processes.executeFully(commandLine);
+                    commandLine.executeAndWait(LOG);
                 } catch (Exception e) {
                     throw new CruiseControlException("Error executing ClearCase mount command", e);
                 }

@@ -39,10 +39,7 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
@@ -98,28 +95,7 @@ public class CVSBootstrapper implements Bootstrapper {
     public void bootstrap() throws CruiseControlException {
         try {
             Commandline commandLine = buildUpdateCommand();
-            Process p = commandLine.execute();
-            StreamConsumer infoConsumer = new StreamConsumer() {
-                public void consumeLine(String line) {
-                    LOG.warn(line);
-                }
-            };
-            StreamConsumer warnConsumer = new StreamConsumer() {
-                public void consumeLine(String line) {
-                    LOG.warn(line);
-                }
-            };
-            StreamPumper errorPumper =
-                new StreamPumper(p.getErrorStream(), null, warnConsumer);
-            StreamPumper outPumper = new StreamPumper(p.getInputStream(), null, infoConsumer);
-            Thread errorPumperThread = new Thread(errorPumper);
-            Thread outPumperThread = new Thread(outPumper);
-            errorPumperThread.start();
-            outPumperThread.start();
-            p.waitFor();
-            errorPumperThread.join();
-            outPumperThread.join();
-            IO.close(p);
+            commandLine.executeAndWait(LOG);
         } catch (Exception e) {
             throw new CruiseControlException("Error executing CVS update command", e);
         }

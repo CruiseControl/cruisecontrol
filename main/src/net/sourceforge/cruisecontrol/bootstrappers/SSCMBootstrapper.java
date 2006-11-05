@@ -38,10 +38,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.SSCM;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 import java.io.IOException;
+import net.sourceforge.cruisecontrol.util.Processes;
 
 /**
  *  Bootstrapper for Surround SCM. Accepts one Branch/Repository path for fetching files
@@ -128,12 +127,7 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
 
       try {
         Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
-        new Thread(new StreamPumper(process.getInputStream())).start();
-        new Thread(new StreamPumper(process.getErrorStream())).start();
-
-        process.waitFor();
-
-          IO.close(process);
+        Processes.waitFor(process, LOG);
       } catch (IOException e) {
          throw new CruiseControlException("Problem trying to execute command line process", e);
       } catch (InterruptedException e) {

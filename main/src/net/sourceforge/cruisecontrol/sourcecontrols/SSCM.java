@@ -50,8 +50,8 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 
 import org.apache.log4j.Logger;
 
@@ -174,12 +174,14 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
             try {
                 Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
-                new Thread(new StreamPumper(process.getErrorStream())).start();
+                Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
+                stderr.start();
 
                 InputStream input = process.getInputStream();
                 listMods = parseCLIOutput(input);
 
                 process.waitFor();
+                stderr.join();
 
                 IO.close(process);
             } catch (IOException e) {

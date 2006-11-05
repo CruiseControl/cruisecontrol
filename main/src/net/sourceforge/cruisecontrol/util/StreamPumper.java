@@ -93,7 +93,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 
 import org.apache.log4j.Logger;
 
@@ -109,29 +108,12 @@ public class StreamPumper implements Runnable {
 
     private BufferedReader in;
     private StreamConsumer consumer = null;
-    private PrintWriter out = new PrintWriter(System.out);
 
     private static final int SIZE = 1024;
     private static final Logger LOG = Logger.getLogger(StreamPumper.class);
 
-    public StreamPumper(InputStream in, PrintWriter writer) {
-        this(in);
-        out = writer;
-    }
-
-    public StreamPumper(InputStream in) {
-        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
-    }
-
     public StreamPumper(InputStream in, StreamConsumer consumer) {
-        this(in);
-        this.consumer = consumer;
-    }
-
-    public StreamPumper(InputStream in, PrintWriter writer,
-                        StreamConsumer consumer) {
-        this(in);
-        this.out = writer;
+        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
         this.consumer = consumer;
     }
 
@@ -140,11 +122,6 @@ public class StreamPumper implements Runnable {
             String s = in.readLine();
             while (s != null) {
                 consumeLine(s);
-                if (out != null) {
-                    out.println(s);
-                    out.flush();
-                }
-
                 s = in.readLine();
             }
         } catch (IOException e) {
@@ -152,15 +129,6 @@ public class StreamPumper implements Runnable {
         } finally {
             IO.close(in);
         }
-    }
-
-    public void flush() {
-        out.flush();
-    }
-
-    public void close() {
-        flush();
-        out.close();
     }
 
     private void consumeLine(String line) {
