@@ -346,7 +346,14 @@ public class Commandline implements Cloneable {
     }
 
     public String toString() {
-        return toString(getCommandline());
+        return toString(getCommandline(), true);
+    }
+
+    /**
+     * Converts the command line to a string without adding quotes to any of the arguments.
+     */
+    public String toStringNoQuoting() {
+        return toString(getCommandline(), false);
     }
 
     /**
@@ -373,7 +380,7 @@ public class Commandline implements Cloneable {
         }
     }
 
-    public static String toString(String[] line) {
+    public static String toString(String[] line, boolean quote) {
         // empty path return empty string
         if (line == null || line.length == 0) {
             return "";
@@ -385,10 +392,14 @@ public class Commandline implements Cloneable {
             if (i > 0) {
                 result.append(' ');
             }
-            try {
-                result.append(quoteArgument(line[i]));
-            } catch (CruiseControlException e) {
-                LOG.error("Error quoting argument.", e);
+            if (quote) {
+                try {
+                    result.append(quoteArgument(line[i]));
+                } catch (CruiseControlException e) {
+                    LOG.error("Error quoting argument.", e);
+                }
+            } else {
+                result.append(line[i]);
             }
         }
         return result.toString();
