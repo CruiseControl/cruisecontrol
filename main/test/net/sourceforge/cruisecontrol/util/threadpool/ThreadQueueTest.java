@@ -100,7 +100,7 @@ public class ThreadQueueTest extends TestCase {
         
         assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + TASK_COUNT));
         ThreadQueue.interrupt(TASK_NAME + TASK_COUNT);
-        assertInterrupted(TIMING_SENSITIVE_MESSAGE, TASK_NAME + TASK_COUNT);
+        assertInterrupted(TASK_NAME + TASK_COUNT);
     }
     
     public void testExecution() {
