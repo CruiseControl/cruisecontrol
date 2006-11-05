@@ -52,6 +52,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Processes;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -72,7 +73,6 @@ public class PVCS implements SourceControl {
 
     private String archiveFileSuffix = "-arc";
     private String pvcsbin;
-    private String pvcsExecCommand;
     private String pvcsProject;
     // i.e. "esa";
     // i.e. "esa/uihub2";
@@ -101,13 +101,6 @@ public class PVCS implements SourceControl {
         return pvcsbin;
     }
 
-    public void setPvcsExecCommand(String command) {
-        pvcsExecCommand = command;
-    }
-
-    public String getPvcsExecCommand() {
-        return pvcsExecCommand;
-    }
 
     /**
      * Specifies the location of the PVCS bin directory
@@ -164,8 +157,8 @@ public class PVCS implements SourceControl {
         String nowDate = inDateFormat.format(now);
 
         try {
-            setPvcsExecCommand(getExecutable("pcli") + " " +  buildExecCommand(lastBuildDate, nowDate));
-            exec(pvcsExecCommand);
+            Commandline command = buildExecCommand(lastBuildDate, nowDate);
+            command.executeAndWait(LOG);
         } catch (Exception e) {
             LOG.error("Error in executing the PVCS command : ", e);
             return new ArrayList();
@@ -184,15 +177,6 @@ public class PVCS implements SourceControl {
             }
         }
         return correctedExe.append(exe).toString();
-    }
-
-    protected void exec(String command) throws IOException, InterruptedException {
-
-        // FIXME: convert this class to use Commandline instead of trying
-        //        construct a string command
-        LOG.debug("Command to execute: " + command);
-        Process p = Runtime.getRuntime().exec(command);
-        Processes.waitFor(p, LOG);
     }
 
     /**
@@ -231,25 +215,29 @@ public class PVCS implements SourceControl {
      *
      *  @return the command to be executed to check for repository changes
      */
-    String buildExecCommand(String lastBuild, String now) {
-        String command =
-            "run -ns -q -xo" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE
-            + " -xe" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE
-            + " vlog ";
+    Commandline buildExecCommand(String lastBuild, String now) {
+        Commandline command = new Commandline(getExecutable("pcli"));
+        command.createArgument("run");
+        command.createArgument("-ns");
+        command.createArgument("-q");
+        command.createArgument("-xo" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE);
+        command.createArgument("-xe" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE);
+        command.createArgument("vlog");
         
         if (loginId != null && !loginId.trim().equals("")) {
-            command += "-id" + DOUBLE_QUOTE + loginId + DOUBLE_QUOTE + " ";
+            command.createArgument("-id" + DOUBLE_QUOTE + loginId + DOUBLE_QUOTE);
         }
-        
-        command += "-ds" + DOUBLE_QUOTE + lastBuild + DOUBLE_QUOTE
-            + " -de" + DOUBLE_QUOTE + now + DOUBLE_QUOTE
-            + " -pr" + DOUBLE_QUOTE + pvcsProject + DOUBLE_QUOTE;
+
+        command.createArgument("-ds" + DOUBLE_QUOTE + lastBuild + DOUBLE_QUOTE);
+        command.createArgument("-de" + DOUBLE_QUOTE + now + DOUBLE_QUOTE);
+        command.createArgument("-pr" + DOUBLE_QUOTE + pvcsProject + DOUBLE_QUOTE);
 
         if (pvcsVersionLabel != null && !pvcsVersionLabel.equals("")) {
-            command += " -v" + DOUBLE_QUOTE + pvcsVersionLabel + DOUBLE_QUOTE;
+            command.createArgument("-v" + DOUBLE_QUOTE + pvcsVersionLabel + DOUBLE_QUOTE);
          }
 
-        command += " -z " + pvcsSubProject;
+        command.createArgument("-z");
+        command.createArgument(pvcsSubProject);
         return command;
     }
 
