@@ -44,6 +44,9 @@ import junit.framework.TestCase;
  *         JUnit test class to work on net.sourceforge.cruisecontrol.util.ThreadQueue
  */
 public class ThreadQueueTest extends TestCase {
+    private static final String TIMING_SENSITIVE_MESSAGE =
+            "This test may occassionally fail, please run it several times"
+            + " before reporting it";
     private static final String TASK_NAME = "TASK:";
     private static final int TASK_COUNT = 5;
     private static final int TENTH_OF_SECOND = 100;
@@ -54,7 +57,7 @@ public class ThreadQueueTest extends TestCase {
 
             IdleThreadQueueClient task = new IdleThreadQueueClient(taskName);
             ThreadQueue.addTask(task);
-            assertEquals(i, ThreadQueue.numTotalTasks());
+            assertEquals(TIMING_SENSITIVE_MESSAGE, i, ThreadQueue.numTotalTasks());
         }
 
         sleep(3 * TENTH_OF_SECOND);
@@ -65,9 +68,9 @@ public class ThreadQueueTest extends TestCase {
     }
     
     public void testIsIdle() throws Exception {
-        assertFalse(ThreadQueue.isIdle(TASK_NAME + 1));
-        assertTrue(ThreadQueue.isIdle(TASK_NAME + 2));
-        assertTrue(ThreadQueue.isIdle(TASK_NAME + 3));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
+        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 2));
+        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 3));
 
         tasksThatCompleteShouldNotBeIdle();
 
@@ -78,26 +81,26 @@ public class ThreadQueueTest extends TestCase {
 
     private void tasksThatCompleteShouldNotBeIdle() {
         ThreadQueue.waitFor(TASK_NAME + 2);
-        assertFalse(ThreadQueue.isIdle(TASK_NAME + 2));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 2));
     }
 
     private void caseOfNameShouldNotMatter() {
         String taskName = TASK_NAME + TASK_COUNT;
-        assertTrue(ThreadQueue.isIdle(taskName.toLowerCase()));
+        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(taskName.toLowerCase()));
     }
 
     private void tasksThatDontExistShouldNotBeIdle() {
-        assertFalse(ThreadQueue.isIdle(TASK_NAME + 42));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 42));
     }
     
     public void testInterrupt() throws Exception {
-        assertFalse(ThreadQueue.isIdle(TASK_NAME + 1));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
         ThreadQueue.interrupt(TASK_NAME + 1);
         assertInterrupted(TASK_NAME + 1);
         
-        assertTrue(ThreadQueue.isIdle(TASK_NAME + TASK_COUNT));
+        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + TASK_COUNT));
         ThreadQueue.interrupt(TASK_NAME + TASK_COUNT);
-        assertInterrupted(TASK_NAME + TASK_COUNT);
+        assertInterrupted(TIMING_SENSITIVE_MESSAGE, TASK_NAME + TASK_COUNT);
     }
     
     public void testExecution() {
@@ -105,26 +108,26 @@ public class ThreadQueueTest extends TestCase {
 
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
-            assertTrue(ThreadQueue.taskExists(taskName));
-            assertTrue(ThreadQueue.isActive(taskName));
+            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.taskExists(taskName));
+            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
         }
 
         // now let them all finish
         ThreadQueue.waitForAll();
 
-        assertEquals(0, ThreadQueue.numRunningTasks());
-        assertEquals(0, ThreadQueue.numWaitingTasks());
+        assertEquals(TIMING_SENSITIVE_MESSAGE, 0, ThreadQueue.numRunningTasks());
+        assertEquals(TIMING_SENSITIVE_MESSAGE, 0, ThreadQueue.numWaitingTasks());
 
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
 
-            assertTrue(ThreadQueue.taskExists(taskName));
-            assertFalse(ThreadQueue.isActive(taskName));            
+            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.taskExists(taskName));
+            assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));            
             
             // check the return values of all the worker threads
             Object rawResult = ThreadQueue.getResult(taskName);
-            assertTrue(rawResult instanceof String);
-            assertEquals("DONE WITH " + taskName, (String) rawResult);
+            assertTrue(TIMING_SENSITIVE_MESSAGE, rawResult instanceof String);
+            assertEquals(TIMING_SENSITIVE_MESSAGE, "DONE WITH " + taskName, (String) rawResult);
         }
     }
 
@@ -134,7 +137,7 @@ public class ThreadQueueTest extends TestCase {
         // is in use
         int numRunningTasks = ThreadQueue.numRunningTasks();
         int numWorkerThreads = ThreadQueue.getMaxNumWorkerThreads();
-        assertEquals(numWorkerThreads, numRunningTasks);
+        assertEquals(TIMING_SENSITIVE_MESSAGE, numWorkerThreads, numRunningTasks);
 
         // make sure the correct number of idle tasks are idle
         // the waiting number should be the total number of worker tasks less the
@@ -144,7 +147,7 @@ public class ThreadQueueTest extends TestCase {
         if (ThreadQueue.getMaxNumWorkerThreads() > TASK_COUNT) {
             numThatShouldBeWaiting = 0;
         }
-        assertEquals(numThatShouldBeWaiting, ThreadQueue.numWaitingTasks());
+        assertEquals(TIMING_SENSITIVE_MESSAGE, numThatShouldBeWaiting, ThreadQueue.numWaitingTasks());
     }
 
     private static void sleep(int ms) {
@@ -155,9 +158,8 @@ public class ThreadQueueTest extends TestCase {
     }
     
     private static void assertInterrupted(String taskName) {
-        assertFalse(ThreadQueue.isActive(taskName));
-        assertFalse(ThreadQueue.isDone(taskName));
-        assertFalse(ThreadQueue.isIdle(taskName));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isDone(taskName));
+        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(taskName));
     }
-
 }
