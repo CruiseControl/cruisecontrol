@@ -70,12 +70,12 @@ public class GZIPManipulator extends BaseManipulator {
             int len;
             byte[] buffer = new byte[BUFFER_SIZE];
             while ((len = in.read(buffer)) > 0) {
-                out.write(buffer, 0 ,len);
+                out.write(buffer, 0, len);
             }
             out.flush();
             logfile.delete();
         } catch (IOException e) {
-            LOG.warn("could not gzip " + logfile.getName() + ": " +e.getMessage(), e);
+            LOG.warn("could not gzip " + logfile.getName() + ": " + e.getMessage(), e);
         } finally {
             IO.close(out);
             IO.close(in);
