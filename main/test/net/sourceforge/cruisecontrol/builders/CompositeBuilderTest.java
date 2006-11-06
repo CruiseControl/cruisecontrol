@@ -40,6 +40,7 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Builder;
 
 import org.jdom.Element;
 
@@ -107,6 +108,27 @@ public class CompositeBuilderTest extends TestCase {
 
     public CompositeBuilderTest(String name) {
         super(name);
+    }
+
+    public void testValidateValidatesAllChildBuilders() throws Exception {
+        final Builder mockBuilder = new MockBuilder();
+        // make child builder invalid
+        mockBuilder.setTime("0000");
+        mockBuilder.setMultiple(2);
+
+        builder = new CompositeBuilder();
+
+        builder.add(mockBuilder);
+        try {
+            builder.validate();
+            fail("CompositeBuilder should have failed validating an invalid child builder");
+        } catch (CruiseControlException e) {
+            assertEquals("Only one of 'time' or 'multiple' are allowed on builders.", e.getMessage());
+        }
+
+        // make child builer valid
+        mockBuilder.setTime(Builder.NOT_SET + "");
+        builder.validate();
     }
 
     public void testValidateShouldThrowExceptionWhenNoBuilderIsAdded() {
