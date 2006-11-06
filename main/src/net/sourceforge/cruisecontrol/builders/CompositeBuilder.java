@@ -87,5 +87,12 @@ public class CompositeBuilder extends Builder {
 
         ValidationHelper.assertFalse(builders.isEmpty(), "no builders added");
         super.validate();
+
+        // validate all child builders
+        final Iterator iter = builders.iterator();
+        while (iter.hasNext()) {
+            final Builder builder = (Builder) iter.next();
+            builder.validate();
+        }
     }
 }
