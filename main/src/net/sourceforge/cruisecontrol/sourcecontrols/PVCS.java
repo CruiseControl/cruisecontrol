@@ -53,7 +53,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.Processes;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -216,7 +215,8 @@ public class PVCS implements SourceControl {
      *  @return the command to be executed to check for repository changes
      */
     Commandline buildExecCommand(String lastBuild, String now) {
-        Commandline command = new Commandline(getExecutable("pcli"));
+        Commandline command = new Commandline();
+        command.setExecutable(getExecutable("pcli"));
         command.createArgument("run");
         command.createArgument("-ns");
         command.createArgument("-q");
