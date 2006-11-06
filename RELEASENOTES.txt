@@ -66,6 +66,7 @@ ConcurrentVersionSystem
 CompositeBuilder 
 ---------------------- 
 * Add CompositeBuilder to run a list of builders and have the results of the builds combined (CC-538). Submitted by Frederic Mockel 
+* CompositeBuilder.validate() should validate child builders. Reported by EJ Ciramella
 
 cruisecontrol.bat
 ----------------------
