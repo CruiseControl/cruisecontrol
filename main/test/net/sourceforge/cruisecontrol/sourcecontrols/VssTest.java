@@ -66,6 +66,36 @@ public class VssTest extends TestCase {
         vss = new Vss();
     }
 
+    /**
+     * This test is only likely to fail on Windows if the temp file
+     * is not deleted. *nix systems are able to delete the file even
+     * if input streams remain open on the file
+     */
+    public void testVssTempFileCleanup() throws Exception {
+        vss.setVsspath("vsspath");
+
+        final File tempFile = new File(vss.createFileNameFromVssPath());
+        // create the temp file
+        assertTrue("Failed to create test temp file: " + tempFile.getAbsolutePath(),
+                tempFile.createNewFile());
+        tempFile.deleteOnExit();
+        try {
+            final ArrayList mods = new ArrayList();
+            vss.parseTempFile(mods);
+            assertFalse("Vss SourceControl failed to delete temp file: "
+                    + tempFile.getAbsolutePath()
+                    + "\nWindows requires streams be closed before File.delete() will work.",
+                    tempFile.exists());
+            assertEquals(0, mods.size());
+        } finally {
+            if (tempFile.exists()) {
+                // something went wrong, but clean up anyway
+                assertTrue("Failed to delete temp file: " + tempFile.getAbsolutePath(),
+                        tempFile.delete());
+            }
+        }
+    }
+
     public void testValidate() {
         try {
             vss.validate();

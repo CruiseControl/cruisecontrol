@@ -207,7 +207,7 @@ public class Vss implements SourceControl {
         return stderr;
     }
 
-    private void parseTempFile(List modifications) throws IOException, CruiseControlException {
+    void parseTempFile(List modifications) throws IOException, CruiseControlException {
         File tempFile = getTempFile();
         if (!getTempFile().isFile()) {
             throw new CruiseControlException("vss failed to create output file " + tempFile.getPath());
