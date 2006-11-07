@@ -54,7 +54,7 @@ import org.apache.log4j.Logger;
 
 /**
  * This class handles all VSS-related aspects of determining the modifications since the last good build.
- * 
+ *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author Eli Tucker
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -79,7 +79,7 @@ public class Vss implements SourceControl {
 
     /**
      * Set the project to get history from
-     * 
+     *
      * @param vsspath
      */
     public void setVsspath(String vsspath) {
@@ -88,7 +88,7 @@ public class Vss implements SourceControl {
 
     /**
      * Set the path to the ss executable
-     * 
+     *
      * @param ssdir
      */
     public void setSsDir(String ssdir) {
@@ -97,7 +97,7 @@ public class Vss implements SourceControl {
 
     /**
      * Set the path to the directory containing the srcsafe.ini file.
-     * 
+     *
      * @param dirWithSrcsafeIni
      */
     public void setServerPath(String dirWithSrcsafeIni) {
@@ -106,7 +106,7 @@ public class Vss implements SourceControl {
 
     /**
      * Login for vss
-     * 
+     *
      * @param usernameCommaPassword
      */
     public void setLogin(String usernameCommaPassword) {
@@ -116,7 +116,7 @@ public class Vss implements SourceControl {
     /**
      * Choose a property to be set if the project has modifications if we have a change that only requires repackaging,
      * i.e. jsp, we don't need to recompile everything, just rejar.
-     * 
+     *
      * @param propertyName
      */
     public void setProperty(String propertyName) {
@@ -125,7 +125,7 @@ public class Vss implements SourceControl {
 
     /**
      * Choose a property to be set if the project has deletions
-     * 
+     *
      * @param propertyName
      */
     public void setPropertyOnDelete(String propertyName) {
@@ -136,7 +136,7 @@ public class Vss implements SourceControl {
      * Sets the date format to use for querying VSS and processing reports. The default date format is
      * <code>MM/dd/yy</code> . If your computer is set to a different region, you may wish to use a format such as
      * <code>dd/MM/yy</code> .
-     * 
+     *
      * @see java.text.SimpleDateFormat
      */
     public void setDateFormat(String format) {
@@ -148,7 +148,7 @@ public class Vss implements SourceControl {
      * Sets the time format to use for querying VSS and processing reports. The default time format is
      * <code>hh:mma</code> . If your computer is set to a different region, you may wish to use a format such as
      * <code>HH:mm</code> .
-     * 
+     *
      * @see java.text.SimpleDateFormat
      */
     public void setTimeFormat(String format) {
@@ -168,7 +168,7 @@ public class Vss implements SourceControl {
     /**
      * Calls "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]" Results written to a file since
      * VSS will start wrapping lines if read directly from the stream.
-     * 
+     *
      * @param lastBuild
      * @param now
      * @return List of modifications
@@ -217,16 +217,14 @@ public class Vss implements SourceControl {
             logVSSTempFile();
         }
 
-        BufferedReader reader = null;
-
+        final BufferedReader reader = new BufferedReader(new FileReader(tempFile));
         try {
-            reader = new BufferedReader(new FileReader(tempFile));
-
             parseHistoryEntries(modifications, reader);
-            tempFile.delete();
         } finally {
+            // need to close the InputStream before delete(), otherwise fails on windows
             IO.close(reader);
         }
+        tempFile.delete();
     }
 
     private void logVSSTempFile() throws IOException {
