@@ -182,8 +182,10 @@ public class LogTest extends TestCase {
         GZIPManipulator gzip = new GZIPManipulator();
         gzip.setEvery(12);
         gzip.setUnit("month");
-        Log log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
-        log = getWrittenTestLog(testProjectName, testLogDir, new Date());
+        // create old log
+        getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        // create new log
+        Log log = getWrittenTestLog(testProjectName, testLogDir, new Date());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 2, 1, 1);

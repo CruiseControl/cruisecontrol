@@ -58,27 +58,31 @@ public class GZIPManipulator extends BaseManipulator {
         }
     }
 
-    private void gzipFile(File logfile, String logDir) {
-        OutputStream out = null;
-        InputStream in = null;
-        try {
-            String fileName = logfile.getName() + ".gz";
+    private void gzipFile(final File logfile, final String logDir) {
 
-            out = new GZIPOutputStream(
+        final String fileName = logfile.getName() + ".gz";
+        try {
+            final OutputStream out = new GZIPOutputStream(
                     new FileOutputStream(new File(logDir, fileName)));
-            in = new FileInputStream(logfile);
-            int len;
-            byte[] buffer = new byte[BUFFER_SIZE];
-            while ((len = in.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
+            try {
+                final InputStream in = new FileInputStream(logfile);
+                try {
+                    int len;
+                    final byte[] buffer = new byte[BUFFER_SIZE];
+                    while ((len = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, len);
+                    }
+                    out.flush();
+                } finally {
+                    // need to close the InputStream before delete(), otherwise fails on windows
+                    IO.close(in);
+                }
+            } finally {
+                IO.close(out);
             }
-            out.flush();
             logfile.delete();
         } catch (IOException e) {
             LOG.warn("could not gzip " + logfile.getName() + ": " + e.getMessage(), e);
-        } finally {
-            IO.close(out);
-            IO.close(in);
         }
     }
 
