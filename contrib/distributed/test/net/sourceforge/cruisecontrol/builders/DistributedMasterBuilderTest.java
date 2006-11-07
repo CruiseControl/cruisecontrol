@@ -6,7 +6,6 @@ import java.util.Properties;
 import java.util.Arrays;
 import java.util.List;
 import java.io.File;
-import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.EOFException;
 import java.net.URL;
@@ -18,11 +17,13 @@ import java.net.MalformedURLException;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.Project;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
@@ -67,27 +68,30 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static void addMissingPluginDefaults(final Element elementToFilter) {
         DistributedMasterBuilder.addMissingPluginDefaults(elementToFilter);
     }
-    /**
-     * Show what's happening with the jiniProcess
-     */
-    private static final class PrefixedPrintWriter extends PrintWriter {
-        private final String writerPrefix;
 
-        PrefixedPrintWriter(final String prefix) {
-            super(System.out);
-            writerPrefix = prefix;
+    /**
+     * Show what's happening with the Jini Process.
+     */
+    private static final class PrefixedStreamConsumer implements StreamConsumer {
+        private final String prefix;
+        private final Logger logger;
+        private final Level level;
+
+        PrefixedStreamConsumer(final String prefix, final Logger logger, final Level level) {
+            this.prefix = prefix;
+            this.logger = logger;
+            this.level = level;
         }
 
-        public void write(String s) {
-            //if (LOG.isEnabledFor(Priority.DEBUG)) { // gives odd newlines in console
-            super.write(writerPrefix + s);
-            //}
+        /** {@inheritDoc} */
+        public void consumeLine(String line) {
+            logger.log(level, prefix + line);
         }
     }
 
 
     /** @return the Process in which Jini Lookup _service is running, for use in killing it. */
-    public static Process startJini() throws Exception {
+    public static ProcessInfoPump startJini(final Logger logger, final Level level) throws Exception {
         // make sure local lookup service is not already running
         verifyNoLocalLookupService();
 
@@ -162,11 +166,15 @@ public class DistributedMasterBuilderTest extends TestCase {
         LOG.debug("jini startup command: " + Arrays.asList(cmdLine.getCommandline()));
         final Process newJiniProcess = Runtime.getRuntime().exec(cmdLine.getCommandline());
 
-        // show what's happening with the jiniProcess
-        new Thread(new StreamPumper(newJiniProcess.getErrorStream(),
-                new PrefixedPrintWriter("[JiniErr] "))).start();
-        new Thread(new StreamPumper(newJiniProcess.getInputStream(),
-                new PrefixedPrintWriter("[JiniOut] "))).start();
+        newJiniProcess.getOutputStream().close();
+
+        final ProcessInfoPump jiniProcessInfoPump = new ProcessInfoPump(newJiniProcess,
+            // show what's happening with the jiniProcessPump
+            new StreamPumper(newJiniProcess.getErrorStream(),
+                    new PrefixedStreamConsumer("[JiniErr] ", logger, level)),
+            new StreamPumper(newJiniProcess.getInputStream(),
+                    new PrefixedStreamConsumer("[JiniOut] ", logger, level)),
+            logger, level);
 
         // setup security policy
         URL policyFile = ClassLoader.getSystemClassLoader().getResource(INSECURE_POLICY_FILENAME);
@@ -183,7 +191,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             serviceRegistrar.getLocator().getHost());
 
         Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
-        return newJiniProcess;
+        return jiniProcessInfoPump;
     }
 
     public static String getJavaExec() {
@@ -236,21 +244,17 @@ public class DistributedMasterBuilderTest extends TestCase {
         return serviceRegistrar;
     }
 
-    public static void killJini(final Process jiniProcess) throws Exception {
-        if (jiniProcess != null) {
-            jiniProcess.destroy();
+    public static void killJini(final ProcessInfoPump jiniProcessPump) throws Exception {
+        if (jiniProcessPump != null) {
 
-            jiniProcess.getInputStream().close();
-            jiniProcess.getOutputStream().close();
-            jiniProcess.getErrorStream().close();
-
+            jiniProcessPump.kill();
             LOG.debug("Jini process killed.");
 
             // make sure local Lookup Service is dead
             // @todo why do we need to retry this on Linux?
             if (findTestLookupService(1) != null) {
                 final int secs = 5;
-                LOG.debug("Waiting " + secs + " seconds for Lookup Service to die...need to fix this.");
+                LOG.warn("Waiting " + secs + " seconds for Lookup Service to die...need to fix this.");
                 Thread.sleep(secs * 1000);
             }
             verifyNoLocalLookupService();
@@ -268,7 +272,54 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
-    private Process jiniProcess;
+    /**
+     * Holds a executing process and it's associated stream pump threads.
+     */
+    public static final class ProcessInfoPump {
+        private final Process process;
+        private final Thread inputPumpThread;
+        private final Thread errorPumpThread;
+
+        private final Logger logger;
+        private final Level level;
+
+        public ProcessInfoPump(final Process process, final StreamPumper inputPump, final StreamPumper errorPump,
+                               final Logger logger, final Level level) {
+
+            this.process = process;
+
+            this.logger = logger;
+            this.level = level;
+
+            errorPumpThread = new Thread(errorPump);
+            inputPumpThread = new Thread(inputPump);
+
+            errorPumpThread.start();
+            inputPumpThread.start();
+        }
+
+        public void kill() throws IOException, InterruptedException {
+            process.destroy();
+
+            logger.log(level, "Process destroyed.");
+
+            // wait for stream pumps to end
+            if (errorPumpThread != null) {
+                errorPumpThread.join();
+            }
+            if (inputPumpThread != null) {
+                inputPumpThread.join();
+            }
+
+            process.getInputStream().close();
+            process.getErrorStream().close();
+            process.getOutputStream().close();
+
+            logger.log(level, "Process pumps fnished.");
+        }
+    }
+
+    private ProcessInfoPump jiniProcessPump;
 
 
 
@@ -299,11 +350,11 @@ public class DistributedMasterBuilderTest extends TestCase {
 
 
     protected void setUp() throws Exception {
-        jiniProcess = DistributedMasterBuilderTest.startJini();
+        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
     }
 
     protected void tearDown() throws Exception {
-        DistributedMasterBuilderTest.killJini(jiniProcess);
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
 
 
@@ -538,7 +589,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public void testPickAgentNoRegistrars() throws Exception {
         // kill local reggie
-        DistributedMasterBuilderTest.killJini(jiniProcess);
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
 
         DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE

@@ -2,6 +2,7 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
@@ -20,15 +21,15 @@ public class BuildAgentTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(net.sourceforge.cruisecontrol.distributed.BuildAgentTest.class);
 
-    private Process jiniProcess;
+    private DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
 
     protected void setUp() throws Exception {
-        jiniProcess = DistributedMasterBuilderTest.startJini();
+        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
     }
 
     protected void tearDown() throws Exception {
         BuildAgent.kill();
-        DistributedMasterBuilderTest.killJini(jiniProcess);
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
 
     private static Object findAgent(final ServiceRegistrar reg,

@@ -39,17 +39,21 @@ package net.sourceforge.cruisecontrol.distributed.util;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 public class MulticastDiscoveryTest extends TestCase {
 
-    private Process jiniProcess;
+    private static final Logger LOG = Logger.getLogger(MulticastDiscoveryTest.class);
+
+    private DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
 
     protected void setUp() throws Exception {
-        jiniProcess = DistributedMasterBuilderTest.startJini();
+        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
     }
 
     protected void tearDown() throws Exception {
-        DistributedMasterBuilderTest.killJini(jiniProcess);
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
 
 
