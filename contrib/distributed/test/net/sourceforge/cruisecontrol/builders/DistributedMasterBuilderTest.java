@@ -315,7 +315,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             process.getErrorStream().close();
             process.getOutputStream().close();
 
-            logger.log(level, "Process pumps fnished.");
+            logger.log(level, "Process pumps finished.");
         }
     }
 
