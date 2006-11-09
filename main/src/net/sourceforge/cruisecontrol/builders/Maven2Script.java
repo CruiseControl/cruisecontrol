@@ -32,7 +32,7 @@ public class Maven2Script implements Script, StreamConsumer {
     private String pomFile;
     private String settingsFile;
     private String flags;
-    private Element buildLogElement; //Log to store result of the execution for CC
+    private final Element buildLogElement; //Log to store result of the execution for CC
     private Map buildProperties;
     private String activateProfiles;
 
@@ -138,8 +138,8 @@ public class Maven2Script implements Script, StreamConsumer {
      * or successful build.
      */
     public void consumeLine(String line) {
-        String level = "";
-        String infoLine = null;
+        final String level;
+        final String infoLine;
         if (line == null || line.length() == 0 || buildLogElement == null) {
             return;
         }
