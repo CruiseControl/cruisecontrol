@@ -4874,7 +4874,9 @@ endlocal</pre>
             <tr>
                <td>flags</td>
                <td>No</td>
-               <td>Extra parameters to pass on mvn command line. E.g.: '-U -o'</td>
+               <td>Command line flags to be passed to maven. For example:
+               '-U -Dmaven.test.skip=true'. The flags will be passed to each session
+               invocation (see above Note 3).</td>
             </tr>
             <tr>
                <td>multiple</td>
@@ -4895,12 +4897,6 @@ endlocal</pre>
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
-            <tr> 
-               <td>flags</td> 
-               <td>No</td> 
-                <td>Command line flags to be passed to maven. For example: -U or -Dmaven.test.skip=true. 
-                The flags will be passed to each session invocation (see above Note 3).</td> 
-            </tr> 
             </tbody>
         </table>
         </div>
