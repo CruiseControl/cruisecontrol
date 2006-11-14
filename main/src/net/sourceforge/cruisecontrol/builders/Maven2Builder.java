@@ -10,6 +10,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -27,7 +28,7 @@ import org.jdom.Element;
 public class Maven2Builder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(Maven2Builder.class);
-    private static final String MVN = "bin" + File.separator + "mvn";
+    static final String MVN_BIN_DIR = "bin" + File.separator;
 
     private String mvnHome;
     private String mvnScript;
@@ -68,7 +69,7 @@ public class Maven2Builder extends Builder {
         }
         this.mvnHome = mvnHome;
 
-        LOG.debug("MvnHome = " + this.mvnHome + " Mvn should be in " + this.mvnHome + MVN);
+        LOG.debug("MvnHome = " + this.mvnHome + " Mvn should be in " + this.mvnHome + MVN_BIN_DIR);
     }
 
     /**
@@ -107,17 +108,21 @@ public class Maven2Builder extends Builder {
 
         super.validate();
 
-        if (mvnScript != null) {
-            ValidationHelper.assertTrue(new File(mvnScript).exists(), 
-                    "Maven Script file could not be found : " + mvnScript 
-                    + " Check the mvnscript attribute of the maven2 plugin");
-        } else {
+        ValidationHelper.assertFalse(mvnScript != null && mvnHome != null,
+                    "'mvnhome' and 'mvnscript' cannot both be set");
+
+        if (mvnHome != null) {
             ValidationHelper.assertIsSet(mvnHome, "mvnhome", getClass());
-            ValidationHelper.assertTrue(new File(mvnHome + MVN).exists(), 
-                    "mvn could not be found : " + mvnHome + MVN 
-                    + " Check the mvnhome attribute of the maven2 plugin");
+            final File mvnHomeDir = new File(mvnHome);
+            ValidationHelper.assertTrue(mvnHomeDir.exists() && mvnHomeDir.isDirectory(),
+                    "'mvnhome' must exist and be a directory. Expected to find "
+                            + mvnHomeDir.getAbsolutePath()
+                            + "; Check the mvnhome attribute of the maven2 plugin");
+
+            mvnScript = findMaven2Script(Util.isWindows());
         }
-        
+        ValidationHelper.assertTrue(mvnScript != null, "'mvnhome' or 'mvnscript' must be set.");
+
         ValidationHelper.assertIsSet(pomFile, "pomfile", getClass());
         ValidationHelper.assertIsSet(goal, "goal", this.getClass());
         if (getGoalSets().isEmpty()) {
@@ -138,10 +143,12 @@ public class Maven2Builder extends Builder {
 
         //This check is done here because the pom can be downloaded after CC is started 
         // and before this plugin is run
-        ValidationHelper.assertTrue(new File(pomFile).exists(), 
-                "the pom file could not be found : " + pomFile + " Check the pomfile attribute");
+        final File filePomFile = new File(pomFile);
+        ValidationHelper.assertTrue(filePomFile.exists(),
+                "the pom file could not be found : " + filePomFile.getAbsolutePath()
+                        + "; Check the 'pomfile' attribute: " + pomFile);
 
-        File workingDir = (new File(pomFile)).getParentFile();
+        File workingDir = filePomFile.getParentFile();
         LOG.debug("Working dir is : " + workingDir.toString());
 
         long startTime = System.currentTimeMillis();
@@ -153,13 +160,7 @@ public class Maven2Builder extends Builder {
 
             String goals = (String) goalSets.get(i);
 
-            final String mvnScriptFile;
-            if (mvnScript != null) {
-                mvnScriptFile = mvnScript;
-            } else {
-                mvnScriptFile = mvnHome + MVN;
-            }
-            Maven2Script script = new Maven2Script(buildLogElement, mvnScriptFile, pomFile, goals, 
+            Maven2Script script = new Maven2Script(buildLogElement, mvnScript, pomFile, goals,
                     settingsFile, activateProfiles, flags);
             script.setBuildProperties(buildProperties);
 
@@ -230,6 +231,23 @@ public class Maven2Builder extends Builder {
     public void setFlags(String flags) {
     
         this.flags = flags;
+    }
+
+
+    /**
+     * If the mvnhome attribute is set, then this method returns the correct shell script
+     * to use for a specific environment.
+     */
+    protected String findMaven2Script(boolean isWindows) throws CruiseControlException {
+        if (mvnHome == null) {
+            throw new CruiseControlException("mvnhome attribute not set.");
+        }
+
+        if (isWindows) {
+            return mvnHome + MVN_BIN_DIR  + "mvn.bat";
+        } else {
+            return mvnHome + MVN_BIN_DIR + "mvn";
+        }
     }
 
 }
