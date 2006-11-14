@@ -54,6 +54,29 @@ public class Maven2BuilderTest extends TestCase {
     private static final String MOCK_BUILD_FAILURE = "failed build";
     private static final String MOCK_DOWNLOAD_FAILURE = "download failure";
 
+    public void testFindMaven2Script() throws Exception {
+        final Maven2Builder mb = new Maven2Builder();
+        try {
+            mb.findMaven2Script(false);
+            fail("expected exception");
+        } catch (CruiseControlException e) {
+            assertEquals("mvnhome attribute not set.", e.getMessage());
+        }
+        try {
+            mb.findMaven2Script(true);
+            fail("expected exception");
+        } catch (CruiseControlException e) {
+            assertEquals("mvnhome attribute not set.", e.getMessage());
+        }
+
+        final String testMvnHome = "isWindowsTestScript";
+        mb.setMvnHome(testMvnHome);
+        assertEquals(testMvnHome + File.separator + Maven2Builder.MVN_BIN_DIR + "mvn.bat",
+                mb.findMaven2Script(true));
+        assertEquals(testMvnHome + File.separator + Maven2Builder.MVN_BIN_DIR + "mvn",
+                mb.findMaven2Script(false));
+    }
+
     /**
      * void validate()
      */
@@ -63,7 +86,7 @@ public class Maven2BuilderTest extends TestCase {
             mb.validate();
             fail("Maven2Builder should throw exceptions when required fields are not set.");
         } catch (CruiseControlException e) {
-            assertEquals("'mvnhome' is required for Maven2Builder", e.getMessage());
+            assertEquals("'mvnhome' or 'mvnscript' must be set.", e.getMessage());
         }
 
         // these files must also exist for Maven2Builder to be happy.
@@ -109,8 +132,8 @@ public class Maven2BuilderTest extends TestCase {
     }
 
     public void testBuild_Success() throws IOException, CruiseControlException {
-      Maven2Builder mb = new Maven2Builder();
-      internalTestBuild(MOCK_SUCCESS, mb);
+        Maven2Builder mb = new Maven2Builder();
+        internalTestBuild(MOCK_SUCCESS, mb);
     }
 
     public void testBuild_BuildFailure() throws IOException, CruiseControlException {
@@ -135,8 +158,10 @@ public class Maven2BuilderTest extends TestCase {
         String statusText = getStatusText(statusType);
         try {
             // Prepare mock files.
+            final String tempFilePrefix = "Maven2BuilderTest.internalTestBuild";
+
             if (Util.isWindows()) {
-                testScript = File.createTempFile("Maven2BuilderTest.internalTestBuild", "_testmaven.bat");
+                testScript = File.createTempFile(tempFilePrefix, "_testmaven.bat");
                 testScript.deleteOnExit();
                 makeTestFile(
                     testScript,
@@ -149,7 +174,7 @@ public class Maven2BuilderTest extends TestCase {
                         + "\n",
                     true);
             } else {
-                testScript = File.createTempFile("Maven2BuilderTest.internalTestBuild", "_testmaven.sh");
+                testScript = File.createTempFile(tempFilePrefix, "_testmaven.sh");
                 testScript.deleteOnExit();
                 makeTestFile(
                     testScript,
@@ -165,7 +190,11 @@ public class Maven2BuilderTest extends TestCase {
                     false);
             }
             mb.setMvnScript(testScript.getAbsolutePath());
-            mb.setPomFile("don-t-care.xml");
+
+            // pom must exist before call to build()
+            final File testPom = File.createTempFile(tempFilePrefix, "don-t-care-pom.xml", new File("."));
+            testPom.deleteOnExit();
+            mb.setPomFile(testPom.getName());
 
             try {
                 Element we;
