@@ -16,13 +16,13 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- * Maven2 builder class based on the Maven builder class from 
- * <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>. 
+ * Maven2 builder class based on the Maven builder class from
+ * <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>.
  * <br />
  * Attempts to mimic the behavior of Ant builds, at least as far as CC is
  * concerned. Basically it's a (heavily) edited version of AntBuilder. No style
  * at all, but serves its purpose. :)
- * 
+ *
  * @author Steria Benelux Sa/Nv - Provided without any warranty
  */
 public class Maven2Builder extends Builder {
@@ -38,6 +38,7 @@ public class Maven2Builder extends Builder {
     private String activateProfiles;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private String flags;
+    private final List properties = new ArrayList();
 
     /**
      * Set an Alternate path for the user settings file.
@@ -56,7 +57,7 @@ public class Maven2Builder extends Builder {
 
         this.activateProfiles = activateProfiles;
     }
-    
+
     /**
      * Set mvnHome. This will be used to find the mvn script which is mvnHome/bin/
      * @param mvnHome the mvn home
@@ -75,11 +76,11 @@ public class Maven2Builder extends Builder {
     /**
      * Full path to Maven script, which overrides the default ".../bin/mvn".
      * @param mvnScipt
-     */ 
+     */
     public void setMvnScript(final String mvnScipt) {
         this.mvnScript = mvnScipt;
     }
-    
+
     /**
      * Set the pom file. This is also used to find the working directory.
      * @param pomFile
@@ -90,10 +91,16 @@ public class Maven2Builder extends Builder {
 
         LOG.debug("pom file : " + this.pomFile);
     }
-    
+
     public void setGoal(String goal) {
 
         this.goal = goal;
+    }
+
+    public Property createProperty() {
+        Property property = new Property();
+        properties.add(property);
+        return property;
     }
 
     public void setTimeout(long timeout) {
@@ -130,7 +137,7 @@ public class Maven2Builder extends Builder {
         }
 
         if (settingsFile != null) {
-            ValidationHelper.assertTrue(new File(settingsFile).exists(), 
+            ValidationHelper.assertTrue(new File(settingsFile).exists(),
                     "The settings file could not be found : " + settingsFile);
         }
     }
@@ -141,7 +148,7 @@ public class Maven2Builder extends Builder {
      */
     public Element build(Map buildProperties) throws CruiseControlException {
 
-        //This check is done here because the pom can be downloaded after CC is started 
+        //This check is done here because the pom can be downloaded after CC is started
         // and before this plugin is run
         final File filePomFile = new File(pomFile);
         ValidationHelper.assertTrue(filePomFile.exists(),
@@ -160,9 +167,10 @@ public class Maven2Builder extends Builder {
 
             String goals = (String) goalSets.get(i);
 
-            Maven2Script script = new Maven2Script(buildLogElement, mvnScript, pomFile, goals,
+            final Maven2Script script = new Maven2Script(buildLogElement, mvnScript, pomFile, goals,
                     settingsFile, activateProfiles, flags);
             script.setBuildProperties(buildProperties);
+            script.setProperties(properties);
 
             ScriptRunner scriptRunner = new ScriptRunner();
             boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
@@ -174,7 +182,7 @@ public class Maven2Builder extends Builder {
                 buildLogElement.setAttribute("error", "build timeout");
             } else if (script.getExitCode() != 0) {
                 // The maven.bat actually never returns error,
-                // due to internal cleanup called after the execution itself...                
+                // due to internal cleanup called after the execution itself...
                 synchronized (buildLogElement) {
                     buildLogElement.setAttribute("error", "Return code is " + script.getExitCode());
                 }
@@ -201,7 +209,7 @@ public class Maven2Builder extends Builder {
             goal = origGoal;
         }
     }
-    
+
     /**
      * Produces sets of goals, ready to be run each in a distinct call to Maven.
      * Separation of sets in "goal" attribute is made with '|'.
@@ -229,7 +237,7 @@ public class Maven2Builder extends Builder {
      * @param flags set the flags
      */
     public void setFlags(String flags) {
-    
+
         this.flags = flags;
     }
 

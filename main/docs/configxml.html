@@ -4815,8 +4815,16 @@ endlocal</pre>
         <p>The <code>goal</code> attribute has the following usage examples:</p>
         <ul>
             <li>"clean" will run 'clean' goal on the project</li>
+        </ul>
+
+        <a name="maven2-goal-note">Goals</a>
+        <ul>
             <li>"clean compile" will run 'clean' goal then 'compile'
             goal on the project, within the <b>same</b> Maven2 session run</li>
+        </ul>
+
+        <a name="maven2-session-note">Sessions</a>
+        <ul>
             <li>"clean my-cvs-update|compile" will run 'clean' goal then
             'my-cvs-update' goal on the project, within the <b>same</b> Maven
             session run, then it will run Maven <b>again</b> with goal
@@ -4847,7 +4855,7 @@ endlocal</pre>
             </tr>
             <tr>
                <td>mvnhome</td>
-               <td>Path to Maven2's home directory (M2_HOME). Maven script will be found 
+               <td>Path to Maven2's home directory (M2_HOME). Maven script will be found
                by appending "/bin/mvn" (or "/bin/mvn.bat") to this directory.</td>
             </tr>
             <tr>
@@ -4859,7 +4867,7 @@ endlocal</pre>
                <td>goal</td>
                <td>Yes</td>
                <td>Maven2 goal, "set of goals" or "set of set of goals" to run.
-               (see above Note2)</td>
+               (see <a href="#maven2-goal-note">Goals</a> note above)</td>
             </tr>
             <tr>
                <td>settingsfile</td>
@@ -4876,7 +4884,7 @@ endlocal</pre>
                <td>No</td>
                <td>Command line flags to be passed to maven. For example:
                '-U -Dmaven.test.skip=true'. The flags will be passed to each session
-               invocation (see above Note 3).</td>
+               invocation (see <a href="#maven2-session-note">Sessions</a> note above).</td>
             </tr>
             <tr>
                <td>multiple</td>
@@ -4899,6 +4907,30 @@ endlocal</pre>
             </tr>
             </tbody>
         </table>
+
+        <h3><a name="maven2-elements">Child Elements</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>&lt;property&gt;</td>
+                <td>0 .. *</td>
+                <td>Used to define properties for the maven2 build. The element
+                has a two required attributes: "name" and "value". These will
+                be passed on the maven2 command-line as "-Dname=value" to each session
+                invocation (see <a href="#maven2-session-note">Sessions </a> note above).<br/>
+                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+            </tr>
+            </tbody>
+        </table>
+
         </div>
         
         <div class="elementdocumentation">
