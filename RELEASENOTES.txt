@@ -122,6 +122,7 @@ Maven2Builder
 ----------------------
 * fix problem where a FATAL ERROR was not detected as an error.
 * fix finding mvn.bat in Windows. Reported by Michael Mattox
+* add support for <property> child elements
 
 ModificationSet
 ----------------------
