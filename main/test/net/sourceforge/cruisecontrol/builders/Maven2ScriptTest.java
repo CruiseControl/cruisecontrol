@@ -37,9 +37,12 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.Hashtable;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.apache.log4j.Level;
@@ -98,6 +101,38 @@ public class Maven2ScriptTest extends TestCase {
         currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
         assertEquals("message", currElement.getName());
         assertEquals("info", currElement.getAttribute("priority").getValue());
+    }
+
+
+    public void testCreateProperties() throws Exception {
+        final Maven2Script script = getScript();
+        final Maven2Builder mvn2Builder = new Maven2Builder();
+
+        final Property prop = mvn2Builder.createProperty();
+        prop.setName("m2PropName");
+        prop.setValue("m2PropValue");
+        final Property prop2 = mvn2Builder.createProperty();
+        prop2.setName("m2PropName2");
+        prop2.setValue("m2PropValue2 with spaces");
+        final List propList = new ArrayList();
+        propList.add(prop);
+        propList.add(prop2);
+        script.setProperties(propList);
+
+        final Commandline cmdLine = script.buildCommandline();
+
+        TestUtil.assertArray("Maven2 Properties element",
+                new String[] {
+                    CMD_MVN,
+                    "-B",
+                    "-f",
+                    CMD_POM,
+                    "-Dlabel=" + CMD_LABEL,
+                    "-Dm2PropName=m2PropValue",
+                    "-Dm2PropName2=m2PropValue2 with spaces"
+                },
+                cmdLine.getCommandline()
+        );
     }
 
     /**
@@ -172,6 +207,7 @@ public class Maven2ScriptTest extends TestCase {
       // none should exist for this test
       script.setMvnScript(CMD_MVN);
       script.setPomFile(CMD_POM);
+      script.setProperties(new ArrayList());
 
       Hashtable properties = new Hashtable();
       properties.put("label", CMD_LABEL);

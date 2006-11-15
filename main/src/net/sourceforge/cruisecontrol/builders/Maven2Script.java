@@ -35,6 +35,7 @@ public class Maven2Script implements Script, StreamConsumer {
     private final Element buildLogElement; //Log to store result of the execution for CC
     private Map buildProperties;
     private String activateProfiles;
+    private List properties;
 
     private int exitCode;
     private Element currentElement;
@@ -115,6 +116,11 @@ public class Maven2Script implements Script, StreamConsumer {
             } else {
                 LOG.error("Maven2Script ignoring property with space. Key:" + key + "; Value:" + value);
             }
+        }
+
+        for (Iterator propsIterator = properties.iterator(); propsIterator.hasNext(); ) {
+            Property property = (Property) propsIterator.next();
+            cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
         //If log is enabled, log the command line
@@ -254,7 +260,13 @@ public class Maven2Script implements Script, StreamConsumer {
     public void setPomFile(String pomFile) {
         this.pomFile = pomFile;
     }
-    
+    /**
+     * @param properties The properties to set.
+     */
+    public void setProperties(List properties) {
+        this.properties = properties;
+    }
+
     /**
      * @return the exitCode.
      */
