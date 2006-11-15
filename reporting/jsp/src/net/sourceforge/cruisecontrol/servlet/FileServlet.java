@@ -158,6 +158,7 @@ public class FileServlet extends HttpServlet {
             Date date = new Date(file.getFile().lastModified());
             response.addDateHeader("Last-Modified", date.getTime());
             response.setContentType(mimeType);
+            response.setContentLength((int) file.getFile().length());
             file.write(response.getOutputStream());
             return;
         }

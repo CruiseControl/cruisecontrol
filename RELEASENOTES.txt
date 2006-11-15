@@ -192,6 +192,7 @@ controlpanel.jsp
 FileServlet
 ----------------------
 * Fix problem where urls in directory might have double slashes. Fix by Edward Kuns
+* Added content length to HTTP response, this allows keep alive connections. Patch by Andreas Mandel
 
 metrics.jsp
 ----------------------
