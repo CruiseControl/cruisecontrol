@@ -335,6 +335,7 @@
             <classpath>
                 <path refid="ccdist.project.runtime.classpath"/>
             </classpath>
+            <sysproperty key="ccdist.ant.home" value="${ant.home}"/><!-- will be used if env.ANT_HOME is not set. -->
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}">
@@ -349,6 +350,7 @@
             <classpath>
                 <path refid="ccdist.project.runtime.classpath" />
             </classpath>
+            <sysproperty key="ccdist.ant.home" value="${ant.home}"/><!-- will be used if env.ANT_HOME is not set. -->
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
             <test name="${testcase}" todir="${junit.results}" />

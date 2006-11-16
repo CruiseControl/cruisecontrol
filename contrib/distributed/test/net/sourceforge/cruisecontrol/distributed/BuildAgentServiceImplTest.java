@@ -612,7 +612,12 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public static String getANT_HOME() {
-        return DistributedMasterBuilderTest.OS_ENV.getVariable("ANT_HOME");
+        String envAntHome = DistributedMasterBuilderTest.OS_ENV.getVariable("ANT_HOME");
+        if (envAntHome != null) {
+            return envAntHome;
+        }
+        // try using the ant.home passed in by build.xml
+        return System.getProperty("ccdist.ant.home");
     }
 
     public void testClaim() {
