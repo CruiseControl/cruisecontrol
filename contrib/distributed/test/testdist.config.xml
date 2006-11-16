@@ -7,7 +7,10 @@
         anthome="${env.ANT_HOME}"
         buildfile="test/testdist.build.xml"
         uselogger="true"
-        />
+        >
+        <property name="testPreConfChildNew" value="testPreConfAntChildNewValue"/>
+        <property name="testChild" value="testChildValuePre"/>
+    </plugin>
 
     <plugin name="distributed"
         classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"
@@ -21,7 +24,10 @@
             </distributed>
 
             <distributed module="testmodule-success">
-                <ant target="testtargetSuccess"/>
+                <ant target="testtargetSuccess">
+                    <property name="childInline" value="childInineValue"/>
+                    <property name="testChild" value="testChildValueInline"/>
+                </ant>
             </distributed>
         </schedule>
     </project>

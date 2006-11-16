@@ -261,6 +261,25 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                             pluginDefaultsHack.put(attribName, attribute.getValue());
                         }
                     }
+
+                    //@todo Handle preconfigured Child elements
+                    // handle any child elements, like <property> elements
+                    final List pluginChildren = plugin.getChildren();
+                    for (int k = 0; k < pluginChildren.size(); k++) {
+                        final Element child = (Element) pluginChildren.get(k);
+                        final Attribute childAttrName = child.getAttribute("name");
+                        LOG.error("WARNING!!! Distributed Builders do not yet handle nested child elements! Element: "
+                                + childAttrName.getValue() + " will not work on the BuildAgent.");
+//                        final List childAttribs = child.getAttributes();
+//                        for (int j = 0; j < childAttribs.size(); j++) {
+//                            final Attribute childAttribute = (Attribute) childAttribs.get(j);
+//                            final String childAttribName = childAttribute.getName();
+//                            // skip certain attribs
+//                            if (!"name".equals(childAttribName)) { // ignore "name" attrib 
+//                                pluginDefaultsHack.put(childAttribName, childAttribute.getValue());
+//                            }
+//                        }
+                    }
                 }
             }
             // put kludge results into returned map

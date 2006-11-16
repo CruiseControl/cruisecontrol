@@ -216,7 +216,12 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
     public static String getJAVA_HOME() {
-        return OS_ENV.getVariable("JAVA_HOME");
+        String envJavaHome = OS_ENV.getVariable("JAVA_HOME");
+        if (envJavaHome != null) {
+            return envJavaHome;
+        }
+        // try system prop for java.home
+        return System.getProperty("java.home");
     }
 
     public static ServiceRegistrar findTestLookupService(int retryTimeoutSecs)
@@ -380,6 +385,13 @@ public class DistributedMasterBuilderTest extends TestCase {
         assertEquals(preConfMsg, "${env.ANT_HOME}", childBuilder.getAttributeValue("anthome"));
         assertEquals(preConfMsg, "test/testdist.build.xml", childBuilder.getAttributeValue("buildfile"));
         assertEquals(preConfMsg, "true", childBuilder.getAttributeValue("uselogger"));
+        //@todo Handle preconfigured Child elements
+//        // check preconfigure child "property" element
+//        assertTrue(preConfMsg + " Missing preconfigured child <property> element.",
+//                childBuilder.getChildren().size() > 0);
+//        final Element childBuilderChildProp = (Element) childBuilder.getChildren().get(0);
+//        assertEquals(preConfMsg + " Check <property> child element.",
+//                "testPreConfAntChildNewValue", childBuilderChildProp.getAttributeValue("value"));
     }
 
     public void testScheduleDay() throws Exception {
