@@ -24,10 +24,7 @@
             </distributed>
 
             <distributed module="testmodule-success">
-                <ant target="testtargetSuccess">
-                    <property name="childInline" value="childInineValue"/>
-                    <property name="testChild" value="testChildValueInline"/>
-                </ant>
+                <ant target="testtargetSuccess"/>
             </distributed>
         </schedule>
     </project>
@@ -39,7 +36,10 @@
                 agentlogdir="agent/log"
                 masterlogdir="master/log"
                 >
-                <ant target="testtargetSuccess"/>
+                <ant target="testtargetSuccess">
+                    <property name="childInline" value="childInlineValue"/>
+                    <property name="testChild" value="testChildValueInline"/>
+                </ant>                    
             </distributed>
         </schedule>
     </project>

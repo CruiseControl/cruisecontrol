@@ -64,9 +64,13 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static final String ATR_NAME_TIME = "time";
     public static final String ATR_NAME_MULTIPLE = "multiple";
 
-    /** Expose package visible helper method for other Unit Test classes to use. */
-    public static void addMissingPluginDefaults(final Element elementToFilter) {
-        DistributedMasterBuilder.addMissingPluginDefaults(elementToFilter);
+    /**
+     * Expose package visible helper method for other Unit Test classes to use.
+     * @param elementToAlter the jdom element (distributed, or child builder) who's defaults need to be added.
+     * @throws CruiseControlException if ProjectXMLHelper.parsePropertiesInElement() fails.
+     */
+    public static void addMissingPluginDefaults(final Element elementToAlter) throws CruiseControlException {
+        DistributedMasterBuilder.addMissingPluginDefaults(elementToAlter);
     }
 
     /**
@@ -90,7 +94,12 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
-    /** @return the Process in which Jini Lookup _service is running, for use in killing it. */
+    /**
+     * @param logger the the logger to write Jini process messages to
+     * @param level the logger level at which to write Jini process messages
+     * @return the Process in which Jini Lookup _service is running, for use in killing it.
+     * @throws Exception if we can't start jini lookup service
+     */
     public static ProcessInfoPump startJini(final Logger logger, final Level level) throws Exception {
         // make sure local lookup service is not already running
         verifyNoLocalLookupService();
@@ -385,13 +394,27 @@ public class DistributedMasterBuilderTest extends TestCase {
         assertEquals(preConfMsg, "${env.ANT_HOME}", childBuilder.getAttributeValue("anthome"));
         assertEquals(preConfMsg, "test/testdist.build.xml", childBuilder.getAttributeValue("buildfile"));
         assertEquals(preConfMsg, "true", childBuilder.getAttributeValue("uselogger"));
-        //@todo Handle preconfigured Child elements
-//        // check preconfigure child "property" element
-//        assertTrue(preConfMsg + " Missing preconfigured child <property> element.",
-//                childBuilder.getChildren().size() > 0);
-//        final Element childBuilderChildProp = (Element) childBuilder.getChildren().get(0);
-//        assertEquals(preConfMsg + " Check <property> child element.",
-//                "testPreConfAntChildNewValue", childBuilderChildProp.getAttributeValue("value"));
+
+        // check preconfigured child "property" element
+        final List builderChildren = childBuilder.getChildren();
+        assertEquals(preConfMsg + " Wrong number of preconfigured child <property> elements.",
+                4, builderChildren.size());
+        checkChildProperty(preConfMsg, (Element) builderChildren.get(0), "childInline", "childInlineValue");
+        checkChildProperty(preConfMsg, (Element) builderChildren.get(1), "testChild", "testChildValueInline");
+        checkChildProperty(preConfMsg, (Element) builderChildren.get(2), "testChild",
+                "testChildValuePre"); // this is a duplicate default, and should also appear, unless logic changes
+        checkChildProperty(preConfMsg, (Element) builderChildren.get(3), "testPreConfChildNew",
+                "testPreConfAntChildNewValue"); // this is a non-duplicate default
+    }
+
+    private static void checkChildProperty(String preConfMsg, Element childProperty,
+                                           String expectedName, String expectedValue) {
+        assertEquals(preConfMsg + " Check <property> child.",
+                "property", childProperty.getName());
+        assertEquals(preConfMsg + " Check <property> child name.",
+                expectedName, childProperty.getAttributeValue("name"));
+        assertEquals(preConfMsg + " Check <property> child value.",
+                expectedValue, childProperty.getAttributeValue("value"));
     }
 
     public void testScheduleDay() throws Exception {
