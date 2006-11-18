@@ -54,6 +54,8 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
+import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
@@ -102,8 +104,10 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return childBuilderElement;
     }
 
-    /** If true, available agent lookup will not block until an agent is found,
-     * but will return null immediately. */
+    /**
+     * @param isFailFast If true, available agent lookup will not block until an agent is found,
+     * but will return null immediately.
+     */
     public synchronized void setFailFast(final boolean isFailFast) {
         this.isFailFast = isFailFast;
     }
@@ -111,7 +115,10 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return isFailFast;
     }
 
-    /** Intended only for use by unit tests. **/
+    /**
+     * Intended only for use by unit tests.
+     * @param multicastDiscovery lookup helper
+     */
     void setDiscovery(final MulticastDiscovery multicastDiscovery) {
         discovery = multicastDiscovery;
     }
@@ -125,8 +132,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     }
 
     /**
-     * 
-     * @param element
+     * @param element the "distributed" jdom element
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
     public void configure(final Element element) throws CruiseControlException {
@@ -203,8 +209,12 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         validate();
     }
 
-    /** Package visisble since also used by unit tests to apply plugin default values. */
-    static void addMissingPluginDefaults(final Element elementToAlter) {
+    /**
+     * Package visisble since also used by unit tests to apply plugin default values.
+     * @param elementToAlter the jdom element (distributed, or child builder) who's defaults need to be added.
+     * @throws CruiseControlException if ProjectXMLHelper.parsePropertiesInElement() fails.
+     */
+    static void addMissingPluginDefaults(final Element elementToAlter) throws CruiseControlException {
         LOG.debug("Adding missing defaults for plugin: " + elementToAlter.getName());
         final Map pluginDefaults = getPluginDefaults(elementToAlter);
         applyPluginDefaults(pluginDefaults, elementToAlter);
@@ -214,21 +224,28 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         final String pluginName = elementToAlter.getName();
         // to preserve precedence, only add default attribute if it is not also defined in the tag directly
         final Set defaultAttribMapKeys = pluginDefaults.keySet();
+        Object key;
         for (Iterator itrKeys = defaultAttribMapKeys.iterator(); itrKeys.hasNext();) {
-            final String attribName = (String) itrKeys.next();
-            final String attribValueExisting = elementToAlter.getAttributeValue(attribName);
-            if (attribValueExisting == null) { // skip existing attribs
-                final String attribValue = (String) pluginDefaults.get(attribName);
-                elementToAlter.setAttribute(attribName, attribValue);
-                LOG.debug("Added plugin " + pluginName + " default attribute: " + attribName + "=" + attribValue);
-            } else {
-                LOG.debug("Skipping plugin " + pluginName + " overidden attribute: " + attribName
-                        + "=" + attribValueExisting);
+            key = itrKeys.next();
+            if (key instanceof String) {
+                final String attribName = (String) key;
+                final String attribValueExisting = elementToAlter.getAttributeValue(attribName);
+                if (attribValueExisting == null) { // skip existing attribs
+                    final String attribValue = (String) pluginDefaults.get(attribName);
+                    elementToAlter.setAttribute(attribName, attribValue);
+                    LOG.debug("Added plugin " + pluginName + " default attribute: " + attribName + "=" + attribValue);
+                } else {
+                    LOG.debug("Skipping plugin " + pluginName + " overidden attribute: " + attribName
+                            + "=" + attribValueExisting);
+                }
+            } else if (key instanceof Integer) { // this is a default child element
+                final Element defaultChildElement = (Element) pluginDefaults.get(key);
+                elementToAlter.addContent(defaultChildElement);
             }
         }
     }
 
-    private static Map getPluginDefaults(final Element elementToAlter) {
+    private static Map getPluginDefaults(final Element elementToAlter) throws CruiseControlException {
 
         final PluginRegistry pluginsRegistry = PluginRegistry.createRegistry();
         final Map pluginDefaults = new HashMap();
@@ -251,8 +268,17 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             for (int i = 0; i < plugins.size(); i++) {
                 final Element plugin = (Element) plugins.get(i);
                 if (elementToAlter.getName().equals(plugin.getAttributeValue("name"))) {
+
+                    // clone to avoid changing original dom tree
+                    final Element pluginFound = (Element) ((Element) plugin.clone()).detach();
+                    // resolve any macro values in plugin defaults
+                    ProjectXMLHelper.parsePropertiesInElement(
+                            pluginFound,
+                            new HashMap(), // @todo How To get populated map of macro values???
+                            CruiseControlConfig.FAIL_UPON_MISSING_PROPERTY);
+
                     // iterate attribs
-                    final List attribs = plugin.getAttributes();
+                    final List attribs = pluginFound.getAttributes();
                     for (int j = 0; j < attribs.size(); j++) {
                         final Attribute attribute = (Attribute) attribs.get(j);
                         final String attribName = attribute.getName();
@@ -262,23 +288,22 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                         }
                     }
 
-                    //@todo Handle preconfigured Child elements
+    /*
+     * Note: as we have no way to enforce the cardinality of the nested elements, the parent/default nested
+     * elements are always added to the config of the child. The validity of the resulting config then
+     * depends on the config to be correctly specified.
+     *
+     * see PluginRegistry.overridePluginConfig()
+     */
                     // handle any child elements, like <property> elements
-                    final List pluginChildren = plugin.getChildren();
+                    final List pluginChildren = pluginFound.getChildren();
                     for (int k = 0; k < pluginChildren.size(); k++) {
                         final Element child = (Element) pluginChildren.get(k);
                         final Attribute childAttrName = child.getAttribute("name");
-                        LOG.error("WARNING!!! Distributed Builders do not yet handle nested child elements! Element: "
-                                + childAttrName.getValue() + " will not work on the BuildAgent.");
-//                        final List childAttribs = child.getAttributes();
-//                        for (int j = 0; j < childAttribs.size(); j++) {
-//                            final Attribute childAttribute = (Attribute) childAttribs.get(j);
-//                            final String childAttribName = childAttribute.getName();
-//                            // skip certain attribs
-//                            if (!"name".equals(childAttribName)) { // ignore "name" attrib 
-//                                pluginDefaultsHack.put(childAttribName, childAttribute.getValue());
-//                            }
-//                        }
+                        LOG.debug("ccdist: " + elementToAlter.getName() + ": adding preconfigured child element: "
+                                + childAttrName);
+                        // add child element to map
+                        pluginDefaultsHack.put(new Integer(k), ((Element) child.clone()).detach());
                     }
                 }
             }
@@ -303,7 +328,11 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return element;
     }
 
-    /** Used to get default value for "module" attribute if not given. */
+    /**
+     * Used to get default value for "module" attribute if not given.
+     * @param element the "distributed" jdom element
+     * @return the parent "project" jdom element
+     */
     private static Element getElementProject(Element element) {
         LOG.debug("Searching for Project element, starting at: " + element.toString());
         while (!"project".equals(element.getName().toLowerCase())) {
@@ -327,12 +356,17 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             throw new CruiseControlException(message);
         }
 
+        /*
+         * DO NOT add defaults here since they are added in .configure()???, and now that we add preconfigured
+         * child elements to nested builders, multiple calls to add addMissingPluginDefaults() would inflate the
+         * jdom tree.
         // Add default/preconfigured props to builder element
         addMissingPluginDefaults(elmChildBuilder);
+         */
 
-        /* @todo Should we call validate() on the child builder?
-        // If so, figure out how to do in unit tests.
-        // One problem is config file properties, like: "anthome="${env.ANT_HOME}" don't get expanded...
+        /* @todo Should call validate() on the child builder but can't until macro resolution is available from
+        // outside CruiseControlConfig et al. Otherwise, config file properties, like: "anthome="${env.ANT_HOME}"
+        // don't get expanded...
         final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
         PluginRegistry plugins = PluginRegistry.createRegistry();
         Class pluginClass = plugins.getPluginClass(elmChildBuilder.getName());
