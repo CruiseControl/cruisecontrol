@@ -51,7 +51,7 @@ import org.jdom.Element;
 public class ExecBootstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(ExecBootstrapper.class);
-    private ExecBuilder delegate = new ExecBuilder();
+    private final ExecBuilder delegate = new ExecBuilder();
 
     /**
      * Called after the configuration is read to make sure that all the mandatory parameters
