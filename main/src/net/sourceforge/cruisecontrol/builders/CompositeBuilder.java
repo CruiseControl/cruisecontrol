@@ -17,7 +17,7 @@ public class CompositeBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(CompositeBuilder.class);
 
-    private List builders = new ArrayList();
+    private final List builders = new ArrayList();
 
     public void add(Builder builder) {
         try {
@@ -46,15 +46,14 @@ public class CompositeBuilder extends Builder {
         }
         // searching for errors (if we found one ore more, we will stop)
         Iterator messageElements = buildResult.getChildren("message").iterator();
-        boolean errorOcurred = false;
         while (messageElements.hasNext()) {
             Element messageElement = (Element) messageElements.next();
             if (messageElement.getAttribute("priority").getValue().equals("error")) {
                 LOG.debug("CompositeBuilder: errorlement found, stopping)");
-                errorOcurred = true;
+                return true; // stop looking, since we found an error
             }
         }
-        return errorOcurred;
+        return false; // if we made it this far, no errors were found
     }
 
     public Element build(Map properties) throws CruiseControlException {
