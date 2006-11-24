@@ -9,6 +9,7 @@ general
 * End of support for compiling/running Cruise with JDK 1.3. New earliest supported JDK is 1.4.x.
 * Replace Xalan with Saxon.
 * Overhaul handling of threads, streams and logging when executing external processes.
+* cruisecontrol.bat didn't work if there were spaces in JAVA_HOME (CC-554)
 
 contrib
 ======================
