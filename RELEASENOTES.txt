@@ -211,7 +211,7 @@ testdetails.xsl
 ----------------------
 * Rewrite xsl to be more efficient. Submitted by Ivan Latysh
 
-StatusHelper
+taglib
 ----------------------
 * Taglib tries to read a system property named "false", which, depending on security policies, may be denied (CC-525). Based on patch by R. Lemos 
 
