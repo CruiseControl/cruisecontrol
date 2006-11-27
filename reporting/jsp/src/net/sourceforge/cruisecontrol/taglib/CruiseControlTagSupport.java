@@ -156,8 +156,7 @@ public class CruiseControlTagSupport extends TagSupport {
             return "/" + projectName;
         }
 
-        String singleProjectMode = getContextParam("singleProject");
-        if (Boolean.valueOf(singleProjectMode).booleanValue()) {
+        if (isSingleProject()) {
             info("in singleProjectMode");
             return "";
         }
@@ -176,9 +175,7 @@ public class CruiseControlTagSupport extends TagSupport {
      */
     protected boolean isSingleProject() {
         String singleProjectMode = getContextParam("singleProject");
-        boolean isSingleProject = Boolean.getBoolean(singleProjectMode);
-
-        return isSingleProject;
+        return Boolean.valueOf(singleProjectMode).booleanValue();
     }
 
     public void setPageContext(PageContext pageContext) {
