@@ -41,7 +41,7 @@ public class Maven2Script implements Script, StreamConsumer {
     private Element currentElement;
 
     /**
-     *
+     * @param buildLogElement Log to store result of the execution for CC
      * @param mvn path to the mvn script
      * @param pomFile path to the pom file
      * @param goals the goalset to execute
@@ -108,13 +108,22 @@ public class Maven2Script implements Script, StreamConsumer {
 
         Iterator propertiesIterator = buildProperties.keySet().iterator();
         while (propertiesIterator.hasNext()) {
-            String key = (String) propertiesIterator.next();
-            String value = (String) buildProperties.get(key);
-            // TODO doesn't work when properties contains spaces.
+            final String key = (String) propertiesIterator.next();
+            final String value = (String) buildProperties.get(key);
             if (value.indexOf(' ') == -1) {
                 cmdLine.createArgument("-D" + key + "=" + value);
             } else {
-                LOG.error("Maven2Script ignoring property with space. Key:" + key + "; Value:" + value);
+                // @todo Find better way to handle when property values contains spaces.
+                // Just using Commandline results in entire prop being quoted:
+                //  "-Dcvstimestamp=2006-11-29 03:41:04 GMT"
+                // and using Commandline.quoteArgument() results in this when used on value only:
+                //  '-Dcvstimestamp="2006-11-29 03:41:04 GMT"'
+                // all these (includeing no manipulation) cause errors in maven's parsing of the command line.
+                // For now, we just replace spaces with underscores so at least some form of the prop is available
+                final String spacelessValue = value.replace(' ', '_');
+                LOG.warn("Maven2Script altering build property with space. Key:" + key + "; Orig Value:" + value
+                        + "; New Value: " + spacelessValue);
+                cmdLine.createArgument("-D" + key + "=" + spacelessValue);
             }
         }
 
