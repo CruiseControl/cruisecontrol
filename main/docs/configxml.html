@@ -4835,7 +4835,11 @@ endlocal</pre>
         </ul>
 
         <p>The standard CruiseControl <a href="#buildproperties">properties
-        passed to builders</a> are available from within the maven build.</p>
+        passed to builders</a> are available from within the maven build, with one exception: The
+        "cvstimestamp" property contains spaces in its value, like:
+        <code>-Dcvstimestamp=2006-11-29 03:41:04 GMT</code>. To avoid problems when maven2 parses
+        this property from the command line, spaces in build property values will be replaced
+        with underscores, like: <code>-Dcvstimestamp=2006-11-29_03:41:04_GMT</code>.</p>
 
         <h3>Attributes</h3>
 
