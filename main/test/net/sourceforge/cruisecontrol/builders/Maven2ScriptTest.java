@@ -135,10 +135,6 @@ public class Maven2ScriptTest extends TestCase {
         );
     }
 
-    /**
-     * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
-     * @throws CruiseControlException
-     */
     public void testGetCommandLineArgs() throws CruiseControlException {
         Maven2Script script = getScript();
 
@@ -191,9 +187,10 @@ public class Maven2ScriptTest extends TestCase {
             CMD_MVN,
             "-B",
             "-f",
-            CMD_POM //,
-            // @todo Fix Maven2Scipt to handle props w/ spaces
-            //"-DpropertyWithSpace=I have a space"
+            CMD_POM,
+            // @todo Find better way to handle when property values contains spaces.
+            // For now, we just replace spaces with underscores so at least some form of the prop is available
+            "-DpropertyWithSpace=I_have_a_space"
             },
             script.buildCommandline().getCommandline());
     }
