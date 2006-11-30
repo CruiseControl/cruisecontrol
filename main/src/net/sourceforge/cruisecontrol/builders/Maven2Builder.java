@@ -61,9 +61,8 @@ public class Maven2Builder extends Builder {
     /**
      * Set mvnHome. This will be used to find the mvn script which is mvnHome/bin/
      * @param mvnHome the mvn home
-     * @throws CruiseControlException When the mvn script could not be found this exception is thrown.
      */
-    public void setMvnHome(String mvnHome) throws CruiseControlException {
+    public void setMvnHome(String mvnHome) {
 
         if (!mvnHome.endsWith(File.separator)) {
             mvnHome = mvnHome + File.separator;
@@ -74,8 +73,7 @@ public class Maven2Builder extends Builder {
     }
 
     /**
-     * Full path to Maven script, which overrides the default ".../bin/mvn".
-     * @param mvnScipt
+     * @param mvnScipt Full path to Maven script, which overrides the default ".../bin/mvn"
      */
     public void setMvnScript(final String mvnScipt) {
         this.mvnScript = mvnScipt;
@@ -83,7 +81,7 @@ public class Maven2Builder extends Builder {
 
     /**
      * Set the pom file. This is also used to find the working directory.
-     * @param pomFile
+     * @param pomFile the pom file
      */
     public void setPomFile(String pomFile) {
 
@@ -110,6 +108,7 @@ public class Maven2Builder extends Builder {
 
     /**
      * Check at the starting of CC if required attributes are set
+     * @throws CruiseControlException When the current settings are not valid.
      */
     public void validate() throws CruiseControlException {
 
@@ -245,6 +244,9 @@ public class Maven2Builder extends Builder {
     /**
      * If the mvnhome attribute is set, then this method returns the correct shell script
      * to use for a specific environment.
+     * @param isWindows if True, return a path tailored for Windows (suffixed w/ .bat).
+     * @return the path to the maven launch script based on the current OS and the mvnhome attribute value
+     * @throws CruiseControlException if the mvnhome attributed is not set
      */
     protected String findMaven2Script(boolean isWindows) throws CruiseControlException {
         if (mvnHome == null) {
