@@ -152,7 +152,7 @@ public class MKS implements SourceControl {
         if (!new File(projectFilePath).exists()) {
             throw new RuntimeException("project file not found at " + projectFilePath);
         }
-        cmd = "si resync -f -R -S " + projectFilePath;
+        cmd = "si resync -f -R -S \"" + projectFilePath + "\"";
 
         /* Sample output:
          * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001

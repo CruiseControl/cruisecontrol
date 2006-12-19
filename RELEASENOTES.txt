@@ -125,6 +125,10 @@ Maven2Builder
 * fix finding mvn.bat in Windows. Reported by Michael Mattox
 * add support for <property> child elements
 
+MKS
+----------------------
+* fix problem with spaces in project path (CC-558).
+
 ModificationSet
 ----------------------
 * now calls validate() on all child source controls.
