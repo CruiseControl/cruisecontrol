@@ -171,6 +171,8 @@ public class Project implements Serializable, Runnable {
         }
 
 
+        boolean buildWasForced = buildForced;
+
         try {
             setBuildStartTime(new Date());
             Schedule schedule = projectConfig.getSchedule();
@@ -185,9 +187,7 @@ public class Project implements Serializable, Runnable {
 
             bootstrap();
 
-            boolean buildWasForced = buildForced;
             String target = useAndResetBuildTargetIfBuildWasForced(buildWasForced);
-            resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
 
             // getModifications will only return null if we don't need to build
             Element modifications = getModifications(buildWasForced);
@@ -247,6 +247,7 @@ public class Project implements Serializable, Runnable {
             publish();
             projectConfig.getLog().reset();
         } finally {
+            resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             setState(ProjectState.IDLE);
         }
     }

@@ -141,6 +141,7 @@ P4
 Project
 ----------------------
 * Add requireModifications and forceOnly attributes (CC-501). Patch by Chris Erskine
+* Avoid loop when forcing a build that has an exception in the bootstrapper (CC-556). Patch by Stefan Lützkendorf
 
 PropertyLabelIncrementer
 ----------------------
