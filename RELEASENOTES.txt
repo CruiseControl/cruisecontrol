@@ -127,7 +127,7 @@ Maven2Builder
 
 MKS
 ----------------------
-* fix problem with spaces in project path (CC-558).
+* fix problem with spaces in project path (CC-558). Patch by Thomas Schüttel
 
 ModificationSet
 ----------------------
