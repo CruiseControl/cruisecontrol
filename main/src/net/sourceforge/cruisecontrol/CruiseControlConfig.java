@@ -209,10 +209,8 @@ public class CruiseControlConfig {
     private boolean isProjectTemplate(Element pluginElement) {
         String pluginName = pluginElement.getAttributeValue("name");
         String pluginClassName = pluginElement.getAttributeValue("classname");
-        // TODO: clean up later
-        // pretty ugly... we should reuse more of the PluginRegistry
         if (pluginClassName == null) {
-            pluginClassName = "net.sourceforge.cruisecontrol.ProjectConfig";
+            pluginClassName = rootPlugins.getPluginClassname(pluginName);
         }
         try {
             Class pluginClass = rootPlugins.instanciatePluginClass(pluginClassName, pluginName);
@@ -221,7 +219,7 @@ public class CruiseControlConfig {
             // this is only triggered by tests today, when a class is not loadable.
             // I didn't want to propagate the exception
             // in case something like Distributed CC requires a class to not be loadable locally at this point...
-            LOG.warn("Couldn't check if the plugin is a project template...", e);
+            LOG.warn("Couldn't check if the plugin " + pluginName + " is an instance of ProjectInterface", e);
             return false;
         }
     }

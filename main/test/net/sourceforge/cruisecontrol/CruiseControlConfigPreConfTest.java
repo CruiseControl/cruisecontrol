@@ -37,10 +37,16 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.List;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.builders.Property;
+import net.sourceforge.cruisecontrol.publishers.AntPublisher;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Element;
@@ -74,61 +80,60 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals(6, config.getProjectNames().size());
     }
 
-    /*
-    public void testPluginConfiguration() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project4");
-        PluginRegistry plugins = config.getProjectPlugins("project4");
+    public void testProjectPreConfiguration() throws Exception {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project3");
+        
+        List bootstrappers = projConfig.getBootstrappers();
+        assertEquals(1, bootstrappers.size());
+        
+        VssBootstrapper vss = (VssBootstrapper) bootstrappers.get(0);
+        Field vssPath = VssBootstrapper.class.getDeclaredField("vssPath");
+        vssPath.setAccessible(true);
+        assertEquals("foo", vssPath.get(vss));
 
-        assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
-        assertEquals(ListenerTestNestedPlugin.class, plugins.getPluginClass("testnested"));
-        assertEquals(ListenerTestSelfConfiguringPlugin.class, plugins.getPluginClass("testselfconfiguring"));
-
-        List listeners = projConfig.getListeners();
-        assertEquals(3, listeners.size());
-
-        Listener listener0 = (Listener) listeners.get(0);
-        assertEquals(ListenerTestPlugin.class, listener0.getClass());
-        ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
-        assertEquals("project4-0", testListener0.getString());
-
-        Listener listener1 = (Listener) listeners.get(1);
-        assertEquals(ListenerTestPlugin.class, listener1.getClass());
-        ListenerTestPlugin testListener1 = (ListenerTestPlugin) listener1;
-        assertEquals("listener1", testListener1.getString());
-        assertEquals("wrapper1", testListener1.getStringWrapper().getString());
-
-        Listener listener2 = (Listener) listeners.get(2);
-        assertEquals(ListenerTestPlugin.class, listener2.getClass());
-        ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
-        assertEquals("listener2", testListener2.getString());
-        // note this is in fact undefined behavior!! Because we added twice the stringwrapper
-        // (first for the child, then for the parent).
-        // this could probably fail depending on a different platform, except if Element.setContent()
-        // specifies the order in which children are kept within the element.
-        final String wrapper = testListener2.getStringWrapper().getString();
-        assertTrue("wrapper2-works!", "wrapper2-works!".equals(wrapper)
-                                      || "wrapper1".equals(wrapper));
-    }
-
-    public void testPluginConfigurationClassOverride() throws Exception {
-        ProjectConfig projConfig = config.getConfig("project5");
-        PluginRegistry plugins = config.getProjectPlugins("project5");
-
-        assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
-        assertEquals(ListenerTestOtherNestedPlugin.class, plugins.getPluginClass("testnested"));
-
+        Schedule schedule = projConfig.getSchedule();
+        assertEquals(20 * 1000, schedule.getInterval());
+        List builders = schedule.getBuilders();
+        assertEquals(1, builders.size());
+        
+        AntBuilder ant = (AntBuilder) builders.get(0);
+        Field buildFile = AntBuilder.class.getDeclaredField("buildFile");
+        buildFile.setAccessible(true);
+        assertEquals("checkout/project3/build.xml", buildFile.get(ant));
+        
+        Field properties = AntBuilder.class.getDeclaredField("properties");
+        properties.setAccessible(true);
+        List antProperties = (List) properties.get(ant);
+        assertEquals(1, antProperties.size());
+        Property property = (Property) antProperties.get(0);
+        assertEquals("project.name", property.getName());
+        assertEquals("project3", property.getValue());
+        
         List listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
+        String listenerClassName = listeners.get(0).getClass().getName();
+        assertEquals("net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener", listenerClassName);
+    }
+    
+    public void testPreConfiguredPluginInPreconfiguredProject() throws Exception {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project2");
+        List publishers = projConfig.getPublishers();
+        assertEquals(1, publishers.size());
+        
+        AntPublisher antPublisher = (AntPublisher) publishers.get(0);
+        Field delegate = AntPublisher.class.getDeclaredField("delegate");
+        delegate.setAccessible(true);
+        AntBuilder ant = (AntBuilder) delegate.get(antPublisher);
+        Field properties = AntBuilder.class.getDeclaredField("properties");
+        properties.setAccessible(true);
+        List publisherProperties = (List) properties.get(ant);
+        assertEquals(1, publisherProperties.size());
+    }
+    
 
-        Listener listener0 = (Listener) listeners.get(0);
-        assertEquals(ListenerTestPlugin.class, listener0.getClass());
-        ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
-        assertEquals("default", testListener0.getString());
-        ListenerTestNestedPlugin nested = testListener0.getNested();
-        assertTrue(nested instanceof ListenerTestOtherNestedPlugin);
-        assertEquals("notshadowing", ((ListenerTestOtherNestedPlugin) nested).getString());
-        assertEquals(null, ((ListenerTestOtherNestedPlugin) nested).getOtherString());
-        assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
+    // TODO
+    /*
+    public void testPreConfiguredProjectSubtypes() throws Exception {
     }
     */
 

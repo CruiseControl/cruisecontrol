@@ -1,13 +1,15 @@
 <cruisecontrol>
-  <property name='project.dir' value='checkout/${project.name}/'/>
+  <property name='project.dir' value='checkout/${project.name}'/>
 
   <plugin name='antvssproject'
           classname='net.sourceforge.cruisecontrol.ProjectConfig'>
       <bootstrappers>
-          <vssbootstrapper vsspath='foo' localdirectory='tmp' />
+          <vssbootstrapper vsspath='foo' localdirectory='.' />
       </bootstrappers>
       <schedule interval='20' >
-        <ant buildfile='${project.dir}/build.xml' target='thetarget' />
+        <ant buildfile='${project.dir}/build.xml' target='thetarget'>
+          <property name="project.name" value="${project.name}"/>
+        </ant>
       </schedule>
       <log/>
       <listeners>
@@ -46,8 +48,16 @@
     </listeners>
   </plugin>
 
+  <plugin name="antpublisher">
+    <property name="project.name" value="${project.name}"/>
+  </plugin>
+
   <antvssproject name='project1' />
-  <antvssproject name='project2' />
+  <antvssproject name='project2'>
+    <publishers>
+      <antpublisher/>
+    </publishers>
+  </antvssproject>
   <antvssproject name='project3' />
 
   <maven1.0svnproject name='project4' />
