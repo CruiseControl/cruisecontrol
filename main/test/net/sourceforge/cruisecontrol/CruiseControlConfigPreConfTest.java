@@ -41,11 +41,13 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.Property;
+import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener;
 import net.sourceforge.cruisecontrol.publishers.AntPublisher;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -58,7 +60,6 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     private File tempDirectory;
 
     protected void setUp() throws Exception {
-        // Set up a CruiseControl config file for testing
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
         tempDirectory = configFile.getParentFile();
@@ -77,7 +78,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(6, config.getProjectNames().size());
+        assertEquals(7, config.getProjectNames().size());
     }
 
     public void testProjectPreConfiguration() throws Exception {
@@ -85,49 +86,28 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         
         List bootstrappers = projConfig.getBootstrappers();
         assertEquals(1, bootstrappers.size());
-        
-        VssBootstrapper vss = (VssBootstrapper) bootstrappers.get(0);
-        Field vssPath = VssBootstrapper.class.getDeclaredField("vssPath");
-        vssPath.setAccessible(true);
-        assertEquals("foo", vssPath.get(vss));
+        assertEquals(VssBootstrapper.class.getName(), getClassInList(bootstrappers));
 
         Schedule schedule = projConfig.getSchedule();
         assertEquals(20 * 1000, schedule.getInterval());
         List builders = schedule.getBuilders();
         assertEquals(1, builders.size());
-        
-        AntBuilder ant = (AntBuilder) builders.get(0);
-        Field buildFile = AntBuilder.class.getDeclaredField("buildFile");
-        buildFile.setAccessible(true);
-        assertEquals("checkout/project3/build.xml", buildFile.get(ant));
-        
-        Field properties = AntBuilder.class.getDeclaredField("properties");
-        properties.setAccessible(true);
-        List antProperties = (List) properties.get(ant);
-        assertEquals(1, antProperties.size());
-        Property property = (Property) antProperties.get(0);
-        assertEquals("project.name", property.getName());
-        assertEquals("project3", property.getValue());
+        assertEquals(AntBuilder.class.getName(), getClassInList(builders));
         
         List listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
-        String listenerClassName = listeners.get(0).getClass().getName();
-        assertEquals("net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener", listenerClassName);
+        assertEquals(CurrentBuildStatusListener.class.getName(), getClassInList(listeners));
+    }
+    
+    private String getClassInList(List list) {
+        return list.get(0).getClass().getName();
     }
     
     public void testPreConfiguredPluginInPreconfiguredProject() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project2");
         List publishers = projConfig.getPublishers();
         assertEquals(1, publishers.size());
-        
-        AntPublisher antPublisher = (AntPublisher) publishers.get(0);
-        Field delegate = AntPublisher.class.getDeclaredField("delegate");
-        delegate.setAccessible(true);
-        AntBuilder ant = (AntBuilder) delegate.get(antPublisher);
-        Field properties = AntBuilder.class.getDeclaredField("properties");
-        properties.setAccessible(true);
-        List publisherProperties = (List) properties.get(ant);
-        assertEquals(1, publisherProperties.size());
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers));
     }
     
 
@@ -137,4 +117,31 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     }
     */
 
+    public void testPreConfiguredNestedProperties() {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project7");
+        Schedule schedule = projConfig.getSchedule();
+        List builders = schedule.getBuilders();
+        System.out.println(getClassInList(builders));
+        Foo foo = (Foo) builders.get(0);
+        assertNotNull("createProperty wasn't called", foo.property);
+        assertEquals("bar", foo.property.getName());
+        assertEquals("baz", foo.property.getValue());
+    }
+    
+    public static class Foo extends Builder {
+        private Property property;
+        
+        public Property createProperty() {
+            property = new Property();
+            return property;
+        }
+        
+        public Element build(Map properties) throws CruiseControlException {
+            return null;
+        }
+        public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+            return null;
+        }
+    }
+    
 }

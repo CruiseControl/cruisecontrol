@@ -51,8 +51,15 @@
   <plugin name="antpublisher">
     <property name="project.name" value="${project.name}"/>
   </plugin>
+  
+  <plugin name="foo"
+          classname='net.sourceforge.cruisecontrol.CruiseControlConfigPreConfTest$Foo'/>
+          
+  <plugin name="foo">
+    <property name="bar" value="baz" />
+  </plugin>
 
-  <antvssproject name='project1' />
+  <antvssproject name='project1'/>
   <antvssproject name='project2'>
     <publishers>
       <antpublisher/>
@@ -63,5 +70,11 @@
   <maven1.0svnproject name='project4' />
   <maven1.1svnproject name='project5' />
   <maven1.1svnproject name='project6' />
+
+  <project name="project7">
+    <schedule>
+      <foo/>
+    </schedule>
+  </project>
 
 </cruisecontrol>
