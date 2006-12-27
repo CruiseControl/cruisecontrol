@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.List;
