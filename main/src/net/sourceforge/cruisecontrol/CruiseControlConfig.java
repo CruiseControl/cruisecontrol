@@ -71,107 +71,6 @@ public class CruiseControlConfig {
         KNOWN_ROOT_CHILD_NAMES.add("system");
     }
 
-    // Unfortunately it seems like the commons-collection CompositeMap doesn't fit that role
-    // at least size is not implemented the way I want it.
-    // TODO is there a clean way to do without this?
-    static class MapWithParent implements Map {
-        private Map parent;
-        private Map thisMap;
-
-        MapWithParent(Map parent) {
-            this.parent = parent;
-            this.thisMap = new HashMap();
-        }
-
-        public int size() {
-            int size = thisMap.size();
-            if (parent != null) {
-                Set keys = parent.keySet();
-                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                    String key = (String) iterator.next();
-                    if (!thisMap.containsKey(key)) {
-                        size++;
-                    }
-                }
-            }
-            return size;
-        }
-
-        public boolean isEmpty() {
-            boolean parentIsEmpty = parent == null || parent.isEmpty();
-            return parentIsEmpty && thisMap.isEmpty();
-        }
-
-        public boolean containsKey(Object key) {
-            return thisMap.containsKey(key)
-                || (parent != null && parent.containsKey(key));
-        }
-
-        public boolean containsValue(Object value) {
-            return thisMap.containsValue(value)
-                || (parent != null && parent.containsValue(value));
-        }
-
-        public Object get(Object key) {
-            Object value = thisMap.get(key);
-            if (value == null && parent != null) {
-                value = parent.get(key);
-            }
-            return value;
-        }
-
-        public Object put(Object o, Object o1) {
-            return thisMap.put(o, o1);
-        }
-
-        public Object remove(Object key) {
-            throw new UnsupportedOperationException("'remove' not supported on MapWithParent");
-        }
-
-        public void putAll(Map map) {
-            thisMap.putAll(map);
-        }
-
-        public void clear() {
-            throw new UnsupportedOperationException("'clear' not supported on MapWithParent");
-        }
-
-        public Set keySet() {
-            Set keys = new HashSet(thisMap.keySet());
-            if (parent != null) {
-                keys.addAll(parent.keySet());
-            }
-            return keys;
-        }
-
-        public Collection values() {
-            throw new UnsupportedOperationException("not implemented");
-            /* we have to support the Map contract. Back the returned values. Mmmmm */
-            /*
-            Collection values = thisMap.values();
-            if (parent != null) {
-                Set keys = parent.keySet();
-                List parentValues = new ArrayList();
-                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                    String key = (String) iterator.next();
-                    if (! thisMap.containsKey(key)) {
-                        parentValues.add(parent.get(key));
-                    }
-                }
-            }
-            return values;
-            */
-        }
-
-        public Set entrySet() {
-            Set entries = new HashSet(thisMap.entrySet());
-            if (parent != null) {
-                entries.addAll(parent.entrySet());
-            }
-            return entries;
-        }
-    }
-
     private Map rootProperties = new HashMap();
     /** Properties of a particular node. Mapped by the node name. Doesn't handle rootProperties yet */
     private Map templatePluginProperties = new HashMap();
@@ -364,6 +263,107 @@ public class CruiseControlConfig {
 
     PluginRegistry getProjectPlugins(String name) {
         return (PluginRegistry) this.projectPluginRegistries.get(name);
+    }
+
+    // Unfortunately it seems like the commons-collection CompositeMap doesn't fit that role
+    // at least size is not implemented the way I want it.
+    // TODO is there a clean way to do without this?
+    private static class MapWithParent implements Map {
+        private Map parent;
+        private Map thisMap;
+
+        MapWithParent(Map parent) {
+            this.parent = parent;
+            this.thisMap = new HashMap();
+        }
+
+        public int size() {
+            int size = thisMap.size();
+            if (parent != null) {
+                Set keys = parent.keySet();
+                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                    String key = (String) iterator.next();
+                    if (!thisMap.containsKey(key)) {
+                        size++;
+                    }
+                }
+            }
+            return size;
+        }
+
+        public boolean isEmpty() {
+            boolean parentIsEmpty = parent == null || parent.isEmpty();
+            return parentIsEmpty && thisMap.isEmpty();
+        }
+
+        public boolean containsKey(Object key) {
+            return thisMap.containsKey(key)
+                || (parent != null && parent.containsKey(key));
+        }
+
+        public boolean containsValue(Object value) {
+            return thisMap.containsValue(value)
+                || (parent != null && parent.containsValue(value));
+        }
+
+        public Object get(Object key) {
+            Object value = thisMap.get(key);
+            if (value == null && parent != null) {
+                value = parent.get(key);
+            }
+            return value;
+        }
+
+        public Object put(Object o, Object o1) {
+            return thisMap.put(o, o1);
+        }
+
+        public Object remove(Object key) {
+            throw new UnsupportedOperationException("'remove' not supported on MapWithParent");
+        }
+
+        public void putAll(Map map) {
+            thisMap.putAll(map);
+        }
+
+        public void clear() {
+            throw new UnsupportedOperationException("'clear' not supported on MapWithParent");
+        }
+
+        public Set keySet() {
+            Set keys = new HashSet(thisMap.keySet());
+            if (parent != null) {
+                keys.addAll(parent.keySet());
+            }
+            return keys;
+        }
+
+        public Collection values() {
+            throw new UnsupportedOperationException("not implemented");
+            /* we have to support the Map contract. Back the returned values. Mmmmm */
+            /*
+            Collection values = thisMap.values();
+            if (parent != null) {
+                Set keys = parent.keySet();
+                List parentValues = new ArrayList();
+                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+                    String key = (String) iterator.next();
+                    if (! thisMap.containsKey(key)) {
+                        parentValues.add(parent.get(key));
+                    }
+                }
+            }
+            return values;
+            */
+        }
+
+        public Set entrySet() {
+            Set entries = new HashSet(thisMap.entrySet());
+            if (parent != null) {
+                entries.addAll(parent.entrySet());
+            }
+            return entries;
+        }
     }
 
 }
