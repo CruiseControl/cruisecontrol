@@ -73,7 +73,7 @@ public class XMLConfigManager {
     private void loadConfig(File file) throws CruiseControlException {
         LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadRootElement(file);
-        config = new CruiseControlConfig(element);
+        config = new CruiseControlConfig(element, new Resolver());
     }
 
     public File getConfigFile() {
@@ -118,6 +118,15 @@ public class XMLConfigManager {
             IO.close(stream);
         }
         return md5;
+    }
+    
+    class Resolver implements XmlResolver {
+
+        public Element getElement(String path) throws CruiseControlException {
+            File file = new File(configFile.getParentFile(), path);
+            return Util.loadRootElement(file);
+        }
+        
     }
 
 }

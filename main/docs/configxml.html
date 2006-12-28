@@ -133,6 +133,7 @@
 <a href="#harvest">&lt;harvest&gt;</a>
 <a href="#htmlemail">&lt;htmlemail&gt;</a>
 <a href="#httpfile">&lt;httpfile&gt;</a>
+<a href="#include.projects">&lt;include.projects&gt;</a>
 <a href="#jabber">&lt;jabber&gt;</a>
 <a href="#labelincrementer">&lt;labelincrementer&gt;</a>
 <a href="#listeners">&lt;listeners&gt;</a>
@@ -207,6 +208,7 @@
 <pre style="font-size: smaller;">
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
    <a href="#property">&lt;property/&gt;</a>
+   <a href="#include.projects">&lt;include.projects/&gt;</a>
    &lt;system&gt;
       &lt;configuration&gt;
          <a href="#threads">&lt;threads/&gt;</a>
@@ -360,6 +362,16 @@
                     <td><a href="#plugin">&lt;plugin&gt;</a></td>
                     <td>0 .. *</td>
                     <td>Registers a classname with an alias.</td>
+                </tr>
+                <tr>
+                    <td><a href="#property">&lt;property&gt;</a></td>
+                    <td>0 .. *</td>
+                    <td>Defines a name/value pair used in configuration.</td>
+                </tr>
+                <tr>
+                    <td><a href="#include.projecs">&lt;include.projects&gt;</a></td>
+                    <td>0 .. *</td>
+                    <td>Add projects defined in other configuration files.</td>
                 </tr>
             </tbody>
         </table>
@@ -634,6 +646,50 @@
         </div>
 
         <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="include.projects">&lt;include.projects&gt;</a></h2>
+
+	<div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  &lt;include.projects&gt;</pre>
+        </div>
+
+	<p>The &lt;include.projects&gt; tag is used to consolidate several configuration
+	files into a single configuration. One advantage over using XML includes are that
+	the target files are valid configuration files in their own right and not just XML
+	fragments. Also, including projects using the tag is less fragile as an error in one
+	file will not keep the rest of the projects for building.</p>
+
+	<p>Configuration files included this way are processed with the properties and
+	plugins defined in the main configuration file, which easily allows per instance
+	configuration. Properties and plugins defined in the processed files are not made
+	available outside the scope of that file.</p>
+
+	<p>Project names must still remain unique. The first project with a given name will
+	be loaded and any subsequent projects attempting to use the same name will be skipped.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>file</td>
+                <td>Yes</td>
+                <td>Relative path from current configuration file to the configuration file to process.</td>
+            </tr>
+	    </tbody>
+	</table>    
+	</div>
+
+	<div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="project">&lt;project&gt;</a></h2>
 

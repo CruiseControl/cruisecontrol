@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.config;
 
 import java.io.File;
 
+import org.jdom.Element;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -46,8 +48,6 @@ public class XMLConfigManagerTest extends TestCase {
     private File configurationFile;
 
     protected void setUp() throws Exception {
-        super.setUp();
-
         configurationFile = File.createTempFile("config", "xml");
         configurationFile.deleteOnExit();
         writeConfigurationFile(
@@ -66,6 +66,16 @@ public class XMLConfigManagerTest extends TestCase {
         assertTrue(configManager.reloadIfNecessary());
 
         assertFalse(configManager.reloadIfNecessary());
+    }
+    
+    public void testResolverShouldReturnCorrectElement() throws Exception {
+        XMLConfigManager configManager = new XMLConfigManager(configurationFile);
+        File file = File.createTempFile("XmlConfigManagerTest", ".xml", configurationFile.getParentFile());
+        file.deleteOnExit();
+        IO.write(file, "<foo><bar/></foo>");
+        XmlResolver resolver = configManager.new Resolver();
+        Element element = resolver.getElement(file.getName());
+        assertEquals("foo", element.getName());
     }
 
     private void writeConfigurationFile(String contents) throws CruiseControlException {
