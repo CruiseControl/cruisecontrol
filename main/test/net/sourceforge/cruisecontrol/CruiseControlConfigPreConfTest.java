@@ -56,24 +56,18 @@ public class CruiseControlConfigPreConfTest extends TestCase {
 
     private CruiseControlConfig config;
     private File configFile;
-    private File tempDirectory;
 
     protected void setUp() throws Exception {
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
-        tempDirectory = configFile.getParentFile();
 
         Element rootElement = Util.loadRootElement(configFile);
         config = new CruiseControlConfig(rootElement);
     }
 
     protected void tearDown() {
-        // The directory "foo" in the system's temporary file location
-        // is created by CruiseControl when using the config file below.
-        // Specifically because of the line:
-        //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
-        File fooDirectory = new File(tempDirectory, "foo");
-        fooDirectory.delete();
+        configFile = null;
+        config = null;
     }
 
     public void testGetProjectNames() {
