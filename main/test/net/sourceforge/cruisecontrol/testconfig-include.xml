@@ -1,0 +1,3 @@
+<cruisecontrol>
+  <include.projects file="include.xml"/>
+</cruisecontrol>

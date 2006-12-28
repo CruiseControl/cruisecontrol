@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
 import org.apache.log4j.Logger;
@@ -66,6 +67,7 @@ public class CruiseControlConfig {
     
     private static final Set KNOWN_ROOT_CHILD_NAMES = new HashSet();
     static {
+        KNOWN_ROOT_CHILD_NAMES.add("include.projects");
         KNOWN_ROOT_CHILD_NAMES.add("property");
         KNOWN_ROOT_CHILD_NAMES.add("plugin");
         KNOWN_ROOT_CHILD_NAMES.add("system");
@@ -79,13 +81,27 @@ public class CruiseControlConfig {
     // for test purposes only
     private Map projectPluginRegistries = new TreeMap();
 
+    private XmlResolver xmlResolver;
+
     public CruiseControlConfig(Element ccElement) throws CruiseControlException {
+        this(ccElement, (XmlResolver) null);
+    }
+    
+    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver) throws CruiseControlException {
+        this.xmlResolver = xmlResolver;        
+        parse(ccElement);
+    }
+
+    private void parse(Element ccElement) throws CruiseControlException {
         // parse properties and plugins first, so their order in the config file doesn't matter
         for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext(); ) {
             handleRootProperty((Element) i.next());
         } 
         for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext(); ) {
             handleRootPlugin((Element) i.next());
+        }
+        for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext(); ) {
+            handleIncludedProjects((Element) i.next());
         }
         
         // other childNodes must be projects or the <system> node
@@ -97,6 +113,41 @@ public class CruiseControlConfig {
             } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
+        }
+    }
+
+    private CruiseControlConfig(Element includedElement, CruiseControlConfig parent) throws CruiseControlException {
+        rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
+        rootProperties = new HashMap(parent.rootProperties);
+        templatePluginProperties = new HashMap(parent.templatePluginProperties);
+        
+        parse(includedElement);
+    }
+
+    private void handleIncludedProjects(Element includeElement) {
+        String path = includeElement.getAttributeValue("file");
+        if (path == null) {
+            LOG.warn("include.projects element missing file attribute. Skipping.");
+        }
+        if (xmlResolver == null) {
+            LOG.debug("xmlResolver not available; skipping include.projects element. ok if validating config.");
+            return;
+        }
+        try {
+            LOG.debug("getting included projects from " + path);
+            Element includedElement = xmlResolver.getElement(path);
+            CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
+            Set includedProjectNames = includedConfig.getProjectNames();
+            for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
+                String name = (String) iter.next();
+                if (projects.containsKey(name)) {
+                    String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
+                    LOG.error(message);
+                }
+                projects.put(name, includedConfig.getProject(name));
+            }
+        } catch (CruiseControlException e) {
+            LOG.error("Exception including file " + path, e);
         }
     }
 
