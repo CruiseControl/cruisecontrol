@@ -62,7 +62,7 @@ public class CruiseControlConfigTest extends TestCase {
 
     private CruiseControlConfig config;
     private File configFile;
-    private File tempDirectory;
+    private File classpathDirectory;
     private File propertiesFile;
 
     private static final int ONE_SECOND = 1000;
@@ -75,7 +75,7 @@ public class CruiseControlConfigTest extends TestCase {
         // Set up a CruiseControl config file for testing
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig.xml");
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
-        tempDirectory = configFile.getParentFile();
+        classpathDirectory = configFile.getParentFile();
 
         Element ccElement = Util.loadRootElement(configFile);
         Element testpropertiesdir = new Element("property");
@@ -87,12 +87,16 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     protected void tearDown() {
-        // The directory "foo" in the system's temporary file location
-        // is created by CruiseControl when using the config file below.
-        // Specifically because of the line:
-        //     <log dir='" + tempDirPath + "/foo' encoding='utf-8' >
-        File fooDirectory = new File(tempDirectory, "foo");
+        // The directory "foo" in the classpath is
+        // created by CruiseControl by the log element
+        // in testconfig.xml.
+        File fooDirectory = new File(classpathDirectory, "foo");
         fooDirectory.delete();
+        
+        propertiesFile = null;
+        configFile = null;
+        classpathDirectory = null;
+        config = null;
     }
     
     public void testUseNonDefaultProjects() throws CruiseControlException {
@@ -495,7 +499,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("logs" + File.separatorChar + "project1", projConfig.getLog().getLogDir());
 
         projConfig = (ProjectConfig) config.getProject("project2");
-        assertEquals(tempDirectory.getAbsolutePath() + "/foo", projConfig.getLog().getLogDir());
+        assertEquals(classpathDirectory.getAbsolutePath() + "/foo", projConfig.getLog().getLogDir());
 
         projConfig = (ProjectConfig) config.getProject("project3");
         assertEquals("logs" + File.separatorChar + "project3", projConfig.getLog().getLogDir());
