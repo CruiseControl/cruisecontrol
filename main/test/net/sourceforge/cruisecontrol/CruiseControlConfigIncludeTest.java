@@ -27,22 +27,15 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
         includeText.append("  <foo.project name='bar'/>");
         includeText.append("</cruisecontrol>");
-        final Element includeElement = elementFromString(includeText.toString());
+        Element includeElement = elementFromString(includeText.toString());
         
-        XmlResolver resolver = new XmlResolver() {
-            public Element getElement(String path) throws CruiseControlException {
-                assertEquals("include.xml", path);
-                return includeElement;
-            }
-        };
+        XmlResolver resolver = new IncludeXmlResolver(includeElement);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-
         assertEquals(1, config.getProjectNames().size());
-        assertNotNull(config.getProject("bar"));
-        assertEquals(FooProject.class.getName(), config.getProject("bar").getClass().getName());
+        assertIsFooProject(config.getProject("bar"));
     }
-    
+
     public void testPluginShouldBeAvailableToIncludedProjects() throws CruiseControlException {
         StringBuffer configText = new StringBuffer(100);
         configText.append("<cruisecontrol>");
@@ -57,20 +50,13 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeText.append("<cruisecontrol>");
         includeText.append("  <foo.project name='bar'/>");
         includeText.append("</cruisecontrol>");
-        final Element includeElement = elementFromString(includeText.toString());
+        Element includeElement = elementFromString(includeText.toString());
         
-        XmlResolver resolver = new XmlResolver() {
-            public Element getElement(String path) throws CruiseControlException {
-                assertEquals("include.xml", path);
-                return includeElement;
-            }
-        };
+        XmlResolver resolver = new IncludeXmlResolver(includeElement);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-
         assertEquals(2, config.getProjectNames().size());
-        assertNotNull(config.getProject("bar"));                
-        assertEquals(FooProject.class.getName(), config.getProject("bar").getClass().getName());
+        assertIsFooProject(config.getProject("bar"));
     }
     
     public void testPropertiesShouldBeAvailableToIncludedProjects() throws CruiseControlException {
@@ -87,20 +73,13 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
         includeText.append("  <foo.project name='${baz}'/>");
         includeText.append("</cruisecontrol>");
-        final Element includeElement = elementFromString(includeText.toString());
+        Element includeElement = elementFromString(includeText.toString());
         
-        XmlResolver resolver = new XmlResolver() {
-            public Element getElement(String path) throws CruiseControlException {
-                assertEquals("include.xml", path);
-                return includeElement;
-            }
-        };
+        XmlResolver resolver = new IncludeXmlResolver(includeElement);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-
         assertEquals(1, config.getProjectNames().size());
-        assertNotNull(config.getProject("goo"));
-        assertEquals(FooProject.class.getName(), config.getProject("goo").getClass().getName());        
+        assertIsFooProject(config.getProject("goo"));
     }
     
     public void testErrorsInIncludeShouldBeContained() throws CruiseControlException {
@@ -118,19 +97,13 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeText.append("  <unknown.plugin.error/>");
         includeText.append("  <foo.project name='bar'/>");
         includeText.append("</cruisecontrol>");
-        final Element includeElement = elementFromString(includeText.toString());
+        Element includeElement = elementFromString(includeText.toString());
         
-        XmlResolver resolver = new XmlResolver() {
-            public Element getElement(String path) throws CruiseControlException {
-                assertEquals("include.xml", path);
-                return includeElement;
-            }
-        };
+        XmlResolver resolver = new IncludeXmlResolver(includeElement);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-
         assertEquals(1, config.getProjectNames().size());
-        assertNotNull(config.getProject("goo"));
+        assertIsFooProject(config.getProject("goo"));
     }
 
     private Element elementFromString(String text) throws CruiseControlException {
@@ -138,6 +111,25 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         return Util.loadRootElement(is);
     }
 
+    private void assertIsFooProject(ProjectInterface project) {
+        assertNotNull(project);
+        assertEquals(FooProject.class.getName(), project.getClass().getName());
+    }
+    
+    private class IncludeXmlResolver implements XmlResolver {
+        
+        private Element includeElement;
+        
+        IncludeXmlResolver(Element element) {
+            includeElement = element;
+        }
+        
+        public Element getElement(String path) throws CruiseControlException {
+            assertEquals("include.xml", path);
+            return includeElement;
+        }
+    }
+    
     public static class FooProject implements ProjectInterface {
 
         private String name;
