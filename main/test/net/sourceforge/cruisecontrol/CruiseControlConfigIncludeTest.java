@@ -14,96 +14,93 @@ import org.jdom.Element;
 
 public class CruiseControlConfigIncludeTest extends TestCase {
 
-    public void testShouldLoadIncludedProjects() throws Exception {
-        StringBuffer configText = new StringBuffer(100);
-        configText.append("<cruisecontrol>");
-        configText.append("  <include.projects file='include.xml'/>");
-        configText.append("</cruisecontrol>");
-        Element rootElement = elementFromString(configText.toString());
-        
-        StringBuffer includeText = new StringBuffer(200);
-        includeText.append("<cruisecontrol>");
-        includeText.append("  <plugin name='foo.project'");
-        includeText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
-        includeText.append("  <foo.project name='bar'/>");
-        includeText.append("</cruisecontrol>");
-        Element includeElement = elementFromString(includeText.toString());
-        
-        XmlResolver resolver = new IncludeXmlResolver(includeElement);
-        
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-        assertEquals(1, config.getProjectNames().size());
-        assertIsFooProject(config.getProject("bar"));
-    }
+    private Element rootElement;
+    private Element includeElement;
+    private XmlResolver resolver;
 
-    public void testPluginShouldBeAvailableToIncludedProjects() throws CruiseControlException {
+    protected void setUp() throws Exception {
         StringBuffer configText = new StringBuffer(100);
         configText.append("<cruisecontrol>");
         configText.append("  <plugin name='foo.project'");
         configText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
         configText.append("  <include.projects file='include.xml'/>");
-        configText.append("  <foo.project name='goo'/>");
+        configText.append("  <foo.project name='in.root'/>");
         configText.append("</cruisecontrol>");
-        Element rootElement = elementFromString(configText.toString());
-        
+        rootElement = elementFromString(configText.toString());
+
         StringBuffer includeText = new StringBuffer(200);
         includeText.append("<cruisecontrol>");
-        includeText.append("  <foo.project name='bar'/>");
+        includeText.append("  <foo.project name='in.include'/>");
         includeText.append("</cruisecontrol>");
-        Element includeElement = elementFromString(includeText.toString());
-        
-        XmlResolver resolver = new IncludeXmlResolver(includeElement);
-        
+        includeElement = elementFromString(includeText.toString());
+
+        resolver = new IncludeXmlResolver(includeElement);
+    }
+
+    protected void tearDown() throws Exception {
+        rootElement = null;
+        includeElement = null;
+        resolver = null;
+    }
+
+    public void testShouldLoadIncludedProjects() throws Exception {
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
         assertEquals(2, config.getProjectNames().size());
+        assertIsFooProject(config.getProject("in.root"));
+        assertIsFooProject(config.getProject("in.include"));
+    }
+
+    public void testIncludesCanDefinePlugins() throws CruiseControlException {
+        String newProjectTag = "new.project.type";
+        
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", newProjectTag);
+        pluginElement.setAttribute("classname", FooProject.class.getName());
+        includeElement.addContent(pluginElement);
+
+        Element barElement = new Element(newProjectTag);
+        barElement.setAttribute("name", "bar");
+        includeElement.addContent(barElement);
+        
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
+        assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("bar"));
     }
     
     public void testPropertiesShouldBeAvailableToIncludedProjects() throws CruiseControlException {
-        StringBuffer configText = new StringBuffer(100);
-        configText.append("<cruisecontrol>");
-        configText.append("  <property name='baz' value='goo'/>");
-        configText.append("  <include.projects file='include.xml'/>");
-        configText.append("</cruisecontrol>");
-        Element rootElement = elementFromString(configText.toString());
+        Element property = new Element("property");
+        property.setAttribute("name", "baz");
+        property.setAttribute("value", "goo");
+        rootElement.addContent(property);
         
-        StringBuffer includeText = new StringBuffer(200);
-        includeText.append("<cruisecontrol>");
-        includeText.append("  <plugin name='foo.project'");
-        includeText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
-        includeText.append("  <foo.project name='${baz}'/>");
-        includeText.append("</cruisecontrol>");
-        Element includeElement = elementFromString(includeText.toString());
-        
-        XmlResolver resolver = new IncludeXmlResolver(includeElement);
+        Element project = new Element("foo.project");
+        project.setAttribute("name", "${baz}");
+        includeElement.addContent(project);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
-        assertEquals(1, config.getProjectNames().size());
+        assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("goo"));
     }
     
     public void testErrorsInIncludeShouldBeContained() throws CruiseControlException {
-        StringBuffer configText = new StringBuffer(100);
-        configText.append("<cruisecontrol>");
-        configText.append("  <plugin name='foo.project'");
-        configText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
-        configText.append("  <include.projects file='include.xml'/>");
-        configText.append("  <foo.project name='goo'/>");
-        configText.append("</cruisecontrol>");
-        Element rootElement = elementFromString(configText.toString());
-        
-        StringBuffer includeText = new StringBuffer(200);
-        includeText.append("<cruisecontrol>");
-        includeText.append("  <unknown.plugin.error/>");
-        includeText.append("  <foo.project name='bar'/>");
-        includeText.append("</cruisecontrol>");
-        Element includeElement = elementFromString(includeText.toString());
-        
-        XmlResolver resolver = new IncludeXmlResolver(includeElement);
+        Element unknownPlugin = new Element("unknown.plugin.error");
+        includeElement.addContent(unknownPlugin);
         
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
         assertEquals(1, config.getProjectNames().size());
-        assertIsFooProject(config.getProject("goo"));
+        assertIsFooProject(config.getProject("in.root"));
+    }
+    
+    public void testErrorsParsingIncludeShouldBeContained() throws CruiseControlException {
+        XmlResolver resolverHitsError = new XmlResolver() {
+            public Element getElement(String path) throws CruiseControlException {
+                throw new CruiseControlException("simulate parse error");
+            }
+        };
+        
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolverHitsError);
+        assertEquals(1, config.getProjectNames().size());
+        assertIsFooProject(config.getProject("in.root"));
     }
 
     private Element elementFromString(String text) throws CruiseControlException {
