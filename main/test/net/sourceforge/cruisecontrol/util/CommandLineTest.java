@@ -13,19 +13,35 @@ public class CommandLineTest extends TestCase {
 
     private static final String EXEC_WITH_SPACES = "dummyExecutable with spaces";
 
+    private static final String ARG_SPACES_NOQUOTES = "arg1='spaced single quoted value'";
+    private static final String ARG_NOSPACES = "arg2=value2";
+    private static final String ARG_SPACES = "arg3=value for 3";
+
+    public void testToStringWithSeparator() throws Exception {
+        final String separator = "], [";
+        assertEquals("", Commandline.toString(null, false, separator));
+
+        assertEquals(ARG_SPACES_NOQUOTES,
+                Commandline.toString(new String[]{ARG_SPACES_NOQUOTES}, false, separator));
+
+        assertEquals(ARG_SPACES_NOQUOTES + separator + ARG_NOSPACES,
+                Commandline.toString(new String[]{ARG_SPACES_NOQUOTES, ARG_NOSPACES}, false, separator));
+
+        assertEquals(ARG_SPACES_NOQUOTES + separator + ARG_NOSPACES + separator + ARG_SPACES,
+                Commandline.toString(new String[]{ARG_SPACES_NOQUOTES, ARG_NOSPACES, ARG_SPACES},
+                        false, separator));
+    }
+
     public void testToStrings() throws Exception {
         final Commandline cl = new Commandline();
         cl.setExecutable(EXEC_WITH_SPACES);
 
-        final String argWithSpacesAndQuotes = "arg1='spaced single quoted value'";
-        final String arg2NoSpaces = "arg2NoSpaces=value2";
-        final String arg3Spaces = "arg3Spaces=value for 3";
-        cl.addArguments(new String[] { argWithSpacesAndQuotes, arg2NoSpaces, arg3Spaces});
+        cl.addArguments(new String[] {ARG_SPACES_NOQUOTES, ARG_NOSPACES, ARG_SPACES});
 
         final String expectedWithQuotes = DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE
-                + " " + DBL_QUOTE + argWithSpacesAndQuotes  + DBL_QUOTE
-                + " " + arg2NoSpaces
-                + " " + DBL_QUOTE + arg3Spaces + DBL_QUOTE;
+                + " " + DBL_QUOTE + ARG_SPACES_NOQUOTES + DBL_QUOTE
+                + " " + ARG_NOSPACES
+                + " " + DBL_QUOTE + ARG_SPACES + DBL_QUOTE; 
         assertEquals(expectedWithQuotes, cl.toString());
 
         assertEquals(expectedWithQuotes.replaceAll(DBL_QUOTE, ""), cl.toStringNoQuoting());
