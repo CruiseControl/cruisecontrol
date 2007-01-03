@@ -118,7 +118,8 @@ MavenSnapshotDependency
   - made POM scanning namespace aware. Dependencies were not detected if project.xml had schema definition in the project element
   - added support for "ejb-client" dependency type
   - added echo for detected snapshot dependencies
-  - added support for build.properties or other similiar properties file which contains key=value tags to replace ${key} type strings in project.xml 
+  - added support for build.properties or other similiar properties file which contains key=value tags to replace ${key} type strings in project.xml
+* update startup scripts in binary release to use correct version of maven2 embedder lib - Reported by Valerie Maher
 
 Maven2Builder
 ----------------------
