@@ -381,6 +381,10 @@ public class Commandline implements Cloneable {
     }
 
     public static String toString(String[] line, boolean quote) {
+        return toString(line, quote, " "); 
+    }
+
+    public static String toString(String[] line, boolean quote, String separator) {
         // empty path return empty string
         if (line == null || line.length == 0) {
             return "";
@@ -390,7 +394,7 @@ public class Commandline implements Cloneable {
         final StringBuffer result = new StringBuffer();
         for (int i = 0; i < line.length; i++) {
             if (i > 0) {
-                result.append(' ');
+                result.append(separator);
             }
             if (quote) {
                 try {
@@ -550,14 +554,15 @@ public class Commandline implements Cloneable {
     public Process execute() throws IOException {
         Process process;
 
+        final String msgCommandInfo = "Executing: [" + getExecutable() + "] with parameters: ["
+                + toString(getCommandline(), false, "], [") + "] ";
+
         if (workingDir == null) {
-            LOG.debug("Executing \"" + this.toStringNoQuoting() + "\"");
+            LOG.debug(msgCommandInfo + "\"");
             process = Runtime.getRuntime().exec(getCommandline());
         } else {
-            LOG.debug(
-                "Executing \""
-                    + this.toStringNoQuoting()
-                    + "\" in directory "
+            LOG.debug(msgCommandInfo
+                    + " in directory " 
                     + workingDir.getAbsolutePath());
             process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
         }
