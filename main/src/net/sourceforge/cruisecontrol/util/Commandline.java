@@ -551,12 +551,12 @@ public class Commandline implements Cloneable {
         Process process;
 
         if (workingDir == null) {
-            LOG.debug("Executing \"" + this + "\"");
+            LOG.debug("Executing \"" + this.toStringNoQuoting() + "\"");
             process = Runtime.getRuntime().exec(getCommandline());
         } else {
             LOG.debug(
                 "Executing \""
-                    + this
+                    + this.toStringNoQuoting()
                     + "\" in directory "
                     + workingDir.getAbsolutePath());
             process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
