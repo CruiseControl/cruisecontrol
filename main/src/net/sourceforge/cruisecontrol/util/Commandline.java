@@ -555,10 +555,10 @@ public class Commandline implements Cloneable {
         Process process;
 
         final String msgCommandInfo = "Executing: [" + getExecutable() + "] with parameters: ["
-                + toString(getCommandline(), false, "], [") + "] ";
+                + toString(getCommandline(), false, "], [") + "]";
 
         if (workingDir == null) {
-            LOG.debug(msgCommandInfo + "\"");
+            LOG.debug(msgCommandInfo);
             process = Runtime.getRuntime().exec(getCommandline());
         } else {
             LOG.debug(msgCommandInfo
