@@ -27,11 +27,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Created by IntelliJ IDEA.
- * User: drollo
+ * @author: Dan Rollo
  * Date: Aug 1, 2005
  * Time: 4:00:38 PM
- * To change this template use File | Settings | File Templates.
  */
 public final class BuildAgentUtility {
     private static final Logger LOG = Logger.getLogger(BuildAgentUtility.class);

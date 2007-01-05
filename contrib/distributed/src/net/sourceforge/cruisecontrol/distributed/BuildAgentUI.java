@@ -22,11 +22,9 @@ import java.rmi.RemoteException;
 import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
 
 /**
- * Created by IntelliJ IDEA.
- * User: drollo
+ * @author: Dan Rollo
  * Date: Aug 25, 2005
  * Time: 3:38:53 PM
- * To change this template use File | Settings | File Templates.
  */
 // @todo Use JDesktop stuff for tray icon??
 final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListener {

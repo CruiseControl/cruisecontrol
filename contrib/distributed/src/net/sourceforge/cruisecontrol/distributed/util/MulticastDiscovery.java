@@ -110,7 +110,10 @@ public class MulticastDiscovery {
 
     }
 
-    /** Only for use by JiniLookUpUtility and InteractiveBuilder.  **/
+    /**
+     * Only for use by JiniLookUpUtility and InteractiveBuilder.
+     * @return an array of discovered LUS's
+     */
     public ServiceRegistrar[] getRegistrars() {
         //@todo remove ?
         return getClientManager().getDiscoveryManager().getRegistrars();
@@ -125,7 +128,10 @@ public class MulticastDiscovery {
         return clientMgr;
     }
 
-    /** Intended only for use by util classes. */
+    /**
+     * Intended only for use by util classes.
+     * @return the cache of discovered services
+     */
     LookupCache getLookupCache() {
         return lookupCache;
     }

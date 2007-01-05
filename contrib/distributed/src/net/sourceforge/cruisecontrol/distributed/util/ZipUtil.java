@@ -170,9 +170,9 @@ public final class ZipUtil {
     }
 
     /**
-     * @param zipFilePath
-     * @param toDirName
-     * @throws IOException
+     * @param zipFilePath the file to unzip
+     * @param toDirName the directory into which to put unziped contents
+     * @throws IOException if errors occur accessing files
      */
     public static void unzipFileToLocation(final String zipFilePath, final String toDirName) throws IOException {
         final ZipFile zipFile;
@@ -221,7 +221,7 @@ public final class ZipUtil {
     }
 
     private static void saveItem(final ZipFile zipFile, final String rootDirName, final ZipEntry entry)
-            throws ZipException, IOException {
+            throws IOException {
         final InputStream is;
         BufferedInputStream inStream = null;
         final FileOutputStream outStream;

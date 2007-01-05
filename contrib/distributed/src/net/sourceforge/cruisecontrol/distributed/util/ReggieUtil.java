@@ -54,11 +54,11 @@ public final class ReggieUtil {
     private static final Logger LOG = Logger.getLogger(ReggieUtil.class);
 
     /**
-     * converts an entries search string ento a list of entries. An example
+     * converts an entries search string into a list of entries. An example
      * entries search string: "hostname=gandalf;os.name=Windows XP"
      * 
-     * @param searchString
-     * @return entriesList
+     * @param searchString this semicolon delimited list of search entries
+     * @return entriesList an array of entry objects
      */
     public static Entry[] convertStringEntries(final String searchString) {
         final StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");

@@ -64,7 +64,7 @@ public class PropertiesHelperTest extends TestCase {
         assertEquals("true", value);
 
         try {
-            propertiesMap = PropertiesHelper.loadRequiredProperties("bogus.properties");
+            PropertiesHelper.loadRequiredProperties("bogus.properties");
             fail("Should throw RuntimeException when a required properties file is not found");
         } catch (RuntimeException e) {
             // Expected

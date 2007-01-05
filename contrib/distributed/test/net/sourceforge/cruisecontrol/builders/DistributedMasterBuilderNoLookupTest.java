@@ -8,7 +8,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import java.util.List;
 
 /**
- * @auther dan rollo
+ * @author: Dan Rollo
  * Date: Jan 5, 2007
  * Time: 2:08:30 AM
  */

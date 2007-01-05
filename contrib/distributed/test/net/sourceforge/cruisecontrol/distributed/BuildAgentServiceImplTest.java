@@ -21,11 +21,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 
 /**
- * Created by IntelliJ IDEA.
- * User: drollo
+ * @author: Dan Rollo
  * Date: May 25, 2005
  * Time: 1:54:38 PM
- * To change this template use File | Settings | File Templates.
  */
 public class BuildAgentServiceImplTest extends TestCase {
 
@@ -81,6 +79,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     /** 
      * Re-use of builder caused problems with null value in overrideTarget.
      * This test verifies null values in the Map are allowed.
+     * @throws Exception if anything unexpected goes wrong in the test
      */
      public void testGetPropertiesMap() throws Exception {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
@@ -552,7 +551,14 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     
-    /** Call doBuild() on the given agent using test settings */
+    /**
+     * Call doBuild() on the given agent using test settings
+     * @param isBuildFailure if true, run a build that will fail
+     * @param agent the build agent on which to run the build
+     * @return the build result jdom element
+     * @throws CruiseControlException if build dies
+     * @throws RemoteException if something else dies
+     */
     public static Element callTestDoBuild(boolean isBuildFailure,
                                        final BuildAgentService agent) 
             throws CruiseControlException, RemoteException {
@@ -560,7 +566,15 @@ public class BuildAgentServiceImplTest extends TestCase {
         return callTestDoBuild(isBuildFailure, agent, new HashMap());
     }
     
-    /** Call doBuild() on the given agent using test settings */
+    /**
+     * Call doBuild() on the given agent using test settings
+     * @param isBuildFailure if true, run a build that will fail
+     * @param agent the build agent on which to run the build
+     * @param distributedAgentProps the map of distributed props used by the build agent
+     * @return the build result jdom element
+     * @throws CruiseControlException if build dies
+     * @throws RemoteException if something else dies
+     */
     public static Element callTestDoBuild(boolean isBuildFailure,
                                        final BuildAgentService agent,
                                        final Map distributedAgentProps) 

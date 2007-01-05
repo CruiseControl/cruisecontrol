@@ -199,6 +199,8 @@ public class ZipUtilTest extends TestCase {
      * 
      * *WARNING* Could be a large bit of data--you might plan to manually delete
      * the results...
+     * @param args not used
+     * @throws IOException if file IO has problems
      */
     public static void main(String[] args) throws IOException {
         Properties properties = (Properties) PropertiesHelper.loadRequiredProperties("cruise.properties");
