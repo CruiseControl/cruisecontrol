@@ -37,8 +37,9 @@ import net.jini.core.entry.Entry;
 import net.jini.discovery.LookupDiscovery;
 
 /**
- * Created by IntelliJ IDEA. User: drollo Date: May 6, 2005 Time: 2:34:24 PM To change this template
- * use File | Settings | File Templates.
+ * @author: Dan Rollo
+ * Date: May 6, 2005
+ * Time: 2:34:24 PM
  */
 public class DistributedMasterBuilderTest extends TestCase {
 

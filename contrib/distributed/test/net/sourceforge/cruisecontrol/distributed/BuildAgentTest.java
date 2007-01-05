@@ -11,11 +11,9 @@ import net.jini.core.entry.Entry;
 import java.rmi.RemoteException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: drollo
+ * @author: Dan Rollo
  * Date: Jul 6, 2005
  * Time: 4:12:20 PM
- * To change this template use File | Settings | File Templates.
  */
 public class BuildAgentTest extends TestCase {
 
@@ -81,6 +79,7 @@ public class BuildAgentTest extends TestCase {
      * 2. Deploy cc-agent.war to a web server.
      * 3. Manually launch agent via webstat (http://localhost:8080/cc-agent/agent.jnlp).
      * 4. Manually run this test.
+     * @throws Exception if anything unexpected goes wrong in the test
      */
     public void manual_testRestart() throws Exception {
         final ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);

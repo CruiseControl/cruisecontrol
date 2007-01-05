@@ -174,7 +174,8 @@ public class BuildAgent implements DiscoveryListener,
     }
 
     /**
-     * @param propsFile
+     * @param propsFile path to config properties file
+     * @param userDefinedPropertiesFilename path to user properties file
      */
     private void loadProperties(final String propsFile, final String userDefinedPropertiesFilename) {
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(propsFile);

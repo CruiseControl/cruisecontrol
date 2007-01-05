@@ -236,6 +236,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         /**
          * Implement in order to run the desired Action
+         * @throws Throwable is anything goes wrong executing the action
          */
         public abstract void execAction() throws Throwable;
     }
