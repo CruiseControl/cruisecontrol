@@ -105,7 +105,10 @@ public class BuildAgent implements DiscoveryListener,
         registrarCount--;
     }
 
-    /** @deprecated Use {@link #BuildAgent(String, String, boolean)} instead. */
+    /**
+     * @param isSkipUI if true, do not show the build agent UI.
+     * @deprecated Use {@link #BuildAgent(String, String, boolean)} instead.
+     */
     public BuildAgent(final boolean isSkipUI) {
         this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
