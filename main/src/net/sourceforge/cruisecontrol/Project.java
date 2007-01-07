@@ -98,7 +98,7 @@ public class Project implements Serializable, Runnable {
     private boolean wasLastBuildSuccessful = true;
     private String label;
     private String name;
-    private boolean buildForced = false;
+    private transient boolean buildForced = false;
     private String buildTarget = null;
     private boolean isPaused = false;
     private boolean buildAfterFailed = true;
@@ -152,6 +152,7 @@ public class Project implements Serializable, Runnable {
 
     /**
      * Unless paused, runs any bootstrappers and then the entire build.
+     * @throws CruiseControlException if an error occurs during the build
      */
     protected void build() throws CruiseControlException {
         if (projectConfig == null) {
@@ -242,6 +243,8 @@ public class Project implements Serializable, Runnable {
             buildCounter++;
             setWasLastBuildSuccessful(buildSuccessful);
 
+            // also need to reset forced flag before serializing, unless buildForced var is transient
+            //resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             serializeProject();
 
             publish();
@@ -339,6 +342,11 @@ public class Project implements Serializable, Runnable {
         return waitTime > 0;
     }
 
+    /** @return true if build was forced, intended for unit testing only. */
+    boolean isBuildForced() {
+        return buildForced;
+    }
+
     void forceBuild() {
         synchronized (waitMutex) {
             waitMutex.notify();
@@ -365,9 +373,10 @@ public class Project implements Serializable, Runnable {
     }
 
     /**
-     * @return Element
+     * @param buildWasForced true if the build was forced
+     * @return Element jdom element containing modification information
      */
-    Element getModifications(boolean buildWasForced) {
+    Element getModifications(final boolean buildWasForced) {
         setState(ProjectState.MODIFICATIONSET);
         Element modifications;
 
@@ -467,7 +476,10 @@ public class Project implements Serializable, Runnable {
         return labelIncrementer;
     }
 
-    /** deprecated */
+    /**
+     * @param encoding the log xml encoding
+     * @deprecated
+     */
     public void setLogXmlEncoding(String encoding) {
         projectConfig.getLog().setEncoding(encoding);
     }
@@ -544,6 +556,7 @@ public class Project implements Serializable, Runnable {
      * If the user hasn't override the Schedule, then this method will
      * return the Schedule's interval, otherwise the overridden value will
      * be returned.
+     * @return the build interval
      */
     public long getBuildInterval() {
         if (overrideBuildInterval == null) {
@@ -556,6 +569,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Sets the build interval that this Project should use. This method
      * overrides the value initially specified in the Schedule attribute.
+     * @param sleepMillis the number of milliseconds to sleep between build attempts
      */
     public void overrideBuildInterval(long sleepMillis) {
         overrideBuildInterval = new Long(sleepMillis);
@@ -702,6 +716,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
+     * @throws CruiseControlException if an error occurs during publishing
      */
     protected void publish() throws CruiseControlException {
         setState(ProjectState.PUBLISHING);
@@ -722,6 +737,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Iterate over all of the registered <code>Bootstrapper</code>s and call
      * their respective <code>bootstrap</code> methods.
+     * @throws CruiseControlException if an error occurs during bootstrapping
      */
     protected void bootstrap() throws CruiseControlException {
         setState(ProjectState.BOOTSTRAPPING);
@@ -758,6 +774,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Logs a message to the application log, not to be confused with the
      * CruiseControl build log.
+     * @param message the application message to log
      */
     private void info(String message) {
         LOG.info("Project " + name + ":  " + message);

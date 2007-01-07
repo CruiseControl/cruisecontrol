@@ -611,7 +611,43 @@ public class ProjectTest extends TestCase {
         deserializedProject.start();
         assertTrue("failed to create schedule thread", deserializedProject.wasCreateNewSchedulingThreadCalled());
     }
-    
+
+    public void testBuildForcedAfterSuccessfulBuild() throws Exception {
+        projectConfig.add(new MockSchedule());
+
+        final Log log = new Log();
+        final File logDir = new File(TEST_DIR + File.separator + "test-results");
+        logDir.mkdir();
+        log.setProjectName("myproject");
+        log.setDir(logDir.getAbsolutePath());
+        log.setEncoding("ISO-8859-1");
+        log.validate();
+        projectConfig.add(log);
+
+        project.setBuildQueue(new BuildQueue());
+
+        final File serializedProjectFile = new File(project.getName() + ".ser");
+        filesToClear.add(serializedProjectFile);
+        if (serializedProjectFile.exists()) {
+            assertTrue(serializedProjectFile.delete());
+        }
+        assertFalse(serializedProjectFile.exists());
+        
+        assertFalse(project.isBuildForced());
+        project.setBuildForced(true);
+        project.start();
+        project.execute(); // performs a build, which performs project serialization
+
+        final ObjectInputStream inObjects = new ObjectInputStream(new FileInputStream(
+                serializedProjectFile));
+        final Object p = inObjects.readObject();
+        inObjects.close();
+        assertNotNull("Read object must not be null", p);
+        assertTrue("Object must be instanceof Project class", p instanceof Project);
+        final Project deserializedProject = (Project) p;
+        assertFalse("buildForced should be false after deserialization", deserializedProject.isBuildForced());
+    }
+
     public void testGetProjectPropertiesMap() throws CruiseControlException {
         String label = "labeL.1";
         project.setLabel(label);
