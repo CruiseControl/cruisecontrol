@@ -66,7 +66,9 @@
     <target name="install" depends="build" description="deploy to the build dir">
         <mkdir dir="${install.share}"/>
         <mkdir dir="${install.docs}"/>
-        <copy todir="${install.dist}" file="${cruisecontrol.main}/dist/cruisecontrol.jar"/>
+        <copy todir="${install.dist}">
+            <fileset dir="${cruisecontrol.main}/dist"/>
+        </copy>
         <copy todir="${install.lib}">
             <fileset dir="${cruisecontrol.main}/lib"/>
         </copy>
@@ -93,7 +95,7 @@
         </copy>
 
         <mkdir dir="${build.dir}/usr/bin"/>
-        <exec executable="chmod">
+        <exec executable="chmod" failonerror="true">
             <arg value="a+x"/>
             <arg value="${build.dir}/usr/share/cruisecontrol/bin/cruisecontrol"/>
             <arg value="${build.dir}/usr/share/cruisecontrol/bin/cruisecontrol.sh"/>
@@ -130,11 +132,15 @@
         <copy file="debian/control" todir="${build.dir}/DEBIAN">
             <filterset refid="packageInfoFilterSet"/>
         </copy>
-        <exec executable="cp">
+        <exec executable="cp" failonerror="true">
             <arg value="debian/postinst"/>
             <arg value="${build.dir}/DEBIAN"/>
         </exec>
-        <exec executable="dpkg">
+        <exec executable="chmod" failonerror="true">
+            <arg value="a+x"/>
+            <arg value="${build.dir}/DEBIAN/postinst"/>
+        </exec>
+        <exec executable="dpkg" failonerror="true">
             <arg value="-b"/>
             <arg value="build"/>
             <arg value="cruisecontrol_${config.version}-${config.release}.deb"/>
@@ -149,7 +155,7 @@
             <filelist dir="debian" files="postinst"/>
         </concat>
         <delete dir="${build.dir}/DEBIAN"/>
-        <exec executable="rpmbuild">
+        <exec executable="rpmbuild" failonerror="true">
             <arg value="-bb"/>
             <arg value="--target"/>
             <arg value="noarch"/>
