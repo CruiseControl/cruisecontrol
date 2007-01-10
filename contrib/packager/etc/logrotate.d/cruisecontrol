@@ -3,7 +3,7 @@
         missingok
         rotate 7
         compress
-        create 640 ccontrol adm
+        create 640 cruise root
         sharedscripts
         prerotate
                 /etc/init.d/cruisecontrol stop > /dev/null
