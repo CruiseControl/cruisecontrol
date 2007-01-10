@@ -23,6 +23,7 @@ contrib
   - backs up logs and artifacts to your Windows profile temp dir when removing
   - cleans out install dir
 * packager: Based on the RpmPackager contributed earlier by Julian Simpson, but now works with rpm version 4 and also creates Debian packages. It is also done in such a way that building any other type of package should work. Contributed by Christoper Read and Julian Simpson.
+* packager: fix user and group in logrotate script - Patch by Markus M. May
 
 build loop
 ======================
