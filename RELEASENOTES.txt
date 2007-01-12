@@ -2,7 +2,7 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - Current
+CruiseControl Release Notes - 2.6
 
 general
 ======================
@@ -12,25 +12,42 @@ general
 
 contrib
 ======================
+
+distributed
+----------------------
 * Update distributed CC code for refactoring in core (CC-485). Patch by Dan Rollo
 * Fix bug in distributed where empty results subdirectories cause exception (CC-458). Patch by Dan Rollo
 * Fix bug where distributed InteractiveBuildUtility always fails to build (CC-459). Patch by Dan Rollo
 * Pass CC_OPTS in cruisecontrol.sh for distributed CC.  Patch by Dan Rollo.
 * Fix bug in distributed where BuildAgent restart() and kill() never waited for build to finish (CC-517). Patch by Dan Rollo
+
+mainAsWar
+----------------------
+* Allows the main build loop to run in a servlet container.
+
+packager
+----------------------
+* packager: Based on the RpmPackager contributed earlier by Julian Simpson, but now works with rpm version 4 and also creates Debian packages. It is also done in such a way that building any other type of package should work. Contributed by Christoper Read and Julian Simpson.
+* packager: fix user and group in logrotate script - Patch by Markus M. May
+
+windowsInstaller
+----------------------
 * Fixes for windows installer (CC-505).  Patch by Julian Simpson:
   - displays README instead of RELEASENOTES
   - now with Windows service
   - backs up logs and artifacts to your Windows profile temp dir when removing
   - cleans out install dir
-* packager: Based on the RpmPackager contributed earlier by Julian Simpson, but now works with rpm version 4 and also creates Debian packages. It is also done in such a way that building any other type of package should work. Contributed by Christoper Read and Julian Simpson.
-* packager: fix user and group in logrotate script - Patch by Markus M. May
 
 build loop
 ======================
 
 Accurev
 ----------------------
-* Add fix property attribute and remove propertyOnDelete since I don't see an easy way to know if a file has been deleted.
+* Fix property attribute and remove propertyOnDelete since I don't see an easy way to know if a file has been deleted.
+
+AllFusionHarvestCM511
+----------------------
+* AllFusion Harvest CM 5.1.1 source control implementation, registered as "harvest" in the default plugins. Submitted by Larry Liberto. 
 
 AntBuilder
 ----------------------
@@ -40,8 +57,6 @@ AntBuilder
 bootstrappers
 ----------------------
 * Update all bootstrappers to throw CruiseControlExceptions on errors instead of log and continue (CC-449).  Reported by Sylvain Benoist.
-* VSSBoostrapper fix for intermitent "java.io.IOException: The handle is invalid" errors (CC-535). 
-* Add ExecBootstrapper which executes a command (like the ExecBuilder) during the bootstrap process (CC-538). Submitted by Frederic Mockel
 
 BuildQueue
 ----------------------
@@ -95,14 +110,14 @@ EmailPublisher
 * Fixed bug where using SSL but not specifying mailPort would result in a NullPointerException. Reported by Michael Clark
 * Added validation for nested alert, always, failure, success and ignore elements.
 
-AllFusionHarvestCM511
+ExecBootstrapper
 ----------------------
-* AllFusion Harvest CM 5.1.1 source control implementation, registered as "harvest" in the default plugins. Submitted by Larry Liberto. 
+* Add ExecBootstrapper which executes a command (like the ExecBuilder) during the bootstrap process (CC-538). Submitted by Frederic Mockel
 
 Launcher
 ----------------------
 * Add Ant-style launcher (CC-268).  Patch by Robert J. Smith.
-  - Fix NPE if cc.home property not set (CC-516).  Patch by Dan Rollo.
+* Fix NPE if cc.home property not set (CC-516).  Patch by Dan Rollo.
 
 LdapMapper
 ----------------------
@@ -179,6 +194,10 @@ UCM
 VSS
 ----------------------
 * Asterisks in comments no longer cause StringIndexOutOfBoundsException (CC-461).  Reported by Omair-Inam Abdul-Matin
+
+VssBootstrapper
+----------------------
+* VSSBoostrapper fix for intermitent "java.io.IOException: The handle is invalid" errors (CC-535). 
 
 reporting application
 ======================
