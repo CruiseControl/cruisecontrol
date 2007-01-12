@@ -103,6 +103,7 @@ default-plugins.properties
 ----------------------
 * Add ClearCaseViewstrapper (CC-482). Reported by Andy Stevens
 * Add ExecBootstrapper and CompositeBuilder (CC-538).
+* Add RakeBuilder as <rake .../>
 
 EmailPublisher
 ----------------------
@@ -168,6 +169,10 @@ PropertyLabelIncrementer
 PVCS
 ----------------------
 * Add support for multiline comments (CC-440). Patch by Scott Heaberlin
+
+RakeBuilder
+----------------------
+* Add builder to call Ruby Rake (CC-564). Submitted by Kirk Knoernschild
 
 SCPPublisher
 ----------------------
