@@ -2,6 +2,13 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.6.1
+
+ClearCase
+=====================
+* Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
+
+
 CruiseControl Release Notes - 2.6
 
 general

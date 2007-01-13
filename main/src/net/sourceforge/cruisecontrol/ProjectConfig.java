@@ -54,8 +54,9 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
-/** 
+/**
  * A plugin that represents the project node
+ * 
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class ProjectConfig implements ProjectInterface {
@@ -80,14 +81,14 @@ public class ProjectConfig implements ProjectInterface {
     private Project project;
 
     /**
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
-     *
-     *  @throws CruiseControlException if there was a configuration error.
+     * Called after the configuration is read to make sure that all the mandatory parameters were specified..
+     * 
+     * @throws CruiseControlException
+     *             if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
         if (dateFormat != null) {
-             dateFormat.validate();
+            dateFormat.validate();
         }
         ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
 
@@ -102,7 +103,7 @@ public class ProjectConfig implements ProjectInterface {
         if (log == null) {
             log = new Log();
         }
-        log.setProjectName(name);            
+        log.setProjectName(name);
         log.validate();
 
         if (modificationSet != null) {
@@ -158,28 +159,45 @@ public class ProjectConfig implements ProjectInterface {
         this.labelIncrementer = labelIncrementer;
     }
 
-    public CCDateFormat getDateFormat() { return dateFormat; }
-    
-    public boolean shouldBuildAfterFailed() { return buildAfterFailed; }
-
-    //TODO: This method seems useless. I suspect that callers aren't asking ProjectConfig the "right" questions.
-    public Log getLog() { return log; }
-
-    public List getBootstrappers() { 
-      return bootstrappers == null ? Collections.EMPTY_LIST : bootstrappers.getBootstrappers();
+    public CCDateFormat getDateFormat() {
+        return dateFormat;
     }
 
-    public List getListeners() { return listeners == null ? Collections.EMPTY_LIST : listeners.getListeners(); }
+    public boolean shouldBuildAfterFailed() {
+        return buildAfterFailed;
+    }
 
-    public List getPublishers() { return publishers == null ? Collections.EMPTY_LIST : publishers.getPublishers(); }
+    public Log getLog() {
+        return log;
+    }
 
-    public ModificationSet getModificationSet() { return modificationSet; }
+    public List getBootstrappers() {
+        return bootstrappers == null ? Collections.EMPTY_LIST : bootstrappers.getBootstrappers();
+    }
 
-    public Schedule getSchedule() { return schedule; }
+    public List getListeners() {
+        return listeners == null ? Collections.EMPTY_LIST : listeners.getListeners();
+    }
 
-    public LabelIncrementer getLabelIncrementer() { return labelIncrementer; }
+    public List getPublishers() {
+        return publishers == null ? Collections.EMPTY_LIST : publishers.getPublishers();
+    }
 
-    public String getName() { return name; }
+    public ModificationSet getModificationSet() {
+        return modificationSet;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public LabelIncrementer getLabelIncrementer() {
+        return labelIncrementer;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     /**
      * only used for tests. should be removed.
@@ -194,13 +212,7 @@ public class ProjectConfig implements ProjectInterface {
         return props;
     }
 
-    /**
-     * only used for tests. should be removed.
-     * 
-     * @deprecated
-     */
     void setProperties(Map properties) {
-        // TODO only used for tests? remove...
         this.properties = properties;
     }
 
@@ -214,10 +226,14 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Bootstrappers {
         private List bootstrappers = new ArrayList();
+
         public void add(Bootstrapper bootstrapper) {
             bootstrappers.add(bootstrapper);
         }
-        public List getBootstrappers() { return bootstrappers; }
+
+        public List getBootstrappers() {
+            return bootstrappers;
+        }
 
         public void validate() throws CruiseControlException {
             for (Iterator iterator = bootstrappers.iterator(); iterator.hasNext();) {
@@ -229,10 +245,14 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Listeners {
         private List listeners = new ArrayList();
+
         public void add(Listener listener) {
             listeners.add(listener);
         }
-        public List getListeners() { return listeners; }
+
+        public List getListeners() {
+            return listeners;
+        }
 
         public void validate() throws CruiseControlException {
             for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
@@ -244,10 +264,14 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Publishers {
         private List publishers = new ArrayList();
+
         public void add(Publisher publisher) {
             publishers.add(publisher);
         }
-        public List getPublishers() { return publishers; }
+
+        public List getPublishers() {
+            return publishers;
+        }
 
         public void validate() throws CruiseControlException {
             for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
@@ -259,7 +283,8 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     /**
-     * @param forceOnly the forceOnly to set
+     * @param forceOnly
+     *            the forceOnly to set
      */
     public void setForceOnly(boolean forceOnly) {
         this.forceOnly = forceOnly;
@@ -280,12 +305,13 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     /**
-     * @param requiremodification the requiremodification to set
+     * @param requiremodification
+     *            the requiremodification to set
      */
     public void setRequiremodification(boolean requiremodification) {
         this.requiremodification = requiremodification;
     }
-    
+
     public void configureProject() throws CruiseControlException {
         Project myProject = readProject(name);
         myProject.setName(name);
@@ -295,35 +321,33 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     /**
-     * Reads project configuration from a previously serialized Project or creates a new
-     * instance.  The name of the serialized project file is derived from the name of
-     * the project.
-     *
-     * @param projectName name of the serialized project
-     * @return Deserialized Project or a new Project if there are any problems
-     * reading the serialized Project; should never return null
+     * Reads project configuration from a previously serialized Project or creates a new instance. The name of the
+     * serialized project file is derived from the name of the project.
+     * 
+     * @param projectName
+     *            name of the serialized project
+     * @return Deserialized Project or a new Project if there are any problems reading the serialized Project; should
+     *         never return null
      */
     Project readProject(String projectName) {
         File serializedProjectFile = new File(projectName + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
-    
+
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
             serializedProjectFile = ProjectConfig.tryOldSerializedFileName(projectName);
         }
-        
-        if (!serializedProjectFile.exists()
-                || !serializedProjectFile.canRead()
+
+        if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()
                 || serializedProjectFile.isDirectory()) {
             Project temp = new Project();
             temp.setName(projectName);
-            LOG.warn("No previously serialized project found ["
-                    + serializedProjectFile.getAbsolutePath()
+            LOG.warn("No previously serialized project found [" + serializedProjectFile.getAbsolutePath()
                     + ".ser], forcing a build.");
             Project newProject = new Project();
             newProject.setBuildForced(true);
             return newProject;
         }
-    
+
         try {
             ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
             return (Project) s.readObject();
@@ -384,7 +408,7 @@ public class ProjectConfig implements ProjectInterface {
     public void stop() {
         project.start();
     }
-    
+
     // TODO remove this. only here till tests are fixed up.
     Project getProject() {
         return project;

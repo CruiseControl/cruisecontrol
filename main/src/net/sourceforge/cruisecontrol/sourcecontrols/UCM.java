@@ -36,32 +36,35 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.Processes;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.CommandlineUtil;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for ClearCase UCM.
- *
+ * 
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  * @author Alex Batlin
  */
@@ -72,37 +75,42 @@ public class UCM implements SourceControl {
     private String stream;
     private String viewPath;
     private boolean contributors = true;
+    private boolean rebases = false;
+
     private SourceControlProperties properties = new SourceControlProperties();
 
-    /*  Date format required by commands passed to ClearCase */
-    private final SimpleDateFormat inDateFormatter = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+    private final SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+    private final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
-    /*  Date format returned in the output of ClearCase commands. */
-    private final SimpleDateFormat outDateFormatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
-
+    private String pvob;
 
     /**
-     * get the properties created via the sourcecontrol
-     *
-     * @return Hastable containing properties
+     * Unlikely combination of characters to separate fields in a ClearCase query
      */
+    static final String DELIMITER = "#~#";
+
+    /**
+     * Even more unlikely combination of characters to indicate end of one line in query. Carriage return (\n) can be
+     * used in comments and so is not available to us.
+     */
+    static final String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
+
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
 
-    /**
-     * validate whether enough attributes have been passed
-     *
-     * @throws CruiseControlException
-     */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(stream, "stream", this.getClass());
         ValidationHelper.assertIsSet(viewPath, "viewpath", this.getClass());
+
+        if (isRebases()) {
+            ValidationHelper.assertIsSet(pvob, "pvob", this.getClass());
+        }
     }
 
     /**
      * get which stream is being checked
-     *
+     * 
      * @return the name of the stream being checked
      */
     public String getStream() {
@@ -111,8 +119,9 @@ public class UCM implements SourceControl {
 
     /**
      * set the stream to check for changes
-     *
-     * @param stream the stream to be checked (via its underlying branch)
+     * 
+     * @param stream
+     *            the stream to be checked (via its underlying branch)
      */
     public void setStream(String stream) {
         this.stream = stream;
@@ -120,7 +129,7 @@ public class UCM implements SourceControl {
 
     /**
      * get the starting point path in a view to check for changes
-     *
+     * 
      * @return path inside a view
      */
     public String getViewPath() {
@@ -129,16 +138,55 @@ public class UCM implements SourceControl {
 
     /**
      * set the starting point path in a view to check for changes
-     *
-     * @param viewPath path inside a view
+     * 
+     * @param viewPath
+     *            path inside a view
      */
     public void setViewPath(String viewPath) {
         this.viewPath = viewPath;
     }
 
     /**
+     * Set the name of the pvob to use for queries.
+     * 
+     * @param pvob
+     *            the pvob
+     */
+    public void setPvob(String pvob) {
+        this.pvob = pvob;
+    }
+
+    /**
+     * Get the name of the pvob to use for queries.
+     * 
+     * @return The name of the pvob
+     */
+    public String getPvob() {
+        return this.pvob;
+    }
+
+    /**
+     * Gets whether rebases are to be reported as changes.
+     * 
+     * @return true, if rebases are to be reported, else false
+     */
+    public boolean isRebases() {
+        return this.rebases;
+    }
+
+    /**
+     * Sets whether rebases of the integration stream are reported as changes.
+     * 
+     * @param rebases
+     *            boolean indicating whether rebases are to be reported as changes
+     */
+    public void setRebases(boolean rebases) {
+        this.rebases = rebases;
+    }
+
+    /**
      * get whether contributors are to be found
-     *
+     * 
      * @return true, if contributors are to be found, else false
      */
     public boolean isContributors() {
@@ -147,8 +195,9 @@ public class UCM implements SourceControl {
 
     /**
      * set whether contributors are to be found
-     *
-     * @param contributors boolean indicating whether contributors are to be found
+     * 
+     * @param contributors
+     *            boolean indicating whether contributors are to be found
      */
     public void setContributors(boolean contributors) {
         this.contributors = contributors;
@@ -156,27 +205,28 @@ public class UCM implements SourceControl {
 
     /**
      * set the name of the property that will be set if modifications are found
-     *
-     * @param property The name of the property to set
+     * 
+     * @param property
+     *            The name of the property to set
      */
     public void setProperty(String property) {
         properties.assignPropertyName(property);
     }
 
     /**
-     * Get a List of modifications detailing all the changes between now and
-     * the last build. Return this as an element. It is not necessary for
-     * sourcecontrols to actually do anything other than returning a chunk
-     * of XML data back.
-     *
-     * @param lastBuild time of last build
-     * @param now       time this build started
-     * @return a list of XML elements that contains data about the modifications
-     *         that took place. If no changes, this method returns an empty list.
+     * Get a List of modifications detailing all the changes between now and the last build. Return this as an element.
+     * It is not necessary for sourcecontrols to actually do anything other than returning a chunk of XML data back.
+     * 
+     * @param lastBuild
+     *            time of last build
+     * @param now
+     *            time this build started
+     * @return a list of XML elements that contains data about the modifications that took place. If no changes, this
+     *         method returns an empty list.
      */
     public List getModifications(Date lastBuild, Date now) {
-        String lastBuildDate = inDateFormatter.format(lastBuild);
-        String nowDate = inDateFormatter.format(now);
+        String lastBuildDate = inputDateFormat.format(lastBuild);
+        String nowDate = inputDateFormat.format(now);
         properties.put("ucmlastbuild", lastBuildDate);
         properties.put("ucmnow", nowDate);
         List mods = new ArrayList();
@@ -190,6 +240,22 @@ public class UCM implements SourceControl {
             LOG.error("Command failed to execute succesfully", e);
         }
 
+        if (this.isRebases()) {
+            try {
+                Commandline commandline = buildDetectRebasesCommand(lastBuildDate);
+                commandline.setWorkingDirectory(viewPath);
+                InputStream cmdStream = CommandlineUtil.streamOutput(commandline);
+
+                try {
+                    mods.addAll(parseRebases(cmdStream));
+                } finally {
+                    cmdStream.close();
+                }
+            } catch (Exception e) {
+                LOG.error("Error in executing the Clear Case command : ", e);
+            }
+        }
+
         // If modifications were found, set the property
         if (!mods.isEmpty()) {
             properties.modificationFound();
@@ -198,7 +264,7 @@ public class UCM implements SourceControl {
         return mods;
     }
 
-    /*
+    /**
      * get all the activities on the stream since the last build date
      */
     private HashMap collectActivitiesSinceLastBuild(String lastBuildDate) {
@@ -211,31 +277,34 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Processes.execute(commandLine);
-            InputStreamReader isr = new InputStreamReader(p.getInputStream());
-            BufferedReader br = new BufferedReader(isr);
-            String line;
+            commandLine.setWorkingDirectory(viewPath);
+            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
 
-            while (((line = br.readLine()) != null) && (!br.equals(""))) {
-                String[] details = getDetails(line);
-                if (details[0].equals("mkbranch") || details[0].equals("rmbranch") || details[0].equals("rmver")) {
-                    // if type is create/remove branch then skip
-                } else {
-                    String activityName = details[1];
-                    String activityDate = details[2];
-                    // assume the latest change for an activity is listed first
-                    if (!activityMap.containsKey(activityName)) {
-                        LOG.debug("Found activity name: " + activityName + "; date: " + activityDate);
-                        activityMap.put(activityName, activityDate);
+            try {
+                InputStreamReader isr = new InputStreamReader(cmdStream);
+                BufferedReader br = new BufferedReader(isr);
+                String line;
+
+                while (((line = br.readLine()) != null) && (!br.equals(""))) {
+                    String[] details = getDetails(line);
+                    if (details[0].equals("mkbranch")) {
+                        // if type is create branch then skip
+                    } else {
+                        String activityName = details[1];
+                        String activityDate = details[2];
+                        // assume the latest change for an activity is listed first
+                        if (!activityMap.containsKey(activityName)) {
+                            LOG.debug("Found activity name: " + activityName + "; date: " + activityDate);
+                            activityMap.put(activityName, activityDate);
+                        }
                     }
                 }
+            } finally {
+                cmdStream.close();
             }
-
-            p.waitFor();
-            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase lshistory command", e);
-        } catch (InterruptedException e) {
+        } catch (CruiseControlException e) {
             LOG.error("Interrupt Error executing ClearCase lshistory command", e);
         }
 
@@ -243,10 +312,27 @@ public class UCM implements SourceControl {
     }
 
     private String[] getDetails(String line) {
-        return line.split("~#~");
+        // replacing line.split("~#~") for jdk 1.3
+        ArrayList details = new ArrayList();
+        String delimiter = "~#~";
+        int startIndex = 0;
+        int index = 0;
+        while (index != -1) {
+            String detail;
+            index = line.indexOf(delimiter, startIndex);
+            if (index == -1) {
+                detail = line.substring(startIndex, line.length());
+            } else {
+                detail = line.substring(startIndex, index);
+            }
+            details.add(detail);
+            startIndex = index + delimiter.length();
+        }
+
+        return (String[]) details.toArray(new String[] {});
     }
 
-    /*
+    /**
      * construct a command to get all the activities on the specified stream
      */
     public Commandline buildListStreamCommand(String lastBuildDate) {
@@ -262,7 +348,7 @@ public class UCM implements SourceControl {
         return commandLine;
     }
 
-    /*
+    /**
      * get all the activities on the stream since the last build date
      */
     private List describeAllActivities(HashMap activityNames) {
@@ -296,7 +382,7 @@ public class UCM implements SourceControl {
         return activityList;
     }
 
-    /*
+    /**
      * get all the activities on the stream since the last build date
      */
     private UCMModification describeActivity(String activityID, String activityDate) {
@@ -307,42 +393,46 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Processes.execute(commandLine);
-            InputStreamReader isr = new InputStreamReader(p.getInputStream());
-            BufferedReader br = new BufferedReader(isr);
-            String line;
+            commandLine.setWorkingDirectory(viewPath);
+            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
 
-            while (((line = br.readLine()) != null) && (!br.equals(""))) {
-                String[] details = getDetails(line);
-                try {
-                    mod.modifiedTime = outDateFormatter.parse(activityDate);
-                } catch (ParseException e) {
-                    LOG.error("Error parsing modification date");
+            try {
+                InputStreamReader isr = new InputStreamReader(cmdStream);
+                BufferedReader br = new BufferedReader(isr);
+                String line;
+
+                while (((line = br.readLine()) != null) && (!br.equals(""))) {
+                    String[] details = getDetails(line);
+                    try {
+                        mod.modifiedTime = outputDateFormat.parse(activityDate);
+                    } catch (ParseException e) {
+                        LOG.error("Error parsing modification date");
+                        mod.modifiedTime = new Date();
+                    }
+                    mod.type = "activity";
+                    // counter for UCM without ClearQuest
+                    if (details[0].equals("")) {
+                        mod.revision = details[3];
+                    } else {
+                        mod.revision = details[0];
+                    }
+                    mod.crmtype = details[1];
+                    mod.userName = details[2];
+                    mod.comment = details[3];
                 }
-                mod.type = "activity";
-                // counter for UCM without ClearQuest
-                if (details[0].equals("")) {
-                    mod.revision = details[3];
-                } else {
-                    mod.revision = details[0];
-                }
-                mod.crmtype = details[1];
-                mod.userName = details[2];
-                mod.comment = details[3];
+            } finally {
+                cmdStream.close();
             }
-
-            p.waitFor();
-            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase describe command", e);
-        } catch (InterruptedException e) {
+        } catch (CruiseControlException e) {
             LOG.error("Interrupt error executing ClearCase describe command", e);
         }
 
         return mod;
     }
 
-    /*
+    /**
      * construct a command to get all the activities on the specified stream
      */
     public Commandline buildDescribeActivityCommand(String activityID) {
@@ -354,7 +444,7 @@ public class UCM implements SourceControl {
         return commandLine;
     }
 
-    /*
+    /**
      * get all the activities on the stream since the last build date
      */
     private List describeContributors(String activityName) {
@@ -364,24 +454,26 @@ public class UCM implements SourceControl {
         LOG.debug("Executing: " + commandLine);
 
         try {
-            Process p = Processes.execute(commandLine);
+            commandLine.setWorkingDirectory(viewPath);
+            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
 
-            InputStreamReader isr = new InputStreamReader(p.getInputStream());
-            BufferedReader br = new BufferedReader(isr);
-            String line;
+            try {
+                InputStreamReader isr = new InputStreamReader(cmdStream);
+                BufferedReader br = new BufferedReader(isr);
+                String line;
 
-            while ((line = br.readLine()) != null) {
-                String[] contribs = splitOnSpace(line);
-                for (int i = 0; i < contribs.length; i++) {
-                    contribList.add(contribs[i]);
+                while ((line = br.readLine()) != null) {
+                    String[] contribs = splitOnSpace(line);
+                    for (int i = 0; i < contribs.length; i++) {
+                        contribList.add(contribs[i]);
+                    }
                 }
+            } finally {
+                cmdStream.close();
             }
-
-            p.waitFor();
-            IO.close(p);
         } catch (IOException e) {
             LOG.error("IO Error executing ClearCase describe contributors command", e);
-        } catch (InterruptedException e) {
+        } catch (CruiseControlException e) {
             LOG.error("Interrupt Error executing ClearCase describe contributors command", e);
         }
 
@@ -392,7 +484,7 @@ public class UCM implements SourceControl {
         return string.split(" ");
     }
 
-    /*
+    /**
      * construct a command to get all the activities on the specified stream
      */
     public Commandline buildListContributorsCommand(String activityID) {
@@ -404,7 +496,284 @@ public class UCM implements SourceControl {
         return commandLine;
     }
 
-    /*
+    protected Commandline buildDetectRebasesCommand(String lastBuildDate) {
+        Commandline commandLine = new Commandline();
+        commandLine.setExecutable("cleartool");
+        commandLine.createArgument().setValue("lshistory");
+        commandLine.createArgument().setValue("-since");
+        commandLine.createArgument().setValue(lastBuildDate);
+        commandLine.createArgument().setValue("-minor");
+        commandLine.createArgument().setValue("-fmt");
+        String format = "%u" + DELIMITER + "%Nd" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER
+                + "\\n";
+        commandLine.createArgument().setValue(format);
+        commandLine.createArgument().setValue("stream:" + stream + "@" + pvob);
+        return commandLine;
+    }
+
+    /**
+     * Parses the given input stream to construct the modifications list. The stream is expected to be the result of
+     * listing the history of a UCM stream. Rebases are then detected by delegating to {@link #parseEntry}.
+     * Package-private to make it available to the unit test.
+     * 
+     * @param input
+     *            the stream to parse
+     * @return a list of modification elements
+     * @exception IOException
+     */
+    List parseRebases(InputStream input) throws IOException {
+        ArrayList modifications = new ArrayList();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        String ls = System.getProperty("line.separator");
+
+        String line;
+        StringBuffer lines = new StringBuffer();
+
+        while ((line = reader.readLine()) != null) {
+            if (lines.length() != 0) {
+                lines.append(ls);
+            }
+            lines.append(line);
+            Modification mod = null;
+
+            if (lines.indexOf(END_OF_STRING_DELIMITER) > -1) {
+                mod = parseRebaseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
+                lines = new StringBuffer();
+            }
+
+            if (mod != null) {
+                modifications.add(mod);
+            }
+        }
+
+        return modifications;
+    }
+
+    /**
+     * Parses a single line from the reader. Each line contains a signe revision with the format : <br>
+     * username#~#date_of_revision#~#operation_type#~#comments <br>
+     * <p>
+     * This method looks for operations of type rmhlink and mkhlink where the hyperlink name begins with "UseBaseline".
+     * These represent changes in the baseline dependencies of the stream.
+     * </p>
+     * 
+     * @param line
+     *            the line to parse
+     * @return a modification element corresponding to the given line
+     */
+    Modification parseRebaseEntry(String line) {
+        LOG.debug("parsing entry: " + line);
+        String[] tokens = tokenizeEntry(line);
+        if (tokens == null) {
+            return null;
+        }
+        String username = tokens[0].trim();
+        String timeStamp = tokens[1].trim();
+        String operationType = tokens[2].trim();
+        String comment = tokens[3].trim();
+
+        Modification mod = null;
+
+        // Rebases show up as mkhlink and rmhlink operations
+        if (operationType.equals("mkhlink") || operationType.equals("rmhlink")) {
+            // Parse the hyperlink name out of the comment field, then
+            // get more information on that hyperlink
+            mod = new Modification();
+            String linkName = parseLinkName(comment);
+
+            // If this isn't a "UseBaseline" hyperlink, we're not interested
+            if (!linkName.startsWith("UseBaseline")) {
+                return null;
+            }
+
+            Hyperlink link = getHyperlink(linkName);
+            StringBuffer modComment = new StringBuffer();
+            mod.type = "ucmdependency";
+
+            if (operationType.equals("mkhlink")) {
+                modComment.append("Added dependency");
+            } else {
+                modComment.append("Removed dependency");
+            }
+
+            if (link.getFrom().length() > 0) {
+                modComment.append(" of ");
+                modComment.append(link.getFrom());
+            }
+
+            if (link.getTo().length() > 0) {
+                modComment.append(" on ");
+                modComment.append(link.getTo());
+                mod.revision = link.getTo();
+            } else {
+                // Don't know what the revision was to
+                mod.revision = "";
+            }
+
+            mod.comment = modComment.toString();
+            mod.userName = username;
+
+            try {
+                mod.modifiedTime = outputDateFormat.parse(timeStamp);
+            } catch (ParseException e) {
+                LOG.error("Error parsing modification date", e);
+                mod.modifiedTime = new Date();
+            }
+
+            properties.modificationFound();
+        }
+
+        return mod;
+    }
+
+    private Hyperlink getHyperlink(String linkName) {
+        Commandline commandline = buildGetHyperlinkCommandline(linkName);
+
+        try {
+            commandline.setWorkingDirectory(viewPath);
+            InputStream cmdStream = CommandlineUtil.streamOutput(commandline);
+            Hyperlink link = null;
+
+            try {
+                link = parseHyperlinkDescription(cmdStream);
+            } finally {
+                cmdStream.close();
+            }
+
+            return link;
+        } catch (Exception e) {
+            LOG.error("Error in executing the Clear Case command : ", e);
+            return new Hyperlink();
+        }
+    }
+
+    protected Commandline buildGetHyperlinkCommandline(String linkName) {
+        Commandline commandline = new Commandline();
+        commandline.setExecutable("cleartool");
+        commandline.createArgument().setValue("describe");
+        commandline.createArgument().setValue("hlink:" + linkName + "@" + pvob);
+        return commandline;
+    }
+
+    Hyperlink parseHyperlinkDescription(InputStream input) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+        String lastLine = "";
+        String line = reader.readLine();
+
+        // If the hyperlink wasn't found, cleartool will return no output, giving
+        // us an empty stream. This will end up returning an empty string.
+        while (line != null) {
+            lastLine = line;
+            line = reader.readLine();
+        }
+
+        Hyperlink link = new Hyperlink();
+        StringTokenizer tokens = new StringTokenizer(lastLine, " ");
+
+        if (!tokens.hasMoreTokens()) {
+            return link;
+        }
+
+        // Discard the first one, that's the link name
+        tokens.nextToken();
+
+        if (!tokens.hasMoreTokens()) {
+            return link;
+        }
+
+        link.setFrom(tokens.nextToken());
+
+        // Discard "->"
+        if (!tokens.hasMoreTokens()) {
+            return link;
+        }
+
+        tokens.nextToken();
+
+        if (!tokens.hasMoreTokens()) {
+            return link;
+        }
+
+        link.setTo(tokens.nextToken());
+
+        return link;
+    }
+
+    String parseLinkName(String comment) {
+        // Parse on spaces and quotes (to eliminate them)
+        StringTokenizer tokens = new StringTokenizer(comment, " \"");
+        String link = "";
+        String token = "";
+
+        // The next-to-last token should contain the hyperlink name
+        while (tokens.hasMoreTokens()) {
+            link = token;
+            token = tokens.nextToken();
+        }
+
+        int index = link.lastIndexOf('@');
+
+        if (index != -1) {
+            // Remove the VOB-qualifier from the end. We'll add it back ourselves
+            return link.substring(0, link.lastIndexOf('@'));
+        } else {
+            // Return it unmodified
+            return link;
+        }
+    }
+
+    private String[] tokenizeEntry(String line) {
+        int maxTokens = 4;
+        int minTokens = maxTokens - 1; // comment may be absent.
+        String[] tokens = new String[maxTokens];
+        Arrays.fill(tokens, "");
+        int tokenIndex = 0;
+        for (int oldIndex = 0, i = line.indexOf(DELIMITER, 0); true; oldIndex = i + DELIMITER.length(), i = line
+                .indexOf(DELIMITER, oldIndex), tokenIndex++) {
+            if (tokenIndex > maxTokens) {
+                LOG.debug("Too many tokens; skipping entry");
+                return null;
+            }
+            if (i == -1) {
+                tokens[tokenIndex] = line.substring(oldIndex);
+                break;
+            } else {
+                tokens[tokenIndex] = line.substring(oldIndex, i);
+            }
+        }
+        if (tokenIndex < minTokens) {
+            LOG.debug("Not enough tokens; skipping entry");
+            return null;
+        }
+        return tokens;
+    }
+
+    /**
+     * Class to represent ClearCase hyperlinks.
+     */
+    class Hyperlink {
+        private String from = "";
+        private String to = "";
+
+        public String getFrom() {
+            return this.from;
+        }
+
+        public void setFrom(String from) {
+            this.from = from;
+        }
+
+        public String getTo() {
+            return this.to;
+        }
+
+        public void setTo(String to) {
+            this.to = to;
+        }
+    }
+
+    /**
      * class to hold UCMModifications
      */
     private static class UCMModification extends Modification {
@@ -446,28 +815,6 @@ public class UCM implements SourceControl {
             return modificationElement;
         }
 
-    }
-
-    /**
-     * for testing
-     */
-    public static void main(String[] args) {
-        UCM ucmtest = new UCM();
-        ucmtest.setStream("RatlBankModel_Int");
-        //ucmtest.setViewPath("C:\\Views\\RatlBankModel_int\\RatlBankSources\\model");
-        ucmtest.setViewPath("/view/RatlBankModel_int/vobs/RatlBankSources/model");
-        //ucmtest.setContributors(false);
-        List changes = new ArrayList();
-
-        try {
-            changes = ucmtest.getModifications(new SimpleDateFormat("yyyyMMdd.HHmmss").parse("20050822.095914"),
-                    new Date());
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        System.out.println(changes.toString());
     }
 
 }

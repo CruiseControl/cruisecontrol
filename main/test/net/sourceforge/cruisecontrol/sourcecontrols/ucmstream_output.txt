@@ -1,0 +1,16 @@
+sxc25#~#20060316.175048#~#chactivity#~#Updated config_spec.
+Regenerated config spec@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.175048#~#rmhlink#~#Removed hyperlink "UseBaseline@61979@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.175004#~#chactivity#~#Updated config_spec.
+Regenerated config spec@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.175004#~#mkhlink#~#Attached hyperlink "UseBaseline@61979@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.175004#~#rmhlink#~#Removed hyperlink "UseBaseline@61977@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174841#~#chactivity#~#Updated config_spec.
+Regenerated config spec@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174841#~#mkhlink#~#Attached hyperlink "UseBaseline@61977@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174818#~#setwork#~#User "SVMap" in view "PC84913:D:\Views\sxc25_tools.1_test\view.stg".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174645#~#chactivity#~#Updated config_spec.
+Regenerated config spec@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174645#~#mkhlink#~#Attached hyperlink "UseBaseline@61974@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174645#~#mkhlink#~#Attached hyperlink "IndependentGuard@61973@\oscar_pvob".@#@#@#@#@#@#@#@#@#@#@#@
+sxc25#~#20060316.174645#~#mkactivity#~#@#@#@#@#@#@#@#@#@#@#@#@

@@ -61,6 +61,7 @@
     </xsl:template>
 
     <!-- user defined variables for logging into ClearQuest -->
+    <xsl:variable name="cqenabled">true</xsl:variable>
     <xsl:variable name="cqserver">localhost</xsl:variable>
     <xsl:variable name="cqschema">2003.06.00</xsl:variable>
     <xsl:variable name="cqdb">RBPRO</xsl:variable>
@@ -70,18 +71,38 @@
     <xsl:template match="modification[@type='activity']" mode="modifications">
         <xsl:variable name="cqrecurl">http://<xsl:value-of select="$cqserver"/>/cqweb/main?command=GenerateMainFrame&amp;service=CQ&amp;schema=<xsl:value-of select="$cqschema"/>&amp;contextid=<xsl:value-of select="$cqdb"/>&amp;entityID=<xsl:value-of select="revision"/>&amp;entityDefName=<xsl:value-of select="crmtype"/>&amp;username=<xsl:value-of select="$cqlogin"/>&amp;password=<xsl:value-of select="$cqpasswd"/></xsl:variable>
         <tr valign="top">
-            <xsl:attribute name="class">changelists-evenrow</xsl:attribute>
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
+            </xsl:if>
             <td class="modifications-data">
-		<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
-            </td>
-            <td class="modifications-data">
-                <xsl:value-of select="crmtype"/>
+                <xsl:value-of select="@type"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="user"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:if test="cqenabled">
+                    &gt;<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
+                </xsl:if>
+                <xsl:if test="not(cqenabled)">
+                    <xsl:value-of select="revision"/>
+                </xsl:if>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
     </xsl:template>
@@ -89,18 +110,72 @@
     <xsl:template match="modification[@type='contributor']" mode="modifications">
         <xsl:variable name="cqrecurl">http://<xsl:value-of select="$cqserver"/>/cqweb/main?command=GenerateMainFrame&amp;service=CQ&amp;schema=<xsl:value-of select="$cqschema"/>&amp;contextid=<xsl:value-of select="$cqdb"/>&amp;entityID=<xsl:value-of select="revision"/>&amp;entityDefName=<xsl:value-of select="crmtype"/>&amp;username=<xsl:value-of select="$cqlogin"/>&amp;password=<xsl:value-of select="$cqpasswd"/></xsl:variable>
         <tr valign="top">
-            <xsl:attribute name="class">changelists-oddrow</xsl:attribute>
-            <td align="right" class="modifications-data">
-		&gt;<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
+            </xsl:if>
+            <td class="modifications-data">
+                <xsl:value-of select="@type"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="crmtype"/>
+                <xsl:value-of select="user"/>
+            </td>
+            <td align="right" class="modifications-data">
+                <xsl:if test="cqenabled">
+                    &gt;<a href="{$cqrecurl}" target="_blank"><xsl:value-of select="revision"/></a>
+                </xsl:if>
+                <xsl:if test="not(cqenabled)">
+                    &gt;<xsl:value-of select="revision"/>
+                </xsl:if>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
+            </td>
+        </tr>
+    </xsl:template>
+
+    <xsl:template match="modification[@type='ucmdependency']" mode="modifications">
+        <tr valign="top">
+            <xsl:if test="position() mod 2=0">
+                <xsl:attribute name="class">modifications-oddrow</xsl:attribute>
+            </xsl:if>
+            <xsl:if test="position() mod 2!=0">
+                <xsl:attribute name="class">modifications-evenrow</xsl:attribute>
+            </xsl:if>
+
+            <td class="modifications-data">
+                <xsl:value-of select="@type"/>
             </td>
             <td class="modifications-data">
                 <xsl:value-of select="user"/>
             </td>
             <td class="modifications-data">
-                <xsl:value-of select="comment"/>
+                <xsl:value-of select="revision"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:value-of select="date"/>
+            </td>
+            <td class="modifications-data">
+                <xsl:variable name="convertedComment">
+                    <xsl:call-template name="newlineToHTML">
+                        <xsl:with-param name="line">
+                            <xsl:value-of select="comment"/>
+                        </xsl:with-param>
+                    </xsl:call-template>
+                </xsl:variable>
+                <xsl:copy-of select="$convertedComment"/>
             </td>
         </tr>
     </xsl:template>
