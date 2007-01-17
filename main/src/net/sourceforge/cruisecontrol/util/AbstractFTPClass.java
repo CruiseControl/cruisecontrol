@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -67,9 +67,9 @@ public abstract class AbstractFTPClass {
     private String targetPasswd = "eat@joes.com";
     private String targetDir = ".";
     private String targetSeparator = "/";
-    
+
     private boolean passive = false;
-    
+
 
     public void setTargetUser(String targetUser) {
         this.targetUser = targetUser;
@@ -78,7 +78,7 @@ public abstract class AbstractFTPClass {
     public void setTargetHost(String targetHost) {
         this.targetHost = targetHost;
     }
-    
+
     public void setTargetPort(int targetPort) {
         this.targetPort = targetPort;
     }
@@ -94,11 +94,11 @@ public abstract class AbstractFTPClass {
     public void setTargetSeparator(String targetSeparator) {
         this.targetSeparator = targetSeparator;
     }
-    
+
     public void setPassive(boolean p) {
         this.passive = p;
     }
-    
+
 
     /**
      *  Called after the configuration is read to make sure that all the mandatory parameters
@@ -127,13 +127,13 @@ public abstract class AbstractFTPClass {
                 throw new CruiseControlException("FTP connection failed: "
                      + ftp.getReplyString());
             }
-    
+
             LOG.info("logging in to FTP server");
             if (!ftp.login(targetUser, targetPasswd)) {
                 throw new CruiseControlException("Could not login to FTP server");
             }
             LOG.info("login succeeded");
-            
+
             if (passive) {
                 setPassive(ftp);
             }
@@ -143,8 +143,8 @@ public abstract class AbstractFTPClass {
         }
         return ftp;
     }
-    
-    
+
+
     protected void closeFTP(FTPClient ftp) {
         if (ftp != null && ftp.isConnected()) {
             try {
@@ -156,8 +156,8 @@ public abstract class AbstractFTPClass {
             }
         }
     }
-    
-    
+
+
     protected void setBinary(FTPClient ftp) throws CruiseControlException {
         try {
             ftp.setFileType(FTP.IMAGE_FILE_TYPE);
@@ -171,8 +171,8 @@ public abstract class AbstractFTPClass {
             throw new CruiseControlException(ex.getMessage());
         }
     }
-    
-    
+
+
     private void setPassive(FTPClient ftp) throws CruiseControlException {
         LOG.info("entering passive mode");
         ftp.enterLocalPassiveMode();
@@ -181,8 +181,8 @@ public abstract class AbstractFTPClass {
                  + "mode: " + ftp.getReplyString());
         }
     }
-    
-    
+
+
     protected void makeDir(FTPClient ftp, String dir, boolean ignoreFailures)
             throws CruiseControlException {
         dir = targetDir + targetSeparator + dir;
@@ -207,8 +207,8 @@ public abstract class AbstractFTPClass {
             throw new CruiseControlException(ex.getMessage());
         }
     }
-    
-    
+
+
     /**
      * The parent directories need to exist before putting this file.
      */
@@ -226,8 +226,8 @@ public abstract class AbstractFTPClass {
             IO.close(instream);
         }
     }
-    
-    
+
+
     /**
      * The parent directories need to exist before putting this file.
      */
@@ -239,7 +239,7 @@ public abstract class AbstractFTPClass {
         try {
             ftp.storeFile(outfilename, instream);
             boolean success = FTPReply.isPositiveCompletion(ftp.getReplyCode());
-    
+
             if (!success) {
                 throw new CruiseControlException("could not put file: "
                     + ftp.getReplyString());
@@ -249,13 +249,13 @@ public abstract class AbstractFTPClass {
             throw new CruiseControlException(ex.getMessage());
         }
     }
-    
-    
+
+
     protected String resolveFile(String file) {
         return file.replace(File.separatorChar, targetSeparator.charAt(0));
     }
-    
-    
+
+
     protected void makeDirsForFile(FTPClient ftp, String filename,
             Vector knownPaths) throws CruiseControlException {
         String fname = resolveFile(filename);
@@ -265,8 +265,8 @@ public abstract class AbstractFTPClass {
             makeDirs(ftp, fname.substring(0, pos), knownPaths);
         }
     }
-    
-    
+
+
     /**
      * Creates all parent directories specified in a complete relative
      * pathname. Attempts to create existing directories will not cause
@@ -277,10 +277,10 @@ public abstract class AbstractFTPClass {
         if (knownPaths == null) {
             knownPaths = new Vector();
         }
-        
+
         StringTokenizer st = new StringTokenizer(targetDir + targetSeparator
             + resolveFile(pathname), targetSeparator, false);
-        
+
         try {
             String cwd = ftp.printWorkingDirectory();
             LOG.info("makeDirs: current dir = " + cwd);

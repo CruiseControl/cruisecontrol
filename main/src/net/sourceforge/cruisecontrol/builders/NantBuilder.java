@@ -1,8 +1,8 @@
 /*******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit Copyright (c) 2001,
- * ThoughtWorks, Inc. 651 W Washington Ave. Suite 600 Chicago, IL 60661 USA All
+ * ThoughtWorks, Inc. 200 E. Randolph, 25th Floor Chicago, IL 60601 USA All
  * rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met: +
  * Redistributions of source code must retain the above copyright notice, this
@@ -13,7 +13,7 @@
  * CruiseControl, nor the names of its contributors may be used to endorse or
  * promote products derived from this software without specific prior written
  * permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -99,7 +99,7 @@ public class NantBuilder extends Builder {
         // script.setUseDebug(useVerbose);
         script.setUseLogger(useLogger);
         script.setUseQuiet(useQuiet);
-        
+
         long startTime = System.currentTimeMillis();
 
         ScriptRunner scriptRunner = new ScriptRunner();
@@ -141,7 +141,7 @@ public class NantBuilder extends Builder {
     /**
      * Set the location to which the NAnt log will be saved before Cruise
      * Control merges the file into its log.
-     * 
+     *
      * @param dir
      *            the absolute path to the directory where the NAnt log will be
      *            saved or relative path to where you started CruiseControl
@@ -158,7 +158,7 @@ public class NantBuilder extends Builder {
      * Set the working directory where NAnt will be invoked. This parameter gets
      * set in the XML file via the nantWorkingDir attribute. The directory can
      * be relative (to the cruisecontrol current working directory) or absolute.
-     * 
+     *
      * @param dir
      *            the directory to make the current working directory.
      */
@@ -168,7 +168,7 @@ public class NantBuilder extends Builder {
 
     /**
      * Set the name of the temporary file used to capture output.
-     * 
+     *
      * @param tempFileName
      */
     public void setTempFile(String tempFileName) {
@@ -177,7 +177,7 @@ public class NantBuilder extends Builder {
 
     /**
      * Set the Ant target(s) to invoke.
-     * 
+     *
      * @param target
      *            the target(s) name.
      */
@@ -188,7 +188,7 @@ public class NantBuilder extends Builder {
     /**
      * Sets the name of the build file that NAnt will use. The NAnt default is
      * default.build, use this to override it.
-     * 
+     *
      * @param buildFile
      *            the name of the build file.
      */
@@ -198,7 +198,7 @@ public class NantBuilder extends Builder {
 
     /**
      * Sets whether NAnt will use the custom loggers.
-     * 
+     *
      * @param useLogger
      */
     public void setUseLogger(boolean useLogger) {
@@ -283,7 +283,7 @@ public class NantBuilder extends Builder {
 
     protected Element translateNantErrorElements(Element buildLogElement) throws CruiseControlException {
         buildLogElement.setName("build");
-        Element failure = buildLogElement.getChild("failure"); 
+        Element failure = buildLogElement.getChild("failure");
         if (failure != null) {
             Element buildError = failure.getChild("builderror");
             if (buildError == null) {
@@ -307,5 +307,5 @@ public class NantBuilder extends Builder {
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
-    }    
+    }
 }

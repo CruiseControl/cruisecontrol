@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,9 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     //should return log from build
     public abstract Element build(Map properties) throws CruiseControlException;
-    
+
     public abstract Element buildWithTarget(Map properties, String target) throws CruiseControlException;
-    
+
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
 

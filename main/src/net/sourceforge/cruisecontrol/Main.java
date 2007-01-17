@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
- * 
+ *
  * @author alden almagro, ThoughtWorks, Inc. 2002
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
@@ -60,7 +60,7 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Commandline entry point into the application.
-     * 
+     *
      * @deprecated Use the Launcher class instead
      */
     public static void main(String[] args) {
@@ -73,7 +73,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Print the version, configure the project with serialized build info
      * and/or arguments and start the project build process.
-     * 
+     *
      * @return true indicates normal return/exit.
      */
     public boolean start(String[] args) {
@@ -151,7 +151,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse configfile from arguments and override any existing configfile
      * value from reading serialized Project info.
-     * 
+     *
      * @param configFileName
      *            existing configfile value read from serialized Project info
      * @return final value of configFileName; never null
@@ -173,7 +173,7 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Parse port number from arguments.
-     * 
+     *
      * @return port number
      * @throws IllegalArgumentException
      *             if port argument is invalid
@@ -208,7 +208,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse password from arguments and override any existing password value
      * from reading serialized Project info.
-     * 
+     *
      * @return final value of password.
      */
     static String parsePassword(String[] args) {
@@ -218,7 +218,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse user from arguments and override any existing user value from
      * reading serialized Project info.
-     * 
+     *
      * @return final value of user.
      */
     static String parseUser(String[] args) {

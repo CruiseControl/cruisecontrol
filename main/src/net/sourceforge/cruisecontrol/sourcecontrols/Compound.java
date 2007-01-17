@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,72 +47,72 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
- * This class implements a Compound source control with one triggers 
- * section and one targets section.  
- * 
- * The triggers section contains one or more source controls that act 
- * as triggers for the modifications, i.e. the modificationset 
- * returned will be empty unless one or more of the source 
+ * This class implements a Compound source control with one triggers
+ * section and one targets section.
+ *
+ * The triggers section contains one or more source controls that act
+ * as triggers for the modifications, i.e. the modificationset
+ * returned will be empty unless one or more of the source
  * controls in the triggers section returns a non-empty
  * modification list.
  *
  * The targets section contains source controls for targets that will
- * be built (if modified) if and only if any of the source controls 
- * in the triggers section is modified. 
- * 
+ * be built (if modified) if and only if any of the source controls
+ * in the triggers section is modified.
+ *
  * It is possible to add the trigger modifications to the list of
  * returned modifications if the "includeTriggerChanges"
- * attribute is set to true in the <compound...> tag corresponding to 
+ * attribute is set to true in the <compound...> tag corresponding to
  * this class.
- * 
+ *
  * The following is an example of how to use this source control in
  * the config.xml file:
- * 
+ *
  *      &lt;modificationset quietperiod="1" &gt;
  *           &lt;compound includeTriggerChanges="false"&gt;
  *               &lt;triggers&gt;
  *                   &lt;filesystem folder="./mod_file.txt" /&gt;
  *               &lt;/triggers&gt;
  *               &lt;targets&gt;
- *                   &lt;cvs 
- *                       cvsroot=":pserver:user@cvs_repo.com:/cvs" 
+ *                   &lt;cvs
+ *                       cvsroot=":pserver:user@cvs_repo.com:/cvs"
  *                   /&gt;
  *               &lt;/targets&gt;
- *           &lt;/compound&gt; 
+ *           &lt;/compound&gt;
  *       &lt;/modificationset&gt;
  *
  * @author  <a href="mailto:will.gwaltney@sas.com">Will Gwaltney</a>
  */
 public class Compound implements SourceControl {
-    
+
     private SourceControlProperties properties = new SourceControlProperties();
     private Triggers triggers = null;
     private Targets targets = null;
     private boolean includeTriggerChanges = false;
-    
+
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
-    
+
     /**
-     * Returns a list of modifications since the last build. 
+     * Returns a list of modifications since the last build.
      * First check for any modifications from the triggers.
      * If there are none, then return an empty list.  Otherwise
      * return the modifications from the targets, and from the
      * triggers also if the includeTriggerChanges member variable
      * is true.
-     * 
+     *
      * @param   lastBuild   the date and time of the last build
      * @param   now         the current date and time
-     * 
+     *
      * @return  a list of the modifications
      */
-    public List getModifications(Date lastBuild, Date now) {        
+    public List getModifications(Date lastBuild, Date now) {
         List triggerMods;
         List targetMods = new ArrayList();
-        
+
         triggerMods = triggers.getModifications(lastBuild, now);
-        
+
         if (!triggerMods.isEmpty()) {
             targetMods = targets.getModifications(lastBuild, now);
             // make sure we also pass the properties from the underlying targets
@@ -125,16 +125,16 @@ public class Compound implements SourceControl {
             // TODO: do we really only want this when includeTriggerChanges is set?
             properties.putAll(triggers.getProperties());
         }
-        
+
         return targetMods;
     }
-    
+
     /**
      * Confirms that there is exactly one triggers block and one targets
      * block even if the triggers mods are included and the target
      * block is empty (otherwise you wouldn't need a compound block
      * to begin with).
-     * 
+     *
      * @throws CruiseControlException if the validation fails
      */
     public void validate() throws CruiseControlException {
@@ -143,11 +143,11 @@ public class Compound implements SourceControl {
         ValidationHelper.assertTrue(targets != null,
             "Error: there must be exactly one \"targets\" block in a compound block.");
     }
-    
+
     /**
-     * Creates an empty Triggers object and returns it to 
+     * Creates an empty Triggers object and returns it to
      * the calling routine to be filled.
-     * 
+     *
      * @return  an empty Triggers object
      */
     public Object createTriggers() {
@@ -155,11 +155,11 @@ public class Compound implements SourceControl {
         this.triggers = tr;
         return tr;
     }
-    
+
     /**
-     * Creates an empty Targets object and returns it to 
+     * Creates an empty Targets object and returns it to
      * the calling routine to be filled.
-     * 
+     *
      * @return  an empty Targets object
      */
     public Object createTargets() {
@@ -167,45 +167,45 @@ public class Compound implements SourceControl {
         this.targets = targ;
         return targ;
     }
-    
+
     /**
      * Sets whether to include modifications from the triggers
      * when getModifications() returns the mods list.
-     * 
+     *
      * @param changes   true to include trigger changes, false otherwise
      */
     public void setIncludeTriggerChanges(String changes) {
         this.includeTriggerChanges = changes.equalsIgnoreCase("true");
     }
-    
+
     /**
      * Static inner class, used to define a basis for the Targets and Triggers
      * classes that are used inside the &lt;compound&gt;-tag.
      */
     protected static class Entry implements SourceControl {
-        
+
         private SourceControlProperties properties = new SourceControlProperties();
         private List sourceControls = new ArrayList();
         private Compound parent;
-        
+
         /**
          * Public constructor for reflection purposes.
          *
          */
         public Entry() {
         }
-        
+
         /**
          * Constructor that the Compound class uses to create
          * an object of this class.
-         * 
+         *
          * @param parent    the parent of this object (an
-         *                  object of class Compound) 
+         *                  object of class Compound)
          */
         public Entry(Compound parent) {
             this.parent = parent;
         }
-        
+
         public Map getProperties() {
             return properties.getPropertiesAndReset();
         }
@@ -213,29 +213,29 @@ public class Compound implements SourceControl {
         /**
          * Returns a list of modifications since the last build
          * by querying the sourceControl that this object contains.
-         * 
+         *
          * @param   lastBuild   the date and time of the last build
          * @param   now         the current date and time
-         * 
+         *
          * @return  a list of the modifications
          */
         public List getModifications(Date lastBuild, Date now) {
             List retVal = new ArrayList();
-            
+
             for (Iterator it = sourceControls.iterator(); it.hasNext(); ) {
                 SourceControl sourceControl = (SourceControl) it.next();
                 retVal.addAll(sourceControl.getModifications(lastBuild, now));
                 // make sure we also pass the properties from the underlying sourcecontrol
                 properties.putAll(sourceControl.getProperties());
             }
-            
+
             return retVal;
         }
-        
+
         /**
          * Confirms that the sourceControl that this object wraps
          * has been set.
-         * 
+         *
          * @throws CruiseControlException if the validation fails
          */
         public void validate() throws CruiseControlException {
@@ -244,21 +244,21 @@ public class Compound implements SourceControl {
                         + getEntryName() + " block.");
             }
             if (parent == null) {
-                throw new CruiseControlException("Error: " + getEntryName() 
+                throw new CruiseControlException("Error: " + getEntryName()
                         + " blocks must be contained within compound blocks.");
             }
         }
-        
+
         /**
          * Adds a sourcecontrol to the list of sourcecontrols that
          * this object contains.
-         * 
+         *
          * @param sc the sourceControl object to add
          */
         public void add(SourceControl sc) {
             sourceControls.add(sc);
         }
-        
+
         /**
          * Used by validate() to create a subclass-specific error-message.
          * @return lower-case version of classname without package, e.g. 'triggers'.

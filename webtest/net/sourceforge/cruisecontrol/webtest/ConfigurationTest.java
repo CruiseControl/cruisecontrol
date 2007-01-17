@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2005 ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,7 @@ public class ConfigurationTest extends TestCase {
         assertNotNull(listeners);
         assertTrue(1 == listeners.length);
     }
-    
+
     public void testGetConfiguredSourceControls() throws AttributeNotFoundException, InstanceNotFoundException,
             MBeanException, ReflectionException, IOException, CruiseControlException, JDOMException {
         PluginDetail[] sourceControls = configuration.getConfiguredSourceControls("connectfour");

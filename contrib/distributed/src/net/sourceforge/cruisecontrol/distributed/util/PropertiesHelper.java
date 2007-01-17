@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public final class PropertiesHelper {
         final ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
         if (overrideTarget != null && !"".equals(overrideTarget)) {
             // @todo Does ProjectConfig/Schedule/Builder refactor handle this already???
-            LOG.info("!!!Ignoring Override Target on projectXMLHelper: " + overrideTarget);            
+            LOG.info("!!!Ignoring Override Target on projectXMLHelper: " + overrideTarget);
             //LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
             //projectXMLHelper.setOverrideTarget(overrideTarget);
         }

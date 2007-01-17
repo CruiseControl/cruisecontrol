@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,10 +58,10 @@ public class PluginRegistryTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         defaultRegistry = PluginRegistry.loadDefaultPluginRegistry();
     }
-    
+
     /**
      * @deprecated Testing deprecated code
      */
@@ -69,7 +69,7 @@ public class PluginRegistryTest extends TestCase {
         PluginRegistry registry = PluginRegistry.createRegistry();
         assertEquals(0, registry.getDefaultProperties("qwertyuiop").size());
     }
- 
+
     public void testGettingPluginClass() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
 
@@ -302,31 +302,31 @@ public class PluginRegistryTest extends TestCase {
         assertTrue(defaultRegistry.isPluginRegistered("cvs"));
         assertTrue(defaultRegistry.isPluginRegistered("antbootstrapper"));
     }
-    
+
     public void testCanGetPluginName() {
         PluginRegistry registry = defaultRegistry;
-        
+
         assertEquals("cvs", registry.getPluginName(ConcurrentVersionsSystem.class));
         assertEquals("cvsbootstrapper", registry.getPluginName(CVSBootstrapper.class));
         assertEquals("svn", registry.getPluginName(SVN.class));
         assertEquals("execute", registry.getPluginName(ExecutePublisher.class));
         assertEquals("scp", registry.getPluginName(SCPPublisher.class));
     }
-    
+
     public void testCanGetPluginDetails() throws CruiseControlException {
         PluginDetail[] defaultPlugins = defaultRegistry.getPluginDetails();
-        
+
         assertNotNull(defaultPlugins);
         assertTrue(0 < defaultPlugins.length);
     }
-    
+
     public void testCanGetPluginTypes() {
         PluginType[] defaultTypes = defaultRegistry.getPluginTypes();
-        
+
         assertNotNull(defaultTypes);
         assertTrue(0 < defaultTypes.length);
     }
-    
+
     static void verifyPluginClass(String pluginName, String expectedName)
             throws Exception {
         PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();

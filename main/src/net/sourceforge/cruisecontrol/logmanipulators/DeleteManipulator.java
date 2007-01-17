@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ import java.io.File;
 public class DeleteManipulator extends BaseManipulator {
 
     private boolean ignoreSuffix = false;
-    
+
     public void execute(String logDir) {
         File[] deleteFiles = getRelevantFiles(logDir, ignoreSuffix);
         for (int i = 0; i < deleteFiles.length; i++) {
@@ -54,5 +54,5 @@ public class DeleteManipulator extends BaseManipulator {
         this.ignoreSuffix = ignoreSuffix;
     }
 
-    
+
 }

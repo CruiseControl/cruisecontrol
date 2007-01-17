@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,9 +129,9 @@ public class Project implements Serializable, Runnable {
         if (stopped) {
             LOG.warn("not building project " + name + " because project has been stopped.");
             buildFinished();
-            return;            
+            return;
         }
-        
+
         synchronized (pausedMutex) {
             if (isPaused) {
                 LOG.info("not building project " + name + " because project has been paused.");
@@ -139,7 +139,7 @@ public class Project implements Serializable, Runnable {
                 return;
             }
         }
-        
+
         try {
             init();
             build();
@@ -158,12 +158,12 @@ public class Project implements Serializable, Runnable {
         if (projectConfig == null) {
             throw new IllegalStateException("projectConfig must be set on project before calling build()");
         }
-        
+
         if (stopped) {
             LOG.warn("not building project " + name + " because project has been stopped.");
             return;
         }
-        
+
         // If the force only flag is set, only build if forced
         // or if the last build faild and we want to build on failures
         if (forceOnly && !buildForced && !(!wasLastBuildSuccessful && buildAfterFailed)) {
@@ -352,7 +352,7 @@ public class Project implements Serializable, Runnable {
             waitMutex.notify();
         }
     }
-    
+
     public void forceBuildWithTarget(String buildTarget) {
         this.buildTarget = buildTarget;
         setBuildForced(true);
@@ -389,7 +389,7 @@ public class Project implements Serializable, Runnable {
             }
             return null;
         }
-        
+
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
@@ -638,7 +638,7 @@ public class Project implements Serializable, Runnable {
         buildAfterFailed = projectConfig.shouldBuildAfterFailed();
         forceOnly = projectConfig.isForceOnly();
         requiremodification = projectConfig.isRequiremodification();
-        
+
         if (lastBuild == null) {
             lastBuild = DateUtil.getMidnight();
         }
@@ -676,9 +676,9 @@ public class Project implements Serializable, Runnable {
     protected Element getProjectPropertiesElement(Date now) {
         Element infoElement = new Element("info");
         addProperty(infoElement, "projectname", name);
-        String lastBuildString = DateUtil.getFormattedTime(lastBuild == null ? now : lastBuild); 
+        String lastBuildString = DateUtil.getFormattedTime(lastBuild == null ? now : lastBuild);
         addProperty(infoElement, "lastbuild", lastBuildString);
-        String lastSuccessfulBuildString = 
+        String lastSuccessfulBuildString =
                 DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
         addProperty(infoElement, "builddate", DateFormatFactory.getDateFormat().format(now));
@@ -688,7 +688,7 @@ public class Project implements Serializable, Runnable {
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
         addProperty(infoElement, "lastbuildsuccessful", String.valueOf(wasLastBuildSuccessful));
-        
+
         return infoElement;
     }
 
@@ -698,7 +698,7 @@ public class Project implements Serializable, Runnable {
         propertyElement.setAttribute("value", value);
         parent.addContent(propertyElement);
     }
-    
+
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
@@ -868,7 +868,7 @@ public class Project implements Serializable, Runnable {
         if (projectConfig == null) {
             throw new IllegalStateException("projectConfig is null");
         }
-        
+
         for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext(); ) {
             Listener listener = (Listener) i.next();
             try {

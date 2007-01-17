@@ -1,27 +1,27 @@
 /***********************************************************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
  * following conditions are met:
  *
- *      Redistributions of source code must retain the above copyright notice, this list of conditions and the 
+ *      Redistributions of source code must retain the above copyright notice, this list of conditions and the
  *      following disclaimer.
  *
- *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the 
+ *      Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
  *      following disclaimer in the documentation and/or other materials provided with the distribution.
  *
- *      Neither the name of ThoughtWorks, Inc., CruiseControl, nor the names of its contributors may be used to endorse 
+ *      Neither the name of ThoughtWorks, Inc., CruiseControl, nor the names of its contributors may be used to endorse
  *      or promote products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **********************************************************************************************************************/
@@ -212,7 +212,7 @@ public class Vss implements SourceControl {
         if (!getTempFile().isFile()) {
             throw new CruiseControlException("vss failed to create output file " + tempFile.getPath());
         }
-        
+
         if (LOG.isDebugEnabled()) {
             logVSSTempFile();
         }
@@ -308,7 +308,7 @@ public class Vss implements SourceControl {
      * Format a date for vss in the format specified by the dateFormat. By default, this is in the form
      * <code>12/21/2000;8:14A</code> (vss doesn't like the m in am or pm). This format can be changed with
      * <code>setDateFormat()</code>
-     * 
+     *
      * @param date
      *            Date to format.
      * @return String of date in format that VSS requires.
@@ -325,7 +325,7 @@ public class Vss implements SourceControl {
 
     /**
      * Parse individual VSS history entry
-     * 
+     *
      * @param entry
      */
     protected Modification handleEntry(List entry) {
@@ -439,7 +439,7 @@ public class Vss implements SourceControl {
 
     /**
      * Parse comment from VSS history (could be multi-line)
-     * 
+     *
      * @param commentList
      * @return the comment
      */
@@ -459,7 +459,7 @@ public class Vss implements SourceControl {
      * Sometimes also this<br>
      * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
      * Note the ":" instead of a "0"
-     * 
+     *
      * @param nameAndDateLine
      * @return Date in form "'Date: 'MM/dd/yy 'Time: 'hh:mma", or a different form based on dateFormat
      * @see #setDateFormat
@@ -491,7 +491,7 @@ public class Vss implements SourceControl {
 
     /**
      * Parse username from VSS file history
-     * 
+     *
      * @param userLine
      * @return the user name who made the modification
      */
@@ -503,7 +503,7 @@ public class Vss implements SourceControl {
 
     /**
      * Constructs the vssDateTimeFormat based on the dateFormat for this element.
-     * 
+     *
      * @see #setDateFormat
      */
     private void constructVssDateTimeFormat() {

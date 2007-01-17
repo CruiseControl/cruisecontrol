@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,14 @@ import org.apache.log4j.Logger;
 /**
  * Implementation for the LoggerControllerMBean to control the Level used
  * by the controlled Logger.
- * 
+ *
  * @author <a href="mailto:joriskuipers@xs4all.nl">Joris Kuipers</a>
  *
  */
 public class LoggerController implements LoggerControllerMBean {
-    
+
     private final Logger logger;
-    
+
     public LoggerController(Logger logger) {
         this.logger = logger;
     }

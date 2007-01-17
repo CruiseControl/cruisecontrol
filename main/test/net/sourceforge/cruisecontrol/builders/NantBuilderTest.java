@@ -1,8 +1,8 @@
 /*******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit Copyright (c) 2001,
- * ThoughtWorks, Inc. 651 W Washington Ave. Suite 600 Chicago, IL 60661 USA All
+ * ThoughtWorks, Inc. 200 E. Randolph, 25th Floor Chicago, IL 60601 USA All
  * rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *  + Redistributions of source code must retain the above copyright notice,
@@ -13,7 +13,7 @@
  *  + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the names of
  * its contributors may be used to endorse or promote products derived from this
  * software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -51,11 +51,11 @@ import java.util.Iterator;
 import java.util.List;
 
 public class NantBuilderTest extends TestCase {
-    
+
     private final List filesToClear = new ArrayList();
     private NantBuilder builder;
     private File rootTempDir = null;
-    
+
     static class InputBasedMockCommandLineBuilder {
         Commandline buildCommandline(final InputStream inputStream) {
             final MockCommandline mockCommandline = getMockCommandline();
@@ -154,8 +154,8 @@ public class NantBuilderTest extends TestCase {
         } catch (CruiseControlException e) {
         }
     }
-    
-    public void testTranslateNantErrorElementsWithBuildResultsErrorAttribute() 
+
+    public void testTranslateNantErrorElementsWithBuildResultsErrorAttribute()
         throws CruiseControlException, DataConversionException {
         Element buildLogElement = new Element("buildresults");
         Attribute errorAttribute = new Attribute("error", "true");
@@ -171,7 +171,7 @@ public class NantBuilderTest extends TestCase {
         Element buildLogElement = new Element("buildresults");
         Element failureElement = new Element("failure");
         buildLogElement.addContent(failureElement);
-        
+
         try {
             buildLogElement = builder.translateNantErrorElements(buildLogElement);
             fail("Expected a CruiseControlException for invalid nant log output format");
@@ -242,7 +242,7 @@ public class NantBuilderTest extends TestCase {
 //        initCount = getInitCount(buildElement);
 //        assertEquals(2, initCount);
     }
-    
+
     public void testGetCommandLineArgs_DebugAndQuiet() {
         builder.setUseDebug(true);
         builder.setUseQuiet(true);
@@ -251,7 +251,7 @@ public class NantBuilderTest extends TestCase {
             fail("validate() should throw CruiseControlException when both useDebug and useQuiet are true");
         } catch (CruiseControlException expected) {
         }
-    }    
+    }
 
     public int getInitCount(Element buildElement) {
         int initFoundCount = 0;
@@ -346,7 +346,7 @@ public class NantBuilderTest extends TestCase {
         builder.saveNantLog(originalLog);
         assertFalse(savedLog.exists());
     }
-    
+
     public void testGetNantLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempNantLog.xml");
@@ -366,6 +366,6 @@ public class NantBuilderTest extends TestCase {
         } catch (CruiseControlException expected) {
             assertEquals("NAnt logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
         }
-    }    
+    }
 
 }

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import de.laures.cewolf.DatasetProduceException;
 public class PieChartData extends AbstractCruiseControlChartData {
 
     public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo"); 
+        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo");
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("Broken Builds", summary.getNumBrokenBuilds());
         dataset.setValue("Good Builds", summary.getNumSuccessfulBuilds());

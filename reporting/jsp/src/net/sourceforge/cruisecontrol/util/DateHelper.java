@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,11 +53,11 @@ public final class DateHelper {
     private static final SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy/MM/dd" + TWENTY_FOUR_HOUR);
     private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd/MM/yyyy" + TWENTY_FOUR_HOUR);
     private static final SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MM/dd/yyyy" + TWENTY_FOUR_HOUR);
-    
+
     private DateHelper() {
         // private constructor for utility class.
     }
-    
+
     /**
      * Create a date format for the locale provided.
      * @param locale    the locale.

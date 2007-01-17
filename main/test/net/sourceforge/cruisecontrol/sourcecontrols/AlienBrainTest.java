@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,11 +58,11 @@ import net.sourceforge.cruisecontrol.util.ManagedCommandline;
  * @author <a href="mailto:scottj+cc@escherichia.net">Scott Jacobs</a>
  */
 public class AlienBrainTest extends TestCase {
-   
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("M/d/yyyy z");
     private static final Date NT_TIME_ZERO;
     private static final Date JAVA_TIME_ZERO;
-    
+
     static {
         try {
             NT_TIME_ZERO = DATE_FORMAT.parse("1/1/1601 UTC");
@@ -74,70 +74,70 @@ public class AlienBrainTest extends TestCase {
 
     /**
      * Just want to see if the AlienBrain class can even be found.
-     */ 
+     */
     public void testConstruction() {
         new AlienBrain();
     }
-    
+
     /**
      */
     public void testValidate() {
         AlienBrain ab = new AlienBrain();
-        
+
         try {
             ab.validate();
             fail("AlienBrain should throw exceptions when required "
                 + "attributes are not set.");
         } catch (CruiseControlException expected) {
         }
-        
+
         ab.setPath("Module1");
-        
+
         try {
             ab.validate();
         } catch (CruiseControlException expected) {
             fail("AlienBrain should not throw exceptions when required "
                 + "attributes are set.\n" + expected);
         }
-        
+
     }
-    
+
     public void testDateToFiletime() throws ParseException {
         assertEquals(0L, AlienBrain.dateToFiletime(NT_TIME_ZERO));
         assertEquals(116444736000000000L, AlienBrain.dateToFiletime(JAVA_TIME_ZERO));
         assertEquals(127610208000000000L, AlienBrain.dateToFiletime(DATE_FORMAT.parse("5/20/2005 UTC")));
     }
-    
+
     public void testFiletimeToDate() throws ParseException {
         assertEquals(NT_TIME_ZERO, AlienBrain.filetimeToDate(0L));
         assertEquals(JAVA_TIME_ZERO, AlienBrain.filetimeToDate(116444736000000000L));
         assertEquals(DATE_FORMAT.parse("5/20/2005 UTC"), AlienBrain.filetimeToDate(127610208000000000L));
-        
+
         Date now = new Date();
         assertEquals(now,
             AlienBrain.filetimeToDate(AlienBrain.dateToFiletime(now)));
     }
-    
+
     public void testBuildGetModificationsCommand() throws ParseException {
         AlienBrain ab = new AlienBrain();
-        
+
         ab.setUser("FooUser");
         ab.setPath("FooProject");
 
         Date date = DATE_FORMAT.parse("5/20/2005 -0400");
         ManagedCommandline cmdLine = ab.buildGetModificationsCommand(date, date);
-        
+
         assertEquals("ab -u FooUser find FooProject -regex \"SCIT > "
             + "127610352000000000\" "
             + "-format \"#SCIT#|#DbPath#|#Changed By#|#CheckInComment#\""
             , cmdLine.toString());
     }
-    
+
     public void testParseModificationDescription() throws ParseException {
         Modification m = AlienBrain.parseModificationDescription(
             "127610352000000000|/a/path/to/a/file.cpp|sjacobs|"
             + "A change that probably breaks everything.");
-        
+
         assertEquals(DATE_FORMAT.parse("5/20/2005 -0400"), m.modifiedTime);
         assertEquals("sjacobs", m.userName);
         assertEquals("A change that probably breaks everything.", m.comment);
@@ -145,16 +145,16 @@ public class AlienBrainTest extends TestCase {
         //therefore each modified file results in a modification containing
         //one file.
         assertEquals(1, m.files.size());
-        assertEquals("/a/path/to/a/file.cpp", 
+        assertEquals("/a/path/to/a/file.cpp",
             ((Modification.ModifiedFile) (m.files.get(0))).fileName);
     }
-    
+
     /**
      * Returns a file as a List of Strings, one String per line.
      */
     private List loadTestLog(String name) throws IOException {
         InputStream testStream = getClass().getResourceAsStream(name);
-        assertNotNull("failed to load resource " + name + " in class " 
+        assertNotNull("failed to load resource " + name + " in class "
             + getClass().getName(), testStream);
 
         List lines = new ArrayList();
@@ -166,14 +166,14 @@ public class AlienBrainTest extends TestCase {
 
         return lines;
     }
-    
+
     public void testParseModifications() throws IOException, ParseException {
         List results = loadTestLog("alienbrain_modifications.txt");
-        
+
         AlienBrain ab = new AlienBrain();
-        
+
         List modifications = ab.parseModifications(results);
-        
+
         assertEquals(
             "Returned wrong number of modifications.",
             7,
@@ -190,12 +190,12 @@ public class AlienBrainTest extends TestCase {
 
         assertEquals("Wrong user",
             "User 1",
-            ((Modification) modifications.get(0)).userName);        
+            ((Modification) modifications.get(0)).userName);
 
         assertEquals("Wrong comment",
             "Passenger Animatoin",
             ((Modification) modifications.get(0)).comment);
-            
+
         assertEquals("Wrong modification time",
             dateFormat.parse("5/7/2005 7:44:45 -0400"),
             ((Modification) modifications.get(6)).modifiedTime);
@@ -206,33 +206,33 @@ public class AlienBrainTest extends TestCase {
 
         assertEquals("Wrong user",
             "User 1",
-            ((Modification) modifications.get(6)).userName);        
+            ((Modification) modifications.get(6)).userName);
 
         assertEquals("Wrong comment",
             "Import from 2004",
-            ((Modification) modifications.get(6)).comment);            
+            ((Modification) modifications.get(6)).comment);
     }
 
     /**
-     */    
+     */
     public void testParseNoModifications() throws IOException {
         List results = loadTestLog("alienbrain_nomodifications.txt");
-        
+
         AlienBrain ab = new AlienBrain();
-        
+
         List modifications = ab.parseModifications(results);
         assertEquals(0, modifications.size());
     }
-    
-    //The following tests all actually use the AlienBrain executable and 
-    //may need to access a server.  Therefore they can only be run if you 
+
+    //The following tests all actually use the AlienBrain executable and
+    //may need to access a server.  Therefore they can only be run if you
     //have a licensed command-line client and access to a server.
 /*
     //In order for some of the following tests to pass, these members must
     //be assigned values valid for your AlienBrain server.
     private static final String TESTING_PATH = "alienbrain://Projects/Code/Engine/Inc";
     private static final String TESTING_BRANCH = "Root Branch/SubBranch";
-    // Set any of the following to null if you do not want to 
+    // Set any of the following to null if you do not want to
     // override any NXN_AB_* environment variables you may be using.
     private static final String TESTING_USERNAME = null; //"sjacobs";
     private static final String TESTING_PASSWORD = null; //"pass123";
@@ -247,18 +247,18 @@ public class AlienBrainTest extends TestCase {
         ab.setUser(TESTING_USERNAME);
         ab.setPassword(TESTING_PASSWORD);
         ab.setPath(TESTING_PATH);
-        
+
         List modifications = ab.getModifications(new Date(0), new Date());
         assertTrue("I would have expected the AlienBrain database "
             + "to have at least one file modified since 1970!",
             0 != modifications.size());
-        
+
         for (java.util.Iterator it = modifications.iterator(); it.hasNext(); ) {
             Modification m = (Modification) it.next();
             System.out.println(m);
         }
     }
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AlienBrainTest.class);
     }

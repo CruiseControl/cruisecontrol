@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import org.jdom.Element;
 
 public interface BuildAgentService extends Remote {
 
-    public Element doBuild(Element nestedBuilderElement, Map projectProperties, 
+    public Element doBuild(Element nestedBuilderElement, Map projectProperties,
                            Map distributedAgentProperties) throws RemoteException;
 
     public String getMachineName() throws RemoteException;
@@ -55,7 +55,7 @@ public interface BuildAgentService extends Remote {
     public Date getDateStarted() throws RemoteException;
 
     public void claim() throws RemoteException;
-    
+
     public Date getDateClaimed() throws RemoteException;
 
     public boolean isBusy() throws RemoteException;
@@ -68,7 +68,7 @@ public interface BuildAgentService extends Remote {
     public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException;
 
     public void clearOutputFiles() throws RemoteException;
-    
+
     public void kill(boolean afterBuildFinished) throws RemoteException;
 
     public void restart(boolean afterBuildFinished) throws RemoteException;

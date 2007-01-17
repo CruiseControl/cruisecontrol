@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class BuildStatus implements SourceControl {
 
     /**
      * The label of the newest build included in the modification set
-     *  (e.g. "0.1"). 
+     *  (e.g. "0.1").
      */
     public static final String MOST_RECENT_LOGLABEL_KEY = "most.recent.loglabel";
 
@@ -143,12 +143,12 @@ public class BuildStatus implements SourceControl {
             LOG.error("log directory doesn't exist: " + logDir);
             return modifications;
         }
-        
+
         if (!logDirectory.isDirectory()) {
             LOG.error("path for log directory exists but isn't a directory: " + logDir);
             return modifications;
         }
-        
+
         try {
             File[] newLogs = logDirectory.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {

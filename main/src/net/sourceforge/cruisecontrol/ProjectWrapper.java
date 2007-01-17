@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- 
+
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.util.threadpool.WorkerThread;
@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
 /**
  * A thin wrapper around a Project object
  *  all it is designed to do is run the Project in it's own thread
- * 
+ *
  * @author Jared Richardson
  */
 

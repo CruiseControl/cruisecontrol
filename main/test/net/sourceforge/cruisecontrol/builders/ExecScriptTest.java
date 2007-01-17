@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ public class ExecScriptTest extends TestCase {
     private String testExecCmd  = "dir";
     private String testExecArgs = "C:\\temp";
     private ExecScript script;
-    
+
     /*
      * default constructor
      */
@@ -55,14 +55,14 @@ public class ExecScriptTest extends TestCase {
 
     /*
      * setup test environment
-     */ 
+     */
     protected void setUp() throws Exception {
         script = new ExecScript();
         script.setExecCommand(testExecCmd);
         //script.setExecArgs(testExecArgs);
-        script.setErrorStr("error in compilation");      
+        script.setErrorStr("error in compilation");
     } // setUp
-    
+
     /*
      * test command line generation
      */
@@ -70,11 +70,11 @@ public class ExecScriptTest extends TestCase {
         String[] simpleCmd = { testExecCmd };
         TestUtil.assertArray("simpleCmd", simpleCmd,
             script.buildCommandline().getCommandline());
-        
+
         script.setExecArgs(testExecArgs);
         String[] detailedCmd = { testExecCmd, testExecArgs };
         TestUtil.assertArray("detailedCmd", detailedCmd,
-            script.buildCommandline().getCommandline());          
+            script.buildCommandline().getCommandline());
     } // testGetCommandLine
-    
+
 } // ExecScriptTest

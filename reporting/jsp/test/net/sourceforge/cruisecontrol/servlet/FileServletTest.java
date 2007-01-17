@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ public class FileServletTest extends TestCase {
         MockServletConfig config = new MockServletConfig();
         MockServletContext context = new MockServletContext();
         config.setServletContext(context);
-        
+
         try {
             servlet.getRootDir(config);
             fail("should have exception when required attributes not set");
@@ -90,14 +90,14 @@ public class FileServletTest extends TestCase {
         } catch (ServletException e) {
             fail("shouldn't throw exception when valid rootDir parameter set");
         }
-        
+
         context.setInitParameter("logDir", "this directory does not exist");
         try {
             servlet.getRootDir(config);
         } catch (ServletException e) {
             fail("good rootDir but bad logDir should work");
         }
-        
+
         config = new MockServletConfig();
         context = new MockServletContext();
         config.setServletContext(context);
@@ -108,7 +108,7 @@ public class FileServletTest extends TestCase {
         } catch (ServletException e) {
             fail("shouldn't throw exception when valid logDir parameter set");
         }
-        
+
         config.setInitParameter("rootDir", "this directory does not exist");
         try {
             servlet.getRootDir(config);

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public class EmailPublisherTest extends TestCase {
     private File tmpFile;
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
-        Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess, 
+        Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess,
              "2 minutes 20 seconds", 5, null);
 
         return new XMLLogHelper(cruisecontrolElement);
@@ -98,21 +98,21 @@ public class EmailPublisherTest extends TestCase {
 
         xml = generateXML(false);
         noAlertsEmailPublisher = initPublisher(propertiesMapper, xml);
-        
+
         successLogHelper = createLogHelper(true, true);
         failureLogHelper = createLogHelper(false, false);
         fixedLogHelper = createLogHelper(true, false);
-        firstFailureLogHelper = createLogHelper(false, true); 
+        firstFailureLogHelper = createLogHelper(false, true);
     }
 
-    
+
 
     protected EmailPublisher initPublisher(PropertiesMapper propMapper,
                                   String xml)
                                   throws Exception {
-        
+
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        
+
         Element emailPublisherElement = builder.build(new StringReader(xml)).getRootElement();
         PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
 
@@ -122,13 +122,13 @@ public class EmailPublisherTest extends TestCase {
                 Class.forName("net.sourceforge.cruisecontrol.publishers.MockEmailPublisher"),
                 false);
 
-        ePublisher.add(new DropLetterEmailAddressMapper());        
+        ePublisher.add(new DropLetterEmailAddressMapper());
         propMapper.setFile(tmpFile.getPath());
         ePublisher.add(propMapper);
-        
+
         return ePublisher;
     }
-    
+
     protected String generateXML(boolean includeAlerts) {
         StringBuffer xml = new StringBuffer();
         xml.append("<email defaultsuffix='@host.com'>");
@@ -151,7 +151,7 @@ public class EmailPublisherTest extends TestCase {
             xml.append("<alert fileRegExpr='' address='empty' />");
         }
         xml.append("</email>");
-        
+
         return xml.toString();
     }
 
@@ -167,7 +167,7 @@ public class EmailPublisherTest extends TestCase {
         publisher.setReturnAddress("returnaddress");
         publisher.validate();
     }
-    
+
     public void testValidateAlwaysAddresses() throws CruiseControlException {
         Always always = emailPublisher.createAlways();
         try {
@@ -175,7 +175,7 @@ public class EmailPublisherTest extends TestCase {
             fail("unconfigured always elements should fail validation");
         } catch (CruiseControlException expected) {
         }
-        
+
         always.setAddress("");
         try {
             emailPublisher.validate();
@@ -186,7 +186,7 @@ public class EmailPublisherTest extends TestCase {
         always.setAddress("address");
         emailPublisher.validate();
     }
-    
+
     public void testValidateAlerts() throws CruiseControlException {
         Alert alert = emailPublisher.createAlert();
         try {
@@ -194,39 +194,39 @@ public class EmailPublisherTest extends TestCase {
             fail("unconfigured alert elements should fail validation");
         } catch (CruiseControlException expected) {
         }
-        
+
         alert.setFileRegExpr("regex");
         try {
             emailPublisher.validate();
             fail("alert elements without addresses should fail validation");
         } catch (CruiseControlException expected) {
         }
-        
+
         alert.setAddress("address");
         emailPublisher.validate();
-        
+
         alert = emailPublisher.createAlert();
         alert.setAddress("address");
         try {
             emailPublisher.validate();
             fail("alert elements without file regex should fail validation");
         } catch (CruiseControlException expected) {
-        }        
-        
+        }
+
     }
-    
+
     public void testValidateIgnore() throws CruiseControlException {
         Ignore ignore = emailPublisher.createIgnore();
         try {
             emailPublisher.validate();
             fail("unconfigured ignore elements should fail validation");
         } catch (CruiseControlException expected) {
-        }        
-        
+        }
+
         ignore.setUser("user");
         emailPublisher.validate();
     }
-    
+
     public void testShouldSend() throws Exception {
         //build not necessary, spam while broken=true
         emailPublisher.setSpamWhileBroken(true);
@@ -354,7 +354,7 @@ public class EmailPublisherTest extends TestCase {
         assertFalse(emailPublisher.sendMail(null, "subject", "message", false));
         assertFalse(emailPublisher.sendMail(" ", "subject", "message", false));
     }
-    
+
 
     public void testCreateUserSet() throws Exception {
         emailPublisher.setReportSuccess("success");
@@ -368,29 +368,29 @@ public class EmailPublisherTest extends TestCase {
         assertTrue(userSet.contains("user2"));
         assertTrue(userSet.contains("user3@host2.com"));
     }
-    
+
     /**
      * The following unit test ensures TestUtil.createModsElement
      * creates a full XMLLogHelper object
-     * 
+     *
      * @throws Exception
      */
     public void testCreateModsElement() throws Exception {
         Set modSet = successLogHelper.getModifications();
         Modification mod = null;
         Iterator modIter = modSet.iterator();
-        
+
         while (modIter.hasNext()) {
             mod = (Modification) modIter.next();
             assertNotNull("getFileName should not return null", mod.getFileName());
             assertNotNull("getFullPath should not return null", mod.getFullPath());
-            
+
             if ("filename1".equalsIgnoreCase(mod.getFileName())) {
                 assertNull(mod.getFolderName());
             }
         }
     }
-    
+
     public void testCreateAlertUserSet() throws Exception {
         emailPublisher.validate();
         Set alertUsers = emailPublisher.createAlertUserSet(successLogHelper);
@@ -401,19 +401,19 @@ public class EmailPublisherTest extends TestCase {
 //        assertTrue(alertUsers.contains("subdir2@host.com"));
 //        assertEquals(3, alertUsers.size());
         assertEquals(2, alertUsers.size());
-        
-        alertUsers = noAlertsEmailPublisher.createAlertUserSet(failureLogHelper); 
+
+        alertUsers = noAlertsEmailPublisher.createAlertUserSet(failureLogHelper);
         assertEquals(0, alertUsers.size());
     }
-    
+
     public void testCreateEmailString() {
         Set emailSet = new TreeSet();
         emailSet.add("always1@host.com");
         emailSet.add("always2@host.com");
         emailSet.add("always1@host.com");
         emailSet.add("always3@host.com");
- 
-        assertEquals("always1@host.com,always2@host.com,always3@host.com", 
+
+        assertEquals("always1@host.com,always2@host.com,always3@host.com",
                 emailPublisher.createEmailString(emailSet));
     }
 }

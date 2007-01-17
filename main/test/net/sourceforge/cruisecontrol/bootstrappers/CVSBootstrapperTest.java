@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,21 +49,21 @@ public class CVSBootstrapperTest extends TestCase {
     protected void setUp()  {
         bootStrapper = new CVSBootstrapper();
     }
-    
+
     public void testValidate() throws IOException {
         try {
             bootStrapper.validate();
             fail("CVSBootstrapper should throw an exception when no attributes are set.");
         } catch (CruiseControlException e) {
         }
-        
+
         bootStrapper.setCvsroot("someroot");
         try {
             bootStrapper.validate();
         } catch (CruiseControlException e) {
             fail("CVSBootstrapper should not throw an exception when a valid attribute is set.");
         }
-        
+
         bootStrapper = new CVSBootstrapper();
         bootStrapper.setFile("somefile");
         try {
@@ -88,7 +88,7 @@ public class CVSBootstrapperTest extends TestCase {
             fail("validate() should fail when 'localWorkingCopy' is file instead of directory.");
         } catch (CruiseControlException e) {
         }
-        
+
         String badDirName = "z:/foo/foo/foo/bar";
         bootStrapper.setLocalWorkingCopy(badDirName);
         try {
@@ -115,14 +115,14 @@ public class CVSBootstrapperTest extends TestCase {
         assertEquals(
             "cvs -d somecvsroot update -dP somefile",
             bootStrapper.buildUpdateCommand().toString());
-        
+
         bootStrapper.setResetStickyTags(true);
         assertEquals("cvs -d somecvsroot update -dPA somefile",
                 bootStrapper.buildUpdateCommand().toString());
-        
+
         bootStrapper.setOverwriteChanges(true);
         assertEquals("cvs -d somecvsroot update -dPAC somefile",
                 bootStrapper.buildUpdateCommand().toString());
     }
-    
+
 }

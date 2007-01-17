@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,8 +50,8 @@ public class ThreadQueueTest extends TestCase {
     private static final String TASK_NAME = "TASK:";
     private static final int TASK_COUNT = 5;
     private static final int TENTH_OF_SECOND = 100;
-    
-    protected void setUp() throws Exception {  
+
+    protected void setUp() throws Exception {
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             final String taskName = TASK_NAME + i;
 
@@ -66,7 +66,7 @@ public class ThreadQueueTest extends TestCase {
     protected void tearDown() {
         ThreadQueue.terminate();
     }
-    
+
     public void testIsIdle() throws Exception {
         assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
         assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 2));
@@ -92,17 +92,17 @@ public class ThreadQueueTest extends TestCase {
     private void tasksThatDontExistShouldNotBeIdle() {
         assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 42));
     }
-    
+
     public void testInterrupt() throws Exception {
         assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
         ThreadQueue.interrupt(TASK_NAME + 1);
         assertInterrupted(TASK_NAME + 1);
-        
+
         assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + TASK_COUNT));
         ThreadQueue.interrupt(TASK_NAME + TASK_COUNT);
         assertInterrupted(TASK_NAME + TASK_COUNT);
     }
-    
+
     public void testExecution() {
         verifyCountOfRunningAndIdleTasksCorrect();
 
@@ -122,8 +122,8 @@ public class ThreadQueueTest extends TestCase {
             String taskName = TASK_NAME + i;
 
             assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.taskExists(taskName));
-            assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));            
-            
+            assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
+
             // check the return values of all the worker threads
             Object rawResult = ThreadQueue.getResult(taskName);
             assertTrue(TIMING_SENSITIVE_MESSAGE, rawResult instanceof String);
@@ -156,7 +156,7 @@ public class ThreadQueueTest extends TestCase {
         } catch (Exception e) {
         }
     }
-    
+
     private static void assertInterrupted(String taskName) {
         assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
         assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isDone(taskName));

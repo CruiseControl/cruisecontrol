@@ -1,8 +1,8 @@
 /*******************************************************************************
  * CruiseControl, a Continuous Integration Toolkit Copyright (c) 2001,
- * ThoughtWorks, Inc. 651 W Washington Ave. Suite 600 Chicago, IL 60661 USA All
+ * ThoughtWorks, Inc. 200 E. Randolph, 25th Floor Chicago, IL 60601 USA All
  * rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *  + Redistributions of source code must retain the above copyright notice,
@@ -13,7 +13,7 @@
  *  + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the names of
  * its contributors may be used to endorse or promote products derived from this
  * software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class NantScriptTest extends TestCase {
-    
+
     private Hashtable properties;
     private String nantCmd = "NAnt.exe";
 
@@ -55,25 +55,25 @@ public class NantScriptTest extends TestCase {
         script.setBuildFile("buildfile");
     }
 
-   
+
 
     public void testGetCommandLineArgs() {
-        String[] resultInfo = { nantCmd, 
-                "-listener:NAnt.Core.XmlLogger", 
+        String[] resultInfo = { nantCmd,
+                "-listener:NAnt.Core.XmlLogger",
                 "-D:XmlLogger.file=log.xml",
-                "-D:label=200.1.23", 
-                "-buildfile:buildfile", 
+                "-D:label=200.1.23",
+                "-buildfile:buildfile",
                 "target" };
         TestUtil.assertArray(
                 "resultInfo",
                 resultInfo,
             script.buildCommandline().getCommandline());
 
-        String[] resultLogger = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
+        String[] resultLogger = { nantCmd,
+                "-logger:NAnt.Core.XmlLogger",
+                "-logfile:log.xml",
                 "-D:label=200.1.23",
-                "-buildfile:buildfile", 
+                "-buildfile:buildfile",
                 "target" };
         script.setUseLogger(true);
         TestUtil.assertArray(
@@ -83,10 +83,10 @@ public class NantScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_EmptyLogger() {
-        String[] resultInfo = { nantCmd, 
-                "-listener:NAnt.Core.XmlLogger", 
+        String[] resultInfo = { nantCmd,
+                "-listener:NAnt.Core.XmlLogger",
                 "-D:XmlLogger.file=log.xml",
-                "-buildfile:buildfile", 
+                "-buildfile:buildfile",
                 "target" };
         properties.put("label", "");
         TestUtil.assertArray(
@@ -94,9 +94,9 @@ public class NantScriptTest extends TestCase {
                 resultInfo,
             script.buildCommandline().getCommandline());
 
-        String[] resultLogger = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
+        String[] resultLogger = { nantCmd,
+                "-logger:NAnt.Core.XmlLogger",
+                "-logfile:log.xml",
                 "-buildfile:buildfile",
                 "target" };
         script.setUseLogger(true);
@@ -107,12 +107,12 @@ public class NantScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_Debug() {
-        String[] resultDebug = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
+        String[] resultDebug = { nantCmd,
+                "-logger:NAnt.Core.XmlLogger",
+                "-logfile:log.xml",
                 "-debug+",
-                "-D:label=200.1.23", 
-                "-buildfile:buildfile", 
+                "-D:label=200.1.23",
+                "-buildfile:buildfile",
                 "target" };
         script.setUseDebug(true);
         script.setUseLogger(true);
@@ -123,12 +123,12 @@ public class NantScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_Quiet() {
-        String[] resultQuiet = { nantCmd, 
-                "-logger:NAnt.Core.XmlLogger", 
-                "-logfile:log.xml", 
+        String[] resultQuiet = { nantCmd,
+                "-logger:NAnt.Core.XmlLogger",
+                "-logfile:log.xml",
                 "-quiet+",
                 "-D:label=200.1.23",
-                "-buildfile:buildfile", 
+                "-buildfile:buildfile",
                 "target" };
         script.setUseQuiet(true);
         script.setUseLogger(true);

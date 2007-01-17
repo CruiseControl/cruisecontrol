@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,14 @@ import de.laures.cewolf.DatasetProducer;
  */
 public abstract class AbstractCruiseControlChartData implements DatasetProducer, Serializable {
     private static final long FIVE_SECONDS = 5000L;
-    
+
     /**
      * Helper method to see if the graph is out of date. We will assume that the graph is out of date if it is older
      * than 5 seconds.
      */
-    public boolean hasExpired(Map params, Date since) {     
+    public boolean hasExpired(Map params, Date since) {
         return (System.currentTimeMillis() - since.getTime())  > FIVE_SECONDS;
     }
 
-    
+
 }

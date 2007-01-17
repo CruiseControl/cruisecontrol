@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public interface CruiseControlMBean {
     String getConfigFileContents();
     void setConfigFileContents(String contents) throws CruiseControlException;
     //void validateConfigFile(String contents) throws CruiseControlException;
-    
+
     List getProjects();
 
     PluginDetail[] getAvailableBootstrappers();
@@ -69,7 +69,7 @@ public interface CruiseControlMBean {
     PluginDetail[] getAvailablePlugins();
     PluginType[] getAvailablePluginTypes();
     PluginRegistry getPluginRegistry();
-    
+
     void pause();
     void resume();
     void halt();

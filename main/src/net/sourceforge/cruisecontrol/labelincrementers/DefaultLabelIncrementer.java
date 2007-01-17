@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
     private boolean preIncrement = false;
 
     private String separator = ".";
-    
+
     private String defaultPrefix = "build";
     private int defaultSuffix = 1;
     /* temporary variable, only used at instance setup time */
@@ -126,7 +126,7 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
 
     /**
      * The instance must be fully initialized before calling this method.
-     * @throws IllegalStateException if the instance is not properly initialized 
+     * @throws IllegalStateException if the instance is not properly initialized
      * e.g. if the {@link #setSeparator set separator} doesn't match the
      * {@link #setDefaultLabel set default label}
      */
@@ -141,7 +141,7 @@ public class DefaultLabelIncrementer implements LabelIncrementer {
             String suffix = defaultLabel.substring(separatorIndex + 1);
             defaultSuffix = Integer.parseInt(suffix);
             defaultLabel = null;
-        }    
+        }
         return defaultPrefix + separator + defaultSuffix;
     }
 

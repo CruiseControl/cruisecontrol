@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ public class BuildInfoTest extends TestCase {
     public static Test suite() {
         return new LogFileSetupDecorator(new TestSuite(BuildInfoTest.class));
     }
-    
+
     public void testCreationFailedBuild() throws ParseException {
         Date buildDate = new GregorianCalendar(2002, Calendar.FEBRUARY, 22, 12, 15, 30).getTime();
         BuildInfo buildInfo = new BuildInfo("log20020222121530.xml");
@@ -106,7 +106,7 @@ public class BuildInfoTest extends TestCase {
                                  new BuildInfo("log20020225120000LBuild.2.xml"),
                                  new BuildInfo("log20041018160000.xml.gz"),
                                  new BuildInfo("log20041018170000LBuild.3.xml.gz")};
-        
+
         BuildInfoSummary results = BuildInfo.loadFromDir(LogFileSetupDecorator.LOG_DIR);
         assertEquals(3, results.getNumBrokenBuilds());
         assertEquals(3, results.getNumSuccessfulBuilds());
@@ -117,11 +117,11 @@ public class BuildInfoTest extends TestCase {
             validateBuildInfo(expectedResult, actualResult);
         }
     }
-    
+
     private void validateBuildInfo(BuildInfo expected, BuildInfo actual) {
         assertEquals(expected.getBuildDate(), actual.getBuildDate());
         assertEquals(expected.getLabel(), actual.getLabel());
         assertEquals(expected.isSuccessful(), actual.isSuccessful());
-        
+
     }
 }

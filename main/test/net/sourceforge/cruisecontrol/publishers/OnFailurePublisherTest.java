@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class OnFailurePublisherTest extends ConditionalPublisherTestBase  {
-    
+
     ConditionalPublisher createPublisher() {
         return new OnFailurePublisher();
     }
@@ -51,14 +51,14 @@ public class OnFailurePublisherTest extends ConditionalPublisherTestBase  {
         OnFailurePublisher publisher = (OnFailurePublisher) createPublisher();
         MyMockPublisher mock = new MyMockPublisher();
         publisher.add(mock);
-        
+
         Element successfulBuild = TestUtil.createElement(true, false);
         publisher.publish(successfulBuild);
         assertFalse(mock.wasPublished());
-        
+
         mock.setPublished(false);
         Element failedBuild = TestUtil.createElement(false, true);
         publisher.publish(failedBuild);
         assertTrue(mock.wasPublished());
-    }    
+    }
 }

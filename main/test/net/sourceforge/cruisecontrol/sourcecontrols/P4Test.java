@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,12 +143,12 @@ public class P4Test extends TestCase {
 
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
-    
+
     public void testBuildInfoCommand() {
         P4 p4 = new P4();
         Commandline command = p4.buildInfoCommand();
         assertEquals("p4 info", command.toString());
-        
+
         p4.setPort("1234");
         command = p4.buildInfoCommand();
         assertEquals("p4 -p 1234 info", command.toString());

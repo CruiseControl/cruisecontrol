@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import org.jdom.Element;
 public class FTPPublisher extends AbstractFTPClass implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(FTPPublisher.class);
-    
+
     private String destdir;
     private String srcdir;
     private boolean deleteArtifacts = false;
@@ -97,17 +97,17 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
         // put the log files
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
         String uniqueDir = helper.getBuildTimestamp();
-        
+
         File logDir = new File(srcdir + File.separator + uniqueDir);
-        
+
         Vector knownDirs = new Vector();
         FTPClient ftp = null;
         try {
             ftp = openFTP();
-            
+
             // maybe text, maybe bin.  Set it to bin!
             setBinary(ftp);
-            
+
             // get the log file
             String logName = getLogFileName(srcdir, uniqueDir);
             String lname = destdir + File.separator + logName;
@@ -121,7 +121,7 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
             } else {
                 LOG.info("Could not find build log file " + lf + ".");
             }
-            
+
             // prevent exceptions if the directory doesn't exist.
             if (logDir.exists()) {
                 LOG.info("Sending log dir " + logDir + ".");
@@ -136,7 +136,7 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
             closeFTP(ftp);
         }
     }
-    
+
 
     private void ftpDir(File basedir, FTPClient ftp, String destdir,
             Vector knownDirs)
@@ -164,8 +164,8 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
             }
         }
     }
-    
-    
+
+
     /**
      * Since build failures mark the log file as "log[date].xml", and
      * successes mark the log file as "log[date]L[label].xml", we

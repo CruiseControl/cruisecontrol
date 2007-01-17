@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,11 +56,11 @@ public class LockFileListener implements Listener {
         }
 
         ProjectState newState = ((ProjectStateChangedEvent) event).getNewState();
-        
+
         if (projectGotPastBootstrapping(newState)) {
             needToDeleteLock = true;
         }
-        
+
         if (newState.equals(ProjectState.IDLE) && needToDeleteLock) {
             needToDeleteLock = false;
             boolean deletedFile = attemptToDeleteLock();

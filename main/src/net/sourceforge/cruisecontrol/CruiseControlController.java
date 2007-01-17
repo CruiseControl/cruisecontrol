@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class CruiseControlController {
 
     private List listeners = new ArrayList();
     private XMLConfigManager configManager;
-    
+
     private ParsingConfigMutex parsingConfigMutex = new ParsingConfigMutex();
 
     public CruiseControlController() {
@@ -88,9 +88,9 @@ public class CruiseControlController {
         if (!configFile.isFile()) {
             throw new CruiseControlException("Config file not found: " + configFile.getAbsolutePath());
         }
-        
+
         if (!configFile.equals(this.configFile)) {
-            this.configFile = configFile;        
+            this.configFile = configFile;
             configManager = new XMLConfigManager(configFile);
         }
 
@@ -188,7 +188,7 @@ public class CruiseControlController {
 
     /**
      * @return true if the config file was parsed.
-     */ 
+     */
     public boolean parseConfigFileIfNecessary() {
         boolean reloaded = false;
         if (parsingConfigMutex.getPermissionToParse()) {
@@ -199,7 +199,7 @@ public class CruiseControlController {
                     LOG.error("error parsing config file " + configFile.getAbsolutePath(), e);
                     return reloaded;
                 }
-        
+
                 if (reloaded) {
                     LOG.debug("config file changed");
                     loadConfig();
@@ -305,11 +305,11 @@ public class CruiseControlController {
 
         return (PluginDetail[]) plugins.toArray(new PluginDetail[plugins.size()]);
     }
-    
+
     private class ParsingConfigMutex {
         private Object mutex = new Object();
         private boolean inUse;
-        
+
         boolean getPermissionToParse() {
             synchronized (mutex) {
                 if (inUse) {
@@ -321,7 +321,7 @@ public class CruiseControlController {
                 return true;
             }
         }
-        
+
         void doneParsing() {
             LOG.debug("done parsing, allow next request permission to parse");
             inUse = false;

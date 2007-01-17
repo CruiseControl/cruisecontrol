@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,9 +54,9 @@ import net.sourceforge.cruisecontrol.Modification;
 public class VssJournalTest extends TestCase {
     private static final String SS_DIR = "/";
     private static final String PROPERTY_ON_DELETE = "deletedfiles";
-    
+
     private VssJournal element;
-    
+
     public VssJournalTest(String name) {
         super(name);
     }
@@ -94,8 +94,8 @@ public class VssJournalTest extends TestCase {
         assertTrue("$/Eclipse/src/main/com/itxc".equals(
          element.substringToLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
     }
-    
-    public void testSubstringFromLastSlash() {        
+
+    public void testSubstringFromLastSlash() {
         assertTrue("eclipse".equals(
          element.substringFromLastSlash("$/Eclipse/src/main/com/itxc/eclipse")));
     }
@@ -107,27 +107,27 @@ public class VssJournalTest extends TestCase {
         assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
         assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
         // Should be case insensitive
-        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));  
-        
+        assertTrue(element1.isInSsDir("$/SomeDir/Another/Directory/page.htm"));
+
         element1.setSsDir("/somedir/");
         assertTrue(element1.isInSsDir("$/somedir"));
         assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
         assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
-        
+
         element1.setSsDir("/");
         assertTrue(element1.isInSsDir("$/anythingCouldBeHere/Blah/blah"));
         assertTrue(element1.isInSsDir("$/"));
-        
+
         element1.setSsDir("$/");
         assertTrue(element1.isInSsDir("$/anythingCouldBeHere/Blah/blah"));
         assertTrue(element1.isInSsDir("$/"));
-        
+
         element1.setSsDir("$/somedir/");
         assertTrue(element1.isInSsDir("$/somedir"));
         assertTrue(element1.isInSsDir("$/somedir/Hello/There"));
         assertFalse(element1.isInSsDir("$/somedir2/Another/Directory/page.htm"));
     }
-    
+
     public void testIsBeforeLastBuild() {
         VssJournal element1 = new VssJournal();
         long beforeTime = System.currentTimeMillis();
@@ -136,7 +136,7 @@ public class VssJournalTest extends TestCase {
         element1.setLastBuildDate(new Date(beforeTime));
         assertTrue(!element1.isBeforeLastBuild(new Date(afterTime)));
     }
-    
+
     public void testHandleEntryCheckin() {
         List entry = new ArrayList();
         entry.add("$/AutoBuild/conf/cruisecontrol.properties");
@@ -144,7 +144,7 @@ public class VssJournalTest extends TestCase {
         entry.add("User: Etucker         Date:  7/06/01  Time:  2:11p");
         entry.add("Checked in");
         entry.add("Comment: Making cc email users when build failed");
-        
+
         Modification mod = element.handleEntry(entry);
         assertEquals(mod.getFileName(), "cruisecontrol.properties");
         assertEquals(mod.getFolderName(), "$/AutoBuild/conf");
@@ -156,26 +156,26 @@ public class VssJournalTest extends TestCase {
         assertEquals(modfile.action, "checkin");
         assertNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
-    
+
     public void testHandleEntryRename() {
         List entry = new ArrayList();
         entry.add("$/WILD/Client/English");
         entry.add("Version: 15");
         entry.add("User: Ddavis          Date:  7/10/01  Time: 10:41a");
         entry.add("body3.htm renamed to step3.htm ");
-        
+
         Modification mod = element.handleEntry(entry);
         assertEquals(mod.getFileName(), "body3.htm");
         assertEquals(mod.getFolderName(), "$/WILD/Client/English");
         assertEquals(mod.comment, "");
         assertEquals(mod.userName, "Ddavis");
         assertEquals(mod.type, "vss");
-        
+
         Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
         assertEquals(modfile.action, "delete");
         assertNotNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
-    
+
     public void testHandleEntryLabel() {
         List entry = new ArrayList();
         entry.add("$/ThirdPartyComponents/jakarta-ant-1.3/lib");
@@ -183,19 +183,19 @@ public class VssJournalTest extends TestCase {
         entry.add("User: Etucker         Date:  7/06/01  Time: 10:28a");
         entry.add("Labeled test_label");
         entry.add("Comment: Just testing to see what all gets put in the log file");
-        
+
         Modification mod = element.handleEntry(entry);
-        
+
         assertEquals("Label entry added. Labels shouldn't be added.",
                      null, mod);
         assertNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
-    
+
     public void testParseDate() throws ParseException {
         Date date = element.parseDate("User: Etucker         Date:  7/25/01  Time:  2:11p");
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy hh:mm", Locale.US);
         assertEquals(sdf.parse("07/25/01 14:11"), date);
-        
+
         element.setDateFormat("d.MM.yy");
         element.setTimeFormat("hh:mm");
         date = element.parseDate("User: Brandhof        Date: 15.11.05  Time:  16:54");
@@ -203,4 +203,4 @@ public class VssJournalTest extends TestCase {
     }
 
 }
-    
+

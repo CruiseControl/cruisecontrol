@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ import org.apache.log4j.Logger;
 /**
  * Class to pump the error stream during Process's runtime. Copied from
  * the Ant built-in task.
- * 
+ *
  * @since  June 11, 2001
  * @author <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>

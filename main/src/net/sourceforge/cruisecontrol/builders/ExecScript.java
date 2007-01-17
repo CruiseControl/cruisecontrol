@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,8 +57,8 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  */
 public class ExecScript implements Script, StreamConsumer {
     private static final Logger LOG = Logger.getLogger(ExecScript.class);
-     
-    private String execCommand;    
+
+    private String execCommand;
     private String execArgs;
     private String errorStr;
     private int exitCode;
@@ -115,10 +115,10 @@ public class ExecScript implements Script, StreamConsumer {
         }
 
         synchronized (buildLogElement) {
-            // check if the output contains the error string   
+            // check if the output contains the error string
             if (errorStr != null) {
                 // YES: set error flag
-                if (line.indexOf(errorStr) >= 0) {    
+                if (line.indexOf(errorStr) >= 0) {
                     foundError = true;
                 }
             } else {
@@ -134,7 +134,7 @@ public class ExecScript implements Script, StreamConsumer {
             }
         }
     } // consumeLine
-    
+
     /**
      * flush the current log element
      */
@@ -160,7 +160,7 @@ public class ExecScript implements Script, StreamConsumer {
             }
             currentElement = null;
         }
-    } // flushCurrentElement 
+    } // flushCurrentElement
 
     /**
      * set the "header" for this part of the build log.
@@ -169,7 +169,7 @@ public class ExecScript implements Script, StreamConsumer {
      * @return updated element
      */
     public Element setBuildLogHeader(Element buildLogElement) {
-        Element target = new Element("target");        
+        Element target = new Element("target");
         target.setAttribute("name", "exec");
         buildLogElement.addContent(target);
         Element task = new Element("task");
@@ -177,55 +177,55 @@ public class ExecScript implements Script, StreamConsumer {
         target.addContent(task);
         return task;
     } // setBuildLogHeader
-    
-    
+
+
     /**
      * @param execArgs The execArgs to set.
      */
     public void setExecArgs(String execArgs) {
         this.execArgs = execArgs;
     } // setExecArgs
-    
+
     /**
      * @param execCommand The execCommand to set.
      */
     public void setExecCommand(String execCommand) {
         this.execCommand = execCommand;
     } // setExecCommand
-    
+
     /**
      * @return returns the exitcode of the command
      */
     public int getExitCode() {
         return exitCode;
     } // getExitCode
-    
+
     /**
      * @param exitCode the exit code value to set.
      */
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     } // setExitCode
-    
+
     /**
      * @param errStr the error string to search for
      */
     public void setErrorStr(String errStr) {
         this.errorStr = errStr;
     } // setErrorStr
-    
+
     /**
      * @param buildLogElement The buildLogElement to set.
      */
     public void setBuildLogElement(Element buildLogElement) {
         this.buildLogElement = buildLogElement;
     } // setBuildLogElement
-    
+
     /**
      * @return true if error occurred, else false
      */
     public boolean wasError() {
         return this.foundError;
     } // wasError
-    
+
 } // ExecScript

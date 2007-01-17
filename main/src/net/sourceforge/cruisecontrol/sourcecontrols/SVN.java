@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -215,7 +215,7 @@ public class SVN implements SourceControl {
                     + "\"{" + formatSVNDate(checkTime) + "}\"");
         } else {
             command.createArgument("{" + formatSVNDate(lastBuild) + "}" + ":"
-                    + "{" + formatSVNDate(checkTime) + "}");            
+                    + "{" + formatSVNDate(checkTime) + "}");
         }
 
         if (userName != null) {
@@ -358,7 +358,7 @@ public class SVN implements SourceControl {
          * Converts the specified SVN date string into a Date.
          * @param date with format "yyyy-MM-dd'T'HH:mm:ss.SSS" + "...Z"
          * @return converted date
-         * @throws ParseException if specified date doesn't match the expected format 
+         * @throws ParseException if specified date doesn't match the expected format
          */
         static Date convertDate(String date) throws ParseException {
             final int zIndex = date.indexOf('Z');

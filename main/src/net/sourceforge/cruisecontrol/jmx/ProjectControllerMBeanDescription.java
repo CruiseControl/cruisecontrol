@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import mx4j.MBeanDescriptionAdapter;
 public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
 
     private static final Map METHOD_DESCRIPTIONS;
-    
+
     static {
         METHOD_DESCRIPTIONS = new HashMap();
 
@@ -58,43 +58,43 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         METHOD_DESCRIPTIONS.put("buildWithTarget", "Forces a build of the project using the given target");
         METHOD_DESCRIPTIONS.put("serialize", "Persists the state of the project to disk");
     }
-    
+
     private static final Map ATTR_DESCRIPTIONS;
-    
+
     static {
         ATTR_DESCRIPTIONS = new HashMap();
-        ATTR_DESCRIPTIONS.put("ConfigFileName", 
+        ATTR_DESCRIPTIONS.put("ConfigFileName",
                               "The name of the config file this project reads its settings from");
 
         ATTR_DESCRIPTIONS.put("Label", "The current build label");
 
-        ATTR_DESCRIPTIONS.put("LabelIncrementer", 
+        ATTR_DESCRIPTIONS.put("LabelIncrementer",
                               "The classname of the LabelIncrementer used to determine the build label. "
                             + "Changes to this attribute are not persisted");
 
-        ATTR_DESCRIPTIONS.put("LastBuild", 
+        ATTR_DESCRIPTIONS.put("LastBuild",
                               "Time of the last build, using the format 'yyyyMMddHHmmss'");
 
-        ATTR_DESCRIPTIONS.put("LastSuccessfulBuild", 
+        ATTR_DESCRIPTIONS.put("LastSuccessfulBuild",
                               "Time of the last successful build, using the format 'yyyyMMddHHmmss'");
 
-        ATTR_DESCRIPTIONS.put("LogDir", 
+        ATTR_DESCRIPTIONS.put("LogDir",
                               "The directory where the log files for this project are written to. "
                             + "Changes to this attribute are not persisted");
 
         ATTR_DESCRIPTIONS.put("ProjectName", "The name of this project");
 
-        ATTR_DESCRIPTIONS.put("BuildInterval", 
+        ATTR_DESCRIPTIONS.put("BuildInterval",
                               "The build interval in milliseconds. Changes to this attribute are not persisted");
 
         ATTR_DESCRIPTIONS.put("Status", "The current status of the project");
 
         ATTR_DESCRIPTIONS.put("Paused", "Indicates if the project is paused");
 
-        ATTR_DESCRIPTIONS.put("BuildStartTime", 
+        ATTR_DESCRIPTIONS.put("BuildStartTime",
                               "Start Time of the last build, using the format 'yyyyMMddHHmmss'");
     }
-    
+
     public String getOperationDescription(Method method) {
         String methodName = method.getName();
         if (METHOD_DESCRIPTIONS.containsKey(methodName)) {
@@ -102,7 +102,7 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         }
         return super.getOperationDescription(method);
     }
-    
+
     public String getAttributeDescription(String attr) {
         if (ATTR_DESCRIPTIONS.containsKey(attr)) {
             return (String) ATTR_DESCRIPTIONS.get(attr);

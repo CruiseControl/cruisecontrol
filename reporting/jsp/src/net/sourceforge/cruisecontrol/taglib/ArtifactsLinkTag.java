@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         info("artifactURL is " + url);
         getPageContext().setAttribute(URL_ATTRIBUTE, url);
     }
-    
+
     public int doAfterBody() throws JspTagException {
         try {
             BodyContent out = getBodyContent();
@@ -75,7 +75,7 @@ public class ArtifactsLinkTag extends CruiseControlBodyTagSupport {
         return SKIP_BODY;
     }
 
-    private String getArtifactURL() throws JspException {    
+    private String getArtifactURL() throws JspException {
         StringBuffer urlBuffer = new StringBuffer();
         urlBuffer.append(ARTIFACTS_SERVLET_CONTEXT);
         String project = getProject();

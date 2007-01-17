@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,9 +72,9 @@ import org.jdom.Element;
  * <p>
  * Here's a sample of the publisher element to put into your <tt>config.xml</tt>:
  * </p>
- * 
+ *
  * <pre>
- * &lt;weblog blogurl=&quot;http://yourblogserver:port/blog/xmlrpc&quot; 
+ * &lt;weblog blogurl=&quot;http://yourblogserver:port/blog/xmlrpc&quot;
  *         api=&quot;metaweblog&quot;
  *         blogid=&quot;yourblog&quot;
  *         username=&quot;user1&quot;
@@ -88,20 +88,20 @@ import org.jdom.Element;
  *         css=&quot;/opt/cruisecontrol/reporting/jsp/css/cruisecontrol.css&quot;
  * /&gt;
  * </pre>
- * 
+ *
  * <p>
  * And you also need to register the 'weblog' task with the following entry if
  * you're using this task with an older version of CruiseControl which doesn't
  * have the WeblogPublisher registered by default.
- * 
+ *
  * <pre>
  * &lt;project name=&quot;foo&quot;&gt;
- *      &lt;plugin name=&quot;weblog&quot; 
+ *      &lt;plugin name=&quot;weblog&quot;
  *          classname=&quot;net.sourceforge.cruisecontrol.publishers.WeblogPublisher&quot;/&gt;
  *      ...
  * &lt;/project&gt;
  * </pre>
- * 
+ *
  * @author Lasse Koskela
  */
 public class WeblogPublisher implements Publisher {
@@ -187,7 +187,7 @@ public class WeblogPublisher implements Publisher {
      * I expect this to be used by a derived class to allow someone to change
      * the order of xsl files or to add/remove one to/from the list or a
      * combination.
-     * 
+     *
      * @param fileNames
      */
     protected void setXSLFileNames(String[] fileNames) {
@@ -201,7 +201,7 @@ public class WeblogPublisher implements Publisher {
     /**
      * Provided as an alternative to setXSLFileNames for changing the list of
      * files to use.
-     * 
+     *
      * @return xsl files to use in generating the email
      */
     protected String[] getXslFileNames() {
@@ -309,7 +309,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Implementing the <code>Publisher</code> interface.
-     * 
+     *
      * @param cruisecontrolLog
      *            The build results XML
      */
@@ -330,13 +330,13 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * The interface for abstracting away the specific blogging API being used.
-     * 
+     *
      * @author Lasse Koskela
      */
     interface BloggingApi {
         /**
          * Post a new blog entry.
-         * 
+         *
          * @param subject
          *            The blog entry's subject.
          * @param content
@@ -349,7 +349,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * A <tt>BloggingApi</tt> implementation for the Blogger API.
-     * 
+     *
      * @author Lasse Koskela
      */
     public static class BloggerApiClient implements BloggingApi {
@@ -381,7 +381,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * A <tt>BloggingApi</tt> implementation for the MetaWeblogAPI.
-     * 
+     *
      * @author Lasse Koskela
      */
     public static class MetaWeblogApiClient implements BloggingApi {
@@ -422,7 +422,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * A <tt>BloggingApi</tt> implementation for the LiveJournal API.
-     * 
+     *
      * @author Lasse Koskela
      */
     public static class LiveJournalApiClient implements BloggingApi {
@@ -477,7 +477,7 @@ public class WeblogPublisher implements Publisher {
     /**
      * Selects a <tt>BloggingApi</tt> implementation based on a user-friendly
      * name.
-     * 
+     *
      * @param apiName
      *            The name of the blogging API to use. One of <tt>blogger</tt>,
      *            <tt>metaweblog</tt> or <tt>livejournal</tt>.
@@ -505,7 +505,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Posts the build results to the blog.
-     * 
+     *
      * @param subject
      *            The subject for the blog entry.
      * @param content
@@ -538,7 +538,7 @@ public class WeblogPublisher implements Publisher {
     /**
      * Called after the configuration is read to make sure that all the
      * mandatory parameters were specified..
-     * 
+     *
      * @throws CruiseControlException
      *             if there was a configuration error.
      */
@@ -656,7 +656,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Determines if the conditions are right for the blog entry to be posted.
-     * 
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
@@ -671,7 +671,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Determines if the conditions are right for the blog entry to be posted.
-     * 
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
@@ -689,7 +689,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Determines if the conditions are right for the blog entry to be posted.
-     * 
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
@@ -713,7 +713,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Creates the subject for the blog entry.
-     * 
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return <code>String</code> containing the subject line.
@@ -728,7 +728,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Creates the subject for the blog entry.
-     * 
+     *
      * @return <code>String</code> containing the subject line.
      */
     String createSubject(String projectName, String label,
@@ -752,7 +752,7 @@ public class WeblogPublisher implements Publisher {
 
     /**
      * Create the text to be blogged.
-     * 
+     *
      * @return created message; empty string if logDir not set
      */
     String createMessage(String projectName, String logFileName) {

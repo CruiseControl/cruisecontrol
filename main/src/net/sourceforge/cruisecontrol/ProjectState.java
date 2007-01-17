@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public final class ProjectState implements Serializable {
             new ProjectState(8, "stopped", "stopped");
     public static final ProjectState WAITING =
             new ProjectState(9, "waiting", "waiting for next time to build");
-    
+
     private String description;
     private String name;
     private int code;
@@ -91,7 +91,7 @@ public final class ProjectState implements Serializable {
     public String getName() {
         return name;
     }
-    
+
     /**
      * A <strong>magic</strong> method used by Java Object Serialization. This
      * allows ProjectState to force the deserialization process to use one of

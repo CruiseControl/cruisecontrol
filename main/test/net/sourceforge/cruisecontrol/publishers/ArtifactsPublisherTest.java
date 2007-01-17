@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,10 +47,10 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * @author Jeffrey Fredrick
  */
 public class ArtifactsPublisherTest extends TestCase {
-    
+
     private ArtifactsPublisher publisher;
     private File tempFile;
-    
+
     protected void setUp() throws Exception {
         publisher = new ArtifactsPublisher();
         tempFile = File.createTempFile("temp", ".tmp");
@@ -113,18 +113,18 @@ public class ArtifactsPublisherTest extends TestCase {
         } catch (CruiseControlException expected) {
             assertNotNull(expected);
         }
-       
+
         publisher.setDest("foo");
         publisher.setDir("bar");
         publisher.setFile("baz");
-        
+
         try {
             publisher.validate();
             fail();
         } catch (CruiseControlException expected) {
             assertNotNull(expected);
         }
-        
+
         publisher.setFile(null);
         try {
             publisher.validate();
@@ -146,7 +146,7 @@ public class ArtifactsPublisherTest extends TestCase {
             fail();
         } catch (CruiseControlException expected) {
             assertNotNull(expected);
-        }        
+        }
     }
 
     public void testGetDestinationDirectory() {

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -118,7 +118,7 @@ public class PluginXMLHelperTest extends TestCase {
         } catch (CruiseControlException e) {
             fail("Shouldn't get exception on missing classname for known plugin");
         }
-        
+
         AntBuilder antBuilder = (AntBuilder) projectXmlHelper.configurePlugin(new Element("ant"), false);
         assertEquals(loggerClassName, antBuilder.getLoggerClassName());
     }
@@ -139,7 +139,7 @@ class MockBadBuilder extends Builder {
     public Element build(Map properties) throws CruiseControlException {
         return null;
     }
-    
+
     public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
         return null;
     }

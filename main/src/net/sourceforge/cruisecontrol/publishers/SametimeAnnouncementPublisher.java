@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,7 +72,7 @@ import com.lotus.sametime.lookup.Resolver;
  * In particular, requires STComm.jar
  * @author Richard Lewis-Shell
  */
-public class SametimeAnnouncementPublisher extends LinkEmailPublisher 
+public class SametimeAnnouncementPublisher extends LinkEmailPublisher
              implements LoginListener, ResolveListener, GroupContentListener {
     private static final Logger LOG = Logger.getLogger(SametimeAnnouncementPublisher.class);
 
@@ -80,38 +80,38 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     public static final String RESOLVE_CONFLICTS_IGNORE = "ignore";
     public static final String RESOLVE_CONFLICTS_WARN = "warn";
     public static final String RESOLVE_CONFLICTS_ERROR = "error";
-    
+
     public static final String RESOLVE_FAIL_IGNORE = "ignore";
     public static final String RESOLVE_FAIL_WARN = "warn";
     public static final String RESOLVE_FAIL_ERROR = "error"; // default
-    
+
     public static final String QUERY_GROUP_CONTENT_FAIL_IGNORE = "ignore";
     public static final String QUERY_GROUP_CONTENT_FAIL_WARN = "warn";
     public static final String QUERY_GROUP_CONTENT_FAIL_ERROR = "error"; // default
-    
+
     // Configurable properties
-    
+
     // Sametime community
     private String community;
     // whether to resolve addresses as users
-    private boolean resolveUsers = true; 
+    private boolean resolveUsers = true;
     // whether to resolve addresses as groups
-    private boolean resolveGroups = true; 
+    private boolean resolveGroups = true;
     // send to group contents, rather than the group itself
-    private boolean useGroupContent = true; 
-    // valid values: recipient, ignore, fail    
+    private boolean useGroupContent = true;
+    // valid values: recipient, ignore, fail
     private String handleResolveConflicts = RESOLVE_CONFLICTS_RECIPIENT;
     // how to handle resolve failures
     private String handleResolveFails = RESOLVE_FAIL_ERROR;
     // how to handle query group content failures
     private String handleQueryGroupContentFails = QUERY_GROUP_CONTENT_FAIL_ERROR;
     // how long to wait (in seconds) before giving up on an interaction with the sametime server
-    private int timeout = 10; 
-    // how long to sleep (in milliseconds) before looking for a response from the sametime server    
+    private int timeout = 10;
+    // how long to sleep (in milliseconds) before looking for a response from the sametime server
     private int sleepMillis = 5;
-        
+
     // Internal state
-    
+
     // Sametime components
     private STSession session;
     private CommunityService communityService;
@@ -129,18 +129,18 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     // list of resovled user/group NAMES
     private Set resolvedNameSet = null;
     // used to temporarily hold group content (while getting)
-    private STObject[] groupContent = null; 
-    // error messages constructed in a different thread, thrown as exceptions 
+    private STObject[] groupContent = null;
+    // error messages constructed in a different thread, thrown as exceptions
     // in the main thread
     private String resolveFailMessage = null;
     private String resolveConflictMessage = null;
     private String queryGroupContentFailMessage = null;
-    
+
     // rename the mailhost property
     public String getHost() {
         return this.getMailHost();
     }
-    
+
     // rename the mailhost property
     public void setHost(String value) {
         this.setMailHost(value);
@@ -157,27 +157,27 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     public boolean isResolveUsers() {
         return this.resolveUsers;
     }
-    
+
     public void setResolveUsers(boolean value) {
         this.resolveUsers = value;
     }
-    
+
     public boolean isResolveGroups() {
         return this.resolveGroups;
     }
-    
+
     public void setResolveGroups(boolean value) {
         this.resolveGroups = value;
     }
-    
+
     public boolean isUseGroupContent() {
         return this.useGroupContent;
     }
-    
+
     public void setUseGroupContent(boolean value) {
         this.useGroupContent = value;
     }
-    
+
     public String getHandleQueryGroupContentFails() {
         return this.handleQueryGroupContentFails;
     }
@@ -201,7 +201,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     public void setHandleResolveFails(String value) {
         this.handleResolveFails = value;
     }
-    
+
     public int getTimeout() {
         return this.timeout;
     }
@@ -270,9 +270,9 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
 
     // not really sending mail, but LinkEmailPublisher has a lot of useful logic
     // to reuse - skipUsers, spamWhileBroken etc...
-    protected boolean sendMail(String toList, String subject, String message, boolean important) 
+    protected boolean sendMail(String toList, String subject, String message, boolean important)
         throws CruiseControlException {
- 
+
         boolean announcementSent = false;
 
         LOG.info("Sending sametime notifications.");
@@ -283,8 +283,8 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
             String token = strtok.nextToken();
             this.usernamesToResolveSet.add(token.trim());
         }
-    
-        try { 
+
+        try {
             this.session = new STSession("CruiseControl build notification" + this);
         } catch (DuplicateObjectException ex) {
             throw new RuntimeException("cannot create sametime session" + ex);
@@ -301,7 +301,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
                 LOG.debug("loginByPassword(" + this.getHost() + ", " + this.getUsername() + ", ****, "
                     + this.getCommunity() + ")");
             }
-            this.communityService.loginByPassword(this.getHost(), this.getUsername(), this.getPassword(), 
+            this.communityService.loginByPassword(this.getHost(), this.getUsername(), this.getPassword(),
                                                   this.getCommunity());
         } else {
             if (LOG.isDebugEnabled()) {
@@ -327,7 +327,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
         if (bored && !this.isLoggedIn()) {
             throw new RuntimeException("bored waiting for login");
         }
-    
+
         try {
             this.resolve();
 
@@ -362,18 +362,18 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     private void resolve() throws CruiseControlException {
         Resolver resolver = lookupService.createResolver(false, false, this.isResolveUsers(), this.isResolveGroups());
         resolver.addResolveListener(this);
-        
+
         try {
             this.recipientUserSet = new HashSet();
             this.recipientGroupSet = new HashSet();
             this.resolvedNameSet = new HashSet();
-        
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("resolving: " + this.usernamesToResolveSet);
             }
             resolver.resolve(
                (String[]) this.usernamesToResolveSet.toArray(new String[this.usernamesToResolveSet.size()]));
-        
+
             // how long do we wait to resolve?
             boolean bored = false;
             long waitStart = System.currentTimeMillis();
@@ -385,11 +385,11 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
                 }
                 bored = System.currentTimeMillis() - waitStart > this.getTimeoutMillis();
             }
-            if (this.resolveFailMessage != null 
+            if (this.resolveFailMessage != null
                 && RESOLVE_FAIL_ERROR.equalsIgnoreCase(this.getHandleResolveFails())) {
                 throw new CruiseControlException(this.resolveFailMessage);
             }
-            if (this.resolveConflictMessage != null 
+            if (this.resolveConflictMessage != null
                 && RESOLVE_CONFLICTS_ERROR.equalsIgnoreCase(this.getHandleResolveConflicts())) {
                 throw new CruiseControlException(this.resolveConflictMessage);
             }
@@ -400,11 +400,11 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
             resolver.removeResolveListener(this);
         }
     }
-    
+
     private boolean haveGroupContent() {
         return this.groupContent != null;
     }
-    
+
     // convert the recipientGroupList into group content users
     private void getGroupContent() throws CruiseControlException {
         if (this.recipientGroupSet == null)  {
@@ -439,16 +439,16 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
             groupContentGetter.removeGroupContentListener(this);
         }
     }
-    
+
     private synchronized boolean isQueryGroupContentError() {
         return this.queryGroupContentFailMessage != null
                && QUERY_GROUP_CONTENT_FAIL_ERROR.equalsIgnoreCase(this.getHandleQueryGroupContentFails());
     }
-    
+
     private synchronized boolean isLoggedIn() {
         return this.communityService != null && this.communityService.isLoggedIn() && this.login != null;
     }
-    
+
     // return true once all the users/groups to be resolved have been resolved
     private synchronized boolean isResolvedAllUsersAndGroups() {
         if (this.usernamesToResolveSet == null) {
@@ -462,14 +462,14 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
         }
         return true;
     }
-    
+
     private synchronized boolean isResolveError() {
-        return this.resolveFailMessage != null 
+        return this.resolveFailMessage != null
                && RESOLVE_FAIL_ERROR.equalsIgnoreCase(this.getHandleResolveFails())
                || this.resolveConflictMessage != null
                && RESOLVE_CONFLICTS_ERROR.equalsIgnoreCase(this.getHandleResolveConflicts());
     }
-        
+
     public synchronized void loggedIn(LoginEvent loginEvent) {
         this.login = loginEvent.getLogin();
     }
@@ -517,7 +517,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
         if (LOG.isDebugEnabled()) {
             LOG.debug("resolve failed: " + Arrays.asList(failedNames));
         }
-        this.resolveFailMessage = "cannot resolve, reason " 
+        this.resolveFailMessage = "cannot resolve, reason "
                          + resolveEvent.getReason() + ": " + Arrays.asList(failedNames);
         if (RESOLVE_FAIL_WARN.equalsIgnoreCase(this.getHandleResolveFails())) {
             LOG.warn(this.resolveFailMessage);
@@ -533,7 +533,7 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
                 if (eventGroupContent[i] instanceof STUser) {
                     this.recipientUserSet.add(eventGroupContent[i]);
                 } else {
-                    throw new UnsupportedOperationException("groups within groups not supported - found subgroup " 
+                    throw new UnsupportedOperationException("groups within groups not supported - found subgroup "
                        + eventGroupContent[i].getName() + " while querying group "
                        + groupContentEvent.getGroup().getName());
                 }
@@ -543,9 +543,9 @@ public class SametimeAnnouncementPublisher extends LinkEmailPublisher
     }
 
     public synchronized void queryGroupContentFailed(GroupContentEvent groupContentEvent) {
-        this.queryGroupContentFailMessage = "queryGroupContent failed for group " 
+        this.queryGroupContentFailMessage = "queryGroupContent failed for group "
              + groupContentEvent.getGroup().getName()
-             + ", reason " + groupContentEvent.getReason();        
+             + ", reason " + groupContentEvent.getReason();
         if (QUERY_GROUP_CONTENT_FAIL_WARN.equalsIgnoreCase(this.getHandleQueryGroupContentFails())) {
             LOG.warn(this.queryGroupContentFailMessage);
         }

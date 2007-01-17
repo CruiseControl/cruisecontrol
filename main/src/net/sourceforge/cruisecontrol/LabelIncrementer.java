@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- 
+
 package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
@@ -44,7 +44,7 @@ import org.jdom.Element;
  * the label used in the MasterBuild process. This label
  * is incorporated into the log filename when a successful
  * build occurs.
- * 
+ *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */

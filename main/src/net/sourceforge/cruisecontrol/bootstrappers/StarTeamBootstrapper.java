@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,11 +54,11 @@ import net.sourceforge.cruisecontrol.util.Commandline;
  *
  * Usage:
  *
- *     &lt;starteambootstrapper username="" 
- *                              password="" 
- *                              server="" 
- *                              port="" 
- *                              project="" 
+ *     &lt;starteambootstrapper username=""
+ *                              password=""
+ *                              server=""
+ *                              port=""
+ *                              project=""
  *                              view=""
  *                              folder=""
  *                              files=""

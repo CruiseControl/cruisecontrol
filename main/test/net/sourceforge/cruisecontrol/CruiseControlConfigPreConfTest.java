@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
 
     public void testProjectPreConfiguration() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project3");
-        
+
         List bootstrappers = projConfig.getBootstrappers();
         assertEquals(1, bootstrappers.size());
         assertEquals(VssBootstrapper.class.getName(), getClassInList(bootstrappers));
@@ -86,23 +86,23 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         List builders = schedule.getBuilders();
         assertEquals(1, builders.size());
         assertEquals(AntBuilder.class.getName(), getClassInList(builders));
-        
+
         List listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
         assertEquals(CurrentBuildStatusListener.class.getName(), getClassInList(listeners));
     }
-    
+
     private String getClassInList(List list) {
         return list.get(0).getClass().getName();
     }
-    
+
     public void testPreConfiguredPluginInPreconfiguredProject() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project2");
         List publishers = projConfig.getPublishers();
         assertEquals(1, publishers.size());
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers));
     }
-    
+
 
     // TODO
     /*
@@ -120,15 +120,15 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals("bar", foo.property.getName());
         assertEquals("baz", foo.property.getValue());
     }
-    
+
     public static class Foo extends Builder {
         private Property property;
-        
+
         public Property createProperty() {
             property = new Property();
             return property;
         }
-        
+
         public Element build(Map properties) throws CruiseControlException {
             return null;
         }
@@ -136,5 +136,5 @@ public class CruiseControlConfigPreConfTest extends TestCase {
             return null;
         }
     }
-    
+
 }

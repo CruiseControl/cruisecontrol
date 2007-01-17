@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ import net.sourceforge.cruisecontrol.launch.util.Locator;
 
 /**
  * Provides the means to launch CruiseControl with the appropriate classpath.
- * This code is based heavily on (some parts taken directly from) the Apache 
+ * This code is based heavily on (some parts taken directly from) the Apache
  * Ant project.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com>Robert J. Smith</a>
  */
 public class Launcher {
@@ -302,7 +302,7 @@ public class Launcher {
     private void copyJarUrls(URL[] sourceArray, URL[] destinationArray, int destinationStartIndex) {
         System.arraycopy(sourceArray, 0, destinationArray, destinationStartIndex, sourceArray.length);
     }
-    
+
     /**
      * Add a CLASSPATH or -lib to lib path urls.
      * @param path        the classpath or lib path to add to the libPathULRLs

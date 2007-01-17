@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,10 @@ import org.apache.log4j.Logger;
  * triggered. Once one successful build occurs, no more occur. If a build occurs
  * successfully via other means as the time threshold is crossed then this build
  * won't occur.
- * 
+ *
  * The is useful when you need a project to be built on a time basis despite no
  * changes to source control.
- * 
+ *
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh </a>
  * @version $Id$
  */
@@ -72,7 +72,7 @@ public class TimeBuild extends FakeUserSourceControl {
 
     /**
      * The threshold time to cross that starts triggering a build
-     * 
+     *
      * @param timeString
      *            The time in hhmm format
      */
@@ -91,7 +91,7 @@ public class TimeBuild extends FakeUserSourceControl {
     /**
      * Check if TimeBuild "time" threshold has passed with out a successful
      * build. If so, trigger the build.
-     * 
+     *
      * @param lastBuild
      *            date of last build
      * @param now
@@ -102,14 +102,14 @@ public class TimeBuild extends FakeUserSourceControl {
         List modifications = new ArrayList();
 
         /*
-         * 
+         *
          * if now and lastbuild occur on the same day, only trigger a build when
          * lastbuildtime is before 'time' and 'time' is before nowtime
-         * 
+         *
          * if now and lastbuild do not occur on the same day, only trigger a
          * build when nowtime is after 'time'
-         * 
-         * 
+         *
+         *
          */
         // TODO trigger at time, not just after it
         int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);

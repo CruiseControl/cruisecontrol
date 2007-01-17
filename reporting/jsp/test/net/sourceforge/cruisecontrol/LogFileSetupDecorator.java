@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public class LogFileSetupDecorator extends TestSetup {
         if (!LOG_DIR.exists()) {
             assertTrue("Failed to create test result dir", LOG_DIR.mkdir());
         }
-        logFiles = new File[] { new File(LOG_DIR, "log20020222120000.xml"), 
+        logFiles = new File[] { new File(LOG_DIR, "log20020222120000.xml"),
                                 new File(LOG_DIR, "log20020223120000LBuild.1.xml"),
                                 new File(LOG_DIR, "log20020224120000.xml"),
                                 new File(LOG_DIR, "log20020225120000LBuild.2.xml"),
@@ -74,7 +74,7 @@ public class LogFileSetupDecorator extends TestSetup {
         for (int i = 0; i < logFiles.length; i++) {
             File logFile = logFiles[i];
             logFile.createNewFile();
-        }        
+        }
     }
 
     protected void tearDown() throws Exception {

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
             // test exception?
         }
     }
-    
+
     public void testValidate4() throws Exception {
         CurrentBuildStatusFTPBootstrapper cbsfb =
             new CurrentBuildStatusFTPBootstrapper();
@@ -114,7 +114,7 @@ public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
             new CurrentBuildStatusFTPBootstrapper();
         cbsfb.setFile("_testCurrentBuildStatus1.txt");
         filesToClear.add(new File("_testCurrentBuildStatus1.txt"));
-        
+
         // This should be equivalent to the date used in bootstrap at seconds
         // precision
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");

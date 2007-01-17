@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,17 +76,17 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     private static final String REVISION_PREFIX = "#";
     private static final String RECURSE_U = "/...";
     private static final String RECURSE_W = "\\...";
-    
+
     private String p4Port;
     private String p4Client;
     private String p4User;
     private String p4View;
     private String p4Passwd;
-    
+
     private boolean clean = false;
     private boolean delete = false;
     private boolean sync = true;
-    
+
     private int baseChangelist = -1;
 
     /**
@@ -100,14 +100,14 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         String label = null;
         try {
             validate();
-            
+
             // Perform conditional actions.
             // Since the settings might change or be executed in any order,
             // we perform the checks on which actions to run here.
             boolean delTree = delete;
             boolean cleanP4 = delTree || clean;
             boolean syncP4 = cleanP4 || sync;
-            
+
             if (cleanP4) {
                 LOG.info("Cleaning Perforce clientspec " + p4Client);
                 syncTo(REVISION_PREFIX + 0);
@@ -115,16 +115,16 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             if (delTree) {
                 deleteView();
             }
-            
+
             label = getDefaultLabel();
-            
+
             if (syncP4) {
                 syncTo(CHANGELIST_PREFIX + label);
             }
         } catch (CruiseControlException cce) {
             LOG.warn("Couldn't run expected tasks", cce);
         }
-        
+
         return label;
     }
 
@@ -149,17 +149,17 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
 
     /**
      * The instance must be fully initialized before calling this method.
-     * @throws IllegalStateException if the instance is not properly initialized 
+     * @throws IllegalStateException if the instance is not properly initialized
      */
     public String getDefaultLabel() {
         if (baseChangelist > 0) {
             return Integer.toString(baseChangelist);
         }
         // else
-        
+
         try {
             validate();
-            
+
             return getCurrentChangelist();
         } catch (CruiseControlException cce) {
             cce.printStackTrace();
@@ -170,21 +170,21 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     }
 
     // User settings
-    
+
     /**
      * Set the changelist number that you want to build at.  If this isn't
      * set, then the class will get the most current submitted changelist
      * number.  Note that setting this will cause the build to ALWAYS build
      * at this changelist number.
-     * 
+     *
      * @param syncChange the changelist number to perform the sync to.
      */
     public void setChangelist(int syncChange) {
         baseChangelist = syncChange;
     }
-    
-    
-    
+
+
+
     public void setPort(String p4Port) {
         this.p4Port = p4Port;
     }
@@ -204,33 +204,33 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     public void setPasswd(String p4Passwd) {
         this.p4Passwd = p4Passwd;
     }
-    
+
     /**
      * Disables the label incrementer from synchronizing Perforce to the
      * view.
-     * 
+     *
      * @param b
      */
     public void setNoSync(boolean b) {
         this.sync = !b;
     }
-    
+
     /**
      * Perform a "p4 sync -f [view]#0" before syncing anew.  This will force
      * the sync to happen.
-     * 
+     *
      * @param b
      */
     public void setClean(boolean b) {
         this.clean = b;
     }
-    
-    
+
+
     /**
      * Perform a recursive delete of the clientspec view.  This
      * will force a clean & sync.  Note that this can potentially
      * be very destructive, so use with the utmost caution.
-     * 
+     *
      * @param b
      */
     public void setDelete(boolean b) {
@@ -255,10 +255,10 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         cmd.createArgument("changes");
         cmd.createArgument("-m1");
         cmd.createArgument("-ssubmitted");
-        
+
         ParseChangelistNumbers pcn = new ParseChangelistNumbers();
         runP4Cmd(cmd, pcn);
-        
+
         String[] changes = pcn.getChangelistNumbers();
         if (changes != null && changes.length == 1) {
             return changes[0];
@@ -267,16 +267,16 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
                 "Could not discover the changelist");
         }
     }
-    
-    
+
+
     protected void syncTo(String viewArg) throws CruiseControlException {
         Commandline cmd = buildBaseP4Command();
         cmd.createArguments("sync", p4View + viewArg);
-        
+
         runP4Cmd(cmd, new P4CmdParserAdapter());
     }
-    
-    
+
+
     protected void deleteView() throws CruiseControlException {
         // despite what people tell you, deleting correctly in Java is
         // hard.  So, let Ant do our dirty work for us.
@@ -292,11 +292,11 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             throw new CruiseControlException(be.getMessage(), be);
         }
     }
-    
-    
+
+
     /**
-     * If the view mapping contains a reference to a single file, 
-     * 
+     * If the view mapping contains a reference to a single file,
+     *
      * @return the collection of recursive directories inside the Perforce
      *      view.
      * @throws CruiseControlException
@@ -314,7 +314,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         }
         Commandline cmd = buildBaseP4Command();
         cmd.createArguments("where", view);
-        
+
         ParseOutputParam pop = new ParseOutputParam("");
         runP4Cmd(cmd, pop);
         String[] values = pop.getValues();
@@ -323,16 +323,16 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             return null;
         }
         FileSet fs = createFileSet(p);
-        
+
         // on windows, this is considered higher than the drive letter.
         fs.setDir(new File("/"));
         int count = 0;
-        
+
         for (int i = 0; i < values.length; ++i) {
             // first token: the depot name
             // second token: the client name
             // third token+: the local file system name
-            
+
             // like above, we only care about the recursive view.  If the
             // line doesn't end in /... or \... (even if it's a %%1), we ignore
             // it.  This makes our life so much simpler when dealing with
@@ -342,7 +342,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             if (!s.endsWith(RECURSE_U) && !s.endsWith(RECURSE_W)) {
                 continue;
             }
-            
+
             String[] tokens = new String[3];
             int pos = 0;
             for (int j = 0; j < 3; ++j) {
@@ -407,15 +407,15 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             return null;
         }
     }
-    
-    
+
+
     protected Project createProject() {
         Project p = new Project();
         p.init();
         return p;
     }
-    
-    
+
+
     protected Delete createDelete(Project p) throws CruiseControlException {
         Object o = p.createTask("delete");
         if (o == null || !(o instanceof Delete)) {
@@ -429,8 +429,8 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         }
         return (Delete) o;
     }
-    
-    
+
+
     protected FileSet createFileSet(Project p) throws CruiseControlException {
         Object o = p.createDataType("fileset");
         if (o == null || !(o instanceof FileSet)) {
@@ -444,8 +444,8 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         }
         return (FileSet) o;
     }
-    
-    
+
+
     protected Commandline buildBaseP4Command() {
         Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
@@ -468,8 +468,8 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         }
         return commandLine;
     }
-    
-    
+
+
     protected void runP4Cmd(Commandline cmd, P4CmdParser parser)
             throws CruiseControlException {
         try {
@@ -481,7 +481,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
 
                 InputStream p4Stream = p.getInputStream();
                 parseStream(p4Stream, parser);
-                stderr.join();                        
+                stderr.join();
             } finally {
                 p.waitFor();
                 IO.close(p);
@@ -492,7 +492,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             throw new CruiseControlException("Problem trying to execute command line process", e);
         }
     }
-    
+
     protected void parseStream(InputStream stream, P4CmdParser parser)
             throws IOException {
         String line;
@@ -530,7 +530,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         public void info(String msg);
         public void text(String msg);
     }
-    
+
     protected static class P4CmdParserAdapter implements P4CmdParser {
         public void warning(String msg) {
             // empty
@@ -542,7 +542,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             // empty
         }
     }
-    
+
     protected static class ParseChangelistNumbers extends P4CmdParserAdapter {
         private ArrayList changelists = new ArrayList();
         public void info(String msg) {
@@ -550,13 +550,13 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             st.nextToken(); // skip 'Change' text
             changelists.add(st.nextToken());
         }
-        
+
         public String[] getChangelistNumbers() {
             String[] changelistNumbers = new String[ 0 ];
             return (String[]) changelists.toArray(changelistNumbers);
         }
     }
-    
+
     protected static class ParseOutputParam extends P4CmdParserAdapter {
         public ParseOutputParam(String paramName) {
             this.paramName = paramName;
@@ -570,7 +570,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
                 values.add(m2);
             }
         }
-        
+
         public String[] getValues() {
             String[] v = new String[ 0 ];
             return (String[]) values.toArray(v);

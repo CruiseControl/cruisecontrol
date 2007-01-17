@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -445,7 +445,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             } catch (RemoteException e1) {
                 // ignored
             }
-            
+
             final Element buildResults;
             try {
                 final Map distributedAgentProps = new HashMap();
@@ -460,9 +460,9 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 }
 
                 LOG.debug("Distributed Agent Props: " + distributedAgentProps.toString());
-                
+
                 LOG.debug("Project Props: " + projectProperties.toString());
-                
+
                 LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
                 buildResults = agent.doBuild(getChildBuilderElement(), projectProperties, distributedAgentProps);
 

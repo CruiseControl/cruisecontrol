@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,12 +41,12 @@ import java.util.Properties;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
- * @version $Id$ 
+ * @version $Id$
  */
 public final class VSSHelper {
 
     private VSSHelper() {
-        
+
     }
 
     public static String[] loadVSSEnvironment(String serverPath) {
@@ -55,7 +55,7 @@ public final class VSSHelper {
             systemProps.put("SSDIR", serverPath);
         }
         String[] env = new String[systemProps.size()];
-        
+
         int index = 0;
         Iterator systemPropIterator = systemProps.keySet().iterator();
         while (systemPropIterator.hasNext()) {
@@ -63,7 +63,7 @@ public final class VSSHelper {
             env[index] = propName + "=" + systemProps.get(propName);
             index++;
         }
-        
+
         return env;
     }
 

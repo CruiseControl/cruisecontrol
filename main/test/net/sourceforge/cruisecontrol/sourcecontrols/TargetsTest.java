@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,11 +45,11 @@ public class TargetsTest extends TestCase {
         Targets target = null;
         Compound compound = new Compound();
         FileSystem fs = new FileSystem();
-        
+
         // test target with no parent
         target = new Targets();
         target.add(fs);
-        
+
         try {
             target.validate();
             fail("Targets should throw exceptions when required attributes are not set.");
@@ -59,7 +59,7 @@ public class TargetsTest extends TestCase {
 
         // test target with no source control
         target = new Targets(compound);
-        
+
         try {
             target.validate();
             fail("Targets should throw exceptions when required attributes are not set.");
@@ -69,7 +69,7 @@ public class TargetsTest extends TestCase {
 
         // test target with all attributes set
         target.add(fs);
-        
+
         try {
             target.validate();
         } catch (CruiseControlException e) {

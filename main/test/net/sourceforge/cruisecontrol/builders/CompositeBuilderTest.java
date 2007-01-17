@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ public class CompositeBuilderTest extends TestCase {
 
         final Element result = builder.build(buildProperties);
         assertNotNull(result);
-        
+
         assertTrue("builder1 didn't build", mock1.isBuildCalled());
         assertTrue("builder2 didn't build", mock2.isBuildCalled());
     }
@@ -239,7 +239,7 @@ public class CompositeBuilderTest extends TestCase {
         final String mockTargetWError = "mockTargetWithError";
         final Element result = builder.buildWithTarget(buildProperties, mockTargetWError);
         assertNotNull(result);
-        
+
         assertTrue("builder3 didn't build", mock3.isBuildCalled());
         assertEquals("builder2 didn't build with target", mockTargetWError, mock3.getTarget());
     }

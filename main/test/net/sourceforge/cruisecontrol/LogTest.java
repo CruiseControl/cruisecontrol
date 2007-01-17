@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class LogTest extends TestCase {
             fail("unepected: " + cce.getMessage());
         }
     }
-    
+
     public void testDefaultLogLocation() {
         Log log = new Log();
         log.setProjectName("foo");
@@ -153,7 +153,7 @@ public class LogTest extends TestCase {
             log.addContent(build);
             log.addContent(new Element("modifications"));
 
-            // Add 8-bit characters 
+            // Add 8-bit characters
             build.setText("Something with special characters: \u00c6\u00d8\u00c5");
 
             // Write and read the file
@@ -163,7 +163,7 @@ public class LogTest extends TestCase {
             Element actualContent = builder.build(logFile).getRootElement();
 
             // content.toString() only returns the root element but not the
-            // children: [Element: <cruisecontrol/>] 
+            // children: [Element: <cruisecontrol/>]
             // Use an XMLOutputter (that trims whitespace) instead.
             String expected = outputter.outputString(log.getContent());
             String actual = outputter.outputString(actualContent);
@@ -200,7 +200,7 @@ public class LogTest extends TestCase {
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 3, 1, 2);
-        
+
         // Test delete of logfile
         date = Calendar.getInstance();
         date.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH) - 2);
@@ -223,7 +223,7 @@ public class LogTest extends TestCase {
         log.add(deleteManipulator);
         log.validate();
         assertBackupsHelper(log, 1, 1, 0);
-        
+
         //Validation Error
         gzip = new GZIPManipulator();
         gzip.setUnit("day");
@@ -235,8 +235,8 @@ public class LogTest extends TestCase {
         } catch (CruiseControlException e) {
             assertTrue(true);
         }
-        
-        
+
+
     }
 
     private void assertBackupsHelper(Log log, int expectedLength, int expectedXML, int expectedGZIP) {

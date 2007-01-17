@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,13 +70,13 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
     public void setFile(String fileName) {
         this.fileName = fileName;
     }
-    
-    
+
+
     public void setDestDir(String dir) {
         this.destdir = dir;
     }
-    
-    
+
+
     /**
      *  Called after the configuration is read to make sure that all the mandatory parameters
      *  were specified..
@@ -88,7 +88,7 @@ public class CurrentBuildStatusFTPPublisher extends AbstractFTPClass
         ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
         super.validate();
     }
-    
+
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
         String out = makeFile(cruisecontrolLog);
         String fname = destdir + File.separator + fileName;

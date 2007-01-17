@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,7 +112,7 @@ public class HTMLEmailPublisherTest extends TestCase {
             fail("setXSLFileList should fail if specified xslFileList file is empty");
         } catch (IllegalArgumentException expected) {
         }
-        
+
         tmpFile =  File.createTempFile("HTMLEmailPublisherTest", null);
         tmpFile.deleteOnExit();
         String xsldir = tmpFile.getParent();
@@ -123,8 +123,8 @@ public class HTMLEmailPublisherTest extends TestCase {
         assertEquals(1, newFileNames.length);
 
         // should work, regardless of spaces & comma between filenames
-        publisher.setXSLFileList("  ,, " 
-                                 + tmpFile.getName() 
+        publisher.setXSLFileList("  ,, "
+                                 + tmpFile.getName()
                                  + "   ,,,"
                                  + tmpFile.getName());
         newFileNames = publisher.getXslFileNames();
@@ -233,7 +233,7 @@ public class HTMLEmailPublisherTest extends TestCase {
             // should fail
         }
     }
-    
+
     public void testGetContentType() {
         String defaultType = "text/html";
         assertEquals(defaultType, publisher.getContentType());

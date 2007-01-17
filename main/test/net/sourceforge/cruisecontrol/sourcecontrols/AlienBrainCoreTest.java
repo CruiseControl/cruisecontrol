@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,8 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import junit.framework.TestCase;
 
 /**
- * The unit test for the base class from which most all CruiseControl / 
- * AlienBrain interactions derive. 
+ * The unit test for the base class from which most all CruiseControl /
+ * AlienBrain interactions derive.
  *
  * @author <a href="mailto:scottj+cc@escherichia.net">Scott Jacobs</a>
  */
@@ -48,7 +48,7 @@ public class AlienBrainCoreTest extends TestCase {
 
     public void testBuildCommonCommand() {
         AlienBrainCore ab = new AlienBrainCore();
-        
+
         String username = "user";
         String password = "pass";
         String server = "server";
@@ -63,15 +63,15 @@ public class AlienBrainCoreTest extends TestCase {
             ab.buildCommonCommand().toString());
     }
 
-   
-    //The following tests all actually use the AlienBrain executable and 
-    //may need to access a server.  Therefore they can only be run if you 
+
+    //The following tests all actually use the AlienBrain executable and
+    //may need to access a server.  Therefore they can only be run if you
     //have a licensed command-line client and access to a server.
 /*
     //In order for some of the following tests to pass, these members must
     //be assigned values valid for your AlienBrain server.
     private static final String TESTING_BRANCH = "Root Branch/Overmatch";
-    // Set any of the following to null if you do not want to 
+    // Set any of the following to null if you do not want to
     // override any NXN_AB_* environment variables you may be using.
     private static final String TESTING_USERNAME = null; //"sjacobs";
     private static final String TESTING_PASSWORD = null; //"pass123";
@@ -80,7 +80,7 @@ public class AlienBrainCoreTest extends TestCase {
 
     private String getActiveBranch() throws java.io.IOException {
         AlienBrainCore ab = new AlienBrainCore();
-        
+
         ab.setServer(TESTING_SERVER);
         ab.setDatabase(TESTING_DATABASE);
         ab.setUser(TESTING_USERNAME);
@@ -88,11 +88,11 @@ public class AlienBrainCoreTest extends TestCase {
 
         net.sourceforge.cruisecontrol.util.ManagedCommandline cmdLine = ab.buildCommonCommand();
         cmdLine.createArgument("getactivebranch");
-        
+
         cmdLine.execute();
-        return cmdLine.getStdoutAsString();        
+        return cmdLine.getStdoutAsString();
     }
-    
+
     public void testSetActiveBranch() throws java.io.IOException, net.sourceforge.cruisecontrol.CruiseControlException {
         AlienBrainCore ab = new AlienBrainCore();
 
@@ -100,13 +100,13 @@ public class AlienBrainCoreTest extends TestCase {
         ab.setDatabase(TESTING_DATABASE);
         ab.setUser(TESTING_USERNAME);
         ab.setPassword(TESTING_PASSWORD);
-        
+
         ab.setActiveBranch(TESTING_BRANCH);
-        assertEquals("setActiveBranch failed!", 
-            "The current active branch is: \"" + TESTING_BRANCH + "\"\n", 
+        assertEquals("setActiveBranch failed!",
+            "The current active branch is: \"" + TESTING_BRANCH + "\"\n",
             getActiveBranch());
     }
-    
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(AlienBrainCoreTest.class);
     }

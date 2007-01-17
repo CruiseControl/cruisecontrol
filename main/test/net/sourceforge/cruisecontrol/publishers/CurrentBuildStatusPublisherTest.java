@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 public class CurrentBuildStatusPublisherTest extends TestCase {
     private static final String TEST_DIR = "tmp";
     private final List filesToClear = new ArrayList();
-    
+
     public void tearDown() {
         for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
             File file = (File) iterator.next();
