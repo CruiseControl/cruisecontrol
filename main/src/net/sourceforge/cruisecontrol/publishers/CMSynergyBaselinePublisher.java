@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,22 +57,22 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * Creates an intermediate baseline encompassing the given project and all
  * subprojects. <br>
  * <b>Note: This publisher requires CM Synergy version 6.3 or later. </b>
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
-    
+
     /**
      * The default CM Synergy project purpose for the baseline
      */
     public static final String CCM_BASELINE_PURPOSE = "Integration Testing";
-    
+
     private static final Logger LOG = Logger.getLogger(CMSynergyBaselinePublisher.class);
     private static final Pattern LOG_PROPERTY_PATTERN;
     private String purpose = CCM_BASELINE_PURPOSE;
     private String name;
     private String description;
-    
+
     static {
         // Create a Perl 5 pattern matcher to find embedded properties
         PatternCompiler compiler = new Perl5Compiler();
@@ -86,16 +86,16 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         }
 
     }
-    
+
     /**
      * Sets the purpose of the baseline. Default is "Integration Testing".
-     * 
+     *
      * @param purpose The baseline's purpose
      */
     public void setPurpose(String purpose) {
         this.purpose = purpose;
     }
-    
+
     /**
      * Sets the name (version label) which will be given to the newly created
      * project versions. You may use macros to specify any of the
@@ -105,35 +105,35 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * example:
      * <br><br>
      * name="BUILD_@{cctimestamp}"
-     * 
+     *
      * @param name The name of the baseline
      */
     public void setBaselineName(String name) {
         this.name = name;
     }
-    
+
     /**
      * Sets the description of the baseline.
-     * 
+     *
      * @param description The description
      */
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
-    public void publish(Element log) throws CruiseControlException { 
-        
+    public void publish(Element log) throws CruiseControlException {
+
         // Only publish upon a successful build which includes new tasks.
         if (!shouldPublish(log)) {
             return;
         }
-                
+
         // Extract the build properties from the log
         Properties logProperties = getBuildProperties(log);
-        
+
         // If a baseline name was provided, parse it
         String baselineName = null;
         if (name != null) {
@@ -143,7 +143,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         // Create the CM Synergy command line
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
-        
+
         cmd.createArgument("baseline");
         cmd.createArgument("-create");
         if (baselineName != null) {
@@ -168,31 +168,31 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
             error.append("\".");
             throw new CruiseControlException(error.toString(), e);
         }
-        
+
         // Log the success
         StringBuffer message = new StringBuffer("Created baseline");
         if (baselineName != null) {
             message.append(" ").append(baselineName);
         }
         message.append(".");
-        LOG.info(message.toString());        
+        LOG.info(message.toString());
     }
-    
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#validate()
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(getProject(), "project", this.getClass());
     }
-    
+
     /**
      * Queries CM Synergy for the release value of the project
-     * 
+     *
      * @return The release value of the project.
      */
     private String getProjectRelease() throws CruiseControlException {
         String release;
-        
+
         // Create the CM Synergy command line
         ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
@@ -209,19 +209,19 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
                     "Could not determine the release value of project \""
                             + getProject() + "\".", e);
         }
-        
+
         return release;
     }
-    
+
     /**
      * Parses a string by replacing all occurrences of a property macro with
      * the resolved value of the property (from the info section of the log
-     * file). Nested macros are allowed - the 
+     * file). Nested macros are allowed - the
      * inner most macro will be resolved first, moving out from there.
      * <br/>
      * Macros are of the form @{property}, so that they will not conflict with
-     * properties support built into CC. 
-     *  
+     * properties support built into CC.
+     *
      * @param string The string to be parsed
      * @return The parsed string
      */
@@ -243,7 +243,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
             }
             string = pre + value + post;
         }
-        
+
         return string;
     }
 }

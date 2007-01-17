@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,15 +44,15 @@ import org.jdom.Element;
 import junit.framework.TestCase;
 
 public abstract class ConditionalPublisherTestBase extends TestCase {
-    
+
     abstract ConditionalPublisher createPublisher();
-    
+
     public void testValidate() throws CruiseControlException {
         ConditionalPublisher publisher = createPublisher();
         try {
             publisher.validate();
             fail("conditional publishers should not validate if they have no nested publishers");
-        } catch (CruiseControlException expected) {            
+        } catch (CruiseControlException expected) {
         }
 
         MyMockPublisher mock = new MyMockPublisher();
@@ -60,27 +60,27 @@ public abstract class ConditionalPublisherTestBase extends TestCase {
         publisher.validate();
         assertTrue(mock.wasValidated());
     }
-    
+
     class MyMockPublisher implements Publisher {
         private boolean validated = false;
         private boolean published = false;
-        
+
         boolean wasValidated() {
             return validated;
         }
-        
+
         void setPublished(boolean published) {
             this.published = published;
         }
-        
+
         boolean wasPublished() {
             return published;
         }
-        
+
         public void validate() throws CruiseControlException {
             validated = true;
         }
-        
+
         public void publish(Element cruisecontrolLog) throws CruiseControlException {
             published = true;
         }

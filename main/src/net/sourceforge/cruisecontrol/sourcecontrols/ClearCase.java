@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -245,7 +245,7 @@ public class ClearCase implements SourceControl {
         try {
             Process p = Runtime.getRuntime().exec(command, null, root);
             Thread stderr = logErrorStream(p);
-            
+
             InputStream input = p.getInputStream();
             modifications = parseStream(input);
 
@@ -268,12 +268,12 @@ public class ClearCase implements SourceControl {
         Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
         stderr.start();
         return stderr;
-    }    
-    
+    }
+
     private void getRidOfLeftoverData(InputStream stream) {
         new StreamPumper(stream, new DiscardConsumer()).run();
     }
-    
+
     /**
      * Parses the input stream to construct the modifications list.
      * Package-private to make it available to the unit test.

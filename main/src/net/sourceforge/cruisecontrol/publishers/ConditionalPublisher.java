@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public abstract class ConditionalPublisher implements Publisher {
 
     /**
      * Adds a nested publisher
-     * 
+     *
      * @param publisher The publisher to add
      */
     public void add(Publisher publisher) {
@@ -85,7 +85,7 @@ public abstract class ConditionalPublisher implements Publisher {
     /**
      * Determines if the nested publishers should be executed. This method must
      * be implemented by all derived classes.
-     * 
+     *
      * @param log
      *            The build log
      * @return <code>true</code> if the nested publishers should be executed,

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import junit.framework.TestCase;
  */
 public class TimeNumberFormatTest extends TestCase {
     private NumberFormat test;
-    
+
     protected void setUp() {
         test = new TimeNumberFormat();
     }
@@ -54,15 +54,15 @@ public class TimeNumberFormatTest extends TestCase {
     public void testMidnight() {
         assertEquals("00:00", test.format(0));
     }
-    
+
     public void testOneMinutePastMidnight() {
         assertEquals("00:01", test.format(60 * 1000));
     }
-    
+
     public void testOneInTheAfternoon() {
         assertEquals("13:00", test.format(13 * 60 * 60 * 1000));
     }
-    
+
     public void testOneInTheMorningTheNextDay() {
         assertEquals("01:00", test.format(25 * 60 * 60 * 1000));
     }

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,15 +57,15 @@ import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods for a MKS repository.
- * The call to MKS is assumed to work with any setup: 
- * The call to MKS login should be done prior to calling this class. 
- *  * 
- * attributes: 
- * localWorkingDir - local directory for the sandbox  
+ * The call to MKS is assumed to work with any setup:
+ * The call to MKS login should be done prior to calling this class.
+ *  *
+ * attributes:
+ * localWorkingDir - local directory for the sandbox
  * project - the name and path to the MKS project
  * doNothing - if this attribute is set to true, no mks command is executed. This is for
  * testing purposes, if a potentially slow mks server connection should avoid
- * 
+ *
  * @author Suresh K Bathala Skila, Inc.
  * @author Dominik Hirt, Wincor-Nixdorf International GmbH, Leipzig
  */
@@ -84,23 +84,23 @@ public class MKS implements SourceControl {
     private boolean doNothing;
 
     /**
-     * This is the workaround for the missing feature of MKS to return differences 
-     * for a given time period. If a modification is detected during the quietperiod, 
-     * CruiseControl calls <code>getModifications</code> of this sourcecontrol object 
+     * This is the workaround for the missing feature of MKS to return differences
+     * for a given time period. If a modification is detected during the quietperiod,
+     * CruiseControl calls <code>getModifications</code> of this sourcecontrol object
      * again, with the new values for <code>Date now</code>. In that case, and if all
-     * modification are already found in the first cycle, the list of modifications 
-     * becomes empty. Therefor, we have to return the summarized list of modifications: 
+     * modification are already found in the first cycle, the list of modifications
+     * becomes empty. Therefor, we have to return the summarized list of modifications:
      * the values from the last run,  and -maybe- results return by MKS for this run.
      */
     private List listOfModifications = new ArrayList();
-    
+
     public void setProject(String project) {
         this.project = project;
     }
 
     /**
      * Sets the local working copy to use when making calls to MKS.
-     * 
+     *
      * @param local
      *            String indicating the relative or absolute path to the local
      *            working copy of the module of which to find the log history.
@@ -127,10 +127,10 @@ public class MKS implements SourceControl {
     }
 
     /**
-     * Returns an ArrayList of Modifications. 
-     * MKS ignores dates for such a range so therefor ALL 
+     * Returns an ArrayList of Modifications.
+     * MKS ignores dates for such a range so therefor ALL
      * modifications since the last resynch step are returned.
-     * 
+     *
      * @param lastBuild
      *            Last build time.
      * @param now
@@ -138,10 +138,10 @@ public class MKS implements SourceControl {
      * @return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
-        
+
         int numberOfFilesForDot = 0;
         boolean printCR = false;
-        
+
         if (doNothing) {
             properties.modificationFound();
             return listOfModifications;
@@ -187,7 +187,7 @@ public class MKS implements SourceControl {
                     continue;
                 }
                 if (printCR) {
-                    System.out.println(""); // avoid LOG prefix 'MKS - ' 
+                    System.out.println(""); // avoid LOG prefix 'MKS - '
                     printCR = false;
                 }
                 LOG.info(line);
@@ -228,31 +228,31 @@ public class MKS implements SourceControl {
      * dominik.hirt;add forceDeploy peter.neumcke;path to properties file fixed,
      * copy generated properties Member added to project
      * d:/MKS/PCE_Usedom/Products/Info/Info.pj
-     * 
+     *
      * @param fileName
      */
     private void setUserNameAndComment(Modification modification,
             String folderName, String fileName) {
-                
+
         try {
             Commandline commandLine = new Commandline();
             commandLine.setExecutable("si");
-    
+
             if (localWorkingDir != null) {
                 commandLine.setWorkingDirectory(localWorkingDir.getAbsolutePath());
             }
-    
+
             commandLine.createArgument("rlog");
             commandLine.createArgument("--format={author};{description}");
             commandLine.createArgument("--noHeaderFormat");
             commandLine.createArgument("--noTrailerFormat");
             commandLine.createArguments("-r", modification.revision);
             commandLine.createArgument(folderName + File.separator + fileName);
-              
+
             LOG.debug(commandLine.toString());
-            
+
             Process proc = commandLine.execute();
-            
+
             Thread stderr = logStream(proc.getErrorStream());
             InputStream in = proc.getInputStream();
             BufferedReader reader = new BufferedReader(
@@ -269,7 +269,7 @@ public class MKS implements SourceControl {
 
             modification.userName = line.substring(0, idx);
             modification.comment = line.substring(idx + 1);
-            
+
             proc.waitFor();
             stderr.join();
             IO.close(proc);

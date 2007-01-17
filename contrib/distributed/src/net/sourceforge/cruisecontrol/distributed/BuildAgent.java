@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,8 @@ public class BuildAgent implements DiscoveryListener,
 
     public static final String JAVA_SECURITY_POLICY = "java.security.policy";
     public static final String JINI_POLICY_FILE = "jini.policy.file";
-    
-    /** Optional unicast Lookup Registry URL. 
+
+    /** Optional unicast Lookup Registry URL.
      * A Unicast Lookup Locater is useful if multicast isn't working. */
     public static final String REGISTRY_URL = "registry.url";
 
@@ -94,7 +94,7 @@ public class BuildAgent implements DiscoveryListener,
 
     private Properties entryProperties;
     private Properties configProperties;
-    
+
     private final BuildAgentUI ui;
 
     private int registrarCount = 0;
@@ -147,7 +147,7 @@ public class BuildAgent implements DiscoveryListener,
         // @todo It also could have a virtual url called "multicast",
         // to make the property file more readable and understandable
         final String registryURLList = configProperties.getProperty(REGISTRY_URL);
-        final LookupLocatorDiscovery lld; 
+        final LookupLocatorDiscovery lld;
         if (registryURLList == null) {
             lld = null;
         } else {
@@ -328,7 +328,7 @@ public class BuildAgent implements DiscoveryListener,
                 MainArgs.parseArgument(args, MAIN_ARG_USER_PROPS,
                         BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
                         BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE),
-                
+
                 MainArgs.argumentPresent(args, MAIN_ARG_SKIP_UI)
         );
 

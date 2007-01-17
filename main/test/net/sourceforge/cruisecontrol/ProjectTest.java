@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,7 @@ public class ProjectTest extends TestCase {
     protected void setUp() throws CruiseControlException {
         project = new Project();
         project.setName("TestProject");
-        
+
         projectConfig = new ProjectConfig();
         projectConfig.add(new DefaultLabelIncrementer());
         project.setProjectConfig(projectConfig);
@@ -220,7 +220,7 @@ public class ProjectTest extends TestCase {
         assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
         assertTrue("Should have at least one of each project state except queued", progressEvents.size() >= 8);
     }
-    
+
     public void testBuildShouldThrowExceptionWhenNoConfig() throws CruiseControlException {
         project = new Project();
         try {
@@ -229,11 +229,11 @@ public class ProjectTest extends TestCase {
         } catch (IllegalStateException expected) {
             assertEquals("projectConfig must be set on project before calling build()", expected.getMessage());
         }
-        
+
         project.setProjectConfig(projectConfig);
         project.build();
     }
-    
+
     public void testBuildRequiresSchedule() throws CruiseControlException {
         MockProject mockProject = new MockProject() {
             public void run() {
@@ -285,8 +285,8 @@ public class ProjectTest extends TestCase {
             mockProject.stopLooping();
         }
     }
-    
-    
+
+
     public void testBuildWithMinimumConfig() throws CruiseControlException {
         Schedule schedule = new Schedule();
         schedule.add(new MockBuilder());
@@ -297,7 +297,7 @@ public class ProjectTest extends TestCase {
         project.init();
         project.build();
     }
-    
+
     public void testBadLabel() {
         try {
             project.validateLabel("build_0", projectConfig.getLabelIncrementer());
@@ -379,13 +379,13 @@ public class ProjectTest extends TestCase {
 
         // TODO: need tests for when lastBuildSuccessful = false
     }
-    
+
     public void testGetModifications_NoModificationElementRequired() {
         assertNull(project.getModifications(false));
         project.setBuildForced(true);
         assertNotNull(project.getModifications(true));
     }
-    
+
     public void testGetModifications_requireModificationsTrue() {
         MockModificationSet modSet = new MockModificationSet();
 //        Element modifications = modSet.getModifications(null);
@@ -543,7 +543,7 @@ public class ProjectTest extends TestCase {
         } catch (IllegalStateException expected) {
             assertEquals("projectConfig must be set on project before calling init()", expected.getMessage());
         }
-        
+
         project.setProjectConfig(projectConfig);
         project.init();
     }
@@ -582,7 +582,7 @@ public class ProjectTest extends TestCase {
             }
         });
     }
-    
+
     public void testStartAfterDeserialization() throws Exception {
         TestProject beforeSerialization = new TestProject();
         projectConfig.add(new MockSchedule());
@@ -595,7 +595,7 @@ public class ProjectTest extends TestCase {
         filesToClear.add(f);
         FileOutputStream outFile = new FileOutputStream(f);
         ObjectOutputStream objects = new ObjectOutputStream(outFile);
-        
+
         objects.writeObject(beforeSerialization);
         objects.flush();
         objects.close();
@@ -632,7 +632,7 @@ public class ProjectTest extends TestCase {
             assertTrue(serializedProjectFile.delete());
         }
         assertFalse(serializedProjectFile.exists());
-        
+
         assertFalse(project.isBuildForced());
         project.setBuildForced(true);
         project.start();
@@ -676,7 +676,7 @@ public class ProjectTest extends TestCase {
         assertEquals("true", map.get("lastbuildsuccessful"));
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
     }
-    
+
     public void testGetTimeToNextBuild_AfterShortBuild() {
         Schedule schedule = new Schedule();
         MockBuilder noonBuilder = new MockBuilder();
@@ -692,7 +692,7 @@ public class ProjectTest extends TestCase {
         cal.set(Calendar.MINUTE, 0);
         Date noonBuild = cal.getTime();
         project.setBuildStartTime(noonBuild);
-        
+
         project.init();
 
         cal.set(Calendar.SECOND, 30);
@@ -742,7 +742,7 @@ public class ProjectTest extends TestCase {
         public void validate() throws CruiseControlException {
         }
     }
-    
+
     private static class TestProject extends Project {
         private boolean createNewSchedulingThreadCalled = false;
 
@@ -758,7 +758,7 @@ public class ProjectTest extends TestCase {
             createNewSchedulingThreadCalled = false;
         }
     }
-    
+
     private class MockLog extends Log {
 
         public void writeLogFile(Date now) throws CruiseControlException {

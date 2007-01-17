@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ public final class DateUtil {
 
     /**
      * Create an integer time from a <code>Date</code> object.
-     * 
+     *
      * @param date
      *            The date to get the timestamp from.
      * @return The time as an integer formatted as "HHmm".
@@ -97,7 +97,7 @@ public final class DateUtil {
 
     /**
      * finds the difference in milliseconds between two integer time values of the format "HHmm".
-     * 
+     *
      * @param earlier
      *            integer time value of format "HHmm"
      * @param later
@@ -112,7 +112,7 @@ public final class DateUtil {
 
     /**
      * Convert a time represented by the format "HHmm" into milliseconds.
-     * 
+     *
      * @param hhmm
      *            where hh are hours and mm are minutes
      * @return hhmm in milliseconds

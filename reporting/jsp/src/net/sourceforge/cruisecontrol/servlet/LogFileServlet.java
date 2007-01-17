@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import net.sourceforge.cruisecontrol.LogFile;
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFileServlet extends FileServlet {
-    
+
     /** Creates a new instance of LogFileServlet. */
     public LogFileServlet() {
     }

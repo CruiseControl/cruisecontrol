@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ public class Maven2BuilderTest extends TestCase {
         Maven2Builder mb = new Maven2Builder();
         internalTestBuild(MOCK_BUILD_FAILURE, mb);
     }
-    
+
     public void testBuild_DownloadFailure() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
         internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
@@ -312,7 +312,7 @@ public class Maven2BuilderTest extends TestCase {
     }
     public void testBuildTimeout() throws Exception {
 
-        Maven2Builder builder = new Maven2Builder();      
+        Maven2Builder builder = new Maven2Builder();
         builder.setTimeout(5);
         long startTime = System.currentTimeMillis();
 
@@ -321,7 +321,7 @@ public class Maven2BuilderTest extends TestCase {
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
        // assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
-       
+
     }
 
     /**

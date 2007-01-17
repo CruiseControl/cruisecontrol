@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ import org.apache.log4j.Logger;
  * this by examining a provided reference project, getting the tasks from all
  * folders in that project, and checking the completion time of those tasks
  * against the last build.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergy implements SourceControl {
@@ -224,7 +224,7 @@ public class CMSynergy implements SourceControl {
 
     /**
      * Sets the name of the CM Synergy executable to use when issuing commands.
-     * 
+     *
      * @param ccmExe
      *            the name of the CM Synergy executable
      */
@@ -236,7 +236,7 @@ public class CMSynergy implements SourceControl {
      * Sets the CM Synergy project spec to be used as a template for calculating
      * changes. The value set here can be accessed from within the build as the
      * property "cc.ccm.project".
-     * 
+     *
      * @param projectSpec
      *            The project spec (in 2 part name format).
      */
@@ -249,7 +249,7 @@ public class CMSynergy implements SourceControl {
      * which involves the project. Defaults to "1". This default should work for
      * most people. You might, however, need to override this value when using
      * DCM?
-     * 
+     *
      * @param projectInstance
      *            The instance number of the project.
      */
@@ -263,7 +263,7 @@ public class CMSynergy implements SourceControl {
      * associated with the modified tasks. If not set, the links will not be
      * created. If you wish to use this feature, you must also set the ccmdb
      * attribute to the remote location of the Synergy database.
-     * 
+     *
      * @param url
      *            The URL of your ChangeSynergy installation
      */
@@ -276,7 +276,7 @@ public class CMSynergy implements SourceControl {
      * needed if you wish to create active links from the build results page to
      * your installation of Change Synergy. If you set this attribute, you must
      * also set the changesynergyurl attribute.
-     * 
+     *
      * @param db
      *            The remote Synergy database with which to connect (e.g.
      *            /ccmdb/mydb).
@@ -289,7 +289,7 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the updateFolders attribute. If set to true, the
      * contents of the folders contained within the project's reconfigure
      * properties will be updated before we query to find new tasks.
-     * 
+     *
      * @param updateFolders
      */
     public void setUpdateFolders(boolean updateFolders) {
@@ -305,7 +305,7 @@ public class CMSynergy implements SourceControl {
      * example: <br>
      * <br>
      * session1=localhost:65024:192.168.1.17
-     * 
+     *
      * @param sessionFile
      *            The session file
      */
@@ -316,10 +316,10 @@ public class CMSynergy implements SourceControl {
     /**
      * Sets the name of the CM Synergy session to use with this plugin. This
      * name should appear in the specified session file.
-     * 
+     *
      * @param sessionName
      *            The session name
-     * 
+     *
      * @see #setSessionFile(String)
      */
     public void setSessionName(String sessionName) {
@@ -331,7 +331,7 @@ public class CMSynergy implements SourceControl {
      * string should use the syntax described in <code>SimpleDateFormat</code>.
      * The default is "EEE MMM dd HH:mm:ss yyyy" The value set here can be
      * accessed from within the build as the property "cc.ccm.dateformat".
-     * 
+     *
      * @param format
      *            the date format
      */
@@ -342,7 +342,7 @@ public class CMSynergy implements SourceControl {
     /**
      * Sets the value of the reconfigure attribute. If set to true, the project
      * will be reconfigured when changes are detected. Default value is false.
-     * 
+     *
      * @param reconfigure
      */
     public void setReconfigure(boolean reconfigure) {
@@ -353,7 +353,7 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the recurse attribute. Used in conjuction with the
      * reconfigure attribute. If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
-     * 
+     *
      * @param recurse
      */
     public void setRecurse(boolean recurse) {
@@ -364,7 +364,7 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the ignoreWorkarea attribute. If set to true, we will
      * not attempt to determine the location of the project's workarea, nor will
      * we pass the cc.ccm.workarea attribute to the builders. Default is false.
-     * 
+     *
      * @param ignoreWorkarea
      */
     public void setIgnoreWorkarea(boolean ignoreWorkarea) {
@@ -375,7 +375,7 @@ public class CMSynergy implements SourceControl {
      * Sets the language used to create the locale for parsing CM Synergy dates.
      * The format should follow the ISO standard as specified by
      * <code>java.util.Locale</code>. The default is "en" (English).
-     * 
+     *
      * @param language
      *            The language to use when creating the <code>Locale</code>
      */
@@ -387,7 +387,7 @@ public class CMSynergy implements SourceControl {
      * Sets the country used to create the locale for parsing CM Synergy dates.
      * The format should follow the ISO standard as specified by
      * <code>java.util.Locale</code>. The default is "US" (United States).
-     * 
+     *
      * @param country
      *            The ISO country code to use
      */
@@ -488,7 +488,7 @@ public class CMSynergy implements SourceControl {
      * Get a list of all tasks which are contained in all folders in the
      * reconfigure properties of the specified project and were completed after
      * the last build.
-     * 
+     *
      * @return A list of <code>CMSynergyModifications</code> which represent
      *         the new tasks
      */
@@ -558,12 +558,12 @@ public class CMSynergy implements SourceControl {
     /**
      * Split the results of a CM Synergy query into individual tokens. This
      * method was added for compatibility with the 1.3 JRE.
-     * 
+     *
      * @param line
      *            The line to be tokenised.
      * @param maxTokens
      *            The maximum number of tokens in the line
-     * 
+     *
      * @return The tokens found
      */
     private String[] tokeniseEntry(String line, int maxTokens) {
@@ -581,7 +581,7 @@ public class CMSynergy implements SourceControl {
                 tokens[tokenIndex] = line.substring(oldIndex);
                 break;
             }
-            
+
             tokens[tokenIndex] = line.substring(oldIndex, index);
         }
         if (tokenIndex < minTokens) {
@@ -642,7 +642,7 @@ public class CMSynergy implements SourceControl {
      * Queries the CM Synergy repository to find any Change Requests with which
      * a task is associated. If the Change Synergy URL and database were
      * provided, we will add HTML based links to those CRs.
-     * 
+     *
      * @param mod
      *            The modification object
      */
@@ -688,7 +688,7 @@ public class CMSynergy implements SourceControl {
 
     /**
      * Determine the work area location for the specified project.
-     * 
+     *
      * @return The work area location
      */
     private String getWorkarea() {
@@ -752,7 +752,7 @@ public class CMSynergy implements SourceControl {
     /**
      * Format the output of a CM Synergy query by removing newlines introduced
      * by comments.
-     * 
+     *
      * @param in
      *            The <code>List</code> to be formated
      * @return The formated <code>List</code>
@@ -778,11 +778,11 @@ public class CMSynergy implements SourceControl {
      * Parse a CM Synergy date string into a Java <code>Date</code>. If the
      * string cannot be parsed, a warning is written to the log, and the current
      * date is returned.
-     * 
+     *
      * @param dateString
      *            the date string to parse
      * @return The date
-     * 
+     *
      * @see #setCcmDateFormat(String)
      */
     private Date getDateFromSynergy(String dateString) {
@@ -800,13 +800,13 @@ public class CMSynergy implements SourceControl {
 
     /**
      * Given a CM Synergy session name, looks up the corresponding session ID.
-     * 
+     *
      * @param sessionName
      *            The CM Synergy session name
      * @param sessionFile
      *            The session map file
      * @return The session ID.
-     * 
+     *
      * @throws CruiseControlException
      */
     public static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
@@ -831,7 +831,7 @@ public class CMSynergy implements SourceControl {
     /**
      * Creates a <code>ManagedCommandline</code> configured to run CM Synergy
      * commands.
-     * 
+     *
      * @param ccmExe
      *            Full path of the CM Synergy command line client (or
      *            <code>null</code> to use the default).

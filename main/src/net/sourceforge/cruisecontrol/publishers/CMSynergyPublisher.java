@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 /**
  * Provides an abstract base class to handle the functionality common to all CM
  * Synergy publishers.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith </a>
  */
 public abstract class CMSynergyPublisher implements Publisher {
@@ -63,12 +63,12 @@ public abstract class CMSynergyPublisher implements Publisher {
      * and IDs.
      */
     private File sessionFile;
-    
+
     /**
      * The given name of the CM Synergy session to use.
      */
     private String sessionName;
-    
+
     /**
      * The CM Synergy project spec (2 part name) of the project we will
      * be referencing.
@@ -80,7 +80,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      * we will use the default value "ccm".
      */
     private String ccmExe;
-    
+
     /**
      * Sets the file which contains the mapping between CM Synergy session names
      * and IDs. This file should be in the standard properties file format. Each
@@ -90,92 +90,92 @@ public abstract class CMSynergyPublisher implements Publisher {
      * example:
      * <br><br>
      * session1=localhost:65024:192.168.1.17
-     * 
+     *
      * @param sessionFile
      *            The session file
      */
     public void setSessionFile(String sessionFile) {
         this.sessionFile = new File(sessionFile);
     }
-    
+
     /**
      * Returns the session file which maps CM Synergy session names to CM
      * Synergy session IDs.
-     * 
+     *
      * @return The session file.
      */
     public File getSessionFile() {
         return this.sessionFile;
     }
-    
+
     /**
      * Sets the name of the CM Synergy session to use with this plugin. This
      * name should appear in the specified session file.
-     * 
+     *
      * @param sessionName
      *            The session name
-     * 
+     *
      * @see #setSessionFile(String)
      */
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
     }
-    
+
     /**
      * Returns the name of the CM Synergy session used with this publisher.
-     * 
+     *
      * @return The CM Synergy session name.
      */
     public String getSessionName() {
         return this.sessionName;
     }
- 
+
     /**
      * Sets the CM Synergy project to be used with this publisher.
-     * 
+     *
      * @param projectSpec
      *            The project spec (in 2 part name format).
      */
     public void setProject(String projectSpec) {
         this.projectSpec = projectSpec;
-    }    
-    
+    }
+
     /**
      * Gets the CM Synergy project to be used with this publisher.
-     * 
+     *
      * @return The CM Synergy project (in 2 part name format), or
      *         <code>null</code> if it was not set.
      */
     public String getProject() {
         return this.projectSpec;
     }
-    
+
     /**
      * Sets the name of the CM Synergy executable to use when issuing
      * commands.
-     * 
+     *
      * @param ccmExe the name of the CM Synergy executable
      */
     public void setCcmExe(String ccmExe) {
         this.ccmExe = ccmExe;
     }
-    
+
     /**
      * Gets the full path of the ccm command line executable.
-     * 
+     *
      * @return The full path of the ccm command line executable, or
      *         <code>null</code> if it was not set.
      */
     public String getCcmExe() {
         return this.ccmExe;
     }
-    
+
     /**
      * Uses the log to determine if the build was successful.
-     * 
+     *
      * @param log
      *            The Cruise Control log (as a JDOM Element).
-     * 
+     *
      * @return <code>true</code> if the build was successful,
      *         <code>false</code> otherwise.
      */
@@ -183,17 +183,17 @@ public abstract class CMSynergyPublisher implements Publisher {
         XMLLogHelper helper = new XMLLogHelper(log);
         return helper.isBuildSuccessful();
     }
-    
+
     /**
      * Extracts the build properties from the Cruise Control log
-     * 
+     *
      * @param log The log
-     * 
+     *
      * @return The properties set within the current build.
      */
     public Properties getBuildProperties(Element log) {
         Properties buildProperties = new Properties();
-        
+
         Iterator propertyIterator = log.getChild("info")
                 .getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
@@ -202,16 +202,16 @@ public abstract class CMSynergyPublisher implements Publisher {
                     .getAttributeValue("value"));
 
         }
-        
+
         return buildProperties;
     }
-    
+
     /**
      * Extract a list of CM Synergy modifications from the Cruise Control log
-     * 
+     *
      * @param log
      *            The Cruise Control log (as a JDOM element).
-     * 
+     *
      * @return A <code>List</code> of new CM Synergy tasks
      */
     public List getNewTasks(Element log) {
@@ -236,10 +236,10 @@ public abstract class CMSynergyPublisher implements Publisher {
 
         return taskList;
     }
-    
+
     /**
      * Determines if the publish should take place.
-     * 
+     *
      * @param log
      *            The Cruise Control log (as a JDOM element).
      * @return true if the build was successful and new CM Synergy tasks were
@@ -258,7 +258,7 @@ public abstract class CMSynergyPublisher implements Publisher {
             LOG.info("No new CM Synergy tasks in build. Skipping publisher.");
             return false;
         }
-        
+
         return true;
     }
 }

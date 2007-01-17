@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -302,7 +302,7 @@ public class SVNTest extends TestCase {
         Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
-    
+
     public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
           throws ParseException, JDOMException, IOException {
         String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"

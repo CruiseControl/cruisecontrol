@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public interface ProjectMBean {
      *
      */
     public void buildWithTarget(String target);
-    
+
     /**
      * Serialize the project
      */
@@ -68,7 +68,7 @@ public interface ProjectMBean {
 
     /**
      * Is the project paused?
-     * 
+     *
      * @return Pause state
      */
     public boolean isPaused();
@@ -147,7 +147,7 @@ public interface ProjectMBean {
     public void setBuildInterval(long buildInterval);
 
     public long getBuildInterval();
-    
+
     /**
      * Gets the human-readable version of the project status
      */

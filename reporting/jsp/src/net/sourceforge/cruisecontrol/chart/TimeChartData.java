@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,11 +61,11 @@ import de.laures.cewolf.ChartPostProcessor;
 import de.laures.cewolf.DatasetProduceException;
 
 public class TimeChartData extends AbstractCruiseControlChartData implements ChartPostProcessor {
-    
+
     private static final long serialVersionUID = -5159867264828131088L;
 
     public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo"); 
+        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo");
         TimeSeries brokenSeries = new TimeSeries("Broken Builds", Minute.class);
         TimeSeries goodSeries = new TimeSeries("Good Builds", Minute.class);
         for (Iterator iter = summary.iterator(); iter.hasNext();) {
@@ -73,7 +73,7 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
             Date buildTime = buildInfo.getBuildDate();
             double timeValue = extractTimeOfDay(buildTime);
             Minute timePeriod = new Minute(buildTime);
-            TimeSeries seriesToAddTo = buildInfo.isSuccessful() ? goodSeries 
+            TimeSeries seriesToAddTo = buildInfo.isSuccessful() ? goodSeries
                                                                 : brokenSeries;
             if (seriesToAddTo.getDataPair(timePeriod) == null) {
                 seriesToAddTo.add(timePeriod, timeValue);
@@ -104,7 +104,7 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
     public String getProducerId() {
         return "TimeChartData DatasetProducer";
     }
-    
+
 
     /**
      * @see ChartPostProcessor#processChart(Object, Map)

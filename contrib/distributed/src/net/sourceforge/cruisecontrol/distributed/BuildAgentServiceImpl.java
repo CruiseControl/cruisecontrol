@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import javax.jnlp.UnavailableServiceException;
 
 /**
  * Build Agent implementation.
- */ 
+ */
 public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentServiceImpl.class);
@@ -94,7 +94,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     /** Cache host name. */
     private final String machineName;
-    
+
     private final Date dateStarted;
     private boolean isBusy;
     private Date dateClaimed;
@@ -103,7 +103,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private boolean isPendingRestart;
     private Date pendingRestartSince;
 
-    private Properties configProperties;    
+    private Properties configProperties;
     private final Map distributedAgentProps = new HashMap();
     private String logDir;
     private String outputDir;
@@ -116,13 +116,13 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private final String logMsgPrefix;
     /**
      * Prepends Agent machine name to error message. This is especially
-     * useful when combined with an "email logger" config for Log4j using a modified 
+     * useful when combined with an "email logger" config for Log4j using a modified
      * log4j.properties on build agents. For example:
-     * <pre>                                          
+     * <pre>
      * log4j.rootCategory=INFO,A1,FILE,Mail
-     * 
+     *
      * ...
-     * 
+     *
      * # Mail is set to be a SMTPAppender
      * log4j.appender.Mail=org.apache.log4j.net.SMTPAppender
      * log4j.appender.Mail.BufferSize=100
@@ -134,9 +134,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
      * log4j.appender.Mail.layout.ConversionPattern=%d{dd.MM.yyyy HH:mm:ss} %-5p [%x] [%c{3}] %m%n
      *
      * </pre>
-     * 
+     *
      * @param message  the message to log (will be prefixed with machineName).
-     */ 
+     */
     private void logPrefixDebug(final Object message) {
         LOG.debug(logMsgPrefix + message);
     }
@@ -149,12 +149,12 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private void logPrefixError(final Object message, final Throwable throwable) {
         LOG.error(logMsgPrefix + message, throwable);
     }
-    
-    
+
+
     /** Constructor. */
     public BuildAgentServiceImpl() {
         dateStarted = new Date();
-        
+
         try {
             machineName = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -163,7 +163,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
-        }        
+        }
         logMsgPrefix = "Agent Host: " + machineName + "; ";
     }
 
@@ -268,7 +268,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
             // clear out distributed build agent props
             distributedAgentProps.clear();
-            
+
             dateClaimed = null;
         } else {
             dateClaimed = new Date();
@@ -283,7 +283,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         logPrefixInfo("agent busy status changed to: " + newIsBusy);
     }
 
-    public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap, 
+    public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap,
                            final Map distributedAgentProperties) throws RemoteException {
 
         synchronized (busyLock) {
@@ -306,7 +306,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
             logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
             distributedAgentProps.putAll(distributedAgentProperties);
-            
+
             final String infoMessage = "Building module: " + getModule()
                     + "\n\tAgentLogDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
@@ -317,8 +317,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             System.out.println(infoMessage);
             logPrefixInfo(infoMessage);
 
-            logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());                      
-            
+            logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());
+
             // this is done only to update agent UI info regarding Module - which isn't available
             // until projectPropertiesMap has been set.
             fireAgentStatusChanged();
@@ -363,7 +363,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
                 getAgentPropertiesFilename());
 
-        final String overrideTarget 
+        final String overrideTarget
                 = (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
         final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
 
@@ -374,7 +374,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     /**
-     * Zip any build artifacts found in the logDir and/or outputDir. 
+     * Zip any build artifacts found in the logDir and/or outputDir.
      */
     void prepareLogsAndArtifacts() {
         final String buildDirProperty = configProperties.getProperty(CRUISE_BUILD_DIR);
@@ -484,13 +484,13 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     static boolean recursiveFilesExist(final File fileToCheck) {
-        
+
         if (!fileToCheck.exists()) { // save time, if it's doesn't exist at all
-            return false;            
+            return false;
         } else if (fileToCheck.isFile()) { // save time, if it's a file
             return true;
         }
-        
+
         final File[] dirs = fileToCheck.listFiles();
         for (int i = 0; i < dirs.length; i++) {
             if (recursiveFilesExist(dirs[i])) {
@@ -499,7 +499,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         }
         return false;
     }
-    
+
     public byte[] retrieveResultsAsZip(final String resultsType) throws RemoteException {
 
         final String zipFilePath = buildRootDir + File.separator + resultsType + ".zip";
@@ -522,7 +522,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 logPrefixDebug("Deleting contents of " + logDir);
                 IO.delete(new File(logDir));
             } else {
-                logPrefixDebug("Skip delete agent logDir: " + logDir);                
+                logPrefixDebug("Skip delete agent logDir: " + logDir);
             }
             if (logsFilePath != null) {
                 logPrefixDebug("Deleting log zip " + logsFilePath);
@@ -535,7 +535,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 logPrefixDebug("Deleting contents of " + outputDir);
                 IO.delete(new File(outputDir));
             } else {
-                logPrefixDebug("Skip delete agent outputDir: " + outputDir);                
+                logPrefixDebug("Skip delete agent outputDir: " + outputDir);
             }
             if (outputFilePath != null) {
                 logPrefixDebug("Deleting output zip " + outputFilePath);
@@ -543,9 +543,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             } else {
                 logPrefixError("Skipping delete of output zip, file path is null.");
             }
-            
+
             setBusy(false);
-            
+
         } catch (RuntimeException e) {
             logPrefixError("Error cleaning agent build files.", e);
             throw e;
@@ -629,12 +629,12 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         if (!afterBuildFinished // Restart now, don't waiting for build to finish.
                 || !isBusy()) { // Not busy, so Restart now.
-            
+
             doRestart();
         } else if (isBusy()) {
             // do nothing. When claim is released, setBusy(false) will perform the Restart
         }
-        fireAgentStatusChanged();        
+        fireAgentStatusChanged();
     }
 
     public String asString() {

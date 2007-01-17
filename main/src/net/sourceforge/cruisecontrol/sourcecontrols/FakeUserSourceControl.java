@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,21 +46,21 @@ import net.sourceforge.cruisecontrol.SourceControl;
 /**
  * Abstract superclass for SourceControls that use a static user
  * for all Modifications reported.
- * 
+ *
  * @author <a href="mailto:joriskuipers@xs4all.nl">Joris Kuipers</a>
  */
 public abstract class FakeUserSourceControl implements SourceControl {
 
     private String userName = "User";
-    
+
     public String getUserName() {
         return userName;
     }
-    
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    
+
     /**
      * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
      */
@@ -70,7 +70,7 @@ public abstract class FakeUserSourceControl implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
     public abstract void validate() throws CruiseControlException;
-    
+
     /**
      * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
      */

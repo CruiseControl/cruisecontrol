@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class CruiseControlConfig {
     public static final String LABEL_INCREMENTER = "labelincrementer";
 
     public static final boolean FAIL_UPON_MISSING_PROPERTY = false;
-    
+
     private static final Set KNOWN_ROOT_CHILD_NAMES = new HashSet();
     static {
         KNOWN_ROOT_CHILD_NAMES.add("include.projects");
@@ -86,9 +86,9 @@ public class CruiseControlConfig {
     public CruiseControlConfig(Element ccElement) throws CruiseControlException {
         this(ccElement, (XmlResolver) null);
     }
-    
+
     public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver) throws CruiseControlException {
-        this.xmlResolver = xmlResolver;        
+        this.xmlResolver = xmlResolver;
         parse(ccElement);
     }
 
@@ -96,14 +96,14 @@ public class CruiseControlConfig {
         // parse properties and plugins first, so their order in the config file doesn't matter
         for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext(); ) {
             handleRootProperty((Element) i.next());
-        } 
+        }
         for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext(); ) {
             handleRootPlugin((Element) i.next());
         }
         for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext(); ) {
             handleIncludedProjects((Element) i.next());
         }
-        
+
         // other childNodes must be projects or the <system> node
         for (Iterator i = ccElement.getChildren().iterator(); i.hasNext(); ) {
             Element childElement = (Element) i.next();
@@ -120,7 +120,7 @@ public class CruiseControlConfig {
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap(parent.rootProperties);
         templatePluginProperties = new HashMap(parent.templatePluginProperties);
-        
+
         parse(includedElement);
     }
 
@@ -276,7 +276,7 @@ public class CruiseControlConfig {
                     LOG.error("Error instantiating label incrementer named "
                         + labelIncrClass.getName()
                         + "in project "
-                        + projectName 
+                        + projectName
                         + ". Using DefaultLabelIncrementer instead.",
                         e);
                     labelIncrementer = new DefaultLabelIncrementer();

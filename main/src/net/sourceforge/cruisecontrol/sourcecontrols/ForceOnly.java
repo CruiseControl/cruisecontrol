@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,12 +46,12 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 
 /**
- * 
+ *
  * Used to define a project that only builds when forced through the JMX interface,
- * since no Modifications are ever returned. 
- * If you also want the modifications between two forced builds to be reported, 
- * you'll have to use another solution (using Compound, for instance). 
- * 
+ * since no Modifications are ever returned.
+ * If you also want the modifications between two forced builds to be reported,
+ * you'll have to use another solution (using Compound, for instance).
+ *
  * @author <a href="mailto:joriskuipers@xs4all.nl">Joris Kuipers</a>
  *
  */

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,7 +142,7 @@ public class VssTest extends TestCase {
     /**
      * Some people are seeing strange date outputs from their VSS history that looks like this: User: Aaggarwa Date:
      * 6/29/:1 Time: 3:40p Note the ":" rather than a "0"
-     * 
+     *
      * @throws ParseException
      */
     public void testParseDateStrangeDate() throws ParseException {
@@ -440,7 +440,7 @@ public class VssTest extends TestCase {
 
     /**
      * Produces a VSS line that looks something like this: User: Username Date: 6/14/01 Time: 6:39p
-     * 
+     *
      * @param testName
      *            Replaces the Username in above example
      */

@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 
 public class ZipUtilTest extends TestCase {
-    
+
     private static final Logger LOG = Logger.getLogger(ZipUtilTest.class);
     private static final String TEMP_FILE = "data.txt";
     private String rootTempDirPath;
@@ -196,7 +196,7 @@ public class ZipUtilTest extends TestCase {
      * property in cruise.properties file to cruise-log.zip file in system
      * default temp file location (i.e. C:\Documents and Settings\ <user>\Local
      * Settings\Temp on Windows XP) then unzips files into same temp directory.
-     * 
+     *
      * *WARNING* Could be a large bit of data--you might plan to manually delete
      * the results...
      * @param args not used

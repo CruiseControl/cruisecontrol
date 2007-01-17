@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -208,7 +208,7 @@ public class PVCS implements SourceControl {
 
     /**
      *  Returns the command to be ran to check for repository changes
-     *  run -ns -q -xo"vlog.txt" -xe"vlog.txt" vlog -id"SomeUser" 
+     *  run -ns -q -xo"vlog.txt" -xe"vlog.txt" vlog -id"SomeUser"
      *  -ds"11/23/2004 8:00AM"-de"11/23/2004 1:00PM" -pr"C:/PVCS-Repos/TestProject"
      *  -v"Test Version Label" -z /TestProject
      *
@@ -223,7 +223,7 @@ public class PVCS implements SourceControl {
         command.createArgument("-xo" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE);
         command.createArgument("-xe" + DOUBLE_QUOTE + PVCS_RESULTS_FILE + DOUBLE_QUOTE);
         command.createArgument("vlog");
-        
+
         if (loginId != null && !loginId.trim().equals("")) {
             command.createArgument("-id" + DOUBLE_QUOTE + loginId + DOUBLE_QUOTE);
         }

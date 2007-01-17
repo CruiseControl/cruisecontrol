@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public final class ReggieUtil {
     /**
      * converts an entries search string into a list of entries. An example
      * entries search string: "hostname=gandalf;os.name=Windows XP"
-     * 
+     *
      * @param searchString this semicolon delimited list of search entries
      * @return entriesList an array of entry objects
      */
@@ -72,7 +72,7 @@ public final class ReggieUtil {
         }
 
         LOG.debug("Entry List: " + entriesList);
-        
+
         final Entry[] arrEntries;
         if (entriesList.size() == 0) {
             arrEntries = null;

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -142,7 +142,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
      * The default is based on the client's locale with a 24 hour time. For a
      * client with a US locale that would be MM/dd/yyyy HH:mm:ss.
      *
-     * @param dateFormatString The date format to use. Any format appropriate for the 
+     * @param dateFormatString The date format to use. Any format appropriate for the
      *                         {@link SimpleDateFormat} is okay to use.
      * @see SimpleDateFormat
      */

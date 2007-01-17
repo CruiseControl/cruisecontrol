@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,35 +50,35 @@ import org.jdom.Element;
 /**
  * After a successful build, this class copies newly checked in tasks to a given
  * CM Synergy folder.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith </a>
  */
 public class CMSynergyTaskPublisher extends CMSynergyPublisher {
-    
+
     private static final Logger LOG = Logger.getLogger(CMSynergyTaskPublisher.class);
     private String folderNumber;
     private String folderName;
 
     /**
-     * Sets the name (or a substring of the name) of the folder which will 
+     * Sets the name (or a substring of the name) of the folder which will
      * recieve the new tasks. This folder must exist within the reconfigure
      * properties of the given project.
-     * 
+     *
      * @param folderName The folder name
      */
     public void setFolderName(String folderName) {
         this.folderName = folderName;
     }
-    
+
     /**
      * The number of the folder which will receive the new tasks.
-     * 
+     *
      * @param folderNumber The folder number
      */
     public void setFolderNumber(String folderNumber) {
         this.folderNumber = folderNumber;
     }
-    
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
@@ -88,7 +88,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         if (!shouldPublish(log)) {
             return;
         }
-        
+
         // If need be, look up the folder number
         if (folderNumber == null) {
             folderNumber = getFolderNumber(folderName, getProject());
@@ -104,7 +104,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
             }
             tasks.append(newTasks.next());
         }
-        
+
         LOG.info("Copying " + newTasksList.size() + " task(s) into folder "
                 + folderNumber + ".");
 
@@ -124,10 +124,10 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
                     "Failed to copy new tasks to folder " + folderNumber, e);
         }
     }
-    
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.sourceforge.cruisecontrol.Publisher#validate()
      */
     public void validate() throws CruiseControlException {
@@ -137,19 +137,19 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         ValidationHelper.assertFalse(folderName != null && getProject() == null,
             "'project' attribute must be set when using the 'folderName' attribute.");
     }
-    
+
     /**
      * Get the CM synergy folder number matching the folder with the given name
      * in the given project.
-     * 
+     *
      * @param folderName
      *            A case sensitive substring of the folder name.
      * @param project
      *            The CM Synergy project in which the folder exists (in 2 part
      *            name format).
-     * 
+     *
      * @return The folder number.
-     * 
+     *
      * @throws CruiseControlException
      *             if the folder number can not be found.
      */

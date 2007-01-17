@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public class MavenBuilderTest extends TestCase {
         MavenBuilder mb = new MavenBuilder();
         internalTestBuild(MOCK_BUILD_FAILURE, mb);
     }
-    
+
     public void testBuild_DownloadFailure() throws IOException {
         MavenBuilder mb = new MavenBuilder();
         internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
@@ -135,7 +135,7 @@ public class MavenBuilderTest extends TestCase {
      * @param statusType The exit status to be tested
      */
     private void internalTestBuild(String statusType, MavenBuilder mb) throws IOException {
-        
+
         File testScript = null;
         boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
         String statusText = getStatusText(statusType);
@@ -291,7 +291,7 @@ public class MavenBuilderTest extends TestCase {
     }
     public void testBuildTimeout() throws Exception {
 
-        MavenBuilder builder = new MavenBuilder();      
+        MavenBuilder builder = new MavenBuilder();
         builder.setTimeout(5);
         long startTime = System.currentTimeMillis();
 
@@ -300,7 +300,7 @@ public class MavenBuilderTest extends TestCase {
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
        // assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
-       
+
     }
 
     /**

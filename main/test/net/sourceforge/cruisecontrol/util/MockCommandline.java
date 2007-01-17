@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ public class MockCommandline extends Commandline {
     }
 
     public void ensureCommandline() {
-        if (!Arrays.equals(expectedCommandline, getCommandline())) { 
+        if (!Arrays.equals(expectedCommandline, getCommandline())) {
             Assert.fail("Command line error expected: "
                 + buildString(expectedCommandline) + " - got: " + buildString(getCommandline()));
         }
@@ -178,7 +178,7 @@ public class MockCommandline extends Commandline {
         }
         return sb.toString();
     }
-    
+
     /**
      * Fakes the execution of the command.
      * Checks that the command line and the working directory are correctly set / computed.

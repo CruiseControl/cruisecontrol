@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -381,7 +381,7 @@ public class Commandline implements Cloneable {
     }
 
     public static String toString(String[] line, boolean quote) {
-        return toString(line, quote, " "); 
+        return toString(line, quote, " ");
     }
 
     public static String toString(String[] line, boolean quote, String separator) {
@@ -530,7 +530,7 @@ public class Commandline implements Cloneable {
         this.workingDir = workingDir;
     }
 
-    // throws an exception if the specified working directory is non null 
+    // throws an exception if the specified working directory is non null
     // and not a valid working directory
     private void checkWorkingDir(File dir) throws CruiseControlException {
         if (dir != null) {
@@ -562,7 +562,7 @@ public class Commandline implements Cloneable {
             process = Runtime.getRuntime().exec(getCommandline());
         } else {
             LOG.debug(msgCommandInfo
-                    + " in directory " 
+                    + " in directory "
                     + workingDir.getAbsolutePath());
             process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
         }

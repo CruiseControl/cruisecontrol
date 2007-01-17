@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,8 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
     public String getConfigFileContents() {
 
         File theConfigFile = controller.getConfigFile();
-        
-        // guard clause 
+
+        // guard clause
         if (theConfigFile == null) {
             return "";
         }
@@ -130,18 +130,18 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
 
         return theResults.toString();
     }
-    
+
     public void setConfigFileContents(String contents) throws CruiseControlException {
-        
+
         File theConfigFile = controller.getConfigFile();
 
         // guard clause if config file not set
         if (theConfigFile == null) {
             return;
         }
-       
+
         validateConfig(contents);
-        
+
         try {
             // ensure the file exists
             theConfigFile.mkdirs();
@@ -154,15 +154,15 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
             LOG.error("Error storing config file for JMX", ioe);
         }
     }
-    
+
     public void validateConfig(String contents) throws CruiseControlException {
 
         InputStream in = new ByteArrayInputStream(contents.getBytes());
         Element config = Util.loadRootElement(in);
-        
+
         new CruiseControlConfig(config);
     }
-    
+
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {
         try {
             controller.setConfigFile(fileName != null ? new File(fileName) : null);
@@ -182,11 +182,11 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
     public List getIdleTasks() {
         return ThreadQueue.getIdleTaskNames();
     }
-   
+
     public PluginDetail[] getAvailableBootstrappers() {
         return controller.getAvailableBootstrappers();
     }
-    
+
     public PluginDetail[] getAvailablePublishers() {
         return controller.getAvailablePublishers();
     }
@@ -194,19 +194,19 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
     public PluginDetail[] getAvailableSourceControls() {
         return controller.getAvailableSourceControls();
     }
-    
+
     public PluginDetail[] getAvailablePlugins() {
         return controller.getAvailablePlugins();
     }
-    
+
     public PluginType[] getAvailablePluginTypes() {
         return controller.getAvailablePluginTypes();
     }
-    
+
     public PluginRegistry getPluginRegistry() {
         return controller.getPluginRegistry();
     }
-    
+
     public void resume() {
         controller.resume();
     }
@@ -214,7 +214,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
     public void pause() {
         controller.pause();
     }
-    
+
     public void reloadConfigFile() {
         controller.reloadConfigFile();
     }
@@ -268,8 +268,8 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
         notifyChanged("projectRemoved", name);
     }
-    
-    
+
+
     /**
      * Send a JMX notification that the list of projects has changed.
      * This only needs to be done when the project list changes, not
@@ -286,8 +286,8 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         sendNotification(notification);
         LOG.debug("Sent " + event + " event.");
     }
-    
-    
+
+
     private int nextSequence() {
         synchronized (SEQUENCE_LOCK) {
             return ++sequence;

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ public class MockModificationSet extends ModificationSet {
     private Element modifications = new Element("modifications");
     private boolean modified = true;
     private Date time = null;
-    
+
     public Element getModifications(Date lastBuild) {
         modCheckCount++;
         return modifications;
@@ -55,7 +55,7 @@ public class MockModificationSet extends ModificationSet {
     public boolean isModified() {
         return modified;
     }
-    
+
     public void setModified(boolean isModified) {
         modified = isModified;
     }
@@ -66,15 +66,15 @@ public class MockModificationSet extends ModificationSet {
         table.put("fileremoved", "true");
         return table;
     }
-    
+
     public Date getTimeOfCheck() {
         return time;
     }
-    
+
     public void setTimeOfCheck(Date timeOfCheck) {
         time = timeOfCheck;
     }
-    
+
     public int getModCheckCount() {
         return modCheckCount;
     }

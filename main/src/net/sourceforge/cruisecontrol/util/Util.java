@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public final class Util {
                     e);
         }
     }
-    
+
     public static Element loadRootElement(InputStream in) throws CruiseControlException {
         try {
             SAXBuilder builder = new SAXBuilder();
@@ -92,7 +92,7 @@ public final class Util {
      * Loads a set of properties from the specified properties file. The file
      * must exist and be in the proper format. If not, a
      * <code>CruiseControlException</code> is thrown.
-     * 
+     *
      * @param file
      *            The <code>File</code> from which to load the properties
      * @return A <code>Properties</code> object which contains all properties
@@ -120,11 +120,11 @@ public final class Util {
 
         return properties;
     }
-    
+
     /**
      * Stores the contents of a <code>Properties</code> object to the specifed
      * file. If the file does not exist, it will be created (if possible).
-     * 
+     *
      * @param properties
      *            The <code>Properties</code> object which will be stored to
      *            file
@@ -133,7 +133,7 @@ public final class Util {
      *            properties file as a comment. Can be <code>null</code>.
      * @param file
      *            The properties file to which the properties will be written.
-     * 
+     *
      * @throws CruiseControlException
      * @throws IOException
      */

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,12 +45,12 @@ import junit.framework.TestCase;
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
 public class DateHelperTest extends TestCase {
-    
+
     /** Create a formatter for US */
     public void testCreateUsDateFormatter() {
         String expectedPattern = "MM/dd/yyyy HH:mm:ss";
         String actualPattern = DateHelper.createDateFormat(Locale.US).toPattern();
-        
+
         assertEquals(expectedPattern, actualPattern);
     }
 
@@ -58,7 +58,7 @@ public class DateHelperTest extends TestCase {
     public void testCreateUkDateFormatter() {
         String expectedPattern = "dd/MM/yyyy HH:mm:ss";
         String actualPattern = DateHelper.createDateFormat(Locale.UK).toPattern();
-        
+
         assertEquals(expectedPattern, actualPattern);
     }
 
@@ -66,7 +66,7 @@ public class DateHelperTest extends TestCase {
     public void testCreateOtherDateFormatter() {
         String expectedPattern = "yyyy/MM/dd HH:mm:ss";
         String actualPattern = DateHelper.createDateFormat(Locale.CANADA_FRENCH).toPattern();
-        
+
         assertEquals(expectedPattern, actualPattern);
     }
 }

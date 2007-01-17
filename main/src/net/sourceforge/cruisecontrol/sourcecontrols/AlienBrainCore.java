@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.io.IOException;
 /**
  * This class implements the SourceControl methods for an AlienBrain
  * repository.  It does this by taking advantage of the AlienBrain command-
- * line utility.  Obviously, the command line utility  must be installed 
+ * line utility.  Obviously, the command line utility  must be installed
  * and working in order for this class to work.
  *
  * This class is based very heavily on P4.java.
@@ -55,11 +55,11 @@ import java.io.IOException;
  * @author <a href="mailto:scottj+cc@escherichia.net">Scott Jacobs</a>
  */
 public class AlienBrainCore {
-    
+
     private static final Logger LOG = Logger.getLogger(AlienBrainCore.class);
-    
+
     protected static final String AB_NO_SESSION = "Invalid session please logon!";
-    
+
     private String server;
     private String database;
     private String user;
@@ -71,7 +71,7 @@ public class AlienBrainCore {
      * Sets the hostname of the server hosting the AlienBrain repository.
      *
      *@param server The AlienBrain server's hostname.
-     */    
+     */
     public void setServer(String server) {
         this.server = server;
     }
@@ -79,73 +79,73 @@ public class AlienBrainCore {
     public String getServer() {
         return server;
     }
-    
+
     /**
      * Sets the name of the project database.
      *
      *@param database The name of the project database.
-     */    
+     */
     public void setDatabase(String database) {
         this.database = database;
     }
-    
+
     public String getDatabase() {
         return database;
     }
-    
+
     /**
      * Sets the name of the AlienBrain user account used to connect.
      *
      *@param user The name of the AlienBrin user account.
-     */    
+     */
     public void setUser(String user) {
         this.user = user;
     }
-    
+
     public String getUser() {
         return user;
     }
-    
+
     /**
      * Sets the password of the AlienBrain user account used to connect.
      *
      *@param password The password of the AlienBrin user account.
-     */    
+     */
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
     public String getPassword() {
         return password;
     }
-    
+
     /**
      * Sets the path to the project within the AlienBrain repository.
      *
-     * @param path The path within the project database to check for 
+     * @param path The path within the project database to check for
      * modifications.  Typically something like alienbrain://path/to/project
-     */    
+     */
     public void setPath(String path) {
         this.path = path;
     }
-    
+
     public String getPath() {
         return path;
     }
-    
+
     /**
      * Sets the path to the project within the AlienBrain repository.
      *
      *@param branch The branch within the AlienBrain project.
-     */    
+     */
     public void setBranch(String branch) {
         this.branch = branch;
     }
-  
+
     public String getBranch() {
         return branch;
     }
-  
+
     /**
      * Try to add a flag to a Commandline
      *
@@ -187,12 +187,12 @@ public class AlienBrainCore {
         return cmdLine;
     }
 
-    
+
     /**
      * Sets the active branch to the provided branch name.
      *
      *@param branch The branch name.
-     * @throws CruiseControlException 
+     * @throws CruiseControlException
      */
     protected void setActiveBranch(String branch) throws IOException, CruiseControlException {
         ManagedCommandline cmdLine = buildCommonCommand();
@@ -200,5 +200,5 @@ public class AlienBrainCore {
         LOG.debug("Executing: " + cmdLine.toString());
         cmdLine.execute();
         cmdLine.assertExitCode(0);
-    }        
+    }
 }

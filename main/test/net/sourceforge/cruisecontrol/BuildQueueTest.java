@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,14 +54,14 @@ public class BuildQueueTest extends TestCase {
         queue.requestBuild(new ProjectConfig());
         assertTrue(listener.wasBuildRequested());
     }
-    
+
     public void testListenerExceptionShouldNotLeakOut() {
         Listener listener = new Listener() {
             public void buildRequested() {
                 throw new RuntimeException("project before queued exception");
             }
         };
-        
+
         queue.addListener(listener);
         queue.requestBuild(new ProjectConfig());
     }

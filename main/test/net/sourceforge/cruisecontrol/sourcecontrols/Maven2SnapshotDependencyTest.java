@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -172,7 +172,7 @@ public class Maven2SnapshotDependencyTest extends TestCase {
 
 /*
     this test is not jre 1.3 compatible because it invokes the MavenEmbedder.
-    mocking that connection would allow the test to run under 1.3 and also 
+    mocking that connection would allow the test to run under 1.3 and also
     make the test much faster.  (current ~7 seconds)
 
     public void testGetPomXml() throws Exception {
@@ -180,7 +180,7 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         dep.setPomFile(TEST_PROJECT_XML);
          //@todo Fix when maven embedder honors alignWithUserInstallation
         //dep.setLocalRepository(TEST_REPOSITORY);
-        
+
 
         Maven2SnapshotDependency.ArtifactInfo[] artifactInfos = dep.getSnapshotInfos();
         assertEquals("Filename list is not the correct size", 2, artifactInfos.length);
@@ -189,12 +189,12 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         // assertEquals("Unexpected filename",
         //        new File(TEST_REPOSITORY + "/ccdeptest/cc-maven-test/1.0-SNAPSHOT/cc-maven-test-1.0-SNAPSHOT.jar"),
         //        artifactInfos[0].getLocalRepoFile());
-        
+
         assertTrue("Unexpected filename [" + artifactInfos[0].getLocalRepoFile().getAbsolutePath() + "]",
                 artifactInfos[0].getLocalRepoFile().getAbsolutePath().endsWith(
-                        File.separatorChar + "ccdeptest" 
-                        + File.separatorChar + "cc-maven-test" 
-                        + File.separatorChar + "1.0-SNAPSHOT" 
+                        File.separatorChar + "ccdeptest"
+                        + File.separatorChar + "cc-maven-test"
+                        + File.separatorChar + "1.0-SNAPSHOT"
                         + File.separatorChar + "cc-maven-test-1.0-SNAPSHOT.jar"
                 ));
 
@@ -206,12 +206,12 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         //assertEquals("Unexpected filename",
         //        new File(TEST_REPOSITORY + "/ccdeptest/maven/1.0-SNAPSHOT/maven-1.0-SNAPSHOT-source.jar"),
         //        artifactInfos[1].getLocalRepoFile());
-        
+
         assertTrue("Unexpected filename [" + artifactInfos[1].getLocalRepoFile().getAbsolutePath() + "]",
                 artifactInfos[1].getLocalRepoFile().getAbsolutePath().endsWith(
-                        File.separatorChar + "ccdeptest" 
-                        + File.separatorChar + "maven" 
-                        + File.separatorChar + "1.0-SNAPSHOT" 
+                        File.separatorChar + "ccdeptest"
+                        + File.separatorChar + "maven"
+                        + File.separatorChar + "1.0-SNAPSHOT"
                         + File.separatorChar + "maven-1.0-SNAPSHOT-source.jar"
                 ));
 
@@ -220,17 +220,17 @@ public class Maven2SnapshotDependencyTest extends TestCase {
     }
 */
 
-/*  
+/*
 
-    This test is too slow (~55 second). Need tests that don't require going over the network. 
- 
+    This test is too slow (~55 second). Need tests that don't require going over the network.
+
     public void testGetModifications() throws Exception {
 
         dep.setPomFile(TEST_PROJECT_XML);
-        
+
         //@todo Fix when maven embedder honors alignWithUserInstallation
         // dep.setLocalRepository(TEST_REPOSITORY);
-        
+
         Date epoch = new Date(0);
         Date now = new Date();
         List modifications = dep.getModifications(epoch, now);
@@ -246,6 +246,6 @@ public class Maven2SnapshotDependencyTest extends TestCase {
                         + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "maven", mod.comment);
     }
 */
-    
+
     // @todo Add support/test of transitive dependencies with snapshots
 }

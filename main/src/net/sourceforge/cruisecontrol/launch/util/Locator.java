@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -252,19 +252,19 @@ public final class Locator {
          throws MalformedURLException {
         return getLocationURLs(location, new String[]{".jar"});
     }
-    
+
     /**
      * Get an array of URLs representing all of the files of a given set of
      * extensions in the given location. If the location is a file, it is
      * returned as the only element of the array. If the location is a
      * directory, it is scanned for matching files.
-     * 
+     *
      * @param location
      *            the location to scan for files.
      * @param extensions
      *            an array of extension that are to match in the directory
      *            search.
-     * 
+     *
      * @return an array of URLs of matching files.
      * @exception MalformedURLException
      *                if the URLs for the files cannot be formed.
@@ -272,7 +272,7 @@ public final class Locator {
     public static URL[] getLocationURLs(File location,
                                         final String[] extensions)
          throws MalformedURLException {
-        
+
         URL[] urls = new URL[0];
 
         if (!location.exists()) {

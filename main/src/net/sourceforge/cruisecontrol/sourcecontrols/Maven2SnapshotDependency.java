@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -187,7 +187,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
         newMod.modifiedTime = new Date(dependency.lastModified());
         newMod.comment = comment;
         modifications.add(newMod);
-        
+
         properties.modificationFound();
     }
 
@@ -222,7 +222,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
         public String toString() {
             return artifact + "," + artifactType + ","
                     + (localRepoFile != null ? localRepoFile.getAbsolutePath() : null);
-        } 
+        }
     }
 
 
@@ -371,7 +371,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
                 }
             }
         }
-    } 
+    }
 
     private static MavenProject getProjectWithDependencies(MavenEmbedder embedder, File pomFile) {
         // With readProjectWithDependencies(), local repo dependencies (+transitive) will be updated if possible
@@ -430,7 +430,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
         Artifact artifact;
         for (Iterator i = artifacts.iterator(); i.hasNext(); ) {
             artifact = (Artifact) i.next();
-            LOG.debug("Examining artifact: " + artifact); 
+            LOG.debug("Examining artifact: " + artifact);
             if (artifact.isSnapshot()) {
                 retVal.add(artifact);
             }
@@ -471,7 +471,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
         Artifact artifact;
         for (Iterator i = snapshotArtifacts.iterator(); i.hasNext();) {
             artifact = (Artifact) i.next();
-            LOG.debug("Manually examining artifact: " + artifact); 
+            LOG.debug("Manually examining artifact: " + artifact);
             resolveArtifact(embedder, artifact, mavenProject, localRepo);
         }
 

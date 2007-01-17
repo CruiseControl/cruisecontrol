@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,17 +99,17 @@ public class CruiseControlControllerTest extends TestCase {
             assertEquals("Config file not found: " + configFile.getAbsolutePath(), expected.getMessage());
         }
     }
-    
+
     public void testSetFileFailsIfPassedDirectory() throws IOException {
         File tempFile = File.createTempFile("temp", ".file");
         tempFile.deleteOnExit();
-        
+
         try {
             ccController.setConfigFile(tempFile.getParentFile());
             fail("Config file can't be directory");
         } catch (CruiseControlException expected) {
-            assertEquals("Config file not found: " 
-                    + tempFile.getParentFile().getAbsolutePath(), expected.getMessage());            
+            assertEquals("Config file not found: "
+                    + tempFile.getParentFile().getAbsolutePath(), expected.getMessage());
         }
     }
 
@@ -365,7 +365,7 @@ public class CruiseControlControllerTest extends TestCase {
 
         assertTrue(ccController.parseConfigFileIfNecessary());
         ProjectConfig modifiedProject = (ProjectConfig) ccController.getProjects().get(0);
-        
+
         assertEquals(30 * 1000, originalProject.getSchedule().getInterval());
         assertEquals(60 * 1000, modifiedProject.getSchedule().getInterval());
         assertEquals(60 * 1000, modifiedProject.getProject().getBuildInterval());

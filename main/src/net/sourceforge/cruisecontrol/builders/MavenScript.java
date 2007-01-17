@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,9 +59,9 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  */
 public class MavenScript implements Script, StreamConsumer {
     private static final Logger LOG = Logger.getLogger(MavenScript.class);
-    
-    private Map buildProperties;    
-    private String goalset;    
+
+    private Map buildProperties;
+    private String goalset;
     private String mavenScript;
     private String projectFile;
     private int exitCode;
@@ -159,7 +159,7 @@ public class MavenScript implements Script, StreamConsumer {
             }
         }
     }
-    
+
     private Element makeNewCurrentElement(String cTask) {
         if (buildLogElement == null) {
             return null;
@@ -195,9 +195,9 @@ public class MavenScript implements Script, StreamConsumer {
             }
             currentElement = null;
         }
-    }    
+    }
 
-    
+
     /**
      * @param buildProperties The buildProperties to set.
      */

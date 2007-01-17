@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class Log {
 
     public static final int BEFORE_LENGTH = "logYYYYMMDDhhmmssL".length();
     private static final int AFTER_LENGTH  = ".xml".length();
-   
+
     private transient String logDir;
     private transient String logXmlEncoding;
     private transient File lastLogFile;
@@ -116,7 +116,7 @@ public class Log {
             BuildLogger logger = (BuildLogger) i.next();
             logger.validate();
         }
-        
+
         for (Iterator i = manipulators.iterator(); i.hasNext();) {
             Manipulator manipulator = (Manipulator) i.next();
             manipulator.validate();
@@ -137,7 +137,7 @@ public class Log {
     public void add(Manipulator manipulator) {
         manipulators.add(manipulator);
     }
-    
+
     public BuildLogger[] getLoggers() {
         return (BuildLogger[]) loggers.toArray(new BuildLogger[loggers.size()]);
     }
@@ -266,7 +266,7 @@ public class Log {
         } finally {
             IO.close(logStream);
         }
-        
+
         callManipulators();
     }
 

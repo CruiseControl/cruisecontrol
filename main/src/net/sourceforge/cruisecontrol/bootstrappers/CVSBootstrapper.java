@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ public class CVSBootstrapper implements Bootstrapper {
 
     /**
      *  Update the specified file.
-     * @throws CruiseControlException 
+     * @throws CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
         try {
@@ -122,7 +122,7 @@ public class CVSBootstrapper implements Bootstrapper {
 
         if (localWorkingCopy != null) {
             commandLine.setWorkingDirectory(localWorkingCopy);
-        }        
+        }
 
         commandLine.setExecutable("cvs");
 
@@ -130,7 +130,7 @@ public class CVSBootstrapper implements Bootstrapper {
             commandLine.createArguments("-d", cvsroot);
         }
         commandLine.createArgument("update");
-        
+
         StringBuffer flags = new StringBuffer("-dP");
         if (resetStickyTags) {
             flags.append("A");

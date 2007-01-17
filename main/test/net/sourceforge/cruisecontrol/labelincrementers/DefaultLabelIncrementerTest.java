@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,11 +54,11 @@ public class DefaultLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isValidLabel("x.88"));
         assertFalse(incrementer.isValidLabel("x.y"));
         assertFalse(incrementer.isValidLabel("x88"));
-        
+
         incrementer.setSeparator("#");
         assertFalse(incrementer.isValidLabel("x.88"));
         assertTrue(incrementer.isValidLabel("x#88"));
-        
+
         incrementer = new DefaultLabelIncrementer();
         assertTrue(incrementer.isValidLabel("x.88"));
         assertFalse(incrementer.isValidLabel("x#88"));
@@ -76,7 +76,7 @@ public class DefaultLabelIncrementerTest extends TestCase {
         incrementer = new DefaultLabelIncrementer();
         assertFalse(incrementer.isPreBuildIncrementer());
     }
-    
+
     public void testGetDefaultLabel() {
         assertEquals("build.1", incrementer.getDefaultLabel());
         incrementer.setSeparator("#");

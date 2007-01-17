@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 public abstract class BaseManipulator implements Manipulator {
 
     private static final Map UNITS;
-    
+
     private transient Integer unit = null;
     private transient int every = -1;
 
@@ -79,7 +79,7 @@ public abstract class BaseManipulator implements Manipulator {
         if (this.every != -1 && this.unit != null) {
             File dir = new File(logDir);
             Calendar cal = Calendar.getInstance();
-            
+
             cal.add(unit.intValue(), -every);
 
             backupFiles = dir.listFiles(new LogfileNameFilter(cal.getTime(), ignoreSuffix));
@@ -88,13 +88,13 @@ public abstract class BaseManipulator implements Manipulator {
     }
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertFalse(every == -1 || unit == null, 
+        ValidationHelper.assertFalse(every == -1 || unit == null,
                 "BackupEvery and backupUnit must be set");
     }
-    
+
     /**
      * sets the backup keep amount
-     * 
+     *
      * @param every
      * @throws CruiseControlException
      */
@@ -104,7 +104,7 @@ public abstract class BaseManipulator implements Manipulator {
 
     /**
      * sets the unit on which the backup should run. valid are YEAR, MONTH, WEEK, DAY
-     * 
+     *
      * @param unit String that is used as Key for the Calendar-Constants
      * @throws CruiseControlException
      */
@@ -119,7 +119,7 @@ public abstract class BaseManipulator implements Manipulator {
     private class LogfileNameFilter implements FilenameFilter {
 
         private Date logdate = null;
-        
+
         private boolean ignoreSuffix = false;
 
         public LogfileNameFilter(Date logdate, boolean ignoreSuffix) {

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
      */
     public boolean getFull() {
         return this.full;
-    } // getFull   
+    } // getFull
 
     /**
      * Set the component to generate the baseline for
@@ -193,7 +193,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
             return false;
         }
         return true;
-    } // shouldPublish    
+    } // shouldPublish
 
     /* (non-Javadoc)
     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
@@ -244,7 +244,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
 
         // TODO: update ClearQuest records/activities with build number
 
-    } // publish   
+    } // publish
 
     /**
      * for testing
@@ -274,7 +274,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
         baseline.setViewtag("RatlBankModel_int");
         //baseline.setFull(true);
         //baseline.setComponent("RATLBANKMODEL_REL@\\RatlBankProjects");
-        //baseline.setbaselineprefix("testbl");        
+        //baseline.setbaselineprefix("testbl");
         try {
             baseline.publish(logElement);
         } catch (CruiseControlException ex) {

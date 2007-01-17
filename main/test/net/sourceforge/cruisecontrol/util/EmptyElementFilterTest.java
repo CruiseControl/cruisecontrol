@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import junit.framework.TestCase;
 public class EmptyElementFilterTest extends TestCase {
 
     private SAXBuilder builder;
-    
+
     protected void setUp() throws Exception {
         builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         XMLFilter emptyTaskFilter = new EmptyElementFilter("task");
@@ -62,14 +62,14 @@ public class EmptyElementFilterTest extends TestCase {
         emptyTaskFilter.setParent(emptyMessageFilter);
         builder.setXMLFilter(emptyTaskFilter);
     }
-    
+
     public void testFiltering() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             + "<?xml-stylesheet type=\"text/xsl\" href=\"log.xsl\"?>\n\n"
             + "<build time=\"43 seconds\">\n"
               // empty task:
             + "\t<task location=\"nightlybuild.xml:5: \" name=\"property\" time=\"0 seconds\"></task>\n"
-            + "\t<target name=\"build\" time=\"43 seconds\">\n" 
+            + "\t<target name=\"build\" time=\"43 seconds\">\n"
             + "\t\t<task location=\"nightlybuild.xml:21: \" name=\"exec\" time=\"1 seconds\">\n"
             + "\t\t\t<message priority=\"info\"><![CDATA[Generating buildscript... done]]></message>\n"
               // empty message:
@@ -82,9 +82,9 @@ public class EmptyElementFilterTest extends TestCase {
         Writer stringWriter = new StringWriter();
         new XMLOutputter().output(doc, stringWriter);
         String filteredXml = stringWriter.toString();
-        assertTrue("empty <task> should have been filtered", 
+        assertTrue("empty <task> should have been filtered",
                    filteredXml.indexOf("<task location=\"nightlybuild.xml:5: \"") == -1);
-        assertTrue("empty <message> should have been filtered", 
+        assertTrue("empty <message> should have been filtered",
                    filteredXml.indexOf("<message priority=\"warn\"") == -1);
         assertTrue("non-empty task should not have been filtered",
                    filteredXml.indexOf("<task location=\"nightlybuild.xml:21: \"") != -1);

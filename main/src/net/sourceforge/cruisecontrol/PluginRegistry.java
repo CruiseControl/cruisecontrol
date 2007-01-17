@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ public final class PluginRegistry implements Serializable {
     public void register(String pluginName, String pluginClassname) {
         plugins.put(pluginName.toLowerCase(), pluginClassname);
     }
-    
+
     /**
      * Registers the given plugin, including plugin configuration.
      *
@@ -152,7 +152,7 @@ public final class PluginRegistry implements Serializable {
                         + pluginName + "'; maybe you forgot to specify a classname?");
             }
         }
-        
+
         Element clonedPluginElement = (Element) pluginElement.clone();
         clonedPluginElement.removeAttribute("name");
         clonedPluginElement.removeAttribute("classname");
@@ -171,7 +171,7 @@ public final class PluginRegistry implements Serializable {
     static void registerToRoot(Element pluginElement) throws CruiseControlException {
         ROOTREGISTRY.register(pluginElement);
     }
-    
+
     /**
      * Clears all plugin registrations and defaults in the root registry, so they can be re-registered
      * when reloading the config file. The default-properties are re-read.
@@ -264,11 +264,11 @@ public final class PluginRegistry implements Serializable {
 
     public PluginDetail[] getPluginDetails() throws CruiseControlException {
         List availablePlugins = new LinkedList();
-        
+
         if (parentRegistry != null) {
             availablePlugins.addAll(Arrays.asList(parentRegistry.getPluginDetails()));
         }
-        
+
         for (Iterator i = plugins.keySet().iterator(); i.hasNext();) {
             String pluginName = (String) i.next();
             try {
@@ -281,10 +281,10 @@ public final class PluginRegistry implements Serializable {
                 }
             }
         }
-        
+
         return (PluginDetail[]) availablePlugins.toArray(new PluginDetail[availablePlugins.size()]);
     }
-    
+
     public PluginType[] getPluginTypes() {
         return PluginType.getTypes();
     }
@@ -394,9 +394,9 @@ public final class PluginRegistry implements Serializable {
     }
 
     /**
-     * Returns a Map containing the default properties for the plugin 
+     * Returns a Map containing the default properties for the plugin
      * with the given name. If there's no such plugin, an empty
-     * Map will be returned. The default properties can be inherited 
+     * Map will be returned. The default properties can be inherited
      * from a parent registry.
      * @deprecated use FIXME that also supports preconfiguration of nested elements
      */
@@ -418,6 +418,6 @@ public final class PluginRegistry implements Serializable {
                 defaultProperties.put(name, attr.getValue());
             }
         }
-        return Collections.unmodifiableMap(defaultProperties);        
+        return Collections.unmodifiableMap(defaultProperties);
     }
 }

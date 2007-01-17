@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,13 +98,13 @@ import org.apache.log4j.Logger;
  * Extends the <code>Commandline</code> class to provide a means
  * to manipulate the OS environment under which the command will
  * run.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class EnvCommandline extends Commandline {
-    
+
     private static final Logger LOG = Logger.getLogger(EnvCommandline.class);
-    
+
     /**
      * Provides the OS environment under which the command
      * will run.
@@ -114,7 +114,7 @@ public class EnvCommandline extends Commandline {
     /**
      * Constructor which takes a command line string and attempts
      * to parse it into it's various components.
-     * 
+     *
      * @param command The command
      */
     public EnvCommandline(String command) {
@@ -127,11 +127,11 @@ public class EnvCommandline extends Commandline {
     public EnvCommandline() {
         super();
     }
-    
+
     /**
      * Sets a variable within the environment under which the command will be
      * run.
-     * 
+     *
      * @param var
      *            The environment variable to set
      * @param value
@@ -140,11 +140,11 @@ public class EnvCommandline extends Commandline {
     public void setVariable(String var, String value) {
         env.add(var, value);
     }
-        
+
      /**
       * Gets the value of an environment variable. The variable
-      * name is case sensitive. 
-      * 
+      * name is case sensitive.
+      *
       * @param var The variable for which you wish the value
       *
       * @return The value of the variable, or <code>null</code>
@@ -175,5 +175,5 @@ public class EnvCommandline extends Commandline {
         }
 
         return process;
-    } 
+    }
 }

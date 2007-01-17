@@ -1,8 +1,8 @@
 /****************************************************************************
 * CruiseControl, a Continuous Integration Toolkit
 * Copyright (c) 2001, ThoughtWorks, Inc.
-* 651 W Washington Ave. Suite 600
-* Chicago, IL 60661 USA
+* 200 E. Randolph, 25th Floor
+* Chicago, IL 60601 USA
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class InteractiveBuildUtility {
         String configFilePath = console.readLine();
         new InteractiveBuildUtility(configFilePath);
     }
-    
+
     public InteractiveBuildUtility(String configFilePath) {
         File configFile = new File(configFilePath);
         if (!configFile.exists() || configFile.isDirectory()) {
@@ -135,7 +135,7 @@ public class InteractiveBuildUtility {
         }
         return project;
     }
-    
+
     private Element getBuilderFromProject(Element project) {
         Element builder = null;
         List schedules = project.getChildren("schedule");
@@ -180,7 +180,7 @@ public class InteractiveBuildUtility {
         Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
         final MulticastDiscovery discovery = new MulticastDiscovery(entries);
         System.out.println("Waiting 5 seconds for registrars to report in...");
-        try { Thread.sleep(5 * 1000); } catch (InterruptedException e) { } 
+        try { Thread.sleep(5 * 1000); } catch (InterruptedException e) { }
         ServiceItem[] serviceItems = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
         if (serviceItems.length == 0) {
             String message = "No matches for your search - quitting...";
@@ -259,7 +259,7 @@ public class InteractiveBuildUtility {
     }
 
     private void doBuild() {
-        
+
         System.out.println("Beginning build...");
         System.out.println();
         ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
@@ -281,7 +281,7 @@ public class InteractiveBuildUtility {
         }
         System.out.println();
     }
-    
+
     private void retrieveResults(final BuildAgentService agent) {
         try {
             DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS,

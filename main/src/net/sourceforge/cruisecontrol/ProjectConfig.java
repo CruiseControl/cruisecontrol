@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import org.apache.log4j.Logger;
 
 /**
  * A plugin that represents the project node
- * 
+ *
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class ProjectConfig implements ProjectInterface {
@@ -82,7 +82,7 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * Called after the configuration is read to make sure that all the mandatory parameters were specified..
-     * 
+     *
      * @throws CruiseControlException
      *             if there was a configuration error.
      */
@@ -201,7 +201,7 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * only used for tests. should be removed.
-     * 
+     *
      * @deprecated
      * @return properties used to configure plugin
      */
@@ -323,7 +323,7 @@ public class ProjectConfig implements ProjectInterface {
     /**
      * Reads project configuration from a previously serialized Project or creates a new instance. The name of the
      * serialized project file is derived from the name of the project.
-     * 
+     *
      * @param projectName
      *            name of the serialized project
      * @return Deserialized Project or a new Project if there are any problems reading the serialized Project; should

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ public class FileSystem extends FakeUserSourceControl {
     private List modifications;
     private File folder;
     //TODO: change folder attribute to path. Can be file or directory.
-    
+
     /**
      * Set the root folder of the directories that we are going to scan
      */
@@ -91,7 +91,7 @@ public class FileSystem extends FakeUserSourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
         modifications = new ArrayList();
-        
+
         visit(folder, lastBuild.getTime());
 
         return modifications;

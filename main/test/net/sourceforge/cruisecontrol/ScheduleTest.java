@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,13 +69,13 @@ public class ScheduleTest extends TestCase {
     private static final MockBuilder MIDNIGHT_BUILDER;
     private static final MockBuilder MULTIPLE_5;
     private static final MockBuilder MULTIPLE_1;
-    
+
     private static final PauseBuilder PAUSE_11_13;
     private static final PauseBuilder PAUSE_11_13_FRIDAY;
 
     static {
         LOS_ANGELES = createLosAngelesTimeZone();
-        
+
         NOON_BUILDER = new MockBuilder();
         NOON_BUILDER.setTime("1200");
         NOON_BUILDER.setBuildLogXML(new Element("builder1"));
@@ -100,7 +100,7 @@ public class ScheduleTest extends TestCase {
         PAUSE_11_13_FRIDAY.setStartTime(1100);
         PAUSE_11_13_FRIDAY.setEndTime(1300);
         PAUSE_11_13_FRIDAY.setDay("friday");
-        
+
         THURSDAY = Calendar.getInstance();
         THURSDAY.set(2001, Calendar.NOVEMBER, 22);
         FRIDAY = Calendar.getInstance();
@@ -120,7 +120,7 @@ public class ScheduleTest extends TestCase {
         schedule.add(MIDNIGHT_BUILDER);
         schedule.add(MULTIPLE_5);
         schedule.add(MULTIPLE_1);
-        
+
         defaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(LOS_ANGELES);
     }
@@ -129,10 +129,10 @@ public class ScheduleTest extends TestCase {
         schedule = null;
         TimeZone.setDefault(defaultTimeZone);
     }
-    
+
     private static TimeZone createLosAngelesTimeZone() {
         // taken from SimpleTimeZone javadoc:
-        
+
         // Base GMT offset: -8:00
         // DST starts:      at 2:00am in standard time
         //                  on the first Sunday in April
@@ -203,7 +203,7 @@ public class ScheduleTest extends TestCase {
         Schedule scheduledByDay = new Schedule();
         scheduledByDay.add(thursdayBuilder);
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, THURSDAY_1101));
-        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));        
+        assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(1, THURSDAY_1001, FRIDAY_0000));
 
         Builder fridayBuilder = new MockBuilder();
         fridayBuilder.setDay("friday");
@@ -228,7 +228,7 @@ public class ScheduleTest extends TestCase {
         Date now = getDate(oct272005, 11, 25);
         assertEquals(thursdayBuilder, scheduledByDay.selectBuilder(123, last, now));
     }
-    
+
     public void testIsPaused() {
         PauseBuilder pauseBuilder = new PauseBuilder();
         pauseBuilder.setStartTime(2300);
@@ -300,7 +300,7 @@ public class ScheduleTest extends TestCase {
             ONE_DAY + (2 * ONE_HOUR),
             schedule.getTimeToNextBuild(THURSDAY_2301, ONE_HOUR));
     }
-    
+
     public void testGetTimeToNextBuild_MultipleBuilderWithDaySet() {
         Schedule intervalThursdaysSchedule = new Schedule();
         Builder intervalThursdays = new MockBuilder();
@@ -312,7 +312,7 @@ public class ScheduleTest extends TestCase {
         assertEquals(6 * ONE_DAY + ONE_HOUR - ONE_MINUTE,
                 intervalThursdaysSchedule.getTimeToNextBuild(THURSDAY_2301, ONE_DAY));
     }
-    
+
     public void testGetTimeToNextBuild_ShouldUseIntervalWhenThereAreNoBuilders() {
         Schedule badSchedule = new Schedule();
 
@@ -320,9 +320,9 @@ public class ScheduleTest extends TestCase {
             ONE_DAY,
             badSchedule.getTimeToNextBuild(THURSDAY_1001, ONE_DAY));
     }
-    
+
     public void testGetTimeToNextBuild_ShouldNotExceedMaximumInterval() {
-        Schedule badSchedule = new Schedule();    
+        Schedule badSchedule = new Schedule();
         PauseBuilder alwaysPaused = new PauseBuilder();
         alwaysPaused.setStartTime(0000);
         alwaysPaused.setEndTime(2359);
@@ -331,16 +331,16 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             Schedule.MAX_INTERVAL_MILLISECONDS,
             badSchedule.getTimeToNextBuild(THURSDAY_1001, ONE_DAY));
-        
+
         badSchedule = new Schedule();
         badSchedule.add(NOON_BUILDER);
         badSchedule.add(PAUSE_11_13);
-        
+
         assertEquals(
             Schedule.MAX_INTERVAL_MILLISECONDS,
             badSchedule.getTimeToNextBuild(THURSDAY_1101, ONE_MINUTE));
     }
-    
+
     public void testGetTimeToNextBuild_DailyBuild() {
         Schedule dailyBuildSchedule = new Schedule();
         dailyBuildSchedule.add(NOON_BUILDER);
@@ -349,7 +349,7 @@ public class ScheduleTest extends TestCase {
             "ignore interval when only time builds",
             ONE_HOUR - ONE_MINUTE,
             dailyBuildSchedule.getTimeToNextBuild(THURSDAY_1101, ONE_MINUTE));
-            
+
         PauseBuilder pause = new PauseBuilder();
         pause.setStartTime(0000);
         pause.setEndTime(2359);
@@ -387,7 +387,7 @@ public class ScheduleTest extends TestCase {
         Date now = getDate(oct272005, 11, 25);
         long dstEndingAdjustment = ONE_HOUR;
         assertEquals(((ONE_DAY * 6) + (ONE_HOUR * 23) + (ONE_MINUTE * 55) + dstEndingAdjustment),
-                        scheduledByDay.getTimeToNextBuild(now, ONE_MINUTE));        
+                        scheduledByDay.getTimeToNextBuild(now, ONE_MINUTE));
     }
 
     public void testGetTimeToNextBuild_MonthlyBuild() {
@@ -405,7 +405,7 @@ public class ScheduleTest extends TestCase {
                 schedule.getTimeToNextBuild(FRIDAY_0000, ONE_MINUTE));
 
     }
-    
+
     public void testInterval() {
         assertEquals("default interval", 300 * 1000, schedule.getInterval());
         schedule.setInterval(500);
@@ -435,25 +435,25 @@ public class ScheduleTest extends TestCase {
         } catch (CruiseControlException e) {
         }
     }
-    
+
     public void testValidateShouldFailIfAllTimedBuildersInPauses() throws CruiseControlException {
         schedule = new Schedule();
 
         schedule.add(PAUSE_11_13_FRIDAY);
         schedule.add(NOON_BUILDER);
         schedule.validate();
-        
+
         schedule.add(PAUSE_11_13);
         try {
             schedule.validate();
             fail();
         } catch (CruiseControlException expected) {
         }
-       
+
         schedule.add(MIDNIGHT_BUILDER);
         schedule.validate();
     }
-    
+
     public void testGetDayString() {
         assertEquals("sunday", schedule.getDayString(Calendar.SUNDAY).toLowerCase());
         assertEquals("friday", schedule.getDayString(Calendar.FRIDAY).toLowerCase());

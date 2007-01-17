@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import java.io.IOException;
 /**
  * This class implements the SourceControl methods for an AlienBrain
  * repository.  It does this by taking advantage of the AlienBrain command-
- * line utility.  Obviously, the command line utility  must be installed 
+ * line utility.  Obviously, the command line utility  must be installed
  * and working in order for this class to work.
  *
  * This class is based very heavily on P4.java.
@@ -64,13 +64,13 @@ import java.io.IOException;
  * @author <a href="mailto:scottj+cc@escherichia.net">Scott Jacobs</a>
  */
 public class AlienBrain extends AlienBrainCore implements SourceControl {
-    
+
     private static final Logger LOG = Logger.getLogger(AlienBrain.class);
     /*
      * The difference between January 1, 1601 0:00:00 UTC and January 1,
      * 1970 0:00:00 UTC in milliseconds.
      * ((369 years * 365 days) + 89 leap days) * 24h * 60m * 60s * 1000ms
-     */ 
+     */
     private static final long FILETIME_EPOCH_DIFF = 11644473600000L;
     /* 100-ns intervals per ms */
     private static final long HUNDRED_NANO_PER_MILLI_RATIO = 10000L;
@@ -78,13 +78,13 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
 
     /**
-     * Any properties that have been set in this sourcecontrol. 
+     * Any properties that have been set in this sourcecontrol.
      * Currently, this would be none.
      */
     public Map getProperties() {
         return new Hashtable();
     }
-   
+
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(getPath(), "path", this.getClass());
     }
@@ -96,7 +96,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      *@param  lastBuild
      *@param  now
      *@return List of Modification objects
-     */ 
+     */
     public List getModifications(Date lastBuild, Date now) {
         List mods = new ArrayList();
         try {
@@ -105,14 +105,14 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
         } catch (Exception e) {
             LOG.error("Log command failed to execute succesfully", e);
         }
-        
+
         return mods;
     }
-    
+
     /**
      * Convert a Java Date into an AlienBrain SCIT timestamp.
      * AlienBrain provides a 64-bit modification timestamp that is in windows
-     * FILETIME format, which is a 65-bit value representing the number of 
+     * FILETIME format, which is a 65-bit value representing the number of
      * 100-nanosecond intervals since January 1, 1601 (UTC).
      */
     public static long dateToFiletime(Date date) {
@@ -120,11 +120,11 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
         long milliSecsSinceFiletimeEpoch = milliSecsSinceUnixEpoch + FILETIME_EPOCH_DIFF;
         return milliSecsSinceFiletimeEpoch * HUNDRED_NANO_PER_MILLI_RATIO;
     }
-    
+
     /**
      * Convert an AlienBrain SCIT timestamp into a Java Date.
      * AlienBrain provides a 64-bit modification timestamp that is in windows
-     * FILETIME format, which is a 64-bit value representing the number of 
+     * FILETIME format, which is a 64-bit value representing the number of
      * 100-nanosecond intervals since January 1, 1601 (UTC).
      */
     public static Date filetimeToDate(long filetime) {
@@ -134,7 +134,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     }
 
     /**
-     * Construct a ManagedCommandline which will run the AlienBrain command-line 
+     * Construct a ManagedCommandline which will run the AlienBrain command-line
      * client in such a way that it will return a list of modifications.
      *
      *@param  lastBuild
@@ -145,37 +145,37 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
         cmdLine.createArguments("find", getPath());
         cmdLine.createArguments("-regex", "SCIT > " + dateToFiletime(lastBuild));
         cmdLine.createArguments("-format", "#SCIT#|#DbPath#|#Changed By#|#CheckInComment#");
-        
+
         return cmdLine;
     }
-   
+
     /**
-     * Run the AlienBrain command-line client and return a list of 
-     * Modifications since lastBuild, if any. 
+     * Run the AlienBrain command-line client and return a list of
+     * Modifications since lastBuild, if any.
      *@param  lastBuild
      *@param  now
-     */ 
-    protected List getModificationsFromAlienBrain(Date lastBuild, Date now) 
+     */
+    protected List getModificationsFromAlienBrain(Date lastBuild, Date now)
         throws IOException, CruiseControlException {
- 
+
         if (getBranch() != null) {
             setActiveBranch(getBranch());
         }
-            
+
         ManagedCommandline cmdLine = buildGetModificationsCommand(lastBuild, now);
         LOG.debug("Executing: " + cmdLine.toString());
         cmdLine.execute();
 
         return parseModifications(cmdLine.getStdoutAsList());
     }
-   
+
     /**
-     * Turn a stream containing the results of running the AlienBrain 
+     * Turn a stream containing the results of running the AlienBrain
      * command-line client into a list of Modifications.
-     */ 
+     */
     protected List parseModifications(List modifications) {
         List mods = new ArrayList();
-        
+
         for (Iterator it = modifications.iterator(); it.hasNext(); ) {
             String line = (String) it.next();
             line = line.trim();
@@ -191,29 +191,29 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
                 //fake one.
                 line = "0" + line;
             }
-            
+
             Modification m = parseModificationDescription(line);
             mods.add(m);
         }
         return mods;
     }
-    
+
     /**
      * Turns a string, most likely provided from the AlienBrain command-line
      * client, into a Modification.
      */
     protected static Modification parseModificationDescription(String description) {
         Modification m = new Modification("AlienBrain");
-        
+
         StringTokenizer st = new StringTokenizer(description, "|");
-        
+
         m.modifiedTime = AlienBrain.filetimeToDate(Long.parseLong(st.nextToken()));
         m.createModifiedFile(st.nextToken(), null);
         m.userName = st.nextToken();
         while (st.hasMoreTokens()) {
             m.comment += st.nextToken();
         }
-                
+
         return m;
     }
 }

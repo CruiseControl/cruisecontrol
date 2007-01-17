@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,24 +56,24 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
  * <p>
  * All properties set by CC and passed to the builder will be available as
  * properties within Ant.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
  */
 public class AntPublisher implements Publisher {
-    
+
     private static final Logger LOG = Logger.getLogger(AntPublisher.class);
 
     private AntBuilder delegate = new AntBuilder();
-    
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
     public void publish(Element log) throws CruiseControlException {
-        
+
         Map properties = new HashMap();
 
         populatePropertesForAntBuilder(log, properties);
-        
+
         // Run Ant
         Element result = delegate.build(properties);
         if (result == null) {
@@ -83,10 +83,10 @@ public class AntPublisher implements Publisher {
             if (error == null) {
                 LOG.info("Publisher successful.");
             } else {
-                LOG.error("Publisher failed.\n\n" 
-                        + error.getValue() 
+                LOG.error("Publisher failed.\n\n"
+                        + error.getValue()
                         + "\n");
-            }         
+            }
         }
     }
 
@@ -210,7 +210,7 @@ public class AntPublisher implements Publisher {
         Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
         while (propertyIterator.hasNext()) {
             Element property = (Element) propertyIterator.next();
-            properties.put(property.getAttributeValue("name"), 
+            properties.put(property.getAttributeValue("name"),
                     property.getAttributeValue("value"));
         }
     }

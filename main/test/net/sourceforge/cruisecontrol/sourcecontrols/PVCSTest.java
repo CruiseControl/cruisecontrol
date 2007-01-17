@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ public class PVCSTest extends TestCase {
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toStringNoQuoting());
   }
-    
+
     public void testBuildExecCommandWithoutLoginId() {
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
@@ -145,9 +145,9 @@ public class PVCSTest extends TestCase {
                 + "-ds\"11/23/2004 8:00AM\" -de\"11/23/2004 1:00PM\" "
                 + "-pr\"C:/PVCS-Repos/TestProject/pvcs\" " + "-z /TestProject";
 
-        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toStringNoQuoting()); 
+        assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toStringNoQuoting());
     }
-    
+
     public void testBuildExecCommandWithEmptyLoginId() {
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
@@ -161,7 +161,7 @@ public class PVCSTest extends TestCase {
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toStringNoQuoting());
     }
-    
+
     public void testBuildExecCommandWithLoginId() {
         pvcs.setPvcsproject("C:/PVCS-Repos/TestProject/pvcs");
         pvcs.setPvcssubproject("/TestProject");
@@ -171,12 +171,12 @@ public class PVCSTest extends TestCase {
         String expectedCommand = pvcs.getExecutable("pcli") + " "
                 + "run -ns -q -xo\"vlog.txt\" -xe\"vlog.txt\" vlog "
                 + "-id\"TestUser\" -ds\"11/23/2004 8:00AM\" "
-                + "-de\"11/23/2004 1:00PM\" -pr\"C:/PVCS-Repos/TestProject/pvcs\" " 
+                + "-de\"11/23/2004 1:00PM\" -pr\"C:/PVCS-Repos/TestProject/pvcs\" "
                 + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toStringNoQuoting());
     }
-    
+
     public void testMakeModifications() throws URISyntaxException {
         Calendar cal = Calendar.getInstance();
         cal.set(2004, 11, 23);
@@ -189,6 +189,6 @@ public class PVCSTest extends TestCase {
         assertEquals("Initial revision", mod1.comment);
         Modification mod2 = (Modification) mods.get(1);
         assertEquals("Add code for " + System.getProperty("line.separator") + "Sections", mod2.comment);
-        
+
     }
 }

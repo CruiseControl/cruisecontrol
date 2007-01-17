@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,10 @@
  ********************************************************************************/
 /*
  * Created on 04-Jul-2005 by norru
- * 
+ *
  * Copyright (C) Sony Computer Entertainment Europe
  *               Studio Liverpool Server Group
- * 
+ *
  * Authors:
  *     Nicola Orru' <Nicola_Orru@scee.net>
  */
@@ -91,7 +91,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     return DTFM.parse(dateString);
   }
 
-  Modification createModification(String userName, String emailAddress, String comment, 
+  Modification createModification(String userName, String emailAddress, String comment,
                                   String revision, String modifiedTime, String type) throws ParseException {
     Modification modification = new Modification();
     modification.userName = userName;
@@ -139,7 +139,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     modification = createModification("norru", null, "", "120217", "2005/06/22 11:07:27", "defcomp");
     assertEquals(modification, modifications.get(5));
   }
-  
+
   /**
    * Picks the last stream name from a list of streams
    */
@@ -158,7 +158,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
   private String getNameFromLine(String lastLine) {
     return new StringTokenizer(lastLine, " \t").nextToken();
   }
-  
+
   public void testValidate() {
     Accurev accurev = new Accurev();
     try {

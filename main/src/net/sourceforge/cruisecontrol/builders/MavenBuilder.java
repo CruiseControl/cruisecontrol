@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,19 +112,19 @@ public class MavenBuilder extends Builder {
             ScriptRunner scriptRunner = new ScriptRunner();
             boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
             script.flushCurrentElement();
-            
+
             if (!scriptCompleted) {
                 LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
                 buildLogElement = new Element("build");
-                buildLogElement.setAttribute("error", "build timeout");                
+                buildLogElement.setAttribute("error", "build timeout");
             } else if (script.getExitCode() != 0) {
                 // The maven.bat actually never returns error,
-                // due to internal cleanup called after the execution itself...                
+                // due to internal cleanup called after the execution itself...
                 synchronized (buildLogElement) {
                     buildLogElement.setAttribute("error", "Return code is " + script.getExitCode());
                 }
             }
-            
+
             if (buildLogElement.getAttribute("error") != null) {
                 break;
             }
@@ -146,7 +146,7 @@ public class MavenBuilder extends Builder {
             goal = origGoal;
         }
     }
-    
+
     //***************************** Param setters ****************************
 
     /**
@@ -199,14 +199,14 @@ public class MavenBuilder extends Builder {
         }
         return al;
     }
-    
+
     /**
      * Sets build timeout in seconds.
-     * 
+     *
      * @param timeout
      *            long build timeout
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
-    }    
+    }
 }

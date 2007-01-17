@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public class ModificationSet {
     public void add(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
-    
+
     public List getSourceControls() {
         return sourceControls;
     }
@@ -224,7 +224,7 @@ public class ModificationSet {
                 LOG.info("A modification has been detected in the quiet period.  ");
                 if (LOG.isDebugEnabled()) {
                     final Date quietPeriodStart = new Date(timeOfCheck.getTime() - quietPeriod);
-                    LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= " 
+                    LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= "
                             + formatter.format(timeOfCheck));
                 }
                 Date now = new Date();
@@ -257,7 +257,7 @@ public class ModificationSet {
                     modification = new Modification();
                     modification.fromElement(element, formatter);
                 }
-    
+
                 if (isIgnoredModification(modification)) {
                     iterator.remove();
                 }
@@ -307,7 +307,7 @@ public class ModificationSet {
     public void validate() throws CruiseControlException {
         ValidationHelper.assertFalse(sourceControls.isEmpty(),
             "modificationset element requires at least one nested source control element");
-        
+
         for (Iterator i = sourceControls.iterator(); i.hasNext(); ) {
             SourceControl sc = (SourceControl) i.next();
             sc.validate();
@@ -317,10 +317,10 @@ public class ModificationSet {
     int getQuietPeriod() {
         return quietPeriod;
     }
-        
+
     /**
      * @param isModifiedAccurate
-     * 
+     *
      * @deprecated
      */
     public void setRequireModification(boolean isModifiedAccurate) {

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -92,7 +92,7 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
    private SSCM.SSCMCLIStringParam strparamLabel = new SSCM.SSCMCLIStringParam("label", "-l", false);
    private SSCM.SSCMCLIStringParam strparamServerConnect = new SSCM.SSCMCLIStringParam("serverconnect", "-z", false);
    private SSCM.SSCMCLIStringParam strparamServerLogin = new SSCM.SSCMCLIStringParam("serverlogin", "-y", false);
-   private SSCM.SSCMCLIStringParam strparamIncludeRemovedFiles = 
+   private SSCM.SSCMCLIStringParam strparamIncludeRemovedFiles =
        new SSCM.SSCMCLIStringParam("includeremoved", "-i", false);
    private SSCM.SSCMCLIStringParam strparamOverwrite = new SSCM.SSCMCLIStringParam("overwrite", "-w", false);
 

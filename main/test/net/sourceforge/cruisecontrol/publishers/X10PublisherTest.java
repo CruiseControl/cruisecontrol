@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2004, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ public class X10PublisherTest extends TestCase {
 
 //    These tests are only useful if you actually have a x10 computer interface connected to the computer.
 //    PJ - Sept 1, 2004
-//    
+//
 //    public void testHandleBuild()
 //            throws CruiseControlException {
 //        X10Publisher x10Publisher = new X10Publisher();

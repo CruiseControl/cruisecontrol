@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ public class AntBuilderTest extends TestCase {
         builder = new AntBuilder();
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
-        
+
         AntBuilder unixBuilder = new AntBuilder() {
             protected String getSystemClassPath() {
                 return UNIX_PATH;
@@ -121,7 +121,7 @@ public class AntBuilderTest extends TestCase {
                 file.delete();
             }
         }
-        
+
         builder = null;
     }
 
@@ -144,17 +144,17 @@ public class AntBuilderTest extends TestCase {
             fail("validate should not throw exceptions when options are set.");
         }
     }
-     
+
     public void testValidateShouldThrowExceptionWhenSaveLogDirDoesntExist() {
         builder.setSaveLogDir("I/hope/this/dir/does/not/exist/");
         try {
             builder.validate();
             fail();
-        } catch (CruiseControlException expected) {          
+        } catch (CruiseControlException expected) {
         }
     }
-    
-    public void testValidateShouldThrowExceptionWhenMultipleAndTimeAreBothSet() {        
+
+    public void testValidateShouldThrowExceptionWhenMultipleAndTimeAreBothSet() {
         builder.setTime("0100");
         builder.setMultiple(2);
 
@@ -306,7 +306,7 @@ public class AntBuilderTest extends TestCase {
         File originalLog = new File(originalDir, logName);
         originalDir.mkdirs();
         originalLog.createNewFile();
-        
+
         File saveDir = new File(saveDirName);
         File savedLog = new File(saveDir, logName);
         saveDir.mkdirs();
@@ -324,7 +324,7 @@ public class AntBuilderTest extends TestCase {
         builder.setSaveLogDir(null);
         builder.saveAntLog(originalLog);
         assertFalse(savedLog.exists());
-    }    
+    }
 
     public void testFindAntScriptNonWindows() throws CruiseControlException {
         builder.setAntHome("/foo/bar");
@@ -351,16 +351,16 @@ public class AntBuilderTest extends TestCase {
             //expected...
         }
     }
-    
+
     public void testValidateBuildFileWorksForNonDefaultDirectory() throws IOException, CruiseControlException {
         File antworkdir = new File("antworkdir");
         antworkdir.mkdir();
         File file = File.createTempFile("build", ".xml", antworkdir);
         builder.setAntWorkingDir(antworkdir.getAbsolutePath());
         builder.setBuildFile(file.getName());
-        
+
         builder.validateBuildFileExists();
-        
+
         builder.setBuildFile(file.getAbsolutePath());
         builder.validateBuildFileExists();
 

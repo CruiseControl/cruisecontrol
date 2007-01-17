@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,18 +95,18 @@ public class AntScriptTest extends TestCase {
 
     protected void setUp() throws Exception {
         script = new AntScript();
-      
-        
+
+
         properties = new Hashtable();
         properties.put("label", "200.1.23");
-        
+
         // default setup of script
         script.setBuildProperties(properties);
         script.setArgs(new ArrayList());
         script.setProperties(new ArrayList());
         script.setBuildFile("buildfile");
-        script.setTarget("target"); 
-        
+        script.setTarget("target");
+
         unixBuilder = new AntBuilder() {
             protected String getSystemClassPath() {
                 return UNIX_PATH;
@@ -114,7 +114,7 @@ public class AntScriptTest extends TestCase {
         };
         unixBuilder.setTarget("target");
         unixBuilder.setBuildFile("buildfile");
-        
+
         windowsBuilder = new AntBuilder() {
             protected String getSystemClassPath() {
                 return WINDOWS_PATH;
@@ -123,7 +123,7 @@ public class AntScriptTest extends TestCase {
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
     }
-    
+
     public void testGetAntLauncherJarLocationForWindows() throws Exception {
         assertEquals("C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\ant\\ant-launcher.jar",
                      script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS));
@@ -133,7 +133,7 @@ public class AntScriptTest extends TestCase {
         assertEquals("/home/joris/java/cruisecontrol-2.2/main/lib/ant/ant-launcher.jar",
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS));
     }
-    
+
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
@@ -160,8 +160,8 @@ public class AntScriptTest extends TestCase {
                 "Logger set to INFO",
                 resultInfo,
             script.buildCommandline().getCommandline());
-       
-    
+
+
         String[] resultLogger =
             {
                 "java",
@@ -180,14 +180,14 @@ public class AntScriptTest extends TestCase {
                 "target" };
         script.setBuildProperties(properties);
         script.setUseLogger(USE_LOGGER);
-        script.setWindows(!IS_WINDOWS);      
+        script.setWindows(!IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
         TestUtil.assertArray(
                 "Using result Logger",
                 resultLogger,
             script.buildCommandline().getCommandline());
-     
-        
+
+
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
@@ -216,8 +216,8 @@ public class AntScriptTest extends TestCase {
                 "resultInfo",
                 resultInfo,
             script.buildCommandline().getCommandline());
-        
-    
+
+
         String[] resultLogger =
             {
                 "java",
@@ -241,7 +241,7 @@ public class AntScriptTest extends TestCase {
                 "resultLogger",
                 resultLogger,
             script.buildCommandline().getCommandline());
-        
+
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
@@ -274,7 +274,7 @@ public class AntScriptTest extends TestCase {
                 "resultDebug",
                 resultDebug,
             script.buildCommandline().getCommandline());
-       
+
     }
 
     public void testGetCommandLineArgs_DebugWithListener() throws CruiseControlException {
@@ -306,7 +306,7 @@ public class AntScriptTest extends TestCase {
                      resultDebug,
             script.buildCommandline().getCommandline());
          }
-    
+
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
         String[] resultQuiet =
             {
@@ -336,7 +336,7 @@ public class AntScriptTest extends TestCase {
                 "resultQuiet",
                 resultQuiet,
             script.buildCommandline().getCommandline());
-       
+
     }
 
     public void testGetCommandLineArgs_KeepGoingDebug() throws CruiseControlException {
@@ -404,7 +404,7 @@ public class AntScriptTest extends TestCase {
                 "resultWithMaxMemory",
                 resultWithMaxMemory,
             script.buildCommandline().getCommandline());
-        
+
     }
 
     public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
@@ -470,7 +470,7 @@ public class AntScriptTest extends TestCase {
                 "resultBatchFile",
                 resultBatchFile,
             script.buildCommandline().getCommandline());
-      
+
     }
 
     public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
@@ -494,7 +494,7 @@ public class AntScriptTest extends TestCase {
                 "resultShellScript",
                 resultShellScript,
             script.buildCommandline().getCommandline());
-      
+
     }
 
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
@@ -525,8 +525,8 @@ public class AntScriptTest extends TestCase {
                 "args",
                 args,
             script.buildCommandline().getCommandline());
-       
+
     }
 
-  
+
 }

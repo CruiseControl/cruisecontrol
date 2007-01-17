@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class ExecBuilderTest extends TestCase {
     private File goodTestScript = null;
     private File exitTestScript = null;
     private File outputTestScript = null;
-    
+
     /*
      * default constructor
      */
@@ -72,7 +72,7 @@ public class ExecBuilderTest extends TestCase {
 
     /*
      * setup test environment
-     */ 
+     */
     protected void setUp() throws Exception {
          // prepare "good" mock files
          if (Util.isWindows()) {
@@ -111,7 +111,7 @@ public class ExecBuilderTest extends TestCase {
                      + "\n"
                      + "exit 1\n",
                  false);
-         }   
+         }
          // prepare "bad" mock files - containing error string
          if (Util.isWindows()) {
              outputTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_outputexec.bat");
@@ -130,11 +130,11 @@ public class ExecBuilderTest extends TestCase {
                      + "\n"
                      + "echo some input and then an " + MOCK_OUTPUT_FAILURE + "\n",
                  false);
-         }    
+         }
     } // setUp
-    
+
     /*
-     * test validation of required attributes 
+     * test validation of required attributes
      */
     public void testValidate() {
         ExecBuilder ebt = new ExecBuilder();
@@ -147,7 +147,7 @@ public class ExecBuilderTest extends TestCase {
             assertEquals("exception message when required attributes not set",
                     "'command' is required for ExecBuilder", e.getMessage());
         }
-        
+
         // test no error with all required attributes
         ebt.setCommand("dir");
         try {
@@ -156,7 +156,7 @@ public class ExecBuilderTest extends TestCase {
             fail("ExecBuilder should not throw an exception when the required attributes are set.");
         }
     } // testValidate
-    
+
     /*
      * test a succesful build
      */
@@ -164,7 +164,7 @@ public class ExecBuilderTest extends TestCase {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_SUCCESS, eb, goodTestScript.toString());
     } // testBuild_BuildSuccess
-    
+
     /*
      * test a buid failure - exit
      */
@@ -172,7 +172,7 @@ public class ExecBuilderTest extends TestCase {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_EXIT_FAILURE, eb, exitTestScript.toString());
     } // testBuild_BuildFailure
-    
+
     /*
      * test a build failure - error in output
      */
@@ -180,13 +180,13 @@ public class ExecBuilderTest extends TestCase {
         ExecBuilder eb = new ExecBuilder();
         internalTestBuild(MOCK_OUTPUT_FAILURE, eb, outputTestScript.toString());
     } // testBuild_OutputFailure
-    
+
     /*
      * execute the build and check results
      */
     protected void internalTestBuild(String statusType, ExecBuilder eb, String script) {
         Element logElement = null;
-        try {            
+        try {
             eb.setCommand(script);
             if (statusType.equals(MOCK_OUTPUT_FAILURE)) {
                 eb.setErrorStr(MOCK_OUTPUT_FAILURE);
@@ -197,7 +197,7 @@ public class ExecBuilderTest extends TestCase {
             e.printStackTrace();
             fail("ExecBuilder should not throw exceptions when build()-ing.");
         }
-        
+
         // check whether there was a build error
         //System.out.println("error output = " + eb.getBuildError());
         if (statusType.equals(MOCK_SUCCESS)) {
@@ -206,8 +206,8 @@ public class ExecBuilderTest extends TestCase {
             assertEquals(statusType, "return code is 1", eb.getBuildError());
         } else if (statusType.equals(MOCK_OUTPUT_FAILURE)) {
             assertEquals(statusType, "error string found", eb.getBuildError());
-        }   
-        
+        }
+
         // check the format of the produced log
         assertNotNull(statusType, logElement);
         List targetTags = logElement.getChildren("target");
@@ -216,12 +216,12 @@ public class ExecBuilderTest extends TestCase {
         Element te = (Element) targetTags.get(0);
         assertEquals(statusType, "exec", te.getAttribute("name").getValue());
         //System.out.println("target name = " + te.getAttribute("name").getValue());
-        
+
         List taskTags = te.getChildren("task");
         Element tk = (Element) taskTags.get(0);
         assertEquals(statusType, script, tk.getAttribute("name").getValue());
         //System.out.println("task name = " + tk.getAttribute("name").getValue());
-              
+
         //TODO: check for contents of messages
         //Iterator msgIterator = tk.getChildren("message").iterator();
         //while (msgIterator.hasNext()) {
@@ -250,5 +250,5 @@ public class ExecBuilderTest extends TestCase {
               }
           }
       } // makeTestFile
-      
+
 } // ExecBuilderTest

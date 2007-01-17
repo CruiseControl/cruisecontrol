@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import org.apache.log4j.Logger;
  * than just the view path is that you can reuse a CruiseControl property which defines the source of your build. You
  * should always specify the viewpath via the root location, i.e. M:\... on Windows or /view/... on Unix Usage:
  * &lt;clearcaseviewstrapper viewpath="M:\dynamic_view\some_vob\src" voblist="\SourceVOB,\ReleaseVOB"/%gt;
- * 
+ *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
 public class ClearCaseViewstrapper implements Bootstrapper {
@@ -64,7 +64,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
 
     /**
      * set the path to the view to be started
-     * 
+     *
      * @param path
      *            path to view to be started
      */
@@ -74,7 +74,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
 
     /**
      * set the list of VOBs to mount, the list is comma separated
-     * 
+     *
      * @param list
      *            comma separated list of VOBs to mount
      */

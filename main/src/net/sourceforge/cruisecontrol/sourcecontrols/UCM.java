@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ import org.jdom.Element;
 
 /**
  * This class implements the SourceControlElement methods for ClearCase UCM.
- * 
+ *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  * @author Alex Batlin
  */
@@ -110,7 +110,7 @@ public class UCM implements SourceControl {
 
     /**
      * get which stream is being checked
-     * 
+     *
      * @return the name of the stream being checked
      */
     public String getStream() {
@@ -119,7 +119,7 @@ public class UCM implements SourceControl {
 
     /**
      * set the stream to check for changes
-     * 
+     *
      * @param stream
      *            the stream to be checked (via its underlying branch)
      */
@@ -129,7 +129,7 @@ public class UCM implements SourceControl {
 
     /**
      * get the starting point path in a view to check for changes
-     * 
+     *
      * @return path inside a view
      */
     public String getViewPath() {
@@ -138,7 +138,7 @@ public class UCM implements SourceControl {
 
     /**
      * set the starting point path in a view to check for changes
-     * 
+     *
      * @param viewPath
      *            path inside a view
      */
@@ -148,7 +148,7 @@ public class UCM implements SourceControl {
 
     /**
      * Set the name of the pvob to use for queries.
-     * 
+     *
      * @param pvob
      *            the pvob
      */
@@ -158,7 +158,7 @@ public class UCM implements SourceControl {
 
     /**
      * Get the name of the pvob to use for queries.
-     * 
+     *
      * @return The name of the pvob
      */
     public String getPvob() {
@@ -167,7 +167,7 @@ public class UCM implements SourceControl {
 
     /**
      * Gets whether rebases are to be reported as changes.
-     * 
+     *
      * @return true, if rebases are to be reported, else false
      */
     public boolean isRebases() {
@@ -176,7 +176,7 @@ public class UCM implements SourceControl {
 
     /**
      * Sets whether rebases of the integration stream are reported as changes.
-     * 
+     *
      * @param rebases
      *            boolean indicating whether rebases are to be reported as changes
      */
@@ -186,7 +186,7 @@ public class UCM implements SourceControl {
 
     /**
      * get whether contributors are to be found
-     * 
+     *
      * @return true, if contributors are to be found, else false
      */
     public boolean isContributors() {
@@ -195,7 +195,7 @@ public class UCM implements SourceControl {
 
     /**
      * set whether contributors are to be found
-     * 
+     *
      * @param contributors
      *            boolean indicating whether contributors are to be found
      */
@@ -205,7 +205,7 @@ public class UCM implements SourceControl {
 
     /**
      * set the name of the property that will be set if modifications are found
-     * 
+     *
      * @param property
      *            The name of the property to set
      */
@@ -216,7 +216,7 @@ public class UCM implements SourceControl {
     /**
      * Get a List of modifications detailing all the changes between now and the last build. Return this as an element.
      * It is not necessary for sourcecontrols to actually do anything other than returning a chunk of XML data back.
-     * 
+     *
      * @param lastBuild
      *            time of last build
      * @param now
@@ -515,7 +515,7 @@ public class UCM implements SourceControl {
      * Parses the given input stream to construct the modifications list. The stream is expected to be the result of
      * listing the history of a UCM stream. Rebases are then detected by delegating to {@link #parseEntry}.
      * Package-private to make it available to the unit test.
-     * 
+     *
      * @param input
      *            the stream to parse
      * @return a list of modification elements
@@ -556,7 +556,7 @@ public class UCM implements SourceControl {
      * This method looks for operations of type rmhlink and mkhlink where the hyperlink name begins with "UseBaseline".
      * These represent changes in the baseline dependencies of the stream.
      * </p>
-     * 
+     *
      * @param line
      *            the line to parse
      * @return a modification element corresponding to the given line

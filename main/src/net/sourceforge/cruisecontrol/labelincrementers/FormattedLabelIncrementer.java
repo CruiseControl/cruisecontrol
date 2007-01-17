@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,12 +44,12 @@ import org.jdom.Element;
  * This class provides a label incrementation for creating consistent, formatted upper
  * case labels. This class expects the label format to be either "x_y_z" or "y_z"
  * where x is any String, y is an integer and z is one of REL, INT or BLD.
- * 
+ *
  *  * Usage:
- * 
+ *
  *     &lt;formattedlabelincrementer prefix="false" defaultlabel="1.INT"/%gt;
  *
- * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a> 
+ * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  * @author Jeff Brekke (Jeff.Brekke@qg.com)
  * @author alden almagro (alden@thoughtworks.com)
  * @author Paul Julius (pdjulius@thoughtworks.com)
@@ -77,7 +77,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     public void setSeparator(String newSeparator) {
         separator = newSeparator;
     }
-    
+
     /**
      *  Set the pre/post behavior of the label incrementer
      *  @param preInc whether to increment the build before the build, default is false
@@ -93,14 +93,14 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     public void setPrefix(boolean prefix) {
         includePrefix = prefix;
     }
-  
+
     /**
      * Get the default label
      * @return string containing the default label
      */
     public String getDefaultLabel() {
         if (includePrefix) {
-            return defaultPrefix + separator 
+            return defaultPrefix + separator
                 + defaultBuildNum + separator + defaultSuffix;
         } else {
             return defaultBuildNum + separator + defaultSuffix;
@@ -119,7 +119,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
             defaultPrefix = label.substring(0, separatorIndex);
             separatorIndex = defaultPrefix.lastIndexOf(separator);
             defaultBuildNum = Integer.parseInt(
-                defaultPrefix.substring(separatorIndex + 1, 
+                defaultPrefix.substring(separatorIndex + 1,
                 defaultPrefix.length()));
             defaultPrefix = defaultPrefix.substring(0, separatorIndex).toUpperCase();
         } else {
@@ -128,7 +128,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
                 label.substring(0, label.indexOf(separator)));
         }
     }
-    
+
     /**
      * Checks whether the label should be incremented pre/post build
      * @return true if the label will be incremented before the build, else false
@@ -136,10 +136,10 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     public boolean isPreBuildIncrementer() {
         return preIncrement;
     }
-      
+
     /**
      * Increments the label when a successful build occurs.
-     * Assumes that the label will be in the format of "x_y_z" or "y_z", 
+     * Assumes that the label will be in the format of "x_y_z" or "y_z",
      * where x can be anything, y is an integer and z is one of REL, INT or BLD
      * The y value will be incremented by one, the rest will remain the same.
      * The label is converted to uppercase by default.
@@ -149,10 +149,10 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
      */
     public String incrementLabel(String oldLabel, Element buildLog) {
         String newLabel;
-        
+
         if (includePrefix) {
             String prefix1 = oldLabel.substring(0, oldLabel.lastIndexOf(separator));
-            String prefix2 = prefix1.substring(0, prefix1.lastIndexOf(separator)); 
+            String prefix2 = prefix1.substring(0, prefix1.lastIndexOf(separator));
             String suffix  = oldLabel.substring(
                 oldLabel.lastIndexOf(separator) + 1,
                 oldLabel.length());
@@ -160,7 +160,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
                 prefix1.lastIndexOf(separator) + 1,
                 prefix1.length());
             int i = Integer.parseInt(buildnum);
-            newLabel = prefix2.toUpperCase() + separator 
+            newLabel = prefix2.toUpperCase() + separator
                 + ++i + separator + suffix.toUpperCase();
         } else {
             String suffix  = oldLabel.substring(
@@ -173,13 +173,13 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
         }
         LOG.debug("Incrementing label: " + oldLabel + " -> " + newLabel);
         return newLabel;
-    } 
+    }
 
     /**
      * Verify that the label specified is a valid label.  In this case a valid
      * label contains at least one '_' character, and an integer after the last
      * but one occurrence of the '_' character, followed by REL, INT or BLD
-     * 
+     *
      * @param label the label to check for validity
      * @return true if label is valid, else false
      */
@@ -193,7 +193,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
         try {
             String suffix;
             String buildnum;
-            
+
             // check for label format
             if (includePrefix) {
                 String prefix1 = label.substring(0, label.lastIndexOf(separator));
@@ -206,7 +206,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
                     label.length());
                 buildnum = label.substring(0, label.indexOf(separator));
             }
-            
+
             // check for consistent suffix
             if (suffix.equals("BLD") || suffix.equals("INT") || suffix.equals("REL")) {
                 Integer.parseInt(buildnum);
@@ -218,5 +218,5 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
             return false;
         }
     }
-       
+
 }

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,10 +81,10 @@ public class Schedule {
         checkParamNotNull("builder", builder);
         builders.add(builder);
     }
-    
+
     public void add(PauseBuilder pause) {
         checkParamNotNull("pauseBuilder", pause);
-        pauseBuilders.add(pause);        
+        pauseBuilders.add(pause);
     }
 
     /**
@@ -148,7 +148,7 @@ public class Schedule {
         if (buildTarget != null) {
             LOG.info("Overriding build target with \"" + buildTarget + "\"");
             return builder.buildWithTarget(properties, buildTarget);
-        } 
+        }
         return builder.build(properties);
     }
 
@@ -164,13 +164,13 @@ public class Schedule {
     protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
         throws CruiseControlException {
         Builder builder = findBuilder(buildNumber, lastBuild, now);
-        
+
         if (builder == null) {
             long timeToNextBuild = getTimeToNextBuild(now, ONE_MINUTE);
             Date futureDate = getFutureDate(now, timeToNextBuild);
             builder = findBuilder(buildNumber, now, futureDate);
         }
-        
+
         if (builder == null) {
             validate();
             throw new CruiseControlException("configuration error not caught by validate? no builder selected");
@@ -203,7 +203,7 @@ public class Schedule {
                 throw new CruiseControlException("The selected Builder is not properly configured");
             }
         }
-               
+
         return null;
     }
 
@@ -229,22 +229,22 @@ public class Schedule {
         LOG.debug("getTimeToNextBuild: after checkTimeBuilders = " + timeToNextBuild);
         long timeTillNotPaused = checkPauseBuilders(now, timeToNextBuild);
         LOG.debug("getTimeToNextBuild: after checkPauseBuilders = " + timeToNextBuild);
-        
+
         if (timeToNextBuild != timeTillNotPaused) {
             boolean atMaxTime = timeTillNotPaused >= MAX_INTERVAL_MILLISECONDS
                               || priorPauseAdjustment >= MAX_INTERVAL_MILLISECONDS;
             if (hasOnlyTimeBuilders() && !atMaxTime) {
                 Date dateAfterPause = getFutureDate(now, timeTillNotPaused);
-                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause, 
+                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause,
                                                                                 0,
                                          priorPauseAdjustment + timeTillNotPaused);
                 timeToNextBuild = timeTillNotPaused + adjustmentFromEndOfPause;
                 timeToNextBuild = checkMaximumInterval(timeToNextBuild);
             } else {
-                timeToNextBuild = timeTillNotPaused;                
+                timeToNextBuild = timeTillNotPaused;
             }
         }
-        
+
         return timeToNextBuild;
     }
 
@@ -253,9 +253,9 @@ public class Schedule {
             LOG.debug("has only time builders, so no correction for multiple builders.");
             return interval;
         }
-        
+
         Date then = getFutureDate(now, interval);
-        
+
         List buildersForOtherDays = new ArrayList();
         Iterator iterator = builders.iterator();
         while (iterator.hasNext()) {
@@ -272,14 +272,14 @@ public class Schedule {
                 }
             }
         }
-        
+
         if (buildersForOtherDays.size() == 0) {
             LOG.error("configuration error: has some multiple builders but no multiple=1 builders found!");
             return interval;
         } else {
             LOG.debug("no multiple=1 builders found for " + then + ". checking other days");
         }
-        
+
         for (int i = 1; i < 7; i++) {
             long daysPastInitialInterval = i * ONE_DAY;
             then = getFutureDate(now, interval + daysPastInitialInterval);
@@ -291,9 +291,9 @@ public class Schedule {
                     long correctionToMidnight = getTimePastMidnight(then);
                     return interval + daysPastInitialInterval - correctionToMidnight;
                 }
-            }            
+            }
         }
-        
+
         LOG.error("configuration error? could not find appropriate multiple=1 builder.");
         return interval;
     }
@@ -376,7 +376,7 @@ public class Schedule {
             oldTime = newTime;
             newTime = checkForPauseAtProposedTime(now, oldTime);
         }
-        
+
         return newTime;
     }
 
@@ -431,7 +431,7 @@ public class Schedule {
 
         ValidationHelper.assertFalse(interval > ONE_YEAR,
             "maximum interval value is " + MAX_INTERVAL_SECONDS + " (one year)");
-        
+
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
             ValidationHelper.assertFalse(checkWithinPause(new ArrayList(builders)), "all build times during pauses.");
@@ -466,7 +466,7 @@ public class Schedule {
         return timeBuilders.isEmpty();
     }
 
-    /** 
+    /**
      * @param day int value
      * @return english string value
      */
@@ -485,7 +485,7 @@ public class Schedule {
     }
 
     private boolean buildTimeWithinPauseTime(Builder builder, PauseBuilder pauseBuilder) {
-        return pauseBuilder.getStartTime() < builder.getTime() 
+        return pauseBuilder.getStartTime() < builder.getTime()
                 && builder.getTime() < pauseBuilder.getEndTime();
     }
 

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class ProjectNavigationTagTest extends TestCase {
         }
         final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
         servletConfig.setInitParameter("logDir", logDir.getAbsolutePath());
-        
+
 
         logProjects = new File[] { new File(logDir, "ProjectB"), new File(logDir, "Project A"),
                                    new File(logDir, "First_project") };
@@ -97,32 +97,32 @@ public class ProjectNavigationTagTest extends TestCase {
         assertEquals("First_project", projects[0]);
     }
 
-        
+
     public void testGetLinks() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
         tag.doInitBody();
-        
+
         assertEquals("", pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR));
         assertEquals("/context/", pageContext.getAttribute(ProjectNavigationTag.URL_ATTR));
-        assertEquals(ProjectNavigationTag.STATUS_PAGE_TEXT, 
+        assertEquals(ProjectNavigationTag.STATUS_PAGE_TEXT,
                      pageContext.getAttribute(ProjectNavigationTag.LINK_TEXT_ATTR));
-        
+
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("", pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR));
         assertEquals("/context/servlet/First_project", pageContext.getAttribute(ProjectNavigationTag.URL_ATTR));
         assertEquals("First_project", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        
+
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
-        assertEquals(ProjectNavigationTag.SELECTED_ATTR_VALUE, 
+        assertEquals(ProjectNavigationTag.SELECTED_ATTR_VALUE,
                      // selected because the getPathInfo is set to this project
-                     pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR)); 
+                     pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR));
         assertEquals("/context/servlet/Project A", pageContext.getAttribute(ProjectNavigationTag.URL_ATTR));
         assertEquals("Project A", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        
+
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doAfterBody());
         assertEquals("", pageContext.getAttribute(ProjectNavigationTag.SELECTED_ATTR));
         assertEquals("ProjectB", pageContext.getAttribute(NavigationTag.LINK_TEXT_ATTR));
-        
+
         assertEquals(Tag.SKIP_BODY, tag.doAfterBody());
     }
 

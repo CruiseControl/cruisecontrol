@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,12 @@ import junit.framework.TestCase;
 public class PruneElementFilterTest extends TestCase {
 
     private SAXBuilder builder;
-    
+
     protected void setUp() throws Exception {
         builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         builder.setXMLFilter(new PruneElementFilter("properties"));
     }
-    
+
     public void testFiltering() throws Exception {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
                    + "<testsuites><testsuite><properties>"

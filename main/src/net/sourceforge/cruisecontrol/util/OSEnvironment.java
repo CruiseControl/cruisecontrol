@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ import org.apache.log4j.Logger;
  * A simple utility class for obtaining and parsing system environment
  * variables. It has been tested on Windows 2000, Windows XP, Solaris, and
  * HP-UX, though it should work with any Win32 (95+) or Unix based palatform.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
  */
 public class OSEnvironment {
@@ -116,7 +116,7 @@ public class OSEnvironment {
 
     /**
      * Constructor
-     * 
+     *
      * Creates an instance of OSEnvironment, queries the OS to discover it's
      * environment variables and makes them available through the getter methods
      */
@@ -184,12 +184,12 @@ public class OSEnvironment {
     /**
      * Gets the value of an environment variable. The variable name is case
      * sensitive.
-     * 
+     *
      * @param variable
      *            The variable for which you wish the value
-     * 
+     *
      * @return The value of the variable, or <code>null</code> if not found
-     * 
+     *
      * @see #getVariable(String variable, String defaultValue)
      */
     public String getVariable(String variable) {
@@ -199,14 +199,14 @@ public class OSEnvironment {
     /**
      * Gets the value of an environment variable. The variable name is case
      * sensitive.
-     * 
+     *
      * @param variable
      *            the variable for which you wish the value
-     * 
+     *
      * @param defaultValue
      *            The value to return if the variable is not set in the
      *            environment.
-     * 
+     *
      * @return The value of the variable. If the variable is not found, the
      *         defaultValue is returned.
      */
@@ -219,10 +219,10 @@ public class OSEnvironment {
      * sensitive. If more than one variable matches the pattern provided, the
      * result is unpredictable. You are greatly encouraged to use
      * <code>getVariable()</code> instead.
-     * 
+     *
      * @param variable
      *            the variable for which you wish the value
-     * 
+     *
      * @see #getVariable(String variable)
      * @see #getVariable(String variable, String defaultValue)
      */
@@ -240,7 +240,7 @@ public class OSEnvironment {
     /**
      * Adds a variable to this representation of the environment. If the
      * variable already existed, the value will be replaced.
-     * 
+     *
      * @param variable
      *            the variable to set
      * @param value
@@ -253,11 +253,11 @@ public class OSEnvironment {
     /**
      * Returns all environment variables which were set at the time the class
      * was instantiated, as well as any which have been added programatically.
-     * 
+     *
      * @return a <code>List</code> of all environment variables. The
      *         <code>List</code> is made up of <code>String</code>s of the
      *         form "variable=value".
-     * 
+     *
      * @see #toArray()
      */
     public List getEnvironment() {
@@ -273,12 +273,12 @@ public class OSEnvironment {
     /**
      * Returns all environment variables which were set at the time the class
      * was instantiated, as well as any which have been added programatically.
-     * 
+     *
      * @return a <code>String[]</code> containing all environment variables.
      *         The <code>String</code>s are of the form "variable=value".
      *         This is the format expected by
      *         <code>java.lang.Runtime.exec()</code>.
-     * 
+     *
      * @see java.lang.Runtime
      */
     public String[] toArray() {

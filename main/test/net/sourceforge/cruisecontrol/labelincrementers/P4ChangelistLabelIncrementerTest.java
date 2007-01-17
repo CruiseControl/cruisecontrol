@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ import org.apache.tools.ant.types.PatternSet.NameEntry;
  * This test references several resources from the same package.  It also
  * has "p4_client3.txt" which, though not referenced here, was used to
  * generate "p4_where3.txt".
- * 
+ *
  * @author <a href="mailto:groboclown@users.sourceforge.net">Matt Albrecht</a>
  */
 public class P4ChangelistLabelIncrementerTest extends TestCase {

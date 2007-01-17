@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.io.InputStreamReader;
 /**
  * This ClearCaseAuditLogger will parse a specified configuration record (created as the
  * result of an audited build) and place it into CruiseControl's log.
- * 
+ *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin A. Lee</a>
  *
  */
@@ -70,7 +70,7 @@ public class ClearCaseAuditLogger implements BuildLogger {
     public void setDoFiles(String files) {
         this.doFiles = files;
     }
-    
+
     /**
      * check that enough attributes have been set
      */
@@ -80,19 +80,19 @@ public class ClearCaseAuditLogger implements BuildLogger {
     }
 
     /**
-     * Merge the configuration records of a set of derived objects into the build log 
+     * Merge the configuration records of a set of derived objects into the build log
      * @param buildLog
      * @throws CruiseControlException
      */
     public void log(Element buildLog) throws CruiseControlException {
         String[] doList = splitOnComma(doFiles);
         for (int i = 0; i < doList.length; i++) {
-            
+
             // add an element for audit
             Element auditElement = new Element("audit");
             auditElement.setAttribute("name", doList[i]);
             buildLog.addContent(auditElement);
-        
+
             Commandline commandLine = buildConfigRecCommand(doList[i]);
             LOG.debug("Executing: " + commandLine);
             try {
@@ -102,10 +102,10 @@ public class ClearCaseAuditLogger implements BuildLogger {
                      BufferedReader br = new BufferedReader(isr);
                      String line;
                      while ((line = br.readLine()) != null) {
-                         if (line.startsWith("---")) { 
+                         if (line.startsWith("---")) {
                              // ignore
-                         } else if (line.startsWith("MVFS")) { 
-                             // ignore  
+                         } else if (line.startsWith("MVFS")) {
+                             // ignore
                          } else {
                              Element doElement = new Element("do");
                              // removing leading characters
@@ -120,23 +120,23 @@ public class ClearCaseAuditLogger implements BuildLogger {
                                  // element version
                                  doElement.setAttribute("type", "version");
                                  if (line.indexOf("@") > 0) {
-                                     doElement.setAttribute("version", line.substring(line.indexOf("@") 
+                                     doElement.setAttribute("version", line.substring(line.indexOf("@")
                                          + 2, line.lastIndexOf("<") - 1));
                                  } else {
                                      doElement.setAttribute("version", line.substring(line.indexOf("<")
-                                         + 1, line.lastIndexOf(">") - 1)); 
+                                         + 1, line.lastIndexOf(">") - 1));
                                  }
                              } else {
                                  // do version
                                  doElement.setAttribute("type", "do");
-                                 doElement.setAttribute("version", line.substring(line.indexOf("@") 
+                                 doElement.setAttribute("version", line.substring(line.indexOf("@")
                                      + 2, line.length()));
                              }
                              auditElement.addContent(doElement);
                         }
                      }
                  } catch (IOException ioe) {
-                     LOG.error("Error executing ClearCase catcr command", ioe);  
+                     LOG.error("Error executing ClearCase catcr command", ioe);
                  }
                  p.waitFor();
                  IO.close(p);
@@ -145,7 +145,7 @@ public class ClearCaseAuditLogger implements BuildLogger {
              }
         }
     }
-    
+
     private String[] splitOnComma(String doFiles) {
         return doFiles.split(",");
     }
@@ -160,6 +160,6 @@ public class ClearCaseAuditLogger implements BuildLogger {
         commandLine.createArgument("-union");
         commandLine.createArgument(file);
         return commandLine;
-    }      
-    
+    }
+
 }

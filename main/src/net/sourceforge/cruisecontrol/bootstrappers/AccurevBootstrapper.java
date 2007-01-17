@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
 /**
  * Simply runs "accurev update" to update the current workspace. Automatic keep and synctime are
  * provided as options.
- * 
+ *
  * @author <a href="mailto:jason_chown@scee.net">Jason Chown</a>
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
@@ -61,7 +61,7 @@ public class AccurevBootstrapper implements Bootstrapper {
 
   /**
    * Enables/disables verbose logging
-   * 
+   *
    * @param verbose
    *          if true, verbose logging is enabled
    */
@@ -70,7 +70,7 @@ public class AccurevBootstrapper implements Bootstrapper {
   }
   /**
    * Enables/disables automatic keep
-   * 
+   *
    * @param keep
    *          if true, "accurev keep -m" is run on the selected workspace, to keep al modified files
    */
@@ -79,7 +79,7 @@ public class AccurevBootstrapper implements Bootstrapper {
   }
   /**
    * Enables/disables automatic synctime
-   * 
+   *
    * @param synctime
    *          if true, "accurev synctime" is run on the selected workspace, synchronizing the
    *          server's time with the client's
@@ -89,7 +89,7 @@ public class AccurevBootstrapper implements Bootstrapper {
   }
   /**
    * Selects a workspace
-   * 
+   *
    * @param workspace
    *          the path of the workspace to work in, in the local filesystem
    */

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class SCPPublisher implements Publisher {
     private String targetSeparator = File.separator;
     private String sourceSeparator = File.separator;
 
-    public void setExecutableName(String executableName) {        
+    public void setExecutableName(String executableName) {
         this.executableName = executableName;
     }
 
@@ -116,7 +116,7 @@ public class SCPPublisher implements Publisher {
     public void setTargetSeparator(String targetSeparator) {
         this.targetSeparator = targetSeparator;
     }
-    
+
     public void setSourceSeparator(String sourceSeparator) {
         this.sourceSeparator = sourceSeparator;
     }

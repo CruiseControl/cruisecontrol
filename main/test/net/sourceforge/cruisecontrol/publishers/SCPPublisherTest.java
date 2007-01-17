@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,9 +65,9 @@ public class SCPPublisherTest extends TestCase {
         testpublisher.getLogFileNameWasCalled = false;
         assertFalse(testpublisher.getLogFileNameWasCalled);
         testpublisher.publish(null);
-        assertTrue(testpublisher.getLogFileNameWasCalled);        
+        assertTrue(testpublisher.getLogFileNameWasCalled);
     }
-    
+
     public void testValidate() throws CruiseControlException {
         publisher.setSourceUser("user1");
         try {
@@ -75,7 +75,7 @@ public class SCPPublisherTest extends TestCase {
             fail("SCPPublisher should throw exceptions when only user is set.");
         } catch (CruiseControlException e) {
         }
-        
+
         publisher.setSourceUser(null);
         publisher.setSourceHost("host1");
         try {
@@ -83,12 +83,12 @@ public class SCPPublisherTest extends TestCase {
             fail("SCPPublisher should throw exceptions when only host is set.");
         } catch (CruiseControlException e) {
         }
-        
+
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
-        publisher.validate();        
+        publisher.validate();
     }
-    
+
     public void testValidateShouldFailWithInvalidExecutableName() throws CruiseControlException {
         publisher.setSourceUser("user1");
         publisher.setSourceHost("host1");
@@ -98,14 +98,14 @@ public class SCPPublisherTest extends TestCase {
             fail("SCPPublisher should throw exceptions with null executableName.");
         } catch (CruiseControlException e) {
         }
-        
+
         publisher.setExecutableName("");
         try {
             publisher.validate();
             fail("SCPPublisher should throw exceptions with empty executableName.");
         } catch (CruiseControlException e) {
         }
-        
+
         publisher.setExecutableName("plink");
         publisher.validate();
     }
@@ -151,7 +151,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator,
             publisher.createCommandline("filename").toString());
     }
-    
+
     public void testCreateCommandlineWithAlternateExectuable() {
         publisher.setExecutableName("plink");
         publisher.setSourceUser("user1");
@@ -166,7 +166,7 @@ public class SCPPublisherTest extends TestCase {
                 + File.separator,
             publisher.createCommandline("filename").toString());
     }
-    
+
     private class TestSCPPublisher extends SCPPublisher {
         private boolean getLogFileNameWasCalled = false;
 
@@ -174,7 +174,7 @@ public class SCPPublisherTest extends TestCase {
             getLogFileNameWasCalled = true;
             return "fileName";
         }
-        
+
         protected void executeCommand(Commandline command) throws CruiseControlException {
         }
     }

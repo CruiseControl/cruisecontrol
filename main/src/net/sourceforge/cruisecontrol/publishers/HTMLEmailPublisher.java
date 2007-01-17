@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,7 +121,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             verifyFile("HTMLEmailPublisher.css", css);
 
             String[] fileNames = getXslFileNames();
-            
+
             if (fileNames == null) {
                 throw new CruiseControlException("HTMLEmailPublisher.getXslFileNames() can't return null");
             }
@@ -248,7 +248,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
         relativePathToXslFile = relativePathToXslFile.trim();
         boolean appending = relativePathToXslFile.startsWith("+");
-        
+
         if (appending) {
             relativePathToXslFile = relativePathToXslFile.substring(1);
         }
@@ -264,11 +264,11 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
         String[] newXSLFileNames = new String[i + numTokens];
         System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
-        
+
         while (st.hasMoreTokens()) {
             newXSLFileNames[i++] = st.nextToken();
         }
-        
+
         setXSLFileNames(newXSLFileNames);
     }
 
@@ -310,7 +310,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     /**
-     * Provided as an alternative to setXSLFileNames for changing the list of 
+     * Provided as an alternative to setXSLFileNames for changing the list of
      * files to use.
      * @return xsl files to use in generating the email
      */
@@ -391,7 +391,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             for (int i = 0; i < fileNames.length; i++) {
                 String fileName = fileNames[i];
                 File xsl = new File(xslDirectory, fileName);
-                messageBuffer.append("<p>\n"); 
+                messageBuffer.append("<p>\n");
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
 

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2006, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,18 +47,18 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * @author hack
  */
 public class BaseManipulatorTest extends TestCase {
-    
+
     public BaseManipulatorTest(String testName) {
         super(testName);
     }
 
     public static Test suite() {
         TestSuite suite = new TestSuite(BaseManipulatorTest.class);
-        
+
         return suite;
     }
 
-    public void testSetUnit() throws CruiseControlException {        
+    public void testSetUnit() throws CruiseControlException {
         BaseManipulator instance = new BaseManipulatorImpl();
 
         instance.setUnit("DAY");

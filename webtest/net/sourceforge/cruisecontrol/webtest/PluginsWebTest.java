@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2005 ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,19 +43,19 @@ public class PluginsWebTest extends WebTestCase {
     private static final String ALL_BOOTSTRAPPERS_URL = BASE + "&pluginType=bootstrapper";
     private static final String ALL_PUBLISHERS_URL = BASE + "&pluginType=publisher";
     private static final String ALL_SOURCE_CONTROLS_URL = BASE + "&pluginType=sourcecontrol";
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl("http://localhost:7854");
     }
-    
+
     public void testShouldBeAccessibleFromBasicConfigPage() throws Exception {
         beginAt("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Bootstrappers");
 
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Publishers");
-        
+
         gotoPage("/cruisecontrol/config.jspa");
         assertLinkPresentWithText("Source Controls");
     }
@@ -65,13 +65,13 @@ public class PluginsWebTest extends WebTestCase {
         assertFormPresent("load-bootstrapper");
         assertFormElementPresent("pluginName");
     }
-    
+
     public void testShouldListAvailablePublishers() {
         beginAt(ALL_PUBLISHERS_URL);
         assertFormPresent("load-publisher");
         assertFormElementPresent("pluginName");
     }
-    
+
     public void testShouldListAvailableSourceControls() {
         beginAt(ALL_SOURCE_CONTROLS_URL);
         assertFormPresent("load-sourcecontrol");

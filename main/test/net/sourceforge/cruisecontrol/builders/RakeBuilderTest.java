@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,11 +78,11 @@ public class RakeBuilderTest extends TestCase {
     TimeoutProcess(long timeoutMillis) {
         this.timeoutMillis = timeoutMillis;
     }
-    
+
     public synchronized void destroy() {
        notifyAll();
     }
-    
+
     public int waitFor() throws InterruptedException {
         synchronized (this) {
             try {
@@ -175,7 +175,7 @@ public class RakeBuilderTest extends TestCase {
 
     }
     */
-    
+
     /*public void testValidateBuildFileWorksForNonDefaultDirectory() throws IOException, CruiseControlException {
         File rakeworkdir = new File("rakeworkdir");
         rakeworkdir.mkdir();
@@ -205,7 +205,7 @@ public class RakeBuilderTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
     }*/
-    
+
     /*
     private int getInfoCount(Element buildElement) {
         int infoFoundCount = 0;

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ public class CruiseControlConfigTest extends TestCase {
         testpropertiesdir.setAttribute("name", "test.properties.dir");
         testpropertiesdir.setAttribute("value", propertiesFile.getParentFile().getAbsolutePath());
         ccElement.addContent(0, testpropertiesdir);
-        
+
         config = new CruiseControlConfig(ccElement);
     }
 
@@ -92,13 +92,13 @@ public class CruiseControlConfigTest extends TestCase {
         // in testconfig.xml.
         File fooDirectory = new File(classpathDirectory, "foo");
         fooDirectory.delete();
-        
+
         propertiesFile = null;
         configFile = null;
         classpathDirectory = null;
         config = null;
     }
-    
+
     public void testUseNonDefaultProjects() throws CruiseControlException {
         Element root = new Element("cruisecontrol");
 
@@ -106,16 +106,16 @@ public class CruiseControlConfigTest extends TestCase {
         plugin.setAttribute("name", "foo");
         plugin.setAttribute("classname", DummyProject.class.getName());
         root.addContent(0, plugin);
-        
+
         Element dummy = new Element("foo");
         dummy.setAttribute("name", "dummy");
         root.addContent(dummy);
-        
+
         config = new CruiseControlConfig(root);
         assertEquals(1, config.getProjectNames().size());
         assertNotNull(config.getProject("dummy"));
     }
-    
+
     public static class DummyProject implements ProjectInterface {
 
         private String name;
@@ -125,7 +125,7 @@ public class CruiseControlConfigTest extends TestCase {
 
         public void execute() {
         }
-        
+
         public void setName(String name) {
             this.name = name;
         }
@@ -151,9 +151,9 @@ public class CruiseControlConfigTest extends TestCase {
 
         public void validate() throws CruiseControlException {
         }
-        
+
     }
-    
+
     public void testProjectNamesShouldMatchOrderInFile() {
         Set names = config.getProjectNames();
         Iterator iter = names.iterator();
@@ -180,7 +180,7 @@ public class CruiseControlConfigTest extends TestCase {
         Properties props = projConfig.getProperties();
         assertEquals(5, props.size());
         assertEquals("project1", props.getProperty("project.name"));
-    }    
+    }
 
     public void testProjectNameInGlobalProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
@@ -189,7 +189,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("works!", props.getProperty("global"));
         assertEquals("project1", props.getProperty("project.name"));
         assertEquals("project=project1", props.getProperty("project.global"));
-    }    
+    }
 
     public void testSimpleProperty() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
@@ -226,7 +226,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(5, props.size());
         assertEquals("eclipsed", props.getProperty("global"));
     }
-    
+
     public void testLoadPropertiesFromFile() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("propsfromfile");
         Properties props = projConfig.getProperties();

@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,14 +57,14 @@ public class MKSTest extends TestCase {
         }
 
         mks.setLocalWorkingDir("empty");
-        
+
         try {
             mks.validate();
             fail("MKS should throw exceptions when required attributes are not set.");
         } catch (CruiseControlException e) {
             assertTrue(true);
         }
-        
+
         mks.setProject("empty");
 
         try {

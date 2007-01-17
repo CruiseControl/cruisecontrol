@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,11 +59,11 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * needed. The session information is persisted and made available to other CM
  * Synergy plugins through the session file - a simple properties file which
  * maps a session name to a CM Synergy session ID.
- * 
+ *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith </a>
  */
 public class CMSynergySessionMonitor implements Listener {
-    
+
     private static final Logger LOG = Logger
             .getLogger(CMSynergySessionMonitor.class);
 
@@ -73,7 +73,7 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * Sets the name of the CM Synergy executable to use when issuing commands.
-     * 
+     *
      * @param ccmExe
      *            the name of the CM Synergy executable
      */
@@ -90,7 +90,7 @@ public class CMSynergySessionMonitor implements Listener {
      * example: <br>
      * <br>
      * session1=localhost:65024:192.168.1.17
-     * 
+     *
      * @param sessionFile
      *            The session file
      */
@@ -101,7 +101,7 @@ public class CMSynergySessionMonitor implements Listener {
     /**
      * Creates a new <code>CMSynergySession</code> object and adds it to our
      * list of monitored sessions.
-     * 
+     *
      * @return The newly created <code>CMSynergySession</code> object.
      */
     public CMSynergySession createSession() {
@@ -112,31 +112,31 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * A simple representation of a CM Synergy commandline session
-     * 
+     *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
      */
     public class CMSynergySession {
-                
+
         private String name;
         private String db;
         private String role;
         private String user;
         private String password;
         private String host;
-        
+
         /**
          * Gets the given name of the session.
-         * 
+         *
          * @return The name.
          */
         public String getName() {
             return name;
         }
- 
+
         /**
-         * Sets the name of the session as it will be referenced in the 
+         * Sets the name of the session as it will be referenced in the
          * Cruise Control config file
-         * 
+         *
          * @param name The session's given name.
          */
         public void setName(String name) {
@@ -145,7 +145,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the password used to start the session.
-         * 
+         *
          * @return The password.
          */
         public String getPassword() {
@@ -154,7 +154,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the password which will be used to start the session.
-         * 
+         *
          * @param password The password.
          */
         public void setPassword(String password) {
@@ -163,7 +163,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the CM Synergy role under which the session was started.
-         * 
+         *
          * @return The role.
          */
         public String getRole() {
@@ -172,7 +172,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the CM Synergy role under which the session will be started.
-         * 
+         *
          * @param role The role.
          */
         public void setRole(String role) {
@@ -181,7 +181,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the user ID under which the session was started.
-         * 
+         *
          * @return The user ID.
          */
         public String getUser() {
@@ -190,16 +190,16 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the user ID under which the session will be started.
-         * 
+         *
          * @param user The user ID.
          */
         public void setUser(String user) {
             this.user = user;
         }
-        
+
         /**
          * Gets the CM Synergy database with which the session is associated
-         * 
+         *
          * @return The database.
          */
         public String getDatabase() {
@@ -209,25 +209,25 @@ public class CMSynergySessionMonitor implements Listener {
         /**
          * Sets the CM Synergy database with which the session will be
          * associated
-         * 
+         *
          * @param db The database.
          */
         public void setDatabase(String db) {
             this.db = db;
         }
-        
+
         /**
          * Gets the host upon which the session is running.
-         * 
+         *
          * @return The host.
          */
         public String getHost() {
             return host;
         }
-        
+
         /**
          * Sets the host upon which the session will run.
-         * 
+         *
          * @param host The host.
          */
         public void setHost(String host) {
@@ -237,7 +237,7 @@ public class CMSynergySessionMonitor implements Listener {
         /**
          * Sets the attribute (properties) file from which the session
          * information will be loaded.
-         * 
+         *
          * @param attributeFile
          *            The file from which to read our session attributes.
          */
@@ -259,7 +259,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Validates the fields of this object.
-         * 
+         *
          * @throws CruiseControlException
          */
         public void validate() throws CruiseControlException {
@@ -275,10 +275,10 @@ public class CMSynergySessionMonitor implements Listener {
      * Checks the given session file. If it is does not exist, it is created.
      * This method is synchronized to prevent multiple threads from attempting
      * to create the same file.
-     * 
+     *
      * @param sessionFile
      *            The session file to check
-     * 
+     *
      * @throws CruiseControlException
      */
     private static synchronized void checkSessionFile(File sessionFile) throws CruiseControlException {
@@ -295,7 +295,7 @@ public class CMSynergySessionMonitor implements Listener {
                                 + sessionFile.getAbsolutePath(), e);
             }
         }
-        
+
         // Make certain that it's writable
         if (!sessionFile.canWrite()) {
             throw new CruiseControlException("Session file \""
@@ -309,14 +309,14 @@ public class CMSynergySessionMonitor implements Listener {
      * (and accessible). If they are not, new sessions are started as needed.
      * This method is synchronized to prevent multiple threads from each
      * starting their own CM Synergy sessions.
-     * 
+     *
      * @param ccmExe
      *            The CM Synergy command line executable
      * @param sessionFile
      *            The CM Synergy session map file
      * @param sessions
      *            A list of monitored CM Synergy sessions
-     * 
+     *
      * @throws CruiseControlException
      */
     private static synchronized void checkSessions(String ccmExe,
@@ -374,12 +374,12 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * Launches a new CM Synergy command line session
-     * 
+     *
      * @param session
      *            The session information
      */
     private static String startSession(String ccmExe, CMSynergySession session) {
-        
+
         LOG.info("Starting a new CM Synergy session for \"" + session.getName()
                 + "\".");
 
@@ -407,11 +407,11 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         return cmd.getStdoutAsString().trim();
-    }    
-        
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.sourceforge.cruisecontrol.Listener#handleEvent(net.sourceforge.cruisecontrol.ProjectEvent)
      */
     public void handleEvent(ProjectEvent event) throws CruiseControlException {

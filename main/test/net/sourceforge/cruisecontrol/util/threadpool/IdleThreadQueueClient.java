@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,12 +46,12 @@ package net.sourceforge.cruisecontrol.util.threadpool;
 public class IdleThreadQueueClient implements WorkerThread {
     private static final int ONE_SECOND = 1000;
     private static final int TENTH_OF_SECOND = 100;
-    
+
     private final String name;
     private Object result = null;
     private boolean terminate = false;
     private Object mutex = new Object();
-    
+
     public IdleThreadQueueClient(String name) {
         this.name = name;
     }

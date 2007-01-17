@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,16 +109,16 @@ public class NavigationTagTest extends TestCase {
     public void testGetFormattedLinkText() throws ParseException, JspTagException {
         String formatString = "dd-MMM-yyyy HH:mm:ss";
         tag.setDateFormat(formatString);
-        
+
         DateFormat inputFormat = new  SimpleDateFormat("yyyyMMddHHmmss");
         Date date = inputFormat.parse("20020222120000");
         DateFormat expectedFormat = new SimpleDateFormat(formatString);
-        String expectedDate = expectedFormat.format(date); 
+        String expectedDate = expectedFormat.format(date);
 
         assertEquals(expectedDate, getLinkText("log20020222120000"));
         assertEquals(expectedDate + " (3.11)", getLinkText("log20020222120000L3.11"));
     }
-    
+
     public void testGetLinks() throws JspException {
         assertEquals(BodyTag.EVAL_BODY_TAG, tag.doStartTag());
         tag.doInitBody();

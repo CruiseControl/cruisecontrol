@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.HashMap;
 
 /**
  * A thin wrapper around the AntBuilder class, this class allows you to call an Ant script as a bootstrapper.
- * 
+ *
  * @see net.sourceforge.cruisecontrol.builders.AntBuilder
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */

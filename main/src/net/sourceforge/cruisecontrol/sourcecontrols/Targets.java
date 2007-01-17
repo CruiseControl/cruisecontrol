@@ -1,8 +1,8 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2001-2003, ThoughtWorks, Inc.
- * 651 W Washington Ave. Suite 600
- * Chicago, IL 60661 USA
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,11 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 /**
  * The class identifies the source control objects that it
  * contains as targets to be built only when corresponding
- * triggers are modified. See the Compound class for more 
+ * triggers are modified. See the Compound class for more
  * information about how this class is used.
- * 
+ *
  * @author  <a href="mailto:will.gwaltney@sas.com">Will Gwaltney</a>
- 
+
  */
 public class Targets extends Compound.Entry {
 
@@ -54,13 +54,13 @@ public class Targets extends Compound.Entry {
     public Targets() {
         super();
     }
-    
+
     /**
      * Constructor that the Compound class uses to create
      * an object of this class.
-     * 
+     *
      * @param parent    the parent of this object (an
-     *                  object of class Compound) 
+     *                  object of class Compound)
      */
     public Targets(Compound parent) {
         super(parent);
