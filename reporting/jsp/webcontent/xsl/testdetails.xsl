@@ -126,16 +126,12 @@
       <td>
         <xsl:choose>
           <xsl:when test="error">
-            <a>
-              <xsl:attribute name="href">javascript:displayMessage('<xsl:value-of
-                select="../@package"/>.<xsl:value-of select="../@name"/>.<xsl:value-of
-                  select="@name"/>');</xsl:attribute> Error &#187; </a>
+            <a href="javascript:void(0)"
+               onClick="toggleDivVisibility(document.getElementById('{concat('error.',../@package,'.',../@name,'.',@name)}'))">Error &#187;</a>
           </xsl:when>
           <xsl:when test="failure">
-            <a>
-              <xsl:attribute name="href">javascript:displayMessage('<xsl:value-of
-                select="../@package"/>.<xsl:value-of select="../@name"/>.<xsl:value-of
-                  select="@name"/>');</xsl:attribute> Failure &#187; </a>
+            <a href="javascript:void(0)"
+               onClick="toggleDivVisibility(document.getElementById('{concat('failure.',../@package,'.',../@name,'.',@name)}'))">Failure &#187;</a>
           </xsl:when>
           <xsl:otherwise>Success</xsl:otherwise>
         </xsl:choose>
@@ -151,6 +147,26 @@
         </xsl:otherwise>
       </xsl:choose>
     </tr>
+    <xsl:if test="error">
+      <tr>
+        <td colspan="5">
+          <div id="{concat('error.',../@package,'.',../@name,'.',@name)}" class="testresults-output-div" style="display: none;">
+            <span style="font-weight:bold">Error:</span><br/>
+            <xsl:apply-templates select="error/text()" mode="newline-to-br"/>
+          </div>
+        </td>
+      </tr>
+    </xsl:if>
+    <xsl:if test="failure">
+      <tr>
+        <td colspan="5">
+          <div id="{concat('failure.',../@package,'.',../@name,'.',@name)}" class="testresults-output-div" style="display: none;">
+            <span style="font-weight:bold">Failure:</span><br/>
+            <xsl:apply-templates select="failure/text()" mode="newline-to-br"/>
+          </div>
+        </td>
+      </tr>
+    </xsl:if>
   </xsl:template>
   
   <!--

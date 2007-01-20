@@ -4,9 +4,20 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.6.1
 
+build loop
+======================
+
 ClearCase
-=====================
+----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
+
+
+reporting application
+======================
+
+testdetails.xsl
+----------------------
+* Fixed failure and error links (CC-545). Patch by J. David Beutel.
 
 
 CruiseControl Release Notes - 2.6
