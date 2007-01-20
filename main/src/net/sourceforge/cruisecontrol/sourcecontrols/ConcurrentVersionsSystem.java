@@ -53,8 +53,8 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.DiscardConsumer;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
@@ -579,7 +579,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     static String formatCVSDate(Date date) {
-        return DateUtil.formatCVSDate(date);
+        return CVSDateUtil.formatCVSDate(date);
     }
 
     /**
@@ -766,7 +766,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
             try {
                 if (newCVSVersion) {
-                    nextModification.modifiedTime = DateUtil.parseCVSDate(
+                    nextModification.modifiedTime = CVSDateUtil.parseCVSDate(
                             dateStamp + " " + timeStamp + " GMT");
                 } else {
                     nextModification.modifiedTime = logDateFormatter.parse(dateStamp + " " + timeStamp + " GMT");

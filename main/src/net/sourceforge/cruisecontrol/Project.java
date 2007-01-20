@@ -57,6 +57,7 @@ import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.jmx.ProjectController;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
+import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
@@ -476,14 +477,6 @@ public class Project implements Serializable, Runnable {
         return labelIncrementer;
     }
 
-    /**
-     * @param encoding the log xml encoding
-     * @deprecated
-     */
-    public void setLogXmlEncoding(String encoding) {
-        projectConfig.getLog().setEncoding(encoding);
-    }
-
     public void setName(String projectName) {
         name = projectName;
     }
@@ -702,7 +695,10 @@ public class Project implements Serializable, Runnable {
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
         buildProperties.put("label", label);
-        buildProperties.put("cvstimestamp", DateUtil.formatCVSDate(now));
+        
+        // TODO: Shouldn't have CVS specific properties here
+        buildProperties.put("cvstimestamp", CVSDateUtil.formatCVSDate(now));
+        
         buildProperties.put("cctimestamp", DateUtil.getFormattedTime(now));
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
