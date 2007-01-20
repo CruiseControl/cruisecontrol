@@ -36,12 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -59,23 +57,12 @@ public final class DateUtil {
 
     public static final String SIMPLE_DATE_FORMAT = "yyyyMMddHHmmss";
 
-    /**
-     * This is the date format required by commands passed to CVS.
-     */
-    // The timezone is hard coded to GMT to prevent problems with it being
-    // formatted as GMT+00:00. However, we still need to set the time zone
-    // of the formatter so that it knows it's in GMT.
-    private static final String CVS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss 'GMT'";
-
-    // This cannot be exposed as TimeZones are mutable
-    private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
-
     private DateUtil() {
     }
 
     /**
      * Create an integer time from a <code>Date</code> object.
-     *
+     * 
      * @param date
      *            The date to get the timestamp from.
      * @return The time as an integer formatted as "HHmm".
@@ -89,15 +76,8 @@ public final class DateUtil {
     }
 
     /**
-     * @deprecated Use correctly spelled <code>milliTimeDifference</code> instead.
-     */
-    public static long milliTimeDiffernce(int earlier, int later) {
-        return milliTimeDifference(earlier, later);
-    }
-
-    /**
      * finds the difference in milliseconds between two integer time values of the format "HHmm".
-     *
+     * 
      * @param earlier
      *            integer time value of format "HHmm"
      * @param later
@@ -112,7 +92,7 @@ public final class DateUtil {
 
     /**
      * Convert a time represented by the format "HHmm" into milliseconds.
-     *
+     * 
      * @param hhmm
      *            where hh are hours and mm are minutes
      * @return hhmm in milliseconds
@@ -181,27 +161,6 @@ public final class DateUtil {
         }
 
         return date;
-    }
-
-    /**
-     * Formats a given date as a the format required by commands passed to CVS.
-     * @param date the date
-     */
-    public static String formatCVSDate(Date date) {
-        DateFormat format = new SimpleDateFormat(CVS_DATE_PATTERN);
-        format.setTimeZone(UTC);
-        return format.format(date);
-    }
-
-    /**
-     * Parses a text in CVS date format as a date.
-     * @param text the date to parse
-     * @return a date in the default timezone
-     */
-    public static Date parseCVSDate(String text) throws ParseException {
-        DateFormat format = new SimpleDateFormat(CVS_DATE_PATTERN);
-        format.setTimeZone(UTC);
-        return format.parse(text);
     }
 
     /**

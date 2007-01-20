@@ -39,8 +39,8 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
@@ -80,7 +80,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     }
 
     private Date parseCVSDateFormat(String dateString) throws ParseException {
-        return DateUtil.parseCVSDate(dateString);
+        return CVSDateUtil.parseCVSDate(dateString);
     }
 
     private Date parseLogDateFormat(String dateString) throws ParseException {
