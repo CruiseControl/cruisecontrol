@@ -73,4 +73,4 @@ a img { border: 0 }
 .differences-oddrow { background-color:#CCCCCC }
 .differences-evenrow { background-color:#FFFFCC }
 
-.testresults-output-div { border:solid 1px; font-size: 9pt; font-family:monospace }
+.testresults-output-div { border:solid 1px; font-size: 9pt; font-family:monospace; overflow: auto; }
