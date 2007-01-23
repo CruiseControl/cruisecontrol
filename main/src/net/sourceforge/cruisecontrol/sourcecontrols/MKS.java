@@ -136,6 +136,7 @@ public class MKS implements SourceControl {
      * @param now
      *            Time now, or time to check.
      * @return maybe empty, never null.
+     * @throws CruiseControlException 
      */
     public List getModifications(Date lastBuild, Date now) {
 
@@ -146,14 +147,25 @@ public class MKS implements SourceControl {
             properties.modificationFound();
             return listOfModifications;
         }
-        String cmd;
 
         String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
         if (!new File(projectFilePath).exists()) {
             throw new RuntimeException("project file not found at " + projectFilePath);
         }
-        cmd = "si resync -f -R -S \"" + projectFilePath + "\"";
-
+        
+        Commandline cmdLine = new Commandline();
+        cmdLine.setExecutable("si");
+        cmdLine.createArgument("resync");
+        cmdLine.createArgument("-f");
+        cmdLine.createArgument("-R");
+        cmdLine.createArgument("-S");
+        cmdLine.createArgument(projectFilePath);
+        try {
+            cmdLine.setWorkingDir(localWorkingDir);
+        } catch (CruiseControlException e) {
+            throw new RuntimeException(e);
+        }
+        
         /* Sample output:
          * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
          * as dominik.hirt ... Resynchronizing files...
@@ -163,9 +175,7 @@ public class MKS implements SourceControl {
          */
 
         try {
-            LOG.debug(cmd);
-            Process proc = Runtime.getRuntime()
-                    .exec(cmd, null, localWorkingDir);
+            Process proc = cmdLine.execute();;
             Thread stdout = logStream(proc.getInputStream());
             InputStream in = proc.getErrorStream();
             BufferedReader reader = new BufferedReader(
