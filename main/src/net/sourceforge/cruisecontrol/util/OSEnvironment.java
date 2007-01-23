@@ -134,9 +134,9 @@ public class OSEnvironment {
 
         // Detemine the correct command to run based on OS name
         String os = System.getProperty("os.name").toLowerCase();
-        if (os.indexOf("windows 9") > -1) {
+        if (isWindows9x(os)) {
             command = "command.com /c set";
-        } else if ((os.indexOf("nt") > -1) || (os.indexOf("windows 20") > -1) || (os.indexOf("windows xp") > -1)
+        } else if ((os.indexOf("nt") > -1) || (os.indexOf("windows") > -1)
                 || (os.indexOf("os/2") > -1)) {
             command = "cmd.exe /c set";
         } else {
@@ -179,6 +179,10 @@ public class OSEnvironment {
         } catch (Exception e) {
             LOG.error("Failed to parse the OS environment.", e);
         }
+    }
+
+    private boolean isWindows9x(String os) {
+        return os.indexOf("windows 9") > -1;
     }
 
     /**

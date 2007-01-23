@@ -11,6 +11,10 @@ ClearCase
 ----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
 
+OSEnvironment
+----------------------
+* Fix for Windows Server 2003 and Java 5 (CC-573). Patch by Nate Austin
+
 
 reporting application
 ======================
