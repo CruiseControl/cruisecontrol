@@ -137,7 +137,7 @@ public class P4 implements SourceControl {
      * system clocks.
      */
     public void setCorrectForServerTime(boolean flag) {
-        this.correctForServerTime = flag;
+        correctForServerTime = flag;
     }
 
     /**
@@ -331,6 +331,14 @@ public class P4 implements SourceControl {
     }
 
     protected List parseChangeDescriptions(InputStream is) throws IOException {
+        
+        int serverOffset = 0;
+        if (correctForServerTime) {
+            try {
+                serverOffset = (int) calculateServerTimeOffset();
+            } catch (InterruptedException e) {
+            }
+        }
 
         ArrayList changelists = new ArrayList();
 
@@ -363,7 +371,10 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'on' text
                 String date = st.nextToken() + ":" + st.nextToken();
                 try {
-                    changelist.modifiedTime = p4RevisionDateFormatter.parse(date);
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(p4RevisionDateFormatter.parse(date));
+                    cal.add(Calendar.MILLISECOND, -serverOffset);
+                    changelist.modifiedTime = cal.getTime();
                 } catch (ParseException xcp) {
                     changelist.modifiedTime = new Date();
                 }
@@ -427,7 +438,7 @@ public class P4 implements SourceControl {
 
         //If the Perforce server time is different from the CruiseControl
         // server time, correct the parameter dates for the difference.
-        if (this.correctForServerTime) {
+        if (correctForServerTime) {
             try {
                 int offset = (int) calculateServerTimeOffset();
                 Calendar cal = Calendar.getInstance();
@@ -500,7 +511,7 @@ public class P4 implements SourceControl {
      * Calculate the difference in time between the Perforce server and the
      * CruiseControl server.  A negative time difference indicates that the
      * Perforce server time is later than CruiseControl server (e.g. Perforce
-     * in New York, CruiseControl in San Francisco).  A negative offset
+     * in New York, CruiseControl in San Francisco).  A positive offset
      * indicates that the Perforce server time is before the CruiseControl
      * server.
      */

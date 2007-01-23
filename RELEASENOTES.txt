@@ -11,6 +11,10 @@ ClearCase
 ----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
 
+P4
+----------------------
+* Display modification time using local timezone if correctForServerTime is true (CC-574). Patch by Anatol Pomozov
+
 OSEnvironment
 ----------------------
 * Fix for Windows Server 2003 and Java 5 (CC-573). Patch by Nate Austin
