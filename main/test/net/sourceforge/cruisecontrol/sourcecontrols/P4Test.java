@@ -184,6 +184,7 @@ public class P4Test extends TestCase {
                 new BufferedInputStream(loadTestLog("p4_describe.txt"));
 
         P4 p4 = new P4();
+        p4.setCorrectForServerTime(false);
         List changelists = p4.parseChangeDescriptions(input);
         input.close();
         assertEquals("Returned wrong number of changelists",
