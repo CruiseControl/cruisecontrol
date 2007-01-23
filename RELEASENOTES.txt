@@ -27,6 +27,10 @@ P4
 reporting application
 ======================
 
+rss.jsp
+----------------------
+* Fixed NPE for projects without logs in their directory.
+
 testdetails.xsl
 ----------------------
 * Fixed failure and error links (CC-545). Patch by J. David Beutel.
