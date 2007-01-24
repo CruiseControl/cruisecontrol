@@ -23,6 +23,9 @@ P4
 ----------------------
 * Display modification time using local timezone if correctForServerTime is true (CC-574). Patch by Anatol Pomozov
 
+SocketPublisher
+----------------------
+* Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
 
 reporting application
 ======================

@@ -56,18 +56,24 @@ public class SocketPublisher implements Publisher {
 
     private final SocketFactory factory;
     private String socketServer;
-    private int port = 0;
+    private int port;
+    private boolean isProjectNameSendingEnabled;
+    private boolean isConsideringFixedEnabled;
 
     public SocketPublisher() {
-        factory = new SocketFactory() {
+        this(new SocketFactory() {
             public Socket createSocket(String server, int port) throws IOException {
                 return new Socket(server, port);
             }
-        };
+        });
     }
 
     public SocketPublisher(SocketFactory sf) {
-        factory = sf;
+       super();
+        this.factory = sf;
+        this.port = 0;
+        this.isProjectNameSendingEnabled = true;
+        this.isConsideringFixedEnabled = false;
     }
 
     public void validate() throws CruiseControlException {
@@ -81,16 +87,28 @@ public class SocketPublisher implements Publisher {
         throws CruiseControlException {
 
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-
         try {
-            if (helper.isBuildSuccessful()) {
-                writeToSocket("Success");
-            } else {
-                writeToSocket("Failure");
+            StringBuffer messageBuffer = new StringBuffer();
+            messageBuffer.append(getBuildResultRepresentationFor(helper));
+            if (this.isProjectNameSendingEnabled) {
+               messageBuffer.append(" ");
+               messageBuffer.append(helper.getProjectName());
             }
+            writeToSocket(messageBuffer.toString());
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
+    }
+
+    protected String getBuildResultRepresentationFor(XMLLogHelper helper) throws CruiseControlException {
+               String result = "Failure";
+        if (helper.isBuildSuccessful()) {
+            result = "Success";
+            if (this.isConsideringFixedEnabled && helper.isBuildFix()) {
+               result = "Fixed";
+            }
+        }
+        return result;
     }
 
     protected void writeToSocket(String result) throws IOException {
@@ -129,5 +147,11 @@ public class SocketPublisher implements Publisher {
     }
     public void setPort(String port) {
         this.port = Integer.parseInt(port);
+    }
+    public void setSendProjectName(boolean state) {
+       this.isProjectNameSendingEnabled = state;
+    }
+    public void setSendFixed(boolean state) {
+       this.isConsideringFixedEnabled = state;
     }
 }
