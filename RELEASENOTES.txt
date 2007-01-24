@@ -27,6 +27,10 @@ SocketPublisher
 ----------------------
 * Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
 
+Veto
+----------------------
+* New SourceControl plug-in used to prevent a project from building when a dependency is out of date.
+
 reporting application
 ======================
 
