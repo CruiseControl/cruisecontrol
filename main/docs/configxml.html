@@ -7598,7 +7598,7 @@ endlocal</pre>
       &lt;socket&gt;</pre>
         </div>
 
-    <p>Simply writes "Success" or "Failure" to a socket.  Note that you will need to write a socket listener that does something.</p>
+    <p>Simply writes "Success" or "Failure", followed by the project name, to a socket.  Note that you will need to write a socket listener that does something.</p>
 
         <h3>Attributes</h3>
 
@@ -7620,6 +7620,16 @@ endlocal</pre>
                 <td>port</td>
                 <td>Yes</td>
         <td>Port number for the listening socket</td>
+            </tr>
+            <tr>
+                <td>sendProjectName</td>
+                <td>No (defaults to true)</td>
+                       <td>Whether the project name should be appended to the result string.</td>
+            </tr>
+            <tr>
+                <td>sendFixed</td>
+                <td>No (defaults to false)</td>
+                       <td>Whether the publisher should send "Fixed" instead of "Success" after "Failure".</td>
             </tr>
             </tbody>
         </table>
