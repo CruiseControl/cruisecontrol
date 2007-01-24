@@ -186,7 +186,7 @@ public class Compound implements SourceControl {
 
         private SourceControlProperties properties = new SourceControlProperties();
         private List sourceControls = new ArrayList();
-        private Compound parent;
+        private SourceControl parent;
 
         /**
          * Public constructor for reflection purposes.
@@ -202,7 +202,7 @@ public class Compound implements SourceControl {
          * @param parent    the parent of this object (an
          *                  object of class Compound)
          */
-        public Entry(Compound parent) {
+        public Entry(SourceControl parent) {
             this.parent = parent;
         }
 

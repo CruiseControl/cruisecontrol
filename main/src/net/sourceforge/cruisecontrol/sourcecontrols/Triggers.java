@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.SourceControl;
+
 /**
  * The class identifies the source control objects that it
  * contains as triggers to invoke builds on corresponding
@@ -62,7 +64,7 @@ public class Triggers extends Compound.Entry {
      * @param parent    the parent of this object (an
      *                  object of class Compound)
      */
-    public Triggers(Compound parent) {
+    public Triggers(SourceControl parent) {
         super(parent);
     }
 }
