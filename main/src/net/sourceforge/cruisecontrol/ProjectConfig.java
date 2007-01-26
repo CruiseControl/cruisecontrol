@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -197,19 +196,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public String getName() {
         return name;
-    }
-
-    /**
-     * only used for tests. should be removed.
-     *
-     * @deprecated
-     * @return properties used to configure plugin
-     */
-    Properties getProperties() {
-        // TODO only used for tests? remove...
-        Properties props = new Properties();
-        props.putAll(properties);
-        return props;
     }
 
     void setProperties(Map properties) {

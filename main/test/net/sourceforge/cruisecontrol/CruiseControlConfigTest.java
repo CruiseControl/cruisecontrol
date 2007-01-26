@@ -37,11 +37,13 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -168,39 +170,39 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(17, config.getProjectNames().size());
     }
 
-    public void testGlobalProperty() {
+    public void testGlobalProperty() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(6, props.size()); // 4 in file, 1 global passed to constructor +
         assertEquals("works!", props.getProperty("global"));
     }
 
-    public void testProjectNameProperty() {
+    public void testProjectNameProperty() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(5, props.size());
         assertEquals("project1", props.getProperty("project.name"));
     }
 
-    public void testProjectNameInGlobalProperty() {
+    public void testProjectNameInGlobalProperty() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(5, props.size());
         assertEquals("works!", props.getProperty("global"));
         assertEquals("project1", props.getProperty("project.name"));
         assertEquals("project=project1", props.getProperty("project.global"));
     }
 
-    public void testSimpleProperty() {
+    public void testSimpleProperty() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(6, props.size());
         assertEquals("success!", props.getProperty("simple"));
     }
 
-    public void testMultipleProperties() {
+    public void testMultipleProperties() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("multiprops");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(9, props.size());
         assertEquals("one", props.getProperty("first"));
         assertEquals("two", props.getProperty("second"));
@@ -208,9 +210,9 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("one.two$three", props.getProperty("multi"));
     }
 
-    public void testNestedProperties() {
+    public void testNestedProperties() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("nestedprops");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(11, props.size());
         assertEquals("one", props.getProperty("first"));
         assertEquals("two", props.getProperty("second"));
@@ -220,16 +222,16 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("threeLevelsDeep", props.getProperty("nested"));
     }
 
-    public void testPropertyEclipsing() {
+    public void testPropertyEclipsing() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("eclipseprop");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(5, props.size());
         assertEquals("eclipsed", props.getProperty("global"));
     }
 
-    public void testLoadPropertiesFromFile() {
+    public void testLoadPropertiesFromFile() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("propsfromfile");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(10, props.size());
         assertEquals("/home/cruise", props.getProperty("dir1"));
         assertEquals("/home/cruise/logs", props.getProperty("dir2"));
@@ -238,28 +240,24 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     // test that we are capable of resolving properties in all property attributes
-    public void testPropertiesInProperties() {
+    public void testPropertiesInProperties() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("propsinpropsdef");
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         // these ones where defined normally, shouldn't be any problem
         assertEquals("true", props.getProperty("env.toupper"));
         assertEquals("env", props.getProperty("env.prefix"));
 
-        assertEquals("Resolving property file name attribute worked",
-                     "/home/cruise", props.getProperty("dir1"));
-        assertEquals("Resolving property name attribute worked",
-                      "test1", props.getProperty("test1"));
+        assertEquals("Resolving property file name attribute worked", "/home/cruise", props.getProperty("dir1"));
+        assertEquals("Resolving property name attribute worked", "test1", props.getProperty("test1"));
         int nbEnvPropertiesFound = 0;
-        for (Enumeration propertyNames = props.propertyNames(); propertyNames.hasMoreElements(); ) {
-           String name = (String) propertyNames.nextElement();
-           if (name.startsWith("env.")) {
-             nbEnvPropertiesFound++;
-           }
+        for (Enumeration propertyNames = props.propertyNames(); propertyNames.hasMoreElements();) {
+            String name = (String) propertyNames.nextElement();
+            if (name.startsWith("env.")) {
+                nbEnvPropertiesFound++;
+            }
         }
-        assertTrue("Resolving environment prefix attribute worked",
-                       nbEnvPropertiesFound > 0);
-        assertNotNull("Resolving environment prefix and touuper attributes worked",
-                       props.getProperty("env.PATH"));
+        assertTrue("Resolving environment prefix attribute worked", nbEnvPropertiesFound > 0);
+        assertNotNull("Resolving environment prefix and touuper attributes worked", props.getProperty("env.PATH"));
     }
 
     // TODO backport
@@ -282,7 +280,7 @@ public class CruiseControlConfigTest extends TestCase {
             }
         }
     }
-    */
+     */
 
     // TODO this a test of the PluginHelper
     public void testGetPluginConfigNoOverride() throws Exception {
@@ -291,8 +289,7 @@ public class CruiseControlConfigTest extends TestCase {
 
         assertEquals(ListenerTestNestedPlugin.class, registry.getPluginClass("testnested"));
 
-        final ProjectXMLHelper helper
-            = new ProjectXMLHelper(projConfig.getProperties(), registry);
+        final ProjectXMLHelper helper = new ProjectXMLHelper(getProjectConfigProperties(projConfig), registry);
 
         PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
         Object plugin;
@@ -315,8 +312,7 @@ public class CruiseControlConfigTest extends TestCase {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
         PluginRegistry registry = config.getProjectPlugins("project4");
 
-        final ProjectXMLHelper helper
-            = new ProjectXMLHelper(projConfig.getProperties(), registry);
+        final ProjectXMLHelper helper = new ProjectXMLHelper(getProjectConfigProperties(projConfig), registry);
 
         PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
         Object plugin;
@@ -371,8 +367,7 @@ public class CruiseControlConfigTest extends TestCase {
         // this could probably fail depending on a different platform, except if Element.setContent()
         // specifies the order in which children are kept within the element.
         final String wrapper = testListener2.getStringWrapper().getString();
-        assertTrue("wrapper2-works!", "wrapper2-works!".equals(wrapper)
-                                      || "wrapper1".equals(wrapper));
+        assertTrue("wrapper2-works!", "wrapper2-works!".equals(wrapper) || "wrapper1".equals(wrapper));
     }
 
     public void testPluginConfigurationClassOverride() throws Exception {
@@ -403,12 +398,11 @@ public class CruiseControlConfigTest extends TestCase {
         Schedule schedule = projConfig.getSchedule();
         assertEquals(20 * ONE_SECOND, schedule.getInterval());
 
-        Properties props = projConfig.getProperties();
+        Properties props = getProjectConfigProperties(projConfig);
         assertEquals(6, props.size());
         assertEquals("one", props.getProperty("first"));
         assertEquals("two", props.getProperty("second"));
     }
-
 
     // TODO DateFormat management was moved to Project.init()
     /*
@@ -433,7 +427,7 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("MM/dd/yyyy HH:mm:ss a", formatFromProperty);
         assertFalse(originalFormat.equals(formatFromProperty));
     }
-    */
+     */
 
     public void testGetBootstrappers() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
@@ -456,7 +450,7 @@ public class CruiseControlConfigTest extends TestCase {
             fail("schedule should be a required element");
         } catch (CruiseControlException expected) {
         }
-        */
+         */
 
         projConfig = (ProjectConfig) config.getProject("project2");
         Schedule schedule = projConfig.getSchedule();
@@ -473,7 +467,7 @@ public class CruiseControlConfigTest extends TestCase {
             fail("modificationset should be a required element");
         } catch (CruiseControlException expected) {
         }
-        */
+         */
 
         projConfig = (ProjectConfig) config.getProject("project2");
         ModificationSet modSet = projConfig.getModificationSet();
@@ -532,5 +526,15 @@ public class CruiseControlConfigTest extends TestCase {
         projConfig = (ProjectConfig) config.getProject("project2");
         listeners = projConfig.getListeners();
         assertEquals(1, listeners.size());
+    }
+
+    private Properties getProjectConfigProperties(ProjectConfig projConfig) throws Exception {
+        Field propertiesField = projConfig.getClass().getDeclaredField("properties");
+        propertiesField.setAccessible(true);
+
+        Properties props = new Properties();
+        props.putAll((Map) propertiesField.get(projConfig));
+
+        return props;
     }
 }
