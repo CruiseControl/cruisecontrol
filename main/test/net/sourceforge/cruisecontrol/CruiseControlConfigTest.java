@@ -164,7 +164,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(19, config.getProjectNames().size());
+        assertEquals(17, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
