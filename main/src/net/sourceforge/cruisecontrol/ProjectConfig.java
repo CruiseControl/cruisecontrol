@@ -44,7 +44,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -74,8 +73,6 @@ public class ProjectConfig implements ProjectInterface {
     private ModificationSet modificationSet;
     private Publishers publishers;
     private Schedule schedule;
-
-    private Map properties;
 
     private Project project;
 
@@ -196,10 +193,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public String getName() {
         return name;
-    }
-
-    void setProperties(Map properties) {
-        this.properties = properties;
     }
 
     public void writeLogFile(Date now) throws CruiseControlException {
