@@ -180,6 +180,7 @@
 <a href="#threads">&lt;threads&gt;</a>
 <a href="#compound">&lt;triggers&gt;</a>
 <a href="#ucm">&lt;ucm&gt;</a>
+<a href="#veto">&lt;veto&gt;</a>
 <a href="#vss">&lt;vss&gt;</a>
 <a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a>
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
@@ -272,6 +273,7 @@
          <a href="#svn">&lt;svn/&gt;</a>
          <a href="#timebuild">&lt;timebuild&gt;</a>
          <a href="#ucm">&lt;ucm&gt;</a>
+         <a href="#veto">&lt;veto/&gt;</a>
          <a href="#vss">&lt;vss/&gt;</a>
          <a href="#vssjournal">&lt;vssjournal/&gt;</a>
       &lt;/modificationset&gt;
@@ -4198,6 +4200,66 @@ password=P@ssW0rd!
                 </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="veto">&lt;veto&gt;</a></h2>
+        
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;veto&gt;</pre>
+        </div>
+
+        <p>This plugin is designed to help enforce build order between dependent projects. It will check to see if a project is up to date and vetos the build attempt if it is not. Veto is configured by defining a nested set of sourcecontrols and a buildstatus element. If project foo depends on project bar then bar may have a &lt;veto&gt; with triggers that are the same as the modificationset for foo and a &lt;buildstatus&gt; that points to the logs for foo. If there is a change that would cause foo to build but bar is first in the build queue, then the &lt;veto&gt; in bar will detect that foo is out of date and abort the build attempt by throwing an exception.</p>
+
+	<p>Unlike most source controls, Veto never returns any modifications. Its only job is to abort builds when another project is out of date with respect to some set of modifications.</p>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><code>&lt;triggers&gt;</code></td>
+                <td>1</td>
+                <td>A container for one or more source control elements that
+                trigger a full check of the targets. Any child element of
+                <a href="#modificationset"><code>&lt;modificationset&gt;</code></a>
+                can be used as a child element of <code>&lt;triggers&gt;</code>.</td>
+            </tr>
+            <tr>
+                <td><code><a href="#buildstatus">&lt;buildstatus&gt;</a></code></td>
+                <td>1</td>
+                <td>Points at the logs for the project that is checked to see if it is up to date with the modifications detected by the &lt;triggers&gt;.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Example</h3>
+
+        <p>In this if there are changes in the cvs repository for foo since the last time project foo built successfully then the veto will throw an exception and abort the build attempt. If there are no changes in the repository for foo or project foo is up to date then &lt;veto&gt; will do nothing and the build attempt will continue as normal (building if there are modifications detected in the reposiotry for bar).</p>
+
+        <pre>&lt;modificationset&gt;
+    &lt;veto&gt;
+        &lt;triggers&gt;
+            &lt;cvs
+                cvsroot=":pserver:user@cvs_repo.com:/cvs/foo"
+            /&gt;
+        &lt;/triggers&gt;
+        &lt;buildstatus logdir="logs/foo" /&gt;
+    &lt;/veto&gt;
+    &lt;cvs cvsroot=":pserver:user@cvs_repo.com:/cvs/bar"/&gt;
+&lt;/modificationset&gt;</pre>
         </div>
 
         <div class="elementdocumentation">
