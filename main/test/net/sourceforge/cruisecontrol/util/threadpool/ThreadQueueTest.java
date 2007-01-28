@@ -79,7 +79,7 @@ public class ThreadQueueTest extends TestCase {
         }
 
         // now let them all finish
-        sleep(20 * TENTH_OF_SECOND);
+        sleep(30 * TENTH_OF_SECOND);
 
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
