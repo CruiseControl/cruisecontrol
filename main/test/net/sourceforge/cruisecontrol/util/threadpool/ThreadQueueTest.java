@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util.threadpool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 /**
@@ -45,109 +48,49 @@ import junit.framework.TestCase;
  */
 public class ThreadQueueTest extends TestCase {
     private static final String TIMING_SENSITIVE_MESSAGE =
-            "This test may occassionally fail, please run it several times"
+            "This is timing sensitive, please run it several times"
             + " before reporting it";
     private static final String TASK_NAME = "TASK:";
     private static final int TASK_COUNT = 5;
     private static final int TENTH_OF_SECOND = 100;
+    private List tasks;
 
     protected void setUp() throws Exception {
+        tasks = new ArrayList();
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             final String taskName = TASK_NAME + i;
 
             IdleThreadQueueClient task = new IdleThreadQueueClient(taskName);
             ThreadQueue.addTask(task);
-            assertEquals(TIMING_SENSITIVE_MESSAGE, i, ThreadQueue.numTotalTasks());
+            tasks.add(task);
         }
-
-        sleep(3 * TENTH_OF_SECOND);
     }
 
     protected void tearDown() {
-        ThreadQueue.terminate();
-    }
-
-    public void testIsIdle() throws Exception {
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
-        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 2));
-        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 3));
-
-        tasksThatCompleteShouldNotBeIdle();
-
-        caseOfNameShouldNotMatter();
-
-        tasksThatDontExistShouldNotBeIdle();
-    }
-
-    private void tasksThatCompleteShouldNotBeIdle() {
-        ThreadQueue.waitFor(TASK_NAME + 2);
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 2));
-    }
-
-    private void caseOfNameShouldNotMatter() {
-        String taskName = TASK_NAME + TASK_COUNT;
-        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(taskName.toLowerCase()));
-    }
-
-    private void tasksThatDontExistShouldNotBeIdle() {
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 42));
-    }
-
-    public void testInterrupt() throws Exception {
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + 1));
-        ThreadQueue.interrupt(TASK_NAME + 1);
-        assertInterrupted(TASK_NAME + 1);
-
-        assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(TASK_NAME + TASK_COUNT));
-        ThreadQueue.interrupt(TASK_NAME + TASK_COUNT);
-        assertInterrupted(TASK_NAME + TASK_COUNT);
+        ThreadQueue.stopQueue();
+        tasks = null;
     }
 
     public void testExecution() {
-        verifyCountOfRunningAndIdleTasksCorrect();
-
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
-            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.taskExists(taskName));
-            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
+            assertTrue(TIMING_SENSITIVE_MESSAGE + " Failure: taskName not active.",
+                    ThreadQueue.isActive(taskName));
         }
 
         // now let them all finish
-        ThreadQueue.waitForAll();
-
-        assertEquals(TIMING_SENSITIVE_MESSAGE, 0, ThreadQueue.numRunningTasks());
-        assertEquals(TIMING_SENSITIVE_MESSAGE, 0, ThreadQueue.numWaitingTasks());
+        sleep(20 * TENTH_OF_SECOND);
 
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
 
-            assertTrue(TIMING_SENSITIVE_MESSAGE, ThreadQueue.taskExists(taskName));
-            assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
+            assertFalse(TIMING_SENSITIVE_MESSAGE + " Failure: " + taskName + " still active.",
+                    ThreadQueue.isActive(taskName));
 
             // check the return values of all the worker threads
-            Object rawResult = ThreadQueue.getResult(taskName);
-            assertTrue(TIMING_SENSITIVE_MESSAGE, rawResult instanceof String);
-            assertEquals(TIMING_SENSITIVE_MESSAGE, "DONE WITH " + taskName, (String) rawResult);
+            IdleThreadQueueClient task = (IdleThreadQueueClient) tasks.get(i - 1);
+            assertEquals("DONE WITH " + taskName, task.getResult());
         }
-    }
-
-    private void verifyCountOfRunningAndIdleTasksCorrect() {
-        // check that the number of running tasks is the same number as we have
-        // worker threads available.  Be sure that every available worker thread
-        // is in use
-        int numRunningTasks = ThreadQueue.numRunningTasks();
-        int numWorkerThreads = ThreadQueue.getMaxNumWorkerThreads();
-        assertEquals(TIMING_SENSITIVE_MESSAGE, numWorkerThreads, numRunningTasks);
-
-        // make sure the correct number of idle tasks are idle
-        // the waiting number should be the total number of worker tasks less the
-        // number of threads
-        int numThatShouldBeWaiting = TASK_COUNT - ThreadQueue.getMaxNumWorkerThreads();
-        // unless the overall number of worker tasks is less than the number of threads
-        if (ThreadQueue.getMaxNumWorkerThreads() > TASK_COUNT) {
-            numThatShouldBeWaiting = 0;
-        }
-        assertEquals(TIMING_SENSITIVE_MESSAGE, numThatShouldBeWaiting, ThreadQueue.numWaitingTasks());
     }
 
     private static void sleep(int ms) {
@@ -155,11 +98,5 @@ public class ThreadQueueTest extends TestCase {
             Thread.sleep(ms);
         } catch (Exception e) {
         }
-    }
-
-    private static void assertInterrupted(String taskName) {
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isActive(taskName));
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isDone(taskName));
-        assertFalse(TIMING_SENSITIVE_MESSAGE, ThreadQueue.isIdle(taskName));
     }
 }
