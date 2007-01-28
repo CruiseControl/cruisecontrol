@@ -44,8 +44,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import net.sourceforge.cruisecontrol.util.TdTimer;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -98,9 +96,9 @@ public class ThreadQueue extends Thread {
     private static final int SLEEP_TIME = 100;
 
     /**
-     * A handle to the Thread Pool
+     * A handle to the ThreadQueue singleton
      */
-    private static ThreadQueue threadPool;
+    private static ThreadQueue threadQueue;
 
     /**
      * tells the main process when to exit
@@ -125,7 +123,6 @@ public class ThreadQueue extends Thread {
             if (nothingWaiting || maxedOut) {
                 sleep(SLEEP_TIME);
             } else {
-                LOG.debug("handling waiting task");
                 handleWaitingTask();
             }
 
@@ -134,14 +131,13 @@ public class ThreadQueue extends Thread {
     }
 
     private void handleWaitingTask() {
+        LOG.debug("handling waiting task");
         synchronized (busyTasks) {
             WorkerThread worker = (WorkerThread) idleTasks.remove(0);
             Thread thisThread = new Thread(loggingGroup, worker);
             busyTasks.add(worker);
             runningThreads.put(worker, thisThread);
-            if (!ThreadQueue.terminate) {
-                thisThread.start();
-            }
+            thisThread.start();
         }
     }
 
@@ -171,11 +167,11 @@ public class ThreadQueue extends Thread {
      */
 
     private static ThreadQueue getThreadQueue() {
-        if (threadPool == null) {
-            threadPool = new ThreadQueue();
-            threadPool.start();
+        if (threadQueue == null) {
+            threadQueue = new ThreadQueue();
+            threadQueue.start();
         }
-        return threadPool;
+        return threadQueue;
     }
 
     /**
@@ -232,97 +228,6 @@ public class ThreadQueue extends Thread {
     }
 
     /**
-     * Checks to see if all tasks are done
-     */
-    public static boolean isQueueIdle() {
-        synchronized (getThreadQueue().busyTasks) {
-            return ((getThreadQueue().busyTasks.size() == 0) && (getThreadQueue().idleTasks.size() == 0));
-        }
-    }
-
-    /**
-     * Checks to see if a specific task is done
-     */
-    public static boolean isDone(String taskName) {
-        return getThreadQueue().resultList.containsKey(taskName);
-    }
-
-    /**
-     * Waits until all tasks are done
-     * same as Thread t.wait()
-     */
-    public static void waitForAll() {
-        while (!ThreadQueue.isQueueIdle()) {
-            sleep(SLEEP_TIME);
-        }
-    }
-
-    /**
-     * Waits until all tasks are done
-     * same as Thread t.wait()
-     *
-     * @return TRUE is all tasks finished, FALSE if timeout occurred
-     */
-    public static boolean waitForAll(int timeout) {
-        TdTimer myTimer = new TdTimer();
-        while (!ThreadQueue.isQueueIdle()) {
-            sleep(SLEEP_TIME);
-            if (myTimer.time() > timeout) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Waits for a specific task to finish
-     * same as Thread t.wait()
-     */
-    public static void waitFor(String taskName) {
-        if (!taskExists(taskName)) {
-            LOG.debug("taskName " + taskName + " doesn't exist");
-            return;
-        }
-        while (!getThreadQueue().resultList.containsKey(taskName)) {
-            sleep(SLEEP_TIME);
-        }
-    }
-
-    /**
-     * Waits for a specific task to finish, but with a timeout
-     * same as Thread t.wait(), but with a timeout
-     *
-     * @return TRUE if task finished, FALSE if timeout occurred
-     */
-    public static boolean waitFor(String taskName, int timeout) {
-        if (!taskExists(taskName)) {
-            return false;
-        }
-        TdTimer myTimer = new TdTimer();
-        while (!getThreadQueue().resultList.containsKey(taskName)) {
-            sleep(SLEEP_TIME);
-            if (myTimer.split() > timeout) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Checks to see if a specific task is in our system
-     *
-     * @return TRUE if task is found, FALSE if not
-     */
-    public static boolean taskExists(String taskName) {
-        synchronized (getThreadQueue().busyTasks) {
-            // it's either done, busy or idle
-            return !((getResult(taskName) == null)
-                    && (getBusyTask(taskName) == null)
-                    && (getIdleTask(taskName) == null));
-        }
-    }
-
-    /**
      * Checks to see if a specific task is either running or waiting in our system
      *
      * @return TRUE if task is waiting or running, FALSE if it is finished
@@ -340,36 +245,8 @@ public class ThreadQueue extends Thread {
      * a null result means it's not done yet
      */
 
-    public static Object getResult(String workerName) {
+    private static Object getResult(String workerName) {
         return getThreadQueue().resultList.get(workerName);
-    }
-
-    /**
-     * tells you how many tasks are running now
-     */
-    public static int numRunningTasks() {
-        return getThreadQueue().busyTasks.size();
-    }
-
-    /**
-     * tells you how many tasks are waiting now
-     */
-    public static int numWaitingTasks() {
-        return getThreadQueue().idleTasks.size();
-    }
-
-    /**
-     * tells you how many tasks have completed
-     */
-    public static int numCompletedTasks() {
-        return getThreadQueue().resultList.size();
-    }
-
-    /**
-     * tells you if a task is waiting now
-     */
-    public static boolean isIdle(String taskName) {
-        return getIdleTask(taskName) != null;
     }
 
     /**
@@ -445,115 +322,6 @@ public class ThreadQueue extends Thread {
     }
 
     /**
-     * returns a string telling you number of idle
-     * and busy worker threads
-     */
-    public static String stats() {
-        String stats = numRunningTasks() + " tasks running \n";
-        stats += numWaitingTasks() + " tasks waiting \n";
-
-        return stats;
-    }
-
-    /**
-     * returns the number of idle, busy and finished
-     * worker threads
-     */
-    public static int numTotalTasks() {
-        return numRunningTasks() + numWaitingTasks() + numCompletedTasks();
-    }
-
-    /**
-     * Terminate the queue's operation
-     */
-    public static void terminate() {
-        ThreadQueue.terminate = true;
-        // give everyone up to 10 seconds to acknowledge the terminate
-        ThreadQueue.waitForAll(10000);
-        // empty the various
-        getThreadQueue().idleTasks.clear();
-        getThreadQueue().busyTasks.clear();
-        getThreadQueue().resultList.clear();
-        threadPool = null;
-        getThreadQueue();
-        ThreadQueue.terminate = false;
-    }
-
-    public static void interruptAllRunningTasks() {
-        synchronized (getThreadQueue().busyTasks) {
-            Map currentRunningThreads = getThreadQueue().runningThreads;
-
-            terminateRunningTasks(currentRunningThreads);
-            interruptRunningThreads(currentRunningThreads);
-        }
-    }
-
-    private static void interruptRunningThreads(Map currentRunningThreads) {
-        for (Iterator iter = currentRunningThreads.values().iterator(); iter.hasNext();) {
-            Thread currentThread = (Thread) iter.next();
-            currentThread.interrupt();
-        }
-    }
-
-    private static void terminateRunningTasks(Map currentRunningThreads) {
-        for (Iterator iter = currentRunningThreads.keySet().iterator(); iter.hasNext();) {
-            WorkerThread currentTask = (WorkerThread) iter.next();
-            currentTask.terminate();
-
-            LOG.info("Preparing to stop " + currentTask.getName());
-        }
-    }
-
-    /**
-     * Waits for a specific task to finish
-     * same as Thread t.wait()
-     */
-    public static void interrupt(String taskName) {
-        synchronized (getThreadQueue().busyTasks) {
-
-            // check for it in the idleList
-            // *remove it (before it starts running)
-            // *return
-
-            if (ThreadQueue.isIdle(taskName)) {
-                if (getThreadQueue().idleTasks.remove(getIdleTask(taskName))) {
-                    LOG.debug("removed idle project " + taskName);
-                } else {
-                    LOG.warn("could not remove idle project " + taskName);
-                }
-                return;
-            } // end of if ( getThreadQueue().isIdle(taksName()) {
-
-            // At this point, it must be busy if it is in our system
-            // *interrupt it
-            // *cleanup
-            // *return
-            WorkerThread thisWorker = getBusyTask(taskName);
-            if (thisWorker != null) {
-                LOG.debug("Attempting to stop a project building at the moment: " + taskName);
-                Thread thisThread =
-                        (Thread) getThreadQueue().runningThreads.get(thisWorker);
-                thisThread.interrupt();
-                getThreadQueue().busyTasks.remove(thisWorker);
-                getThreadQueue().runningThreads.remove(thisThread);
-                LOG.debug("Stopped " + taskName + " succesfully");
-                return;
-            }
-
-            LOG.warn("Project is neither idle nor busy: " + taskName + "; taking no action");
-        }
-    }
-
-    /**
-     * Tells the caller how many worker threads are in
-     * use to service the worker tasks
-     */
-
-    static int getMaxNumWorkerThreads() {
-        return getThreadQueue().threadCount;
-    }
-
-    /**
      * Utility call for sleeps
      */
     private static void sleep(int ms) {
@@ -562,4 +330,10 @@ public class ThreadQueue extends Thread {
         } catch (Exception ignored) {
         }
     }
+
+    static void stopQueue() {
+        threadQueue.interrupt();
+        threadQueue = null;
+    }
+
 }

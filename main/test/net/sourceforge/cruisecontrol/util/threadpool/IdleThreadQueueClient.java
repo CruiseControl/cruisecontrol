@@ -37,19 +37,17 @@
 package net.sourceforge.cruisecontrol.util.threadpool;
 
 /**
- * A client for an ThreadQueue task.  This client was designed to
- * sleep (or idle) for a set amount of time
- *
+ * A client for an ThreadQueue task. This client was designed to sleep (or idle)
+ * for a set amount of time
+ * 
  * @author Jared Richardson
  */
 
 public class IdleThreadQueueClient implements WorkerThread {
-    private static final int ONE_SECOND = 1000;
-    private static final int TENTH_OF_SECOND = 100;
+    private static final int HUNDREDTH_OF_SECOND = 10;
 
     private final String name;
     private Object result = null;
-    private boolean terminate = false;
     private Object mutex = new Object();
 
     public IdleThreadQueueClient(String name) {
@@ -57,30 +55,21 @@ public class IdleThreadQueueClient implements WorkerThread {
     }
 
     public void run() {
-        int time = 0;
-
-        while (time < ONE_SECOND) {
-            synchronized (mutex) {
-                try {
-                    mutex.wait(TENTH_OF_SECOND);
-                } catch (InterruptedException e) {
-                }
-            }
-            time += TENTH_OF_SECOND;
-            if (terminate) {
-                break;
+        synchronized (mutex) {
+            try {
+                mutex.wait(HUNDREDTH_OF_SECOND);
+            } catch (InterruptedException e) {
             }
         }
         result = "DONE WITH " + name;
     }
 
     public Object getResult() {
-        // result will be null until the process is finished
+        // result will be null until run() is finished
         return result;
     }
 
     public void terminate() {
-        terminate = true;
         synchronized (mutex) {
             mutex.notifyAll();
         }
