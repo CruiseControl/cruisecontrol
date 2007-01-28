@@ -261,11 +261,17 @@ public class CruiseControlConfig {
 
         LOG.debug("**************** configuring project " + projectName + " *******************");
         ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
-        ProjectInterface project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
+        ProjectInterface project;
+        
+        try {
+            project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
+        } catch (CruiseControlException e) {
+            throw new CruiseControlException("error configuring project " + projectName, e);
+        }
 
+        // TODO: get rid of this ProjectConfig special case
         if (project instanceof ProjectConfig) {
             ProjectConfig projectConfig = (ProjectConfig) project;
-            projectConfig.setProperties(thisProperties);
 
             if (projectConfig.getLabelIncrementer() == null) {
                 LabelIncrementer labelIncrementer;
