@@ -7889,19 +7889,32 @@ endlocal</pre>
         <h3>Quick Start</h3>
         <ol>
             <li>Buy the home automation kit found at <a
-            href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a></li>
-            <li>Plug the computer interface to your serial port, e.g. COM1, and
-            your powerline</li>
-            <li>Set the lamp module's house and device code, e.g. A3, and plug
-            it into your powerline</li>
-            <li>Plug in an electronic device to the lamp module, e.g. a flashing
-            red light like <a
-            href="http://www.bwild.com/redsiren.html">http://www.bwild.com/redsiren.html</a></li>
-            <li>Install the Java Communications API on your CruiseControl
-            machine by copying the win32com.dll from the CruiseControl lib
-            directory to your <code>JAVA_HOME/bin</code> directory</li>
-            <li>Add the x10 publisher to CruiseControl's config.xml, for example
-            <pre><code>&lt;x10 houseCode="A" deviceCode="3" port="COM1"/&gt;</code></pre></li>
+            href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a>.</li>
+            <li>Plug the computer interface to your serial port (for
+            example, COM1 or /dev/ttyS0), and your powerline</li>
+            <li>Set the lamp module's house and device code such as A3
+            and plug it into your powerline.</li>
+            <li>Plug in an electronic device to the lamp module like a
+            lava lamp or flashing red light found at <a
+            href="http://www.bwild.com/redsiren.html">http://www.bwild.com/redsiren.html</a>.</li>
+            <li>Install the Java Communications API on your
+            CruiseControl machine. On Windows, copy win32com.dll from
+            the CruiseControl lib directory to
+            your <code>JAVA_HOME/bin</code> directory. On Linux, first
+            obtain the Linux zip file from
+            <a
+            href="http://www.sun.com/download/products.xml?id=43208d3d">http://www.sun.com/download/products.xml?id=43208d3d</a>.
+            At the time of this writing, the name of the file
+            was <code>comm3.0_u1_linux.zip</code>. Extract
+            <code>commapi/jar/comm.jar</code> and
+            <code>commapi/docs/javax.comm.properties</code> into the
+            CruiseControl lib directory, overwriting the
+            existing <code>comm.jar</code> file.</li>
+            <li>Add the x10 publisher to CruiseControl's config.xml.
+            For example, on Windows:
+            <pre><code>&lt;x10 houseCode="A" deviceCode="3" port="COM1" /&gt;</code></pre></li>
+            On Linux:
+            <pre><code>&lt;x10 houseCode="A" deviceCode="1" interfaceModel="cm17a" port="/dev/ttyS0" /&gt;</code></pre>
          </ol>
 
          <p>For more information about the CM11A controller, see <a
@@ -7934,6 +7947,10 @@ endlocal</pre>
          <p>it probably means that the Windows DLL named win32com.dll needs to
          be copied from CruiseControl's lib directory into your JDK (or JRE) bin
          directory (that is, the same directory that java.exe is found).</p>
+
+         <p>If you don't know what interface your device uses, try the
+         default. If the publisher hangs, try a different value for
+         the interfaceModel parameter.</p>
 
          <p>The standard behavior for this publisher is to send the device the
          "on" signal when the build breaks and then the "off" signal when the
