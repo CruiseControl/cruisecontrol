@@ -7,6 +7,10 @@
           classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin'
           string='default' otherstring='otherdefault'/>
 
+  <plugin name='mock.project'
+          classname='net.sourceforge.cruisecontrol.MockProjectInterface'>
+  </plugin>
+  
   <plugin name='project'>
     <property name='x' value='y'/>
     <schedule interval='20' >
@@ -14,7 +18,12 @@
     </schedule>
   </plugin>
 
-  <project name='project1' />
+  <mock.project name='project1' >
+    <foo name="${project.name}" />
+  </mock.project>
+
+  <project name='preconfigured.project' >
+  </project>
 
   <project name='project2' >
     <bootstrappers>
@@ -35,13 +44,9 @@
     </listeners>
   </project>
 
-  <project name='project3' >
-    <log/>
-  </project>
-
-  <project name='project3bis' >
-    <log dir='logs/${project.name}' />
-  </project>
+  <mock.project name='project.global' >
+    <foo name="${project.global}" />
+  </mock.project>
 
    <!-- test plugin configuration inside a project -->
   <project name='project4' >
@@ -87,23 +92,12 @@
     </listeners>
   </project>
 
-  <!-- full template -->
-  <plugin name='template1' classname='net.sourceforge.cruisecontrol.ProjectConfig'>
-    <property name='first' value='one'/>
-    <schedule interval='20' >
-      <ant multiple='1' buildfile='tmp/foo/bazz.xml' target='baz' />
-    </schedule>
-  </plugin>
-
-  <template1 name='project6'>
-    <property name='second' value='two'/>
-  </template1>
-
-  <project name='propsfromfile' >
+  <mock.project name='propsfromfile' >
     <property file='${test.properties.dir}/test.properties' />
-  </project>
+    <foo name="${multi}"/>
+  </mock.project>
 
-  <project name='propsinpropsdef' >
+  <mock.project name='propsinpropsdef' >
     <property name='propsfilename' value='${test.properties.dir}/test.properties' />
     <property file='${propsfilename}' />
     <property name='env.toupper' value='true' />
@@ -111,35 +105,44 @@
     <property environment='${env.prefix}' toupper='${env.toupper}' />
     <property name='test' value='test' />
     <property name='${test}1' value='test1' />
-   </project>
+    <foo name="${env.PATH}"/>
+   </mock.project>
 
-  <project name='simpleprops' >
+  <mock.project name='simpleprops' >
     <property name='simple' value='success!'/>
-  </project>
+    <foo name="${simple}" />
+  </mock.project>
+  
+  <mock.project name='simple.global'>
+    <foo name="${global}" />  
+  </mock.project>
 
-  <project name='multiprops' >
+  <mock.project name='multiprops' >
     <property name='first' value='one'/>
     <property name='second' value='two'/>
     <property name='third' value='three'/>
     <property name='multi' value='${first}.${second}$${third}'/>
-  </project>
+    <foo name="${multi}"/>
+  </mock.project>
 
-  <project name='nestedprops' >
+  <mock.project name='nestedprops' >
     <property name='first' value='one'/>
     <property name='second' value='two'/>
     <property name='third' value='three'/>
     <property name='one.two.three' value='almost'/>
     <property name='almost' value='threeLevelsDeep'/>
     <property name='nested' value='${${${first}.${second}.${third}}}'/>
-  </project>
+    <foo name="${nested}" />
+  </mock.project>
 
   <project name='missingprop' >
     <log dir='${missing}'/>
   </project>
 
-  <project name='eclipseprop' >
+  <mock.project name='eclipseprop' >
     <property name='global' value='eclipsed'/>
-  </project>
+    <foo name="${global}" />
+  </mock.project>
 
   <project name='dateformatfromproperty' >
     <property name='date.format' value='MM/dd/yyyy HH:mm:ss a'/>

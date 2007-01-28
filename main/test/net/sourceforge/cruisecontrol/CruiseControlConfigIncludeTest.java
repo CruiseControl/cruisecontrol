@@ -3,8 +3,6 @@ package net.sourceforge.cruisecontrol;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
@@ -22,7 +20,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         StringBuffer configText = new StringBuffer(100);
         configText.append("<cruisecontrol>");
         configText.append("  <plugin name='foo.project'");
-        configText.append("  classname='net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest$FooProject'/>");
+        configText.append("  classname='net.sourceforge.cruisecontrol.MockProjectInterface'/>");
         configText.append("  <include.projects file='include.xml'/>");
         configText.append("  <foo.project name='in.root'/>");
         configText.append("</cruisecontrol>");
@@ -55,7 +53,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         
         Element pluginElement = new Element("plugin");
         pluginElement.setAttribute("name", newProjectTag);
-        pluginElement.setAttribute("classname", FooProject.class.getName());
+        pluginElement.setAttribute("classname", MockProjectInterface.class.getName());
         includeElement.addContent(pluginElement);
 
         Element barElement = new Element(newProjectTag);
@@ -110,7 +108,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
 
     private void assertIsFooProject(ProjectInterface project) {
         assertNotNull(project);
-        assertEquals(FooProject.class.getName(), project.getClass().getName());
+        assertEquals(MockProjectInterface.class.getName(), project.getClass().getName());
     }
     
     private class IncludeXmlResolver implements XmlResolver {
@@ -125,44 +123,6 @@ public class CruiseControlConfigIncludeTest extends TestCase {
             assertEquals("include.xml", path);
             return includeElement;
         }
-    }
-    
-    public static class FooProject implements ProjectInterface {
-
-        private String name;
-
-        public String getName() {
-            return name;
-        }
-        
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void configureProject() throws CruiseControlException {
-        }
-
-        public void execute() {
-        }
-
-        public void getStateFromOldProject(ProjectInterface project) throws CruiseControlException {
-        }
-
-        public void register(MBeanServer server) throws JMException {
-        }
-
-        public void setBuildQueue(BuildQueue buildQueue) {
-        }
-
-        public void start() {
-        }
-
-        public void stop() {
-        }
-
-        public void validate() throws CruiseControlException {
-        }
-        
     }
 
 }

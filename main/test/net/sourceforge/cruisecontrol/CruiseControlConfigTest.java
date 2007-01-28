@@ -37,14 +37,10 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.management.JMException;
@@ -56,6 +52,7 @@ import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Element;
@@ -160,104 +157,75 @@ public class CruiseControlConfigTest extends TestCase {
         Set names = config.getProjectNames();
         Iterator iter = names.iterator();
         assertEquals("project1", (String) iter.next());
+        assertEquals("preconfigured.project", (String) iter.next());
         assertEquals("project2", (String) iter.next());
-        assertEquals("project3", (String) iter.next());
-        assertEquals("project3bis", (String) iter.next());
+        assertEquals("project.global", (String) iter.next());
         assertEquals("project4", (String) iter.next());
     }
 
     public void testGetProjectNames() {
-        assertEquals(17, config.getProjectNames().size());
+        assertEquals(19, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(6, props.size()); // 4 in file, 1 global passed to constructor +
-        assertEquals("works!", props.getProperty("global"));
+        String targetProject = "simple.global";
+        String expectedPropertyValue = "works!";
+        assertPropertyValue(targetProject, expectedPropertyValue);
+    }
+
+    private void assertPropertyValue(String targetProject, String expectedPropertyValue) {
+        MockProjectInterface projConfig = (MockProjectInterface) config.getProject(targetProject);
+        MockProjectInterface.Foo foo = projConfig.getFoo();
+        assertEquals(expectedPropertyValue, foo.getName());
     }
 
     public void testProjectNameProperty() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(5, props.size());
-        assertEquals("project1", props.getProperty("project.name"));
+        String targetProject = "project1";
+        String expectedPropertyValue = "project1";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testProjectNameInGlobalProperty() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(5, props.size());
-        assertEquals("works!", props.getProperty("global"));
-        assertEquals("project1", props.getProperty("project.name"));
-        assertEquals("project=project1", props.getProperty("project.global"));
+        String targetProject = "project.global";
+        String expectedPropertyValue = "project=project.global";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testSimpleProperty() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("simpleprops");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(6, props.size());
-        assertEquals("success!", props.getProperty("simple"));
+        String targetProject = "simpleprops";
+        String expectedPropertyValue = "success!";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testMultipleProperties() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("multiprops");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(9, props.size());
-        assertEquals("one", props.getProperty("first"));
-        assertEquals("two", props.getProperty("second"));
-        assertEquals("three", props.getProperty("third"));
-        assertEquals("one.two$three", props.getProperty("multi"));
+        String targetProject = "multiprops";
+        String expectedPropertyValue = "one.two$three";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testNestedProperties() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("nestedprops");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(11, props.size());
-        assertEquals("one", props.getProperty("first"));
-        assertEquals("two", props.getProperty("second"));
-        assertEquals("three", props.getProperty("third"));
-        assertEquals("almost", props.getProperty("one.two.three"));
-        assertEquals("threeLevelsDeep", props.getProperty("almost"));
-        assertEquals("threeLevelsDeep", props.getProperty("nested"));
+        String targetProject = "nestedprops";
+        String expectedPropertyValue = "threeLevelsDeep";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testPropertyEclipsing() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("eclipseprop");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(5, props.size());
-        assertEquals("eclipsed", props.getProperty("global"));
+        String targetProject = "eclipseprop";
+        String expectedPropertyValue = "eclipsed";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     public void testLoadPropertiesFromFile() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("propsfromfile");
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(10, props.size());
-        assertEquals("/home/cruise", props.getProperty("dir1"));
-        assertEquals("/home/cruise/logs", props.getProperty("dir2"));
-        assertEquals("temp", props.getProperty("tempdir"));
-        assertEquals("/home/cruise/logs/temp", props.getProperty("multi"));
+        String targetProject = "propsfromfile";
+        String expectedPropertyValue = "/home/cruise/logs/temp";
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     // test that we are capable of resolving properties in all property attributes
     public void testPropertiesInProperties() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("propsinpropsdef");
-        Properties props = getProjectConfigProperties(projConfig);
-        // these ones where defined normally, shouldn't be any problem
-        assertEquals("true", props.getProperty("env.toupper"));
-        assertEquals("env", props.getProperty("env.prefix"));
-
-        assertEquals("Resolving property file name attribute worked", "/home/cruise", props.getProperty("dir1"));
-        assertEquals("Resolving property name attribute worked", "test1", props.getProperty("test1"));
-        int nbEnvPropertiesFound = 0;
-        for (Enumeration propertyNames = props.propertyNames(); propertyNames.hasMoreElements();) {
-            String name = (String) propertyNames.nextElement();
-            if (name.startsWith("env.")) {
-                nbEnvPropertiesFound++;
-            }
-        }
-        assertTrue("Resolving environment prefix attribute worked", nbEnvPropertiesFound > 0);
-        assertNotNull("Resolving environment prefix and touuper attributes worked", props.getProperty("env.PATH"));
+        String targetProject = "propsinpropsdef";
+        String expectedPropertyValue = new OSEnvironment().getVariable("PATH");
+        assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
     // TODO backport
@@ -281,60 +249,6 @@ public class CruiseControlConfigTest extends TestCase {
         }
     }
      */
-
-    // TODO this a test of the PluginHelper
-    public void testGetPluginConfigNoOverride() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        PluginRegistry registry = config.getProjectPlugins("project1");
-
-        assertEquals(ListenerTestNestedPlugin.class, registry.getPluginClass("testnested"));
-
-        final ProjectXMLHelper helper = new ProjectXMLHelper(getProjectConfigProperties(projConfig), registry);
-
-        PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
-        Object plugin;
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testnested");
-        assertEquals(ListenerTestNestedPlugin.class, plugin.getClass());
-        ListenerTestNestedPlugin plug1 = (ListenerTestNestedPlugin) plugin;
-        assertEquals("default", plug1.getString());
-        assertEquals("otherdefault", plug1.getOtherString());
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testselfconfiguring");
-        assertEquals(null, plugin);
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testlistener");
-        assertEquals(null, plugin);
-    }
-
-    // TODO this a test of the PluginHelper
-    public void testGetPluginConfig() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
-        PluginRegistry registry = config.getProjectPlugins("project4");
-
-        final ProjectXMLHelper helper = new ProjectXMLHelper(getProjectConfigProperties(projConfig), registry);
-
-        PluginXMLHelper pluginHelper = new PluginXMLHelper(helper);
-        Object plugin;
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testnested");
-        assertEquals(ListenerTestNestedPlugin.class, plugin.getClass());
-        ListenerTestNestedPlugin plug1 = (ListenerTestNestedPlugin) plugin;
-        assertEquals("overriden", plug1.getString());
-        // not overriden
-        assertEquals("otherdefault", plug1.getOtherString());
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testselfconfiguring");
-        assertEquals(ListenerTestSelfConfiguringPlugin.class, plugin.getClass());
-        ListenerTestSelfConfiguringPlugin plug2 = (ListenerTestSelfConfiguringPlugin) plugin;
-        assertEquals(null, plug2.getString());
-        assertEquals(null, plug2.getNested());
-
-        plugin = helper.getConfiguredPlugin(pluginHelper, "testlistener");
-        assertEquals(ListenerTestPlugin.class, plugin.getClass());
-        ListenerTestPlugin plug3 = (ListenerTestPlugin) plugin;
-        assertEquals("project4-0", plug3.getString());
-    }
 
     public void testPluginConfiguration() throws Exception {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
@@ -391,19 +305,6 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
     }
 
-    public void testPropertiesInFullProjectTemplate() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project6");
-        assertNotNull(config.getProjectPlugins("project6"));
-
-        Schedule schedule = projConfig.getSchedule();
-        assertEquals(20 * ONE_SECOND, schedule.getInterval());
-
-        Properties props = getProjectConfigProperties(projConfig);
-        assertEquals(6, props.size());
-        assertEquals("one", props.getProperty("first"));
-        assertEquals("two", props.getProperty("second"));
-    }
-
     // TODO DateFormat management was moved to Project.init()
     /*
     public void testDateFormat() throws Exception {
@@ -430,7 +331,7 @@ public class CruiseControlConfigTest extends TestCase {
      */
 
     public void testGetBootstrappers() {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("preconfigured.project");
 
         List bootstrappers = projConfig.getBootstrappers();
         assertEquals(0, bootstrappers.size());
@@ -483,27 +384,9 @@ public class CruiseControlConfigTest extends TestCase {
         DefaultLabelIncrementer incrementer = (DefaultLabelIncrementer) projConfig.getLabelIncrementer();
         assertTrue(incrementer.isValidLabel("build#9"));
 
-        projConfig = (ProjectConfig) config.getProject("project1");
+        projConfig = (ProjectConfig) config.getProject("preconfigured.project");
         incrementer = (DefaultLabelIncrementer) projConfig.getLabelIncrementer();
         assertFalse(incrementer.isValidLabel("build#9"));
-    }
-
-    public void testGetLog() {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        assertEquals("logs" + File.separatorChar + "project1", projConfig.getLog().getLogDir());
-
-        projConfig = (ProjectConfig) config.getProject("project2");
-        assertEquals(classpathDirectory.getAbsolutePath() + "/foo", projConfig.getLog().getLogDir());
-
-        projConfig = (ProjectConfig) config.getProject("project3");
-        assertEquals("logs" + File.separatorChar + "project3", projConfig.getLog().getLogDir());
-
-        projConfig = (ProjectConfig) config.getProject("project3bis");
-        assertEquals("logs/project3bis", projConfig.getLog().getLogDir());
-        assertNull(projConfig.getLog().getLogXmlEncoding());
-
-        projConfig = (ProjectConfig) config.getProject("project2");
-        assertEquals("utf-8", projConfig.getLog().getLogXmlEncoding());
     }
 
     public void testPreconfigureLog() throws Exception {
@@ -518,23 +401,4 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals(2, loggers.length);
     }
 
-    public void testGetListeners() {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project1");
-        List listeners = projConfig.getListeners();
-        assertEquals(0, listeners.size());
-
-        projConfig = (ProjectConfig) config.getProject("project2");
-        listeners = projConfig.getListeners();
-        assertEquals(1, listeners.size());
-    }
-
-    private Properties getProjectConfigProperties(ProjectConfig projConfig) throws Exception {
-        Field propertiesField = projConfig.getClass().getDeclaredField("properties");
-        propertiesField.setAccessible(true);
-
-        Properties props = new Properties();
-        props.putAll((Map) propertiesField.get(projConfig));
-
-        return props;
-    }
 }
