@@ -259,7 +259,7 @@ public class CruiseControlConfig {
         projectElement.removeChildren("property");
         projectElement.removeChildren("plugin");
 
-        LOG.debug("**************** configuring project" + projectName + " *******************");
+        LOG.debug("**************** configuring project " + projectName + " *******************");
         ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
         ProjectInterface project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
 
@@ -286,7 +286,7 @@ public class CruiseControlConfig {
         }
 
         project.validate();
-        LOG.debug("**************** end configuring project" + projectName + " *******************");
+        LOG.debug("**************** end configuring project " + projectName + " *******************");
 
         this.projects.put(projectName, project);
         this.projectPluginRegistries.put(projectName, projectPlugins);
