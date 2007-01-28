@@ -42,13 +42,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 /**
- * @author Jared Richardson
- *         <p/>
- *         JUnit test class to work on net.sourceforge.cruisecontrol.util.ThreadQueue
+ * @author Jared Richardson <p/> JUnit test class to work on
+ *         net.sourceforge.cruisecontrol.util.ThreadQueue
  */
 public class ThreadQueueTest extends TestCase {
-    private static final String TIMING_SENSITIVE_MESSAGE =
-            "This is timing sensitive, please run it several times"
+    private static final String TIMING_SENSITIVE_MESSAGE = "This is timing sensitive, please run it several times"
             + " before reporting it";
     private static final String TASK_NAME = "TASK:";
     private static final int TASK_COUNT = 5;
@@ -74,20 +72,30 @@ public class ThreadQueueTest extends TestCase {
     public void testExecution() {
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
-            assertTrue(TIMING_SENSITIVE_MESSAGE + " Failure: taskName not active.",
-                    ThreadQueue.isActive(taskName));
+            String message = TIMING_SENSITIVE_MESSAGE + " Failure: " + taskName + " not active.";
+            assertTrue(message, ThreadQueue.isActive(taskName));
         }
 
         // now let them all finish
-        sleep(30 * TENTH_OF_SECOND);
-
+        boolean allFinished = false;
+        int loops = 0;
+        while (!allFinished && loops < 10) {
+            sleep(10 * TENTH_OF_SECOND);
+            boolean anyActive = false;
+            for (int i = 1; i < TASK_COUNT + 1 || anyActive; i++) {
+                String taskName = TASK_NAME + i;
+                if (ThreadQueue.isActive(taskName)) {
+                    anyActive = true;
+                }
+            }
+            allFinished = !anyActive;
+        }
+        
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             String taskName = TASK_NAME + i;
+            String message = TIMING_SENSITIVE_MESSAGE + " task " + taskName + " still active.";
+            assertFalse(message, ThreadQueue.isActive(taskName));
 
-            assertFalse(TIMING_SENSITIVE_MESSAGE + " Failure: " + taskName + " still active.",
-                    ThreadQueue.isActive(taskName));
-
-            // check the return values of all the worker threads
             IdleThreadQueueClient task = (IdleThreadQueueClient) tasks.get(i - 1);
             assertEquals("DONE WITH " + taskName, task.getResult());
         }
