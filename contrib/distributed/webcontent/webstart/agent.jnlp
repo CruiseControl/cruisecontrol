@@ -18,10 +18,12 @@
         <j2se version="1.5+"/>
         <jar href="lib/cc-agent.jar" main="true"/>
         <jar href="conf/cc-agent-conf.jar"/>
+        <jar href="lib/ccdist-buildAgentService.jar"/>
+        <jar href="lib/ccdist-core.jar"/>
+
         <jar href="lib/cruisecontrol.jar"/>
 
         <jar href="lib/jakarta-oro-2.0.3.jar"/>
-        <jar href="lib/jdom.jar"/>
         <jar href="lib/jdom.jar"/>
         <jar href="lib/log4j.jar"/>
 
@@ -30,12 +32,8 @@
         <jar href="lib/saxon8.jar"/>
         <jar href="lib/saxon8-dom.jar"/>
 
-        <jar href="lib/jini-core.jar"/>
-        <jar href="lib/jini-ext.jar"/>
-        <jar href="lib/jsk-platform.jar"/>
-        <jar href="lib/reggie-dl.jar"/>
-        <jar href="lib/start.jar"/>
-        <jar href="lib/tools.jar"/>
+        <jar href="jini-core/jini-core.jar"/>
+        <jar href="jini-core/jini-ext.jar"/>
 
     </resources>
 

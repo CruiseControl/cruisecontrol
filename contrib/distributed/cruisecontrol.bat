@@ -47,7 +47,7 @@ REM Acknowledgments to Ant Project for this batch file incantation
 REM %~dp0 is name of current script under NT
 set DEFAULT_CCDIR=%~dp0
 REM : operator works similar to make : operator
-set DEFAULT_CCDIR=%DEFAULT_CCDIR%\..
+set DEFAULT_CCDIR=%DEFAULT_CCDIR%\..\..\main
 
 if not defined CCDIR set CCDIR=%DEFAULT_CCDIR%
 set DEFAULT_CCDIR=
@@ -64,11 +64,15 @@ set JAVA_PATH=java
 :setCruise
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
-set DISTRIBDIR=%CCDIR%\..\contrib\distributed
-set DISTRIB_LIBDIR=%DISTRIBDIR%\lib
-set DISTRIB_CONFDIR=%DISTRIBDIR%\conf
 
-set EXEC=%JAVA_PATH% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%DISTRIBDIR%\conf\insecure.policy -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar -lib "%JAVA_HOME%\lib\tools.jar" -lib %DISTRIBDIR%\dist\agent\lib\cc-agent.jar -lib %DISTRIB_LIBDIR% -lib %DISTRIB_CONFDIR% %*
+REM some of these need slashes (to get jars via -lib), others do not (conf dir)
+set CCDIST=%CCDIR%\..\contrib\distributed
+set CCDIST_BUILDER=%CCDIST%\dist\builder\
+set CCDIST_CORE=%CCDIST%\dist\core\
+set CCDIST_JINICORE=%CCDIST%\jini-core\
+set CCDIST_CONF=%CCDIST%\conf
+
+set EXEC=%JAVA_PATH% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%CCDIST_CONF%\insecure.policy -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar -lib "%JAVA_HOME%\lib\tools.jar" -lib %CCDIST_BUILDER%;%CCDIST_CORE%;%CCDIST_JINICORE%;%CCDIST_CONF% %*
 echo %EXEC%
 %EXEC%
 

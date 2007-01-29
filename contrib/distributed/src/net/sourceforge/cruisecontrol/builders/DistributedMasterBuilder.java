@@ -57,11 +57,11 @@ import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
-import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
-import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
-import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
-import net.sourceforge.cruisecontrol.distributed.util.ZipUtil;
-import net.sourceforge.cruisecontrol.util.FileUtil;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
+import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
+import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
