@@ -60,8 +60,8 @@ import net.jini.export.Exporter;
 import net.jini.jeri.BasicILFactory;
 import net.jini.jeri.BasicJeriExporter;
 import net.jini.jeri.tcp.TcpServerEndpoint;
-import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
-import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 
 import org.apache.log4j.Logger;
