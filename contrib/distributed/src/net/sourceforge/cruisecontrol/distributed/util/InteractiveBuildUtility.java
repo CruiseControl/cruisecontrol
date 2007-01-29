@@ -54,6 +54,9 @@ import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;

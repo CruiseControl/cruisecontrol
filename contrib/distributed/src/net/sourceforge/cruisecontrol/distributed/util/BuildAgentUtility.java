@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol.distributed.util;
 import org.apache.log4j.Logger;
 import net.jini.core.lookup.ServiceItem;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
