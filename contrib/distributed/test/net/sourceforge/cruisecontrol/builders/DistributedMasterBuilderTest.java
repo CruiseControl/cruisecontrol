@@ -14,8 +14,6 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.MalformedURLException;
 
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.Project;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import org.jdom.Element;
@@ -28,8 +26,8 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.SearchablePropertyEntries;
-import net.sourceforge.cruisecontrol.distributed.util.ReggieUtil;
-import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
@@ -101,76 +99,43 @@ public class DistributedMasterBuilderTest extends TestCase {
      * @throws Exception if we can't start jini lookup service
      */
     public static ProcessInfoPump startJini(final Logger logger, final Level level) throws Exception {
+
         // make sure local lookup service is not already running
         verifyNoLocalLookupService();
 
         origSysProps = System.getProperties();
 
-//        <java jar="lib/start.jar" fork="true" >
+        // Build Lookup Service command line just like the one in lookup-build.xml
+
+//        <java jar="jini-lib/start.jar" fork="true" >
 //            <jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
-//            <jvmarg value="-Djini.lib=lib" />
+//            <jvmarg value="-Djini.lib=jini-lib" />
+//            <jvmarg value="-Djini.lib.dl=jini-lib-dl" />
 //            <jvmarg value="-Djini.httpPort=${jini.port}" />
-//            <jvmarg value="-Djini.codebaseURI=file://lib/cc-agent-dl.jar
-//                 file://lib/reggie-dl.jar
-//                 file://lib/fiddler-dl.jar
-//                 file://lib/mahalo-dl.jar
-//                 file://lib/mercury-dl.jar
-//                 file://lib/norm-dl.jar
-//                 file://lib/outrigger-dl.jar
-//                 file://lib/phoenix-dl.jar
-//                 file://lib/holowaa-dl.jar" />
-//            <jvmarg value="-Djini.classpath=.;lib/cc-agent.jar;lib/reggie.jar;lib/fiddler.jar;lib/mahalo.jar;
-//                          lib/mercury.jar;lib/norm.jar;lib/outrigger.jar;lib/phoenix.jar;lib/holowaa.jar" />
 //            <arg value="conf/${jini.config}"/>
-//            <classpath>
-//                <pathelement path="conf"/>
-//                <fileset dir="lib">
-//                    <include name="**/*.jar" />
-//                </fileset>
-//            </classpath>
-//        </java>
+
+        final String jiniLibDir = "jini-lib";
 
         final String[] args = new String[] {
              "-Djava.security.policy=conf/insecure.policy", //${jini.policy.file}
-             "-Djini.lib=lib",
-             "-Djini.httpPort=8050",    //${jini.port}"
-             "-Djini.codebaseURI=file://lib/cc-agent-dl.jar "
-                     + "file://lib/reggie-dl.jar "
-                     + "file://lib/fiddler-dl.jar "
-                     + "file://lib/mahalo-dl.jar "
-                     + "file://lib/mercury-dl.jar "
-                     + "file://lib/norm-dl.jar "
-                     + "file://lib/outrigger-dl.jar "
-                     + "file://lib/phoenix-dl.jar "
-                     + "file://lib/holowaa-dl.jar",
-             "-Djini.classpath=.;lib/cc-agent.jar;lib/reggie.jar;lib/fiddler.jar;lib/mahalo.jar;"
-                     + "lib/mercury.jar;lib/norm.jar;lib/outrigger.jar;lib/phoenix.jar;lib/holowaa.jar"
+             "-Djini.lib=" + jiniLibDir,
+             "-Djini.lib.dl=jini-lib-dl",                   //Downloadable Jini jars
+             "-Djini.httpPort=8050",                        //${jini.port}"
         };
-
-        // @todo There must be a nicer way to do this...
-        // @todo Assumes current dir is same as build.xml.
-        final String libDir = "lib/";
-        FileSet set = new FileSet();
-        set.setDir(new File(libDir));
-        set.setIncludes("**/*.jar");
-        Project project = new Project();
-        set.setProject(project);
-        String libjars = set.toString();
-        libjars = libjars.replaceAll("jar" + File.pathSeparator, "jar" + File.pathSeparator + libDir);
-        libjars = libDir + libjars;
 
         final Commandline cmdLine = new Commandline();
         cmdLine.addArguments(args);
         Commandline.Argument argClasspath = cmdLine.createArgument();
-        argClasspath.setLine("-classpath " + "conf" + File.pathSeparator + libjars);
+        argClasspath.setLine("-classpath " + "conf");
 
         Commandline.Argument argStart = cmdLine.createArgument();
-        argStart.setLine("-jar lib/start.jar");
+        argStart.setLine("-jar " + jiniLibDir + "/start.jar");
 
         Commandline.Argument argProg = cmdLine.createArgument();
         argProg.setValue("conf/start-jini.config"); // ${jini.config}
 
         cmdLine.setExecutable(getJavaExec());
+
 
         LOG.debug("jini startup command: " + Arrays.asList(cmdLine.getCommandline()));
         final Process newJiniProcess = Runtime.getRuntime().exec(cmdLine.getCommandline());
@@ -184,6 +149,9 @@ public class DistributedMasterBuilderTest extends TestCase {
             new StreamPumper(newJiniProcess.getInputStream(),
                     new PrefixedStreamConsumer("[JiniOut] ", logger, level)),
             logger, level);
+
+
+        // Verify the Lookup Service started
 
         // setup security policy
         URL policyFile = ClassLoader.getSystemClassLoader().getResource(INSECURE_POLICY_FILENAME);
