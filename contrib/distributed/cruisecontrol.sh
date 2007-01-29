@@ -61,7 +61,7 @@ if [ -z "$CCDIR" ] ; then
 
   saveddir=`pwd`
 
-  CCDIR=`dirname "$PRG"`/..
+  CCDIR=`dirname "$PRG"`/../../main
 
   # make it fully qualified
   CCDIR=`cd "$CCDIR" && pwd`
@@ -69,12 +69,17 @@ if [ -z "$CCDIR" ] ; then
   cd $saveddir
   echo Using Cruise Control at $CCDIR
 fi
+
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
-DISTRIBDIR=$CCDIR/../contrib/distributed
-DISTRIB_LIBDIR=$DISTRIBDIR/lib 
-DISTRIB_CONFDIR=$DISTRIBDIR/conf 
 
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$DISTRIBDIR/conf/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $DISTRIBDIR/dist/agent/lib/cc-agent.jar -lib $DISTRIB_LIBDIR -lib $DISTRIB_CONFDIR $@"
+# some of these need slashes (to get jars via -lib), others do not (conf dir)
+CCDIST=$CCDIR/../contrib/distributed
+CCDIST_BUILDER=$CCDIST/dist/builder/
+CCDIST_CORE=$CCDIST/dist/core/
+CCDIST_JINICORE=$CCDIST/jini-core/
+CCDIST_CONF=$CCDIST/conf
+
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_CONF $@"
 echo $EXEC
 exec $EXEC

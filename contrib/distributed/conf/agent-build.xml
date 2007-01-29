@@ -48,6 +48,7 @@
 <project name="cc-agent" default="start-agent">
 	
 	<property file="conf/agent.properties" />
+
     <!-- JNLP Service API classes -->
     <path id="jnlpServiceAPI.classpath">
         <fileset dir="${java.home}">
@@ -70,7 +71,10 @@
     		<jvmarg value="-Djava.security.policy=${jini.policy.file}"/>
     		<classpath>
     			<pathelement path="conf"/>
-    			<fileset dir="lib">
+    			<fileset dir="lib">               <!-- Includes copied ccdist-buildAgentService.jar, ccdist-core.jar -->
+    				<include name="**/*.jar" />
+    			</fileset>
+    			<fileset dir="jini-core">
     				<include name="**/*.jar" />
     			</fileset>
                 <path refid="jnlpServiceAPI.classpath"/>

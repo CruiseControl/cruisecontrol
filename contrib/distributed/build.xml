@@ -40,7 +40,7 @@
      Dec 17, 2004 1:09:40 PM                                                        
 
      This Ant script builds the distributed extensions to CruiseControl and
-     prepares a set of files for running Jini on the master. In addition
+     prepares a set of files for running a Jini Lookup Service. In addition
      it prepares a zip file for installation on build agent machines. See
      the README.html in this directory for details.
                    
@@ -70,6 +70,13 @@
 
     <property name="checkstyle.fail.on.violation" value="true"/>
 
+    <property name="jini.core.DirName" value="jini-core"/>
+
+    <property name="dist.lookup.DirName" value="dist/lookup"/>
+
+    <property name="jini.lib.DirName" value="jini-lib"/>
+    <property name="jini.libDownload.DirName" value="jini-lib-dl"/>
+
 
     <!-- xml apis and parsers -->
     <patternset id="ps.jarnames-xml-libs">
@@ -94,20 +101,16 @@
          </fileset>
     </path>
 
+    <!-- Common Core JINI libs -->
+    <path id="jini.core.classpath">
+         <fileset id="fs.jini.core" dir="${jini.core.DirName}">
+             <include name="*.jar" />
+         </fileset>
+    </path>
+
 
     <path id="compile.classpath">
-        <fileset dir="lib">
-            <include name="jini-core.jar" />
-            <include name="jini-ext.jar" />
-            <include name="reggie-dl.jar" />
-            <include name="fiddler-dl.jar" />
-            <include name="mahalo-dl.jar" />
-            <include name="mercury-dl.jar" />
-            <include name="norm-dl.jar" />
-            <include name="outrigger-dl.jar" />
-            <include name="phoenix-dl.jar" />
-            <include name="holowaa-dl.jar" />
-        </fileset>
+        <path refid="jini.core.classpath"/>
         <fileset dir="${dir.main.lib}">
             <patternset refid="ps.main.lib-common" />
             <include name="junit*.jar" />
@@ -130,16 +133,12 @@
             <include name="jakarta-oro*.jar" />
             <include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent -->
         </fileset>
-        <fileset dir="lib">
-            <include name="reggie-dl.jar" />
-            <include name="jini-core.jar" />
-            <include name="jini-ext.jar" />
-        </fileset>
+        <path refid="jini.core.classpath"/>
         <path refid="jnlpServiceAPI.classpath"/>
     </path>
 
 
-    <target name="build" depends="clean, compile-test, checkstyle, test, jar-agent, zip-agent" />
+    <target name="build" depends="clean, compile-test, checkstyle, test, jar-masterbuilder, jar-agent, zip-agent, jar-util" />
 
 	<target name="clean" description="Deletes 'target' and 'dist' directories">
         <delete dir="${target}"/>
@@ -181,22 +180,33 @@
     </target>
 
 
-    <target name="init" depends="checkRequiredLibs" description="Initializes master, agent, and target directories">
+    <target name="init" depends="checkRequiredLibs" description="Initializes dist directories">
         <mkdir dir="dist" />
+        <mkdir dir="dist/builder"/>
+
         <mkdir dir="${junit.results}" />
-        <antcall target="init-master" />
+
+        <antcall target="init-core" />
+        <antcall target="init-lookup" />
 		<antcall target="init-agent" />
+		<antcall target="init-util" />
+
 
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
 	</target>
 
-	<target name="init-master" description="Prepares directory structure for master files and copies property file in">
-		<mkdir dir="dist/master" />
-		<mkdir dir="dist/master/lib" />
-		<mkdir dir="dist/master/conf" />
-		<copy file="conf/master-build.xml" tofile="dist/master/build.xml" />
-		<copy todir="dist/master/conf">
+	<target name="init-core" description="Prepares directory structure for ccdist-core">
+		<mkdir dir="dist/core" />
+    </target>
+
+    <target name="init-lookup" description="Prepares directory structure for Lookup Service files">
+		<mkdir dir="${dist.lookup.DirName}" />
+		<mkdir dir="${dist.lookup.DirName}/${jini.lib.DirName}" />
+		<mkdir dir="${dist.lookup.DirName}/${jini.libDownload.DirName}" />
+		<mkdir dir="${dist.lookup.DirName}/conf" />
+		<copy file="conf/lookup-build.xml" tofile="${dist.lookup.DirName}/build.xml" />
+		<copy todir="${dist.lookup.DirName}/conf">
 			<fileset dir="conf">
 				<include name="cruise.properties" />
 				<include name="insecure.policy" />
@@ -205,45 +215,22 @@
 				<include name="start-jini.config" />
 			</fileset>
 		</copy>
-		<copy todir="dist/master/lib">
-			<fileset dir="lib">
-				<include name="reggie.jar" />
-				<include name="reggie-dl.jar" />
-				<include name="jini-core.jar" />
-				<include name="jini-ext.jar" />
-				<include name="jsk-platform.jar" />
-				<include name="tools.jar" />
-				<include name="start.jar" />
-				<include name="reggie.jar" />
-				<include name="reggie-dl.jar" />
-				<include name="fiddler.jar" />
-				<include name="fiddler-dl.jar" />
-				<include name="mahalo.jar" />
-				<include name="mahalo-dl.jar" />
-				<include name="mercury.jar" />
-				<include name="mercury-dl.jar" />
-				<include name="norm.jar" />
-				<include name="norm-dl.jar" />
-				<include name="outrigger.jar" />
-				<include name="outrigger-dl.jar" />
-				<include name="phoenix.jar" />
-				<include name="phoenix-dl.jar" />
-				<include name="holowaa.jar" />
-				<include name="holowaa-dl.jar" />
-			</fileset>
-			<fileset dir="${dir.main.lib}">
-                <patternset refid="ps.main.lib-common" />
-				<include name="jakarta-oro*.jar" />
-			</fileset>
-			<fileset dir="${dir.main.dist}">
-				<include name="cruisecontrol.jar" />
-			</fileset>
-		</copy>
+        <copy todir="${dist.lookup.DirName}/${jini.lib.DirName}">
+			<fileset dir="${jini.lib.DirName}">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+        <copy todir="${dist.lookup.DirName}/${jini.libDownload.DirName}">   <!-- Downloadable Jini jars -->
+            <fileset dir="${jini.libDownload.DirName}">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
 	</target>
 
 	<target name="init-agent" description="Prepares directory structure for agent files and copies property file in">
 		<mkdir dir="dist/agent" />
 		<mkdir dir="dist/agent/lib" />
+		<mkdir dir="dist/agent/${jini.core.DirName}" />
 		<mkdir dir="dist/agent/conf" />
 		<copy file="conf/agent-build.xml" tofile="dist/agent/build.xml" />
 		<copy todir="dist/agent/conf">
@@ -255,16 +242,41 @@
 				<include name="log4j.properties" />
 			</fileset>
 		</copy>
-		<copy todir="dist/agent/lib">
-			<fileset dir="lib">
-				<include name="reggie-dl.jar" />
-				<include name="jini-core.jar" />
-				<include name="jini-ext.jar" />
-				<include name="jsk-platform.jar" />
-				<include name="tools.jar" />
-				<include name="start.jar" />
+		<copy todir="dist/agent/${jini.core.DirName}">
+			<fileset refid="fs.jini.core"/>
+        </copy>
+        <copy todir="dist/agent/lib">
+            <fileset dir="${dir.main.lib}">
+                <patternset refid="ps.main.lib-common" />
+                <patternset refid="ps.jarnames-xml-libs"/>
+                <include name="jakarta-oro*.jar" />
 			</fileset>
-			<fileset dir="${dir.main.lib}">
+			<fileset dir="${dir.main.dist}">
+				<include name="cruisecontrol.jar" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="init-util" description="Prepares directory structure for util files and copies property file in">
+		<mkdir dir="dist/util" />
+		<mkdir dir="dist/util/lib" />
+		<mkdir dir="dist/util/${jini.core.DirName}" />
+		<mkdir dir="dist/util/conf" />
+		<copy file="conf/util-build.xml" tofile="dist/util/build.xml" />
+		<copy todir="dist/util/conf">
+			<fileset dir="conf">
+				<include name="agent.properties" />
+				<include name="cruise.properties" /> <!-- only required by Interactive Build for DistributedMasterBuilder -->
+				<include name="insecure.policy" />
+				<include name="jini.logging" />
+				<include name="log4j.properties" />
+			</fileset>
+		</copy>
+		<copy todir="dist/util/${jini.core.DirName}">
+			<fileset refid="fs.jini.core"/>
+        </copy>
+        <copy todir="dist/util/lib">
+            <fileset dir="${dir.main.lib}">
                 <patternset refid="ps.main.lib-common" />
                 <patternset refid="ps.jarnames-xml-libs"/>
                 <include name="jakarta-oro*.jar" />
@@ -358,20 +370,75 @@
     </target>
 
 
-    <target name="jar-agent" depends="compile" description="Creates cc-agent.jar and cc-agent-dl.jar">
-		<jar destfile="dist/agent/lib/cc-agent.jar">
+    <target name="jar-core" depends="compile" description="Creates ccdist-buildAgentService.jar and ccdist-core.jar">
+		<jar destfile="dist/core/ccdist-core.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.core.JiniLookUpUtility" />
+			</manifest>
+			<fileset dir="${classes}">
+				<include name="**/distributed/core/**" />
+			</fileset>
+		</jar>
+
+		<jar destfile="dist/core/ccdist-buildAgentService.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+			<fileset dir="${classes}">
+                <include name="**/BuildAgentService.class" />
+			</fileset>
+		</jar>
+	</target>
+
+    <target name="jar-masterbuilder" depends="compile, jar-core" description="Creates ccdist-masterbuilder.jar">
+		<jar destfile="dist/builder/ccdist-masterbuilder.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>
+			<fileset dir="${classes}">
+                <include name="**/builders/**" />
+			</fileset>
+		</jar>
+	</target>
+
+    <target name="jar-agent" depends="compile, jar-core" description="Creates cc-agent.jar and cc-agent-dl.jar">
+        <!-- @todo Find a clean, webstart friendly way to avoid duplicating these jars. Maybe use Maven2? -->
+        <copy todir="dist/agent/lib">
+            <fileset dir="dist/core"/>
+        </copy>
+
+        <jar destfile="dist/agent/lib/cc-agent.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.BuildAgent" />
 			</manifest>
 			<fileset dir="${classes}">
-				<include name="**/*" />
-                <exclude name="**/conf/ConfLoaderDummy*"/>
+                <include name="**/distributed/*" />           <!-- Do NOT include sub dirs -->
+                <exclude name="**/BuildAgentService.class"/>
 			</fileset>
 		</jar>
-		<jar destfile="dist/master/lib/cc-agent-dl.jar">
+		<!--<jar destfile="dist/lookup/${jini.libDownload.DirName}/cc-agent-dl.jar">-->
+			<!--<fileset dir="${classes}">-->
+				<!--<include name="**/BuildAgentServiceImpl.class" />-->
+			<!--</fileset>-->
+		<!--</jar>-->
+	</target>
+
+    <target name="jar-util" depends="compile, jar-core" description="Creates ccdist-util.jar">
+        <!-- @todo Find a clean, webstart friendly way to avoid duplicating these jars. Maybe use Maven2? -->
+        <copy todir="dist/util/lib">
+            <fileset dir="dist/core"/>
+        </copy>
+
+
+        <jar destfile="dist/util/lib/ccdist-util.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility" />
+			</manifest>
 			<fileset dir="${classes}">
-				<include name="**/BuildAgentService.class" />
+                <include name="**/distributed/util/**" />
 			</fileset>
 		</jar>
 	</target>
@@ -399,6 +466,9 @@
         </jar>
 
         <!-- copy jars to dir in which they'll be signed. Wish sign jar did filesets w/ output path...-->
+        <copy todir="${dir.webstart}/${jini.core.DirName}">
+            <fileset dir="dist/agent/${jini.core.DirName}"/>
+        </copy>
         <copy todir="${dir.webstart}/lib">
             <fileset dir="dist/agent/lib"/>
         </copy>
@@ -406,15 +476,6 @@
         <!-- load signing properties -->
         <property file="build-sign.properties"/>
 
-        <signjar keystore="${security.keystore}"
-            storepass="${security.storepass}"
-            alias="${security.alias}"
-            keypass="${security.keypass}"
-            >
-            <!--  maybe 'keypass' is not needed -->
-
-            <fileset dir="${dir.webstart}/lib"/>
-        </signjar>
 
         <signjar keystore="${security.keystore}"
             storepass="${security.storepass}"
@@ -424,6 +485,26 @@
             <!--  maybe 'keypass' is not needed -->
 
             <fileset dir="${dir.webstart}/conf"/>
+        </signjar>
+
+        <signjar keystore="${security.keystore}"
+            storepass="${security.storepass}"
+            alias="${security.alias}"
+            keypass="${security.keypass}"
+            >
+            <!--  maybe 'keypass' is not needed -->
+
+            <fileset dir="${dir.webstart}/${jini.core.DirName}"/>
+        </signjar>
+
+        <signjar keystore="${security.keystore}"
+            storepass="${security.storepass}"
+            alias="${security.alias}"
+            keypass="${security.keypass}"
+            >
+            <!--  maybe 'keypass' is not needed -->
+
+            <fileset dir="${dir.webstart}/lib"/>
         </signjar>
     </target>
 
@@ -436,6 +517,7 @@
 
             <fileset dir="${dir.webstart}" includes="*"/><!-- .jnlp file -->
 
+            <zipfileset dir="${dir.webstart}/${jini.core.DirName}" prefix="${jini.core.DirName}"/>
             <zipfileset dir="${dir.webstart}/lib" prefix="lib"/>
 
             <zipfileset dir="${dir.webstart}/conf" prefix="conf"/>
