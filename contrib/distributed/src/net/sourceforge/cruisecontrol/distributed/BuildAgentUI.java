@@ -19,7 +19,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.SwingUtilities;
 import java.rmi.RemoteException;
 
-import net.sourceforge.cruisecontrol.distributed.util.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 
 /**
  * @author: Dan Rollo

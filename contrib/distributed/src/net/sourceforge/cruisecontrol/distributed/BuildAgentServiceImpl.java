@@ -56,9 +56,9 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
-import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
-import net.sourceforge.cruisecontrol.distributed.util.ZipUtil;
-import net.sourceforge.cruisecontrol.util.FileUtil;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
+import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
