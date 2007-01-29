@@ -40,9 +40,12 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+//import java.util.Date;
+//import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+//import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * Unit Tests of maven2 snapshot dependency sourcecontrol.
@@ -170,10 +173,13 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         dep.validate();
     }
 
-/*
-    this test is not jre 1.3 compatible because it invokes the MavenEmbedder.
-    mocking that connection would allow the test to run under 1.3 and also
-    make the test much faster.  (current ~7 seconds)
+
+/*  NOTE: Add a single slash to the front of this line to try running these tests.
+
+
+    //this test is not jre 1.3 compatible because it invokes the MavenEmbedder.
+    //mocking that connection would allow the test to run under 1.3 and also
+    //make the test much faster.  (current ~7 seconds)
 
     public void testGetPomXml() throws Exception {
 
@@ -218,11 +224,9 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         assertEquals("Unexpected artifact type", Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY,
                 artifactInfos[1].getArtifactType());
     }
-*/
 
-/*
 
-    This test is too slow (~55 second). Need tests that don't require going over the network.
+    //This test is too slow (~55 second). Need tests that don't require going over the network.
 
     public void testGetModifications() throws Exception {
 
@@ -245,7 +249,7 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         assertEquals("Wrong Modification: " + mod, Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY
                         + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "maven", mod.comment);
     }
-*/
+//*/
 
     // @todo Add support/test of transitive dependencies with snapshots
 }
