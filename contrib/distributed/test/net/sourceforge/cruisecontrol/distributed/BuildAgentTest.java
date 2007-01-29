@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.distributed.core.PropertyEntry;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.entry.Entry;

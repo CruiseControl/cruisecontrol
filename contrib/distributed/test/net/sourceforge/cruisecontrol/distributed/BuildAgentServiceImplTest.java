@@ -16,7 +16,7 @@ import java.rmi.RemoteException;
 import org.jdom.Element;
 import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.distributed.util.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 
