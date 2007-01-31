@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2007, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -38,15 +38,14 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.sourcecontrols.VSSHelper;
+import net.sourceforge.cruisecontrol.util.EnvCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import net.sourceforge.cruisecontrol.util.Processes;
-
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class VssBootstrapper implements Bootstrapper {
 
@@ -60,13 +59,8 @@ public class VssBootstrapper implements Bootstrapper {
     private String login;
 
     public void bootstrap() throws CruiseControlException {
-        final String commandLine = generateCommandLine();
-
-        final String[] env = VSSHelper.loadVSSEnvironment(serverPath);
-
         try {
-            Process p = Runtime.getRuntime().exec(commandLine, env);
-            Processes.waitFor(p, LOG);
+            generateCommandLine().executeAndWait(LOG);
         } catch (IOException ex) {
             LOG.warn("exception trying to exec ss.exe", ex);
             throw new CruiseControlException(ex);
@@ -90,28 +84,38 @@ public class VssBootstrapper implements Bootstrapper {
         setLocalDirectory(localDirForFile.getAbsolutePath());
     }
 
-    String generateCommandLine() {
-        StringBuffer commandLine = new StringBuffer();
-        final String backslash = "\\";
-        // optionally prefix the executable
+    private String getExecutable() {
+        String executable = "";
         if (ssDir != null) {
-            commandLine.append(ssDir).append(ssDir.endsWith(backslash) ? "" : backslash);
+            executable = ssDir;
+            if (ssDir.charAt(ssDir.length() - 1) != '\\') {
+                executable += '\\';
+            }
         }
-        final String quote = "\"";
-        commandLine.append("ss.exe get ");
+        executable += "ss.exe";
+        return executable;
+    }
+    Commandline generateCommandLine() {
+        EnvCommandline command = new EnvCommandline();
+        command.setExecutable(getExecutable());
+        command.createArgument("get");
+
+        if (serverPath != null) {
+            command.setVariable("SSDIR", serverPath);
+        }
+
         // check for leading "$", to be argument-compatible with other tasks
         if (vssPath != null) {
             String pathPrefix = vssPath.startsWith("$") ? "" : "$";
-            commandLine.append(quote).append(pathPrefix).append(vssPath).append(quote);
+            command.createArgument('"' + pathPrefix + vssPath + '"');
         }
-        commandLine.append(" -GL");
-        commandLine.append(quote).append(localDirectory).append(quote);
-        commandLine.append(" -I-N");
+        command.createArgument("-GL\"" + localDirectory + '"');
+        command.createArgument("-I-N");
         if (login != null) {
-            commandLine.append(" -Y").append(login);
+            command.createArgument("-Y" + login);
         }
 
-        return commandLine.toString();
+        return command;
     }
 
     /**
