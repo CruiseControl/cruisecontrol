@@ -36,8 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.util.Iterator;
-import java.util.Properties;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -50,21 +49,11 @@ public final class VSSHelper {
     }
 
     public static String[] loadVSSEnvironment(String serverPath) {
-        Properties systemProps = System.getProperties();
+        OSEnvironment env = new OSEnvironment();
         if (serverPath != null) {
-            systemProps.put("SSDIR", serverPath);
+            env.add("SSDIR", serverPath);
         }
-        String[] env = new String[systemProps.size()];
-
-        int index = 0;
-        Iterator systemPropIterator = systemProps.keySet().iterator();
-        while (systemPropIterator.hasNext()) {
-            String propName = (String) systemPropIterator.next();
-            env[index] = propName + "=" + systemProps.get(propName);
-            index++;
-        }
-
-        return env;
+        return env.toArray();
     }
 
 }
