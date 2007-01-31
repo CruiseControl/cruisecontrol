@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2007, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -36,10 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +46,8 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Processes;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -140,9 +138,6 @@ public class MKS implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
 
-        int numberOfFilesForDot = 0;
-        boolean printCR = false;
-
         if (doNothing) {
             properties.modificationFound();
             return listOfModifications;
@@ -166,7 +161,7 @@ public class MKS implements SourceControl {
             throw new RuntimeException(e);
         }
         
-        /* Sample output:
+        /* Sample output on stderr:
          * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
          * as dominik.hirt ... Resynchronizing files...
          * c:\temp\test\Admin\ComponentBuild\antfile.xml
@@ -175,59 +170,12 @@ public class MKS implements SourceControl {
          */
 
         try {
-            Process proc = cmdLine.execute();;
-            Thread stdout = logStream(proc.getInputStream());
-            InputStream in = proc.getErrorStream();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(in));
-            String line = reader.readLine();
-
-            while (line != null) {
-                int idxCheckedOutRevision = line
-                        .indexOf(": checked out revision");
-
-                if (idxCheckedOutRevision == -1) {
-                    numberOfFilesForDot++;
-                    if (numberOfFilesForDot == 20) {
-                        System.out.print("."); // don't use LOG, avoid linefeed
-                        numberOfFilesForDot = 0;
-                        printCR = true;
-                    }
-                    line = reader.readLine();
-                    continue;
-                }
-                if (printCR) {
-                    System.out.println(""); // avoid LOG prefix 'MKS - '
-                    printCR = false;
-                }
-                LOG.info(line);
-
-                int idxSeparator = line.lastIndexOf(File.separator);
-                String folderName = line.substring(0, idxSeparator);
-                String fileName = line.substring(idxSeparator + 1,
-                        idxCheckedOutRevision);
-                Modification modification = new Modification();
-                Modification.ModifiedFile modFile = modification
-                        .createModifiedFile(fileName, folderName);
-                modification.modifiedTime = new Date(new File(folderName,
-                        fileName).lastModified());
-                modFile.revision = line.substring(idxCheckedOutRevision + 23);
-                modification.revision = modFile.revision;
-                setUserNameAndComment(modification, folderName, fileName);
-
-                listOfModifications.add(modification);
-
-                line = reader.readLine();
-
-                properties.modificationFound();
-            }
-            proc.waitFor();
-            stdout.join();
-            IO.close(proc);
+            StreamConsumer stderr = new ModificationsConsumer();
+            StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
+            Processes.waitFor(cmdLine.execute(), stdout, stderr);
         } catch (Exception ex) {
             LOG.warn(ex.getMessage(), ex);
         }
-        System.out.println(); // finishing dotted line, avoid LOG prefix 'MKS - '
         LOG.info("resync finished");
 
         return listOfModifications;
@@ -259,30 +207,17 @@ public class MKS implements SourceControl {
             commandLine.createArguments("-r", modification.revision);
             commandLine.createArgument(folderName + File.separator + fileName);
 
-            LOG.debug(commandLine.toString());
-
             Process proc = commandLine.execute();
-
-            Thread stderr = logStream(proc.getErrorStream());
-            InputStream in = proc.getInputStream();
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(in));
-            String line = reader.readLine();
-            LOG.debug(line);
-
-            int idx = line.indexOf(";");
-            while (idx == -1) {
-                line = reader.readLine(); // unknown output, read again
-                LOG.debug(line);
-                idx = line.indexOf(";");
+            UserAndCommentConsumer userData = new UserAndCommentConsumer();
+            Processes.waitFor(proc, userData, StreamLogger.getWarnLogger(LOG));
+            if (userData.wasFound()) {
+                modification.userName = userData.getUserName();
+                modification.comment = userData.getComment();
+            } else {
+                LOG.warn("could not find username or comment for " + fileName + " r" + modification.revision);
+                modification.userName = "";
+                modification.comment = "";
             }
-
-            modification.userName = line.substring(0, idx);
-            modification.comment = line.substring(idx + 1);
-
-            proc.waitFor();
-            stderr.join();
-            IO.close(proc);
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
             modification.userName = "";
@@ -290,9 +225,67 @@ public class MKS implements SourceControl {
         }
     }
 
-    private static Thread logStream(InputStream inStream) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, inStream));
-        stderr.start();
-        return stderr;
+    private class ModificationsConsumer implements StreamConsumer {
+        public void consumeLine(String line) {
+            int idxCheckedOutRevision = line
+                    .indexOf(": checked out revision");
+
+            if (idxCheckedOutRevision == -1) {
+                return;
+            }
+            LOG.info(line);
+
+            int idxSeparator = line.lastIndexOf(File.separator);
+            String folderName = line.substring(0, idxSeparator);
+            String fileName = line.substring(idxSeparator + 1,
+                    idxCheckedOutRevision);
+            Modification modification = new Modification();
+            Modification.ModifiedFile modFile = modification
+                    .createModifiedFile(fileName, folderName);
+            modification.modifiedTime = new Date(new File(folderName,
+                    fileName).lastModified());
+            modFile.revision = line.substring(idxCheckedOutRevision + 23);
+            modification.revision = modFile.revision;
+            setUserNameAndComment(modification, folderName, fileName);
+
+            listOfModifications.add(modification);
+
+            properties.modificationFound();
+        }
+    }
+
+    private static class UserAndCommentConsumer implements StreamConsumer {
+        private boolean found;
+        private String userName;
+        private String comment;
+
+        public boolean wasFound() {
+            return found;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public String getComment() {
+            return comment;
+        }
+
+        public void consumeLine(String line) {
+            if (found) {
+                return;
+            }
+            int idx = line.indexOf(";");
+            if (idx == -1) {
+                LOG.debug(line);
+                return;
+            }
+
+            found = true;
+            userName = line.substring(0, idx);
+            if (idx < line.length()) {
+                comment = line.substring(idx + 1);
+            } else {
+                comment = "";
+            }            
+        }
     }
 }
