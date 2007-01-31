@@ -85,7 +85,7 @@ public class VssBootstrapperTest extends TestCase {
 
   public void testCommandLine() {
     VssBootstrapper bootstrapper = new VssBootstrapper();
-    String commandLine = bootstrapper.generateCommandLine();
+    String commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     assertNotNull("command line should never be null", commandLine);
 
     final String vssPath = "$Project/subproject/file.ext";
@@ -93,12 +93,12 @@ public class VssBootstrapperTest extends TestCase {
     final String localDirectory = "c:/foo";
     bootstrapper.setLocalDirectory(localDirectory);
 
-    commandLine = bootstrapper.generateCommandLine();
+    commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     String expectedCommandLine = "ss.exe get \"" + vssPath + "\" -GL\"" + localDirectory + "\" -I-N";
     assertEquals(expectedCommandLine, commandLine);
 
     bootstrapper.setLogin("bob,password");
-    commandLine = bootstrapper.generateCommandLine();
+    commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     expectedCommandLine = expectedCommandLine + " -Ybob,password";
     assertEquals(expectedCommandLine, commandLine);
 
@@ -106,8 +106,8 @@ public class VssBootstrapperTest extends TestCase {
     bootstrapper.setSsDir(ssDir);
     final String serverPath = "t:\\vss\\foo";
     bootstrapper.setServerPath(serverPath);
-    expectedCommandLine = ssDir + "\\" + expectedCommandLine;
-    commandLine = bootstrapper.generateCommandLine();
+    expectedCommandLine = ssDir.replace("\\", "/") + '/' + expectedCommandLine;
+    commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     assertEquals(expectedCommandLine, commandLine);
   }
 }
