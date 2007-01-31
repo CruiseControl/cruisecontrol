@@ -224,7 +224,7 @@ public class CruiseControlConfigTest extends TestCase {
     // test that we are capable of resolving properties in all property attributes
     public void testPropertiesInProperties() throws Exception {
         String targetProject = "propsinpropsdef";
-        String expectedPropertyValue = new OSEnvironment().getVariable("PATH");
+        String expectedPropertyValue = new OSEnvironment().getVariableIgnoreCase("PATH");
         assertPropertyValue(targetProject, expectedPropertyValue);
     }
 
@@ -300,8 +300,8 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("default", testListener0.getString());
         ListenerTestNestedPlugin nested = testListener0.getNested();
         assertTrue(nested instanceof ListenerTestOtherNestedPlugin);
-        assertEquals("notshadowing", ((ListenerTestOtherNestedPlugin) nested).getString());
-        assertEquals(null, ((ListenerTestOtherNestedPlugin) nested).getOtherString());
+        assertEquals("notshadowing", nested.getString());
+        assertEquals(null, nested.getOtherString());
         assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
     }
 
