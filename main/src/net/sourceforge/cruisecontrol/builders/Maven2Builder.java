@@ -115,7 +115,9 @@ public class Maven2Builder extends Builder {
         super.validate();
 
         ValidationHelper.assertFalse(mvnScript != null && mvnHome != null,
-                    "'mvnhome' and 'mvnscript' cannot both be set");
+                    "'mvnhome' and 'mvnscript' cannot both be set."
+                            + "\n\tmvnhome: " + mvnHome
+                            + ";\n\tmvnscript: " + mvnScript);
 
         if (mvnHome != null) {
             ValidationHelper.assertIsSet(mvnHome, "mvnhome", getClass());
@@ -126,13 +128,14 @@ public class Maven2Builder extends Builder {
                             + "; Check the mvnhome attribute of the maven2 plugin");
 
             mvnScript = findMaven2Script(Util.isWindows());
+            LOG.debug("Using mvnHome: " + mvnHome + ", mvnScript found and set to: " + mvnScript);
         }
         ValidationHelper.assertTrue(mvnScript != null, "'mvnhome' or 'mvnscript' must be set.");
 
         ValidationHelper.assertIsSet(pomFile, "pomfile", getClass());
-        ValidationHelper.assertIsSet(goal, "goal", this.getClass());
+        ValidationHelper.assertIsSet(goal, "goal", getClass());
         if (getGoalSets().isEmpty()) {
-            ValidationHelper.assertIsSet(null, "goal", this.getClass());
+            ValidationHelper.assertIsSet(null, "goal", getClass());
         }
 
         if (settingsFile != null) {
