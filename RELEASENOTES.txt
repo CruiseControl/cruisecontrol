@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.6.1
 
+general
+======================
+* Fix cruisecontrol.bat in binary release for JAVA_HOME that has spaces (CC-554)
+
 build loop
 ======================
 
