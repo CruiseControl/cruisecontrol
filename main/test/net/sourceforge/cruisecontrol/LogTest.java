@@ -171,6 +171,34 @@ public class LogTest extends TestCase {
         }
     }
 
+    public void testUpdateLabel() throws CruiseControlException, IOException, JDOMException {
+        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        Log log = new Log();
+        log.setProjectName("testLabelUpdate");
+        log.setDir("target");
+        
+        // Add a minimal buildLog
+        log.addContent(getBuildLogInfo());
+        Element build = new Element("build");
+        log.addContent(build);
+        log.addContent(new Element("modifications"));
+        build.setText("Some text");
+        
+        String expectedLabel = "NEW_LABEL";
+        log.updateLabel(expectedLabel);
+        log.validate();
+        
+        // Write and read the file
+        log.writeLogFile(new Date());
+        File logFile = log.getLastLogFile();
+        filesToClear.add(logFile);
+        Element actualContent = builder.build(logFile).getRootElement();
+        
+        String actual = outputter.outputString(actualContent);
+        assertTrue(actual.indexOf("value=\"" + expectedLabel + "\"") > -1);
+    }
+
     public void testManipulateLog() throws Exception {
         String testProjectName = "testBackupLog";
         String testLogDir = "target";

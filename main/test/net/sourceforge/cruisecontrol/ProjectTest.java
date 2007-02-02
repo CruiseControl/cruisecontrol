@@ -190,7 +190,7 @@ public class ProjectTest extends TestCase {
                 + "<property name=\"cctimestamp\" value=\""
                 + DateUtil.getFormattedTime(now)
                 + "\" />"
-                + "<property name=\"label\" value=\"1.2.2\" />"
+                + "<property name=\"label\" value=\"1.2.3\" />"
                 + "<property name=\"interval\" value=\"300\" />"
                 + "<property name=\"lastbuildsuccessful\" value=\"false\" />"
                 + "<property name=\"logdir\" value=\""
@@ -199,7 +199,7 @@ public class ProjectTest extends TestCase {
                 + "<property name=\"logfile\" value=\""
                 + "log"
                 + DateUtil.getFormattedTime(now)
-                + "L1.2.2.xml\" />"
+                + "L1.2.3.xml\" />"
                 + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, Util.readFileToString(log.getLastLogFile()));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());

@@ -221,6 +221,7 @@ public class Project implements Serializable, Runnable {
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
                 label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
+                projectConfig.getLog().updateLabel(label);
             }
 
             setState(ProjectState.MERGING_LOGS);
@@ -865,7 +866,7 @@ public class Project implements Serializable, Runnable {
             throw new IllegalStateException("projectConfig is null");
         }
 
-        for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext(); ) {
+        for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext();) {
             Listener listener = (Listener) i.next();
             try {
                 listener.handleEvent(event);
