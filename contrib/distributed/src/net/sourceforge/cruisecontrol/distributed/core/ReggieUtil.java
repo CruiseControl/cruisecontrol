@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import java.util.List;
 
 import net.jini.core.entry.Entry;
+import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 

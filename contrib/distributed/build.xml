@@ -378,6 +378,8 @@
 			</manifest>
 			<fileset dir="${classes}">
 				<include name="**/distributed/core/**" />
+                <include name="**/PropertyEntry.class"/>              <!-- Moving this to core package is not backwards compatible -->
+                <include name="**/SearchablePropertyEntries.class"/>  <!-- Moving this to core package is not backwards compatible -->
 			</fileset>
 		</jar>
 
@@ -415,7 +417,9 @@
 			</manifest>
 			<fileset dir="${classes}">
                 <include name="**/distributed/*" />           <!-- Do NOT include sub dirs -->
-                <exclude name="**/BuildAgentService.class"/>
+                <exclude name="**/BuildAgentService.class"/>          <!-- Moving this to core package is not backwards compatible -->
+                <exclude name="**/PropertyEntry.class"/>              <!-- Moving this to core package is not backwards compatible -->
+                <exclude name="**/SearchablePropertyEntries.class"/>  <!-- Moving this to core package is not backwards compatible -->
 			</fileset>
 		</jar>
 		<!--<jar destfile="dist/lookup/${jini.libDownload.DirName}/cc-agent-dl.jar">-->

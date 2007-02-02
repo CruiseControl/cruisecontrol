@@ -55,6 +55,7 @@ import net.jini.lookup.ServiceDiscoveryEvent;
 import net.jini.lookup.ServiceDiscoveryListener;
 import net.jini.lookup.ServiceItemFilter;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 
