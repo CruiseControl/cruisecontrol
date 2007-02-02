@@ -47,7 +47,6 @@ import java.util.Properties;
 
 import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
-import net.sourceforge.cruisecontrol.distributed.core.PropertyEntry;
 
 import org.apache.log4j.Logger;
 

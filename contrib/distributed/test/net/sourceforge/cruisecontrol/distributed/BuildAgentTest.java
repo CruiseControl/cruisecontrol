@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
-import net.sourceforge.cruisecontrol.distributed.core.PropertyEntry;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.entry.Entry;
@@ -12,7 +11,7 @@ import net.jini.core.entry.Entry;
 import java.rmi.RemoteException;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Jul 6, 2005
  * Time: 4:12:20 PM
  */
