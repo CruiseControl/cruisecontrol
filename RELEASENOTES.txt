@@ -39,6 +39,10 @@ SocketPublisher
 ----------------------
 * Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
 
+SVN
+----------------------
+* Add checkExternals flag to check for changes in svn:externals. (CC-585). Patch by Chad Woolley.
+
 Veto
 ----------------------
 * New SourceControl plug-in used to prevent a project from building when a dependency is out of date.
