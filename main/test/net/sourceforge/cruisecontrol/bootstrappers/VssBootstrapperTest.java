@@ -106,7 +106,7 @@ public class VssBootstrapperTest extends TestCase {
     bootstrapper.setSsDir(ssDir);
     final String serverPath = "t:\\vss\\foo";
     bootstrapper.setServerPath(serverPath);
-    expectedCommandLine = ssDir.replace("\\", "/") + '/' + expectedCommandLine;
+    expectedCommandLine = ssDir.replaceAll("\\\\", "/") + '/' + expectedCommandLine;
     commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     assertEquals(expectedCommandLine, commandLine);
   }
