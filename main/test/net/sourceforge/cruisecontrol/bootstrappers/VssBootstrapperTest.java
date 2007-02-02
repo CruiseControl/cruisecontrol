@@ -38,6 +38,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import java.io.File;
 
 public class VssBootstrapperTest extends TestCase {
 
@@ -106,7 +109,15 @@ public class VssBootstrapperTest extends TestCase {
     bootstrapper.setSsDir(ssDir);
     final String serverPath = "t:\\vss\\foo";
     bootstrapper.setServerPath(serverPath);
-    expectedCommandLine = ssDir.replaceAll("\\\\", "/") + '/' + expectedCommandLine;
+    // VSS commands with paths inside the VSS repo actually use backslashes, with $ as root
+    // Like: $/myProject/mySubProject/...
+    // Also we need to adjust the expected path to the VSS dir according to the OS on which we're
+    // running the unit test. Even more yummy, we must NOT do the replaceAll when on Windows,
+    // or we get a StringIndexOutOfBoundsException.
+    // Never mind that you'll NEVER actually execute and .exe on a non-windows OS...gotta love
+    // cross platform madness!
+    expectedCommandLine = (Util.isWindows() ? ssDir : ssDir.replaceAll("\\\\", File.separator))
+            + File.separatorChar + expectedCommandLine;
     commandLine = bootstrapper.generateCommandLine().toStringNoQuoting();
     assertEquals(expectedCommandLine, commandLine);
   }
