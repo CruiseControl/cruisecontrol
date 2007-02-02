@@ -67,7 +67,7 @@ public class ThreadQueueTest extends TestCase {
         // I believe this problem results from longer thread startup times in 1.5 AND that it may
         // point to a bug in ThreadQueue - thought I'm not sure of either...
         // In any case, adding this kludge so other unit tests are allowed to continue.
-        sleep(3 * TENTH_OF_SECOND);
+        //sleep(3 * TENTH_OF_SECOND);
     }
 
     protected void tearDown() {
