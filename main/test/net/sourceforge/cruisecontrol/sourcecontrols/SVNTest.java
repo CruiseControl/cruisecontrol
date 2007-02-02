@@ -120,6 +120,33 @@ public class SVNTest extends TestCase {
         }
     }
 
+    public void testBuildPropgetCommand() throws CruiseControlException {
+        svn.setLocalWorkingCopy(".");
+
+        String[] expectedCmd =
+            new String[] {
+                "svn",
+                "propget",
+                "-R",
+                "--non-interactive",
+                "svn:externals" };
+        String[] actualCmd = svn.buildPropgetCommand().getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
+        svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
+
+        expectedCmd =
+            new String[] {
+                "svn",
+                "propget",
+                "-R",
+                "--non-interactive",
+                "svn:externals",
+                "http://svn.collab.net/repos/svn" };
+        actualCmd = svn.buildPropgetCommand().getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+    }
+
     public void testBuildHistoryCommandForWindows() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
@@ -139,6 +166,19 @@ public class SVNTest extends TestCase {
         String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
+        expectedCmd =
+            new String[] {
+                "svn",
+                "log",
+                "--non-interactive",
+                "--xml",
+                "-v",
+                "-r",
+                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                "external/path"};
+        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true, "external/path").getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
 
         expectedCmd =
@@ -152,6 +192,20 @@ public class SVNTest extends TestCase {
                 "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
                 "http://svn.collab.net/repos/svn" };
         actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
+        expectedCmd =
+            new String[] {
+                "svn",
+                "log",
+                "--non-interactive",
+                "--xml",
+                "-v",
+                "-r",
+                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                "http://svn.collab.net/repos/external"};
+        actualCmd = svn.buildHistoryCommand(
+            lastBuild, checkTime, true, "http://svn.collab.net/repos/external").getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setUsername("lee");
@@ -284,6 +338,33 @@ public class SVNTest extends TestCase {
                 "/trunk/playground/bbb",
                 "deleted");
         assertEquals(modification, modifications[4]);
+
+        modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog), "external/path");
+        assertEquals(5, modifications.length);
+
+        modification =
+            createModification(
+                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/external/path:/trunk/playground/aaa/ccc",
+                "added");
+        assertEquals(modification, modifications[0]);
+
+        modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog), null);
+        assertEquals(5, modifications.length);
+        modification =
+            createModification(
+                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/trunk/playground/aaa/ccc/d.txt",
+                "modified");
+        assertEquals(modification, modifications[1]);
     }
 
     public void testConvertDateIllegalArgument() {
@@ -379,6 +460,21 @@ public class SVNTest extends TestCase {
 
         modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentyeightZeroPM2003);
         assertEquals(3, modifications.size());
+
+        modifications = SVN.SVNLogXMLParser.parseAndFilter(
+            new StringReader(svnLog), julyTwentynineSixPM2003, "external/path");
+        assertEquals(2, modifications.size());
+
+        modification =
+            createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
+                "663",
+                "",
+                "/external/path:/trunk/playground/bbb",
+                "added");
+        assertEquals(modification, modifications.get(0));
     }
 
     public void testFormatDatesForSvnLog() {

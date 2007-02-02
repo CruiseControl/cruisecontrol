@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -97,6 +99,7 @@ public class SVN implements SourceControl {
     private String localWorkingCopy;
     private String userName;
     private String password;
+    private boolean checkExternals = false;
 
     public Map getProperties() {
         return properties.getPropertiesAndReset();
@@ -108,6 +111,15 @@ public class SVN implements SourceControl {
 
     public void setPropertyOnDelete(String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
+    }
+
+    /**
+     * Sets whether externals used by the project should also be checked
+     * for modifications.
+     *
+     */
+    public void setCheckExternals(boolean value) {
+        this.checkExternals = value;
     }
 
     /**
@@ -172,16 +184,62 @@ public class SVN implements SourceControl {
      * to retrieve the changes.
      */
     public List getModifications(Date lastBuild, Date now) {
+        HashMap directories = new HashMap();
+        Commandline propCommand = new Commandline();
+        // the propget command can be pretty expensive on large projects
+        // so only execute if the checkExternals flag is set in the config
+        if (checkExternals) {
+            try {
+                propCommand = buildPropgetCommand();
+            } catch (CruiseControlException e) {
+                LOG.error("Error building history command", e);
+            }
+            try {
+                directories = execPropgetCommand(propCommand);
+            } catch (Exception e) {
+                LOG.error("Error executing svn propget command " + propCommand, e);
+            }
+        }
+
         List modifications = new ArrayList();
         Commandline command;
+        String path = new String();
+        String svnURL = new String();
+        HashMap commandsAndPaths = new HashMap();
         try {
+            // always check the root
             command = buildHistoryCommand(lastBuild, now, Util.isWindows());
+            commandsAndPaths.put(command, null);
+            for (Iterator iter = directories.keySet().iterator(); iter.hasNext();) {
+                 String directory = (String) iter.next();
+                 ArrayList externals =
+                     (ArrayList) directories.get(directory);
+                 for (Iterator eiter = externals.iterator(); eiter.hasNext();) {
+                      String[] external = (String[]) eiter.next();
+                      path = directory + "/" + external[0];
+                      svnURL = external[1];
+                      if (repositoryLocation != null) {
+                          command = buildHistoryCommand(
+                              lastBuild, now, Util.isWindows(), svnURL);
+                          commandsAndPaths.put(command, null);
+                      } else {
+                          command = buildHistoryCommand(
+                              lastBuild, now, Util.isWindows(), path);
+                          commandsAndPaths.put(command, path);
+                      }
+                 }
+            }
         } catch (CruiseControlException e) {
             LOG.error("Error building history command", e);
             return modifications;
         }
         try {
-            modifications = execHistoryCommand(command, lastBuild);
+            for (Iterator iter = commandsAndPaths.keySet().iterator(); iter.hasNext();) {
+                 command = (Commandline) iter.next();
+                 path = (String) commandsAndPaths.get(command);
+                 modifications.addAll(execHistoryCommand(
+                     command, lastBuild, path));
+            }
         } catch (Exception e) {
             LOG.error("Error executing svn log command " + command, e);
         }
@@ -189,6 +247,34 @@ public class SVN implements SourceControl {
         return modifications;
     }
 
+    /**
+     * Generates the command line for the svn propget command.
+     *
+     * For example:
+     *
+     * 'svn propget -R svn:externals repositoryLocation'
+     */
+    Commandline buildPropgetCommand() throws CruiseControlException {
+        Commandline command = new Commandline();
+        command.setExecutable("svn");
+
+        if (localWorkingCopy != null) {
+            command.setWorkingDirectory(localWorkingCopy);
+        }
+
+        command.createArgument("propget");
+        command.createArgument("-R");
+        command.createArgument("--non-interactive");
+        command.createArgument("svn:externals");
+        
+        if (repositoryLocation != null) {
+            command.createArgument(repositoryLocation);
+        }
+
+        LOG.debug("Executing command: " + command);
+
+        return command;
+    }
 
     /**
      * Generates the command line for the svn log command.
@@ -197,7 +283,14 @@ public class SVN implements SourceControl {
      *
      * 'svn log --non-interactive --xml -v -r "{lastbuildTime}":"{checkTime}" repositoryLocation'
      */
-    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows) throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows)
+        throws CruiseControlException {
+        return buildHistoryCommand(lastBuild, checkTime, isWindows, null);
+    }
+
+    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows, String path)
+        throws CruiseControlException {
+
         Commandline command = new Commandline();
         command.setExecutable("svn");
 
@@ -224,7 +317,9 @@ public class SVN implements SourceControl {
         if (password != null) {
             command.createArguments("--password", password);
         }
-        if (repositoryLocation != null) {
+        if (path != null) {
+            command.createArgument(path);
+        } else if (repositoryLocation != null) {
             command.createArgument(repositoryLocation);
         }
 
@@ -240,15 +335,54 @@ public class SVN implements SourceControl {
         return f.format(lastBuild);
     }
 
+    private HashMap execPropgetCommand(Commandline command)
+        throws InterruptedException, IOException, ParseException, JDOMException {
 
-    private List execHistoryCommand(Commandline command, Date lastBuild)
+        Process p = command.execute();
+
+        logErrorStream(p);
+        InputStream svnStream = p.getInputStream();
+
+        HashMap directories = new HashMap(); 
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(svnStream, "UTF8"));
+
+        String line = null;
+        String currentDir = null;
+
+        while ((line = reader.readLine()) != null) {
+            String[] split = line.split(" - ");
+            // the directory containing the externals
+            if (split.length > 1) {
+                currentDir = split[0];
+                directories.put(currentDir, new ArrayList());
+                line = split[1];
+            }
+            split = line.split(" ");
+            if (!split[0].equals("")) {
+                ArrayList externals = (ArrayList) directories.get(currentDir);
+                // split contains: [externalPath, externalSvnURL]
+                externals.add(split);
+            }
+        }
+
+        p.waitFor();
+        p.getInputStream().close();
+        p.getOutputStream().close();
+        p.getErrorStream().close();
+
+        return directories;
+    }
+
+    private List execHistoryCommand(Commandline command, Date lastBuild,
+                                    String externalPath)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
         Process p = command.execute();
 
         Thread stderr = logErrorStream(p);
         InputStream svnStream = p.getInputStream();
-        List modifications = parseStream(svnStream, lastBuild);
+        List modifications = parseStream(svnStream, lastBuild, externalPath);
 
         p.waitFor();
         stderr.join();
@@ -263,11 +397,12 @@ public class SVN implements SourceControl {
         return stderr;
     }
 
-    private List parseStream(InputStream svnStream, Date lastBuild)
+    private List parseStream(InputStream svnStream, Date lastBuild,
+                             String externalPath)
         throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
 
         InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
-        return SVNLogXMLParser.parseAndFilter(reader, lastBuild);
+        return SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
     }
 
     void fillPropertiesIfNeeded(List modifications) {
@@ -295,24 +430,32 @@ public class SVN implements SourceControl {
         private SVNLogXMLParser() {
         }
 
-
         static List parseAndFilter(Reader reader, Date lastBuild)
                 throws ParseException, JDOMException, IOException {
+            return parseAndFilter(reader, lastBuild, null);
+        }
 
-            Modification[] modifications = parse(reader);
+        static List parseAndFilter(Reader reader, Date lastBuild, String externalPath)
+                throws ParseException, JDOMException, IOException {
+            Modification[] modifications = parse(reader, externalPath);
             return filterModifications(modifications, lastBuild);
         }
 
-
         static Modification[] parse(Reader reader)
+                throws ParseException, JDOMException, IOException {
+            return parse(reader, null);
+        }
+
+        static Modification[] parse(Reader reader, String externalPath)
                 throws ParseException, JDOMException, IOException {
 
             SAXBuilder builder = new SAXBuilder(false);
             Document document = builder.build(reader);
-            return parseDOMTree(document);
+            return parseDOMTree(document, externalPath);
         }
 
-        static Modification[] parseDOMTree(Document document) throws ParseException {
+        static Modification[] parseDOMTree(Document document, String externalPath)
+                throws ParseException {
             List modifications = new ArrayList();
 
             Element rootElement = document.getRootElement();
@@ -320,14 +463,16 @@ public class SVN implements SourceControl {
             for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
                 Element logEntry = (Element) iterator.next();
 
-                Modification[] modificationsOfRevision = parseLogEntry(logEntry);
+                Modification[] modificationsOfRevision =
+                    parseLogEntry(logEntry, externalPath);
                 modifications.addAll(Arrays.asList(modificationsOfRevision));
             }
 
             return (Modification[]) modifications.toArray(new Modification[modifications.size()]);
         }
 
-        static Modification[] parseLogEntry(Element logEntry) throws ParseException {
+        static Modification[] parseLogEntry(Element logEntry, String externalPath)
+                throws ParseException {
             List modifications = new ArrayList();
 
             Element logEntryPaths = logEntry.getChild("paths");
@@ -344,6 +489,10 @@ public class SVN implements SourceControl {
                     modification.revision = logEntry.getAttributeValue("revision");
 
                     Modification.ModifiedFile modfile = modification.createModifiedFile(path.getText(), null);
+                    // modfile.folderName seems to add too many /'s
+                    if (externalPath != null) {
+                        modfile.fileName = "/" + externalPath + ":" + modfile.fileName;
+                    }
                     modfile.action = convertAction(path.getAttributeValue("action"));
                     modfile.revision = modification.revision;
 
