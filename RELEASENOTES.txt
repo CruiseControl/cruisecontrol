@@ -15,6 +15,10 @@ ClearCase
 ----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
 
+CompositeBuilder
+----------------------
+* Fix reported build time.  Patch by Frederic Mockel. 
+
 MKS
 ----------------------
 * Fix synchronization failure on Linux (CC-576).

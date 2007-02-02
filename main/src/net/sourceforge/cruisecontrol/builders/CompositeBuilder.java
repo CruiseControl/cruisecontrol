@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -19,6 +20,8 @@ public class CompositeBuilder extends Builder {
 
     private final List builders = new ArrayList();
 
+    private long startTime = 0;
+    
     public void add(Builder builder) {
         try {
             builder.validate();
@@ -26,6 +29,15 @@ public class CompositeBuilder extends Builder {
             LOG.error("error validating builder");
         }
         builders.add(builder);
+    }
+
+    private void startBuild() {
+        startTime = System.currentTimeMillis();
+    }
+
+    private void endBuild(Element buildResult) {
+        long endTime = System.currentTimeMillis();
+        buildResult.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
     }
 
     private static boolean processBuildResult(Element buildResult, Element compositeBuildResult) {
@@ -60,25 +72,32 @@ public class CompositeBuilder extends Builder {
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
         final Iterator iter = builders.iterator();
+
+        startBuild();
         while (iter.hasNext() & !errorOcurred) {
             final Builder builder = (Builder) iter.next();
             final Element buildResult = builder.build(properties);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult);
         }
+        endBuild(compositeBuildResult);
+
         return compositeBuildResult;
     }
 
-    public Element buildWithTarget(Map properties, String target)
-            throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
 
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
         final Iterator iter = builders.iterator();
+
+        startBuild();
         while (iter.hasNext() & !errorOcurred) {
             final Builder builder = (Builder) iter.next();
             final Element buildResult = builder.buildWithTarget(properties, target);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult);
         }
+        endBuild(compositeBuildResult);
+
         return compositeBuildResult;
     }
 
