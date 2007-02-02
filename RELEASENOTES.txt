@@ -31,6 +31,10 @@ P4
 ----------------------
 * Display modification time using local timezone if correctForServerTime is true (CC-574). Patch by Anatol Pomozov
 
+PropertyFileLabelIncrementer
+----------------------
+* PropertyFileLabelIncrementer uses specified property file, not the previous log file. (CC-519)  Patch by Chad Wooley and Joe Moore.
+
 SocketPublisher
 ----------------------
 * Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
