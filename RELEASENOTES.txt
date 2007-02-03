@@ -8,6 +8,13 @@ general
 ======================
 * Fix cruisecontrol.bat in binary release for JAVA_HOME that has spaces (CC-554)
 
+contrib
+======================
+
+distributed
+----------------------
+* Updated to use Jini v2.1, rearranged tree, and added upgrade notes to README.html for mixed environments.
+
 build loop
 ======================
 
@@ -164,7 +171,7 @@ default-plugins.properties
 
 EmailPublisher
 ----------------------
-* Add <ignore ..> child element (CC-489). Patch by Jarkko Viinamäki
+* Add <ignore ..> child element (CC-489). Patch by Jarkko Viinamï¿½ki
 * Fixed bug where using SSL but not specifying mailPort would result in a NullPointerException. Reported by Michael Clark
 * Added validation for nested alert, always, failure, success and ignore elements.
 
@@ -188,7 +195,7 @@ LockFileListener
 
 MavenSnapshotDependency
 ----------------------
-* Modifications to MavenSnapshotDependency (CC-484). Submitted by Jarkko Viinamäki
+* Modifications to MavenSnapshotDependency (CC-484). Submitted by Jarkko Viinamï¿½ki
   - made POM scanning namespace aware. Dependencies were not detected if project.xml had schema definition in the project element
   - added support for "ejb-client" dependency type
   - added echo for detected snapshot dependencies
@@ -203,7 +210,7 @@ Maven2Builder
 
 MKS
 ----------------------
-* fix problem with spaces in project path (CC-558). Patch by Thomas Schüttel
+* fix problem with spaces in project path (CC-558). Patch by Thomas Schï¿½ttel
 
 ModificationSet
 ----------------------
@@ -217,7 +224,7 @@ P4
 Project
 ----------------------
 * Add requireModifications and forceOnly attributes (CC-501). Patch by Chris Erskine
-* Avoid loop when forcing a build that has an exception in the bootstrapper (CC-556). Patch by Stefan Lützkendorf
+* Avoid loop when forcing a build that has an exception in the bootstrapper (CC-556). Patch by Stefan Lï¿½tzkendorf
 
 PropertyLabelIncrementer
 ----------------------
@@ -712,7 +719,7 @@ index.jsp:
 
 LogFile:
 ----------------------
-* Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjørn
+* Extract code for accessing the XML log files into a new Logfile class. Donations from ArtifactsLinkTag, BuildInfo, FileServlet, NavigationTag and XSLTag. Patch by Hack Kampbjï¿½rn
 * Serializable so that the Metrics tab in the reporting application will work. Patch by Dan Rollo.
 
 LogFileServlet:
@@ -734,19 +741,19 @@ Reporting:
 
 RSS:
 ----------------------
-* Updated rss.jsp to fix issue introduced by changes to BuildInfo. (CC-372) Patch by Ludovic Maître
+* Updated rss.jsp to fix issue introduced by changes to BuildInfo. (CC-372) Patch by Ludovic Maï¿½tre
 * Added a webtest that ensures functional rss.jsp, based on CC-372.
 * Set publication date to US locale so that applications can parse the data. (CC-357) Patch by Martin Nyholm Jelle
 * udpated main.jsp to fix RSS links in Safari (CC-385). Based on patch from Michael Kloss
 
 TabSheet:
 ----------------------
-* Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjørn
+* Extend the tabsheet to have more than one row of tabs (CC-247). Patch by Hack Kampbjï¿½rn
 
 XSLTag:
 ----------------------
 * Handle absolute path for logdir attribute (CC-341). Patch by Jerome Lacoste.
-* Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjørn
+* Empty cache files left over from a failed transformation are not considered current and are regenerated. Patch by Hack Kampbjï¿½rn
 * Use XSLT parameters to customize the XSL templates.
 * Changed pmd.xsl to by default report all violations on the build results page. Old behaviour is available by setting xslt.pmd.warning.threshold=3 in web.xml
 * New XSL template for linking ant's cvstagdiff task's output to ViewCVS. (CC-356) Based on patch from Tony Cook via the Wiki
@@ -757,9 +764,9 @@ CruiseControl Release Notes - 2.3.1
 
 Binary Distribution
 ----------------------
-* Ability to specify the execution directory for CruiseControl via command line option -cchome (CC-310). Patch by Björn Beskow.
-* Adds JMX HttpAdapter port as system property for use by the reporting application (CC-310). Patch by Björn Beskow.
-* Ability to add a logical name to the CruiseControl instance for use by the reporting application (CC-310). Patch by Björn Beskow.
+* Ability to specify the execution directory for CruiseControl via command line option -cchome (CC-310). Patch by Bjï¿½rn Beskow.
+* Adds JMX HttpAdapter port as system property for use by the reporting application (CC-310). Patch by Bjï¿½rn Beskow.
+* Ability to add a logical name to the CruiseControl instance for use by the reporting application (CC-310). Patch by Bjï¿½rn Beskow.
 
 build.xml
 ----------------------
@@ -855,8 +862,8 @@ release.xml
 
 Reporting Application
 ----------------------
-* Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Björn Beskow.
-* Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Björn Beskow.
+* Reads a system property to determine the JMX Control Panel port, defaulting to 8000 (CC-310). Patch by Bjï¿½rn Beskow.
+* Displays a logical name for the CruiseControl instance as set when using the binary distribution (CC-310). Patch by Bjï¿½rn Beskow.
 * Clarify installation documentation, specifically around which entries need to be modified (related to CC-264). Patch by Jerome Lacoste.
 * XML Log file now sent directly to the browser for rendering, with no more XSLT (CC-294). Patch by Jerome Lacoste.
 
@@ -1286,7 +1293,7 @@ PVCS:
 
 Reporting application:
 ----------------------
-* Now supports GZipped logged files with names ending in .gz (CC-139). Patch by Hack Kampbjørn
+* Now supports GZipped logged files with names ending in .gz (CC-139). Patch by Hack Kampbjï¿½rn
 
 XSLTag:
 ----------------------
@@ -1310,7 +1317,7 @@ AntBuilder:
 ----------------------
 * No longer use UTF-8 to read Ant log files, but use default encoding. Patch by Mark Doliner
 * Do not use read-ahead to skip broken processing instruction caused by old Ant versions, but use an XmlFilter
-  so SAXBuilder can build from a File using the right Stream/Reader and encoding. Patch by Hack Kampbjørn
+  so SAXBuilder can build from a File using the right Stream/Reader and encoding. Patch by Hack Kampbjï¿½rn
 * Setting debug to true now causes only '-debug' to be passed to ant, rather than '-debug -verbose' (which would enable only -verbose, effectively)
 * Call org.apache.tools.ant.launch.Launcher instead of Main in absence of the antscript attribute
 * Various code cleanups
@@ -1411,11 +1418,11 @@ Listener
 
 Log
 ----------------------
-* use directly a Stream instead of wrapping it in a Writer (CC-77). Patch by Hack Kampbjørn
+* use directly a Stream instead of wrapping it in a Writer (CC-77). Patch by Hack Kampbjï¿½rn
 
 LogTest
 ----------------------
-* make test independent of compile time environment. Patch by Hack Kampbjørn
+* make test independent of compile time environment. Patch by Hack Kampbjï¿½rn
 
 LoggerController
 ----------------------
@@ -1487,7 +1494,7 @@ X10Publisher
 
 XSLTLogPublisher
 ----------------------
-* use a JDOMSource instead of a StreamSource, use Stream instead of Reader. Patch by Hack Kampbjørn
+* use a JDOMSource instead of a StreamSource, use Stream instead of Reader. Patch by Hack Kampbjï¿½rn
 
 website / documentation
 ----------------------
@@ -1495,7 +1502,7 @@ website / documentation
 * More documentation enhancements contributed by Joe Schmetzer. For more details, see http://sourceforge.net/mailarchive/forum.php?thread_id=5363380&forum_id=2202
 * Expanded and clearer documentation for <cvs> contributed by Joe Schmetzer.
 * An important note about multiple build loop required and some missing description for the jabber protocol contributed by Jerome Lacoste.
-* Included readme.txt in lib-dirs with references to web sites and licenses (documented by Hack Kampbjørn)
+* Included readme.txt in lib-dirs with references to web sites and licenses (documented by Hack Kampbjï¿½rn)
 
 CruiseControl Release Notes - 2.1.6
 

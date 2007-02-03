@@ -10,7 +10,9 @@
 			<p>In order to extend Cruise Control without requiring that our distributed extensions be merged in with the core Cruise Control code, we decided to add our code as a new contrib package. This complicates configuration a bit but carefully following the following steps should have you distributing builds in no time. You should, however, already be familiar with Cruise Control if you expect to succeed with this more complex arrangement.</p>
 			<h3>Overview</h3>
 			<p>The distributed extensions make use of Jini for the service lookup and RMI features it provides. In addition to the usual Cruise Control startup the user will have to start up a Jini service registrar and HTTP class server. Also, each build agent machine will need to have code installed locally and will need to start up and register their availability with the registrar. Once a federation of one or more agents is registered with a running registrar, Cruise Control has the ability to distribute builds through a new DistributedMasterBuilder that wraps an existing Builder in the CC configuration file. Examples are given below. Doing distributed builds is seamless in Cruise Control and the user has the option of only distributing builds for projects they choose to distribute.</p>
-			<h3>How-To</h3>
+			<h3>Compatibility with Prior Releases</h3>
+            <p>If you will be distributing builds in an environment which includes Build Agents from CruiseControl version 2.6 or earlier, please see <a href="#upgradeNotes">Upgrade Notes</a> at the end of this document.</p>
+            <h3>How-To</h3>
 			<ol type="I">
 				<li>
 					<h4>Building the code</h4>
@@ -45,20 +47,20 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 		&lt;/ant&gt;
 	&lt;/distributed&gt;
 &lt;/schedule&gt;</pre>
-							The <code>&lt;distributed&gt;</code> tag contains an attribute called <i>module</i> that indicates which source control module should be checked out and built. (Source control tools might require additional information. Currently there's no support for passing additional information to the build agent. See <b>Limitations</b> list. Therefore, the 'module' attribute is optional, and the Project name is used if the module attribute is omitted. Currently, the module value determines where BuildAgent work directories are created. These defaults can be overridden by setting 'agentlogdir' and 'agentoutputdir' attribs. See <b>Advanced Configuration - Section E</b>) 
+							The <code>&lt;distributed&gt;</code> tag contains an attribute called <i>module</i> that indicates which source control module should be checked out and built. (Source control tools might require additional information. Currently there's no support for passing additional information to the build agent. See <a href="#limitations">Limitations</a> list. Therefore, the 'module' attribute is optional, and the Project name is used if the module attribute is omitted. Currently, the module value determines where BuildAgent work directories are created. These defaults can be overridden by setting 'agentlogdir' and 'agentoutputdir' attribs. See <a href="#advancedConfigE">Advanced Configuration - Section E</a>)
 							
-							<p>Note that the <i>antscript</i> and <i>antworkingdir</i> attributes now refer to locations on your agent. As well, all agents will have to conform to these same settings. Again see <b>Limitations</b>.
+							<p>Note that the <i>antscript</i> and <i>antworkingdir</i> attributes now refer to locations on your agent. As well, all agents will have to conform to these same settings. Again see <a href="#limitations">Limitations</a>.
 							</li>
 					</ol>
 				</li>
 				<li>
 					<h4>Doing distributed builds</h4>
 					<ol type="A">
-						<li>Start the Lookup Service by navigating to the <i>contrib/distributed/dist/lookup</i> directory and running <code>ant</code>. The default target should start the registrar and class server. <b>(***NOTE: This location changed since the prior release. It used to be in: <i>contrib/distributed/dist/master</i>, so be sure to update the path of any custom LUS shortcuts/scripts.)</b> </li>
-						<li>Start the agent by navigating to the <i>contrib/distributed/dist/agent</i> directory and running <code>ant</code>. The default target should start the build agent and register it with the Lookup Service. Note: while there is no reason you couldn't have an agent running in your build master, additional agents will require you to copy the <i>cc-agent.zip</i> to each machine, unzipping and configuring for each of them (another option is to use the webstart BuildAgent features - see <b>Advanced Configuration: F</b> for details).</li>
+						<li>Start the Lookup Service by navigating to the <i>contrib/distributed/dist/lookup</i> directory and running <code>ant</code>. The default target should start the registrar and class server. (***NOTE: This location has changed since prior releases. It used to be in: <i>contrib/distributed/dist/master</i>, so be sure to update the path of any custom LUS shortcuts/scripts. See <a href="#upgradeNotes">Upgrade Notes</a> if you are upgrading from prior releases.) </li>
+						<li>Start the agent by navigating to the <i>contrib/distributed/dist/agent</i> directory and running <code>ant</code>. The default target should start the build agent and register it with the Lookup Service. Note: while there is no reason you couldn't have an agent running in your build master, additional agents will require you to copy the <i>cc-agent.zip</i> to each machine, unzipping and configuring for each of them (another option is to use the webstart BuildAgent features - see <a href="#advancedConfigF">Advanced Configuration: F</a> for details).</li>
 						<li>Test that Jini is running and your agent(s) is/are registered using the <code>JiniLookUpUtility</code>. In <i>contrib/distributed/dist/util</i> run <code>ant test-jini</code>. After 5 seconds you should see a list of services that have been registered with Jini. Since the Jini Lookup Service itself is a Jini service you should have <code>com.sun.jini.reggie.ConstrainableRegistrarProxy</code> listed even if you have no agents running. If you do have agents running, however, you should see a <code>Proxy</code> service listed for each of them, with <code>BuildAgentService</code> listed as the type.</li>
 						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/util</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it. (Note: This ant target is not working right [reading input from the command prompt isn't working in ant - any fixes?], but the class should work outside of ant.)</li>
-						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/disttributed.
+						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/distributed.
                             <p>You may need to set the <code>CCDIR</code> environment variable to your <code>CruiseControl/main</code> directory before launching the cruisecontrol.bat/.sh file.</p>
                             <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml:
 						    <p><pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"/&gt;</pre>
@@ -76,7 +78,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 <pre>&lt;distributed entries="os.name=Linux"&gt;</pre>
 						By configuring one project twice, with two different <code>os.name</code> properties, you could ensure that your project builds correctly on two different operating systems with only one instance of Cruise Control running. Note that this requires two project configurations on the build master. Here's a more complex example:
 <pre>&lt;distributed entries="os.name=Windows XP;dotnet.version=1.1;fixpack=SP2"&gt;</pre>
-                        New approaches to multi-builds are now possible using the recently added <i>builders</i> tag in your config.xml file. The <i>builders</i> tag is a "composite builder" which defines a list of builders that will be executed sequentially and treated as a single build. The config below causes a set of <i>ant</i> builds to be performed sequentially on the <i>same</i> Build Agent:
+                        New approaches to multi-builds are now possible using the recently added &lt;builders&gt; tag in your config.xml file. The &lt;builders&gt; tag is a "composite builder" which defines a list of builders that will be executed sequentially and treated as a single build. The config below causes a set of <i>ant</i> builds to be performed sequentially on the <i>same</i> Build Agent:
 <pre>&lt;project ...&gt;
    &lt;schedule ...&gt;
        &lt;distributed entries="..."&gt;
@@ -93,7 +95,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                &lt;ant (build 1)...&gt;</pre>
                         This second example will require both the Windows and Linux builds to complete successfully before the entire Composite Build is considered successful.
                         </li>
-						<li>If you plan to rebuild the CC extensions note that any configuration files under the <i>dist</i> directory are liable to be cleaned and replaced. The originals reside in <i>contrib/distributed/conf</i> and you may find it preferable to change them there before your build. Since <i>user-defined.properties</i> and <i>agent.properties</i> are copied into the <i>cc-agent.zip</i> you'll need to unzip and make your changes locally on the agent.</li>
+						<li>If you plan to rebuild the CC extensions, note that any configuration files under the <i>dist</i> directory are liable to be cleaned and replaced. The originals reside in <i>contrib/distributed/conf</i> and you may find it preferable to change them there before your build. Since <i>user-defined.properties</i> and <i>agent.properties</i> are copied into the <i>cc-agent.zip</i> you'll need to unzip and make your changes locally on the agent.</li>
 						<li>Jini as used in these distributed extensions has several configuration options. Beware of the <i>start-jini.config</i>, however--it is not likely you will need to make changes to it.
 							<ol type="1">
 								<li>As delivered, Jini uses an insecure security policy. Should you choose to change this, create your own policy file(s) and change <i>cruise.properties</i> and <i>agent.properties</i> to reference your own versions. Note that the one copy of <i>insecure.policy</i> in <i>contrib/distributed/conf</i> is copied to the agent, lookup, and util subdirectories during the build.</li>
@@ -107,7 +109,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 	&lt;/configuration&gt;
 &lt;/system&gt;</pre>
 						where 5 would be replaced with your expected number of build agents.</li>
-						<li>By default, the canonical locations for log and output files are used on both the remote agents and the master. These can be overridden using the following attributes on the <i>distributed</i> tag:
+						<li><a name="advancedConfigE"></a>By default, the canonical locations for log and output files are used on both the remote agents and the master. These can be overridden using the following attributes on the &lt;distributed&gt; tag:
 
 <pre>&lt;distributed 
         agentlogdir="agent/log" masterlogdir="master/log"
@@ -117,12 +119,12 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 						After a remote build, any files on the agent machine in dir "agent/log" will be copied back to the master machine into dir "master/log". The "logs" and "output" dirs will be deleted on the Agent after the build finishes.
 						<p/>NOTE: You may have problems when running a BuildAgent on the same machine as the main CC server due to the removal of the log/output dirs by the BuildAgent (if the main CC server needs the deleted directories). In such cases, you should override the cannonical artifact dirs using these tags.</li>
 
-						<li>Java Web Start deployment of build agents: <code>ant war-agent</code> will use the file <code>build-sign.properties</code> to sign agent jars and bundle them into a deployable <code>.war</code> file (<code>dist/cc-agent.war</code>).
-						Be sure you update the <code>build-sign.properties</code> appropriately to use your signing information/certificate.</li>
-						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <code>dist/util</code> dir <b>(formerly: <code>dist/master</code>)</b> will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
+						<li><a name="advancedConfigF"></a>Java Web Start deployment of build agents: The command <code>ant war-agent</code> will use the file <i>build-sign.properties</i> to sign agent jars and bundle them into a deployable <code>.war</code> file (<i>dist/cc-agent.war</i>).
+						Be sure you update <i>build-sign.properties</i> appropriately to use your signing information/certificate.</li>
+						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <i>dist/util</i> dir <b>(formerly: <i>dist/master</i>)</b> will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
 						This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.</li>
  						<li>Build Agent UI: Build agents default to showing a simple User Interface. This UI can be bypassed by passing the switch: <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).</li>
- 						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: registry.url in the user-defined.properties file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical.</li>
+ 						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: <code>registry.url</code> in the <i>user-defined.properties</i> file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical.</li>
 					</ol>
 				</li>
 			</ol>
@@ -138,14 +140,65 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 				<li>Find a way to support all CCConfig features (templates, preconfigured plugin settings, etc) for remote Builders - maybe alter CCConfig API and avoid SelfConfiguringPlugin API.</li>
 				<li>More unit tests!</li>
 			</ol>
-			<h3>Limitations of this approach</h3>
+			<h3><a name="limitations">Limitations of this approach</a></h3>
 			<ol type="A">
 				<li>Cruise Control doesn't allow for a varying thread count. It would be useful to allow the build thread count to vary according to the number of active agents. The CC administrator shouldn't have to change the thread count when agents come and go. On the other hand, varying thread count directly with agent-count is unsophisticated as some of the active agents may not match the entries for a given build and thus will be idle. Perhaps there should be a change in build queuing where as long as an agent is able to take a build request the thread is spawned, otherwise the request is queued.</li>
 				<li>Only module name is passed to agent. How can we make use of the modificationset/bootstrapper code in Cruise Control? The agent doesn't have visibility on that portion of the configuration.</li>
 				<li>Does the attribute <i>antworkingdir</i> for AntBuilder have to correspond to the <i>agent.properties</i> configuration? If so that prevents agents from differing from each other. That is, each agent should be able to have an independent configuration. <i>antworkingdir</i> requires knowledge of the build agent that the master shouldn't know and that might vary from agent to agent. If the CCConfig API is changed, the agent could resolve env variables at remote build time (instead of using the env var values of the master). </li>
 				<li>Most preconfigured/default Builder and "distributed" plugin settings propogate to the Agent, but the code needs some cleanup. Currently, preconfigured nested child elements (like &lt;property&gt;) AND macro substitutions do NOT propogate to the Build Agent.</li>
 			</ol>
-			<h3>Credits</h3>
+
+            <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
+            <p>
+                The current version of the CruiseControl Distributed extensions (CCDist) has been updated to use the most recent version of Jini (v2.1). In an attempt to better organize the CCDist tree to support the new Jini, a problem was discovered with the packaging of CCDist in versions up to and including v2.6.
+                Prior CCDist versions mistakenly included <b>reggie-dl.jar</b> in the <b>dist/agent/lib</b> directory. For the curious, the name of this jar (with the <b>-dl</b> ending) indicates this jar is intended to be served by the Jini Lookup Service (or registrar) and automagically <b>downloaded</b> by users of the Lookup Service (for example, a Build Agent, DistributedMasterBuilder, or anything else doing lookups to find services).
+                Including <b>reggie-dl.jar</b> in a Build Agent's classpath results in the Agent never downloading new versions of classes in that jar from any Lookup Service. This leads to problems where CC 2.6 Agents and DistributedMasterBuilders can only register with CC 2.6 Lookup Services.
+                <p>The quick and dirty solution is to just keep an old 2.6 version of the Lookup Service running until you've upgraded all older builds to the current CCDist.</p>
+
+                If that is not an option, to allow CCDist 2.6 Build Agents to function properly on a network with current CCDist, you should edit the <b>CCDist v 2.6</b> source tree using one of the solutions described below (listed below in preferred order). The goal is to remove <b>reggie-dl.jar</b> from all classpaths, except the that of the 2.6 Lookup Service.
+                <ol type="N">
+                <li>Open the <b>contrib/distributed/build.xml</b> file and edit the <b>init-agent</b> target, commenting out the fileset include for reggie-dl.jar.
+<code> <pre>
+    &lt;copy todir="dist/agent/lib"&gt;
+        &lt;fileset dir="lib"&gt;
+            &lt;!--include name="reggie-dl.jar" /--&gt;  &lt;!-- This is what you comment out /--&gt;
+            &lt;include name="jini-core.jar"/&gt;
+            &lt;include name="jini-ext.jar"/&gt;
+            &lt;include name="jsk-platform.jar"/&gt;
+            &lt;include name="tools.jar"/&gt;
+            &lt;include name="start.jar"/&gt;
+        &lt;/fileset&gt;
+        ....
+</pre> </code>
+                    (If you use webstart to deploy Agents, also remove the reggie-dl.jar reference from webcontent/webstart/agent.jnlp).
+                    <p>
+                    Then re-build CCDist 2.6. This will rebuild the dist/agent dir (and zip), and any future rebuilds of CCDist 2.6 will be fixed.
+                    </p>
+                    <p>
+                </li>
+                <li>
+                    If you never rebuild CCDist 2.6, you can manually delete <b>reggie-dl.jar</b> from <b>dist/agent/lib</b>. If you use dist/cc-agent.zip, also delete the jar from that zip file.
+                </li>
+                </ol>
+                You also need to exclude <b>reggie-dl.jar</b> from the classpath of the main CC VM running the DistributedMasterBuilder.
+                <ol type="N">
+                <li>Copy the contents of <b>contrib/distributed/lib</b> to a new directory, say <b>contrib/distributed/nodl</b>. Delete <b>reggie-dl.jar</b> from this new dir. Then edit your CCDist startup script to use only the new directory. For example, in cruisecontrol.sh, change
+<code><pre>
+    DISTRIB_LIBDIR=$DISTRIBDIR/lib
+</pre></code>
+                    to
+<code><pre>
+    DISTRIB_LIBDIR=$DISTRIBDIR/nodl     
+</pre></code>
+                </li>
+                <li>
+                    If you never rebuild CCDist 2.6, you can manually delete <b>reggie-dl.jar</b> from <b>contrib/distributed/lib</b>.
+                </li>
+                </ol>
+                The same classpath issues exist for 2.6 Interactive Build and Agent Utilities (though it's probably best to use the latest versions of these).
+                Of course, you could always upgrade all your CCDist systems to the latest version, and not worry about any of this stuff.
+            </p>
+            <h3>Credits</h3>
 			<p>This code was initially donated to the Cruise Control community by <a href="http://www.solutionsiq.com">SolutionsIQ</a>, Bellevue, WA.</p>
 			<p>The folks at SolutionsIQ responsible for this code include Jeff Ramsdale, Rand Huso, Pinak Mengle, and Mehruf Meherali</p>
 			<p>Maintained by Dan Rollo</p>
