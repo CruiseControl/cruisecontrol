@@ -62,6 +62,7 @@ import net.jini.jeri.BasicJeriExporter;
 import net.jini.jeri.tcp.TcpServerEndpoint;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
+import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 
 import org.apache.log4j.Logger;
@@ -316,6 +317,8 @@ public class BuildAgent implements DiscoveryListener,
 
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
 
+        CCDistVersion.printCCDistVersion();
+        
         if (shouldPrintUsage(args)) {
             printUsage();
         }

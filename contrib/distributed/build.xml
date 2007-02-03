@@ -51,6 +51,10 @@
 
     <property environment="env"/>
 
+    <!-- define ccdist.version, use same props file as CC Main -->
+    <property file="../../build.properties" />
+    <property name="ccdist.release.label" value="${cc.version}" />
+
     <property name="target" value="${basedir}/target"/>
 
     <property name="classes" value="${target}/classes"/>
@@ -182,7 +186,11 @@
     </target>
 
 
-    <target name="init" depends="checkRequiredLibs" description="Initializes dist directories">
+    <target name="ccdist.checklabel">
+        <fail unless="ccdist.release.label" message="label is not defined." />
+    </target>
+
+    <target name="init" depends="ccdist.checklabel,checkRequiredLibs" description="Initializes dist directories">
         <mkdir dir="dist" />
         <mkdir dir="dist/builder"/>
 
@@ -196,6 +204,11 @@
 
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>
+
+        <tstamp />
+        <property name="ccdist.build.version" value="${ccdist.release.label}" />
+        <property name="ccdist.build.version.info" value="Compiled on ${TODAY} ${TSTAMP}" />
+        <property name="ccdist.build.version.date" value="${TODAY} ${TSTAMP}" />
 	</target>
 
 	<target name="init-core" description="Prepares directory structure for ccdist-core">
@@ -295,6 +308,14 @@
             <classpath refid="compile.classpath"/>
             <src path="${src}"/>
         </javac>
+        <copy todir="${classes}">
+            <fileset dir="${basedir}" includes="ccdist.version.properties" />
+            <filterset>
+                <filter token="VERSION" value="${ccdist.build.version}" />
+                <filter token="VERSION_INFO" value="${ccdist.build.version.info}" />
+                <filter token="VERSION_DATE" value="${ccdist.build.version.date}" />
+            </filterset>
+        </copy>
         <!-- copy resources like properties from the src-dir -->
         <copy todir="${classes}">
             <fileset dir="${src}" excludes="**/*.java"/>
@@ -377,8 +398,10 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.core.JiniLookUpUtility" />
+                <attribute name="Implementation-Version" value="${ccdist.build.version} ${ccdist.build.version.info}" />
 			</manifest>
 			<fileset dir="${classes}">
+				<include name="ccdist.version.properties" />
 				<include name="**/distributed/core/**" />
                 <include name="**/PropertyEntry.class"/>              <!-- Moving this to core package is not backwards compatible -->
                 <include name="**/SearchablePropertyEntries.class"/>  <!-- Moving this to core package is not backwards compatible -->

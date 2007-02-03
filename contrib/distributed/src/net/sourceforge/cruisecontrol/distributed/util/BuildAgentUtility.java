@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import net.jini.core.lookup.ServiceItem;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -54,7 +55,7 @@ public final class BuildAgentUtility {
         private final JScrollPane scrConsole = new JScrollPane();
 
         private UI(final BuildAgentUtility buildAgentUtil) {
-            super("CruiseControl Distributed - Build Agent Utility");
+            super("CruiseControl Distributed - Build Agent Utility " + CCDistVersion.getVersion());
 
             buildAgentUtility = buildAgentUtil;
 
@@ -242,6 +243,9 @@ public final class BuildAgentUtility {
 
 
     private BuildAgentUtility() {
+
+        CCDistVersion.printCCDistVersion();
+        
         ui = new UI(this);
         ui.btnRefresh.doClick();
     }
