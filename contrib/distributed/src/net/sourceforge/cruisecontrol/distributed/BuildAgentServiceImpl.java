@@ -84,11 +84,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     static final String DEFAULT_USER_DEFINED_PROPERTIES_FILE = "user-defined.properties";
 
     /**
-     * The number of milliseconds a restart() or kill() should delay before executing
+     * The default number of milliseconds a restart() or kill() should delay before executing
      * in order to allow remote calls to complete, and thereby allow successful builds
      * to complete on the Distributed Master.
      */
-    static final int DEFAULT_DELAY_MS_KILLRESTART = 5 * 1000;
+    private static final int DEFAULT_DELAY_MS_KILLRESTART = 5 * 1000;
     /** Name of system property who's value, if defined, will override the default delay. */
     static final String SYSPROP_CCDIST_DELAY_MS_KILLRESTART = "cc.dist.delayMSKillRestart";
 
@@ -236,9 +236,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         /**
          * Implement in order to run the desired Action
-         * @throws Throwable is anything goes wrong executing the action
          */
-        public abstract void execAction() throws Throwable;
+        public abstract void execAction() ;
     }
 
 
@@ -441,9 +440,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return dateClaimed;
     }
 
-    private void setPendingKill(final boolean isPendingKill) {
+    private void setPendingKill() {
         synchronized (busyLock) {
-            this.isPendingKill = isPendingKill;
+            this.isPendingKill = true;
             pendingKillSince = new Date();
         }
     }
@@ -457,9 +456,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
 
-    private void setPendingRestart(final boolean isPendingRestart) {
+    private void setPendingRestart() {
         synchronized (busyLock) {
-            this.isPendingRestart = isPendingRestart;
+            this.isPendingRestart = true;
             pendingRestartSince = new Date();
         }
     }
@@ -476,10 +475,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
             return recursiveFilesExist(new File(logDir));
-        } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
-            return recursiveFilesExist(new File(outputDir));
         } else {
-            return false;
+            return resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT) && recursiveFilesExist(new File(outputDir));
         }
     }
 
@@ -612,7 +609,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
 
     public void kill(final boolean afterBuildFinished) throws RemoteException {
-        setPendingKill(true);
+        setPendingKill();
 
         if (!afterBuildFinished // Kill now, don't waiting for build to finish.
                 || !isBusy()) { // Not busy, so kill now.
@@ -625,7 +622,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     public void restart(final boolean afterBuildFinished) throws RemoteException {
-        setPendingRestart(true);
+        setPendingRestart();
 
         if (!afterBuildFinished // Restart now, don't waiting for build to finish.
                 || !isBusy()) { // Not busy, so Restart now.
