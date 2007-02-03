@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 import java.rmi.RemoteException;
 
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 
 /**
  * @author: Dan Rollo
@@ -40,7 +41,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     private final JScrollPane scrConsole = new JScrollPane();
 
     BuildAgentUI(final BuildAgent parentbuildAgent) {
-        super("CruiseControl Distributed - Build Agent");
+        super("CruiseControl Distributed - Build Agent " + CCDistVersion.getVersion());
 
         buildAgent = parentbuildAgent;
 
