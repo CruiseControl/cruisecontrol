@@ -138,9 +138,11 @@
     </path>
 
 
-    <target name="build" depends="clean, compile-test, checkstyle, test, jar-masterbuilder, jar-agent, zip-agent, jar-util" />
+    <target name="build" depends="clean, compile-test, checkstyle, test, jar" />
 
-	<target name="clean" description="Deletes 'target' and 'dist' directories">
+    <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
+
+    <target name="clean" description="Deletes 'target' and 'dist' directories">
         <delete dir="${target}"/>
 		<delete dir="dist" />
 		<delete dir="${dir.webstart}/conf"/>
