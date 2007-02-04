@@ -38,21 +38,18 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-import org.jdom.CDATA;
-import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
+import org.apache.log4j.Logger;
+import org.jdom.CDATA;
+import org.jdom.Element;
 
 /**
- * Exec script class.
- *
- * Script support to execute a command and logs the results.
+ * Exec script class. Script support to execute a command and logs the results.
+ * 
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
 public class ExecScript implements Script, StreamConsumer {
@@ -68,6 +65,7 @@ public class ExecScript implements Script, StreamConsumer {
 
     /**
      * construct the command that we're going to execute.
+     * 
      * @return Commandline holding command to be executed
      * @throws CruiseControlException
      */
@@ -83,10 +81,7 @@ public class ExecScript implements Script, StreamConsumer {
 
         // add the arguments if necessary
         if (execArgs != null) {
-            StringTokenizer stok = new StringTokenizer(execArgs, " \t\r\n");
-            while (stok.hasMoreTokens()) {
-                cmdLine.createArgument(stok.nextToken());
-            }
+            cmdLine.addArguments(Commandline.translateCommandline(execArgs));
         }
 
         // log the command if debug is enabled
@@ -105,9 +100,10 @@ public class ExecScript implements Script, StreamConsumer {
     } // buildCommandLine
 
     /**
-     * Ugly parsing of Exec output into some Elements.
-     * Gets called from StreamPumper.
-     * @param line the line of output to parse
+     * Ugly parsing of Exec output into some Elements. Gets called from StreamPumper.
+     * 
+     * @param line
+     *            the line of output to parse
      */
     public synchronized void consumeLine(String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {
@@ -163,9 +159,11 @@ public class ExecScript implements Script, StreamConsumer {
     } // flushCurrentElement
 
     /**
-     * set the "header" for this part of the build log.
-     * turns it into an Ant target/task style element for reporting purposes
-     * @param buildLogElement the element of the build log
+     * set the "header" for this part of the build log. turns it into an Ant target/task style element for reporting
+     * purposes
+     * 
+     * @param buildLogElement
+     *            the element of the build log
      * @return updated element
      */
     public Element setBuildLogHeader(Element buildLogElement) {
@@ -178,16 +176,17 @@ public class ExecScript implements Script, StreamConsumer {
         return task;
     } // setBuildLogHeader
 
-
     /**
-     * @param execArgs The execArgs to set.
+     * @param execArgs
+     *            The execArgs to set.
      */
     public void setExecArgs(String execArgs) {
         this.execArgs = execArgs;
     } // setExecArgs
 
     /**
-     * @param execCommand The execCommand to set.
+     * @param execCommand
+     *            The execCommand to set.
      */
     public void setExecCommand(String execCommand) {
         this.execCommand = execCommand;
@@ -201,21 +200,24 @@ public class ExecScript implements Script, StreamConsumer {
     } // getExitCode
 
     /**
-     * @param exitCode the exit code value to set.
+     * @param exitCode
+     *            the exit code value to set.
      */
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     } // setExitCode
 
     /**
-     * @param errStr the error string to search for
+     * @param errStr
+     *            the error string to search for
      */
     public void setErrorStr(String errStr) {
         this.errorStr = errStr;
     } // setErrorStr
 
     /**
-     * @param buildLogElement The buildLogElement to set.
+     * @param buildLogElement
+     *            The buildLogElement to set.
      */
     public void setBuildLogElement(Element buildLogElement) {
         this.buildLogElement = buildLogElement;
