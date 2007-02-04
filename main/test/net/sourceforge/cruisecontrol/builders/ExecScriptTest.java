@@ -36,45 +36,65 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class ExecScriptTest extends TestCase {
 
-    private String testExecCmd  = "dir";
-    private String testExecArgs = "C:\\temp";
-    private ExecScript script;
+    private static String space = " ";
+    private static String quote = "'";
 
-    /*
-     * default constructor
-     */
-    public ExecScriptTest(String name) {
-        super(name);
+    public void testGetCommandLineArgsWin() throws CruiseControlException {
+        String testExecCmd = "dir";
+        String[] simpleCmd = { testExecCmd };
+
+        ExecScript script = createExecScript(testExecCmd, null);
+        TestUtil.assertArray("simpleCmd", simpleCmd, script.buildCommandline().getCommandline());
+
+        String testExecArgs = "C:\\temp";
+        script = createExecScript(testExecCmd, testExecArgs);
+        String[] detailedCmd = { testExecCmd, testExecArgs };
+        TestUtil.assertArray("detailedCmd", detailedCmd, script.buildCommandline().getCommandline());
     }
 
-    /*
-     * setup test environment
-     */
-    protected void setUp() throws Exception {
-        script = new ExecScript();
-        script.setExecCommand(testExecCmd);
-        //script.setExecArgs(testExecArgs);
+    public void testGetCommandLineArgsUnix() throws CruiseControlException {
+        String testExecCmd = "/bin/sh";
+        String testExecArg1 = "rm";
+        String testExecArg2 = "rm -rf *";
+        String testExecArgs = testExecArg1 + space + quote + testExecArg2 + quote;
+
+        testExecCmd = testExecCmd.replace("/", File.separator); // os-specific
+        String[] testExecArr = { testExecCmd, testExecArg1, testExecArg2 };
+
+        ExecScript script = createExecScript(testExecCmd, testExecArgs);
+
+        TestUtil.assertArray("detailedCmd", testExecArr, script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgsURL() throws CruiseControlException {
+        String testExecCmd = "/bin/sh";
+        String testExecArg1 = "svn";
+        String testExecArg2 = "checkout";
+        String testExecArg3 = "https://svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol";
+        String testExecArgs = testExecArg1 + space + testExecArg2 + space + quote + testExecArg3 + quote;
+
+        testExecCmd = testExecCmd.replace("/", File.separator); // os-specific
+        String[] testExecArr = { testExecCmd, testExecArg1, testExecArg2, testExecArg3 };
+
+        ExecScript script = createExecScript(testExecCmd, testExecArgs);
+
+        TestUtil.assertArray("detailedCmd", testExecArr, script.buildCommandline().getCommandline());
+    }
+
+    private ExecScript createExecScript(String testExecCmd, String testExecArgs) {
+        ExecScript script = new ExecScript();
         script.setErrorStr("error in compilation");
-    } // setUp
-
-    /*
-     * test command line generation
-     */
-    public void testGetCommandLineArgs() throws CruiseControlException {
-        String[] simpleCmd = { testExecCmd };
-        TestUtil.assertArray("simpleCmd", simpleCmd,
-            script.buildCommandline().getCommandline());
-
+        script.setExecCommand(testExecCmd);
         script.setExecArgs(testExecArgs);
-        String[] detailedCmd = { testExecCmd, testExecArgs };
-        TestUtil.assertArray("detailedCmd", detailedCmd,
-            script.buildCommandline().getCommandline());
-    } // testGetCommandLine
 
-} // ExecScriptTest
+        return script;
+    }
+}

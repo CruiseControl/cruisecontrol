@@ -27,6 +27,10 @@ CompositeBuilder
 ----------------------
 * Fix reported build time.  Patch by Frederic Mockel. 
 
+ExecScript
+----------------------
+* Handle commands with spaces on Linux (CC-551).  Patch by Frederic Mockel.
+
 MKS
 ----------------------
 * Fix synchronization failure on Linux (CC-576).
