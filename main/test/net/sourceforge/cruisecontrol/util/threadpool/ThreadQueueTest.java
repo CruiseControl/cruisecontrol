@@ -55,6 +55,11 @@ public class ThreadQueueTest extends TestCase {
 
     protected void setUp() throws Exception {
         tasks = new ArrayList();
+        // @todo Passes for me in Eclipse, hangs in build
+        // on Windows under Parallels
+        // Trying my own voodoo chicken fix -- Jtf
+        sleep(10 * TENTH_OF_SECOND);
+        System.out.println("setup");
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             final String taskName = TASK_NAME + i;
 
@@ -62,6 +67,7 @@ public class ThreadQueueTest extends TestCase {
             ThreadQueue.addTask(task);
             tasks.add(task);
         }
+        System.out.println("exit setup");
 
         // @todo Without this (at least on jdk 1.5, Linux), this test takes 100% cpu and never exits.
         // I believe this problem results from longer thread startup times in 1.5 AND that it may
