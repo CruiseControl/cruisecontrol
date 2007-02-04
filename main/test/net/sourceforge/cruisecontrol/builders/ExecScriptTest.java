@@ -66,7 +66,7 @@ public class ExecScriptTest extends TestCase {
         String testExecArg2 = "rm -rf *";
         String testExecArgs = testExecArg1 + space + quote + testExecArg2 + quote;
 
-        testExecCmd = testExecCmd.replaceAll("/", File.separator); // os-specific
+        testExecCmd = testExecCmd.replace('/', File.separatorChar); // os-specific
         String[] testExecArr = { testExecCmd, testExecArg1, testExecArg2 };
 
         ExecScript script = createExecScript(testExecCmd, testExecArgs);
@@ -81,7 +81,7 @@ public class ExecScriptTest extends TestCase {
         String testExecArg3 = "https://svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol";
         String testExecArgs = testExecArg1 + space + testExecArg2 + space + quote + testExecArg3 + quote;
 
-        testExecCmd = testExecCmd.replaceAll("/", File.separator); // os-specific
+        testExecCmd = testExecCmd.replace('/', File.separatorChar); // os-specific
         String[] testExecArr = { testExecCmd, testExecArg1, testExecArg2, testExecArg3 };
 
         ExecScript script = createExecScript(testExecCmd, testExecArgs);
