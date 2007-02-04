@@ -76,4 +76,5 @@ DISTDIR=$CCDIR/dist
 
 EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar $@"
 echo $EXEC
-exec $EXEC
+$EXEC &
+echo $! > cc.pid
