@@ -7,6 +7,7 @@ CruiseControl Release Notes - 2.6.1
 general
 ======================
 * Fix cruisecontrol.bat in binary release for JAVA_HOME that has spaces (CC-554)
+* Output PID to cc.pid in cruisecontrol.sh to fix init.d usage (CC-581).  Patch by Kevin Quigley.
 
 contrib
 ======================
