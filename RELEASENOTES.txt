@@ -59,6 +59,10 @@ Veto
 ----------------------
 * New SourceControl plug-in used to prevent a project from building when a dependency is out of date.
 
+Maven2SnapshotDependency
+----------------------
+* Fix OutOfMemory exception in Maven2SnapshotDependency (CC-578). Patch by Anatol Pomozov
+
 reporting application
 ======================
 

@@ -341,7 +341,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
                     && parentArtifact.isSnapshot()) {
 
                 addArtifactInfo(artifactInfos, parentArtifact, ArtifactInfo.ART_TYPE_PARENT, localRepoBaseDir);
-                currMvnProject = projectWithDependencies.getParent();
+                currMvnProject = currMvnProject.getParent();
             }
 
         } else {
@@ -367,7 +367,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
                     resolveArtifact(embedder, artifact, mavenProject, embedder.getLocalRepository());
 
-                    currMvnProject = mavenProject.getParent();
+                    currMvnProject = currMvnProject.getParent();
                 }
             }
         }
