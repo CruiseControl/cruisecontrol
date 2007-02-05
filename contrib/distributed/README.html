@@ -155,7 +155,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                 Including <b>reggie-dl.jar</b> in a Build Agent's classpath results in the Agent never downloading new versions of classes in that jar from any Lookup Service. This leads to problems where CC 2.6 Agents and DistributedMasterBuilders can only register with CC 2.6 Lookup Services.
                 <p>The quick and dirty solution is to just keep an old 2.6 version of the Lookup Service running until you've upgraded all older builds to the current CCDist.</p>
 
-                If that is not an option, to allow CCDist 2.6 Build Agents to function properly on a network with current CCDist, you should edit the <b>CCDist v 2.6</b> source tree using one of the solutions described below (listed below in preferred order). The goal is to remove <b>reggie-dl.jar</b> from all classpaths, except the that of the 2.6 Lookup Service.
+                If that is not an option, to allow CCDist 2.6 Build Agents to function properly on a network with current CCDist, you should edit the <b>CCDist v 2.6</b> source tree using one of the solutions described below (listed below in preferred order). The goal is to remove <b>reggie-dl.jar</b> and <b>reggie.jar</b> (since reggie.jar includes some classes that should only be downloaded) from all classpaths, <b>except</b> that of the 2.6 Lookup Service.
                 <ol type="N">
                 <li>Open the <b>contrib/distributed/build.xml</b> file and edit the <b>init-agent</b> target, commenting out the fileset include for reggie-dl.jar.
 <code> <pre>
@@ -180,9 +180,9 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                     If you never rebuild CCDist 2.6, you can manually delete <b>reggie-dl.jar</b> from <b>dist/agent/lib</b>. If you use dist/cc-agent.zip, also delete the jar from that zip file.
                 </li>
                 </ol>
-                You also need to exclude <b>reggie-dl.jar</b> from the classpath of the main CC VM running the DistributedMasterBuilder.
+                You also need to exclude <b>reggie-dl.jar</b> AND <b>reggie.jar</b> from the classpath of the main CC VM running the DistributedMasterBuilder.
                 <ol type="N">
-                <li>Copy the contents of <b>contrib/distributed/lib</b> to a new directory, say <b>contrib/distributed/nodl</b>. Delete <b>reggie-dl.jar</b> from this new dir. Then edit your CCDist startup script to use only the new directory. For example, in cruisecontrol.sh, change
+                <li>Copy the contents of <b>contrib/distributed/lib</b> to a new directory, say <b>contrib/distributed/nodl</b>. Delete <b>reggie-dl.jar</b> AND <b>reggie.jar</b> from this new dir. Then edit your CCDist startup script to use only the new directory. For example, in cruisecontrol.sh, change
 <code><pre>
     DISTRIB_LIBDIR=$DISTRIBDIR/lib
 </pre></code>
@@ -192,7 +192,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 </pre></code>
                 </li>
                 <li>
-                    If you never rebuild CCDist 2.6, you can manually delete <b>reggie-dl.jar</b> from <b>contrib/distributed/lib</b>.
+                    If you never rebuild CCDist 2.6, you can manually delete <b>reggie-dl.jar</b> AND <b>reggie.jar</b> from <b>contrib/distributed/lib</b>.
                 </li>
                 </ol>
                 The same classpath issues exist for 2.6 Interactive Build and Agent Utilities (though it's probably best to use the latest versions of these).
