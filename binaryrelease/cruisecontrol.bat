@@ -50,9 +50,6 @@ REM Acknowledgments to Ant Project for this batch file incantation
 REM %~dp0 is name of current script under NT
 set CCDIR=%~dp0
 
-:setClassPath
-set CRUISE_PATH=
-
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
 set JAVA_PATH="%JAVA_HOME%"\bin\java
@@ -66,42 +63,9 @@ set JAVA_PATH=java
 :setCruise
 set LIBDIR=%CCDIR%lib
 
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\cruisecontrol-launcher.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\log4j.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jdom.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\ant.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\ant-launcher.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jasper-compiler.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jasper-runtime.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xercesImpl-2.8.0.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xml-apis-2.8.0.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\xmlrpc-2.0.1.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\saxon8.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\saxon8-dom.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\serializer-2.7.0.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jakarta-oro-2.0.3.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mail.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\junit.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\activation.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-net-1.1.0.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\starteam-sdk.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mx4j.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mx4j-tools.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\mx4j-remote.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\smack.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\comm.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\x10.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\fast-md5.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\maven-embedder-2.0.4-dep.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\javax.servlet.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\org.mortbay.jetty.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-logging.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\commons-el.jar
-set CRUISE_PATH=%CRUISE_PATH%;%LIBDIR%\jaxen-1.1-beta-8.jar
-set CRUISE_PATH=%CRUISE_PATH%;.
+set LAUNCHER=%LIBDIR%\cruisecontrol-launcher.jar
 
-set EXEC="%JAVA_PATH%" %CC_OPTS% -cp "%CRUISE_PATH%" -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder CruiseControlWithJetty %* -jmxport 8000
+set EXEC="%JAVA_PATH%" %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -jar %LAUNCHER% %* -jmxport 8000 -webport 8080
 echo %EXEC%
 %EXEC%
 

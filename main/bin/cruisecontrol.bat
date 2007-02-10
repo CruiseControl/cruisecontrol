@@ -65,7 +65,7 @@ set JAVA_PATH=java
 set LIBDIR=%CCDIR%\lib
 set DISTDIR=%CCDIR%\dist
 
-set EXEC=%JAVA_PATH% %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar %*
+set EXEC=%JAVA_PATH% %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar -lib %CCDIR%\..\binaryrelease\lib %*
 echo %EXEC%
 %EXEC%
 

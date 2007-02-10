@@ -35,71 +35,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
-import org.mortbay.http.SocketListener;
-import org.mortbay.jetty.Server;
-import org.apache.log4j.Logger;
-import java.io.IOException;
-
 import net.sourceforge.cruisecontrol.launch.Launcher;
-import net.sourceforge.cruisecontrol.util.MainArgs;
 
 /**
  * Start up for CruiseControl and Jetty.
- *
+ * 
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
 public final class CruiseControlWithJetty {
-    private static final Logger LOG = Logger.getLogger(CruiseControlWithJetty.class);
 
-    private CruiseControlWithJetty() { }
-
-    static int parseWebPort(String[] args) {
-        return MainArgs.parseInt(args, "webport", 8080, 8080);
-    }
-
-    static String parseCCHome(String[] args) {
-        return MainArgs.parseArgument(args, "cchome", ".", ".");
-    }
-
-    static String parseCCName(String[] args) {
-        return MainArgs.parseArgument(args, "ccname", "", "");
+    private CruiseControlWithJetty() {
     }
 
     public static void main(final String[] args) throws Exception {
-        //A Thread for Jetty...
-        Thread jetty = new Thread(new Runnable() {
-            public void run() {
-                Server server = new Server();
-                SocketListener listener = new SocketListener();
-                listener.setPort(parseWebPort(args));
-                System.setProperty("ccname", parseCCName(args));
-                server.addListener(listener);
-                try {
-                    String webApp = parseCCHome(args) + "/webapps/cruisecontrol";
-                    server.addWebApplication("/cruisecontrol", webApp);
-                    server.addWebApplication("/", webApp);
-                } catch (IOException e) {
-                    String msg = "Exception adding cruisecontrol webapp: " + e.getMessage();
-                    LOG.error(msg, e);
-                    throw new RuntimeException(msg);
-                }
-                try {
-                    server.start();
-                } catch (Exception e) {
-                    String msg = "Exception occured in server execution: " + e.getMessage();
-                    LOG.error(msg, e);
-                    throw new RuntimeException();
-                }
-            }
-        });
-        jetty.setDaemon(true);
-        jetty.start();
-
-        //A Thread for CruiseControl
-        new Thread(new Runnable() {
-            public void run() {
-                Launcher.main(args);
-            }
-        }).start();
+        Launcher.main(args);
     }
 }

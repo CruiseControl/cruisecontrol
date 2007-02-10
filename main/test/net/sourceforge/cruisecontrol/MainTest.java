@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 
@@ -47,28 +49,29 @@ import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class MainTest extends TestCase {
+
     public void testParsePassword() {
-        String[] correctArgs = new String[]{"-password", "password"};
-        String[] missingValue = new String[]{"-password"};
-        String[] missingParam = new String[]{""};
+        String[] correctArgs = new String[] { "-password", "password" };
+        String[] missingValue = new String[] { "-password" };
+        String[] missingParam = new String[] { "" };
         assertEquals("password", Main.parsePassword(correctArgs));
         assertEquals(null, Main.parsePassword(missingValue));
         assertEquals(null, Main.parsePassword(missingParam));
     }
 
     public void testParseUser() {
-        String[] correctArgs = new String[]{"-user", "user"};
-        String[] missingValue = new String[]{"-user"};
-        String[] missingParam = new String[]{""};
+        String[] correctArgs = new String[] { "-user", "user" };
+        String[] missingValue = new String[] { "-user" };
+        String[] missingParam = new String[] { "" };
         assertEquals("user", Main.parseUser(correctArgs));
         assertEquals(null, Main.parseUser(missingValue));
         assertEquals(null, Main.parseUser(missingParam));
     }
 
     public void testParseConfigurationFileName() throws Exception {
-        String[] correctArgs = new String[]{"-configfile", "myconfig.xml"};
-        String[] missingParam = new String[]{""};
-        String[] missingValue = new String[]{"-configfile"};
+        String[] correctArgs = new String[] { "-configfile", "myconfig.xml" };
+        String[] missingParam = new String[] { "" };
+        String[] missingValue = new String[] { "-configfile" };
 
         assertEquals("myconfig.xml", Main.parseConfigFileName(correctArgs, null));
         assertEquals("config.xml", Main.parseConfigFileName(missingParam, "config.xml"));
@@ -83,12 +86,12 @@ public class MainTest extends TestCase {
     }
 
     public void testParseHttpPort() throws Exception {
-        String[] correctArgs = new String[]{"-jmxport", "123"};
-        String[] missingParam = new String[]{""};
-        String[] defaultValue = new String[]{"-jmxport"};
-        String[] invalidArgs = new String[]{"-jmxport", "ABC"};
-        String[] deprecatedArgs = new String[]{"-port", "123"};
-        String[] deprecatedAndCorrectArgs = new String[]{"-port", "123", "-jmxport", "123"};
+        String[] correctArgs = new String[] { "-jmxport", "123" };
+        String[] missingParam = new String[] { "" };
+        String[] defaultValue = new String[] { "-jmxport" };
+        String[] invalidArgs = new String[] { "-jmxport", "ABC" };
+        String[] deprecatedArgs = new String[] { "-port", "123" };
+        String[] deprecatedAndCorrectArgs = new String[] { "-port", "123", "-jmxport", "123" };
 
         assertEquals(123, Main.parseJMXHttpPort(correctArgs));
         assertEquals(MainArgs.NOT_FOUND, Main.parseJMXHttpPort(missingParam));
@@ -110,10 +113,10 @@ public class MainTest extends TestCase {
     }
 
     public void testParseRmiPort() throws Exception {
-        String[] correctArgs = new String[]{"-rmiport", "123"};
-        String[] missingParam = new String[]{""};
-        String[] defaultValue = new String[]{"-rmiport"};
-        String[] invalidArgs = new String[]{"-rmiport", "ABC"};
+        String[] correctArgs = new String[] { "-rmiport", "123" };
+        String[] missingParam = new String[] { "" };
+        String[] defaultValue = new String[] { "-rmiport" };
+        String[] invalidArgs = new String[] { "-rmiport", "ABC" };
 
         assertEquals(123, Main.parseRmiPort(correctArgs));
         assertEquals(MainArgs.NOT_FOUND, Main.parseRmiPort(missingParam));
@@ -127,13 +130,78 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testParseWebPort() throws Exception {
+        String[] correctArgs = new String[] { "-webport", "123" };
+        String[] missingParam = new String[] { "" };
+        String[] defaultValue = new String[] { "-webport" };
+        String[] invalidArgs = new String[] { "-webport", "ABC" };
+
+        assertEquals(123, Main.parseWebPort(correctArgs));
+        assertEquals(MainArgs.NOT_FOUND, Main.parseWebPort(missingParam));
+        assertEquals(8080, Main.parseWebPort(defaultValue));
+
+        try {
+            Main.parseWebPort(invalidArgs);
+            fail("Expected exception");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
+
+    public void testParseWebappPath() throws Exception {
+        final String tempDirName = System.getProperty("java.io.tmpdir");
+        final File webappDir = new File(tempDirName, "testwebapp");
+        final File webinfDir = new File(webappDir, "WEB-INF");
+
+        try {
+            String[] correctArgs = new String[] { "-webapppath", webappDir.getAbsolutePath() };
+            String[] missingParam = new String[] { "" };
+            String[] missingValue = new String[] { "-webapppath" };
+            String[] invalidArgs = new String[] { "-webapppath", "does_not_exist" };
+
+            if (!webinfDir.mkdirs()) {
+                throw new Exception("Could not create test webapp dir");
+            }
+            webappDir.deleteOnExit();
+            webinfDir.deleteOnExit();
+
+            assertEquals(webappDir.getAbsolutePath(), Main.parseWebappPath(correctArgs));
+
+            final String msg = "'webapppath' argument must specify an "
+                    + "existing directory but was ./webapps/cruisecontrol";
+            try {
+                Main.parseWebappPath(missingValue);
+                fail();
+            } catch (IllegalArgumentException expected) {
+                assertEquals(msg, expected.getMessage());
+            }
+            try {
+                Main.parseWebappPath(missingParam);
+                fail();
+            } catch (IllegalArgumentException expected) {
+                assertEquals(msg, expected.getMessage());
+            }
+
+            try {
+                Main.parseWebappPath(invalidArgs);
+                fail();
+            } catch (IllegalArgumentException expected) {
+            }
+
+        } finally {
+            webinfDir.delete();
+            webappDir.delete();
+        }
+
+    }
+
     public void testParseXslPath() {
         final String tempDirName = System.getProperty("java.io.tmpdir");
-        String[] correctArgs = new String[]{"-xslpath", tempDirName};
-        String[] missingParam = new String[]{""};
-        String[] missingValue = new String[]{"-xslpath"};
+        String[] correctArgs = new String[] { "-xslpath", tempDirName };
+        String[] missingParam = new String[] { "" };
+        String[] missingValue = new String[] { "-xslpath" };
         final String invalidXsl = "does_Not_Exist";
-        String[] invalidArgs = new String[]{"-xslpath", invalidXsl};
+        String[] invalidArgs = new String[] { "-xslpath", invalidXsl };
 
         assertEquals(tempDirName, Main.parseXslPath(correctArgs));
         assertNull(Main.parseXslPath(missingParam));
@@ -143,26 +211,26 @@ public class MainTest extends TestCase {
             Main.parseXslPath(invalidArgs);
             fail();
         } catch (IllegalArgumentException expected) {
-            assertEquals("'xslpath' argument must specify an existing directory but was " + invalidXsl,
-                    expected.getMessage());
+            assertEquals("'xslpath' argument must specify an existing directory but was " + invalidXsl, expected
+                    .getMessage());
         }
     }
 
     public void testUsage() {
-        String[] usage = {"-?"};
-        String[] notusage = {"-port", "8000"};
+        String[] usage = { "-?" };
+        String[] notusage = { "-port", "8000" };
         assertTrue(Main.shouldPrintUsage(usage));
         assertFalse(Main.shouldPrintUsage(notusage));
     }
 
     public void testshouldStartController() throws Exception {
-        String[] bothArgs = new String[]{"-jmxport", "8085", "-rmiport", "8086"};
-        String[] bothArgsWithDeprecated = new String[]{"-port", "8085", "-rmiport", "8086"};
-        String[] rmiPort = new String[]{"-rmiport", "8086"};
-        String[] httpPort = new String[]{"-jmxport", "8085"};
-        String[] httpPortWithDefault = new String[]{"-jmxport"};
-        String[] neitherArg = new String[]{"-foo", "blah"};
-        String[] deprecatedHttpPort = new String[]{"-port", "8085"};
+        String[] bothArgs = new String[] { "-jmxport", "8085", "-rmiport", "8086" };
+        String[] bothArgsWithDeprecated = new String[] { "-port", "8085", "-rmiport", "8086" };
+        String[] rmiPort = new String[] { "-rmiport", "8086" };
+        String[] httpPort = new String[] { "-jmxport", "8085" };
+        String[] httpPortWithDefault = new String[] { "-jmxport" };
+        String[] neitherArg = new String[] { "-foo", "blah" };
+        String[] deprecatedHttpPort = new String[] { "-port", "8085" };
 
         assertTrue(Main.shouldStartJmxAgent(bothArgs));
         assertTrue(Main.shouldStartJmxAgent(bothArgsWithDeprecated));
@@ -173,16 +241,28 @@ public class MainTest extends TestCase {
         assertFalse(Main.shouldStartJmxAgent(neitherArg));
     }
 
+    public void testShouldStartEmbeddedServer() throws Exception {
+        String[] bothArgs = new String[] { "-webport", "1234", "-webapppath", "/tmp/foo" };
+        String[] webPort = new String[] { "-webport", "1234" };
+        String[] webappPath = new String[] { "-webapppath", "/tmp/foo" };
+        String[] neitherArg = new String[] {};
+
+        assertTrue(Main.shouldStartEmbeddedServer(bothArgs));
+        assertTrue(Main.shouldStartEmbeddedServer(webPort));
+        assertTrue(Main.shouldStartEmbeddedServer(webappPath));
+        assertFalse(Main.shouldStartEmbeddedServer(neitherArg));
+
+    }
+
     public void testDeprecatedArgs() {
-        String[] args = {"-port", "8000"};
+        String[] args = { "-port", "8000" };
 
         StringBufferAppender appender = new StringBufferAppender();
         Logger testLogger = Logger.getLogger(Main.class);
         testLogger.addAppender(appender);
         Main.checkDeprecatedArguments(args, testLogger);
 
-        assertTrue(appender.toString().indexOf(
-                "WARNING: The port argument is deprecated. Use jmxport instead.") >= 0);
+        assertTrue(appender.toString().indexOf("WARNING: The port argument is deprecated. Use jmxport instead.") >= 0);
     }
 
     public static class StringBufferAppender implements Appender {
@@ -240,6 +320,5 @@ public class MainTest extends TestCase {
             return myBuffer.toString();
         }
     }
-
 
 }
