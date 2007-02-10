@@ -96,6 +96,9 @@
         <pathelement location="${test.classes}" />
         <path refid="project.classpath" />
         <pathelement location="${classes}" />
+        <fileset dir="${basedir}/../binaryrelease/lib">
+          <include name="**/*.jar"/>
+        </fileset>
         <pathelement path="${java.class.path}" />
         <path refid="clover.classpath" />
     </path>
