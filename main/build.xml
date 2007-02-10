@@ -65,9 +65,7 @@
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar" />
 
-    <property name="clover.home" value="${env.CLOVER_HOME}" />
-    <property name="clover.jar" value="${clover.home}/lib/clover.jar" />
-    <property name="clover.results" value="${target}/clover-results" />
+    <property name="simian.jar" value="${lib}/simian-2.2.14.jar"/>
 
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
@@ -77,10 +75,6 @@
         <pathelement location="${lib}/emma_ant.jar" />
     </path>
     <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
-
-    <path id="clover.classpath">
-        <pathelement location="${clover.jar}" />
-    </path>
 
     <!-- ****************************************************
     Define the project classpath references.  Any jar found
@@ -100,7 +94,6 @@
           <include name="**/*.jar"/>
         </fileset>
         <pathelement path="${java.class.path}" />
-        <path refid="clover.classpath" />
     </path>
 
     <target name="checklabel">
@@ -113,7 +106,6 @@
         <mkdir dir="${target}/tmp" />
         <mkdir dir="${dist}" />
         <mkdir dir="${junit.results}" />
-        <mkdir dir="${clover.results}" />
         <mkdir dir="${emma.results}" />
 
         <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present" />
@@ -250,29 +242,9 @@
         <echo message="View EMMA's HTML report at ${emma.html.report}" />
     </target>
 
-    <target name="report-coverage"
-            depends="with-clover, clean, compile, compile-test, test, report-clover"
-            description="Check test coverage" />
-
-    <target name="report-clover" depends="with-clover">
-        <clover-report>
-            <current outfile="${clover.results}" title="CruiseControl test coverage">
-                <format type="html" />
-                <fileset dir="${src}" />
-            </current>
-        </clover-report>
-    </target>
-
-    <target name="with-clover">
-        <fail message="CLOVER_HOME must be set!" unless="env.CLOVER_HOME" />
-        <fail message="Can't get Clover to work with Jikes..." if="env.JIKESPATH" />
-        <taskdef resource="clovertasks" classpathref="clover.classpath" />
-        <clover-setup initstring="${clover.results}/cc_coverage.db" />
-    </target>
-
-    <target name="check-duplication" if="env.SIMIAN_HOME" description="Check for duplicated code">
-        <taskdef resource="simiantask.properties" classpath="${env.SIMIAN_HOME}/simian.jar" />
-        <!-- Simian is failing even if no duplicated lines? -->
+    <target name="check-duplication" description="Check for duplicated code">
+        <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
+        <!-- Switch this to true with a threshold once we deal with current duplication -->
         <simian failOnDuplication="false">
             <fileset dir="${src}" includes="**/*.java" />
         </simian>
