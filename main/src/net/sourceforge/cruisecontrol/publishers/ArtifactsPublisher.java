@@ -109,7 +109,7 @@ public class ArtifactsPublisher implements Publisher {
         if (!file.exists()) {
             throw new CruiseControlException("target file " + file.getAbsolutePath() + " does not exist");
         }
-        FileUtils utils = FileUtils.newFileUtils();
+        FileUtils utils = FileUtils.getFileUtils();
         try {
             utils.copyFile(file, new File(uniqueDest, file.getName()));
         } catch (IOException e) {

@@ -104,7 +104,7 @@ public class HttpFileTest extends TestCase {
         HttpFile httpFile = new HttpFile();
         File tempFile = File.createTempFile("HttpFileTest", null);
         tempFile.deleteOnExit();
-        httpFile.setURL(tempFile.toURL().toExternalForm());
+        httpFile.setURL(tempFile.toURI().toURL().toExternalForm());
         tempFile.delete();
         // should not throw with a URL that cannot be connected to
         httpFile.getModifications(new Date(), new Date());

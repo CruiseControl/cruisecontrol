@@ -62,7 +62,7 @@
     <property name="xsl" value="${basedir}/xsl" />
 
     <property name="checkstyle.fail.on.violation" value="true" />
-    <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar" />
 
     <property name="clover.home" value="${env.CLOVER_HOME}" />
@@ -128,13 +128,32 @@
         <delete dir="${target}" />
     </target>
 
+    <macrodef name="compile-macro">
+        <attribute name="destdir" default="${classes}" />
+        <attribute name="srcdir" default="${src}" />
+        <attribute name="classpathref" default="project.classpath" />
+        <element name="nested" implicit="true" optional="true" />
+        <sequential>
+            <javac destdir="@{destdir}"
+                   debug="true"
+                   deprecation="true"
+                   fork="true"
+                   source="1.4"
+                   target="1.4"
+                   compiler="javac1.4"
+                   classpathref="project.classpath"
+                   srcdir="@{srcdir}">
+                <nested />
+            </javac>
+        </sequential>
+    </macrodef>
+
     <target name="compile" depends="init" unless="compile.skip" description="Compile source code">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
-            <classpath refid="project.classpath" />
-            <src path="${src}" />
+        <compile-macro>
             <exclude name="**/StarTeam*" />
             <exclude name="**/Sametime*" />
-        </javac>
+        </compile-macro>
+
         <copy todir="${classes}">
             <fileset dir="${basedir}" includes="*.properties" />
             <filterset>
@@ -149,32 +168,23 @@
     </target>
 
     <target name="compile-starteam" if="starteam-sdk-present" depends="init">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
-            <classpath refid="project.classpath" />
-            <src path="${src}" />
+        <compile-macro>
             <include name="**/StarTeam*" />
-        </javac>
+        </compile-macro>
     </target>
 
     <target name="compile-sametime" if="sametime-sdk-present" depends="init">
-        <javac destdir="${classes}" debug="true" deprecation="true" fork="true" source="1.3" target="1.3">
-            <classpath refid="project.classpath" />
-            <src path="${src}" />
+        <compile-macro>
             <include name="**/Sametime*" />
-        </javac>
+        </compile-macro>
     </target>
 
     <target name="compile-test" depends="compile" description="Compile test code">
-
-        <javac debug="on"
-               deprecation="false"
-               srcdir="${test}"
-               fork="true"
-               source="1.3"
-               target="1.3"
-               destdir="${test.classes}"
-               excludes="**/*StarTeam*,**/*Sametime*"
-               classpathref="project.runtime.classpath" />
+        <compile-macro srcdir="${test}" destdir="${test.classes}">
+            <classpath refid="project.runtime.classpath" />
+            <exclude name="**/StarTeam*" />
+            <exclude name="**/Sametime*" />
+        </compile-macro>
 
         <copy todir="${test.classes}">
             <fileset dir="${test}" includes="**/*.xml" />
@@ -188,6 +198,20 @@
         </copy>
     </target>
 
+    <target name="compile-test-starteam" if="starteam-sdk-present" depends="compile-starteam">
+        <compile-macro srcdir="${test}" destdir="${test.classes}">
+            <classpath refid="project.runtime.classpath" />
+            <include name="**/StarTeam*" />
+        </compile-macro>
+    </target>
+
+    <target name="compile-test-sametime" if="sametime-sdk-present" depends="compile-sametime">
+        <compile-macro srcdir="${test}" destdir="${test.classes}">
+            <classpath refid="project.runtime.classpath" />
+            <include name="**/Sametime*" />
+        </compile-macro>
+    </target>
+
     <target name="checkstyle" depends="init" description="Run CheckStyle on code">
         <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}" />
         <checkstyle config="${basedir}/checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
@@ -195,7 +219,7 @@
             <formatter type="plain" tofile="${target}/checkstyleResults.txt" />
             <fileset dir="${src}" includes="net/sourceforge/cruisecontrol/**/*.java" />
             <fileset dir="${test}" includes="net/sourceforge/cruisecontrol/**/*.java" />
-            <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
+            <property key="checkstyle.cache.file" file="${checkstyle.cache}" />
         </checkstyle>
     </target>
 
@@ -251,23 +275,41 @@
         </simian>
     </target>
 
+    <macrodef name="test-macro">
+        <attribute name="includes" default="**/${tests}.class" />
+        <element implicit="true" name="nested" optional="true" />
+        <sequential>
+            <junit fork="true" forkmode="perBatch" haltonfailure="true" printsummary="true" dir="${target}">
+                <classpath>
+                    <path refid="project.runtime.classpath" />
+                </classpath>
+                <formatter type="brief" usefile="false" />
+                <formatter type="xml" />
+                <batchtest todir="${junit.results}">
+                    <fileset dir="${test.classes}" includes="@{includes}" />
+                </batchtest>
+                <nested />
+            </junit>
+        </sequential>
+    </macrodef>
+
     <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
-        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath>
-                <path refid="project.runtime.classpath" />
-            </classpath>
-            <formatter type="brief" usefile="false" />
-            <formatter type="xml" />
-            <batchtest todir="${junit.results}">
-                <fileset dir="${test.classes}" includes="**/${tests}.class" />
-            </batchtest>
+        <test-macro>
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
-        </junit>
+        </test-macro>
+    </target>
+
+    <target name="test-starteam" depends="init, compile-test-starteam" unless="test.skip">
+        <test-macro includes="**/StarTeam*Test.class" />
+    </target>
+
+    <target name="test-sametime" depends="init, compile-test-sametime" unless="test.skip">
+        <test-macro includes="**/Sametime*Test.class" />
     </target>
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+        <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
             <classpath>
                 <path refid="project.runtime.classpath" />
             </classpath>
@@ -275,56 +317,6 @@
             <formatter type="xml" />
             <test name="${testcase}" todir="${junit.results}" />
         </junit>
-    </target>
-
-    <target name="test-starteam" depends="init, compile-starteam" if="starteam-sdk-present" unless="test.skip">
-        <javac debug="on"
-               deprecation="true"
-               srcdir="${test}"
-               destdir="${test.classes}"
-               fork="true"
-               source="1.3"
-               target="1.3">
-            <classpath refid="project.runtime.classpath" />
-            <src path="${test}" />
-            <include name="**/StarTeam*" />
-        </javac>
-        <junit fork="yes" haltonfailure="yes" printsummary="on">
-            <classpath>
-                <path refid="project.runtime.classpath" />
-            </classpath>
-            <formatter type="brief" usefile="false" />
-            <formatter type="xml" />
-            <batchtest todir="${junit.results}">
-                <fileset dir="${test.classes}" includes="**/StarTeam*Test.class" />
-            </batchtest>
-        </junit>
-
-    </target>
-
-    <target name="test-sametime" depends="init, compile-sametime" if="sametime-sdk-present" unless="test.skip">
-        <javac debug="on"
-               deprecation="true"
-               srcdir="${test}"
-               destdir="${test.classes}"
-               fork="true"
-               source="1.3"
-               target="1.3">
-            <classpath refid="project.runtime.classpath" />
-            <src path="${test}" />
-            <include name="**/Sametime*" />
-        </javac>
-        <junit fork="yes" haltonfailure="yes" printsummary="on">
-            <classpath>
-                <path refid="project.runtime.classpath" />
-            </classpath>
-            <formatter type="brief" usefile="false" />
-            <formatter type="xml" />
-            <batchtest todir="${junit.results}">
-                <fileset dir="${test.classes}" includes="**/Sametime*Test.class" />
-            </batchtest>
-        </junit>
-
     </target>
 
     <target name="jar" depends="compile">
