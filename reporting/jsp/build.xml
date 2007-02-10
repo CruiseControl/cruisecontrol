@@ -59,6 +59,7 @@
     <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
     <property name="checkstyle.fail.on.violation" value="true"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar"/>
+    <property name="simian.jar" value="${lib}/simian-2.2.14.jar"/>
 
     <path id="project.classpath" >
         <fileset dir="${lib}" includes="*.jar"/>
@@ -116,11 +117,11 @@
     <!-- **************************************************** -->
     <!-- Run duplication check on code -->
     <!-- **************************************************** -->
-    <target name="check-duplication" if="env.SIMIAN_HOME" description="Check for duplicated code">
-        <taskdef resource="simiantask.properties" classpath="${env.SIMIAN_HOME}/simian.jar"/>
-        <!-- Simian is failing even if no duplicated lines? -->
+    <target name="check-duplication" description="Check for duplicated code">
+        <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
+        <!-- Switch this to true with a threshold once we deal with current duplication -->
         <simian failOnDuplication="false">
-            <fileset dir="${src}" includes="**/*.java"/>
+            <fileset dir="${src}" includes="**/*.java" />
         </simian>
     </target>
 
