@@ -82,6 +82,9 @@
     <property name="jini.libDownload.DirName" value="jini-lib-dl"/>
 
 
+    <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
+
+
     <!-- xml apis and parsers -->
     <patternset id="ps.jarnames-xml-libs">
         <include name="xml-apis-*.jar" />
@@ -353,6 +356,15 @@
     </target>
 
 
+    <target name="check-duplication" description="Check for duplicated code">
+        <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
+        <!-- Switch this to true with a threshold once we deal with current duplication -->
+        <simian failOnDuplication="false">
+            <fileset dir="${src}" includes="**/*.java" />
+        </simian>
+    </target>
+
+    
     <target name="setupTestEntry">
         <!-- @todo find a cleaner way to prevent collision of multiple test runs on same subnet? -->
         <tstamp>
