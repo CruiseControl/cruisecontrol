@@ -84,6 +84,15 @@
 
     <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
 
+    <property name="emma.results" value="${target}/emma-results" />
+    <property name="emma.stats" value="${emma.results}/coverage.emma" />
+
+    <path id='emma.classpath'>
+        <pathelement location="${dir.main.lib}/emma.jar" />
+        <pathelement location="${dir.main.lib}/emma_ant.jar" />
+    </path>
+    <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
+
 
     <!-- xml apis and parsers -->
     <patternset id="ps.jarnames-xml-libs">
@@ -356,6 +365,30 @@
     </target>
 
 
+    <target name="emma-instrument" depends="init, compile">
+        <emma>
+            <instr instrpath="${classes}"
+                   outdir="${classes}"
+                   merge="yes"
+                   metadatafile="${emma.results}/metadata.emma"
+                   mode="overwrite" />
+        </emma>
+    </target>
+
+    <target name="report-emma" depends="init, emma-instrument, test">
+        <property name="emma.html.report" value="${emma.results}/coverage.html" />
+        <emma>
+            <report sourcepath="${src}">
+                <fileset dir="${emma.results}">
+                    <include name="*.emma" />
+                </fileset>
+
+                <html outfile="${emma.html.report}" />
+            </report>
+        </emma>
+        <echo message="View EMMA's HTML report at ${emma.html.report}" />
+    </target>
+
     <target name="check-duplication" description="Check for duplicated code">
         <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
         <!-- Switch this to true with a threshold once we deal with current duplication -->
@@ -379,8 +412,12 @@
 
         <!-- @todo haltonfailure? -->
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true"><!--dir="${target}" -->
+            <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
+            <jvmarg value="-Demma.coverage.out.merge=true" />
+
             <classpath>
                 <path refid="ccdist.project.runtime.classpath"/>
+                <path refid="emma.classpath"/>
             </classpath>
             <sysproperty key="ccdist.ant.home" value="${ant.home}"/><!-- will be used if env.ANT_HOME is not set. -->
             <formatter type="brief" usefile="false"/>
