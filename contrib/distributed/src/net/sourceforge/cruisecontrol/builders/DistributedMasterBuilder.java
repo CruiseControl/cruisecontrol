@@ -382,10 +382,8 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         }
     }
 
-    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
-    public int getDay() {
-        // @todo Replace with real Builder object if possible
-        final String value = childBuilderElement.getAttributeValue("day");
+
+    private int convertNullToNOT_SET(final String value) {
         final int retVal;
         if (value == null) {
             retVal = NOT_SET;
@@ -394,17 +392,16 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         }
         return retVal;
     }
+
+    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    public int getDay() {
+        // @todo Replace with real Builder object if possible
+        return convertNullToNOT_SET(childBuilderElement.getAttributeValue("day"));
+    }
     /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
     public int getTime() {
         // @todo Replace with real Builder object if possible
-        final String value = childBuilderElement.getAttributeValue("time");
-        final int retVal;
-        if (value == null) {
-            retVal = NOT_SET;
-        } else {
-            retVal = Integer.parseInt(value);
-        }
-        return retVal;
+        return convertNullToNOT_SET(childBuilderElement.getAttributeValue("time"));
     }
     /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
     public int getMultiple() {
@@ -424,6 +421,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         return retVal;
     }
 
+    
     public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
         String oldOverideTarget = overrideTarget;
         overrideTarget(target);
