@@ -37,12 +37,14 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
+
 /**
  *  This interface defines an action that must be performed before building.
  *  An example would be getting the most current build file from a source control
  *  tool.
  */
-public interface Bootstrapper {
+public interface Bootstrapper extends Serializable {
 
     /**
      *  Perform the bootstrapping.

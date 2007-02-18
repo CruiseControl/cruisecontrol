@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,18 +66,12 @@ import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 
 /**
- * This class implements the SourceControlElement methods for a CVS repository.
- * The call to CVS is assumed to work without any setup. This implies that if
- * the authentication type is pserver the call to cvs login should be done
- * prior to calling this class.
- * <p/>
- * There are also differing CVS client/server implementations (e.g. the <i>official</i>
- * CVS and the CVSNT fork).
- * <p/>
- * Note that the log formats of the official CVS have changed starting from version 1.12.9.
- * This class currently knows of 2 different outputs referred to as the 'old'
- * and the 'new' output formats.
- *
+ * This class implements the SourceControlElement methods for a CVS repository. The call to CVS is assumed to work
+ * without any setup. This implies that if the authentication type is pserver the call to cvs login should be done prior
+ * to calling this class. <p/> There are also differing CVS client/server implementations (e.g. the <i>official</i> CVS
+ * and the CVSNT fork). <p/> Note that the log formats of the official CVS have changed starting from version 1.12.9.
+ * This class currently knows of 2 different outputs referred to as the 'old' and the 'new' output formats.
+ * 
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  * @author Robert Watkins
  * @author Frederic Lavigne
@@ -86,6 +81,7 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
  */
 public class ConcurrentVersionsSystem implements SourceControl {
+    private static final long serialVersionUID = -3714548093682602092L;
     /**
      * name of the official cvs as returned as part of the 'cvs version' command output
      */
@@ -96,7 +92,10 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * Represents the version of a CVS client or server
      */
-    static class Version {
+    static class Version implements Serializable {
+
+        private static final long serialVersionUID = -2433230091640056090L;
+
         private final String cvsName;
         private final String cvsVersion;
 
@@ -152,21 +151,18 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private SourceControlProperties properties = new SourceControlProperties();
 
     /**
-     * CVS allows for mapping user names to email addresses.
-     * If CVSROOT/users exists, it's contents will be parsed and stored in this
-     * hashtable.
+     * CVS allows for mapping user names to email addresses. If CVSROOT/users exists, it's contents will be parsed and
+     * stored in this hashtable.
      */
     private Hashtable mailAliases;
 
     /**
-     * The caller can provide the CVSROOT to use when calling CVS, or
-     * the CVSROOT environment variable will be used.
+     * The caller can provide the CVSROOT to use when calling CVS, or the CVSROOT environment variable will be used.
      */
     private String cvsroot;
 
     /**
-     * The caller must indicate where the local copy of the repository
-     * exists.
+     * The caller must indicate where the local copy of the repository exists.
      */
     private String local;
 
@@ -193,49 +189,42 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * This line delimits separate files in the CVS log information.
      */
-    private static final String CVS_FILE_DELIM =
-            "=============================================================================";
+    private static final String CVS_FILE_DELIM = "==================================================================="
+            + "==========";
 
     /**
-     * This is the keyword that precedes the name of the RCS filename in the CVS
-     * log information.
+     * This is the keyword that precedes the name of the RCS filename in the CVS log information.
      */
     private static final String CVS_RCSFILE_LINE = "RCS file: ";
 
     /**
-     * This is the keyword that precedes the name of the working filename in the
-     * CVS log information.
+     * This is the keyword that precedes the name of the working filename in the CVS log information.
      */
     private static final String CVS_WORKINGFILE_LINE = "Working file: ";
 
     /**
-     * This line delimits the different revisions of a file in the CVS log
-     * information.
+     * This line delimits the different revisions of a file in the CVS log information.
      */
     private static final String CVS_REVISION_DELIM = "----------------------------";
 
     /**
-     * This is the keyword that precedes the timestamp of a file revision in the
-     * CVS log information.
+     * This is the keyword that precedes the timestamp of a file revision in the CVS log information.
      */
     private static final String CVS_REVISION_DATE = "date:";
 
     /**
-     * This is the name of the tip of the main branch, which needs special handling with
-     * the log entry parser
+     * This is the name of the tip of the main branch, which needs special handling with the log entry parser
      */
     private static final String CVS_HEAD_TAG = "HEAD";
 
     /**
-     * This is the keyword that tells us when we have reached the end of the
-     * header as found in the CVS log information.
+     * This is the keyword that tells us when we have reached the end of the header as found in the CVS log information.
      */
     private static final String CVS_DESCRIPTION = "description:";
 
     /**
-     * This is a state keyword which indicates that a revision to a file was not
-     * relevant to the current branch, or the revision consisted of a deletion
-     * of the file (removal from branch..).
+     * This is a state keyword which indicates that a revision to a file was not relevant to the current branch, or the
+     * revision consisted of a deletion of the file (removal from branch..).
      */
     private static final String CVS_REVISION_DEAD = "dead";
 
@@ -251,8 +240,9 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
     /**
      * Sets the CVSROOT for all calls to CVS.
-     *
-     * @param cvsroot CVSROOT to use.
+     * 
+     * @param cvsroot
+     *            CVSROOT to use.
      */
     public void setCvsRoot(String cvsroot) {
         this.cvsroot = cvsroot;
@@ -260,29 +250,30 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
     /**
      * Sets the local working copy to use when making calls to CVS.
-     *
-     * @param local String indicating the relative or absolute path to the local
-     *              working copy of the module of which to find the log history.
+     * 
+     * @param local
+     *            String indicating the relative or absolute path to the local working copy of the module of which to
+     *            find the log history.
      */
     public void setLocalWorkingCopy(String local) {
         this.local = local;
     }
 
     /**
-     * Set the cvs tag.  Note this should work with names, numbers, and anything
-     * else you can put on log -rTAG
-     *
-     * @param tag the cvs tag
+     * Set the cvs tag. Note this should work with names, numbers, and anything else you can put on log -rTAG
+     * 
+     * @param tag
+     *            the cvs tag
      */
     public void setTag(String tag) {
         this.tag = tag;
     }
 
     /**
-     * Set the cvs module name.  Note that this is only used when
-     * localworkingcopy is not set.
-     *
-     * @param module the cvs module
+     * Set the cvs module name. Note that this is only used when localworkingcopy is not set.
+     * 
+     * @param module
+     *            the cvs module
      */
     public void setModule(String module) {
         this.module = module;
@@ -348,12 +339,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * This method retrieves the cvs server version from the specified output.
-     * The line it parses will have the following format:
+     * This method retrieves the cvs server version from the specified output. The line it parses will have the
+     * following format:
+     * 
      * <pre>
-     * Server: Concurrent Versions System (CVS) 1.11.16 (client/server)
+     *    Server: Concurrent Versions System (CVS) 1.11.16 (client/server)
      * </pre>
-     *
+     * 
      * @param in
      * @return the version of null if the version couldn't be extracted
      * @throws IOException
@@ -416,7 +408,6 @@ public class ConcurrentVersionsSystem implements SourceControl {
         return false;
     }
 
-
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
@@ -433,15 +424,16 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 "must specify either 'localWorkingCopy' or 'cvsroot' and 'module' on CVS");
         ValidationHelper.assertFalse(local != null && (cvsroot != null || module != null),
                 "if 'localWorkingCopy' is specified then cvsroot and module are not allowed on CVS");
-        ValidationHelper.assertFalse(local != null && !new File(local).exists(),
-                "Local working copy \"" + local + "\" does not exist!");
+        ValidationHelper.assertFalse(local != null && !new File(local).exists(), "Local working copy \"" + local
+                + "\" does not exist!");
     }
 
     /**
-     * Returns a List of Modifications detailing all the changes between the
-     * last build and the latest revision at the repository
-     *
-     * @param lastBuild last build time
+     * Returns a List of Modifications detailing all the changes between the last build and the latest revision at the
+     * repository
+     * 
+     * @param lastBuild
+     *            last build time
      * @return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
@@ -461,11 +453,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * Get CVS's idea of user/address mapping. Only runs once per class
-     * instance. Won't run if the mailAlias was already set.
-     *
-     * @return a Hashtable containing the mapping defined in CVSROOT/users.
-     *         If CVSROOT/users doesn't exist, an empty Hashtable is returned.
+     * Get CVS's idea of user/address mapping. Only runs once per class instance. Won't run if the mailAlias was already
+     * set.
+     * 
+     * @return a Hashtable containing the mapping defined in CVSROOT/users. If CVSROOT/users doesn't exist, an empty
+     *         Hashtable is returned.
      */
     private Hashtable getMailAliases() {
         if (mailAliases == null) {
@@ -583,11 +575,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * Parses the input stream, which should be from the cvs log command. This
-     * method will format the data found in the input stream into a List of
-     * Modification instances.
-     *
-     * @param input InputStream to get log data from.
+     * Parses the input stream, which should be from the cvs log command. This method will format the data found in the
+     * input stream into a List of Modification instances.
+     * 
+     * @param input
+     *            InputStream to get log data from.
      * @return List of Modification elements, maybe empty never null.
      * @throws IOException
      */
@@ -606,7 +598,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             // modifications.
             List returnList = parseEntry(reader, line);
 
-            //Add all the modifications to the local list.
+            // Add all the modifications to the local list.
             mods.addAll(returnList);
 
             // Read to the next RCS file line. The CVS_FILE_DELIMITER may have
@@ -643,22 +635,22 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private static Thread logErrorStream(Process p) {
         return logErrorStream(p.getErrorStream());
     }
+
     static Thread logErrorStream(InputStream error) {
         Thread stderr = new Thread(StreamLogger.getWarnPumper(log, error));
         stderr.start();
         return stderr;
     }
 
-    //(PENDING) Extract CVSEntryParser class
+    // (PENDING) Extract CVSEntryParser class
 
     /**
-     * Parses a single file entry from the reader. This entry may contain zero or
-     * more revisions. This method may consume the next CVS_FILE_DELIMITER line
-     * from the reader, but no further.
-     * <p/>
-     * When the log is related to a non branch tag, only the last modification for each file will be listed.
-     *
-     * @param reader Reader to parse data from.
+     * Parses a single file entry from the reader. This entry may contain zero or more revisions. This method may
+     * consume the next CVS_FILE_DELIMITER line from the reader, but no further. <p/> When the log is related to a non
+     * branch tag, only the last modification for each file will be listed.
+     * 
+     * @param reader
+     *            Reader to parse data from.
      * @return modifications found in this entry; maybe empty, never null.
      * @throws IOException
      */
@@ -684,7 +676,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
             if (nextLine == null) {
-                //No more revisions for this file.
+                // No more revisions for this file.
                 break;
             }
 
@@ -736,8 +728,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             nextLine = reader.readLine();
             boolean multiLine = false;
 
-            while (nextLine != null
-                    && !nextLine.startsWith(CVS_FILE_DELIM)
+            while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)
                     && !nextLine.startsWith(CVS_REVISION_DELIM)) {
 
                 if (multiLine) {
@@ -747,7 +738,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 }
                 message += nextLine;
 
-                //Go to the next line.
+                // Go to the next line.
                 nextLine = reader.readLine();
             }
 
@@ -766,8 +757,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
             try {
                 if (newCVSVersion) {
-                    nextModification.modifiedTime = CVSDateUtil.parseCVSDate(
-                            dateStamp + " " + timeStamp + " GMT");
+                    nextModification.modifiedTime = CVSDateUtil.parseCVSDate(dateStamp + " " + timeStamp + " GMT");
                 } else {
                     nextModification.modifiedTime = logDateFormatter.parse(dateStamp + " " + timeStamp + " GMT");
                 }
@@ -788,7 +778,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)
                     && message.indexOf("was initially added on branch") != -1) {
                 log.debug("skipping branch addition activity for " + nextModification);
-                //this prevents additions to a branch from showing up as action "deleted" from head
+                // this prevents additions to a branch from showing up as action "deleted" from head
                 continue;
             }
 
@@ -807,9 +797,9 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * Find the CVS branch revision name, when the tag is not HEAD
-     * The reader will consume all lines up to the next description.
-     *
+     * Find the CVS branch revision name, when the tag is not HEAD The reader will consume all lines up to the next
+     * description.
+     * 
      * @return the branch revision name, or <code>null</code> if not applicable or none was found.
      */
     private String parseBranchRevisionName(BufferedReader reader) throws IOException {
@@ -825,9 +815,8 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 // Look for the revision of the form "tag: *.(0.)y ", return "*.y"
                 branchRevisionName = branchRevisionLine.substring(tag.length() + 3);
                 if (branchRevisionName.charAt(branchRevisionName.lastIndexOf(".") - 1) == '0') {
-                    branchRevisionName =
-                            branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
-                                    + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
+                    branchRevisionName = branchRevisionName.substring(0, branchRevisionName.lastIndexOf(".") - 2)
+                            + branchRevisionName.substring(branchRevisionName.lastIndexOf("."));
                 }
             }
         }
@@ -835,22 +824,22 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * This method will consume lines from the reader up to the line that begins
-     * with the String specified but not past a line that begins with the
-     * notPast String. If the line that begins with the beginsWith String is
-     * found then it will be returned. Otherwise null is returned.
-     *
-     * @param reader     Reader to read lines from.
-     * @param beginsWith String to match to the beginning of a line.
-     * @param notPast    String which indicates that lines should stop being consumed,
-     *                   even if the begins with match has not been found. Pass null to this
-     *                   method to ignore this string.
-     * @return String that begin as indicated, or null if none matched to the end
-     *         of the reader or the notPast line was found.
+     * This method will consume lines from the reader up to the line that begins with the String specified but not past
+     * a line that begins with the notPast String. If the line that begins with the beginsWith String is found then it
+     * will be returned. Otherwise null is returned.
+     * 
+     * @param reader
+     *            Reader to read lines from.
+     * @param beginsWith
+     *            String to match to the beginning of a line.
+     * @param notPast
+     *            String which indicates that lines should stop being consumed, even if the begins with match has not
+     *            been found. Pass null to this method to ignore this string.
+     * @return String that begin as indicated, or null if none matched to the end of the reader or the notPast line was
+     *         found.
      * @throws IOException
      */
-    private static String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
-            throws IOException {
+    private static String readToNotPast(BufferedReader reader, String beginsWith, String notPast) throws IOException {
         boolean checkingNotPast = notPast != null;
 
         String nextLine = reader.readLine();

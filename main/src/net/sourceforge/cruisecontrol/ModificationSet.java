@@ -38,6 +38,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,10 +56,12 @@ import org.jdom.Element;
 
 /**
  * Set of modifications collected from included SourceControls
- *
+ * 
  * @see SourceControl
  */
-public class ModificationSet {
+public class ModificationSet implements Serializable {
+
+    private static final long serialVersionUID = 7834545928469764690L;
 
     private boolean lieOnIsModified = false;
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
@@ -76,9 +79,8 @@ public class ModificationSet {
     private List ignoreFiles;
 
     /**
-     * Set the amount of time in which there is no source control activity
-     * after which it is assumed that it is safe to update from the source
-     * control system and initiate a build.
+     * Set the amount of time in which there is no source control activity after which it is assumed that it is safe to
+     * update from the source control system and initiate a build.
      */
     public void setQuietPeriod(int seconds) {
         quietPeriod = seconds * ONE_SECOND;
@@ -86,10 +88,11 @@ public class ModificationSet {
 
     /**
      * Set the list of Glob-File-Patterns to be ignored
-     *
-     * @param filePatterns a comma separated list of glob patterns. "*" and "?" are valid wildcards
-     *                     example: "?razy-*-.txt,*.jsp"
-     * @throws CruiseControlException if at least one of the patterns is malformed
+     * 
+     * @param filePatterns
+     *            a comma separated list of glob patterns. "*" and "?" are valid wildcards example: "?razy-*-.txt,*.jsp"
+     * @throws CruiseControlException
+     *             if at least one of the patterns is malformed
      */
     public void setIgnoreFiles(String filePatterns) throws CruiseControlException {
         if (filePatterns != null) {
@@ -99,7 +102,7 @@ public class ModificationSet {
                 String pattern = st.nextToken();
                 // Compile the pattern
                 try {
-                    ignoreFiles.add (new GlobFilenameFilter(pattern));
+                    ignoreFiles.add(new GlobFilenameFilter(pattern));
                 } catch (MalformedCachePatternException e) {
                     throw new CruiseControlException("Invalid filename pattern '" + pattern + "'", e);
                 }
@@ -111,7 +114,7 @@ public class ModificationSet {
         return this.ignoreFiles;
     }
 
-    /** @deprecated **/
+    /** @deprecated * */
     public void addSourceControl(SourceControl sourceControl) {
         add(sourceControl);
     }
@@ -169,8 +172,8 @@ public class ModificationSet {
     }
 
     /**
-     * Returns a Hashtable of name-value pairs representing any properties set by the
-     * SourceControl.
+     * Returns a Hashtable of name-value pairs representing any properties set by the SourceControl.
+     * 
      * @return Hashtable of properties.
      */
     public Hashtable getProperties() {
@@ -200,11 +203,9 @@ public class ModificationSet {
             filterIgnoredModifications(modifications);
 
             if (modifications.size() > 0) {
-                LOG.info(
-                        modifications.size()
-                        + ((modifications.size() > 1)
-                        ? " modifications have been detected."
-                        : " modification has been detected."));
+                LOG.info(modifications.size()
+                        + ((modifications.size() > 1) ? " modifications have been detected."
+                                : " modification has been detected."));
             }
             modificationsElement = new Element("modifications");
             Iterator modificationIterator = modifications.iterator();
@@ -238,16 +239,15 @@ public class ModificationSet {
             }
         } while (isLastModificationInQuietPeriod(timeOfCheck, modifications));
 
-
         return modificationsElement;
     }
 
     /**
      * Remove all Modifications that match any of the ignoreFiles-patterns
      */
-    protected void filterIgnoredModifications (List modifications) {
+    protected void filterIgnoredModifications(List modifications) {
         if (this.ignoreFiles != null) {
-            for (Iterator iterator = modifications.iterator(); iterator.hasNext(); ) {
+            for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
                 Object object = iterator.next();
                 Modification modification = null;
                 if (object instanceof Modification) {
@@ -284,7 +284,7 @@ public class ModificationSet {
             path = path.replace('\\', '/');
         }
 
-        for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext(); ) {
+        for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext();) {
             GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
 
             // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
@@ -306,9 +306,9 @@ public class ModificationSet {
 
     public void validate() throws CruiseControlException {
         ValidationHelper.assertFalse(sourceControls.isEmpty(),
-            "modificationset element requires at least one nested source control element");
+                "modificationset element requires at least one nested source control element");
 
-        for (Iterator i = sourceControls.iterator(); i.hasNext(); ) {
+        for (Iterator i = sourceControls.iterator(); i.hasNext();) {
             SourceControl sc = (SourceControl) i.next();
             sc.validate();
         }
@@ -320,7 +320,6 @@ public class ModificationSet {
 
     /**
      * @param isModifiedAccurate
-     *
      * @deprecated
      */
     public void setRequireModification(boolean isModifiedAccurate) {

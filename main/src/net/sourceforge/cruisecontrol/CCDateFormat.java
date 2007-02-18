@@ -36,12 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
+
 /**
  * Simple wrapper around the dateformat. Allows preconfiguration.
  *
  * @author jerome@coffeebreaks.org
  */
-public class CCDateFormat {
+public class CCDateFormat implements Serializable {
+    
+    private static final long serialVersionUID = -6194519082253056644L;
+    
     private String format;
 
     public void setFormat(String format) {

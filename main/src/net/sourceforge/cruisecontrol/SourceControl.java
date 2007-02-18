@@ -37,6 +37,7 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ import java.util.Map;
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  * @version $Id$
  */
-public interface SourceControl {
+public interface SourceControl extends Serializable {
 
     /**
      *  Get a List of Modifications detailing all the changes between now and

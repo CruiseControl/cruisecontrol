@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.File;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,15 +74,12 @@ import org.apache.oro.text.MalformedCachePatternException;
 import org.jdom.Element;
 
 /**
- * Abstract implementation of the <code>Publisher</code> interface, specifically
- * tailored for sending email.  The only abstract method is createMessage, which
- * allows different implementations to send different messages as the body of
- * the email.  As it currently stands, there is one concrete implementation--
- * <code>LinkEmailPublisher</code>, but the ability to create
- * <code>EmailPublisher</code>s that handle sending a text summary or an html
- * summary is there.
- *
- *  @author alden almagro, ThoughtWorks, Inc. 2002
+ * Abstract implementation of the <code>Publisher</code> interface, specifically tailored for sending email. The only
+ * abstract method is createMessage, which allows different implementations to send different messages as the body of
+ * the email. As it currently stands, there is one concrete implementation-- <code>LinkEmailPublisher</code>, but the
+ * ability to create <code>EmailPublisher</code>s that handle sending a text summary or an html summary is there.
+ * 
+ * @author alden almagro, ThoughtWorks, Inc. 2002
  */
 public abstract class EmailPublisher implements Publisher {
     private static final Logger LOG = Logger.getLogger(EmailPublisher.class);
@@ -109,26 +107,25 @@ public abstract class EmailPublisher implements Publisher {
     private boolean failAsImportant = true;
 
     /**
-     *  Implementations of this method will create the email message body.
-     *
-     *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     *  @return <code>String</code> containing the message
+     * Implementations of this method will create the email message body.
+     * 
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
+     * @return <code>String</code> containing the message
      */
     protected abstract String createMessage(XMLLogHelper logHelper);
 
     /*
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
-     *
-     *  @throws CruiseControlException if there was a configuration error.
+     * Called after the configuration is read to make sure that all the mandatory parameters were specified.. @throws
+     * CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(getMailHost(), "mailhost", this.getClass());
         ValidationHelper.assertIsSet(getReturnAddress(), "returnaddress", this.getClass());
         ValidationHelper.assertFalse(getUsername() != null && getPassword() == null,
-            "'password' is required if 'username' is set for email.");
+                "'password' is required if 'username' is set for email.");
         ValidationHelper.assertFalse(getPassword() != null && getUsername() == null,
-            "'username' is required if 'password' is set for email.");
+                "'username' is required if 'password' is set for email.");
 
         validateAddresses(alwaysAddresses);
         validateAddresses(alertAddresses);
@@ -147,10 +144,11 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     *  Creates the subject line for the email message.
-     *
-     *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     *  @return <code>String</code> containing the subject line.
+     * Creates the subject line for the email message.
+     * 
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
+     * @return <code>String</code> containing the subject line.
      */
     protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
         StringBuffer subjectLine = new StringBuffer();
@@ -164,9 +162,9 @@ public abstract class EmailPublisher implements Publisher {
                 subjectLine.append(" ").append(logHelper.getLabel());
             }
 
-            //Anytime the build is "fixed" the subjest line
-            //  should read "fixed". It might confuse recipients...but
-            //  it shouldn't
+            // Anytime the build is "fixed" the subjest line
+            // should read "fixed". It might confuse recipients...but
+            // it shouldn't
             if (logHelper.isBuildFix()) {
                 subjectLine.append(" Build Fixed");
             } else {
@@ -179,10 +177,11 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     *  Determines if the conditions are right for the email to be sent.
-     *
-     *  @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     *  @return whether or not the mail message should be sent.
+     * Determines if the conditions are right for the email to be sent.
+     * 
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
+     * @return whether or not the mail message should be sent.
      */
     protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
@@ -191,22 +190,18 @@ public abstract class EmailPublisher implements Publisher {
             }
             if (reportSuccess.equalsIgnoreCase("fixes")) {
                 if (logHelper.wasPreviousBuildSuccessful()) {
-                    LOG.debug(
-                        "reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
+                    LOG.debug("reportSuccess is set to 'fixes', not sending emails for repeated successful builds.");
                     return false;
                 } else {
                     return true;
                 }
             }
             if (reportSuccess.equalsIgnoreCase("never")) {
-                LOG.debug(
-                    "reportSuccess is set to 'never', not sending emails for successful builds.");
+                LOG.debug("reportSuccess is set to 'never', not sending emails for successful builds.");
                 return false;
             }
-        } else { //build wasn't successful
-            if (!logHelper.wasPreviousBuildSuccessful()
-                && logHelper.isBuildNecessary()
-                && !spamWhileBroken) {
+        } else { // build wasn't successful
+            if (!logHelper.wasPreviousBuildSuccessful() && logHelper.isBuildNecessary() && !spamWhileBroken) {
 
                 LOG.debug("spamWhileBroken is set to false, not sending email");
                 return false;
@@ -216,20 +211,16 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     * Creates the list of email addresses to receive the email message.
-     * Uses configured emailmappers to map user names to email addresses.
-     * After all mappings are done, mapped users are checked for existence of
-     * the domain part (i.e @mydomain.com) in the mapped email address. If it
-     * doesn't exist, default (if configured) is appended
-     *
-     * Any addresses set in the <code>addAlwaysAddress</code> method will
-     * always receive the email if it is sent.  Any address set in the
-     * <code>addFailureAddress</code> method will receive the message if the
-     * build has failed.
-     *
-     * @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     * @return comma delimited <code>String</code> of email addresses to
-     * receive the email message.
+     * Creates the list of email addresses to receive the email message. Uses configured emailmappers to map user names
+     * to email addresses. After all mappings are done, mapped users are checked for existence of the domain part (i.e
+     * 
+     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended Any
+     *                addresses set in the <code>addAlwaysAddress</code> method will always receive the email if it is
+     *                sent. Any address set in the <code>addFailureAddress</code> method will receive the message if
+     *                the build has failed.
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
+     * @return comma delimited <code>String</code> of email addresses to receive the email message.
      */
     protected String createUserList(XMLLogHelper logHelper) throws CruiseControlException {
 
@@ -237,25 +228,19 @@ public abstract class EmailPublisher implements Publisher {
         return createEmailString(emails);
     }
 
-
-
     /**
-     * Creates the <code>Set</code> of email addresses to receive
-     * the email message.
+     * Creates the <code>Set</code> of email addresses to receive the email message.
      * <p>
-     * Uses configured emailmappers to map user names to email addresses.
-     * After all mappings are done, mapped users are checked for existence of
-     * the domain part (i.e @mydomain.com) in the mapped email address. If it
-     * doesn't exist, default (if configured) is appended
-     *
-     * Any addresses set in the <code>addAlwaysAddress</code> method will
-     * always receive the email if it is sent.  Any address set in the
-     * <code>addFailureAddress</code> method will receive the message if the
-     * build has failed.
-     *
-     * @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
-     * @return A <code>Set</code> of email addresses to
-     *         receive the email message.
+     * Uses configured emailmappers to map user names to email addresses. After all mappings are done, mapped users are
+     * checked for existence of the domain part (i.e
+     * 
+     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended Any
+     *                addresses set in the <code>addAlwaysAddress</code> method will always receive the email if it is
+     *                sent. Any address set in the <code>addFailureAddress</code> method will receive the message if
+     *                the build has failed.
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
+     * @return A <code>Set</code> of email addresses to receive the email message.
      */
     protected Set createUserSet(XMLLogHelper logHelper) throws CruiseControlException {
 
@@ -266,19 +251,19 @@ public abstract class EmailPublisher implements Publisher {
             users.remove(ignoreUsers[i].getUser());
         }
 
-        //add always addresses
+        // add always addresses
         for (int i = 0; i < alwaysAddresses.length; i++) {
             users.add(alwaysAddresses[i].getAddress());
         }
 
-        //if build failed, add failure addresses
+        // if build failed, add failure addresses
         if (!logHelper.isBuildSuccessful()) {
             for (int i = 0; i < failureAddresses.length; i++) {
                 users.add(failureAddresses[i].getAddress());
             }
         }
 
-        //If build fixed, add failure addresses that want to know about the fix
+        // If build fixed, add failure addresses that want to know about the fix
         if (logHelper.isBuildFix()) {
             for (int i = 0; i < failureAddresses.length; i++) {
                 if (failureAddresses[i].shouldReportWhenFixed()) {
@@ -287,7 +272,7 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
-        //if build succeeded, add success addresses
+        // if build succeeded, add success addresses
         if (logHelper.isBuildSuccessful()) {
             for (int i = 0; i < successAddresses.length; i++) {
                 users.add(successAddresses[i].getAddress());
@@ -299,14 +284,10 @@ public abstract class EmailPublisher implements Publisher {
         return emails;
     }
 
-
     /**
-     *  Implementing the <code>Publisher</code> interface.
-     *
-     * Sends modification alert and regular build emails. If a user is
-     * supposed to receive a modification alert and a regular build email,
-     * they will only receive the modification alert. This prevents
-     * duplicate emails (currently only the subject is different).
+     * Implementing the <code>Publisher</code> interface. Sends modification alert and regular build emails. If a user
+     * is supposed to receive a modification alert and a regular build email, they will only receive the modification
+     * alert. This prevents duplicate emails (currently only the subject is different).
      */
     public void publish(Element cruisecontrolLog) throws CruiseControlException {
         XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
@@ -338,6 +319,7 @@ public abstract class EmailPublisher implements Publisher {
 
     /**
      * builds the properties object for the mail session
+     * 
      * @return a properties object containing configured properties.
      */
     protected Properties getMailProperties() {
@@ -347,8 +329,7 @@ public abstract class EmailPublisher implements Publisher {
         if (mailPort != null) {
             props.put("mail.smtp.port", mailPort);
         }
-        LOG.debug(
-            "mailHost is " + mailHost + ", mailPort is " + mailPort == null ? "default" : mailPort);
+        LOG.debug("mailHost is " + mailHost + ", mailPort is " + mailPort == null ? "default" : mailPort);
         if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
             if (useSSL) {
@@ -363,15 +344,18 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     *  Sends an email message.
-     *
-     *  @param toList comma delimited <code>String</code> of email addresses
-     *  @param subject subject line for the message
-     *  @param message body of the message
-     *  @return Boolean value indicating if an email was sent.
+     * Sends an email message.
+     * 
+     * @param toList
+     *            comma delimited <code>String</code> of email addresses
+     * @param subject
+     *            subject line for the message
+     * @param message
+     *            body of the message
+     * @return Boolean value indicating if an email was sent.
      */
     protected boolean sendMail(String toList, String subject, String message, boolean important)
-        throws CruiseControlException {
+            throws CruiseControlException {
 
         boolean emailSent = false;
 
@@ -416,11 +400,12 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     /**
-     * Subclasses can override this method to control how the content
-     * is added to the Message.
-     *
-     * @param content content returned by createMessage
-     * @param msg mail Message with headers and addresses added elsewhere
+     * Subclasses can override this method to control how the content is added to the Message.
+     * 
+     * @param content
+     *            content returned by createMessage
+     * @param msg
+     *            mail Message with headers and addresses added elsewhere
      * @throws MessagingException
      */
     protected void addContentToMessage(String content, Message msg) throws MessagingException {
@@ -612,7 +597,10 @@ public abstract class EmailPublisher implements Publisher {
         emailMapper = (EmailMapper[]) mapperList.toArray(new EmailMapper[0]);
     }
 
-    public static class Ignore {
+    public static class Ignore implements Serializable {
+
+        private static final long serialVersionUID = 4763763343885476189L;
+
         private String user;
 
         public String getUser() {
@@ -628,7 +616,10 @@ public abstract class EmailPublisher implements Publisher {
         }
     }
 
-    public static class Address {
+    public static class Address implements Serializable {
+
+        private static final long serialVersionUID = -7143350548506511400L;
+
         private String address;
 
         public String getAddress() {
@@ -641,18 +632,20 @@ public abstract class EmailPublisher implements Publisher {
 
         public void validate() throws CruiseControlException {
             ValidationHelper.assertIsSet(address, "address", getClass());
-            ValidationHelper.assertFalse(address.equals(""),
-                    "empty string is not a valid value of address for " + getClass().getName());
+            ValidationHelper.assertFalse(address.equals(""), "empty string is not a valid value of address for "
+                    + getClass().getName());
         }
     }
 
     public static class Always extends Address {
+
+        private static final long serialVersionUID = -4906620821397147420L;
     }
 
     public static class Failure extends Address {
+        private static final long serialVersionUID = -6027290532428946586L;
         /**
-         * Set to true to send an email to this "address" when the build gets
-         * fixed.
+         * Set to true to send an email to this "address" when the build gets fixed.
          */
         private boolean reportWhenFixed = false;
 
@@ -666,10 +659,13 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     public static class Success extends Address {
+
+        private static final long serialVersionUID = 8001068483405344504L;
     }
 
-
     public static class Alert extends Address {
+        private static final long serialVersionUID = 3644326033589789766L;
+
         public void validate() throws CruiseControlException {
             super.validate();
 
@@ -684,7 +680,6 @@ public abstract class EmailPublisher implements Publisher {
 
         /**
          * A regExpr for the file you are interested in watching
-         *
          */
         private String fileRegExpr = null;
 
@@ -695,58 +690,39 @@ public abstract class EmailPublisher implements Publisher {
 
         /**
          * A <code>String</code> representing the regexp to match against modified files
-         * @param f A <code>String</code> representing the file that was modified
+         * 
+         * @param f
+         *            A <code>String</code> representing the file that was modified
          */
         public void setFileRegExpr(String f) {
             this.fileRegExpr = f;
         }
     }
 
-    public static void main(String[] args) {
-        EmailPublisher pub = new EmailPublisher() {
-            protected String createMessage(XMLLogHelper logHelper) {
-                return "This is a test message.";
-            }
-        };
-        pub.setMailHost(args[0]);
-        pub.setUsername(args[1]);
-        pub.setPassword(args[2]);
-        pub.setReturnAddress(args[3]);
-        try {
-            pub.sendMail(args[4], "test subject", "test message", false);
-        } catch (CruiseControlException e) {
-            LOG.error("test failed", e);
-        }
-    }
-
     /**
      * Creates the list of email addresses to receive an alert email message.
      * <p>
-     * The full path of each modified file is compared against
-     * the regular expressions specified in the configuration. If
-     * a modified file's path matches a regular expression, the user's
-     * email address is included in the returned <code>String</code>.
+     * The full path of each modified file is compared against the regular expressions specified in the configuration.
+     * If a modified file's path matches a regular expression, the user's email address is included in the returned
+     * <code>String</code>.
      * <p>
-     * Uses configured emailmappers to map user names to email addresses. After
-     * all mappings are done, mapped users are checked for existence of the
-     * domain part (i.e @mydomain.com) in the mapped email address. If it
-     * doesn't exist, default (if configured) is appended.
-     *
+     * Uses configured emailmappers to map user names to email addresses. After all mappings are done, mapped users are
+     * checked for existence of the domain part (i.e
+     * 
+     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended.
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
-     * @return comma delimited <code>String</code> of email addresses to
-     *         receive the email message.
+     * @return comma delimited <code>String</code> of email addresses to receive the email message.
      */
     protected String createAlertUserList(XMLLogHelper logHelper) throws CruiseControlException {
         return createEmailString(createAlertUserSet(logHelper));
     }
 
-
     /**
-     * Creates a <code>Set</code> of email addresses to receive an alert email
-     * message based on the logHelper.
-     *
-     * @param logHelper <code>XMLLogHelper</code> wrapper for the build log.
+     * Creates a <code>Set</code> of email addresses to receive an alert email message based on the logHelper.
+     * 
+     * @param logHelper
+     *            <code>XMLLogHelper</code> wrapper for the build log.
      * @throws CruiseControlException
      * @return A <code>Set</code> of email addresses to receive the email message.
      */
@@ -758,7 +734,7 @@ public abstract class EmailPublisher implements Publisher {
         Set users = new HashSet();
         Set modificationSet = logHelper.getModifications();
 
-        for (Iterator modificationIter = modificationSet.iterator(); modificationIter.hasNext(); ) {
+        for (Iterator modificationIter = modificationSet.iterator(); modificationIter.hasNext();) {
             Modification mod = (Modification) modificationIter.next();
             String modifiedFile = mod.getFullPath();
 
@@ -768,16 +744,14 @@ public abstract class EmailPublisher implements Publisher {
             for (int i = 0; i < alertAddresses.length; i++) {
                 String emailAddress = alertAddresses[i].getAddress();
 
-                if (emailAddress != null && !"".equals(emailAddress.trim())
-                    && !users.contains(emailAddress)
-                    && matchRegExpr(modifiedFile, alertAddresses[i].fileFilter)) {
+                if (emailAddress != null && !"".equals(emailAddress.trim()) && !users.contains(emailAddress)
+                        && matchRegExpr(modifiedFile, alertAddresses[i].fileFilter)) {
 
                     // We have a new match, send an alert email
                     users.add(emailAddress);
 
-                    LOG.info("Alert '" + emailAddress
-                            + "' because their fileRegExpr '" + alertAddresses[i].fileRegExpr
-                            + "' matched " + modifiedFile);
+                    LOG.info("Alert '" + emailAddress + "' because their fileRegExpr '"
+                            + alertAddresses[i].fileRegExpr + "' matched " + modifiedFile);
                 }
             }
         }
@@ -787,12 +761,11 @@ public abstract class EmailPublisher implements Publisher {
         return emails;
     }
 
-
     /**
-     * Creates a comma delimited <code>String</code> from a <code>Set</code> of
-     * <code>String</code>s.
-     *
-     * @param emails A <code>Set</code> containing <code>String</code>s of emails addresses
+     * Creates a comma delimited <code>String</code> from a <code>Set</code> of <code>String</code>s.
+     * 
+     * @param emails
+     *            A <code>Set</code> containing <code>String</code>s of emails addresses
      * @return A comma delimited <code>String</code> of email addresses
      */
     protected String createEmailString(Set emails) {
@@ -827,12 +800,13 @@ public abstract class EmailPublisher implements Publisher {
         return result;
     }
 
-
     /**
      * Compare the input <code>String</code> against a regular expression pattern.
-     *
-     * @param input A <code>String</code> to compare against the regExpr pattern
-     * @param pattern A <code>GlobFilenameFilter</code> pattern
+     * 
+     * @param input
+     *            A <code>String</code> to compare against the regExpr pattern
+     * @param pattern
+     *            A <code>GlobFilenameFilter</code> pattern
      * @return True if the file matches the regular expression pattern. Otherwise false.
      */
     protected boolean matchRegExpr(String input, GlobFilenameFilter pattern) {

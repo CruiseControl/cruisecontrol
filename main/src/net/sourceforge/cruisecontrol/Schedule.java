@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -54,11 +55,13 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- *  Handles scheduling different builds.
- *
- *  @author alden almagro, ThoughtWorks, Inc. 2001-2
+ * Handles scheduling different builds.
+ * 
+ * @author alden almagro, ThoughtWorks, Inc. 2001-2
  */
-public class Schedule {
+public class Schedule implements Serializable {
+
+    private static final long serialVersionUID = -33682332427948426L;
 
     private static final Logger LOG = Logger.getLogger(Schedule.class);
 
@@ -88,10 +91,11 @@ public class Schedule {
     }
 
     /**
-     *  Determine if CruiseControl should run a build, given the current time.
-     *
-     *  @param now The current date
-     *  @return true if CruiseControl is currently paused (no build should run).
+     * Determine if CruiseControl should run a build, given the current time.
+     * 
+     * @param now
+     *            The current date
+     * @return true if CruiseControl is currently paused (no build should run).
      */
     public boolean isPaused(Date now) {
         checkParamNotNull("date", now);
@@ -104,12 +108,11 @@ public class Schedule {
     }
 
     /**
-     * Returns a String representing the time following the end time of
-     * the given {@link PauseBuilder}.
-     *
-     * @param builder the <code>PauseBuilder</code> to be considered.
-     * @return a String representing the time following the end time of
-     *         the <code>PauseBuilder</code>.
+     * Returns a String representing the time following the end time of the given {@link PauseBuilder}.
+     * 
+     * @param builder
+     *            the <code>PauseBuilder</code> to be considered.
+     * @return a String representing the time following the end time of the <code>PauseBuilder</code>.
      */
     private String getEndTimeString(PauseBuilder builder) {
         Calendar cal = Calendar.getInstance();
@@ -132,18 +135,22 @@ public class Schedule {
     }
 
     /**
-     *  Select the correct <code>Builder</code> and start a build.
-     *
-     * @param buildNumber The sequential build number.
-     * @param lastBuild The date of the last build.
-     * @param now The current time.
-     * @param properties Properties that would need to be passed in to the actual build tool.
-     * @param buildTarget the build target to use instead of the configured one (pass in null if no override is needed)
-     *
-     *  @return JDOM Element representation of build log.
+     * Select the correct <code>Builder</code> and start a build.
+     * 
+     * @param buildNumber
+     *            The sequential build number.
+     * @param lastBuild
+     *            The date of the last build.
+     * @param now
+     *            The current time.
+     * @param properties
+     *            Properties that would need to be passed in to the actual build tool.
+     * @param buildTarget
+     *            the build target to use instead of the configured one (pass in null if no override is needed)
+     * @return JDOM Element representation of build log.
      */
     public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget)
-      throws CruiseControlException {
+            throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         if (buildTarget != null) {
             LOG.info("Overriding build target with \"" + buildTarget + "\"");
@@ -153,16 +160,17 @@ public class Schedule {
     }
 
     /**
-     *  Select the correct build based on the current buildNumber and time.
-     *
-     * @param buildNumber The sequential build number
-     * @param lastBuild The date of the last build.
-     * @param now The current time.
-     *
-     *  @return The <code>Builder</code> that should be run.
+     * Select the correct build based on the current buildNumber and time.
+     * 
+     * @param buildNumber
+     *            The sequential build number
+     * @param lastBuild
+     *            The date of the last build.
+     * @param now
+     *            The current time.
+     * @return The <code>Builder</code> that should be run.
      */
-    protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now)
-        throws CruiseControlException {
+    protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
         Builder builder = findBuilder(buildNumber, lastBuild, now);
 
         if (builder == null) {
@@ -232,12 +240,11 @@ public class Schedule {
 
         if (timeToNextBuild != timeTillNotPaused) {
             boolean atMaxTime = timeTillNotPaused >= MAX_INTERVAL_MILLISECONDS
-                              || priorPauseAdjustment >= MAX_INTERVAL_MILLISECONDS;
+                    || priorPauseAdjustment >= MAX_INTERVAL_MILLISECONDS;
             if (hasOnlyTimeBuilders() && !atMaxTime) {
                 Date dateAfterPause = getFutureDate(now, timeTillNotPaused);
-                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause,
-                                                                                0,
-                                         priorPauseAdjustment + timeTillNotPaused);
+                long adjustmentFromEndOfPause = getTimeToNextBuild(dateAfterPause, 0, priorPauseAdjustment
+                        + timeTillNotPaused);
                 timeToNextBuild = timeTillNotPaused + adjustmentFromEndOfPause;
                 timeToNextBuild = checkMaximumInterval(timeToNextBuild);
             } else {
@@ -360,9 +367,7 @@ public class Schedule {
         }
 
         if (timeToNextBuild > MAX_INTERVAL_MILLISECONDS) {
-            LOG.error(
-                "checkTimeBuilders exceeding maximum interval. using proposed value ["
-                    + proposedTime
+            LOG.error("checkTimeBuilders exceeding maximum interval. using proposed value [" + proposedTime
                     + "] instead");
             timeToNextBuild = proposedTime;
         }
@@ -427,17 +432,17 @@ public class Schedule {
 
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(builders.size() > 0,
-            "schedule element requires at least one nested builder element");
+                "schedule element requires at least one nested builder element");
 
-        ValidationHelper.assertFalse(interval > ONE_YEAR,
-            "maximum interval value is " + MAX_INTERVAL_SECONDS + " (one year)");
+        ValidationHelper.assertFalse(interval > ONE_YEAR, "maximum interval value is " + MAX_INTERVAL_SECONDS
+                + " (one year)");
 
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
             ValidationHelper.assertFalse(checkWithinPause(new ArrayList(builders)), "all build times during pauses.");
         }
 
-        //Validate the child builders, since no one else seems to be doing it.
+        // Validate the child builders, since no one else seems to be doing it.
         for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
             Builder next = (Builder) iterator.next();
             next.validate();
@@ -467,7 +472,8 @@ public class Schedule {
     }
 
     /**
-     * @param day int value
+     * @param day
+     *            int value
      * @return english string value
      */
     String getDayString(int day) {
@@ -480,19 +486,20 @@ public class Schedule {
     }
 
     private boolean buildDaySameAsPauseDay(Builder builder, PauseBuilder pauseBuilder) {
-        return pauseBuilder.getDay() == PauseBuilder.NOT_SET
-                || pauseBuilder.getDay() == builder.getDay();
+        return pauseBuilder.getDay() == PauseBuilder.NOT_SET || pauseBuilder.getDay() == builder.getDay();
     }
 
     private boolean buildTimeWithinPauseTime(Builder builder, PauseBuilder pauseBuilder) {
-        return pauseBuilder.getStartTime() < builder.getTime()
-                && builder.getTime() < pauseBuilder.getEndTime();
+        return pauseBuilder.getStartTime() < builder.getTime() && builder.getTime() < pauseBuilder.getEndTime();
     }
 
     /**
      * utility method to check method parameters and ensure they're not null
-     * @param paramName name of the parameter to check
-     * @param param parameter to check
+     * 
+     * @param paramName
+     *            name of the parameter to check
+     * @param param
+     *            parameter to check
      */
     private void checkParamNotNull(String paramName, Object param) {
         if (param == null) {

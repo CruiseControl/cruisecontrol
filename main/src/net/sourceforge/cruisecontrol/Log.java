@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+
+import org.apache.log4j.Logger;
 import org.jdom.Content;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -50,6 +52,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -57,17 +60,17 @@ import java.util.List;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-
 /**
- * Handles the Log element, and subelements, of the CruiseControl configuration
- * file. Also represents the Build Log used by the CruiseControl build process.
+ * Handles the Log element, and subelements, of the CruiseControl configuration file. Also represents the Build Log used
+ * by the CruiseControl build process.
  */
-public class Log {
-    private static final org.apache.log4j.Logger LOG4J =
-            org.apache.log4j.Logger.getLogger(Log.class);
+public class Log implements Serializable {
+    private static final long serialVersionUID = -5727569770074024691L;
+
+    private static final Logger LOG = Logger.getLogger(Log.class);
 
     public static final int BEFORE_LENGTH = "logYYYYMMDDhhmmssL".length();
-    private static final int AFTER_LENGTH  = ".xml".length();
+    private static final int AFTER_LENGTH = ".xml".length();
 
     private transient String logDir;
     private transient String logXmlEncoding;
@@ -85,9 +88,11 @@ public class Log {
     }
 
     /**
-     * Although this property is required, it is implicitly defined by the
-     * project and doesn't map to a config file attribute.
-     * @throws NullPointerException is projectName is null
+     * Although this property is required, it is implicitly defined by the project and doesn't map to a config file
+     * attribute.
+     * 
+     * @throws NullPointerException
+     *             is projectName is null
      */
     void setProjectName(String projectName) {
         if (projectName == null) {
@@ -101,10 +106,12 @@ public class Log {
 
     /**
      * Validate the log. Also creates the log directory if it doesn't exist.
-     * @throws IllegalStateException if projectName wasn't set
+     * 
+     * @throws IllegalStateException
+     *             if projectName wasn't set
      */
     public void validate() throws CruiseControlException {
-        if (projectName == null)  {
+        if (projectName == null) {
             // not a real validation. Not using ValidationHelper
             throw new IllegalStateException("projectName unset.");
         }
@@ -124,8 +131,7 @@ public class Log {
     }
 
     /**
-     * Adds a BuildLogger that will be called to manipulate the project log
-     * just prior to writing the log.
+     * Adds a BuildLogger that will be called to manipulate the project log just prior to writing the log.
      */
     public void add(BuildLogger logger) {
         loggers.add(logger);
@@ -188,23 +194,21 @@ public class Log {
 
     /**
      * creates log directory if it doesn't already exist
-     * @throws CruiseControlException if directory can't be created or there is
-     * a file of the same name
+     * 
+     * @throws CruiseControlException
+     *             if directory can't be created or there is a file of the same name
      */
     private void checkLogDirectory(String logDir) throws CruiseControlException {
         File logDirectory = new File(logDir);
         if (!logDirectory.exists()) {
-            LOG4J.info(
-                "log directory specified in config file does not exist; creating: "
+            LOG.info("log directory specified in config file does not exist; creating: "
                     + logDirectory.getAbsolutePath());
             if (!logDirectory.mkdirs()) {
-                throw new CruiseControlException(
-                    "Can't create log directory specified in config file: "
+                throw new CruiseControlException("Can't create log directory specified in config file: "
                         + logDirectory.getAbsolutePath());
             }
         } else if (!logDirectory.isDirectory()) {
-            throw new CruiseControlException(
-                "Log directory specified in config file is not a directory: "
+            throw new CruiseControlException("Log directory specified in config file is not a directory: "
                     + logDirectory.getAbsolutePath());
         }
     }
@@ -214,15 +218,15 @@ public class Log {
      */
     public void writeLogFile(Date now) throws CruiseControlException {
 
-        //Call the Loggers to let them do their thing
+        // Call the Loggers to let them do their thing
         for (int i = 0; i < loggers.size(); i++) {
             BuildLogger nextLogger = (BuildLogger) loggers.get(i);
-            //The buildloggers get the "real" build log, not a clone. Therefore,
-            //  call getContent() wouldn't be appropriate here.
+            // The buildloggers get the "real" build log, not a clone. Therefore,
+            // call getContent() wouldn't be appropriate here.
             nextLogger.log(buildLog);
         }
 
-        //Figure out what the log filename will be.
+        // Figure out what the log filename will be.
         XMLLogHelper helper = new XMLLogHelper(buildLog);
 
         String logFilename;
@@ -233,9 +237,8 @@ public class Log {
         }
 
         this.lastLogFile = new File(logDir, logFilename);
-        if (LOG4J.isDebugEnabled()) {
-            LOG4J.debug("Project " + projectName + ":  Writing log file ["
-                + lastLogFile.getAbsolutePath() + "]");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Project " + projectName + ":  Writing log file [" + lastLogFile.getAbsolutePath() + "]");
         }
 
         // Add the logDir as an info element
@@ -250,8 +253,8 @@ public class Log {
         logFileElement.setAttribute("value", logFilename);
         buildLog.getChild("info").addContent(logFileElement);
 
-        //Write the log file out, let jdom care about the encoding by using
-        //an OutputStream instead of a Writer.
+        // Write the log file out, let jdom care about the encoding by using
+        // an OutputStream instead of a Writer.
         OutputStream logStream = null;
         try {
             Format format = Format.getPrettyFormat();
@@ -325,8 +328,7 @@ public class Log {
     }
 
     /**
-     * Resets the build log. After calling this method a fresh build log
-     * will exist, ready for adding new content.
+     * Resets the build log. After calling this method a fresh build log will exist, ready for adding new content.
      */
     public void reset() {
         this.buildLog = new Element("cruisecontrol");
@@ -355,4 +357,3 @@ public class Log {
     }
 
 }
-

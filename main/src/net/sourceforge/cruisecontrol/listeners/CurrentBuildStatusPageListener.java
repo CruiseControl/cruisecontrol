@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -55,51 +56,57 @@ import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 
 /**
- * Updates replaceable text in a pattern file each time the Project status changes. Can show full
- * project status history. The following items will be replaced with their values each time they
- * occur in the source file:
+ * Updates replaceable text in a pattern file each time the Project status changes. Can show full project status
+ * history. The following items will be replaced with their values each time they occur in the source file:
  * <ul>
  * <li>{Project} - Project Name.</li>
  * <li>{State.Name} - Name of current project state.</li>
  * <li>{State.Description} - Description of current project state.</li>
  * <li>{State.Date} - Date/time the current state happened</li>
  * <li>{State.Duration} - How long since this state was in effect. (Only useful in {History} line.)
- * <li>{History} - Historical states. Must be first on line. This line will be processed and output
- * once for each state the project has previously been in. The {History} tag will be deleted from
- * the line.</li>
+ * <li>{History} - Historical states. Must be first on line. This line will be processed and output once for each state
+ * the project has previously been in. The {History} tag will be deleted from the line.</li>
  * </ul>
  * <p>
  * {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
- *
+ * 
  * @author John Lussmyer
  */
-public class CurrentBuildStatusPageListener
-    implements Listener {
-    private static final Logger LOG          = Logger.getLogger(CurrentBuildStatusPageListener.class);
+public class CurrentBuildStatusPageListener implements Listener {
+
+    private static final long serialVersionUID = -2710491917137221293L;
+    private static final Logger LOG = Logger.getLogger(CurrentBuildStatusPageListener.class);
+
     /** Name of file to write/create */
-    private String              dstFileName;
+    private String dstFileName;
     /** File to read pattern text from */
-    private File                sourceFile   = null;
+    private File sourceFile = null;
     /** Pattern text to use, contains String objects */
-    private List                sourceText   = new ArrayList();
+    private List sourceText = new ArrayList();
     /** Default text to use if no source file provided. */
     private static final String DEFAULT_TEXT = "{Project}: {State.Date} - {State.Name}: {State.Description}";
     /** Historical Status changes, contains HistoryItem objects */
-    private List                history      = new ArrayList();
+    private List history = new ArrayList();
 
-    private static final String KEY_PROJECT  = "{project}";
-    private static final String KEY_NAME     = "{state.name}";
-    private static final String KEY_DESC     = "{state.description}";
-    private static final String KEY_DATE     = "{state.date}";
+    private static final String KEY_PROJECT = "{project}";
+    private static final String KEY_NAME = "{state.name}";
+    private static final String KEY_DESC = "{state.description}";
+    private static final String KEY_DATE = "{state.date}";
     private static final String KEY_DURATION = "{state.duration}";
-    private static final String KEY_HISTORY  = "{history}";
+    private static final String KEY_HISTORY = "{history}";
 
     /**
      * Holds info about a project state that has happened.
-     *
+     * 
      * @author jlussmyer Created on: Jan 12, 2006
      */
-    private class HistoryItem {
+    private class HistoryItem implements Serializable {
+        private static final long serialVersionUID = -5271600385796774883L;
+
+        public HistoryItem() {
+            // needed for serialization
+        }
+
         public HistoryItem(ProjectState projstate) {
             state = projstate.getName();
             desc = projstate.getDescription();
@@ -108,9 +115,8 @@ public class CurrentBuildStatusPageListener
 
         public String state;
         public String desc;
-        public long   when;
+        public long when;
     }
-
 
     /**
      * Default constructor just used for initialization of local members.
@@ -118,7 +124,6 @@ public class CurrentBuildStatusPageListener
     public CurrentBuildStatusPageListener() {
         sourceText.add(DEFAULT_TEXT);
     }
-
 
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (!(event instanceof ProjectStateChangedEvent)) {
@@ -137,10 +142,9 @@ public class CurrentBuildStatusPageListener
         IO.write(dstFileName, result);
     }
 
-
     /**
      * Perform all the needed text substitutions.
-     *
+     * 
      * @return String resulting form substituting entries from sourceText.
      */
     private String substituteText(HistoryItem current, String projectName) {
@@ -173,13 +177,15 @@ public class CurrentBuildStatusPageListener
         return result.toString();
     }
 
-
     /**
      * Substitute values for any and all key items in a line of text.
-     *
-     * @param src Source line to have substitutions made
-     * @param projectName Name of project being processed
-     * @param current current project state information
+     * 
+     * @param src
+     *            Source line to have substitutions made
+     * @param projectName
+     *            Name of project being processed
+     * @param current
+     *            current project state information
      */
     private String substituteItems(String src, String projectName, HistoryItem current, long prevtime) {
         int idx;
@@ -226,11 +232,11 @@ public class CurrentBuildStatusPageListener
         return result.toString();
     }
 
-
     /**
      * formats the given number of milliseconds as HH:MM:SS.sss
-     *
-     * @param msecs number of milliseconds
+     * 
+     * @param msecs
+     *            number of milliseconds
      * @return String of the form HH:MM:SS.sss representing the given milliseconds
      */
     public static String formatDuration(long msecs) {
@@ -275,7 +281,6 @@ public class CurrentBuildStatusPageListener
         return buf.toString();
     }
 
-
     public void validate() throws CruiseControlException {
 
         ValidationHelper.assertIsSet(dstFileName, "file", this.getClass());
@@ -283,19 +288,17 @@ public class CurrentBuildStatusPageListener
 
         if (sourceFile != null) {
             ValidationHelper.assertTrue(sourceFile.exists(), dstFileName + " does not exist: "
-                                                             + sourceFile.getAbsolutePath());
+                    + sourceFile.getAbsolutePath());
             ValidationHelper.assertTrue(sourceFile.isFile(), dstFileName + " is not a file: "
-                                                             + sourceFile.getAbsolutePath());
+                    + sourceFile.getAbsolutePath());
             sourceText = IO.readLines(sourceFile);
         }
     }
-
 
     public void setFile(String fileName) {
         this.dstFileName = fileName.trim();
         LOG.debug("set fileName = " + fileName);
     }
-
 
     public void setSourceFile(String fileName) {
         sourceFile = new File(fileName);
