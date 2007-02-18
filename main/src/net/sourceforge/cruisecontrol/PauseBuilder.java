@@ -44,26 +44,25 @@ import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
- *  Used by <code>Schedule</code> to define periods of time when CruiseControl
- *  should not even attempt a build.  Useful for making sure CruiseControl does
- *  not run during server backup times, etc.
- *
- *  @author Alden Almagro
+ * Used by <code>Schedule</code> to define periods of time when CruiseControl should not even attempt a build. Useful
+ * for making sure CruiseControl does not run during server backup times, etc.
+ * 
+ * @author Alden Almagro
  */
 public class PauseBuilder extends PerDayScheduleItem {
+
+    private static final long serialVersionUID = 866530246895228766L;
 
     private int startTime = PerDayScheduleItem.NOT_SET;
     private int endTime = PerDayScheduleItem.NOT_SET;
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertFalse(startTime < 0,
-            "'starttime' is a required attribute on PauseBuilder");
+        ValidationHelper.assertFalse(startTime < 0, "'starttime' is a required attribute on PauseBuilder");
 
-        ValidationHelper.assertFalse(endTime < 0,
-            "'endtime' is a required attribute on PauseBuilder");
+        ValidationHelper.assertFalse(endTime < 0, "'endtime' is a required attribute on PauseBuilder");
 
         ValidationHelper.assertFalse(getDay() == INVALID_NAME_OF_DAY,
-            "setDay attribute on PauseBuilder requires english name for day of week (case insensitive)");
+                "setDay attribute on PauseBuilder requires english name for day of week (case insensitive)");
     }
 
     public void setStartTime(int time) {
@@ -83,11 +82,11 @@ public class PauseBuilder extends PerDayScheduleItem {
     }
 
     /**
-     *  Determine if the build is paused at the given time.
-     *
-     *  @param date Date set to current date/time
-     *
-     *  @return true if the build is paused at date
+     * Determine if the build is paused at the given time.
+     * 
+     * @param date
+     *            Date set to current date/time
+     * @return true if the build is paused at date
      */
     public boolean isPaused(Date date) {
         Calendar now = Calendar.getInstance();
@@ -99,16 +98,11 @@ public class PauseBuilder extends PerDayScheduleItem {
         boolean isValidDay = ((builderDay < 0) || (builderDay == currentDay));
 
         if (startTime < endTime) {
-            return (
-                startTime <= currentTime
-                    && currentTime <= endTime
-                    && isValidDay);
+            return (startTime <= currentTime && currentTime <= endTime && isValidDay);
         }
 
-        return (
-            (startTime <= currentTime && (builderDay < 0 || builderDay == currentDay))
-                || (currentTime <= endTime
-                    && (builderDay < 0 || builderDay == (currentDay - 1))));
+        return ((startTime <= currentTime && (builderDay < 0 || builderDay == currentDay)) 
+                || (currentTime <= endTime && (builderDay < 0 || builderDay == (currentDay - 1))));
     }
 
 }

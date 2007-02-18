@@ -36,15 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-public interface Listener {
+import java.io.Serializable;
+
+public interface Listener extends Serializable {
 
     void handleEvent(ProjectEvent event) throws CruiseControlException;
 
     /**
-     *  Called after the configuration is read to make sure that all the mandatory parameters
-     *  were specified..
-     *
-     *  @throws CruiseControlException if there was a configuration error.
+     * Called after the configuration is read to make sure that all the mandatory parameters were specified..
+     * 
+     * @throws CruiseControlException
+     *             if there was a configuration error.
      */
     void validate() throws CruiseControlException;
 }

@@ -42,6 +42,7 @@ import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +62,9 @@ import java.util.List;
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
-public class Modification implements Comparable {
+public class Modification implements Comparable, Serializable {
+
+    private static final long serialVersionUID = 6102576575583133520L;
 
     private static final Logger LOG = Logger.getLogger(Modification.class);
 

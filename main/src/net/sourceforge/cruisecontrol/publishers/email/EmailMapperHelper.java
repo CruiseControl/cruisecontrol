@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.email;
 
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,9 @@ import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
 
 import org.apache.log4j.Logger;
 
-public class EmailMapperHelper {
+public class EmailMapperHelper implements Serializable {
+
+    private static final long serialVersionUID = 3831878181334595122L;
 
     private static final Logger LOG = Logger.getLogger(EmailMapperHelper.class);
 

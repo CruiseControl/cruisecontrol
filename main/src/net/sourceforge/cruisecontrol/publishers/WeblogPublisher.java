@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -105,6 +106,8 @@ import org.jdom.Element;
  * @author Lasse Koskela
  */
 public class WeblogPublisher implements Publisher {
+
+    private static final long serialVersionUID = -34809809594503919L;
 
     private static final Logger LOG = Logger.getLogger(WeblogPublisher.class);
 
@@ -333,7 +336,7 @@ public class WeblogPublisher implements Publisher {
      *
      * @author Lasse Koskela
      */
-    interface BloggingApi {
+    interface BloggingApi extends Serializable {
         /**
          * Post a new blog entry.
          *
@@ -353,6 +356,8 @@ public class WeblogPublisher implements Publisher {
      * @author Lasse Koskela
      */
     public static class BloggerApiClient implements BloggingApi {
+
+        private static final long serialVersionUID = 6614787780439141028L;
 
         public Object newPost(String blogUrl, String blogId, String username,
                 String password, String category, String subject, String content) {
@@ -385,6 +390,8 @@ public class WeblogPublisher implements Publisher {
      * @author Lasse Koskela
      */
     public static class MetaWeblogApiClient implements BloggingApi {
+
+        private static final long serialVersionUID = 5980798548858885672L;
 
         public Object newPost(String blogUrl, String blogId, String username,
                 String password, String category, String subject, String content) {
@@ -426,6 +433,8 @@ public class WeblogPublisher implements Publisher {
      * @author Lasse Koskela
      */
     public static class LiveJournalApiClient implements BloggingApi {
+
+        private static final long serialVersionUID = -372653261263803994L;
 
         /**
          * TODO: make this smarter so that it won't strip away linefeeds from

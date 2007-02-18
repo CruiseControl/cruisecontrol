@@ -1,15 +1,19 @@
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.Serializable;
 import java.text.DateFormatSymbols;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
-public class PerDayScheduleItem {
-    
-    public static final int NOT_SET = -1;
-    protected static final int INVALID_NAME_OF_DAY = -2;
+public class PerDayScheduleItem implements Serializable {
+
+    private static final long serialVersionUID = 9018513455979334615L;
     private static final Logger LOG = Logger.getLogger(PerDayScheduleItem.class);
+
+    protected static final int INVALID_NAME_OF_DAY = -2;
+
+    public static final int NOT_SET = -1;
 
     private int day = NOT_SET;
 
@@ -25,7 +29,7 @@ public class PerDayScheduleItem {
                 day = i;
                 return;
             }
-        }        
+        }
         day = INVALID_NAME_OF_DAY;
         LOG.warn("invalid value for day attribute \"" + dayString + "\"; must be English name for day of week");
     }

@@ -36,11 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.email;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
 
-public class EmailMapper {
+public class EmailMapper implements Serializable {
+
+    private static final long serialVersionUID = 2177102804122865887L;
 
     private EmailPublisher publisher = null;
 
@@ -53,8 +56,8 @@ public class EmailMapper {
     }
 
     /*
-     * This method maps users in the set users: if a map is found the mapped value is
-     * inserted into mappedUsers, and the user mapped is removed from users
+     * This method maps users in the set users: if a map is found the mapped value is inserted into mappedUsers, and the
+     * user mapped is removed from users
      */
     public void mapUsers(Set users, Set mappedUsers) {
         // this implementation doesn't map any users, override in subclass

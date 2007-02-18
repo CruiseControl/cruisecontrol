@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,10 +55,12 @@ import org.apache.log4j.Logger;
 
 /**
  * A plugin that represents the project node
- *
+ * 
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class ProjectConfig implements ProjectInterface {
+    private static final long serialVersionUID = -893779421250033198L;
+
     private static final Logger LOG = Logger.getLogger(ProjectConfig.class);
 
     private String name;
@@ -78,7 +81,7 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * Called after the configuration is read to make sure that all the mandatory parameters were specified..
-     *
+     * 
      * @throws CruiseControlException
      *             if there was a configuration error.
      */
@@ -203,7 +206,8 @@ public class ProjectConfig implements ProjectInterface {
         return log.wasBuildSuccessful();
     }
 
-    public static class Bootstrappers {
+    public static class Bootstrappers implements Serializable {
+        private static final long serialVersionUID = 7428779281399848035L;
         private List bootstrappers = new ArrayList();
 
         public void add(Bootstrapper bootstrapper) {
@@ -222,7 +226,8 @@ public class ProjectConfig implements ProjectInterface {
         }
     }
 
-    public static class Listeners {
+    public static class Listeners implements Serializable {
+        private static final long serialVersionUID = -3816080104514876038L;
         private List listeners = new ArrayList();
 
         public void add(Listener listener) {
@@ -241,7 +246,8 @@ public class ProjectConfig implements ProjectInterface {
         }
     }
 
-    public static class Publishers {
+    public static class Publishers implements Serializable {
+        private static final long serialVersionUID = -410933401108345152L;
         private List publishers = new ArrayList();
 
         public void add(Publisher publisher) {
@@ -302,7 +308,7 @@ public class ProjectConfig implements ProjectInterface {
     /**
      * Reads project configuration from a previously serialized Project or creates a new instance. The name of the
      * serialized project file is derived from the name of the project.
-     *
+     * 
      * @param projectName
      *            name of the serialized project
      * @return Deserialized Project or a new Project if there are any problems reading the serialized Project; should

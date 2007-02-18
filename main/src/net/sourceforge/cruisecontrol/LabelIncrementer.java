@@ -37,6 +37,8 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
+
 import org.jdom.Element;
 
 /**
@@ -48,7 +50,7 @@ import org.jdom.Element;
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  */
-public interface LabelIncrementer {
+public interface LabelIncrementer extends Serializable {
 
     /**
      * Increments the label when a successful build occurs.

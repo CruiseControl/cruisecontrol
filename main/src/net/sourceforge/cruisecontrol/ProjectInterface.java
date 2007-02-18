@@ -1,9 +1,11 @@
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
+
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
-public interface ProjectInterface {
+public interface ProjectInterface extends Serializable {
 
     String getName();
 

@@ -37,6 +37,8 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.Serializable;
+
 import org.jdom.Element;
 
 /**
@@ -46,7 +48,7 @@ import org.jdom.Element;
  *  can perform any task with any data from the build, it makes sense to pass
  *  the entire build log, which already holds all the information that we have.
  */
-public interface Publisher {
+public interface Publisher extends Serializable {
 
     /**
      *  Define the publishing.

@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -55,17 +56,17 @@ import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
- * Monitors a set of one or more CM Synergy sessions, launching new sessions as
- * needed. The session information is persisted and made available to other CM
- * Synergy plugins through the session file - a simple properties file which
+ * Monitors a set of one or more CM Synergy sessions, launching new sessions as needed. The session information is
+ * persisted and made available to other CM Synergy plugins through the session file - a simple properties file which
  * maps a session name to a CM Synergy session ID.
- *
+ * 
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith </a>
  */
 public class CMSynergySessionMonitor implements Listener {
 
-    private static final Logger LOG = Logger
-            .getLogger(CMSynergySessionMonitor.class);
+    private static final long serialVersionUID = -9139730492970870720L;
+
+    private static final Logger LOG = Logger.getLogger(CMSynergySessionMonitor.class);
 
     private File sessionFile;
     private String ccmExe = CMSynergy.CCM_EXE;
@@ -73,7 +74,7 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * Sets the name of the CM Synergy executable to use when issuing commands.
-     *
+     * 
      * @param ccmExe
      *            the name of the CM Synergy executable
      */
@@ -82,15 +83,14 @@ public class CMSynergySessionMonitor implements Listener {
     }
 
     /**
-     * Sets the file which contains the mapping between CM Synergy session names
-     * and IDs. This file should be in the standard properties file format. Each
-     * line should map one name to a CM Synergy session ID (as returned by the
+     * Sets the file which contains the mapping between CM Synergy session names and IDs. This file should be in the
+     * standard properties file format. Each line should map one name to a CM Synergy session ID (as returned by the
      * "ccm status" command).
      * <p>
      * example: <br>
      * <br>
      * session1=localhost:65024:192.168.1.17
-     *
+     * 
      * @param sessionFile
      *            The session file
      */
@@ -99,9 +99,8 @@ public class CMSynergySessionMonitor implements Listener {
     }
 
     /**
-     * Creates a new <code>CMSynergySession</code> object and adds it to our
-     * list of monitored sessions.
-     *
+     * Creates a new <code>CMSynergySession</code> object and adds it to our list of monitored sessions.
+     * 
      * @return The newly created <code>CMSynergySession</code> object.
      */
     public CMSynergySession createSession() {
@@ -112,10 +111,12 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * A simple representation of a CM Synergy commandline session
-     *
+     * 
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
      */
-    public class CMSynergySession {
+    public class CMSynergySession implements Serializable {
+
+        private static final long serialVersionUID = -4131028240579472518L;
 
         private String name;
         private String db;
@@ -126,7 +127,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the given name of the session.
-         *
+         * 
          * @return The name.
          */
         public String getName() {
@@ -134,10 +135,10 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         /**
-         * Sets the name of the session as it will be referenced in the
-         * Cruise Control config file
-         *
-         * @param name The session's given name.
+         * Sets the name of the session as it will be referenced in the Cruise Control config file
+         * 
+         * @param name
+         *            The session's given name.
          */
         public void setName(String name) {
             this.name = name;
@@ -145,7 +146,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the password used to start the session.
-         *
+         * 
          * @return The password.
          */
         public String getPassword() {
@@ -154,8 +155,9 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the password which will be used to start the session.
-         *
-         * @param password The password.
+         * 
+         * @param password
+         *            The password.
          */
         public void setPassword(String password) {
             this.password = password;
@@ -163,7 +165,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the CM Synergy role under which the session was started.
-         *
+         * 
          * @return The role.
          */
         public String getRole() {
@@ -172,8 +174,9 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the CM Synergy role under which the session will be started.
-         *
-         * @param role The role.
+         * 
+         * @param role
+         *            The role.
          */
         public void setRole(String role) {
             this.role = role;
@@ -181,7 +184,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the user ID under which the session was started.
-         *
+         * 
          * @return The user ID.
          */
         public String getUser() {
@@ -190,8 +193,9 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the user ID under which the session will be started.
-         *
-         * @param user The user ID.
+         * 
+         * @param user
+         *            The user ID.
          */
         public void setUser(String user) {
             this.user = user;
@@ -199,7 +203,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the CM Synergy database with which the session is associated
-         *
+         * 
          * @return The database.
          */
         public String getDatabase() {
@@ -207,10 +211,10 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         /**
-         * Sets the CM Synergy database with which the session will be
-         * associated
-         *
-         * @param db The database.
+         * Sets the CM Synergy database with which the session will be associated
+         * 
+         * @param db
+         *            The database.
          */
         public void setDatabase(String db) {
             this.db = db;
@@ -218,7 +222,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Gets the host upon which the session is running.
-         *
+         * 
          * @return The host.
          */
         public String getHost() {
@@ -227,39 +231,36 @@ public class CMSynergySessionMonitor implements Listener {
 
         /**
          * Sets the host upon which the session will run.
-         *
-         * @param host The host.
+         * 
+         * @param host
+         *            The host.
          */
         public void setHost(String host) {
             this.host = host;
         }
 
         /**
-         * Sets the attribute (properties) file from which the session
-         * information will be loaded.
-         *
+         * Sets the attribute (properties) file from which the session information will be loaded.
+         * 
          * @param attributeFile
          *            The file from which to read our session attributes.
          */
         public void setAttributeFile(String attributeFile) {
             try {
-                Properties properties = Util.loadPropertiesFromFile(new File(
-                        attributeFile));
+                Properties properties = Util.loadPropertiesFromFile(new File(attributeFile));
                 db = properties.getProperty("database");
                 role = properties.getProperty("role");
                 user = properties.getProperty("user");
                 password = properties.getProperty("password");
                 host = properties.getProperty("host");
             } catch (Exception e) {
-                LOG.error(
-                        "Could not load CM Synergy session properties from file \""
-                                + attributeFile + "\".", e);
+                LOG.error("Could not load CM Synergy session properties from file \"" + attributeFile + "\".", e);
             }
         }
 
         /**
          * Validates the fields of this object.
-         *
+         * 
          * @throws CruiseControlException
          */
         public void validate() throws CruiseControlException {
@@ -272,13 +273,11 @@ public class CMSynergySessionMonitor implements Listener {
     }
 
     /**
-     * Checks the given session file. If it is does not exist, it is created.
-     * This method is synchronized to prevent multiple threads from attempting
-     * to create the same file.
-     *
+     * Checks the given session file. If it is does not exist, it is created. This method is synchronized to prevent
+     * multiple threads from attempting to create the same file.
+     * 
      * @param sessionFile
      *            The session file to check
-     *
      * @throws CruiseControlException
      */
     private static synchronized void checkSessionFile(File sessionFile) throws CruiseControlException {
@@ -286,41 +285,36 @@ public class CMSynergySessionMonitor implements Listener {
         if (!sessionFile.exists()) {
             try {
                 if (sessionFile.createNewFile()) {
-                    LOG.info("Created CM Synergy session file at "
-                            + sessionFile.getAbsolutePath());
+                    LOG.info("Created CM Synergy session file at " + sessionFile.getAbsolutePath());
                 }
             } catch (IOException e) {
-                throw new CruiseControlException(
-                        "Could not create CM Synergy session file at "
-                                + sessionFile.getAbsolutePath(), e);
+                throw new CruiseControlException("Could not create CM Synergy session file at "
+                        + sessionFile.getAbsolutePath(), e);
             }
         }
 
         // Make certain that it's writable
         if (!sessionFile.canWrite()) {
-            throw new CruiseControlException("Session file \""
-                    + sessionFile.getAbsolutePath()
+            throw new CruiseControlException("Session file \"" + sessionFile.getAbsolutePath()
                     + "\" does not exist, or is not writable.");
         }
     }
 
     /**
-     * Checks that all named sessions given to the listener are still running
-     * (and accessible). If they are not, new sessions are started as needed.
-     * This method is synchronized to prevent multiple threads from each
-     * starting their own CM Synergy sessions.
-     *
+     * Checks that all named sessions given to the listener are still running (and accessible). If they are not, new
+     * sessions are started as needed. This method is synchronized to prevent multiple threads from each starting their
+     * own CM Synergy sessions.
+     * 
      * @param ccmExe
      *            The CM Synergy command line executable
      * @param sessionFile
      *            The CM Synergy session map file
      * @param sessions
      *            A list of monitored CM Synergy sessions
-     *
      * @throws CruiseControlException
      */
-    private static synchronized void checkSessions(String ccmExe,
-            File sessionFile, List sessions) throws CruiseControlException {
+    private static synchronized void checkSessions(String ccmExe, File sessionFile, List sessions)
+            throws CruiseControlException {
         LOG.debug("Using persisted data from " + sessionFile.getAbsolutePath());
 
         // Load the persisted session information from file
@@ -340,8 +334,7 @@ public class CMSynergySessionMonitor implements Listener {
             cmd.assertExitCode(0);
             availableSessions = cmd.getStdoutAsString();
         } catch (Exception e) {
-            LOG.warn("CM Synergy failed to provide a list of valid sessions.",
-                    e);
+            LOG.warn("CM Synergy failed to provide a list of valid sessions.", e);
             availableSessions = "";
         }
 
@@ -365,8 +358,7 @@ public class CMSynergySessionMonitor implements Listener {
 
         // Update the persisted session information
         try {
-            Util.storePropertiesToFile(sessionMap, "CM Synergy session map",
-                    sessionFile);
+            Util.storePropertiesToFile(sessionMap, "CM Synergy session map", sessionFile);
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
@@ -374,14 +366,13 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * Launches a new CM Synergy command line session
-     *
+     * 
      * @param session
      *            The session information
      */
     private static String startSession(String ccmExe, CMSynergySession session) {
 
-        LOG.info("Starting a new CM Synergy session for \"" + session.getName()
-                + "\".");
+        LOG.info("Starting a new CM Synergy session for \"" + session.getName() + "\".");
 
         // Create CM Synergy startup command
         ManagedCommandline cmd = new ManagedCommandline(ccmExe);
@@ -401,8 +392,7 @@ public class CMSynergySessionMonitor implements Listener {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.error("Could not start a CM Synergy session for "
-                    + session.getName(), e);
+            LOG.error("Could not start a CM Synergy session for " + session.getName(), e);
             return null;
         }
 
@@ -411,31 +401,31 @@ public class CMSynergySessionMonitor implements Listener {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see net.sourceforge.cruisecontrol.Listener#handleEvent(net.sourceforge.cruisecontrol.ProjectEvent)
      */
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (event instanceof ProjectStateChangedEvent) {
             final ProjectStateChangedEvent stateChanged = (ProjectStateChangedEvent) event;
             // Check sessions before the bootstrappers run
-            if (stateChanged.getNewState().getCode() == ProjectState.BOOTSTRAPPING
-                    .getCode()) {
+            if (stateChanged.getNewState().getCode() == ProjectState.BOOTSTRAPPING.getCode()) {
                 checkSessionFile(sessionFile);
                 checkSessions(ccmExe, sessionFile, sessions);
             }
         }
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see net.sourceforge.cruisecontrol.Listener#validate()
      */
     public void validate() throws CruiseControlException {
         // We must have at least one session to monitor
-        ValidationHelper.assertTrue(sessions.size() > 0,
-            "You must provide at least one nested <session> element.");
+        ValidationHelper.assertTrue(sessions.size() > 0, "You must provide at least one nested <session> element.");
 
         // Validate the details of each provided session
-        for (Iterator it = sessions.iterator(); it.hasNext(); ) {
+        for (Iterator it = sessions.iterator(); it.hasNext();) {
             CMSynergySession session = (CMSynergySession) it.next();
             session.validate();
         }
