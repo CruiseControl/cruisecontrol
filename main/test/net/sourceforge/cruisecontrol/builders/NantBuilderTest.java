@@ -44,7 +44,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -198,7 +200,7 @@ public class NantBuilderTest extends TestCase {
         buildLogElement = builder.translateNantErrorElements(buildLogElement);
         assertEquals("build", buildLogElement.getName());
         Attribute errorAttribute = buildLogElement.getAttribute("error");
-        assertTrue(errorAttribute != null);
+        assertNotNull(errorAttribute);
         assertEquals(Attribute.UNDECLARED_TYPE, errorAttribute.getAttributeType());
         assertEquals("test failure", errorAttribute.getValue());
     }
@@ -221,6 +223,11 @@ public class NantBuilderTest extends TestCase {
                 final URL resource = getClass().getResource(logName);
                 assertNotNull("missing test case resource: " + logName, resource);
                 String path = resource.getPath();
+                try {
+                    path = URLDecoder.decode(path, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
                 File simulatedFile = new File(path);
                 return super.getNantLogAsElement(simulatedFile);
             }
