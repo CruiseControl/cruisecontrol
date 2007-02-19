@@ -29,6 +29,10 @@ CompositeBuilder
 ----------------------
 * Fix reported build time.  Patch by Frederic Mockel. 
 
+default-plugins.properties
+----------------------
+* Change default element name for CompositeBuilder from "builders" to "composite".
+
 ExecScript
 ----------------------
 * Handle commands with spaces on Linux (CC-551).  Patch by Frederic Mockel.
