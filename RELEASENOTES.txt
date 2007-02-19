@@ -76,6 +76,10 @@ rss.jsp
 ----------------------
 * Fixed NPE for projects without logs in their directory.
 
+NavigationCountTag
+----------------------
+* Changed NavigationCountTag to extend CruiseControlTagSupport instead of CruiseControlBodyTagSupport to avoid error message that instances of BodyTag are not allowed to return EVAL_BODY_INCLUDE.
+
 testdetails.xsl
 ----------------------
 * Fixed failure and error links (CC-545). Patch by J. David Beutel.
