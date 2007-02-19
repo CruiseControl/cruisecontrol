@@ -44,7 +44,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
@@ -63,7 +62,6 @@ public class NavigationCountTagTest extends TestCase {
         pageContext.setHttpServletRequest(request);
 
         tag.setPageContext(pageContext);
-        tag.setBodyContent(new MockBodyContent());
 
         logDir = new File("testresults/NavigationTagTest");
         if (!logDir.exists()) {

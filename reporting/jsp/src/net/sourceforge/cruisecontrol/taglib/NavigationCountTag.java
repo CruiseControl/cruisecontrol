@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.BuildInfo;
  * Check to see if their are at least the number of builds as defined in startingBuildNumber.  If it does not, then
  * do not evaluate the body of the tag.
  */
-public class NavigationCountTag extends CruiseControlBodyTagSupport {
+public class NavigationCountTag extends CruiseControlTagSupport {
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String LOG_FILE_ATTR = "logfile";
     public static final String BUILD_INFO_ATTR = "buildinfo";
