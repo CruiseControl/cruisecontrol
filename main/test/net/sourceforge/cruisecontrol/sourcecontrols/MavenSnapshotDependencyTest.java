@@ -213,10 +213,10 @@ public class MavenSnapshotDependencyTest extends TestCase {
         assertEquals("Modification list is not the correct size", 3, modifications.size());
     }
 
-    private String getPOMPath(String file) {
+    private String getPOMPath(String file) throws UnsupportedEncodingException {
         String resource = "net/sourceforge/cruisecontrol/sourcecontrols/" + file;
         URL url = MavenSnapshotDependencyTest.class.getClassLoader().getResource(resource);
-        return url.getPath();
+        return URLDecoder.decode(url.getPath(), "UTF-8");
     }
 
     public void testReplaceVariables() throws Exception {
