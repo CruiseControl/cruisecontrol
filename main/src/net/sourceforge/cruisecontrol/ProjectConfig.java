@@ -67,15 +67,15 @@ public class ProjectConfig implements ProjectInterface {
     private boolean buildAfterFailed = true;
     private boolean forceOnly = false;
     private boolean requiremodification = true;
-    private CCDateFormat dateFormat;
+    private transient CCDateFormat dateFormat;
 
-    private Bootstrappers bootstrappers;
-    private LabelIncrementer labelIncrementer;
-    private Listeners listeners;
-    private Log log;
-    private ModificationSet modificationSet;
-    private Publishers publishers;
-    private Schedule schedule;
+    private transient Bootstrappers bootstrappers;
+    private transient LabelIncrementer labelIncrementer;
+    private transient Listeners listeners;
+    private transient Log log;
+    private transient ModificationSet modificationSet;
+    private transient Publishers publishers;
+    private transient Schedule schedule;
 
     private Project project;
 
