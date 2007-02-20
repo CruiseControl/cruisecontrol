@@ -36,12 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.io.Serializable;
+
 /**
  * Describes a name value pair of values that are passed as properties
  * to scripts to be run.
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
-public class Property {
+public class Property implements Serializable {
     private String name;
     private String value;
 
