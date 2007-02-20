@@ -44,6 +44,9 @@ import java.io.Serializable;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class Property implements Serializable {
+    
+    private static final long serialVersionUID = -502270839350337499L;
+
     private String name;
     private String value;
 
