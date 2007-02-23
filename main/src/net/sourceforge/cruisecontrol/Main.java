@@ -108,7 +108,12 @@ public final class Main implements CruiseControlMain {
         CruiseControlController controller = new CruiseControlController();
         controller.setVersionProperties(versionProperties);
         File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
-        controller.setConfigFile(configFile);
+        try {
+          controller.setConfigFile(configFile);
+        } catch (CruiseControlException e) {
+            LOG.error("error setting config file on controller", e);
+            throw e;
+        }
         ServerXMLHelper helper = new ServerXMLHelper(configFile);
         ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
         if (shouldStartJmxAgent(args)) {
