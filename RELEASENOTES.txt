@@ -29,6 +29,10 @@ CompositeBuilder
 ----------------------
 * Fix reported build time.  Patch by Frederic Mockel. 
 
+CurrentBuildStatusPageListener
+----------------------
+* Add documentation for CurrentBuildStatusPageListener
+
 default-plugins.properties
 ----------------------
 * Change default element name for CompositeBuilder from "builders" to "composite".

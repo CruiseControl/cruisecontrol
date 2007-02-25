@@ -117,6 +117,7 @@
 <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a>
 <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
 <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a>
+<a href="#currentbuildstatuspagelistener">&lt;currentbuildstatuspagelistener&gt;</a>
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
@@ -225,6 +226,7 @@
          <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
          <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener/&gt;</a>
          <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener/&gt;</a>
+         <a href="#currentbuildstatuspagelistener">&lt;currentbuildstatuspagelistener/&gt;</a>
          <a href="#lockfilelistener">&lt;lockfilelistener/&gt;</a>
       &lt;/listeners&gt;
       <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
@@ -847,6 +849,11 @@
                 <td>Writes a build status snippet to the filesystem</td>
             </tr>
             <tr>
+                <td><a href="#currentbuildstatuspagelistener">&lt;currentbuildstatuspagelistener&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Writes build status to the filesystem using by replacing values in a template</td>
+            </tr>
+            <tr>
                 <td><a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Monitors and starts CM Synergy sessions as needed</td>
@@ -1077,6 +1084,56 @@ password=P@ssW0rd!
         </div>
 
         <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="currentbuildstatuspagelistener">&lt;currentbuildstatuspagelistener&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#listeners">&lt;listeners&gt;</a>
+      &lt;currentbuildstatuspagelistener&gt;</pre>
+        </div>
+
+	<p>Updates replaceable text in a pattern file each time the Project status changes. Can show full project status history. The following items will be replaced with their values each time they occur in the source file:</p>
+
+	<ul>
+	  <li>{Project} - Project Name.</li>
+	  <li>{State.Name} - Name of current project state.</li>
+	  <li>{State.Description} - Description of current project state.</li>
+	  <li>{State.Date} - Date/time the current state happened</li>
+	  <li>{State.Duration} - How long since this state was in effect. (Only useful in {History} line.)</li>
+	  <li>{History} - Historical states. Must be first on line. This line will be processed and output once for each state the project has previously been in. The {History} tag will be deleted from the line.</li>
+	</ul>
+
+	<p>A default template is provided of the form "{Project}: {State.Date} - {State.Name}: {State.Description}"</p>
+	
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>file</td>
+                <td>Yes</td>
+                <td>The filename to write, including path</td>
+            </tr>
+            <tr>
+                <td>sourceFile</td>
+                <td>No</td>
+                <td>The file with the template to use for subtitution</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+	
+	<div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a></h2>
 
