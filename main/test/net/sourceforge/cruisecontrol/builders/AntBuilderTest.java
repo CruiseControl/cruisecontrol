@@ -36,20 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.IO;
-import org.jdom.Element;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
+
+import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     private AntBuilder builder;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
@@ -115,13 +115,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-
+        filesToDelete.delete();
         builder = null;
     }
 
@@ -220,7 +214,7 @@ public class AntBuilderTest extends TestCase {
     public void testGetAntLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempAntLog.xml");
-        filesToClear.add(logFile);
+        filesToDelete.add(logFile);
         IO.write(logFile,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");

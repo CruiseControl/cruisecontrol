@@ -36,33 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Util;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  * @deprecated Tests deprecated code
  */
 public class CurrentBuildStatusBootstrapperTest extends TestCase {
     private static final String TEST_DIR = System.getProperty("java.io.tmpdir");
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-        filesToClear.clear();
+        filesToDelete.delete();
     }
 
     public void testValidate() throws CruiseControlException {
@@ -84,7 +76,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
         CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
         final String fileName = TEST_DIR + File.separator + "_testCurrentBuildStatus.txt";
         bootstrapper.setFile(fileName);
-        filesToClear.add(new File(fileName));
+        filesToDelete.add(new File(fileName));
 
         bootstrapper.bootstrap();
         // This should be equivalent to the date used in bootstrap at seconds precision

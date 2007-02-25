@@ -1,17 +1,15 @@
 package net.sourceforge.cruisecontrol.listeners;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.ProjectState;
-import net.sourceforge.cruisecontrol.util.Util;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  * .
@@ -21,7 +19,7 @@ import java.util.List;
  */
 public class CurrentBuildStatusListenerTest extends TestCase {
     private static final String TEST_DIR = "tmp";
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     private CurrentBuildStatusListener listener;
 
     protected void setUp() throws Exception {
@@ -30,13 +28,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
 
     protected void tearDown() {
         listener = null;
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-        filesToClear.clear();
+        filesToDelete.delete();
     }
 
     public void testValidate() throws CruiseControlException {
@@ -56,7 +48,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
     public void testWritingStatus() throws CruiseControlException, IOException {
         final String fileName = TEST_DIR + File.separator + "_testCurrentBuildStatus.txt";
         listener.setFile(fileName);
-        filesToClear.add(new File(fileName));
+        filesToDelete.add(new File(fileName));
 
         checkResultForState(fileName, ProjectState.WAITING);
         checkResultForState(fileName, ProjectState.IDLE);

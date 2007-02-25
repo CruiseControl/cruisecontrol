@@ -36,16 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
-import javax.xml.transform.TransformerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.transform.TransformerFactory;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
  * Unit tests for
@@ -56,14 +58,12 @@ import java.util.List;
 public class WeblogPublisherTest extends TestCase {
 
     private static int counter = 1;
-
     private File xslDir;
-
     private String[] xslFiles = { "header.xsl", "maven.xsl", "checkstyle.xsl",
             "compile.xsl", "javadoc.xsl", "unittests.xsl", "modifications.xsl",
             "distributables.xsl" };
-
     private WeblogPublisher publisher;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         publisher = new WeblogPublisher();
@@ -81,6 +81,10 @@ public class WeblogPublisherTest extends TestCase {
 
         publisher.setXSLDir(xslDir.getAbsolutePath());
         publisher.setCSS(createTempFile(xslDir, "cc.css").getAbsolutePath());
+    }
+
+    protected void tearDown() {
+        filesToDelete.delete();
     }
 
     public void testUsernameIsRequired() throws Exception {
@@ -430,18 +434,21 @@ public class WeblogPublisherTest extends TestCase {
         buf.append("</xsl:stylesheet>");
 
         IO.write(f, buf.toString());
+        filesToDelete.add(f);
         return f;
     }
 
     private File createTempXmlFile() throws CruiseControlException, IOException {
         File f = createTempFile();
         IO.write(f, "<?xml version='1.0'?><just>Testing</just>");
+        filesToDelete.add(f);
         return f;
     }
 
     private File createTempFile() throws IOException {
         File tempFile = File.createTempFile("WeblogPublisherTest", ".tmp");
         tempFile.deleteOnExit();
+        filesToDelete.add(tempFile);
         return tempFile;
     }
 
@@ -449,6 +456,7 @@ public class WeblogPublisherTest extends TestCase {
         File tempFile = new File(parent, name);
         tempFile.deleteOnExit();
         IO.write(tempFile, "");
+        filesToDelete.add(tempFile);
         return tempFile;
     }
 
@@ -457,6 +465,7 @@ public class WeblogPublisherTest extends TestCase {
         tempDir = new File(tempDir, "tempdir_" + (counter++));
         tempDir.mkdirs();
         tempDir.deleteOnExit();
+        filesToDelete.add(tempDir);
         return tempDir;
     }
 

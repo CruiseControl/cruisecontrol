@@ -37,16 +37,37 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import junit.framework.Assert;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.jdom.Document;
 import org.jdom.Element;
 
 public final class TestUtil {
+
+    public static class FilesToDelete {
+        private List files = new Vector();
+    
+        public void add(File file) {
+            files.add(file);
+        }
+    
+        public void delete() {
+            Iterator fileIterator = files.iterator();
+            while (fileIterator.hasNext()) {
+                File file = (File) fileIterator.next();
+                IO.delete(file);
+            }
+            files.clear();
+        }
+    }
 
     private TestUtil() {
 

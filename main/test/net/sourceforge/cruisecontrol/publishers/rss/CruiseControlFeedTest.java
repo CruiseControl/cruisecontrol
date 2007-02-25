@@ -36,10 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.IO;
-
 import java.io.File;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
@@ -47,17 +48,17 @@ import java.io.File;
 public class CruiseControlFeedTest extends TestCase {
 
     private File tmpFile;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     public void setUp() throws Exception {
         tmpFile = File.createTempFile("CruiseControlFeedTest", ".tmp");
         tmpFile.deleteOnExit();
+        filesToDelete.add(tmpFile);
         IO.write(tmpFile, "<rss><channel/></rss>");
     }
 
     public void tearDown() throws Exception {
-        if (tmpFile != null) {
-            tmpFile.delete();
-        }
+        filesToDelete.delete();
     }
 
     public void testProjectCount() {

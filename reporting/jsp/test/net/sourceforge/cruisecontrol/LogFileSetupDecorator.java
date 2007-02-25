@@ -41,6 +41,7 @@ import java.io.IOException;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 /**
  * A test decorator that can be used to set up log files for testing.
@@ -52,7 +53,7 @@ import junit.framework.Test;
  */
 public class LogFileSetupDecorator extends TestSetup {
     public static final File LOG_DIR = new File("tempLogDir");
-    private File[] logFiles;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     /**
      * @param decoratedTest the decorated test. This would normally be a TestSuite.
@@ -65,7 +66,7 @@ public class LogFileSetupDecorator extends TestSetup {
         if (!LOG_DIR.exists()) {
             assertTrue("Failed to create test result dir", LOG_DIR.mkdir());
         }
-        logFiles = new File[] { new File(LOG_DIR, "log20020222120000.xml"),
+        File[] logFiles = new File[] { new File(LOG_DIR, "log20020222120000.xml"),
                                 new File(LOG_DIR, "log20020223120000LBuild.1.xml"),
                                 new File(LOG_DIR, "log20020224120000.xml"),
                                 new File(LOG_DIR, "log20020225120000LBuild.2.xml"),
@@ -74,13 +75,12 @@ public class LogFileSetupDecorator extends TestSetup {
         for (int i = 0; i < logFiles.length; i++) {
             File logFile = logFiles[i];
             logFile.createNewFile();
+            filesToDelete.add(logFile);
         }
+        filesToDelete.add(LOG_DIR);
     }
 
     protected void tearDown() throws Exception {
-        for (int i = 0; i < logFiles.length; i++) {
-            logFiles[i].delete();
-        }
-        LOG_DIR.delete();
+        filesToDelete.delete();
     }
 }

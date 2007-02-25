@@ -27,17 +27,6 @@
  ******************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.MockCommandline;
-import net.sourceforge.cruisecontrol.util.MockProcess;
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.DataConversionException;
-import org.jdom.Element;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -47,14 +36,25 @@ import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.MockCommandline;
+import net.sourceforge.cruisecontrol.util.MockProcess;
+
+import org.jdom.Attribute;
+import org.jdom.CDATA;
+import org.jdom.DataConversionException;
+import org.jdom.Element;
 
 public class NantBuilderTest extends TestCase {
 
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     private NantBuilder builder;
     private File rootTempDir = null;
 
@@ -106,19 +106,12 @@ public class NantBuilderTest extends TestCase {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         rootTempDir = new File(tempDir, "testRoot");
         rootTempDir.mkdir();
+        filesToDelete.add(rootTempDir);
     }
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-
+        filesToDelete.delete();
         builder = null;
-
-        IO.delete(rootTempDir);
     }
 
     public void testValidate() {
@@ -357,7 +350,7 @@ public class NantBuilderTest extends TestCase {
     public void testGetNantLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
         File logFile = new File("_tempNantLog.xml");
-        filesToClear.add(logFile);
+        filesToDelete.add(logFile);
         IO.write(logFile,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");

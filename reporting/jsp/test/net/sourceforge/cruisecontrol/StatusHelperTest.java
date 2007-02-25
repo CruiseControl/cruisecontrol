@@ -36,15 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.IO;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /**
  * User: jfredrick Date: Jan 31, 2004 Time: 5:18:43 PM
@@ -76,7 +74,7 @@ public class StatusHelperTest extends TestCase {
 
     private StatusHelper helper;
     private File logDir;
-    private FilesToDelete files = new FilesToDelete();
+    private FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         helper = new StatusHelper();
@@ -88,14 +86,14 @@ public class StatusHelperTest extends TestCase {
         }
         if (!logDir.isDirectory()) {
             assertTrue("Failed to create test result dir " + logDir.getAbsolutePath(), logDir.mkdirs());
-            files.addFile(logDir);
+            filesToDelete.add(logDir);
         }
 
         // make multi project log dir
         File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
             assertTrue("Failed to create project log dir", projectLogDir.mkdir());
-            files.addFile(logDir);
+            filesToDelete.add(logDir);
         }
 
         File file = new File(logDir, "log20040102030405.xml");
@@ -112,7 +110,7 @@ public class StatusHelperTest extends TestCase {
 
     protected void tearDown() throws Exception {
         helper = null;
-        files.delete();
+        filesToDelete.delete();
     }
 
     public void testGetLastBuildResult() throws IOException, CruiseControlException {
@@ -184,23 +182,6 @@ public class StatusHelperTest extends TestCase {
 
     private void prepareFile(File file, String body) throws CruiseControlException {
         IO.write(file, body);
-        files.addFile(file);
-    }
-
-    class FilesToDelete {
-        private List files = new Vector();
-
-        void addFile(File file) {
-            files.add(file);
-        }
-
-        void delete() {
-            Iterator fileIterator = files.iterator();
-            while (fileIterator.hasNext()) {
-                File file = (File) fileIterator.next();
-                file.delete();
-            }
-            files.clear();
-        }
+        filesToDelete.add(file);
     }
 }

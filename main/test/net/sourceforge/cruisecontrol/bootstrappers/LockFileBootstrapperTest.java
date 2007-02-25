@@ -2,30 +2,23 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 public class LockFileBootstrapperTest extends TestCase {
 
     private LockFileBootstrapper bootstrapper;
-    private List filesToDelete;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     
     protected void setUp() {
         bootstrapper = new LockFileBootstrapper();
-        filesToDelete = new ArrayList();
     }
 
     protected void tearDown() throws Exception {
-        for (Iterator iter = filesToDelete.iterator(); iter.hasNext();) {
-            File file = (File) iter.next();
-            file.delete();
-        }
         bootstrapper = null;
-        filesToDelete = null;
+        filesToDelete.delete();
     }
 
     public void testAttemptToCreateLockFile() throws IOException, CruiseControlException {

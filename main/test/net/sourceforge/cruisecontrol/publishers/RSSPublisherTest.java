@@ -36,13 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
-import net.sourceforge.cruisecontrol.publishers.rss.Feed;
-
 import java.io.File;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.publishers.rss.Feed;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.jdom.Element;
 
@@ -52,7 +53,7 @@ import org.jdom.Element;
 public class RSSPublisherTest extends TestCase {
 
     private File tmpFile;
-
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess);
@@ -63,10 +64,11 @@ public class RSSPublisherTest extends TestCase {
     public void setUp() throws Exception {
         tmpFile = File.createTempFile("rsspublisher-test", "tmp");
         tmpFile.deleteOnExit();
+        filesToDelete.add(tmpFile);
     }
 
     public void tearDown() throws Exception {
-        tmpFile.delete();
+        filesToDelete.delete();
     }
 
     public void testValidate() {
@@ -101,11 +103,10 @@ public class RSSPublisherTest extends TestCase {
 
 
         File tmpFile2 = File.createTempFile("test", "tmp");
+        filesToDelete.add(tmpFile2);
         Feed feed3 = RSSPublisher.getRSSFeed(tmpFile2);
         assertNotNull(feed3);
         assertFalse(feed2 == feed3);
         assertFalse(feed1 == feed3);
-
-        tmpFile2.delete();
     }
 }

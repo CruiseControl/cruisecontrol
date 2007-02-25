@@ -1,28 +1,27 @@
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.Writer;
-import java.io.FileWriter;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * This class provides helper methods for interacting with Input/Output classes.
@@ -123,12 +122,6 @@ public final class IO {
             delete(child);
         }
         dir.delete();
-    }
-
-    public static void delete(Collection files) {
-        for (Iterator iterator = files.iterator(); iterator.hasNext();) {
-            delete((File) iterator.next());
-        }
     }
 
     public static void delete(File f, boolean debuggerOn, Logger log) {

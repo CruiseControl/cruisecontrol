@@ -38,10 +38,11 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.File;
 
-import org.apache.tools.ant.Project;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+
+import org.apache.tools.ant.Project;
 
 /**
  * @author Jeffrey Fredrick
@@ -50,18 +51,18 @@ public class ArtifactsPublisherTest extends TestCase {
 
     private ArtifactsPublisher publisher;
     private File tempFile;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         publisher = new ArtifactsPublisher();
         tempFile = File.createTempFile("temp", ".tmp");
         tempFile.deleteOnExit();
+        filesToDelete.add(tempFile);
     }
 
     protected void tearDown() throws Exception {
         publisher = null;
-        if (tempFile.exists()) {
-            tempFile.delete();
-        }
+        filesToDelete.delete();
         tempFile = null;
     }
 

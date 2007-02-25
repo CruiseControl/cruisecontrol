@@ -41,18 +41,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 public class EmbeddedJettyServerTest extends TestCase {
 
     private int port;
-
     private File webappDir;
-
     private File webinfDir;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
-        super.setUp();
-
         final ServerSocket socket = new ServerSocket(0);
         port = socket.getLocalPort();
         socket.close();
@@ -60,6 +58,8 @@ public class EmbeddedJettyServerTest extends TestCase {
         final String tempDirName = System.getProperty("java.io.tmpdir");
         webappDir = new File(tempDirName, "testwebapp" + System.currentTimeMillis());
         webinfDir = new File(webappDir, "WEB-INF");
+        filesToDelete.add(webappDir);
+        filesToDelete.add(webinfDir);
 
         if (!webinfDir.mkdirs()) {
             throw new RuntimeException("Unable to create directory path: " + webinfDir.getAbsolutePath());
@@ -68,10 +68,7 @@ public class EmbeddedJettyServerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
-
-        webinfDir.delete();
-        webappDir.delete();
+        filesToDelete.delete();
     }
 
     public void testStart() throws Exception {

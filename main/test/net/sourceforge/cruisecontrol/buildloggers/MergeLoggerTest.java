@@ -36,23 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.buildloggers;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.IO;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.output.XMLOutputter;
-import org.jdom.input.SAXBuilder;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
+
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+import org.jdom.output.XMLOutputter;
 
 public class MergeLoggerTest extends TestCase {
     private MergeLogger logger;
     private File tempSubdir;
     private Element log;
     private XMLOutputter outputter = new XMLOutputter();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     private static final String BASIC_LOG_CONTENT = "<cruisecontrol></cruisecontrol>";
 
@@ -63,11 +66,12 @@ public class MergeLoggerTest extends TestCase {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         tempSubdir = new File(tempDir, "cruisecontroltest" + System.currentTimeMillis());
         tempSubdir.mkdir();
+        filesToDelete.add(tempSubdir);
     }
 
     protected void tearDown() throws Exception {
         logger = null;
-        IO.delete(tempSubdir);
+        filesToDelete.delete();
         tempSubdir = null;
         log = null;
     }
@@ -186,6 +190,7 @@ public class MergeLoggerTest extends TestCase {
     private File createFile(String content) throws IOException, CruiseControlException {
         File fileToMerge = File.createTempFile(MergeLoggerTest.class.getName(), ".xml", tempSubdir);
         IO.write(fileToMerge, content);
+        filesToDelete.add(fileToMerge);
         return fileToMerge;
     }
 

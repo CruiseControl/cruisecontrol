@@ -36,21 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.builders.MockBuilder;
-import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
-import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
-import net.sourceforge.cruisecontrol.events.BuildProgressListener;
-import net.sourceforge.cruisecontrol.events.BuildResultEvent;
-import net.sourceforge.cruisecontrol.events.BuildResultListener;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.Util;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,9 +48,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.MockBuilder;
+import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
+import net.sourceforge.cruisecontrol.events.BuildProgressListener;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
     private static final Logger LOG = Logger.getLogger(ProjectTest.class);
@@ -74,7 +75,7 @@ public class ProjectTest extends TestCase {
 
     private Project project;
     private ProjectConfig projectConfig;
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws CruiseControlException {
         project = new Project();
@@ -91,7 +92,7 @@ public class ProjectTest extends TestCase {
         projectConfig = null;
 
         LOG.getLoggerRepository().setThreshold(Level.ALL);
-        IO.delete(filesToClear);
+        filesToDelete.delete();
     }
 
     public void testNotifyListeners() {
@@ -170,7 +171,7 @@ public class ProjectTest extends TestCase {
         project.start();
         project.build();
         project.stop();
-        filesToClear.add(log.getLastLogFile());
+        filesToDelete.add(log.getLastLogFile());
 
         assertTrue(project.isLastBuildSuccessful());
 
@@ -561,7 +562,7 @@ public class ProjectTest extends TestCase {
 
     public void testDeserialization() throws Exception {
         File f = new File("test.ser");
-        filesToClear.add(f);
+        filesToDelete.add(f);
         FileOutputStream outFile = new FileOutputStream(f);
         ObjectOutputStream objects = new ObjectOutputStream(outFile);
 
@@ -592,7 +593,7 @@ public class ProjectTest extends TestCase {
         beforeSerialization.start();
 
         File f = new File("test.ser");
-        filesToClear.add(f);
+        filesToDelete.add(f);
         FileOutputStream outFile = new FileOutputStream(f);
         ObjectOutputStream objects = new ObjectOutputStream(outFile);
 
@@ -627,7 +628,7 @@ public class ProjectTest extends TestCase {
         project.setBuildQueue(new BuildQueue());
 
         final File serializedProjectFile = new File(project.getName() + ".ser");
-        filesToClear.add(serializedProjectFile);
+        filesToDelete.add(serializedProjectFile);
         if (serializedProjectFile.exists()) {
             assertTrue(serializedProjectFile.delete());
         }
@@ -705,7 +706,7 @@ public class ProjectTest extends TestCase {
     private void writeFile(String fileName, String contents) throws CruiseControlException {
 
         File f = new File(fileName);
-        filesToClear.add(f);
+        filesToDelete.add(f);
         IO.write(f, contents);
     }
 

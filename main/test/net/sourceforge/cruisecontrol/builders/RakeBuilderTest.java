@@ -37,14 +37,9 @@
 package net.sourceforge.cruisecontrol.builders;
 
 // import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.ArrayList;
-// import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -55,7 +50,6 @@ import net.sourceforge.cruisecontrol.util.MockProcess;
 // import org.jdom.Element;
 
 public class RakeBuilderTest extends TestCase {
-    private final List filesToClear = new ArrayList();
 
     static class InputBasedMockCommandLineBuilder {
         Commandline buildCommandline(final InputStream inputStream) {
@@ -100,13 +94,7 @@ public class RakeBuilderTest extends TestCase {
     }
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
-
+        //properties = null;
     }
 
     public void testValidate() {
