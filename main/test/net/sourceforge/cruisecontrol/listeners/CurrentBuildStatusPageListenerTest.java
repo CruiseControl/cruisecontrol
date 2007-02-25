@@ -1,12 +1,22 @@
 package net.sourceforge.cruisecontrol.listeners;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
 import java.io.File;
 import java.io.IOException;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+
 public class CurrentBuildStatusPageListenerTest extends TestCase {
+
+    private final FilesToDelete filesToDelete = new FilesToDelete();
+    
+    protected void setUp() throws Exception {
+    }
+
+    protected void tearDown() throws Exception {
+        filesToDelete.delete();
+    }
 
     public void testShouldFormatZeroCorrectly() {
         assertFormat("0.000", 0);
@@ -69,51 +79,62 @@ public class CurrentBuildStatusPageListenerTest extends TestCase {
     }
 
     public void testShouldBeInvalidWhenFileNotSet() {
-        assertInvalid(new CurrentBuildStatusPageListener());
+        try {
+            new CurrentBuildStatusPageListener().validate();
+            fail("expected an exception");
+        } catch (CruiseControlException expected) {
+            assertEquals("'file' is required for CurrentBuildStatusPageListener", expected.getMessage());
+        }
     }
 
     public void testShouldBeValidWhenFileSet() throws Exception {
-        File temp = File.createTempFile(getClass().getName(), "tmp");
-        temp.deleteOnExit();
+        File temp = getTempFile();
         CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
         c.setFile(temp.getAbsolutePath());
         c.validate();
+    }
+
+    private File getTempFile() throws IOException {
+        File temp = File.createTempFile(getClass().getName(), "tmp");
+        filesToDelete.add(temp);
+        temp.deleteOnExit();
+        return temp;
     }
 
     public void testShouldBeInvalidWhenSourceFileSetButDoesntExist() throws IOException {
-        File temp = File.createTempFile(getClass().getName(), "tmp");
-        temp.deleteOnExit();
+        File temp = getTempFile();
         CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
         c.setFile(temp.getAbsolutePath());
         c.setSourceFile("NONEXISTENTFILE");
-        assertInvalid(c);
-    }
-
-    public void testShouldBeInvalidWhenSourceFileSetToDir() throws Exception {
-        File temp = File.createTempFile(getClass().getName(), "tmp");
-        temp.deleteOnExit();
-        CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
-        c.setFile(temp.getAbsolutePath());
-        c.setSourceFile(System.getProperty("java.io.tmpdir"));
-        assertInvalid(c);
-    }
-
-    public void testShouldBeValidWhenFileSetAndSourceSetToRealFile() throws Exception {
-        File temp = File.createTempFile(getClass().getName(), "tmp");
-        temp.deleteOnExit();
-        CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
-        c.setFile(temp.getAbsolutePath());
-        c.setSourceFile(temp.getAbsolutePath());
-        c.validate();
-    }
-
-    private void assertInvalid(CurrentBuildStatusPageListener c) {
         try {
             c.validate();
             fail("expected an exception");
         } catch (CruiseControlException expected) {
-            //good
+            assertEquals("'sourceFile' does not exist: " + new File("NONEXISTENTFILE").getAbsolutePath(),
+                    expected.getMessage());
         }
+    }
+
+    public void testShouldBeInvalidWhenSourceFileSetToDir() throws Exception {
+        File temp = getTempFile();
+        CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
+        c.setFile(temp.getAbsolutePath());
+        String tempDirPath = System.getProperty("java.io.tmpdir");
+        c.setSourceFile(tempDirPath);
+        try {
+            c.validate();
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("'sourceFile' must be a file: " + tempDirPath, expected.getMessage());
+        }
+    }
+
+    public void testShouldBeValidWhenFileSetAndSourceSetToRealFile() throws Exception {
+        File temp = getTempFile();
+        CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
+        c.setFile(temp.getAbsolutePath());
+        c.setSourceFile(temp.getAbsolutePath());
+        c.validate();
     }
 
 }
