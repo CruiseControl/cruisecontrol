@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
 import java.util.Date;
 
 /**
- * Writes an HTML snippet in a file (typically in a location where the reporting module can read it), indicating
+ * Writes a text snippet in a file (typically in a location where the reporting module can read it), indicating
  * the current build status.
  *
  * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
