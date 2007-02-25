@@ -287,9 +287,9 @@ public class CurrentBuildStatusPageListener implements Listener {
         CurrentBuildFileWriter.validate(dstFileName);
 
         if (sourceFile != null) {
-            ValidationHelper.assertTrue(sourceFile.exists(), dstFileName + " does not exist: "
+            ValidationHelper.assertTrue(sourceFile.exists(), "'sourceFile' does not exist: "
                     + sourceFile.getAbsolutePath());
-            ValidationHelper.assertTrue(sourceFile.isFile(), dstFileName + " is not a file: "
+            ValidationHelper.assertTrue(sourceFile.isFile(), "'sourceFile' must be a file: "
                     + sourceFile.getAbsolutePath());
             sourceText = IO.readLines(sourceFile);
         }
