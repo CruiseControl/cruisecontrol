@@ -41,14 +41,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
 import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -58,15 +57,10 @@ import org.jdom.output.XMLOutputter;
 
 
 public class LogTest extends TestCase {
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
+        filesToDelete.delete();
     }
 
     public void testCreatingLog() {
@@ -159,7 +153,7 @@ public class LogTest extends TestCase {
             // Write and read the file
             log.writeLogFile(new Date());
             File logFile = log.getLastLogFile();
-            filesToClear.add(logFile);
+            filesToDelete.add(logFile);
             Element actualContent = builder.build(logFile).getRootElement();
 
             // content.toString() only returns the root element but not the
@@ -192,7 +186,7 @@ public class LogTest extends TestCase {
         // Write and read the file
         log.writeLogFile(new Date());
         File logFile = log.getLastLogFile();
-        filesToClear.add(logFile);
+        filesToDelete.add(logFile);
         Element actualContent = builder.build(logFile).getRootElement();
         
         String actual = outputter.outputString(actualContent);
@@ -283,7 +277,7 @@ public class LogTest extends TestCase {
         for (int i = 0; i < logfiles.length; i++) {
             File file = logfiles[i];
             if (file.getName().endsWith(".gz")) {
-                filesToClear.add(file);
+                filesToDelete.add(file);
                 countGzip++;
             } else if (file.getName().endsWith(".xml")) {
                 countXML++;
@@ -309,7 +303,7 @@ public class LogTest extends TestCase {
         log.addContent(build);
         log.addContent(new Element("modifications"));
         log.writeLogFile(date);
-        filesToClear.add(log.getLastLogFile());
+        filesToDelete.add(log.getLastLogFile());
         return log;
     }
 

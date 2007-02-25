@@ -46,6 +46,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Log;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
@@ -55,6 +56,7 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
  */
 public class BuildStatusTest extends TestCase {
     private BuildStatus buildStatus;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         buildStatus = new BuildStatus();
@@ -62,6 +64,7 @@ public class BuildStatusTest extends TestCase {
 
     protected void tearDown() throws Exception {
         buildStatus = null;
+        filesToDelete.delete();
     }
 
     /**
@@ -89,6 +92,7 @@ public class BuildStatusTest extends TestCase {
         // Verify log directory must be a directory
         File tempFile = File.createTempFile("temp", "txt");
         tempFile.deleteOnExit();
+        filesToDelete.add(tempFile);
         buildStatus.setLogDir(tempFile.getAbsolutePath());
 
         try {
@@ -126,57 +130,49 @@ public class BuildStatusTest extends TestCase {
         // Verify an unsuccessful build does not show up
         File yesterdayLog = new File(tempDir, Log.formatLogFileName(yesterday));
         yesterdayLog.createNewFile();
-        try {
-            modifications = buildStatus.getModifications(twoDaysAgo, null);
-            assertEquals("Wrong number of modifications", 0, modifications.size());
-        } finally {
-            yesterdayLog.delete();
-        }
+        filesToDelete.add(yesterdayLog);
+        modifications = buildStatus.getModifications(twoDaysAgo, null);
+        assertEquals("Wrong number of modifications", 0, modifications.size());
 
         // Verify a successful build shows up
         File yesterdayLog2 = new File(tempDir, Log.formatLogFileName(yesterday, "good.1"));
         yesterdayLog2.createNewFile();
-        try {
-            modifications = buildStatus.getModifications(twoDaysAgo, null);
-            assertEquals("Wrong number of modifications", 1, modifications.size());
+        filesToDelete.add(yesterdayLog2);
+            
+        modifications = buildStatus.getModifications(twoDaysAgo, null);
+        assertEquals("Wrong number of modifications", 1, modifications.size());
 
-            Map properties = buildStatus.getProperties();
-            // Verify properties were set correctly
-            assertEquals("Property was not set correctly", tempDir.getAbsolutePath(),
-                         properties.get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
-            assertEquals("Property was not set correctly", yesterdayLog2.getName(),
-                         properties.get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
-            assertEquals("Property was not set correctly", DateUtil.getFormattedTime(yesterday),
-                         properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
-            assertEquals("Property was not set correctly", "good.1",
-                         properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
+        Map properties = buildStatus.getProperties();
+        // Verify properties were set correctly
+        assertEquals("Property was not set correctly", tempDir.getAbsolutePath(),
+                     properties.get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
+        assertEquals("Property was not set correctly", yesterdayLog2.getName(),
+                     properties.get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
+        assertEquals("Property was not set correctly", DateUtil.getFormattedTime(yesterday),
+                     properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
+        assertEquals("Property was not set correctly", "good.1",
+                     properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
 
             // Verify date range works
-            modifications = buildStatus.getModifications(today, null);
-            assertEquals("Wrong number of modifications", 0, modifications.size());
+        modifications = buildStatus.getModifications(today, null);
+        assertEquals("Wrong number of modifications", 0, modifications.size());
 
-            // Verify properties are set correctly when there are multiple modifications
-            File todayLog = new File(tempDir, Log.formatLogFileName(today, "good.2"));
-            todayLog.createNewFile();
-            try {
-                modifications = buildStatus.getModifications(twoDaysAgo, null);
-                assertEquals("Wrong number of modifications", 2, modifications.size());
+        // Verify properties are set correctly when there are multiple modifications
+        File todayLog = new File(tempDir, Log.formatLogFileName(today, "good.2"));
+        todayLog.createNewFile();
+        filesToDelete.add(todayLog);
 
-                properties = buildStatus.getProperties();
-                // Verify properties were set correctly
-                assertEquals("Property was not set correctly", tempDir.getAbsolutePath(),
-                             properties.get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
-                assertEquals("Property was not set correctly", todayLog.getName(),
-                             properties.get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
-                assertEquals("Property was not set correctly", DateUtil.getFormattedTime(today),
-                             properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
-                assertEquals("Property was not set correctly", "good.2",
-                             properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
-            } finally {
-                todayLog.delete();
-            }
-        } finally {
-            yesterdayLog2.delete();
-        }
+        modifications = buildStatus.getModifications(twoDaysAgo, null);
+        assertEquals("Wrong number of modifications", 2, modifications.size());
+
+        properties = buildStatus.getProperties();
+        // Verify properties were set correctly
+        assertEquals("Property was not set correctly", tempDir.getAbsolutePath(), properties
+                .get(BuildStatus.MOST_RECENT_LOGDIR_KEY));
+        assertEquals("Property was not set correctly", todayLog.getName(), properties
+                .get(BuildStatus.MOST_RECENT_LOGFILE_KEY));
+        assertEquals("Property was not set correctly", DateUtil.getFormattedTime(today), properties
+                .get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
+        assertEquals("Property was not set correctly", "good.2", properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
     }
 }

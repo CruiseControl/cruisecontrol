@@ -36,14 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.publishers.rss;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.IO;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
@@ -51,10 +52,12 @@ import java.io.InputStream;
 public class FeedTest extends TestCase {
 
     private File tempFile;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     public void setUp() throws Exception {
         tempFile = File.createTempFile("FeedTest", "tmp");
         tempFile.deleteOnExit();
+        filesToDelete.add(tempFile);
 
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tempFile));
         InputStream is =  getClass().getResourceAsStream("RSSFeed.xml");
@@ -69,7 +72,7 @@ public class FeedTest extends TestCase {
     }
 
     public void tearDown() {
-        tempFile.delete();
+        filesToDelete.delete();
     }
 
     public void testConstructors() {
@@ -103,6 +106,7 @@ public class FeedTest extends TestCase {
 
         try {
             outFile = File.createTempFile("FeedTest", "tmp");
+            filesToDelete.add(outFile);
             fw = new FileWriter(outFile);
             Feed feed = new Feed(tempFile);
             feed.write(fw);
@@ -132,7 +136,6 @@ public class FeedTest extends TestCase {
                 item.getDescription());
         } finally {
             IO.close(fw);
-            IO.delete(outFile);
         }
     }
 }

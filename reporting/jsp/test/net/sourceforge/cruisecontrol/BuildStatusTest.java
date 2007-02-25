@@ -1,13 +1,11 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
@@ -31,21 +29,21 @@ public class BuildStatusTest extends TestCase {
 
     private File logDir;
 
-    private FilesToDelete files = new FilesToDelete();
+    private TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     protected void setUp() throws Exception {
         // make base log dir
         logDir = new File("testresults/");
         if (!logDir.exists()) {
             assertTrue("Failed to create test result dir", logDir.mkdir());
-            files.addFile(logDir);
+            filesToDelete.add(logDir);
         }
 
         // make multi project log dir
         File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
             assertTrue("Failed to create project log dir", projectLogDir.mkdir());
-            files.addFile(logDir);
+            filesToDelete.add(logDir);
         }
 
         // for single project
@@ -58,7 +56,7 @@ public class BuildStatusTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        files.delete();
+        filesToDelete.delete();
     }
 
     public void testStatusFileNotFound() {
@@ -124,23 +122,6 @@ public class BuildStatusTest extends TestCase {
 
     private void prepareFile(File file, String body) throws IOException, CruiseControlException {
         IO.write(file, body);
-        files.addFile(file);
-    }
-
-    class FilesToDelete {
-        private List files = new Vector();
-
-        void addFile(File file) {
-            files.add(file);
-        }
-
-        void delete() {
-            Iterator fileIterator = files.iterator();
-            while (fileIterator.hasNext()) {
-                File file = (File) fileIterator.next();
-                file.delete();
-            }
-            files.clear();
-        }
+        filesToDelete.add(file);
     }
 }

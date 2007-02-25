@@ -95,6 +95,7 @@
         <fileset dir="${lib}" includes="servlet*.jar"/>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
+        <pathelement location="../../main/target/test-classes"/>
     </path>
 
     <target name="clean">

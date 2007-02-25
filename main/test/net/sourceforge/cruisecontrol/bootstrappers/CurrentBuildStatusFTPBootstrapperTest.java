@@ -36,33 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 /**
  * @deprecated Tests deprecated code
  */
 public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
-    private final List filesToClear = new ArrayList();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     public CurrentBuildStatusFTPBootstrapperTest(String name) {
         super(name);
     }
 
     public void tearDown() {
-        for (Iterator iterator = filesToClear.iterator(); iterator.hasNext();) {
-            File file = (File) iterator.next();
-            if (file.exists()) {
-                file.delete();
-            }
-        }
+        filesToDelete.delete();
     }
 
     public void testValidate1() {
@@ -113,7 +106,7 @@ public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
         CurrentBuildStatusFTPBootstrapper cbsfb =
             new CurrentBuildStatusFTPBootstrapper();
         cbsfb.setFile("_testCurrentBuildStatus1.txt");
-        filesToClear.add(new File("_testCurrentBuildStatus1.txt"));
+        filesToDelete.add(new File("_testCurrentBuildStatus1.txt"));
 
         // This should be equivalent to the date used in bootstrap at seconds
         // precision

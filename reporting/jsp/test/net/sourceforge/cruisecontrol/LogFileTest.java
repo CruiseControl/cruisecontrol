@@ -36,16 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.util.IO;
-
 import java.io.File;
 import java.io.Serializable;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /**
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class LogFileTest extends TestCase {
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     private File logDir;
     private File log1;
     private File log2;
@@ -59,13 +61,15 @@ public class LogFileTest extends TestCase {
         log1 = new File(logDir, "log20040903010203.xml");
         log2 = new File(logDir, "log20040905010203Lsuccessful-build-file.1.xml");
         log3 = new File(logDir, "log20051021103500.xml.gz");
+        
+        filesToDelete.add(log1);
+        filesToDelete.add(log2);
+        filesToDelete.add(log3);
+        filesToDelete.add(logDir);        
     }
 
     public void tearDown() {
-        log1.delete();
-        log2.delete();
-        log3.delete();
-        logDir.delete();
+        filesToDelete.delete();
 
         log1 = null;
         log2 = null;

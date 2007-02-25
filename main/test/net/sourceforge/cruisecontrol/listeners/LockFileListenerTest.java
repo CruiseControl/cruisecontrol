@@ -2,18 +2,16 @@ package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 
 public class LockFileListenerTest extends TestCase {
 
     private LockFileListener listener;
-    private List filesToDelete;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
     
     private static final ProjectStateChangedEvent BOOTSTRAPPING = new ProjectStateChangedEvent("test",
                     ProjectState.BOOTSTRAPPING);
@@ -34,16 +32,11 @@ public class LockFileListenerTest extends TestCase {
     
     protected void setUp() {
         listener = new LockFileListener();
-        filesToDelete = new ArrayList();
     }
     
     protected void tearDown() {
-        for (Iterator iter = filesToDelete.iterator(); iter.hasNext();) {
-            File file = (File) iter.next();
-            file.delete();
-        }
+        filesToDelete.delete();
         listener = null;
-        filesToDelete = null;
     }
     
     public void testShouldNotDeleteLockIfDidntGetPastBootstrapping() throws IOException, CruiseControlException {
