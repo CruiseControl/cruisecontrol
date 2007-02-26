@@ -189,7 +189,7 @@ public class Log implements Serializable {
      * @return The last log file that was written; null if none written yet.
      */
     public File getLastLogFile() {
-        return this.lastLogFile;
+        return lastLogFile;
     }
 
     /**
@@ -226,20 +226,7 @@ public class Log implements Serializable {
             nextLogger.log(buildLog);
         }
 
-        // Figure out what the log filename will be.
-        XMLLogHelper helper = new XMLLogHelper(buildLog);
-
-        String logFilename;
-        if (helper.isBuildSuccessful()) {
-            logFilename = formatLogFileName(now, helper.getLabel());
-        } else {
-            logFilename = formatLogFileName(now);
-        }
-
-        this.lastLogFile = new File(logDir, logFilename);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Project " + projectName + ":  Writing log file [" + lastLogFile.getAbsolutePath() + "]");
-        }
+        String logFilename = decideLogfileName(now);
 
         // Add the logDir as an info element
         Element logDirElement = new Element("property");
@@ -253,6 +240,14 @@ public class Log implements Serializable {
         logFileElement.setAttribute("value", logFilename);
         buildLog.getChild("info").addContent(logFileElement);
 
+        lastLogFile = new File(logDir, logFilename);
+        LOG.debug("Project " + projectName + ":  Writing log file [" + lastLogFile.getAbsolutePath() + "]");
+        writeLogFile(lastLogFile, buildLog);
+
+        callManipulators();
+    }
+
+    protected void writeLogFile(File file, Element element) throws CruiseControlException {
         // Write the log file out, let jdom care about the encoding by using
         // an OutputStream instead of a Writer.
         OutputStream logStream = null;
@@ -262,15 +257,22 @@ public class Log implements Serializable {
                 format.setEncoding(logXmlEncoding);
             }
             XMLOutputter outputter = new XMLOutputter(format);
-            logStream = new BufferedOutputStream(new FileOutputStream(lastLogFile));
-            outputter.output(new Document(buildLog), logStream);
+            logStream = new BufferedOutputStream(new FileOutputStream(file));
+            outputter.output(new Document(element), logStream);
         } catch (IOException e) {
             throw new CruiseControlException(e);
         } finally {
             IO.close(logStream);
         }
+    }
 
-        callManipulators();
+    private String decideLogfileName(Date now) throws CruiseControlException {
+        XMLLogHelper helper = new XMLLogHelper(buildLog);
+        if (helper.isBuildSuccessful()) {
+            return formatLogFileName(now, helper.getLabel());
+        }
+            
+        return formatLogFileName(now);
     }
 
     /**
