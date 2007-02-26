@@ -45,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -77,6 +78,27 @@ public class AlienBrainTest extends TestCase {
      */
     public void testConstruction() {
         new AlienBrain();
+    }
+    
+    public void testProperty() {
+        AlienBrain ab = new AlienBrain() {
+
+            protected List getModificationsFromAlienBrain(Date lastBuild, Date now) throws IOException, CruiseControlException {
+                List mods = new ArrayList();
+                mods.add("modification");
+                return mods;
+            }
+            
+        };
+        ab.setPath("path");
+        ab.getModifications(new Date(), new Date());
+        assertEquals(0, ab.getProperties().size());
+        
+        ab.setProperty("property");
+        ab.getModifications(new Date(), new Date());
+        Map properties = ab.getProperties();
+        assertEquals(1, properties.size());
+        assertTrue(properties.containsKey("property"));
     }
 
     /**

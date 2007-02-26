@@ -21,6 +21,10 @@ distributed
 build loop
 ======================
 
+AlienBrain
+----------------------
+* Add support for the property attribute
+
 AlwaysBuild
 ----------------------
 * Add support for property attribute

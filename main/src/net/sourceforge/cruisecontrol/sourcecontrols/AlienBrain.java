@@ -36,22 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.ManagedCommandline;
-
-import org.apache.log4j.Logger;
-
-import java.util.Hashtable;
-import java.util.Date;
-import java.util.List;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Iterator;
-import java.io.IOException;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControl methods for an AlienBrain
@@ -76,13 +75,18 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     private static final long HUNDRED_NANO_PER_MILLI_RATIO = 10000L;
     private static final String AB_NO_MODIFICATIONS = "No files or folders found!";
     private static final String AB_MODIFICATION_SUMMARY_PREFIX = "Total of ";
+    
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * Any properties that have been set in this sourcecontrol.
-     * Currently, this would be none.
      */
     public Map getProperties() {
-        return new Hashtable();
+        return properties.getPropertiesAndReset();
+    }
+    
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
     }
 
     public void validate() throws CruiseControlException {
@@ -106,6 +110,10 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
             LOG.error("Log command failed to execute succesfully", e);
         }
 
+        if (!mods.isEmpty()) {
+            properties.modificationFound();
+        }
+        
         return mods;
     }
 
