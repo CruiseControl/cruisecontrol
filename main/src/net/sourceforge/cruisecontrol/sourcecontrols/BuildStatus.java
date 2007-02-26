@@ -93,12 +93,18 @@ public class BuildStatus implements SourceControl {
     /**
      * This method is used to make certain attributes of the most
      * recent modification available to Ant tasks.
-     * @return A Hashtable object containing either no properties (if there
-     *         were no modifications) or four properties (keys are
-     *         provided as constants on this class). Never returns null.
+     * @return A Hashtable object containing no properties if there
+     *         were no modifications, four properties if there were one
+     *         or more modifications (keys are provided as constants on this
+     *         class), or five is the property attribute was set.
+     *         Never returns null.
      */
     public Map getProperties() {
         return properties.getPropertiesAndReset();
+    }
+    
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
     }
 
     /**
@@ -189,6 +195,11 @@ public class BuildStatus implements SourceControl {
         } catch (Exception e) {
             LOG.error("Error checking for modifications", e);
         }
+        
+        if (!modifications.isEmpty()) {
+            properties.modificationFound();
+        }
+        
         return modifications;
     }
 

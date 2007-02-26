@@ -25,6 +25,10 @@ AlwaysBuild
 ----------------------
 * Add support for property attribute
 
+BuildStatus
+----------------------
+* Add support for the property attribute
+
 ClearCase
 ----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.

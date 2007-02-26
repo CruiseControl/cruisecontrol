@@ -152,6 +152,7 @@ public class BuildStatusTest extends TestCase {
                      properties.get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
         assertEquals("Property was not set correctly", "good.1",
                      properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
+        assertEquals(4, properties.size());
 
             // Verify date range works
         modifications = buildStatus.getModifications(today, null);
@@ -162,6 +163,7 @@ public class BuildStatusTest extends TestCase {
         todayLog.createNewFile();
         filesToDelete.add(todayLog);
 
+        buildStatus.setProperty("property");
         modifications = buildStatus.getModifications(twoDaysAgo, null);
         assertEquals("Wrong number of modifications", 2, modifications.size());
 
@@ -174,5 +176,7 @@ public class BuildStatusTest extends TestCase {
         assertEquals("Property was not set correctly", DateUtil.getFormattedTime(today), properties
                 .get(BuildStatus.MOST_RECENT_LOGTIME_KEY));
         assertEquals("Property was not set correctly", "good.2", properties.get(BuildStatus.MOST_RECENT_LOGLABEL_KEY));
+        assertEquals("true", properties.get("property"));
+        assertEquals(5, properties.size());
     }
 }
