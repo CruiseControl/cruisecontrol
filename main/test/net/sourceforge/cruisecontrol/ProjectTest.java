@@ -119,6 +119,7 @@ public class ProjectTest extends TestCase {
         Log log = new Log();
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
+        filesToDelete.add(logDir);
         log.setProjectName("myproject");
         log.setDir(logDir.getAbsolutePath());
         log.setEncoding("ISO-8859-1");
@@ -172,7 +173,9 @@ public class ProjectTest extends TestCase {
         project.start();
         project.build();
         project.stop();
-        filesToDelete.add(log.getLastLogFile());
+        File expectedLogFile = new File(logDir, "log" + DateUtil.getFormattedTime(now) + "L1.2.3.xml");
+        assertTrue(expectedLogFile.isFile());
+        filesToDelete.add(expectedLogFile);
 
         assertTrue(project.isLastBuildSuccessful());
 
@@ -203,7 +206,7 @@ public class ProjectTest extends TestCase {
                 + DateUtil.getFormattedTime(now)
                 + "L1.2.3.xml\" />"
                 + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
-        assertEquals(expected, Util.readFileToString(log.getLastLogFile()));
+        assertEquals(expected, Util.readFileToString(expectedLogFile));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties

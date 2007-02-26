@@ -48,6 +48,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
 import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -58,8 +59,13 @@ import org.jdom.output.XMLOutputter;
 
 public class LogTest extends TestCase {
     private final FilesToDelete filesToDelete = new FilesToDelete();
+    private static final String LOG_DIR = "target/LogTest";
 
-    public void tearDown() {
+    protected void setUp() {
+        filesToDelete.add(new File(LOG_DIR));
+    }
+    
+    protected void tearDown() {
         filesToDelete.delete();
     }
 
@@ -135,7 +141,7 @@ public class LogTest extends TestCase {
         for (int i = 0;  i < encodings.length; i++) {
             Log log = new Log();
             log.setProjectName("testXMLEncoding");
-            log.setDir("target");
+            log.setDir(LOG_DIR);
             if (encodings[i] != null) {
                 log.setEncoding(encodings[i]);
             }
@@ -150,10 +156,15 @@ public class LogTest extends TestCase {
             // Add 8-bit characters
             build.setText("Something with special characters: \u00c6\u00d8\u00c5");
 
+            Date now = new Date();
             // Write and read the file
-            log.writeLogFile(new Date());
-            File logFile = log.getLastLogFile();
+            log.writeLogFile(now);
+            
+            String expectFilename = "log" + DateUtil.getFormattedTime(now) + "L.xml";
+            File logFile = new File(LOG_DIR, expectFilename);
+            assertTrue(logFile.isFile());
             filesToDelete.add(logFile);
+
             Element actualContent = builder.build(logFile).getRootElement();
 
             // content.toString() only returns the root element but not the
@@ -170,7 +181,7 @@ public class LogTest extends TestCase {
         XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         Log log = new Log();
         log.setProjectName("testLabelUpdate");
-        log.setDir("target");
+        log.setDir(LOG_DIR);
         
         // Add a minimal buildLog
         log.addContent(getBuildLogInfo());
@@ -183,19 +194,22 @@ public class LogTest extends TestCase {
         log.updateLabel(expectedLabel);
         log.validate();
         
+        Date now = new Date();
         // Write and read the file
-        log.writeLogFile(new Date());
-        File logFile = log.getLastLogFile();
+        log.writeLogFile(now);
+
+        String expectFilename = "log" + DateUtil.getFormattedTime(now) + "L" + expectedLabel + ".xml";
+        File logFile = new File(LOG_DIR, expectFilename);
+        assertTrue(logFile.isFile());
         filesToDelete.add(logFile);
+ 
         Element actualContent = builder.build(logFile).getRootElement();
-        
         String actual = outputter.outputString(actualContent);
         assertTrue(actual.indexOf("value=\"" + expectedLabel + "\"") > -1);
     }
 
     public void testManipulateLog() throws Exception {
         String testProjectName = "testBackupLog";
-        String testLogDir = "target";
 
         // Test backup of 12 Months
         Calendar date = Calendar.getInstance();
@@ -205,9 +219,9 @@ public class LogTest extends TestCase {
         gzip.setEvery(12);
         gzip.setUnit("month");
         // create old log
-        getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
         // create new log
-        Log log = getWrittenTestLog(testProjectName, testLogDir, new Date());
+        Log log = getWrittenTestLog(testProjectName, LOG_DIR, new Date());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 2, 1, 1);
@@ -218,7 +232,7 @@ public class LogTest extends TestCase {
         gzip = new GZIPManipulator();
         gzip.setEvery(2);
         gzip.setUnit("day");
-        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 3, 1, 2);
@@ -229,7 +243,7 @@ public class LogTest extends TestCase {
         DeleteManipulator deleteManipulator = new DeleteManipulator();
         deleteManipulator.setEvery(2);
         deleteManipulator.setUnit("day");
-        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
         log.add(deleteManipulator);
         log.validate();
         assertBackupsHelper(log, 3, 1, 2);
@@ -241,7 +255,7 @@ public class LogTest extends TestCase {
         deleteManipulator.setUnit("day");
         // This should delete the gz-files too
         deleteManipulator.setIgnoreSuffix(true);
-        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
         log.add(deleteManipulator);
         log.validate();
         assertBackupsHelper(log, 1, 1, 0);
@@ -249,7 +263,7 @@ public class LogTest extends TestCase {
         //Validation Error
         gzip = new GZIPManipulator();
         gzip.setUnit("day");
-        log = getWrittenTestLog(testProjectName, testLogDir, date.getTime());
+        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
         log.add(gzip);
         try {
             log.validate();
@@ -285,9 +299,9 @@ public class LogTest extends TestCase {
                 fail("Other log files exists");
             }
         }
-        assertEquals(expectedLength, logfiles.length);
-        assertEquals(expectedXML, countXML);
         assertEquals(expectedGZIP, countGzip);
+        assertEquals(expectedXML, countXML);
+        assertEquals(expectedLength, logfiles.length);
     }
 
     private Log getWrittenTestLog(String projectName, String testLogDir,
@@ -298,12 +312,18 @@ public class LogTest extends TestCase {
         log = new Log();
         log.setProjectName(projectName);
         log.setDir(testLogDir);
+        log.validate();
         log.addContent(getBuildLogInfo());
         build = new Element("build");
         log.addContent(build);
         log.addContent(new Element("modifications"));
         log.writeLogFile(date);
-        filesToDelete.add(log.getLastLogFile());
+
+        String expectFilename = "log" + DateUtil.getFormattedTime(date) + "L.xml";
+        File logFile = new File(testLogDir, expectFilename);
+        assertTrue(logFile.isFile());
+        filesToDelete.add(logFile);
+        
         return log;
     }
 
