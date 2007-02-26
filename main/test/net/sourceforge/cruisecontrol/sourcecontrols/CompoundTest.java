@@ -37,8 +37,9 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -71,12 +72,17 @@ public class CompoundTest extends TestCase {
 
         modList = compound.getModifications(new Date(0), new Date());
         assertEquals("modification lists should match", modList, targetModsList);
-
+        assertEquals(0, compound.getProperties().size());
+        
         // test retrieving mods without including trigger changes
         compound.setIncludeTriggerChanges("true");
-
+        compound.setProperty("property");
+        
         modList = compound.getModifications(new Date(0), new Date());
         assertEquals("modification lists should match", modList, allModsList);
+        Map properties = compound.getProperties();
+        assertEquals(1, properties.size());
+        assertTrue(properties.containsKey("property"));
     }
 
     public void testValidate() {
