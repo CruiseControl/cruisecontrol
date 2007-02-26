@@ -51,6 +51,10 @@
             <!-- Includes copied ccdist-buildAgentService.jar, ccdist-core.jar -->
             <include name="**/ccdist-buildAgentService.jar" />
             <include name="**/ccdist-core.jar" />
+
+            <!-- required for access to Builder interface. 
+             //@todo should probably find a way to serve this via Class server -->
+            <include name="**/cruisecontrol.jar" />
         </fileset>
         <fileset id="fs.jini.core" dir="jini-core">
             <include name="**/*.jar" />
