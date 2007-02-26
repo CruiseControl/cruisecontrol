@@ -40,6 +40,7 @@ ClearCase
 CompositeBuilder
 ----------------------
 * Fix reported build time.  Patch by Frederic Mockel. 
+* Changed the default element name from <builders> to <composite>
 
 Compound
 ----------------------
