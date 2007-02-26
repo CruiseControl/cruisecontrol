@@ -42,7 +42,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -196,14 +195,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public String getName() {
         return name;
-    }
-
-    public void writeLogFile(Date now) throws CruiseControlException {
-        log.writeLogFile(now);
-    }
-
-    public boolean wasBuildSuccessful() {
-        return log.wasBuildSuccessful();
     }
 
     public static class Bootstrappers implements Serializable {

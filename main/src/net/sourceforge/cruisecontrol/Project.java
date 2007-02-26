@@ -198,7 +198,10 @@ public class Project implements Serializable, Runnable {
                 return;
             }
 
-            projectConfig.getLog().addContent(modifications);
+            // Using local reference to avoid NPE if config.xml is updated during build
+            Log buildLog = projectConfig.getLog();
+
+            buildLog.addContent(modifications);
 
             Date now = new Date();
             if (projectConfig.getModificationSet() != null) {
@@ -206,26 +209,26 @@ public class Project implements Serializable, Runnable {
             }
 
             if (getLabelIncrementer().isPreBuildIncrementer()) {
-                label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
+                label = getLabelIncrementer().incrementLabel(label, buildLog.getContent());
             }
 
             // collect project information
-            projectConfig.getLog().addContent(getProjectPropertiesElement(now));
+            buildLog.addContent(getProjectPropertiesElement(now));
 
             setState(ProjectState.BUILDING);
-            Element buildLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target);
-            projectConfig.getLog().addContent(buildLog.detach());
+            Element builderLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target);
+            buildLog.addContent(builderLog.detach());
 
-            boolean buildSuccessful = projectConfig.wasBuildSuccessful();
+            boolean buildSuccessful = buildLog.wasBuildSuccessful();
             fireResultEvent(new BuildResultEvent(this, buildSuccessful));
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
-                label = getLabelIncrementer().incrementLabel(label, projectConfig.getLog().getContent());
-                projectConfig.getLog().updateLabel(label);
+                label = getLabelIncrementer().incrementLabel(label, buildLog.getContent());
+                buildLog.updateLabel(label);
             }
 
             setState(ProjectState.MERGING_LOGS);
-            projectConfig.writeLogFile(now);
+            buildLog.writeLogFile(now);
 
             // If we only want to build after a check in, even when broken, set the last build to now,
             // regardless of success or failure (buildAfterFailed = false in config.xml)
@@ -249,8 +252,8 @@ public class Project implements Serializable, Runnable {
             //resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             serializeProject();
 
-            publish();
-            projectConfig.getLog().reset();
+            publish(buildLog);
+            buildLog.reset();
         } finally {
             resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             setState(ProjectState.IDLE);
@@ -713,15 +716,16 @@ public class Project implements Serializable, Runnable {
     /**
      * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
+     * @param buildLog 
      * @throws CruiseControlException if an error occurs during publishing
      */
-    protected void publish() throws CruiseControlException {
+    protected void publish(Log buildLog) throws CruiseControlException {
         setState(ProjectState.PUBLISHING);
         for (Iterator i = projectConfig.getPublishers().iterator(); i.hasNext(); ) {
             Publisher publisher = (Publisher) i.next();
             // catch all errors, Publishers shouldn't cause failures in the build method
             try {
-                publisher.publish(projectConfig.getLog().getContent());
+                publisher.publish(buildLog.getContent());
             } catch (Throwable t) {
                 StringBuffer message = new StringBuffer("exception publishing results");
                 message.append(" with ").append(publisher.getClass().getName());
