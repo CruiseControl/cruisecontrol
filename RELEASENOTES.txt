@@ -21,6 +21,10 @@ distributed
 build loop
 ======================
 
+AlwaysBuild
+----------------------
+* Add support for property attribute
+
 ClearCase
 ----------------------
 * Detect ClearCase UCM stream rebases as modifications (CC-464). Patch by Scott Coplin.
@@ -41,6 +45,10 @@ default-plugins.properties
 ExecScript
 ----------------------
 * Handle commands with spaces on Linux (CC-551).  Patch by Frederic Mockel.
+
+HttpFile
+----------------------
+* Add support for property attribute to bring it in line with the documentation (CC-590)
 
 Main
 ----------------------
@@ -73,6 +81,10 @@ SocketPublisher
 SVN
 ----------------------
 * Add checkExternals flag to check for changes in svn:externals. (CC-585). Patch by Chad Woolley.
+
+TimeBuild
+----------------------
+* Add support for the property attribute
 
 Veto
 ----------------------

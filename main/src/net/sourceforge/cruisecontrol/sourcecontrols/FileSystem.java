@@ -39,9 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -54,9 +52,6 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  */
 public class FileSystem extends FakeUserSourceControl {
 
-    private Hashtable properties = new Hashtable();
-    private String property;
-
     private List modifications;
     private File folder;
     //TODO: change folder attribute to path. Can be file or directory.
@@ -66,14 +61,6 @@ public class FileSystem extends FakeUserSourceControl {
      */
     public void setFolder(String s) {
         folder = new File(s);
-    }
-
-    public void setProperty(String property) {
-        this.property = property;
-    }
-
-    public Map getProperties() {
-        return properties;
     }
 
     public void validate() throws CruiseControlException {
@@ -93,6 +80,10 @@ public class FileSystem extends FakeUserSourceControl {
         modifications = new ArrayList();
 
         visit(folder, lastBuild.getTime());
+        
+        if (!modifications.isEmpty()) {
+            getSourceControlProperties().modificationFound();
+        }
 
         return modifications;
     }
@@ -114,10 +105,6 @@ public class FileSystem extends FakeUserSourceControl {
         mod.modifiedTime = new Date(revision.lastModified());
         mod.comment = "";
         modifications.add(mod);
-
-        if (property != null) {
-            properties.put(property, "true");
-        }
     }
 
     /**

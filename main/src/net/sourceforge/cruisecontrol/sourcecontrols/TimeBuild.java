@@ -39,9 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -68,8 +66,6 @@ public class TimeBuild extends FakeUserSourceControl {
 
     private int time = Builder.NOT_SET;
 
-    private Hashtable properties = new Hashtable();
-
     /**
      * The threshold time to cross that starts triggering a build
      *
@@ -78,10 +74,6 @@ public class TimeBuild extends FakeUserSourceControl {
      */
     public void setTime(String timeString) {
         time = Integer.parseInt(timeString);
-    }
-
-    public Map getProperties() {
-        return properties;
     }
 
     public void validate() throws CruiseControlException {
@@ -124,6 +116,10 @@ public class TimeBuild extends FakeUserSourceControl {
             }
         }
 
+        if (!modifications.isEmpty()) {
+            getSourceControlProperties().modificationFound();
+        }
+        
         return modifications;
     }
 

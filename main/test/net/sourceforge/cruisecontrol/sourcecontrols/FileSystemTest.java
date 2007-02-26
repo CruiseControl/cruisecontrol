@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -107,6 +108,7 @@ public class FileSystemTest extends TestCase {
         List mods = fs.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(0, mods.size());
+        assertEquals(0, fs.getProperties().size());
 
         writeNewFile(timeOne, "testing");
         writeNewFile(timeOne, "testing2");
@@ -115,15 +117,20 @@ public class FileSystemTest extends TestCase {
         mods = fs.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(2, mods.size());
+        assertEquals(0, fs.getProperties().size());
 
         writeNewFile(timeTwo, "testing3");
         writeNewFile(timeTwo, "testing4");
         writeNewFile(timeTwo, "testing5");
 
         // Checking for mods again should turn up only the new files.
+        fs.setProperty("property");
         mods = fs.getModifications(timeOne, timeTwo);
         assertNotNull(mods);
         assertEquals(3, mods.size());
+        Map properties = fs.getProperties();
+        assertEquals(1, properties.size());
+        assertTrue(properties.containsKey("property"));
 
         writeNewFile(timeThree, "testing6");
 

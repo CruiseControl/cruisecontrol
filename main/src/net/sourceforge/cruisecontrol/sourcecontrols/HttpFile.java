@@ -42,9 +42,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -63,10 +61,6 @@ public class HttpFile extends FakeUserSourceControl {
 
         public void setURL(String urlString) {
         this.urlString = urlString;
-    }
-
-    public Map getProperties() {
-        return new Hashtable();
     }
 
     public void validate() throws CruiseControlException {
@@ -110,6 +104,11 @@ public class HttpFile extends FakeUserSourceControl {
             mod.comment = "";
             modifiedList.add(mod);
         }
+        
+        if (!modifiedList.isEmpty()) {
+            getSourceControlProperties().modificationFound();
+        }
+        
         return modifiedList;
     }
 
