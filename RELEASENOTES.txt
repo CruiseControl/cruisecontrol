@@ -58,6 +58,10 @@ P4
 ----------------------
 * Display modification time using local timezone if correctForServerTime is true (CC-574). Patch by Anatol Pomozov
 
+Project
+----------------------
+* Fix NPE when there are multiple build threads and config.xml is reloaded during a build.
+
 PropertyFileLabelIncrementer
 ----------------------
 * PropertyFileLabelIncrementer uses specified property file, not the previous log file. (CC-519)  Patch by Chad Woolley and Joe Moore.

@@ -69,6 +69,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 public class ProjectTest extends TestCase {
+
     private static final Logger LOG = Logger.getLogger(ProjectTest.class);
 
     private static final String TEST_DIR = "tmp";
@@ -292,11 +293,40 @@ public class ProjectTest extends TestCase {
         Schedule schedule = new Schedule();
         schedule.add(new MockBuilder());
         projectConfig.add(schedule);
-        projectConfig.add(new MockLog());
+        MockLog mockLog = new MockLog();
+        mockLog.setProjectName(project.getName());
+        projectConfig.add(mockLog);
         project.start();
         project.setBuildForced(true);
         project.init();
         project.build();
+    }
+    
+    /*
+     * This test simulates what happens when there are multiple build threads
+     * and the config.xml gets reloaded while a project is building. This was 
+     * causing NPEs but has now been fixed.
+     */
+    public void testBuildWithNewProjectConfigDuringBuild() throws CruiseControlException {
+        projectConfig = new ProjectConfig() {
+            Project readProject(String projectName) {
+                return project;
+            } 
+        };
+        projectConfig.setName("TestProjectForGettingNewProjectConfigDuringBuild");
+        projectConfig.add(new DefaultLabelIncrementer());
+        projectConfig.configureProject();
+        
+        Schedule schedule = new Schedule();
+        schedule.add(new MockBuilderChangesProjectConfig(projectConfig));
+        projectConfig.add(schedule);
+        MockLog mockLog = new MockLog();
+        mockLog.setProjectName(project.getName());
+        projectConfig.add(mockLog);
+        project.start();
+        project.setBuildForced(true);
+        project.init();
+        project.build();        
     }
 
     public void testBadLabel() {
@@ -331,7 +361,7 @@ public class ProjectTest extends TestCase {
         projectConfig.add(new Log());
         project.init();
 
-        project.publish();
+        project.publish(projectConfig.getLog());
 
         assertEquals(2, publisher.getPublishCount());
     }
@@ -762,7 +792,40 @@ public class ProjectTest extends TestCase {
 
     private class MockLog extends Log {
 
-        public void writeLogFile(Date now) throws CruiseControlException {
+        protected void callManipulators() {
+        }
+
+        protected void writeLogFile(File file, Element element) throws CruiseControlException {
+        }
+
+    }
+
+    public class MockBuilderChangesProjectConfig extends MockBuilder {
+
+        private ProjectConfig oldProjectConfig;
+
+        public MockBuilderChangesProjectConfig(ProjectConfig projectConfig) {
+            oldProjectConfig = projectConfig;
+        }
+
+        /*
+         * This is to simulate what happens when the config file changes during a build.
+         */
+        public Element build(Map properties) {
+            ProjectConfig newProjectConfig = new ProjectConfig();
+            newProjectConfig.add(new DefaultLabelIncrementer());
+            Schedule schedule = new Schedule();
+            schedule.add(new MockBuilder());
+            newProjectConfig.add(schedule);
+            newProjectConfig.add(new MockLog());
+            
+            try {
+                newProjectConfig.getStateFromOldProject(oldProjectConfig);
+            } catch (CruiseControlException e) {
+                throw new RuntimeException(e);
+            }
+            
+            return super.build(properties);
         }
 
     }
