@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.util.List;
 
@@ -20,9 +21,30 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         assertEquals("testmodule-attribs", dist.getAttributeValue(DistributedMasterBuilderTest.ATR_NAME_MODULE));
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         masterBuilder.configure(dist);
         assertEquals("agent/log", masterBuilder.getAgentLogDir());
         assertEquals("master/log", masterBuilder.getMasterLogDir());
+} else {
+        try {
+            masterBuilder.validate();
+            fail("mising child builder");
+        } catch (CruiseControlException e) {
+            assertEquals("A nested Builder is required for DistributedMasterBuilder", e.getMessage());
+        }
+        final Builder mockBuilder = new MockBuilder();
+        masterBuilder.add(mockBuilder);
+        try {
+            masterBuilder.validate();
+            fail("missing module attrib");
+        } catch (CruiseControlException e) {
+            assertEquals("The 'module' attribute is required for DistributedMasterBuilder", e.getMessage());
+        }
+        masterBuilder.setModule("testModule");
+        masterBuilder.validate();
+}
+
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         // check PreconfiguredPlugin attib on distributed tag
         final String preConfMsg = "Are PreConfgured Plugin settings still broken for distributed builds?"
                 + "\nSee " + BuildAgentServiceImplTest.TEST_CONFIG_FILE + " for more info.";
@@ -46,6 +68,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 "testChildValuePre"); // this is a duplicate default, and should also appear, unless logic changes
         checkChildProperty(preConfMsg, (Element) builderChildren.get(3), "testPreConfChildNew",
                 "testPreConfAntChildNewValue"); // this is a non-duplicate default
+}    
     }
     private static void checkChildProperty(String preConfMsg, Element childProperty,
                                            String expectedName, String expectedValue) {
@@ -66,8 +89,8 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 "7", ant.getAttributeValue(DistributedMasterBuilderTest.ATR_NAME_DAY));
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         masterBuilder.configure(dist);
-
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 7, masterBuilder.getDay());
         assertEquals("Distributed builder should wrap child-builder schedule fields",
@@ -75,6 +98,22 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         // @todo Is this logic correct, or should value be NOT_SET?
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 1, masterBuilder.getMultiple());
+} else {
+        final Builder childBuilder = new MockBuilder();
+        childBuilder.setDay("Saturday");
+        childBuilder.setMultiple(1);
+
+        masterBuilder.add(childBuilder);
+        masterBuilder.setModule("testModule");
+        masterBuilder.validate();
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                7, masterBuilder.getDay());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getTime());
+        // @todo Is this logic correct, or should value be NOT_SET?
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                1, masterBuilder.getMultiple());
+}
     }
 
     public void testScheduleTime() throws Exception {
@@ -86,14 +125,27 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 "0530", ant.getAttributeValue(DistributedMasterBuilderTest.ATR_NAME_TIME));
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         masterBuilder.configure(dist);
-
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 530, masterBuilder.getTime());
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getDay());
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getMultiple());
+} else {
+        final Builder childBuilder = new MockBuilder();
+        childBuilder.setTime("530");
+        masterBuilder.add(childBuilder);
+        masterBuilder.setModule("testModule");
+        masterBuilder.validate();
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                530, masterBuilder.getTime());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getDay());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getMultiple());
+}
     }
 
     public void testScheduleMultiple() throws Exception {
@@ -105,14 +157,27 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 "2", ant.getAttributeValue(DistributedMasterBuilderTest.ATR_NAME_MULTIPLE));
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         masterBuilder.configure(dist);
-
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 2, masterBuilder.getMultiple());
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getTime());
         assertEquals("Distributed builder should wrap child-builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getDay());
+} else {
+        final Builder childBuilder = new MockBuilder();
+        childBuilder.setMultiple(2);
+        masterBuilder.add(childBuilder);
+        masterBuilder.setModule("testModule");
+        masterBuilder.validate();
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                2, masterBuilder.getMultiple());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getTime());
+        assertEquals("Distributed builder should wrap child-builder schedule fields",
+                Builder.NOT_SET, masterBuilder.getDay());
+}
     }
 
     public void testDefaultModuleValue() throws Exception {
@@ -123,14 +188,15 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 dist.getAttributeValue(DistributedMasterBuilderTest.ATR_NAME_MODULE));
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
         masterBuilder.configure(dist);  // this would fail if default "module" value didn't work
-
         assertEquals("agent/log", masterBuilder.getAgentLogDir());
         assertEquals("master/log", masterBuilder.getMasterLogDir());
         // check PreconfiguredPlugin attib on distributed tag
         final String preConfMsg = "Are PreConfgured Plugin settings still broken for distributed builds?"
                 + "\nSee " + BuildAgentServiceImplTest.TEST_CONFIG_FILE + " for more info.";
         assertEquals(preConfMsg, "build.type=test", dist.getAttributeValue("entries"));
+}    
     }
 
 }
