@@ -18,7 +18,10 @@ import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
+import net.sourceforge.cruisecontrol.builders.MockBuilder;
 
 /**
  * @author: Dan Rollo
@@ -105,7 +108,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         try {
             // fails at old props.putAll() and now at projectPropertiesMap.toString(), 
             // doesn't fire 2nd agent status event
-            agentImpl.doBuild(null, null, distributedAgentProps); 
+            agentImpl.doBuild((Builder) null, null, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -118,7 +121,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         agentListener.setAgentStatusChangeCount(0);
         try {
             // gets far enough to fire 2nd agent status change
-            agentImpl.doBuild(null, new HashMap(), distributedAgentProps); 
+            agentImpl.doBuild((Builder) null, new HashMap(), distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -155,7 +158,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
 
         try {
-            agentImpl.doBuild(null, projectProps, distributedAgentProps); // gets far enough to set Module name...
+            // gets far enough to set Module name...
+            agentImpl.doBuild((Builder) null, projectProps, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -203,7 +207,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, testModuleName);
 
         try {
-            agentImpl.doBuild(null, projectProps, distributedAgentProps); // gets far enough to set Module name...
+            // gets far enough to set Module name...
+            agentImpl.doBuild((Builder) null, projectProps, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -575,7 +580,7 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @throws CruiseControlException if build dies
      * @throws RemoteException if something else dies
      */
-    public static Element callTestDoBuild(boolean isBuildFailure,
+    public static Element callTestDoBuild(final boolean isBuildFailure,
                                        final BuildAgentService agent,
                                        final Map distributedAgentProps) 
             throws CruiseControlException, RemoteException {
@@ -622,7 +627,40 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         final Map projectProps = new HashMap();
         
+if (DistributedMasterBuilder.USE_SERIALIZABLE) {
+        final MockBuilder mockBuilder = new MockBuilder("testCCDistMockChildBuilder") {
+            public Element build(Map properties) {
+                final Element retVal = super.build(properties);
+
+                // create a files in the expected dirs
+                createExpectedBuildArtifact(new File("logs/" + expectedModuleName + "/TEST-bogustestclassSuccess.xml"));
+                if (!isBuildFailure) {
+                    createExpectedBuildArtifact(new File("output/" + expectedModuleName + "/testoutputSuccess"));
+                }
+
+                return retVal;
+            }
+        };
+        return agent.doBuild(mockBuilder, projectProps, distributedAgentProps);
+} else {
         return agent.doBuild(antBuilderElement, projectProps, distributedAgentProps);
+}
+    }
+
+    private static void createExpectedBuildArtifact(File buildProducedFile) {
+        if (!buildProducedFile.getParentFile().exists()) {
+            buildProducedFile.getParentFile().mkdirs();
+        }
+        try {
+            if (!buildProducedFile.exists()) {
+                assertTrue(buildProducedFile.createNewFile());
+            }
+        } catch (IOException e) {
+            fail("couldn't create expected output build produced file: " + buildProducedFile.getAbsolutePath());
+        }
+        buildProducedFile.deleteOnExit();
+        buildProducedFile.getParentFile().deleteOnExit();
+        buildProducedFile.getParentFile().getParentFile().deleteOnExit();
     }
 
     public static String getANT_HOME() {
@@ -699,7 +737,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static void callDoBuildWithNulls(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
     {
         try {
-            agentImpl.doBuild(null, null, null);
+            agentImpl.doBuild((Builder) null, null, null);
             fail("Should have failed to build");
         } catch (NullPointerException e) {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());

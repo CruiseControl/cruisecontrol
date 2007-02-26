@@ -103,6 +103,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private boolean isPendingRestart;
     private Date pendingRestartSince;
 
+private boolean useSeralizable = false; // @todo Remove this when done with SelfConfiguringPlugin
+
     private Properties configProperties;
     private final Map distributedAgentProps = new HashMap();
     private String logDir;
@@ -282,8 +284,17 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         logPrefixInfo("agent busy status changed to: " + newIsBusy);
     }
 
+    public Element doBuild(final Builder childBuilder, final Map projectPropertiesMap,
+                           final Map distributedAgentProperties) throws RemoteException {
+        return doBuild(childBuilder, null, projectPropertiesMap, distributedAgentProperties);
+    }
     public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap,
                            final Map distributedAgentProperties) throws RemoteException {
+        return doBuild(null, nestedBuilderElement, projectPropertiesMap, distributedAgentProperties);
+    }
+    public Element doBuild(final Builder childBuilder, final Element nestedBuilderElement,
+                           final Map projectPropertiesMap, final Map distributedAgentProperties)
+            throws RemoteException {
 
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
@@ -324,8 +335,17 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
             final Element buildResults;
             final Builder nestedBuilder;
+
+            configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
+                    getAgentPropertiesFilename());
+
+
             try {
+if (useSeralizable) {
+                nestedBuilder = childBuilder;
+} else {
                 nestedBuilder = createBuilder(nestedBuilderElement);
+}
                 nestedBuilder.validate();
             } catch (CruiseControlException e) {
                 final String message = "Failed to configure nested Builder on agent";
@@ -358,9 +378,6 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     private Builder createBuilder(final Element builderElement) throws CruiseControlException {
-
-        configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
-                getAgentPropertiesFilename());
 
         final String overrideTarget
                 = (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);

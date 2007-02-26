@@ -43,10 +43,18 @@ import java.util.Map;
 import java.util.Date;
 
 import org.jdom.Element;
+import net.sourceforge.cruisecontrol.Builder;
 
 public interface BuildAgentService extends Remote {
 
+    /**
+     * @deprecated This method is soon to be replaced with the serializable version of Builder,
+     * see {@link #doBuild(net.sourceforge.cruisecontrol.Builder, java.util.Map, java.util.Map)}. 
+     */
     public Element doBuild(Element nestedBuilderElement, Map projectProperties,
+                           Map distributedAgentProperties) throws RemoteException;
+
+    public Element doBuild(Builder childBuilder, Map projectProperties,
                            Map distributedAgentProperties) throws RemoteException;
 
     public String getMachineName() throws RemoteException;

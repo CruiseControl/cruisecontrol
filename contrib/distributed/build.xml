@@ -69,6 +69,8 @@
     <property name="dir.main.lib" value="${dir.main}/lib"/>
     <property name="dir.main.dist" value="${dir.main}/dist"/>
 
+    <property name="dir.main.target.test-classes" value="${dir.main}/target/test-classes"/>
+
     <property name="dir.webcontent" value="webcontent"/>
     <property name="dir.webstart" value="${dir.webcontent}/webstart"/>
 
@@ -107,6 +109,7 @@
         <include name="jdom*.jar" />
     </patternset>
 
+
     <!-- JNLP Service API classes -->
     <path id="jnlpServiceAPI.classpath">
          <fileset dir="${java.home}">
@@ -135,6 +138,12 @@
             <include name="cruisecontrol.jar" />
         </fileset>
         <path refid="jnlpServiceAPI.classpath"/>
+
+        <!-- required unit test helper class from main test-classes -->
+        <pathelement location="${dir.main.target.test-classes}"/>
+        <!--<fileset dir="${dir.main.target.test-classes}"> @todo Fixme -->
+            <!--<include  name="**/*MockBuilder"/>-->
+        <!--</fileset>-->
     </path>
 
     <path id="ccdist.project.runtime.classpath">
@@ -151,6 +160,12 @@
         </fileset>
         <path refid="jini.core.classpath"/>
         <path refid="jnlpServiceAPI.classpath"/>
+
+        <!-- required unit test helper class from main test-classes -->
+        <pathelement location="${dir.main.target.test-classes}"/>
+        <!--<fileset dir="${dir.main.target.test-classes}"> @todo Fixme -->
+            <!--<include  name="**/*MockBuilder"/>-->
+        <!--</fileset>-->
     </path>
 
 

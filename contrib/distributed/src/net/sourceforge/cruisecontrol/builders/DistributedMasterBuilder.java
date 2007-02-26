@@ -47,11 +47,15 @@ import java.util.Set;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Collections;
+import java.util.ArrayList;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.Builder;
+
+// @todo Remove this when done with SelfConfiguringPlugin
 import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
@@ -63,12 +67,15 @@ import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
-public class DistributedMasterBuilder extends Builder implements SelfConfiguringPlugin {
+public class DistributedMasterBuilder extends Builder
+        // @todo Remove this when done with SelfConfiguringPlugin {
+        implements SelfConfiguringPlugin {
 
     private static final Logger LOG = Logger.getLogger(DistributedMasterBuilder.class);
 
@@ -82,7 +89,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     // TODO: Can we get the module from the projectProperties instead of setting
     // it via an attribute?
     //  Could be set in ModificationSet...
-    private String entries;
+    private String entries = "";
     private String module;
 
     private String agentLogDir;
@@ -91,7 +98,11 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
     private String masterLogDir;
     private String masterOutputDir;
 
-    private Element childBuilderElement;
+    private Element childBuilderElement; // @todo Remove this when done with SelfConfiguringPlugin
+public static final boolean USE_SERIALIZABLE = false; // @todo Remove this when done with SelfConfiguringPlugin
+    private List tmpChildBuilders = new ArrayList();
+    private Builder childBuilder;
+
     private String overrideTarget;
     private MulticastDiscovery discovery;
     private File rootDir;
@@ -100,9 +111,6 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         overrideTarget = target;
     }
 
-    Element getChildBuilderElement() {
-        return childBuilderElement;
-    }
 
     /**
      * @param isFailFast If true, available agent lookup will not block until an agent is found,
@@ -184,6 +192,12 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         tempAttribute = element.getAttribute("masteroutputdir");
         setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
 
+        loadRequiredProps();
+
+        validate();
+    }
+
+    private void loadRequiredProps() throws CruiseControlException {
         final Properties cruiseProperties;
         try {
             cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
@@ -205,8 +219,6 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             System.err.println(message);
             throw new CruiseControlException(message);
         }
-
-        validate();
     }
 
     /**
@@ -349,6 +361,28 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     public void validate() throws CruiseControlException {
         super.validate();
+
+        loadRequiredProps();
+
+if (USE_SERIALIZABLE) {
+        if (tmpChildBuilders.size() == 0) {
+            final String message = "A nested Builder is required for DistributedMasterBuilder";
+            LOG.warn(message);
+            throw new CruiseControlException(message);
+        } else if (tmpChildBuilders.size() > 1) {
+            final String message = "Only one nested Builder is allowed for DistributedMasterBuilder";
+            LOG.warn(message);
+            throw new CruiseControlException(message);
+        }
+        ValidationHelper.assertHasChild(tmpChildBuilders.get(0), Builder.class, "ant, maven2, etc.",
+                DistributedMasterBuilder.class);
+        childBuilder = (Builder) tmpChildBuilders.get(0);
+
+        // In order to support Build Agents who's build tree does not exactly match the Master, only validate
+        // the child builder on the Build Agent (so don't validate it here). 
+        //childBuilder.validate();
+} else {
+
         final Element elmChildBuilder = getChildBuilderElement();
         if (elmChildBuilder == null) {
             final String message = "A nested Builder is required for DistributedMasterBuilder";
@@ -374,7 +408,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
         final Builder builder = (Builder) pluginXMLHelper.configure(elmChildBuilder, pluginClass, false);
         builder.validate();
         //*/
-
+}
         if (module == null) {
             final String message = "The 'module' attribute is required for DistributedMasterBuilder";
             LOG.warn(message);
@@ -395,16 +429,28 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
     /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
     public int getDay() {
+if (USE_SERIALIZABLE) {
+        return childBuilder.getDay();
+} else {
         // @todo Replace with real Builder object if possible
         return convertNullToNOT_SET(childBuilderElement.getAttributeValue("day"));
+}
     }
+
     /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
     public int getTime() {
+if (USE_SERIALIZABLE) {
+        return childBuilder.getTime();
+} else {
         // @todo Replace with real Builder object if possible
         return convertNullToNOT_SET(childBuilderElement.getAttributeValue("time"));
+}
     }
     /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
     public int getMultiple() {
+if (USE_SERIALIZABLE) {
+        return childBuilder.getMultiple();
+} else {
         // @todo Replace with real Builder object if possible
         final String value = childBuilderElement.getAttributeValue("multiple");
         final int retVal;
@@ -419,6 +465,7 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
             retVal = Integer.parseInt(value);
         }
         return retVal;
+}
     }
 
     
@@ -462,8 +509,11 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
                 LOG.debug("Project Props: " + projectProperties.toString());
 
                 LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
+if (USE_SERIALIZABLE) {
+                buildResults = agent.doBuild(childBuilder, projectProperties, distributedAgentProps);
+} else {
                 buildResults = agent.doBuild(getChildBuilderElement(), projectProperties, distributedAgentProps);
-
+}
                 final String rootDirPath;
                 try {
                     // watch out on Windoze, problems if root dir is c: instead of c:/
@@ -572,6 +622,26 @@ public class DistributedMasterBuilder extends Builder implements SelfConfiguring
 
         return agent;
     }
+
+
+    public void setModule(final String module) {
+        this.module = module;
+    }
+
+    public void setEntries(final String entries) {
+        this.entries = entries;
+    }
+
+
+    Element getChildBuilderElement() {
+        return childBuilderElement;
+    }
+
+    public void add(final Builder builder) {
+        tmpChildBuilders.add(builder);
+        childBuilder = builder; // can't leave this null, otherwise ProjectConfig.validate() fails
+    }
+
 
     public String getAgentLogDir() {
         return agentLogDir;
