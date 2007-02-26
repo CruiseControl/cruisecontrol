@@ -69,27 +69,23 @@ public class LogTest extends TestCase {
         filesToDelete.delete();
     }
 
-    public void testCreatingLog() {
-        //Cannot create a Log instance with a null project name
+    public void testSetProjectNameShouldThrowIAEIfPassedNull() {
+        Log log = new Log();
         try {
-            Log log = new Log();
             log.setProjectName(null);
-            fail("Expected an exception when creating a Log instance with "
-                    + "a null Project name.");
-        } catch (NullPointerException npe) {
-            //Good, expected this exception.
-        }
-
-        //Cannot create a Log instance with a null project name
+            fail();
+        } catch (IllegalArgumentException expected) {
+            assertEquals("projectName can't be null", expected.getMessage());
+        }        
+    }
+    
+    public void testValidateShouldFailWhenProjectNameNotSet() {
+        Log log = new Log();
         try {
-            Log log = new Log();
             log.validate();
-            fail("Expected an exception when creating a Log instance with "
-                    + "a null Project name.");
-        } catch (IllegalStateException npe) {
-            // Good, expected this exception.
-        } catch (CruiseControlException cce) {
-            fail("unepected: " + cce.getMessage());
+            fail();
+        } catch (CruiseControlException expected) {
+            assertEquals("projectName must be set", expected.getMessage());
         }
     }
 

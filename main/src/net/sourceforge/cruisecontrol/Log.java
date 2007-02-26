@@ -36,9 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Content;
@@ -46,19 +59,6 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
 
 /**
  * Handles the Log element, and subelements, of the CruiseControl configuration file. Also represents the Build Log used
@@ -90,12 +90,12 @@ public class Log implements Serializable {
      * Although this property is required, it is implicitly defined by the project and doesn't map to a config file
      * attribute.
      * 
-     * @throws NullPointerException
+     * @throws IllegalArgumentException
      *             is projectName is null
      */
     void setProjectName(String projectName) {
         if (projectName == null) {
-            throw new NullPointerException("null projectName.");
+            throw new IllegalArgumentException("projectName can't be null");
         }
         this.projectName = projectName;
         if (logDir == null) {
@@ -111,8 +111,9 @@ public class Log implements Serializable {
      */
     public void validate() throws CruiseControlException {
         if (projectName == null) {
-            // not a real validation. Not using ValidationHelper
-            throw new IllegalStateException("projectName unset.");
+            // Not using ValidationHelper because projectName should be set
+            // implictly by the project, not as an attribute.
+            throw new CruiseControlException("projectName must be set");
         }
         if (logDir != null) {
             checkLogDirectory(logDir);
