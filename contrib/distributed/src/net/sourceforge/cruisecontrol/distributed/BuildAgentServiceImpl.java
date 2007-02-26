@@ -385,6 +385,10 @@ if (useSeralizable) {
 
         final PluginRegistry plugins = PluginRegistry.createRegistry();
         final Class pluginClass = plugins.getPluginClass(builderElement.getName());
+        if (pluginClass == null) {
+            throw new IllegalStateException("Error getting plugin class for builder: "
+                    + builderElement.getName() + ". Did the plugin tag name change?");
+        }
 
         return (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
     }
