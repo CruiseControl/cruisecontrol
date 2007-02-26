@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
