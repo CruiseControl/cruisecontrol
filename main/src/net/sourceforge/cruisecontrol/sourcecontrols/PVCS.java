@@ -43,7 +43,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +90,8 @@ public class PVCS implements SourceControl {
     private SimpleDateFormat outDateFormat = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
 
     private static final String PVCS_RESULTS_FILE = "vlog.txt";
+    
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * Get name of the PVCS bin directory
@@ -128,9 +129,13 @@ public class PVCS implements SourceControl {
     public void setOutDateFormat(String outDateFormat) {
         this.outDateFormat = new SimpleDateFormat(outDateFormat);
     }
+    
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
+    }
 
     public Map getProperties() {
-        return Collections.EMPTY_MAP;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -156,14 +161,30 @@ public class PVCS implements SourceControl {
         String nowDate = inDateFormat.format(now);
 
         try {
-            Commandline command = buildExecCommand(lastBuildDate, nowDate);
-            command.executeAndWait(LOG);
+            executeCommandLine(lastBuildDate, nowDate);
         } catch (Exception e) {
             LOG.error("Error in executing the PVCS command : ", e);
             return new ArrayList();
         }
 
-        return makeModificationsList(new File(PVCS_RESULTS_FILE));
+        List modificationsList = makeModificationsList(getResultsFile());
+        
+        if (!modificationsList.isEmpty()) {
+            properties.modificationFound();
+        }
+        
+        return modificationsList;
+    }
+
+
+    File getResultsFile() {
+        return new File(PVCS_RESULTS_FILE);
+    }
+
+
+    void executeCommandLine(String lastBuildDate, String nowDate) throws IOException, InterruptedException {
+        Commandline command = buildExecCommand(lastBuildDate, nowDate);
+        command.executeAndWait(LOG);
     }
 
     String getExecutable(String exe) {

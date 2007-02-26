@@ -74,6 +74,10 @@ PropertyFileLabelIncrementer
 ----------------------
 * PropertyFileLabelIncrementer uses specified property file, not the previous log file. (CC-519)  Patch by Chad Woolley and Joe Moore.
 
+PVCS
+----------------------
+* Add support for property attribute
+
 SocketPublisher
 ----------------------
 * Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
