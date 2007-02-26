@@ -91,12 +91,7 @@ public class XMLLogHelper {
         this(log, DateFormatFactory.getDateFormat());
     }
 
-    // deprecated? not used...
-    public XMLLogHelper(Element log, String dateFormatString) {
-        this(log, new SimpleDateFormat(dateFormatString));
-    }
-
-    public XMLLogHelper(Element log, DateFormat dateFormat) {
+    XMLLogHelper(Element log, DateFormat dateFormat) {
         this.log = log;
         this.dateFormat = dateFormat;
     }
