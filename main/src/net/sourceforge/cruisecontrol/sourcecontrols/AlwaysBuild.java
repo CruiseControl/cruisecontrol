@@ -38,9 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -51,12 +49,6 @@ import net.sourceforge.cruisecontrol.Modification;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class AlwaysBuild extends FakeUserSourceControl {
-
-    private static final Hashtable EMPTY_HASHTABLE = new Hashtable();
-
-    public Map getProperties() {
-        return EMPTY_HASHTABLE;
-    }
 
     public void validate() throws CruiseControlException {
 
@@ -78,6 +70,8 @@ public class AlwaysBuild extends FakeUserSourceControl {
         //Oldest modification possible, sort of, 1 second past the last build.
         mod.modifiedTime = new Date(lastBuild.getTime() + 100);
         mod.comment = "";
+        
+        getSourceControlProperties().modificationFound();
         return Collections.singletonList(mod);
     }
 

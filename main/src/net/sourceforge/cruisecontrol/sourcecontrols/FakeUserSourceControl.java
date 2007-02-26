@@ -52,6 +52,11 @@ import net.sourceforge.cruisecontrol.SourceControl;
 public abstract class FakeUserSourceControl implements SourceControl {
 
     private String userName = "User";
+    private SourceControlProperties properties = new SourceControlProperties();
+    
+    protected SourceControlProperties getSourceControlProperties() {
+        return properties;
+    }
 
     public String getUserName() {
         return userName;
@@ -60,8 +65,18 @@ public abstract class FakeUserSourceControl implements SourceControl {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+    
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
+    }
+
+    public Map getProperties() {
+        return properties.getPropertiesAndReset();
+    }
 
     /**
+     * When implementing be sure to invoke properties.modficationFound() if returning modifications.
+     * 
      * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
      */
     public abstract List getModifications(Date lastBuild, Date now);
@@ -70,9 +85,4 @@ public abstract class FakeUserSourceControl implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
     public abstract void validate() throws CruiseControlException;
-
-    /**
-     * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
-     */
-    public abstract Map getProperties();
 }
