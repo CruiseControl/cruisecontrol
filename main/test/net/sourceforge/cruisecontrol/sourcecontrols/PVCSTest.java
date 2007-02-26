@@ -37,11 +37,14 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -190,5 +193,29 @@ public class PVCSTest extends TestCase {
         Modification mod2 = (Modification) mods.get(1);
         assertEquals("Add code for " + System.getProperty("line.separator") + "Sections", mod2.comment);
 
+    }
+    
+    public void testProperty() {
+        pvcs = new PVCS() {
+
+            void executeCommandLine(String lastBuildDate, String nowDate) throws IOException, InterruptedException {
+            }
+
+            List makeModificationsList(File inputFile) {
+                List mods = new ArrayList();
+                mods.add("modification");
+                return mods;
+            }
+            
+        };
+        
+        pvcs.getModifications(new Date(), new Date());
+        assertEquals(0, pvcs.getProperties().size());
+        
+        pvcs.setProperty("property");
+        pvcs.getModifications(new Date(), new Date());
+        Map properties = pvcs.getProperties();
+        assertEquals(1, properties.size());
+        assertTrue(properties.containsKey("property"));
     }
 }
