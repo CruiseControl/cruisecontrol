@@ -78,6 +78,10 @@ SocketPublisher
 ----------------------
 * Send project name and fixed vs. successful status (CC-575). Patch by Daniel Lindner
 
+Surround (SSCM)
+----------------------
+* Correct documentation to indicate support for property attribute.
+
 SVN
 ----------------------
 * Add checkExternals flag to check for changes in svn:externals. (CC-585). Patch by Chad Woolley.
@@ -911,7 +915,7 @@ Reporting Application
 * Clarify installation documentation, specifically around which entries need to be modified (related to CC-264). Patch by Jerome Lacoste.
 * XML Log file now sent directly to the browser for rendering, with no more XSLT (CC-294). Patch by Jerome Lacoste.
 
-Surround SCM
+Surround SCM (SSCM)
 ----------------------
 * Handle modifications with no comment (CC-322). Patch by Jerome Lacoste
 
@@ -1514,7 +1518,7 @@ release.xml
 
 SSCM & SSCMBootstrapper
 ----------------------
-* New SourceControl and Bootstrapper for SSCM-support. Contribution by Matt Harp
+* New SourceControl and Bootstrapper for Surround SCM-support. Contribution by Matt Harp
 
 SnapshotCM & SnapshotCMBootstrapper
 -----------------------------------
