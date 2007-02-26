@@ -120,6 +120,12 @@ public class CurrentBuildStatusPageListenerTest extends TestCase {
         CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
         c.setFile(temp.getAbsolutePath());
         String tempDirPath = System.getProperty("java.io.tmpdir");
+
+        // for Windows
+        if (tempDirPath.endsWith("\\")) {
+            tempDirPath = tempDirPath.substring(0, tempDirPath.lastIndexOf("\\"));
+        }
+        
         c.setSourceFile(tempDirPath);
         try {
             c.validate();
