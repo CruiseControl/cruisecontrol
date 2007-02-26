@@ -65,6 +65,7 @@ OSEnvironment
 P4
 ----------------------
 * Display modification time using local timezone if correctForServerTime is true (CC-574). Patch by Anatol Pomozov
+* Add support for property attribute
 
 Project
 ----------------------
