@@ -45,7 +45,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,12 +59,12 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.CommandExecutor;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.DiscardConsumer;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -105,6 +104,7 @@ public class P4 implements SourceControl {
 
     private final SimpleDateFormat p4RevisionDateFormatter =
             new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+    private final SourceControlProperties properties = new SourceControlProperties();
 
 
     private static final String SERVER_DATE = "Server date: ";
@@ -149,8 +149,12 @@ public class P4 implements SourceControl {
         useP4Email = flag;
     }
 
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
+    }
+    
     public Map getProperties() {
-        return Collections.EMPTY_MAP;
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
@@ -184,6 +188,10 @@ public class P4 implements SourceControl {
             LOG.error("Log command failed to execute succesfully", e);
         }
 
+        if (!mods.isEmpty()) {
+            properties.modificationFound();
+        }
+        
         return mods;
     }
 
