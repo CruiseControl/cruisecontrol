@@ -74,7 +74,6 @@ public class Log implements Serializable {
 
     private transient String logDir;
     private transient String logXmlEncoding;
-    private transient File lastLogFile;
     private transient Element buildLog;
     private transient List loggers = new ArrayList();
     private transient List manipulators = new ArrayList();
@@ -186,13 +185,6 @@ public class Log implements Serializable {
     }
 
     /**
-     * @return The last log file that was written; null if none written yet.
-     */
-    public File getLastLogFile() {
-        return lastLogFile;
-    }
-
-    /**
      * creates log directory if it doesn't already exist
      * 
      * @throws CruiseControlException
@@ -240,9 +232,9 @@ public class Log implements Serializable {
         logFileElement.setAttribute("value", logFilename);
         buildLog.getChild("info").addContent(logFileElement);
 
-        lastLogFile = new File(logDir, logFilename);
-        LOG.debug("Project " + projectName + ":  Writing log file [" + lastLogFile.getAbsolutePath() + "]");
-        writeLogFile(lastLogFile, buildLog);
+        File logfile = new File(logDir, logFilename);
+        LOG.debug("Project " + projectName + ":  Writing log file [" + logfile.getAbsolutePath() + "]");
+        writeLogFile(logfile, buildLog);
 
         callManipulators();
     }
