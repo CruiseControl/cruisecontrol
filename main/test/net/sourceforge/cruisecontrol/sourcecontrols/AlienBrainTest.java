@@ -83,7 +83,8 @@ public class AlienBrainTest extends TestCase {
     public void testProperty() {
         AlienBrain ab = new AlienBrain() {
 
-            protected List getModificationsFromAlienBrain(Date lastBuild, Date now) throws IOException, CruiseControlException {
+            protected List getModificationsFromAlienBrain(Date lastBuild, Date now)
+              throws IOException, CruiseControlException {
                 List mods = new ArrayList();
                 mods.add("modification");
                 return mods;
