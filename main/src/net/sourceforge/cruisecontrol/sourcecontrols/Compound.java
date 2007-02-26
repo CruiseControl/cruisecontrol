@@ -90,6 +90,10 @@ public class Compound implements SourceControl {
     private Targets targets = null;
     private boolean includeTriggerChanges = false;
 
+    public void setProperty(String propertyName) {
+        properties.assignPropertyName(propertyName);
+    }
+    
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
@@ -124,6 +128,10 @@ public class Compound implements SourceControl {
             // make sure we also pass the properties from the underlying triggers
             // TODO: do we really only want this when includeTriggerChanges is set?
             properties.putAll(triggers.getProperties());
+        }
+        
+        if (!targetMods.isEmpty()) {
+            properties.modificationFound();
         }
 
         return targetMods;

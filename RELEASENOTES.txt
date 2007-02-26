@@ -33,6 +33,10 @@ CompositeBuilder
 ----------------------
 * Fix reported build time.  Patch by Frederic Mockel. 
 
+Compound
+----------------------
+* Add support for property attribute
+
 CurrentBuildStatusPageListener
 ----------------------
 * Add documentation for CurrentBuildStatusPageListener
