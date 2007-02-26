@@ -773,7 +773,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 nextModification.emailAddress = address;
             }
 
-            nextModification.comment = (message != null ? message : "");
+            nextModification.comment = message;
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)
                     && message.indexOf("was initially added on branch") != -1) {
