@@ -2,10 +2,14 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.6.2-dev
+
+
 CruiseControl Release Notes - 2.6.1
 
 general
 ======================
+
 * Fix cruisecontrol.bat in binary release for JAVA_HOME that has spaces (CC-554)
 * Output PID to cc.pid in cruisecontrol.sh to fix init.d usage (CC-581).  Patch by Kevin Quigley.
 * Binary distribution with embedded Jetty server now also uses Launcher (CC-586).  Patch by Mike Gilbode.
