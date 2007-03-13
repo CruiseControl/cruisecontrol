@@ -37,10 +37,12 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
-import java.net.URL;
-import java.net.MalformedURLException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -87,7 +89,11 @@ public class HttpFileTest extends TestCase {
     }
 
     public void testShouldGetEmptyModificationListWhenURLNotAvailable() throws MalformedURLException {
-        HttpFile httpFile = new HttpFile();
+        HttpFile httpFile = new HttpFile() {
+            protected long getURLLastModified(URL url) throws IOException {
+                throw new UnknownHostException(url.getHost());
+            }
+        };
         String urlString = "http://NOTAREALURL" + System.currentTimeMillis() + ".com";
         new URL(urlString);
         httpFile.setURL(urlString);
