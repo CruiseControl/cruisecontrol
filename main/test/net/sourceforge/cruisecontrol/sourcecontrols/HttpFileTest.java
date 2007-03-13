@@ -109,4 +109,23 @@ public class HttpFileTest extends TestCase {
         // should not throw with a URL that cannot be connected to
         httpFile.getModifications(new Date(), new Date());
     }
+
+    public void testEmptyPath() throws Exception { 
+        final long timestamp = 100; 
+        HttpFile httpFile = new HttpFile() { 
+            protected long getURLLastModified(URL url) { 
+                return timestamp; 
+            } 
+        }; 
+        httpFile.setURL("http://dummy.domain.net"); 
+        List modifications = httpFile.getModifications(new Date(1), new Date()); 
+        assertEquals(1, modifications.size()); 
+        Modification modif = (Modification) modifications.get(0); 
+        assertEquals("", modif.getFileName()); 
+        assertEquals("dummy.domain.net", modif.getFolderName()); 
+        assertEquals("dummy.domain.net/", modif.getFullPath()); 
+        assertEquals("", modif.comment); 
+        assertEquals(timestamp, modif.modifiedTime.getTime()); 
+        assertEquals("User", modif.userName); 
+    }
 }
