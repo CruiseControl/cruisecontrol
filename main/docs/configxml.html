@@ -149,6 +149,7 @@
 <a href="#mks">&lt;mks&gt;</a>
 <a href="#modificationset">&lt;modificationset&gt;</a>
 <a href="#nant">&lt;nant&gt;</a>
+<a href="#phing">&lt;phing&gt;</a>
 <a href="#onfailure">&lt;onfailure&gt;</a>
 <a href="#onsuccess">&lt;onsuccess&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
@@ -285,6 +286,7 @@
          <a href="#maven">&lt;maven/&gt;</a>
          <a href="#pause">&lt;pause/&gt;</a>
          <a href="#nant">&lt;nant/&gt;</a>
+	 <a href="#phing">&lt;phing/&gt;</a>
          <a href="#exec">&lt;exec/&gt;</a>
          <a href="#composite">&lt;composite/&gt;</a>
       &lt;/schedule&gt;
@@ -4476,6 +4478,11 @@ password=P@ssW0rd!
                 <td>0 .. *</td>
                 <td>Builds the project using NAnt.</td>
             </tr>
+	    <tr>
+                <td><a href="#phing">&lt;phing&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Phing.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -5106,6 +5113,11 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Builds the project using NAnt.</td>
             </tr>
+	    <tr>
+                <td><a href="#phing">&lt;phing&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Phing.</td>
+            </tr>
             <tr>
                 <td><a href="#exec">&lt;exec&gt;</a></td>
                 <td>0 .. *</td>
@@ -5214,7 +5226,7 @@ endlocal</pre>
                 <td>No (defaults to default.build)</td>
                 <td>Path to NAnt build file.</td>
             </tr>
-            <tr>
+            <
                 <td>target</td>
                 <td>No</td>
                 <td>NAnt target(s) to run. Default is "", or the default target
@@ -5354,6 +5366,203 @@ endlocal</pre>
          uselogger="true"/&gt;
 &lt;schedule&gt;</pre>
 
+            </li>
+        </ol>
+        </div>
+
+<div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+		<h2><a name="phing">&lt;phing&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;phing&gt;</pre>
+        </div>
+
+        <p>Specifies a <a href="http://phing.info">Phing</a> build to be run at a given time or build number.
+        For instance, we can run a clean build every 5 builds, or run more
+        comprehensive (and time intensive) system tests every 10 builds.  We
+        can also schedule an official build to run every night at midnight,
+        if we so desire.</p>
+
+        <p>When a build runs, Phing is invoked in a separate Java process.  Phing and the PHP requisites need
+		to be installed for this builder to function.  See Phing's documentation for details on installation 
+		and configuration.</p>
+
+        <p>The standard CruiseControl <a href="#buildproperties">properties
+        passed to builders</a> are available from within the Phing build.</p>
+
+        <p>See below for <a href="#phing-examples">examples</a> of the
+        <code>&lt;phing&gt;</code> element.</p>
+
+        <h3><a name="phing-attributes">Attributes</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>buildfile</td>
+                <td>No (defaults to build.xml)</td>
+                <td>Path to Phing build file.</td>
+            </tr>
+            <tr>
+                <td>target</td>
+                <td>No</td>
+                <td>Phing target(s) to run. Default is "", or the default target
+                for the build file.</td>
+            </tr>
+            <tr>
+                <td>multiple</td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr>
+                <td>day</td>
+                <td>No</td>
+                <td>Valid values are (case-insensitive) the English names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            <tr>
+                <td>tempfile</td>
+                <td>No</td>
+                <td>Name of temp file.  Defaults to log.xml</td>
+            </tr>
+            <tr>
+                <td>phingscript</td>
+                <td>No. Cannot be specified if <code>phinghome</code> attribute is also specified</td>
+                <td>Absolute filename of script (shell script or bat file) used
+                to start Phing. If this is not specified, the PhingBuilder assumes that phing (or phing.bat) 
+				is installed on your path.</td>
+            </tr>
+            <tr>
+                <td>phinghome</td>
+                <td>No. Cannot be specified if <code>phingscript</code> attribute is also specified.</td>
+                <td>Directory in which Phing is installed. CruiseControl will attempt to use the standard
+                Phing execution scripts (i.e. phing.bat or phing). See below for <a href="#phing-examples">examples</a>.</td>
+            </tr>
+            <tr>
+                <td>phingWorkingDir</td>
+                <td>No</td>
+                <td>Will invoke phing in the specified directory.</td>
+            </tr>
+            <tr>
+                <td>saveLogDir</td>
+                <td>No</td>
+                <td>If supplied a copy of the phing log will be saved in the specified directory. Example:
+saveLogDir="/usr/local/dev/projects/cc/logs"</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Phing build will be halted if it continues longer than the
+                specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
+                <td>uselogger</td>
+                <td>No</td>
+                <td>'true' if CruiseControl should call Phing using -logger; 'false' to call Phing using '-listener', 
+				thus using the loggerclass as a Listener. uselogger="true" will make Phing log its messages using the 
+				class specified by loggerclassname as a Phing Logger, which can make for smaller log files since it 
+				doesn't log DEBUG messages (see useDebug and useQuiet attributes below, and the Phing manual). Set to false 
+				to have Phing echo messages to console using its DefaultLogger, which is useful when debugging your Phing 
+				build. Defaults to 'false' to make initial setup easier but setting it to 'true' is recommended for 
+				production situations.</td>
+            </tr>
+            <tr>
+                <td>loggerclassname</td>
+                <td>No (defaults to phing.listener.XmlLogger)</td>
+                <td>If you want to use another logger (or listener, when uselogger="false") than Phing's XmlLogger, 
+				you can specify the classname of the logger here. The logger needs to output compatible XML, and 
+				the class needs to be available on the classpath at buildtime.</td>
+            </tr>
+            <tr>
+                <td>usedebug</td>
+                <td>No</td>
+                <td>If true will invoke phing with -debug, which can be 
+				useful for debugging your phing build. Defaults to 'false', 
+				cannot be set to 'true' if usequiet is also set to 'true'. 
+				When used in combination with uselogger="true", this will 
+				result in bigger XML log files; otherwise, it will cause 
+				more output to be written to the console by Phing's 
+				DefaultLogger.</td>
+            </tr>
+            <tr>
+                <td>usequiet</td>
+                <td>No</td>
+                <td>If true will invoke phing with -quiet, which can be
+                useful for creating smaller log files since messages with
+                a priority of INFO will not be logged. Defaults to 'false',
+                cannot be set to 'true' if usedebug is also set to 'true'.
+                Smaller logfiles are only achieved when used in combination
+                with uselogger="true", otherwise there will just be less
+                output echoed to the console by Phing's DefaultLogger.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="phing-elements">Child Elements</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>&lt;property&gt;</td>
+                <td>0 .. *</td>
+                <td>Used to define properties for the phing build. The element
+                has two required attributes: "name" and "value". These will
+                be passed on the phing command-line as "-Dname=value"<br/>
+                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="phing-examples">Examples</a></h3>
+
+        <ol>
+            <li>Invoke the phing.bat script distributed with phing using the <code>phingscript</code> attribute,
+            specifying the working directory as <code>D:\workspace\MyProject</code> and the
+            phing build file as <code>MyProject-nightlybuild.xml</code> using the default target.
+
+            <pre>&lt;schedule&gt;
+    &lt;phing phingscript="C:\PHP\applications\phing-2.3.0\bin\phing.bat"
+         phingworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
+         usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
+
+            Or equivalently, using the <code>phinghome</code> attribute
+
+            <pre>&lt;schedule&gt;
+    &lt;phing phinghome="C:\PHP\applications\phing-2.3.0\bin\"
+         phingworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
+         usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
             </li>
         </ol>
         </div>
