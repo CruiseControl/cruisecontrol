@@ -97,7 +97,7 @@ public class HttpFile extends FakeUserSourceControl {
         List modifiedList = new ArrayList();
         if (lastModified > lastBuild.getTime()) {
             Modification mod = new Modification("http");
-            mod.createModifiedFile(url.getFile().substring(1), url.getHost());
+            mod.createModifiedFile(getFilename(url), url.getHost()); 
 
             mod.userName = getUserName();
             mod.modifiedTime = new Date(lastModified);
@@ -110,6 +110,14 @@ public class HttpFile extends FakeUserSourceControl {
         }
         
         return modifiedList;
+    }
+
+    private String getFilename(final URL url) {
+        String fileName = url.getFile(); 
+        if (fileName.startsWith("/")) { 
+            fileName = fileName.substring(1); 
+        }
+        return fileName;
     }
 
     protected long getURLLastModified(final URL url) throws IOException {
