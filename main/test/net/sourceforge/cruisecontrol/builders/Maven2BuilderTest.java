@@ -77,6 +77,58 @@ public class Maven2BuilderTest extends TestCase {
                 mb.findMaven2Script(false));
     }
 
+    public void testValidateMvnHomeAndMvnScriptSet() throws Exception {
+        Maven2Builder mb = new Maven2Builder();
+        // these files must also exist for Maven2Builder to be happy.
+        final File testScript = createTestMvnScriptFile();
+        final File testProject = createTestMvnProjectFile();
+
+        mb.setMultiple(1);
+        mb.setPomFile(testProject.getAbsolutePath());
+        mb.setGoal("mygoal");
+
+        mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
+        mb.setMvnScript(testScript.getAbsolutePath());
+
+        try {
+            mb.validate();
+            fail();
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().startsWith("'mvnhome' and 'mvnscript' cannot both be set."));
+        }
+
+        mb.setMvnScript(null);
+        mb.validate();
+        // rerun validate to test for reuse issues
+        mb.validate();
+    }
+
+    private static File createTestMvnScriptFile() throws IOException, CruiseControlException {
+        File testScript = File.createTempFile("Maven2BuilderTest.testValidate", "_testmaven.bat");
+        testScript.deleteOnExit();
+        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
+        return testScript;
+    }
+
+    /**
+     * Test validation with MvnHome set and resuse issues.
+     */
+    public void testValidateMvnHomeReuse() throws Exception {
+        Maven2Builder mb = new Maven2Builder();
+        // these files must also exist for Maven2Builder to be happy.
+        final File testScript = createTestMvnScriptFile();
+        final File testProject = createTestMvnProjectFile();
+
+        mb.setMultiple(1);
+        mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
+        mb.setPomFile(testProject.getAbsolutePath());
+        mb.setGoal("mygoal");
+
+        mb.validate();
+        // rerun validate to test for reuse issues
+        mb.validate();
+    }
+
     /**
      * void validate()
      */
@@ -90,14 +142,9 @@ public class Maven2BuilderTest extends TestCase {
         }
 
         // these files must also exist for Maven2Builder to be happy.
-        File testScript = File.createTempFile("Maven2BuilderTest.testValidate", "_testmaven.bat");
-        testScript.deleteOnExit();
-        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
+        final File testScript = createTestMvnScriptFile();
+        final File testProject = createTestMvnProjectFile();
 
-        File testProject = File.createTempFile("Maven2BuilderTest.testValidate", "_testproject.xml");
-        testProject.deleteOnExit();
-        makeTestFile(testProject,
-            "<project><!-- This is a fake Maven project file --></project>\n", true);
         mb.setMultiple(1);
         mb.setMvnScript(testScript.getAbsolutePath());
 
@@ -129,6 +176,16 @@ public class Maven2BuilderTest extends TestCase {
         mb.setGoal("mygoal");
 
         mb.validate();
+        // do validate again, just to check reuse issues
+        mb.validate();
+    }
+
+    private static File createTestMvnProjectFile() throws IOException, CruiseControlException {
+        File testProject = File.createTempFile("Maven2BuilderTest.testValidate", "_testproject.xml");
+        testProject.deleteOnExit();
+        makeTestFile(testProject,
+            "<project><!-- This is a fake Maven project file --></project>\n", true);
+        return testProject;
     }
 
     public void testBuild_Success() throws IOException, CruiseControlException {
@@ -294,7 +351,9 @@ public class Maven2BuilderTest extends TestCase {
     /**
      * Make a test file with specified content. Assumes the file does not exist.
      */
-    private void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
+    private static void makeTestFile(File testFile, String content, boolean onWindows)
+            throws CruiseControlException {
+
         IO.write(testFile, content);
         if (!onWindows) {
             Commandline cmdline = new Commandline();
