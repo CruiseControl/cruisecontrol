@@ -15,6 +15,11 @@ PhingBuilder
 ----------------------
 * Add new plug-in for PHP build tool Phing (CC-613). Submitted by Hans Lellelid.
 
+Maven2Builder
+----------------------
+* Fix validation error: 'mvnhome' and 'mvnscript' cannot both be set. when only mvnhome attrib is set. Reported by Tim Morrow
+
+
 CruiseControl Release Notes - 2.6.1
 
 general
