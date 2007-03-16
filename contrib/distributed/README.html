@@ -62,7 +62,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/util</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it. (Note: This ant target is not working right [reading input from the command prompt isn't working in ant - any fixes?], but the class should work outside of ant.)</li>
 						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/distributed.
                             <p>You may need to set the <code>CCDIR</code> environment variable to your <code>CruiseControl/main</code> directory before launching the cruisecontrol.bat/.sh file.</p>
-                            <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml. Also, provide a default value of the Project Name for the required <code>module</code> attrib:
+                            <p><b><a name="defaultmodulevalue">Register the Distributed Plugin</a></b> - While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml. Also, provide a default value of the Project Name for the required <code>module</code> attrib:
 						    <p>
 <pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"
     module="${project.name}"
@@ -152,6 +152,11 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 			</ol>
 
             <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
+            <p><b>v2.6.2</b></p>
+            CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. One side effect of this is the require <code>module</code> attribute can no longer be determined by the DistributedMasterBuilder automatically.
+            If your config.xml file never specified a <code>module</code> attrib, you will now need to add this setting. The easiest way to do this is to use the Project Name as the default. An example distributed plugin config is given above in the section describing how to <a href="#defaultmodulevalue">register the distributed plugin</a>.
+            <p>
+            <p><b>v2.6.1</b></p>
             <p>
                 The current version of the CruiseControl Distributed extensions (CCDist) has been updated to use the most recent version of Jini (v2.1). In an attempt to better organize the CCDist tree to support the new Jini, a problem was discovered with the packaging of CCDist in versions up to and including v2.6.
                 Prior CCDist versions mistakenly included <b>reggie-dl.jar</b> in the <b>dist/agent/lib</b> directory. For the curious, the name of this jar (with the <b>-dl</b> ending) indicates this jar is intended to be served by the Jini Lookup Service (or registrar) and automagically <b>downloaded</b> by users of the Lookup Service (for example, a Build Agent, DistributedMasterBuilder, or anything else doing lookups to find services).
