@@ -411,7 +411,12 @@ if (USE_SERIALIZABLE) {
         //*/
 }
         if (module == null) {
-            final String message = "The 'module' attribute is required for DistributedMasterBuilder";
+            final String message = "The 'module' attribute is required for DistributedMasterBuilder."
+                    + "\n Consider adding module=\"${project.name}\" as a preconfigured setting in config.xml, for example:\n\n"
+                    + "<plugin name=\"distributed\"\n"
+                    + "        classname=\"net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder\"\n"
+                    + "        module=\"${project.name}\"\n" 
+                    + "    />";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
