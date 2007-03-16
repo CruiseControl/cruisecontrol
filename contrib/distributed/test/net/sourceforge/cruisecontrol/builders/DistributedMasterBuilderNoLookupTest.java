@@ -38,7 +38,7 @@ if (!DistributedMasterBuilder.USE_SERIALIZABLE) {
             masterBuilder.validate();
             fail("missing module attrib");
         } catch (CruiseControlException e) {
-            assertEquals("The 'module' attribute is required for DistributedMasterBuilder", e.getMessage());
+            assertEquals(DistributedMasterBuilder.MSG_REQUIRED_ATTRIB_MODULE, e.getMessage());
         }
         masterBuilder.setModule("testModule");
         masterBuilder.validate();
