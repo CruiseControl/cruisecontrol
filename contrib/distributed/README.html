@@ -153,7 +153,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 
             <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
             <p><b>v2.6.2</b></p>
-            CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. One side effect of this is the require <code>module</code> attribute can no longer be determined by the DistributedMasterBuilder automatically.
+            CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. One side effect of this is the required <code>module</code> attribute can no longer be determined by the DistributedMasterBuilder automatically.
             If your config.xml file never specified a <code>module</code> attrib, you will now need to add this setting. The easiest way to do this is to use the Project Name as the default. An example distributed plugin config is given above in the section describing how to <a href="#defaultmodulevalue">register the distributed plugin</a>.
             <p>
             <p><b>v2.6.1</b></p>
