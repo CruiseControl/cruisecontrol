@@ -110,6 +110,20 @@ public class CompositeBuilderTest extends TestCase {
         super(name);
     }
 
+    public void testValidateCalledOncePerChildBuilder() throws Exception {
+        final Builder mockBuilder = new MockBuilder() {
+            private int validateCallCount;
+            public void validate() {
+                assertFalse("builder.validate() has been called multiple times", validateCallCount > 0);
+                validateCallCount++;
+            }
+        };
+
+        builder = new CompositeBuilder();
+        builder.add(mockBuilder);
+        builder.validate();
+    }
+
     public void testValidateValidatesAllChildBuilders() throws Exception {
         final Builder mockBuilder = new MockBuilder();
         // make child builder invalid
