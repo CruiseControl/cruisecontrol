@@ -54,7 +54,7 @@ import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.Builder;
 
 // @todo Remove this when done with SelfConfiguringPlugin
-import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
+//import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
@@ -73,9 +73,10 @@ import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
-public class DistributedMasterBuilder extends Builder
+public class DistributedMasterBuilder extends Builder {
         // @todo Remove this when done with SelfConfiguringPlugin {
-        implements SelfConfiguringPlugin {
+        //implements SelfConfiguringPlugin
+
 
     private static final Logger LOG = Logger.getLogger(DistributedMasterBuilder.class);
 
@@ -99,7 +100,7 @@ public class DistributedMasterBuilder extends Builder
     private String masterOutputDir;
 
     private Element childBuilderElement; // @todo Remove this when done with SelfConfiguringPlugin
-public static final boolean USE_SERIALIZABLE = false; // @todo Remove this when done with SelfConfiguringPlugin
+public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when done with SelfConfiguringPlugin
     private List tmpChildBuilders = new ArrayList();
     private Builder childBuilder;
 

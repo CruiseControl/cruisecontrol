@@ -103,7 +103,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private boolean isPendingRestart;
     private Date pendingRestartSince;
 
-private boolean useSeralizable = false; // @todo Remove this when done with SelfConfiguringPlugin
+private boolean useSeralizable = true; // @todo Remove this when done with SelfConfiguringPlugin
 
     private Properties configProperties;
     private final Map distributedAgentProps = new HashMap();
