@@ -107,6 +107,13 @@ public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when d
     private String overrideTarget;
     private MulticastDiscovery discovery;
     private File rootDir;
+    static final String MSG_REQUIRED_ATTRIB_MODULE = "The 'module' attribute is required for DistributedMasterBuilder."
+            + "\n Consider adding module=\"${project.name}\" as a preconfigured setting in config.xml, "
+            + "for example:\n\n"
+            + "<plugin name=\"distributed\"\n"
+            + "        classname=\"net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder\"\n"
+            + "        module=\"${project.name}\"\n"
+            + "    />";
 
     protected void overrideTarget(final String target) {
         overrideTarget = target;
@@ -411,14 +418,8 @@ if (USE_SERIALIZABLE) {
         //*/
 }
         if (module == null) {
-            final String message = "The 'module' attribute is required for DistributedMasterBuilder."
-                    + "\n Consider adding module=\"${project.name}\" as a preconfigured setting in config.xml, for example:\n\n"
-                    + "<plugin name=\"distributed\"\n"
-                    + "        classname=\"net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder\"\n"
-                    + "        module=\"${project.name}\"\n" 
-                    + "    />";
-            LOG.warn(message);
-            throw new CruiseControlException(message);
+            LOG.warn(MSG_REQUIRED_ATTRIB_MODULE);
+            throw new CruiseControlException(MSG_REQUIRED_ATTRIB_MODULE);
         }
     }
 
