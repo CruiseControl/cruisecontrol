@@ -7,6 +7,10 @@ CruiseControl Release Notes - 2.6.2-dev
 build loop
 ======================
 
+CompositeBuilder
+----------------------
+* Fix validation error due to multiple calls to builder.validate(). Reported by Tim Morrow
+
 HttpFile
 ----------------------
 * Fix bug where HttpFile didn't work with domain only (http://host.com) urls (CC-614). Patch by J. David Beutel
@@ -14,10 +18,6 @@ HttpFile
 PhingBuilder
 ----------------------
 * Add new plug-in for PHP build tool Phing (CC-613). Submitted by Hans Lellelid.
-
-CompositeBuilder
-----------------------
-* Fix validation error due to multiple calls to builder.validate(). Reported by Tim Morrow
 
 
 CruiseControl Release Notes - 2.6.1
