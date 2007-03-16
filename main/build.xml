@@ -35,7 +35,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
 
-
 <project name="CruiseControl" default="clean-all" basedir=".">
     <property environment="env" />
     <property file="override.properties" />
