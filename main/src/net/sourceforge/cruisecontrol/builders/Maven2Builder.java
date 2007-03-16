@@ -129,8 +129,6 @@ public class Maven2Builder extends Builder {
 
             mvnScript = findMaven2Script(Util.isWindows());
             LOG.debug("Using mvnHome: " + mvnHome + ", mvnScript found and set to: " + mvnScript);
-            LOG.debug("Clearing mvnHome after finding mvnScript for builder instance reuse");
-            mvnHome = null;
         }
         ValidationHelper.assertTrue(mvnScript != null, "'mvnhome' or 'mvnscript' must be set.");
 
