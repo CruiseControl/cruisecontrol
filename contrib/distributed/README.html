@@ -62,8 +62,11 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 						<li>You can manually run a build using the <code>InteractiveBuildUtility</code>. This allows you to test your configuration without starting Cruise Control. In <i>contrib/distributed/dist/util</i> run <code>ant manual-build</code>. If the distributed tag in your configuration file does not contain any entries you'll be prompted to enter them. These are optional, however, and pressing <i>ENTER</i> at the prompt will pick up whatever agent is available. Note that you can pass in the path to your Cruise Control configuration file as an argument to the <code>InteractiveBuildUtility</code> and save a step when running it. (Note: This ant target is not working right [reading input from the command prompt isn't working in ant - any fixes?], but the class should work outside of ant.)</li>
 						<li>Start Cruise Control the usual way. Any builds that are queued for a distributed builder should be sent to your running agent. Modified startup scripts which include additional jars are in: contrib/distributed.
                             <p>You may need to set the <code>CCDIR</code> environment variable to your <code>CruiseControl/main</code> directory before launching the cruisecontrol.bat/.sh file.</p>
-                            <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml:
-						    <p><pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"/&gt;</pre>
+                            <p>While starting CC, you may see an error about no plugin registered for "distributed". To fix this, register the Distributed plugin in your config.xml. Also, provide a default value of the Project Name for the required <code>module</code> attrib:
+						    <p>
+<pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"
+    module="${project.name}"
+/&gt;</pre>
                         </li>
 					</ol>
 				</li>
