@@ -54,6 +54,38 @@ public class Maven2BuilderTest extends TestCase {
     private static final String MOCK_BUILD_FAILURE = "failed build";
     private static final String MOCK_DOWNLOAD_FAILURE = "download failure";
 
+    private static final String MSG_PREFIX_HOME_SCRIPT_BOTH_SET = "'mvnhome' and 'mvnscript' cannot both be set.";
+
+
+    private static File createTestMvnScriptFile() throws IOException, CruiseControlException {
+        File testScript = File.createTempFile("Maven2BuilderTest.testValidate", "_testmaven.bat");
+        testScript.deleteOnExit();
+        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
+        return testScript;
+    }
+
+    private static File createTestMvnProjectFile() throws IOException, CruiseControlException {
+        File testProject = File.createTempFile("Maven2BuilderTest.testValidate", "_testproject.xml");
+        testProject.deleteOnExit();
+        makeTestFile(testProject,
+            "<project><!-- This is a fake Maven project file --></project>\n", true);
+        return testProject;
+    }
+
+    private static Maven2Builder createValidM2Builder() throws IOException, CruiseControlException {
+        Maven2Builder mb = new Maven2Builder();
+        // these files must also exist for Maven2Builder to be happy.
+        final File testScript = createTestMvnScriptFile();
+        final File testProject = createTestMvnProjectFile();
+
+        mb.setMultiple(1);
+        mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
+        mb.setPomFile(testProject.getAbsolutePath());
+        mb.setGoal("mygoal");
+        return mb;
+    }
+
+
     public void testFindMaven2Script() throws Exception {
         final Maven2Builder mb = new Maven2Builder();
         try {
@@ -78,15 +110,10 @@ public class Maven2BuilderTest extends TestCase {
     }
 
     public void testValidateMvnHomeAndMvnScriptSet() throws Exception {
-        Maven2Builder mb = new Maven2Builder();
-        // these files must also exist for Maven2Builder to be happy.
+        final Maven2Builder mb = createValidM2Builder();
+
+        // make invalid by setting both Home and Script
         final File testScript = createTestMvnScriptFile();
-        final File testProject = createTestMvnProjectFile();
-
-        mb.setMultiple(1);
-        mb.setPomFile(testProject.getAbsolutePath());
-        mb.setGoal("mygoal");
-
         mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
         mb.setMvnScript(testScript.getAbsolutePath());
 
@@ -94,43 +121,39 @@ public class Maven2BuilderTest extends TestCase {
             mb.validate();
             fail();
         } catch (CruiseControlException e) {
-            assertTrue(e.getMessage().startsWith("'mvnhome' and 'mvnscript' cannot both be set."));
+            assertTrue(e.getMessage().startsWith(MSG_PREFIX_HOME_SCRIPT_BOTH_SET));
         }
 
         mb.setMvnScript(null);
         mb.validate();
         // rerun validate to test for reuse issues
-        mb.validate();
-    }
-
-    private static File createTestMvnScriptFile() throws IOException, CruiseControlException {
-        File testScript = File.createTempFile("Maven2BuilderTest.testValidate", "_testmaven.bat");
-        testScript.deleteOnExit();
-        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
-        return testScript;
+        try {
+            mb.validate();
+            fail("Second call to validate() should have failed.");
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().startsWith(MSG_PREFIX_HOME_SCRIPT_BOTH_SET));
+        }
     }
 
     /**
      * Test validation with MvnHome set and resuse issues.
+     * @throws Exception if anything breaks
      */
     public void testValidateMvnHomeReuse() throws Exception {
-        Maven2Builder mb = new Maven2Builder();
-        // these files must also exist for Maven2Builder to be happy.
-        final File testScript = createTestMvnScriptFile();
-        final File testProject = createTestMvnProjectFile();
-
-        mb.setMultiple(1);
-        mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
-        mb.setPomFile(testProject.getAbsolutePath());
-        mb.setGoal("mygoal");
+        final Maven2Builder mb = createValidM2Builder();
 
         mb.validate();
         // rerun validate to test for reuse issues
-        mb.validate();
+        try {
+            mb.validate();
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().startsWith(MSG_PREFIX_HOME_SCRIPT_BOTH_SET));
+        }            
     }
 
     /**
      * void validate()
+     * @throws Exception if anything breaks
      */
     public void testValidate() throws Exception {
         Maven2Builder mb = new Maven2Builder();
@@ -180,14 +203,6 @@ public class Maven2BuilderTest extends TestCase {
         mb.validate();
     }
 
-    private static File createTestMvnProjectFile() throws IOException, CruiseControlException {
-        File testProject = File.createTempFile("Maven2BuilderTest.testValidate", "_testproject.xml");
-        testProject.deleteOnExit();
-        makeTestFile(testProject,
-            "<project><!-- This is a fake Maven project file --></project>\n", true);
-        return testProject;
-    }
-
     public void testBuild_Success() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
         internalTestBuild(MOCK_SUCCESS, mb);
@@ -207,6 +222,9 @@ public class Maven2BuilderTest extends TestCase {
      * Element build(Map). mockFailure == (Mock a failure?).
      *
      * @param statusType The exit status to be tested
+     * @param mb a Maven2Builder instance
+     * @throws IOException if something breaks
+     * @throws CruiseControlException if something breaks
      */
     private void internalTestBuild(String statusType, Maven2Builder mb) throws IOException, CruiseControlException {
 
@@ -349,7 +367,11 @@ public class Maven2BuilderTest extends TestCase {
     }
 
     /**
-     * Make a test file with specified content. Assumes the file does not exist.
+     * Make a test file with specified content.
+     * @param testFile the file to create
+     * @param content the data to put into the created file
+     * @param onWindows true if running on Windows OS
+     * @throws CruiseControlException if anything breaks
      */
     private static void makeTestFile(File testFile, String content, boolean onWindows)
             throws CruiseControlException {
@@ -387,6 +409,7 @@ public class Maven2BuilderTest extends TestCase {
      * Text for build status
      *
      * @param statusCode The exit status to be tested
+     * @return the expected log text for the given build status
      */
     private String getStatusText(String statusCode) {
         if (statusCode.equals(MOCK_SUCCESS)) {

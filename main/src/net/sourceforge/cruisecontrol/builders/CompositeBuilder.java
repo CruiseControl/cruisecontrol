@@ -23,11 +23,6 @@ public class CompositeBuilder extends Builder {
     private long startTime = 0;
     
     public void add(Builder builder) {
-        try {
-            builder.validate();
-        } catch (CruiseControlException e) {
-            LOG.error("error validating builder");
-        }
         builders.add(builder);
     }
 
