@@ -79,7 +79,7 @@ public final class ZipUtil {
         } finally {
             try {
                 if (zipOut != null) {
-                zipOut.close();
+                    zipOut.close();
                 }
             } catch (ZipException ze) {
                 final File file = new File(outFilename);

@@ -56,10 +56,10 @@ public final class JiniLookUpUtility {
 
     private static final Logger LOG = Logger.getLogger(JiniLookUpUtility.class);
 
-    private MulticastDiscovery discovery = new MulticastDiscovery(null);
+    private final MulticastDiscovery discovery = new MulticastDiscovery(null);
 
     private JiniLookUpUtility() {
-        String waitMessage = "Waiting 5 seconds for registrars to report in...";
+        final String waitMessage = "Waiting 5 seconds for registrars to report in...";
         System.out.println(waitMessage);
         LOG.info(waitMessage);
         try {
@@ -68,31 +68,31 @@ public final class JiniLookUpUtility {
             } catch (InterruptedException e1) {
                 // ignore
             }
-            ServiceRegistrar[] registrars = discovery.getRegistrars();
+            final ServiceRegistrar[] registrars = discovery.getRegistrars();
             for (int x = 0; x < registrars.length; x++) {
-                ServiceRegistrar registrar = registrars[x];
-                String registrarInfo = "Registrar: " + registrar.getServiceID();
+                final ServiceRegistrar registrar = registrars[x];
+                final String registrarInfo = "Registrar: " + registrar.getServiceID();
                 System.out.println();
                 System.out.println(registrarInfo);
                 LOG.debug(registrarInfo);
-                ServiceTemplate template = new ServiceTemplate(null, null, null);
-                ServiceMatches matches = registrar.lookup(template, Integer.MAX_VALUE);
-                ServiceItem[] items = matches.items;
+                final ServiceTemplate template = new ServiceTemplate(null, null, null);
+                final ServiceMatches matches = registrar.lookup(template, Integer.MAX_VALUE);
+                final ServiceItem[] items = matches.items;
                 for (int i = 0; i < items.length; i++) {
-                    String serviceInfo = "  Service: " + items[i].service;
+                    final String serviceInfo = "  Service: " + items[i].service;
                     System.out.println(serviceInfo);
                     LOG.debug(serviceInfo);
                 }
             }
         } catch (RemoteException e) {
-            String message = "Search failed due to an unexpected error";
+            final String message = "Search failed due to an unexpected error";
             LOG.error(message, e);
             System.err.println(waitMessage + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         new JiniLookUpUtility();
     }
 }

@@ -28,33 +28,37 @@ import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
  * Time: 3:38:53 PM
  */
 // @todo Use JDesktop stuff for tray icon??
-final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListener {
+final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListener, BuildAgent.LUSCountListener {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentUI.class);
 
-    static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
+    private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
     private final BuildAgent buildAgent;
     private final JTextArea txaAgentInfo;
     private final JButton btnStop = new JButton("Stop");
     private final JTextArea txaConsole = new JTextArea();
     private final JScrollPane scrConsole = new JScrollPane();
+    private final String origTitle;
 
     BuildAgentUI(final BuildAgent parentbuildAgent) {
-        super("CruiseControl Distributed - Build Agent " + CCDistVersion.getVersion());
+        super("CruiseControl - Build Agent " + CCDistVersion.getVersion());
+
+        origTitle = getTitle();
 
         buildAgent = parentbuildAgent;
 
+        buildAgent.addLUSCountListener(this);
         buildAgent.addAgentStatusListener(this);
 
         btnStop.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
-                exitForm();
+                doExit();
             }
         });
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent evt) {
-                exitForm();
+                doExit();
             }
         });
 
@@ -80,7 +84,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         setVisible(true);
     }
 
-    private void exitForm() {
+    private void doExit() {
         btnStop.setEnabled(false);
         final BuildAgentUI theThis = this;
         new Thread() {
@@ -89,6 +93,8 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
                 LOG.info("BuildAgent.kill() completed");
                 buildAgent.removeAgentStatusListener(theThis);
                 LOG.info("AgentStatusListener removed");
+                buildAgent.removeLUSCountListener(theThis);
+                LOG.info("LUSCountListener removed");
                 System.exit(0);
             }
         } .start();
@@ -120,6 +126,14 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         });
     }
 
+
+    public void lusCountChanged(final int newLUSCount) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                setTitle(origTitle + ", LUS's: " + newLUSCount);                                
+            }
+        });
+    }
 
     /**
      * Log4J appender to duplicate log output to a JTextArea

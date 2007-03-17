@@ -169,7 +169,7 @@
     </path>
 
 
-    <target name="build" depends="clean, compile-test, checkstyle, test, jar" />
+    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar" />
 
     <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
 
@@ -196,20 +196,11 @@
         so you may need to compile using a 32-bit jdk.
         </fail>
 
-        <!-- check for ANT_HOME environment variable -->
-        <antcall target="warnANT_HOME"/>
-
         <!-- check for junit.jar -->
         <available classname="junit.framework.TestCase" property="JUnit-present" />
         <fail unless="JUnit-present" >
         Is the junit.jar in ant's library path?
         </fail>
-    </target>
-
-    <target name="warnANT_HOME" unless="env.ANT_HOME">
-        <echo>
-***** Is the ANT_HOME environment variable set? (Required by unit tests). *****
-        </echo>
     </target>
 
 
@@ -434,7 +425,6 @@
                 <path refid="ccdist.project.runtime.classpath"/>
                 <path refid="emma.classpath"/>
             </classpath>
-            <sysproperty key="ccdist.ant.home" value="${ant.home}"/><!-- will be used if env.ANT_HOME is not set. -->
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
             <batchtest todir="${junit.results}">
@@ -449,7 +439,6 @@
             <classpath>
                 <path refid="ccdist.project.runtime.classpath" />
             </classpath>
-            <sysproperty key="ccdist.ant.home" value="${ant.home}"/><!-- will be used if env.ANT_HOME is not set. -->
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
             <test name="${testcase}" todir="${junit.results}" />

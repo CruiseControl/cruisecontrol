@@ -49,7 +49,7 @@ public final class CCDistVersion {
         LOG.info("CCDist Version " + getVersion() + " " + getVersionInfo());
     }
 
-    public static String getVersionInfo() {
+    private static String getVersionInfo() {
         return PROPS_CCDIST_BUILD_VERSION.getProperty("ccdist.version.info");
     }
 
@@ -57,7 +57,7 @@ public final class CCDistVersion {
         return PROPS_CCDIST_BUILD_VERSION.getProperty("ccdist.version");
     }
 
-    /** The date format in the properties file, should match the ant format use for ${TODAY} ${TSTAMP} */
+    /** The date format in the properties file, should match the ant format used for ${TODAY} ${TSTAMP} */
     private static final DateFormat DF_ANT_TODAY_TSTAMP = new SimpleDateFormat("MMMM d yyyy hhmm");
     private static Date buildDate;
     public static Date getVersionBuildDate() {

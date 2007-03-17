@@ -43,23 +43,14 @@ import java.rmi.RemoteException;
 import java.util.Properties;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Iterator;
 import java.util.HashMap;
-import java.util.Collections;
 import java.util.ArrayList;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.Builder;
 
-// @todo Remove this when done with SelfConfiguringPlugin
-//import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.PluginRegistry;
-import net.sourceforge.cruisecontrol.ProjectXMLHelper;
-import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
@@ -70,13 +61,9 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
 import org.jdom.Element;
 
 public class DistributedMasterBuilder extends Builder {
-        // @todo Remove this when done with SelfConfiguringPlugin {
-        //implements SelfConfiguringPlugin
-
 
     private static final Logger LOG = Logger.getLogger(DistributedMasterBuilder.class);
 
@@ -87,8 +74,7 @@ public class DistributedMasterBuilder extends Builder {
     private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
     private boolean isFailFast;
 
-    // TODO: Can we get the module from the projectProperties instead of setting
-    // it via an attribute?
+    // TODO: Can we get the module from the projectProperties instead of setting it via an attribute?
     //  Could be set in ModificationSet...
     private String entries = "";
     private String module;
@@ -99,14 +85,13 @@ public class DistributedMasterBuilder extends Builder {
     private String masterLogDir;
     private String masterOutputDir;
 
-    private Element childBuilderElement; // @todo Remove this when done with SelfConfiguringPlugin
-public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when done with SelfConfiguringPlugin
-    private List tmpChildBuilders = new ArrayList();
-    private Builder childBuilder;
+    private final List tmpNestedBuilders = new ArrayList();
+    private Builder nestedBuilder;
 
     private String overrideTarget;
     private MulticastDiscovery discovery;
     private File rootDir;
+
     static final String MSG_REQUIRED_ATTRIB_MODULE = "The 'module' attribute is required for DistributedMasterBuilder."
             + "\n Consider adding module=\"${project.name}\" as a preconfigured setting in config.xml, "
             + "for example:\n\n"
@@ -114,10 +99,6 @@ public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when d
             + "        classname=\"net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder\"\n"
             + "        module=\"${project.name}\"\n"
             + "    />";
-
-    protected void overrideTarget(final String target) {
-        overrideTarget = target;
-    }
 
 
     /**
@@ -147,64 +128,6 @@ public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when d
         return discovery;
     }
 
-    /**
-     * @param element the "distributed" jdom element
-     * @throws net.sourceforge.cruisecontrol.CruiseControlException
-     */
-    public void configure(final Element element) throws CruiseControlException {
-        final List children = element.getChildren();
-        if (children.size() > 1) {
-            final String message = "DistributedMasterBuilder can only have one nested builder";
-            LOG.error(message);
-            throw new CruiseControlException(message);
-        } else if (children.size() == 0) {
-            // @todo Clarify when configure() can be called...
-            final String message = "Nested Builder required by DistributedMasterBuilder, "
-                    + "ignoring and assuming this call is during plugin-preconfig";
-            LOG.warn(message);
-            return;
-        }
-        childBuilderElement = (Element) children.get(0);
-        // Add default/preconfigured props to builder element
-        addMissingPluginDefaults(childBuilderElement);
-
-        // Add default/preconfigured props to distributed element
-        addMissingPluginDefaults(element);
-
-        Attribute tempAttribute = element.getAttribute("entries");
-        entries = tempAttribute != null ? tempAttribute.getValue() : "";
-
-        tempAttribute = element.getAttribute("module");
-        if (tempAttribute != null) {
-            module = tempAttribute.getValue();
-        } else {
-            // try to use project name as default value
-            final Element elmProj = getElementProject(element);
-            if (elmProj != null) {
-                module = elmProj.getAttributeValue("name");
-            } else {
-                module = null;
-            }
-        }
-
-        // optional attributes
-        tempAttribute = element.getAttribute("agentlogdir");
-        setAgentLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
-
-        tempAttribute = element.getAttribute("agentoutputdir");
-        setAgentOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
-
-        tempAttribute = element.getAttribute("masterlogdir");
-        setMasterLogDir(tempAttribute != null ? tempAttribute.getValue() : null);
-
-        tempAttribute = element.getAttribute("masteroutputdir");
-        setMasterOutputDir(tempAttribute != null ? tempAttribute.getValue() : null);
-
-        loadRequiredProps();
-
-        validate();
-    }
-
     private void loadRequiredProps() throws CruiseControlException {
         final Properties cruiseProperties;
         try {
@@ -218,8 +141,8 @@ public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when d
         LOG.debug("CRUISE_RUN_DIR: " + rootDir);
         if (!rootDir.exists()
                 // Don't think non-existant rootDir matters if agent/master log/output dirs are set
-                && (getAgentLogDir() == null && getMasterLogDir() == null)
-                && (getAgentOutputDir() == null && getMasterOutputDir() == null)
+                && (agentLogDir == null && masterLogDir == null)
+                && (agentOutputDir == null && masterOutputDir == null)
         ) {
             final String message = "Could not get property " + CRUISE_RUN_DIR + " from " + CRUISE_PROPERTIES
                     + ", or run dir does not exist: " + rootDir;
@@ -229,194 +152,29 @@ public static final boolean USE_SERIALIZABLE = true; // @todo Remove this when d
         }
     }
 
-    /**
-     * Package visisble since also used by unit tests to apply plugin default values.
-     * @param elementToAlter the jdom element (distributed, or child builder) who's defaults need to be added.
-     * @throws CruiseControlException if ProjectXMLHelper.parsePropertiesInElement() fails.
-     */
-    static void addMissingPluginDefaults(final Element elementToAlter) throws CruiseControlException {
-        LOG.debug("Adding missing defaults for plugin: " + elementToAlter.getName());
-        final Map pluginDefaults = getPluginDefaults(elementToAlter);
-        applyPluginDefaults(pluginDefaults, elementToAlter);
-    }
-
-    private static void applyPluginDefaults(final Map pluginDefaults, final Element elementToAlter) {
-        final String pluginName = elementToAlter.getName();
-        // to preserve precedence, only add default attribute if it is not also defined in the tag directly
-        final Set defaultAttribMapKeys = pluginDefaults.keySet();
-        Object key;
-        for (Iterator itrKeys = defaultAttribMapKeys.iterator(); itrKeys.hasNext();) {
-            key = itrKeys.next();
-            if (key instanceof String) {
-                final String attribName = (String) key;
-                final String attribValueExisting = elementToAlter.getAttributeValue(attribName);
-                if (attribValueExisting == null) { // skip existing attribs
-                    final String attribValue = (String) pluginDefaults.get(attribName);
-                    elementToAlter.setAttribute(attribName, attribValue);
-                    LOG.debug("Added plugin " + pluginName + " default attribute: " + attribName + "=" + attribValue);
-                } else {
-                    LOG.debug("Skipping plugin " + pluginName + " overidden attribute: " + attribName
-                            + "=" + attribValueExisting);
-                }
-            } else if (key instanceof Integer) { // this is a default child element
-                final Element defaultChildElement = (Element) pluginDefaults.get(key);
-                elementToAlter.addContent(defaultChildElement);
-            }
-        }
-    }
-
-    private static Map getPluginDefaults(final Element elementToAlter) throws CruiseControlException {
-
-        final PluginRegistry pluginsRegistry = PluginRegistry.createRegistry();
-        final Map pluginDefaults = new HashMap();
-        // note: the map returned here is "unmodifiable"
-        pluginDefaults.putAll(pluginsRegistry.getDefaultProperties(elementToAlter.getName()));
-
-        if (pluginDefaults.size() == 0) { // maybe we're in a unit test
-            // @todo Remove this kludge when we figure out how to make PluginRegistry work in unit test
-            LOG.warn("Unit Test kludge for plugin default values. "
-                    + "Should happen only if no default plugin settings exist OR during unit tests.");
-            final Element elemCC = getElementCruiseControl(elementToAlter);
-            // bail out if we can't find CruiseControl element, since there may actually
-            // be no defaults for this element
-            if (elemCC == null) {
-                return pluginDefaults;
-            }
-
-            final List plugins = elemCC.getChildren("plugin");
-            final Map pluginDefaultsHack = new HashMap();
-            for (int i = 0; i < plugins.size(); i++) {
-                final Element plugin = (Element) plugins.get(i);
-                if (elementToAlter.getName().equals(plugin.getAttributeValue("name"))) {
-
-                    // clone to avoid changing original dom tree
-                    final Element pluginFound = (Element) ((Element) plugin.clone()).detach();
-                    // resolve any macro values in plugin defaults
-                    ProjectXMLHelper.parsePropertiesInElement(
-                            pluginFound,
-                            new HashMap(), // @todo How To get populated map of macro values???
-                            CruiseControlConfig.FAIL_UPON_MISSING_PROPERTY);
-
-                    // iterate attribs
-                    final List attribs = pluginFound.getAttributes();
-                    for (int j = 0; j < attribs.size(); j++) {
-                        final Attribute attribute = (Attribute) attribs.get(j);
-                        final String attribName = attribute.getName();
-                        // skip certain attribs
-                        if (!"name".equals(attribName)) { // ignore "name" attrib of default plugin declaration
-                            pluginDefaultsHack.put(attribName, attribute.getValue());
-                        }
-                    }
-
-    /*
-     * Note: as we have no way to enforce the cardinality of the nested elements, the parent/default nested
-     * elements are always added to the config of the child. The validity of the resulting config then
-     * depends on the config to be correctly specified.
-     *
-     * see PluginRegistry.overridePluginConfig()
-     */
-                    // handle any child elements, like <property> elements
-                    final List pluginChildren = pluginFound.getChildren();
-                    for (int k = 0; k < pluginChildren.size(); k++) {
-                        final Element child = (Element) pluginChildren.get(k);
-                        final Attribute childAttrName = child.getAttribute("name");
-                        LOG.debug("ccdist: " + elementToAlter.getName() + ": adding preconfigured child element: "
-                                + childAttrName);
-                        // add child element to map
-                        pluginDefaultsHack.put(new Integer(k), ((Element) child.clone()).detach());
-                    }
-                }
-            }
-            // put kludge results into returned map
-            pluginDefaults.putAll(pluginDefaultsHack);
-        }
-
-        return Collections.unmodifiableMap(pluginDefaults);
-    }
-
-    private static Element getElementCruiseControl(Element element) {
-        LOG.debug("Searching for CC root element, starting at: " + element.toString());
-        while (!"cruisecontrol".equals(element.getName().toLowerCase())) {
-            element = element.getParentElement();
-            LOG.debug("Searching for CC root element, moved up to: "
-                    + (element != null ? element.toString() : "Augh! parent element is null"));
-            if (element == null) {
-                LOG.warn("Searching for CC root element, not found.");
-                break;
-            }
-        }
-        return element;
-    }
-
-    /**
-     * Used to get default value for "module" attribute if not given.
-     * @param element the "distributed" jdom element
-     * @return the parent "project" jdom element
-     */
-    private static Element getElementProject(Element element) {
-        LOG.debug("Searching for Project element, starting at: " + element.toString());
-        while (!"project".equals(element.getName().toLowerCase())) {
-            element = element.getParentElement();
-            LOG.debug("Searching for Project element, moved up to: "
-                    + (element != null ? element.toString() : "Augh! parent element is null"));
-            if (element == null) {
-                LOG.warn("Searching for Project element, not found.");
-                break;
-            }
-        }
-        return element;
-    }
 
     public void validate() throws CruiseControlException {
         super.validate();
 
         loadRequiredProps();
 
-if (USE_SERIALIZABLE) {
-        if (tmpChildBuilders.size() == 0) {
+        if (tmpNestedBuilders.size() == 0) {
             final String message = "A nested Builder is required for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
-        } else if (tmpChildBuilders.size() > 1) {
+        } else if (tmpNestedBuilders.size() > 1) {
             final String message = "Only one nested Builder is allowed for DistributedMasterBuilder";
             LOG.warn(message);
             throw new CruiseControlException(message);
         }
-        ValidationHelper.assertHasChild(tmpChildBuilders.get(0), Builder.class, "ant, maven2, etc.",
+        ValidationHelper.assertHasChild(tmpNestedBuilders.get(0), Builder.class, "ant, maven2, etc.",
                 DistributedMasterBuilder.class);
-        childBuilder = (Builder) tmpChildBuilders.get(0);
+        nestedBuilder = (Builder) tmpNestedBuilders.get(0);
 
         // In order to support Build Agents who's build tree does not exactly match the Master, only validate
-        // the child builder on the Build Agent (so don't validate it here). 
-        //childBuilder.validate();
-} else {
+        // the nested builder on the Build Agent (so don't validate it here).
+        //nestedBuilder.validate();
 
-        final Element elmChildBuilder = getChildBuilderElement();
-        if (elmChildBuilder == null) {
-            final String message = "A nested Builder is required for DistributedMasterBuilder";
-            LOG.warn(message);
-            throw new CruiseControlException(message);
-        }
-
-        /*
-         * DO NOT add defaults here since they are added in .configure()???, and now that we add preconfigured
-         * child elements to nested builders, multiple calls to add addMissingPluginDefaults() would inflate the
-         * jdom tree.
-        // Add default/preconfigured props to builder element
-        addMissingPluginDefaults(elmChildBuilder);
-         */
-
-        /* @todo Should call validate() on the child builder but can't until macro resolution is available from
-        // outside CruiseControlConfig et al. Otherwise, config file properties, like: "anthome="${env.ANT_HOME}"
-        // don't get expanded...
-        final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
-        PluginRegistry plugins = PluginRegistry.createRegistry();
-        Class pluginClass = plugins.getPluginClass(elmChildBuilder.getName());
-        // this dies due to "anthome="${env.ANT_HOME}" in config file not being expanded...
-        final Builder builder = (Builder) pluginXMLHelper.configure(elmChildBuilder, pluginClass, false);
-        builder.validate();
-        //*/
-}
         if (module == null) {
             LOG.warn(MSG_REQUIRED_ATTRIB_MODULE);
             throw new CruiseControlException(MSG_REQUIRED_ATTRIB_MODULE);
@@ -424,65 +182,28 @@ if (USE_SERIALIZABLE) {
     }
 
 
-    private int convertNullToNOT_SET(final String value) {
-        final int retVal;
-        if (value == null) {
-            retVal = NOT_SET;
-        } else {
-            retVal = Integer.parseInt(value);
-        }
-        return retVal;
-    }
-
-    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
     public int getDay() {
-if (USE_SERIALIZABLE) {
-        return childBuilder.getDay();
-} else {
-        // @todo Replace with real Builder object if possible
-        return convertNullToNOT_SET(childBuilderElement.getAttributeValue("day"));
-}
+        return nestedBuilder.getDay();
     }
 
-    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
     public int getTime() {
-if (USE_SERIALIZABLE) {
-        return childBuilder.getTime();
-} else {
-        // @todo Replace with real Builder object if possible
-        return convertNullToNOT_SET(childBuilderElement.getAttributeValue("time"));
-}
+        return nestedBuilder.getTime();
     }
-    /* Override base schedule methods to expose child-builder values. Otherwise, schedules are not honored.*/
+    /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
     public int getMultiple() {
-if (USE_SERIALIZABLE) {
-        return childBuilder.getMultiple();
-} else {
-        // @todo Replace with real Builder object if possible
-        final String value = childBuilderElement.getAttributeValue("multiple");
-        final int retVal;
-        if (getTime() != NOT_SET) {
-            // can't use both time and multiple
-            retVal = NOT_SET;
-        } else if (value == null) {
-            // no multiple attribute is set
-            // use default multiple value
-            retVal = 1;
-        } else {
-            retVal = Integer.parseInt(value);
-        }
-        return retVal;
-}
+        return nestedBuilder.getMultiple();
     }
 
     
     public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
-        String oldOverideTarget = overrideTarget;
-        overrideTarget(target);
+        final String oldOverideTarget = overrideTarget;
+        overrideTarget = target;
         try {
             return build(properties);
         } finally {
-            overrideTarget(oldOverideTarget);
+            overrideTarget = oldOverideTarget;
         }
     }
 
@@ -503,8 +224,8 @@ if (USE_SERIALIZABLE) {
                 final Map distributedAgentProps = new HashMap();
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
-                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, getAgentLogDir());
-                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, getAgentOutputDir());
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, agentLogDir);
+                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, agentOutputDir);
 
                 // set Build Agent logging to debug if the Master has debug enabled
                 if (LOG.isDebugEnabled()) {
@@ -516,11 +237,9 @@ if (USE_SERIALIZABLE) {
                 LOG.debug("Project Props: " + projectProperties.toString());
 
                 LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
-if (USE_SERIALIZABLE) {
-                buildResults = agent.doBuild(childBuilder, projectProperties, distributedAgentProps);
-} else {
-                buildResults = agent.doBuild(getChildBuilderElement(), projectProperties, distributedAgentProps);
-}
+
+                buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps);
+
                 final String rootDirPath;
                 try {
                     // watch out on Windoze, problems if root dir is c: instead of c:/
@@ -533,24 +252,8 @@ if (USE_SERIALIZABLE) {
                     throw new CruiseControlException(message, e);
                 }
 
+                retrieveBuildArtifacts(agent, rootDirPath);
 
-                String masterDir;
-                if (getMasterLogDir() == null || "".equals(getMasterLogDir())) {
-                    masterDir = rootDirPath + File.separator + PropertiesHelper.RESULT_TYPE_LOGS;
-                } else {
-                    masterDir = getMasterLogDir();
-                }
-                getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS, rootDirPath, masterDir);
-
-
-                if (getMasterOutputDir() == null || "".equals(getMasterOutputDir())) {
-                    masterDir = rootDirPath + File.separator + PropertiesHelper.RESULT_TYPE_OUTPUT;
-                } else {
-                    masterDir = getMasterOutputDir();
-                }
-                getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT, rootDirPath, masterDir);
-
-                agent.clearOutputFiles();
             } catch (RemoteException e) {
                 final String message = "RemoteException from"
                         + "\nagent on: " + agentMachine
@@ -574,16 +277,38 @@ if (USE_SERIALIZABLE) {
         }
     }
 
+    private void retrieveBuildArtifacts(BuildAgentService agent, String rootDirPath) throws RemoteException {
+        getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS, rootDirPath,
+                resolveMasterDestDir(masterLogDir, rootDirPath, PropertiesHelper.RESULT_TYPE_LOGS));
+
+        getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT, rootDirPath,
+                resolveMasterDestDir(masterOutputDir, rootDirPath, PropertiesHelper.RESULT_TYPE_OUTPUT));
+
+        agent.clearOutputFiles();
+    }
+
+    
+    private static String resolveMasterDestDir(final String masterDestDir, final String rootDirPath,
+                                               final String resultType) {
+        final String resultDir;
+        if (masterDestDir == null || "".equals(masterDestDir)) {
+            resultDir = rootDirPath + File.separator + resultType;
+        } else {
+            resultDir = masterDestDir;
+        }
+        return resultDir;
+    }
+
     public static void getResultsFiles(final BuildAgentService agent, final String resultsType,
-                                       final String rootDirPath, final String masterDir)
+                                       final String rootDirPath, final String masterDestDir)
             throws RemoteException {
 
         if (agent.resultsExist(resultsType)) {
             final String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath,
                     resultsType + ".zip");
             try {
-                LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDir);
-                ZipUtil.unzipFileToLocation(zipFilePath, masterDir);
+                LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDestDir);
+                ZipUtil.unzipFileToLocation(zipFilePath, masterDestDir);
                 IO.delete(new File(zipFilePath));
             } catch (IOException e) {
                 // Empty zip for log results--ignore
@@ -595,13 +320,13 @@ if (USE_SERIALIZABLE) {
         }
     }
 
-    protected BuildAgentService pickAgent() throws CruiseControlException {
+    BuildAgentService pickAgent() throws CruiseControlException {
         BuildAgentService agent = null;
 
         while (agent == null) {
             final ServiceItem serviceItem;
             try {
-                serviceItem = getDiscovery().findMatchingService();
+                serviceItem = getDiscovery().findMatchingServiceAndClaim();
             } catch (RemoteException e) {
                 throw new CruiseControlException("Error finding matching agent.", e);
             }
@@ -640,42 +365,22 @@ if (USE_SERIALIZABLE) {
     }
 
 
-    Element getChildBuilderElement() {
-        return childBuilderElement;
-    }
-
     public void add(final Builder builder) {
-        tmpChildBuilders.add(builder);
-        childBuilder = builder; // can't leave this null, otherwise ProjectConfig.validate() fails
+        tmpNestedBuilders.add(builder);
+        nestedBuilder = builder; // can't leave this null, otherwise ProjectConfig.validate() fails
     }
 
-
-    public String getAgentLogDir() {
-        return agentLogDir;
-    }
 
     public void setAgentLogDir(final String agentLogDir) {
         this.agentLogDir = agentLogDir;
-    }
-
-    public String getAgentOutputDir() {
-        return agentOutputDir;
     }
 
     public void setAgentOutputDir(final String agentOutputDir) {
         this.agentOutputDir = agentOutputDir;
     }
 
-    public String getMasterLogDir() {
-        return masterLogDir;
-    }
-
     public void setMasterLogDir(final String masterLogDir) {
         this.masterLogDir = masterLogDir;
-    }
-
-    public String getMasterOutputDir() {
-        return masterOutputDir;
     }
 
     public void setMasterOutputDir(final String masterOutputDir) {

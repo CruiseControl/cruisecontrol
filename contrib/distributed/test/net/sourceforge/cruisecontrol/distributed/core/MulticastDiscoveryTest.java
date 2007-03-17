@@ -39,36 +39,55 @@ package net.sourceforge.cruisecontrol.distributed.core;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
+import net.jini.lookup.ServiceDiscoveryEvent;
+import net.jini.core.lookup.ServiceItem;
+import net.jini.core.lookup.ServiceID;
+import net.jini.core.entry.Entry;
 
 public class MulticastDiscoveryTest extends TestCase {
 
-    private static final Logger LOG = Logger.getLogger(MulticastDiscoveryTest.class);
-
-    private DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
+    private MulticastDiscovery discovery;
 
     protected void setUp() throws Exception {
-        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
+        DistributedMasterBuilderTest.setupInsecurePolicy();
+        discovery = new MulticastDiscovery(null);
     }
 
     protected void tearDown() throws Exception {
-        DistributedMasterBuilderTest.killJini(jiniProcessPump);
+        discovery.terminate();
     }
 
-
+    /*
     public void testMulticastDiscovery()  throws Exception {
         // TODO: There are certainly tests that could be written here, but without automating startup and shutdown of
         // Jini these shouldn't be run with the rest of the the Cruise Control tests. Should we look into this
         // automation for purposes of testing?
         // NOTE: I've added nasty, but working Jini startup/shutdown methods to DistributedMasterBuilderTest
 
-        MulticastDiscovery discovery = new MulticastDiscovery(null);
-        try {
-            assertNull(discovery.findMatchingService());
-        } finally {
-            discovery.terminate();
-        }
+        assertNull(discovery.findMatchingServiceAndClaim());
+    }
+    */
+    
+    public void testServiceDiscListenerToString() throws Exception {
+        final MulticastDiscovery.ServiceDiscListener serviceDiscListener = discovery.getServiceDiscListener();
+
+        final ServiceID serviceID = new ServiceID(1, 1);
+        final PropertyEntry entry1 = new PropertyEntry("name1", "value1");
+        final String service = "fakeService";
+        final ServiceItem serviceItem = new ServiceItem(serviceID, service, new Entry[] { entry1 });
+        final Object source = "fakeSource";
+        final String action = "fakeAction";
+        final ServiceDiscoveryEvent event = new ServiceDiscoveryEvent(source, serviceItem, serviceItem);
+
+        assertEquals(getExpectedToString(action, service, entry1),
+                serviceDiscListener.buildDiscoveryMsg(event, action));
     }
 
+    private static String getExpectedToString(final String action, final Object service, final PropertyEntry entry) {
+        return "\nService " + action + ": PostEvent: class " + service.getClass().getName()
+                + "; ID:00000000-0000-0001-0000-000000000001\n"
+                + "\tEntries:\n"
+                + "\t[(name=" + entry.name + ",value=" + entry.value + ")]\n";
+    }
 }
