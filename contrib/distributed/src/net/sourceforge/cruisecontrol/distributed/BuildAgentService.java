@@ -47,19 +47,15 @@ import net.sourceforge.cruisecontrol.Builder;
 
 public interface BuildAgentService extends Remote {
 
-    /**
-     * @deprecated This method is soon to be replaced with the serializable version of Builder,
-     * see {@link #doBuild(net.sourceforge.cruisecontrol.Builder, java.util.Map, java.util.Map)}. 
-     */
-    public Element doBuild(Element nestedBuilderElement, Map projectProperties,
-                           Map distributedAgentProperties) throws RemoteException;
-
-    public Element doBuild(Builder childBuilder, Map projectProperties,
+    public Element doBuild(Builder nestedBuilder, Map projectProperties,
                            Map distributedAgentProperties) throws RemoteException;
 
     public String getMachineName() throws RemoteException;
 
-    /** @return the date this Build Agent started running (not when a specific build started). */
+    /**
+     * @return the date this Build Agent started running (not when a specific build started).
+     * @throws RemoteException if the remote call fails
+     */
     public Date getDateStarted() throws RemoteException;
 
     public void claim() throws RemoteException;
@@ -68,7 +64,10 @@ public interface BuildAgentService extends Remote {
 
     public boolean isBusy() throws RemoteException;
 
-    /** @return the module being built now, or null if no module is being built. */
+    /**
+     * @return the module being built now, or null if no module is being built.
+     * @throws RemoteException if the remote call fails
+     */
     public String getModule() throws RemoteException;
 
     public boolean resultsExist(String resultsType) throws RemoteException;

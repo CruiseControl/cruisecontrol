@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 
 import java.util.Properties;
 import java.util.Arrays;
-import java.util.List;
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
@@ -16,7 +15,6 @@ import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
-import org.jdom.Element;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
@@ -28,7 +26,6 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.SearchablePropertyEntries;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.core.entry.Entry;
@@ -48,28 +45,6 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static final String JINI_URL_LOCALHOST = "jini://localhost";
 
     public static final OSEnvironment OS_ENV = new OSEnvironment();
-
-    /** Common element names. */
-    public static final String ELM_NAME_CC = "cruisecontrol";
-    public static final String ELM_NAME_PROJECT = "project";
-    public static final String ELM_NAME_SCHEDULE = "schedule";
-    public static final String ELM_NAME_DIST = "distributed";
-    public static final String ELM_NAME_AND = "ant";
-    /** Common attribute names. */
-    public static final String ATR_NAME_NAME = "name";
-    public static final String ATR_NAME_MODULE = "module";
-    public static final String ATR_NAME_DAY = "day";
-    public static final String ATR_NAME_TIME = "time";
-    public static final String ATR_NAME_MULTIPLE = "multiple";
-
-    /**
-     * Expose package visible helper method for other Unit Test classes to use.
-     * @param elementToAlter the jdom element (distributed, or child builder) who's defaults need to be added.
-     * @throws CruiseControlException if ProjectXMLHelper.parsePropertiesInElement() fails.
-     */
-    public static void addMissingPluginDefaults(final Element elementToAlter) throws CruiseControlException {
-        DistributedMasterBuilder.addMissingPluginDefaults(elementToAlter);
-    }
 
     /**
      * Show what's happening with the Jini Process.
@@ -154,12 +129,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         // Verify the Lookup Service started
 
         // setup security policy
-        URL policyFile = ClassLoader.getSystemClassLoader().getResource(INSECURE_POLICY_FILENAME);
-        assertNotNull("Can't load policy file resource: " + INSECURE_POLICY_FILENAME
-                + ". Make sure this file is in the classes (bin) directory.",
-            policyFile);
-        System.setProperty(BuildAgent.JAVA_SECURITY_POLICY, policyFile.toExternalForm());
-        ReggieUtil.setupRMISecurityManager();
+        setupInsecurePolicy();
 
         ServiceRegistrar serviceRegistrar = findTestLookupService(20);
         assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
@@ -171,35 +141,59 @@ public class DistributedMasterBuilderTest extends TestCase {
         return jiniProcessInfoPump;
     }
 
-    public static String getJavaExec() {
-        final String javaExecFilename;
-        if (Util.isWindows()) {
-            javaExecFilename = "java.exe";
-        } else {
-            javaExecFilename = "java";
-        }
-        // use JAVA_HOME env var to find java
-        final String javaHome = getJAVA_HOME();
-        final String javaExec;
-        if (javaHome != null) {
-            javaExec = javaHome + File.separator + "bin" + File.separator + javaExecFilename;
-        } else {
-            String msg = "Unit Test couldn't find JAVA_HOME env var. Maybe java/bin is in the path? Here goes...";
-            System.out.println(msg);
-            LOG.warn(msg);
-            javaExec = javaExecFilename;
-        }
-        return javaExec;
+    /**
+     * Setup an insecure policy file for use during unit tests that require Jini.
+     */
+    public static void setupInsecurePolicy() {
+        URL policyFile = ClassLoader.getSystemClassLoader().getResource(INSECURE_POLICY_FILENAME);
+        assertNotNull("Can't load policy file resource: " + INSECURE_POLICY_FILENAME
+                + ". Make sure this file is in the classes (bin) directory.",
+            policyFile);
+        System.setProperty(BuildAgent.JAVA_SECURITY_POLICY, policyFile.toExternalForm());
+        ReggieUtil.setupRMISecurityManager();
     }
 
-    public static String getJAVA_HOME() {
-        String envJavaHome = OS_ENV.getVariable("JAVA_HOME");
-        if (envJavaHome != null) {
-            return envJavaHome;
+
+    private static String javaExecutable;
+
+    private static String getJavaExec() {
+        if (javaExecutable == null) {
+            final String javaExecFilename;
+            if (Util.isWindows()) {
+                javaExecFilename = "java.exe";
+            } else {
+                javaExecFilename = "java";
+            }
+            // use javaHome env var to find java
+            if (getJavaHome() != null) {
+                javaExecutable = getJavaHome() + File.separator + "bin" + File.separator + javaExecFilename;
+            } else {
+                final String msg
+                        = "Unit Test couldn't find JAVA_HOME env var. Maybe java/bin is in the path? Here goes...";
+                System.out.println(msg);
+                LOG.warn(msg);
+                javaExecutable = javaExecFilename;
+            }
         }
-        // try system prop for java.home
-        return System.getProperty("java.home");
+        return javaExecutable;
     }
+
+
+    private static String javaHome;
+
+    private static String getJavaHome() {
+        if (javaHome == null) {
+            String envJavaHome = OS_ENV.getVariable("JAVA_HOME");
+            if (envJavaHome != null) {
+                javaHome = envJavaHome;
+            } else {
+                // try system prop for java.home
+                javaHome = System.getProperty("java.home");
+            }
+        }
+        return javaHome;
+    }
+
 
     public static ServiceRegistrar findTestLookupService(int retryTimeoutSecs)
             throws IOException, ClassNotFoundException, InterruptedException {
@@ -208,17 +202,20 @@ public class DistributedMasterBuilderTest extends TestCase {
         final long startTime = System.currentTimeMillis();
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
+
+        final int sleepMillisAfterException = 500;
+
         while (serviceRegistrar == null
                 && (System.currentTimeMillis() - startTime < (retryTimeoutSecs * 1000))) {
 
             try {
                 serviceRegistrar = lookup.getRegistrar();
             } catch (ConnectException e) {
-                Thread.sleep(500);
+                Thread.sleep(sleepMillisAfterException);
             } catch (SocketException e) {
-                Thread.sleep(500);
+                Thread.sleep(sleepMillisAfterException);
             } catch (EOFException e) {
-                Thread.sleep(500);
+                Thread.sleep(sleepMillisAfterException);
             }
             // more exceptions will likely need to added here as the Jini libraries are updated.
             // could catch a generic super class, but I kinda like to know what's being thrown.
@@ -236,10 +233,12 @@ public class DistributedMasterBuilderTest extends TestCase {
             // @todo why do we need to retry this on Linux?
             if (findTestLookupService(1) != null) {
                 final int secs = 5;
-                LOG.warn("Waiting " + secs + " seconds for Lookup Service to die...need to fix this.");
+                LOG.warn("********* Waiting " + secs + " seconds for Lookup Service to die...need to fix this.");
                 Thread.sleep(secs * 1000);
             }
+
             verifyNoLocalLookupService();
+
             Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
         }
 
@@ -304,32 +303,6 @@ public class DistributedMasterBuilderTest extends TestCase {
     private ProcessInfoPump jiniProcessPump;
 
 
-    static Element getDistElement(final String projectName, final int projectIndex)
-            throws CruiseControlException {
-
-        final Element rootElement = Util.loadRootElement(BuildAgentServiceImplTest.TEST_CONFIG_FILE);
-
-        final List projects = rootElement.getChildren(ELM_NAME_PROJECT);
-        final Element project = (Element) projects.get(projectIndex);
-        assertEquals(ELM_NAME_PROJECT, project.getName());
-        assertEquals(projectName, project.getAttributeValue(ATR_NAME_NAME));
-
-        final Element schedule = (Element) project.getChildren(ELM_NAME_SCHEDULE).get(0);
-        assertEquals(ELM_NAME_SCHEDULE, schedule.getName());
-
-        final Element dist = (Element) schedule.getChildren().get(0);
-        assertEquals(ELM_NAME_DIST, dist.getName());
-        return dist;
-    }
-
-    static Element getAntElement(final Element dist) {
-        final Element ant = (Element) dist.getChildren().get(0);
-        assertEquals(ELM_NAME_AND, ant.getName());
-        return ant;
-    }
-
-
-
     protected void setUp() throws Exception {
         jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
     }
@@ -341,29 +314,25 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public void testPickAgent2Agents() throws Exception {
         // register agent
-        final BuildAgent agentAvailable = new BuildAgent(
-                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
-        final BuildAgent agentAvailable2 = new BuildAgent(
-                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
+        final BuildAgent agentAvailable = createBuildAgent();
+        final BuildAgent agentAvailable2 = createBuildAgent();
         try {
             assertFalse(agentAvailable.getService().isBusy());
             assertFalse(agentAvailable2.getService().isBusy());
 
-            DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
 
             // try to find agents
             final BuildAgentService agentFoundFirst = masterBuilder.pickAgent();
             assertNotNull("Couldn't find first agent", agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
+
             final BuildAgentService agentFoundSecond = masterBuilder.pickAgent();
             assertNotNull("Couldn't find second agent", agentFoundSecond);
-
             assertTrue(agentFoundFirst.isBusy());
             assertTrue(agentFoundSecond.isBusy());
-            final BuildAgentService agentFoundThird = masterBuilder.pickAgent();
-            assertNull("Shouldn't find third agent", agentFoundThird);
+
+            assertNull("Shouldn't find third agent", masterBuilder.pickAgent());
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuild() only needed to clearOuputFiles() will succeed
@@ -383,18 +352,15 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public void testPickAgentAfterReleased() throws Exception {
         // register agent
-        final BuildAgent agentAvailable = new BuildAgent(
-                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
+        final BuildAgent agentAvailable = createBuildAgent();
         try {
             assertFalse(agentAvailable.getService().isBusy());
             agentAvailable.getService().claim(); // mark as busy
 
-            DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
 
             // try to find agent, shouldn't find any available
-            final BuildAgentService agentBusy = masterBuilder.pickAgent();
-            assertNull("Shouldn't find any available agents", agentBusy);
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuild() only needed to clearOuputFiles() will succeed
@@ -413,13 +379,11 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public void testPickAgentAgentNotBusy() throws Exception {
         // register agent
-        final BuildAgent agentAvailable = new BuildAgent(
-                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
+        final BuildAgent agentAvailable = createBuildAgent();
         try {
             assertFalse(agentAvailable.getService().isBusy());
 
-            DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
 
             final BuildAgentService agent = masterBuilder.pickAgent();
             assertNotNull("Couldn't find agent", agent);
@@ -427,11 +391,10 @@ public class DistributedMasterBuilderTest extends TestCase {
                     agent.isBusy());
 
             // try to find agent, shouldn't find any available
-            final BuildAgentService agentBusy = masterBuilder.pickAgent();
-            assertNull("Shouldn't find any available agents", agentBusy);
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
 
             // set Agent to Not busy, then make sure it can be found again.
-            BuildAgentServiceImplTest.callTestDoBuild(false, agent); // only needed to clearOuputFiles() will succeed
+            BuildAgentServiceImplTest.callTestDoBuild(false, agent); // only needed so clearOuputFiles() will succeed
             agent.clearOutputFiles();
             final BuildAgentService agentRefound = masterBuilder.pickAgent();
             assertNotNull("Couldn't find released agent", agentRefound);
@@ -442,6 +405,28 @@ public class DistributedMasterBuilderTest extends TestCase {
             agentAvailable.terminate();
         }
     }
+
+    public void testPickAgentNoAgents() throws Exception {
+
+        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
+        );
+
+        assertNull(masterBuilder.pickAgent());
+    }
+
+    public void testPickAgentNoRegistrars() throws Exception {
+        // kill local reggie
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
+
+        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
+        );
+
+        assertNull(masterBuilder.pickAgent());
+    }
+
+
 
     private static DistributedMasterBuilder createMasterBuilder() throws MalformedURLException, InterruptedException {
         DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
@@ -462,26 +447,10 @@ public class DistributedMasterBuilderTest extends TestCase {
         return masterBuilder;
     }
 
-    public void testPickAgentNoAgents() throws Exception {
-
-        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
-        );
-
-        BuildAgentService agent = masterBuilder.pickAgent();
-        assertNull(agent);
-    }
-
-    public void testPickAgentNoRegistrars() throws Exception {
-        // kill local reggie
-        DistributedMasterBuilderTest.killJini(jiniProcessPump);
-
-        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
-        );
-
-        BuildAgentService agent = masterBuilder.pickAgent();
-        assertNull(agent);
+    private static BuildAgent createBuildAgent() {
+        return new BuildAgent(
+                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
     }
 
     private static DistributedMasterBuilder getMasterBuilder_LocalhostAndTestPropsONLY(

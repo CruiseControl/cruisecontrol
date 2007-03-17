@@ -14,13 +14,9 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 
 import org.jdom.Element;
-import org.apache.log4j.Logger;
-import net.sourceforge.cruisecontrol.util.Util;
+
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Builder;
-import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
-import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 
 /**
@@ -30,9 +26,6 @@ import net.sourceforge.cruisecontrol.builders.MockBuilder;
  */
 public class BuildAgentServiceImplTest extends TestCase {
 
-    private static final Logger LOG = Logger.getLogger(BuildAgentServiceImplTest.class);
-
-    public static final File TEST_CONFIG_FILE = new File("test/testdist.config.xml");
     public static final String TEST_AGENT_PROPERTIES_FILE = "testdist.agent.properties";
     public static final String TEST_USER_DEFINED_PROPERTIES_FILE = "testdist.user-defined.properties";
 
@@ -108,7 +101,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         try {
             // fails at old props.putAll() and now at projectPropertiesMap.toString(), 
             // doesn't fire 2nd agent status event
-            agentImpl.doBuild((Builder) null, null, distributedAgentProps);
+            agentImpl.doBuild(null, null, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -121,7 +114,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         agentListener.setAgentStatusChangeCount(0);
         try {
             // gets far enough to fire 2nd agent status change
-            agentImpl.doBuild((Builder) null, new HashMap(), distributedAgentProps);
+            agentImpl.doBuild(null, new HashMap(), distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -159,7 +152,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Module name...
-            agentImpl.doBuild((Builder) null, projectProps, distributedAgentProps);
+            agentImpl.doBuild(null, projectProps, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -208,7 +201,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Module name...
-            agentImpl.doBuild((Builder) null, projectProps, distributedAgentProps);
+            agentImpl.doBuild(null, projectProps, distributedAgentProps);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -549,7 +542,6 @@ public class BuildAgentServiceImplTest extends TestCase {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
-        // @todo Fix issues where AntBuilder fails if java is not on os path
         callTestDoBuild(isBuildFailure, agentImpl, distributedAgentProps);
 
         return agentImpl;
@@ -585,66 +577,33 @@ public class BuildAgentServiceImplTest extends TestCase {
                                        final Map distributedAgentProps) 
             throws CruiseControlException, RemoteException {
         
-        final Element rootElement = Util.loadRootElement(TEST_CONFIG_FILE);
-
-        final Element project = (Element) rootElement.getChildren("project").get(0);
-        assertEquals("testproject", project.getAttributeValue("name"));
-
-        final Element schedule = (Element) project.getChildren("schedule").get(0);
-        final int distributedElementIndex;
+        final String moduleName;
         if (isBuildFailure) {
-            distributedElementIndex = 0;
+            moduleName = "testmodule-fail";
         } else {
-            distributedElementIndex = 1;
+            moduleName = "testmodule-success";
         }
-        final Element distributed = ((Element) schedule.getChildren("distributed").get(distributedElementIndex));
-        DistributedMasterBuilderTest.addMissingPluginDefaults(distributed);
-
-        final String expectedModuleName;
-        if (isBuildFailure) {
-            expectedModuleName = "testmodule-fail";
-        } else {
-            expectedModuleName = "testmodule-success";
-        }
-        final String moduleName = distributed.getAttributeValue("module");
-        assertEquals(expectedModuleName, moduleName);
-        
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
         
         // handle re-use case of DMB when overrideTarget is null
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
-        final Element antBuilderElement = (Element) distributed.getChildren().get(0);
-        DistributedMasterBuilderTest.addMissingPluginDefaults(antBuilderElement);
 
-        // @todo Find way to make this work when JAVA_HOME/bin is NOT on the path
-        // @todo Fix to use expanded env.* settings from config file
-        if (getANT_HOME() != null) {
-            antBuilderElement.setAttribute("anthome", getANT_HOME());
-        } else {
-            LOG.warn("Unit Test couldn't find ANT_HOME env var. Might work if java/bin is in the path. Here goes...");
-        }
-
-        final Map projectProps = new HashMap();
-        
-if (DistributedMasterBuilder.USE_SERIALIZABLE) {
         final MockBuilder mockBuilder = new MockBuilder("testCCDistMockChildBuilder") {
             public Element build(Map properties) {
                 final Element retVal = super.build(properties);
 
                 // create a files in the expected dirs
-                createExpectedBuildArtifact(new File("logs/" + expectedModuleName + "/TEST-bogustestclassSuccess.xml"));
+                createExpectedBuildArtifact(new File("logs/" + moduleName + "/TEST-bogustestclassSuccess.xml"));
                 if (!isBuildFailure) {
-                    createExpectedBuildArtifact(new File("output/" + expectedModuleName + "/testoutputSuccess"));
+                    createExpectedBuildArtifact(new File("output/" + moduleName + "/testoutputSuccess"));
                 }
 
                 return retVal;
             }
         };
-        return agent.doBuild(mockBuilder, projectProps, distributedAgentProps);
-} else {
-        return agent.doBuild(antBuilderElement, projectProps, distributedAgentProps);
-}
+
+        return agent.doBuild(mockBuilder, new HashMap(), distributedAgentProps);
     }
 
     private static void createExpectedBuildArtifact(File buildProducedFile) {
@@ -661,15 +620,6 @@ if (DistributedMasterBuilder.USE_SERIALIZABLE) {
         buildProducedFile.deleteOnExit();
         buildProducedFile.getParentFile().deleteOnExit();
         buildProducedFile.getParentFile().getParentFile().deleteOnExit();
-    }
-
-    public static String getANT_HOME() {
-        String envAntHome = DistributedMasterBuilderTest.OS_ENV.getVariable("ANT_HOME");
-        if (envAntHome != null) {
-            return envAntHome;
-        }
-        // try using the ant.home passed in by build.xml
-        return System.getProperty("ccdist.ant.home");
     }
 
     public void testClaim() {
@@ -725,7 +675,7 @@ if (DistributedMasterBuilder.USE_SERIALIZABLE) {
     }
 
 
-    // @todo should agent expose a release() method to clear busy flag?
+    // @todo should agent expose a release() method to clear busy flag? Very dangerous if agent is building...
     private static void releaseClaimedAgent(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
     {
         callDoBuildWithNulls(agentImpl, firstClaimDate);
@@ -737,7 +687,7 @@ if (DistributedMasterBuilder.USE_SERIALIZABLE) {
     private static void callDoBuildWithNulls(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
     {
         try {
-            agentImpl.doBuild((Builder) null, null, null);
+            agentImpl.doBuild(null, null, null);
             fail("Should have failed to build");
         } catch (NullPointerException e) {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());

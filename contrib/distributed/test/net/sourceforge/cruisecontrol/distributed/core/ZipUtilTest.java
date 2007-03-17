@@ -132,7 +132,7 @@ public class ZipUtilTest extends TestCase {
         ZipUtil.zipFolderContents(emptyZipFilePath, emptyDirPath);
         File emptyZipFile = new File(emptyZipFilePath);
 
-        assertFalse(emptyZipFile.exists());  // @todo Should empty zips be created?
+        assertFalse(emptyZipFile.exists());
     }
 
     public void testZipWithIllegalArguments() {

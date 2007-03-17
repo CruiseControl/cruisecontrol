@@ -68,16 +68,17 @@ public class InteractiveBuildUtility {
 
     private static final Logger LOG = Logger.getLogger(InteractiveBuildUtility.class);
 
-    private static Console console = new Console(System.in);
+    private static final Console CONSOLE = new Console();
+    
     private Element distributedBuilderElement;
 
     public InteractiveBuildUtility() {
         System.out.print("Enter path to Cruise Control configuration file: ");
-        String configFilePath = console.readLine();
+        String configFilePath = CONSOLE.readLine();
         new InteractiveBuildUtility(configFilePath);
     }
 
-    public InteractiveBuildUtility(String configFilePath) {
+    private InteractiveBuildUtility(String configFilePath) {
         File configFile = new File(configFilePath);
         if (!configFile.exists() || configFile.isDirectory()) {
             String message = configFilePath + " does not exist or is a directory - quitting...";
@@ -90,7 +91,7 @@ public class InteractiveBuildUtility {
         ServiceItem[] serviceItems = findAgents(distributedBuilderElement.getAttribute("entries"));
         final BuildAgentService agent = selectAgent(serviceItems);
         doBuild();
-        retrieveResults(agent);
+        retrieveBuildArtifacts(agent);
     }
 
     private Element getProjectFromConfig(File configFile) {
@@ -126,7 +127,7 @@ public class InteractiveBuildUtility {
                 LOG.debug("Found project: " + tempProject.getAttributeValue("name"));
             }
             System.out.print("Select project number: ");
-            int projectNumber = Integer.parseInt(console.readLine());
+            int projectNumber = Integer.parseInt(CONSOLE.readLine());
             if ((projectNumber > projects.size()) || (projectNumber < 1)) {
                 String message = "Not a valid project number - quitting...";
                 System.err.println(message);
@@ -175,7 +176,7 @@ public class InteractiveBuildUtility {
             System.out.println("Enter search entries as comma-separated name/value pairs "
                     + "(e.g. \"os.name=WinNT, fixpack=4.1\")");
             System.out.print("Search entries: ");
-            searchEntries = console.readLine();
+            searchEntries = CONSOLE.readLine();
         } else {
             searchEntries = configEntries.getValue();
         }
@@ -183,7 +184,9 @@ public class InteractiveBuildUtility {
         Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
         final MulticastDiscovery discovery = new MulticastDiscovery(entries);
         System.out.println("Waiting 5 seconds for registrars to report in...");
-        try { Thread.sleep(5 * 1000); } catch (InterruptedException e) { }
+        try { Thread.sleep(5 * 1000); } catch (InterruptedException e) {
+            // ignore
+        }
         ServiceItem[] serviceItems = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
         if (serviceItems.length == 0) {
             String message = "No matches for your search - quitting...";
@@ -235,7 +238,7 @@ public class InteractiveBuildUtility {
                 }
             }
             System.out.print("Select agent # or 0 to list status of all serviceItems: ");
-            int agentNum = Integer.parseInt(console.readLine());
+            int agentNum = Integer.parseInt(CONSOLE.readLine());
             if ((agentNum > serviceItems.length) || (agentNum < 0)) {
                 agent = null;
                 String message = "Not a valid agent number - quitting...";
@@ -258,7 +261,7 @@ public class InteractiveBuildUtility {
     private void displayAgentStatuses() {
         // TODO unimplemented
         System.out.println();
-        System.err.println("Unimplemented feature - quitting...");
+        System.err.println("Unimplemented feature - quitting...see BuildAgentUtility");
     }
 
     private void doBuild() {
@@ -285,7 +288,7 @@ public class InteractiveBuildUtility {
         System.out.println();
     }
 
-    private void retrieveResults(final BuildAgentService agent) {
+    private void retrieveBuildArtifacts(final BuildAgentService agent) {
         try {
             DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS,
                     ".", "resultsInteractive");
@@ -310,8 +313,8 @@ public class InteractiveBuildUtility {
     public static class Console {
         private InputStream inputStream = null;
 
-        public Console(InputStream in) {
-            this.inputStream = in;
+        public Console() {
+            this.inputStream = System.in;
         }
 
         public String readLine() {

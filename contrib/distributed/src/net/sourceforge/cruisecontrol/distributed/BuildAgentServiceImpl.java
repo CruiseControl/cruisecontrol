@@ -54,8 +54,6 @@ import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.PluginRegistry;
-import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
@@ -102,8 +100,6 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private Date pendingKillSince;
     private boolean isPendingRestart;
     private Date pendingRestartSince;
-
-private boolean useSeralizable = true; // @todo Remove this when done with SelfConfiguringPlugin
 
     private Properties configProperties;
     private final Map distributedAgentProps = new HashMap();
@@ -284,17 +280,8 @@ private boolean useSeralizable = true; // @todo Remove this when done with SelfC
         logPrefixInfo("agent busy status changed to: " + newIsBusy);
     }
 
-    public Element doBuild(final Builder childBuilder, final Map projectPropertiesMap,
+    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
                            final Map distributedAgentProperties) throws RemoteException {
-        return doBuild(childBuilder, null, projectPropertiesMap, distributedAgentProperties);
-    }
-    public Element doBuild(final Element nestedBuilderElement, final Map projectPropertiesMap,
-                           final Map distributedAgentProperties) throws RemoteException {
-        return doBuild(null, nestedBuilderElement, projectPropertiesMap, distributedAgentProperties);
-    }
-    public Element doBuild(final Builder childBuilder, final Element nestedBuilderElement,
-                           final Map projectPropertiesMap, final Map distributedAgentProperties)
-            throws RemoteException {
 
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
@@ -333,27 +320,21 @@ private boolean useSeralizable = true; // @todo Remove this when done with SelfC
             // until projectPropertiesMap has been set.
             fireAgentStatusChanged();
 
-            final Element buildResults;
-            final Builder nestedBuilder;
 
             configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
                     getAgentPropertiesFilename());
 
 
             try {
-if (useSeralizable) {
-                nestedBuilder = childBuilder;
-} else {
-                nestedBuilder = createBuilder(nestedBuilderElement);
-}
                 nestedBuilder.validate();
             } catch (CruiseControlException e) {
-                final String message = "Failed to configure nested Builder on agent";
+                final String message = "Failed to validate nested Builder on agent";
                 logPrefixError(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
             }
 
+            final Element buildResults;
             try {
                 buildResults = nestedBuilder.build(projectPropertiesMap);
             } catch (CruiseControlException e) {
@@ -375,22 +356,6 @@ if (useSeralizable) {
                 LOG.info("Restored Agent log level to: " + origLogLevel);
             }
         }
-    }
-
-    private Builder createBuilder(final Element builderElement) throws CruiseControlException {
-
-        final String overrideTarget
-                = (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
-        final PluginXMLHelper pluginXMLHelper = PropertiesHelper.createPluginXMLHelper(overrideTarget);
-
-        final PluginRegistry plugins = PluginRegistry.createRegistry();
-        final Class pluginClass = plugins.getPluginClass(builderElement.getName());
-        if (pluginClass == null) {
-            throw new IllegalStateException("Error getting plugin class for builder: "
-                    + builderElement.getName() + ". Did the plugin tag name change?");
-        }
-
-        return (Builder) pluginXMLHelper.configure(builderElement, pluginClass, false);
     }
 
     /**

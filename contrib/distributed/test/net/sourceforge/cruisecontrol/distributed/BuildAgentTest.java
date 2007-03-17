@@ -10,6 +10,8 @@ import net.jini.core.entry.Entry;
 
 import java.rmi.RemoteException;
 
+import java.awt.GraphicsEnvironment;
+
 /**
  * @author Dan Rollo
  * Date: Jul 6, 2005
@@ -146,8 +148,12 @@ public class BuildAgentTest extends TestCase {
         findAgent(reg, 10, false);
     }
 
-    // @todo Find way to skip this test if we are running in a "headless" environment
-    public void xxx_testKill() throws Exception {
+    public void testKill() throws Exception {
+        if (GraphicsEnvironment.isHeadless()) {
+            LOG.warn("WARNING: DETECTED HEADLESS ENVIRONMENT. Skipping test: " + getClass().getName() + ".testKill()");
+            return;
+        }
+
         ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
         assertNotNull("Couldn't find registrar.", reg);
         findAgent(reg, 3, false);

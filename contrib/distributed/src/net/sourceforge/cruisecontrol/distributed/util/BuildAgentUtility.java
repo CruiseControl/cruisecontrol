@@ -40,6 +40,7 @@ public final class BuildAgentUtility {
     private static final class UI extends JFrame {
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
+        private final String origTitle;
         private final BuildAgentUtility buildAgentUtility;
         private final JButton btnRefresh = new JButton("Refresh");
         private final JComboBox cmbAgents = new JComboBox();
@@ -55,7 +56,9 @@ public final class BuildAgentUtility {
         private final JScrollPane scrConsole = new JScrollPane();
 
         private UI(final BuildAgentUtility buildAgentUtil) {
-            super("CruiseControl Distributed - Build Agent Utility " + CCDistVersion.getVersion());
+            super("CruiseControl - Agent Utility " + CCDistVersion.getVersion());
+
+            origTitle = getTitle();
 
             buildAgentUtility = buildAgentUtil;
 
@@ -112,7 +115,7 @@ public final class BuildAgentUtility {
             txaConsole.setFont(new Font("Courier New", 0, 12));
 
             scrConsole.setViewportView(txaConsole);
-            scrConsole.setPreferredSize(new Dimension(525, 300));
+            scrConsole.setPreferredSize(new Dimension(550, 300));
 
 
             getContentPane().setLayout(new BorderLayout());
@@ -186,6 +189,7 @@ public final class BuildAgentUtility {
                                 ComboItemWrapper.wrapArray(serviceItems));
                         SwingUtilities.invokeLater(new Runnable() {
                             public void run() {
+                                UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
                                 cmbAgents.setModel(comboBoxModel);
                             }
                         });
@@ -241,6 +245,7 @@ public final class BuildAgentUtility {
 
     private final UI ui;
 
+    private int lastLUSCount;
 
     private BuildAgentUtility() {
 
@@ -265,6 +270,9 @@ public final class BuildAgentUtility {
                 LOG.warn("Sleep interrupted", e1);
             }
 
+            // update LUS count
+            lastLUSCount = discovery.getLUSCount();
+
             final ServiceItem[] serviceItems
                     = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
             // don't wait for the terminate
@@ -282,7 +290,10 @@ public final class BuildAgentUtility {
                 lstServiceItems.add(serviceItems[i]);
             }
 
-            result.append("Found: ").append(serviceItems.length).append(" agents.\n");
+            result.append("Found: ").append(serviceItems.length).append(" agent")
+                    .append(serviceItems.length != 1 ? "s" : "") 
+                    .append(".\n");
+
             ServiceItem serviceItem;
             BuildAgentService agent;
             String agentInfo;

@@ -58,7 +58,7 @@ public class SearchablePropertyEntries {
     private static final String JAVA_VM_VERSION = "java.vm.version";
     private static final String HOSTNAME = "hostname";
 
-    private Properties entryProperties = new Properties();
+    private final Properties entryProperties = new Properties();
 
     public Properties getProperties() {
         return entryProperties;
@@ -66,19 +66,19 @@ public class SearchablePropertyEntries {
 
     public SearchablePropertyEntries(final String userDefinedPropertiesFilename) {
         try {
-            String osName = System.getProperty(OS_NAME);
+            final String osName = System.getProperty(OS_NAME);
             entryProperties.put(OS_NAME, osName);
             LOG.debug("Set search entry " + OS_NAME + " to: " + osName);
 
-            String javaVmVersion = System.getProperty(JAVA_VM_VERSION);
+            final String javaVmVersion = System.getProperty(JAVA_VM_VERSION);
             entryProperties.put(JAVA_VM_VERSION, javaVmVersion);
             LOG.debug("Set search entry " + JAVA_VM_VERSION + " to: " + javaVmVersion);
 
-            String hostname = InetAddress.getLocalHost().getHostName();
+            final String hostname = InetAddress.getLocalHost().getHostName();
             entryProperties.put(HOSTNAME, hostname);
             LOG.debug("Set search entry " + HOSTNAME + " to: " + hostname);
 
-            Map tempProperties = PropertiesHelper.loadOptionalProperties(userDefinedPropertiesFilename);
+            final Map tempProperties = PropertiesHelper.loadOptionalProperties(userDefinedPropertiesFilename);
             for (Iterator iter = tempProperties.keySet().iterator(); iter.hasNext();) {
                 String key = (String) iter.next();
                 String value = (String) tempProperties.get(key);
@@ -86,15 +86,15 @@ public class SearchablePropertyEntries {
                 LOG.debug("Set user-defined search entry " + key + " to: " + value);
             }
         } catch (UnknownHostException e) {
-            String message = "Failed to set hostname";
+            final String message = "Failed to set hostname";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
     }
 
-    public static Entry[] getPropertiesAsEntryArray(Properties properties) {
-        List entries = new ArrayList();
+    public static Entry[] getPropertiesAsEntryArray(final Properties properties) {
+        final List entries = new ArrayList();
         for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
             entries.add(new PropertyEntry((String) entry.getKey(), (String) entry.getValue()));

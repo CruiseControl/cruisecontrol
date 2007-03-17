@@ -48,12 +48,14 @@ import net.jini.entry.AbstractEntry;
 public class PropertyEntry extends AbstractEntry {
 
     private static final long serialVersionUID = -3021011110362115574L;
-    public String name = null;
-    public String value = null;
 
-    public PropertyEntry() {
+    /** Member fields of entry must be public. */
+    public String name;
+    /** Member fields of entry must be public. */
+    public String value;
 
-    }
+    /** Entry must have public, no-arg constructor. */
+    public PropertyEntry() { }
 
     public PropertyEntry(String name, String value) {
         this.name = name;

@@ -65,6 +65,7 @@ public class MulticastDiscovery {
 
     private final ServiceTemplate serviceTemplate;
     private final ServiceDiscoveryManager clientMgr;
+    private final ServiceDiscListener serviceDiscListener;
     private final LookupCache lookupCache;
 
     public MulticastDiscovery(final Entry[] entries) {
@@ -92,22 +93,13 @@ public class MulticastDiscovery {
         final Class[] classes = new Class[] {klass};
         serviceTemplate = new ServiceTemplate(null, classes, entries);
         try {
-            lookupCache = getClientManager().createLookupCache(
-                    getServiceTemplate(), null, new ServiceDiscListener(this));
+            serviceDiscListener = new ServiceDiscListener(this);
+            lookupCache = getClientManager().createLookupCache(getServiceTemplate(), null, serviceDiscListener);
         } catch (RemoteException e) {
             final String message = "Error creating _service cache";
             LOG.debug(message, e);
             throw new RuntimeException(message, e);
         }
-
-// elsewhere, do lookup for service if we don't use a cache
-//
-//        ServiceItem item = null;
-//        // Try to find the _service, blocking till timeout if necessary
-//        item = _clientMgr.lookup(template,
-//            null, /* no filter */
-//            WAITFOR /* timeout */);
-
     }
 
     /**
@@ -119,6 +111,9 @@ public class MulticastDiscovery {
         return getClientManager().getDiscoveryManager().getRegistrars();
     }
 
+    public int getLUSCount() {
+         return getClientManager().getDiscoveryManager().getRegistrars().length;
+    }
 
     private ServiceTemplate getServiceTemplate() {
         return serviceTemplate;
@@ -126,6 +121,10 @@ public class MulticastDiscovery {
 
     private ServiceDiscoveryManager getClientManager() {
         return clientMgr;
+    }
+
+    ServiceDiscListener getServiceDiscListener() {
+        return serviceDiscListener;
     }
 
     /**
@@ -136,18 +135,15 @@ public class MulticastDiscovery {
         return lookupCache;
     }
 
-    public ServiceItem findMatchingService() throws RemoteException {
-        return findMatchingService(true);
-    }
-    public ServiceItem findMatchingService(final boolean doClaim) throws RemoteException {
+    public ServiceItem findMatchingServiceAndClaim() throws RemoteException {
         final ServiceItem result = getLookupCache().lookup(FLTR_AVAILABLE);
-        if (doClaim && result != null) {
+        if (result != null) {
             ((BuildAgentService) result.service).claim();
         }
         return result;
     }
 
-    static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
+    private static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
     public static final BuildAgentFilter FLTR_ANY = new BuildAgentFilter(false);
 
     static final class BuildAgentFilter implements ServiceItemFilter {
@@ -213,21 +209,23 @@ public class MulticastDiscovery {
             this.discovery = discovery;
         }
 
-        private String buildDiscoveryMsg(final ServiceDiscoveryEvent event, final String actionName) {
-            String msg = "\nService " + actionName + ": ";
+        String buildDiscoveryMsg(final ServiceDiscoveryEvent event, final String actionName) {
+
+            final StringBuffer msg = new StringBuffer("\nService ");
+            msg.append(actionName).append(": ");
 
             final ServiceItem postItem = event.getPostEventServiceItem();
             if (postItem != null) {
-                msg = toStringServiceItem(postItem, msg + "PostEvent: ");
+                appendEvent(msg, postItem, "PostEvent: ");
             } else {
                 final ServiceItem preItem = event.getPreEventServiceItem();
                 if (preItem != null) {
-                    msg = toStringServiceItem(preItem, msg + "PreEvent: ");
+                     appendEvent(msg, preItem, "PreEvent: ");
                 } else {
-                    msg += "NOT SURE WHAT THIS EVENT IS!!!";
+                    msg.append("NOT SURE WHAT THIS EVENT IS!!!");
                 }
             }
-            return msg;
+            return msg.toString();
         }
 
         public void serviceAdded(final ServiceDiscoveryEvent event) {
@@ -246,16 +244,21 @@ public class MulticastDiscovery {
     }
 
 
-    public static String toStringServiceItem(final ServiceItem serviceItem, String msgPrefix) {
-        msgPrefix += serviceItem.service.getClass().toString() + "; ID:" + serviceItem.serviceID
-                + toStringEntries(serviceItem.attributeSets);
-        return msgPrefix;
+    private static void appendEvent(final StringBuffer msg, final ServiceItem serviceItem, String eventType) {
+        msg.append(eventType);
+        msg.append(serviceItem.service.getClass().toString());
+        msg.append("; ID:").append(serviceItem.serviceID);
+        appendEntries(msg, serviceItem.attributeSets);
     }
 
+    private static String appendEntries(final StringBuffer sb, final Entry[] entries) {
+        sb.append("\n\tEntries:\n\t");
+        sb.append(Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
+                    .replaceAll(PropertyEntry.class.getName(), ""));
+        sb.append("\n");
+        return sb.toString();
+    }
     public static String toStringEntries(final Entry[] entries) {
-        return  "\n\tEntries:\n\t"
-                + Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
-                    .replaceAll(PropertyEntry.class.getName(), "")
-                + "\n";
+        return appendEntries(new StringBuffer(), entries);
     }
 }

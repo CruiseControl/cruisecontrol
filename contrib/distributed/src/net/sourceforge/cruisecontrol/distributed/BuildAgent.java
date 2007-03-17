@@ -46,6 +46,8 @@ import java.rmi.server.ExportException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 import net.jini.core.entry.Entry;
 import net.jini.core.lookup.ServiceID;
@@ -80,11 +82,11 @@ public class BuildAgent implements DiscoveryListener,
     static final Logger LOG = Logger.getLogger(BuildAgent.class);
 
     public static final String JAVA_SECURITY_POLICY = "java.security.policy";
-    public static final String JINI_POLICY_FILE = "jini.policy.file";
+    private static final String JINI_POLICY_FILE = "jini.policy.file";
 
     /** Optional unicast Lookup Registry URL.
      * A Unicast Lookup Locater is useful if multicast isn't working. */
-    public static final String REGISTRY_URL = "registry.url";
+    private static final String REGISTRY_URL = "registry.url";
 
     private final BuildAgentServiceImpl serviceImpl;
     private final Entry[] entries;
@@ -98,24 +100,36 @@ public class BuildAgent implements DiscoveryListener,
 
     private final BuildAgentUI ui;
 
-    private int registrarCount = 0;
-    private synchronized void incrementRegCount() {
-        registrarCount++;
+
+    static interface LUSCountListener {
+        public void lusCountChanged(final int newLUSCount);
     }
-    private synchronized void decrementRegCount() {
-        registrarCount--;
+    private final List lusCountListeners = new ArrayList();
+    void addLUSCountListener(final LUSCountListener listener) {
+        lusCountListeners.add(listener);
+    }
+    void removeLUSCountListener(final LUSCountListener listener) {
+        lusCountListeners.remove(listener);
+    }
+
+    private int registrarCount = 0;
+
+    private void fireLUSCountChanged() {
+        for (int i = 0; i < lusCountListeners.size(); i++) {
+            ((LUSCountListener) lusCountListeners.get(i)).lusCountChanged(registrarCount);
+        }
+    }
+    private synchronized void setRegCount(final int regCount) {
+        registrarCount = regCount;
+        LOG.info("Lookup Services found: " + registrarCount);
+        fireLUSCountChanged();
     }
 
     /**
+     * @param propsFile the agent properties file
+     * @param userDefinedPropertiesFilename the user defined properties file
      * @param isSkipUI if true, do not show the build agent UI.
-     * @deprecated Use {@link #BuildAgent(String, String, boolean)} instead.
      */
-    public BuildAgent(final boolean isSkipUI) {
-        this(BuildAgentServiceImpl.DEFAULT_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImpl.DEFAULT_USER_DEFINED_PROPERTIES_FILE,
-                isSkipUI);
-    }
-
     public BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
                       final boolean isSkipUI) {
         loadProperties(propsFile, userDefinedPropertiesFilename);
@@ -281,7 +295,6 @@ public class BuildAgent implements DiscoveryListener,
         final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
         ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
-            incrementRegCount();
             registrar = registrarsArray[n];
             logRegistration(registrar);
             LOG.debug("Registered with registrar: " + registrar.getServiceID());
@@ -290,16 +303,17 @@ public class BuildAgent implements DiscoveryListener,
             LOG.info("BuildAgentService open for business...");
             isNotFirstDiscovery = true;
         }
+        setRegCount(registrarsArray.length);
     }
 
     public void discarded(final DiscoveryEvent evt) {
         final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
         ServiceRegistrar registrar;
         for (int n = 0; n < registrarsArray.length; n++) {
-            decrementRegCount();
             registrar = registrarsArray[n];
             LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
+        setRegCount(registrarsArray.length);
     }
 
 
@@ -351,12 +365,12 @@ public class BuildAgent implements DiscoveryListener,
     }
 
 
-    static boolean shouldPrintUsage(String[] args) {
+    private static boolean shouldPrintUsage(String[] args) {
         return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND
                 || MainArgs.findIndex(args, "help") != MainArgs.NOT_FOUND;
     }
 
-    public static void printUsage() {
+    private static void printUsage() {
         System.out.println("");
         System.out.println("Usage:");
         System.out.println("");

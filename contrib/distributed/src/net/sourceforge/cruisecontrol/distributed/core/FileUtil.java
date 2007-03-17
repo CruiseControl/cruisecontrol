@@ -50,15 +50,13 @@ public final class FileUtil {
 
     private static final Logger LOG = Logger.getLogger(FileUtil.class);
 
-    private FileUtil() {
+    private FileUtil() { }
 
-    }
-
-    public static byte[] getFileAsBytes(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+    public static byte[] getFileAsBytes(final File file) throws IOException {
+        final InputStream is = new FileInputStream(file);
 
         // Get the size of the file
-        long length = file.length();
+        final long length = file.length();
 
         // You cannot create an array using a long type.
         // It needs to be an int type.
@@ -71,7 +69,7 @@ public final class FileUtil {
         }
 
         // Create the byte array to hold the data
-        byte[] bytes = new byte[(int) length];
+        final byte[] bytes = new byte[(int) length];
 
         // Read in the bytes
         int offset = 0;
@@ -90,23 +88,23 @@ public final class FileUtil {
         return bytes;
     }
 
-    public static String bytesToFile(byte[] data, String filePath) {
-        File outFile = new File(filePath);
+    private static String bytesToFile(final byte[] data, final String filePath) {
+        final File outFile = new File(filePath);
         try {
-            FileOutputStream fos = new FileOutputStream(outFile);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            final FileOutputStream fos = new FileOutputStream(outFile);
+            final ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(data);
             oos.close();
             fos.close();
         } catch (IOException e) {
-            String message = "Error creating output file";
+            final String message = "Error creating output file";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
         }
         return filePath;
     }
 
-    public static String bytesToFile(byte[] data, String parentDirName, String fileName) {
+    public static String bytesToFile(final byte[] data, final String parentDirName, final String fileName) {
         String filePath = null;
         try {
             filePath = new File(parentDirName, fileName).getCanonicalPath();

@@ -43,8 +43,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import net.sourceforge.cruisecontrol.PluginXMLHelper;
-import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 
 public final class PropertiesHelper {
 
@@ -87,19 +85,4 @@ public final class PropertiesHelper {
         return requiredProperties;
     }
 
-    /**
-     * Create a PlugingXMLHelper configured with the given overrideTarget (which may be "" or null).
-     * @param overrideTarget overrideTarget (which may be "" or null).
-     * @return a PlugingXMLHelper configured with the given overrideTarget (which may be "" or null).
-     */
-    public static PluginXMLHelper createPluginXMLHelper(final String overrideTarget) {
-        final ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
-        if (overrideTarget != null && !"".equals(overrideTarget)) {
-            // @todo Does ProjectConfig/Schedule/Builder refactor handle this already???
-            LOG.info("!!!Ignoring Override Target on projectXMLHelper: " + overrideTarget);
-            //LOG.info("Setting Override Target on projectXMLHelper to: " + overrideTarget);
-            //projectXMLHelper.setOverrideTarget(overrideTarget);
-        }
-        return new PluginXMLHelper(projectXMLHelper);
-    }
 }
