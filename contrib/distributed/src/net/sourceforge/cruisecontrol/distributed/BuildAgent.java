@@ -303,7 +303,16 @@ public class BuildAgent implements DiscoveryListener,
             LOG.info("BuildAgentService open for business...");
             isNotFirstDiscovery = true;
         }
-        setRegCount(registrarsArray.length);
+
+        asyncUpdateLUSCount();
+    }
+
+    private void asyncUpdateLUSCount() {
+        new Thread() {
+            public void run() {
+                setRegCount(getJoinManager().getDiscoveryManager().getRegistrars().length);
+            }
+        }.start();
     }
 
     public void discarded(final DiscoveryEvent evt) {
@@ -313,7 +322,8 @@ public class BuildAgent implements DiscoveryListener,
             registrar = registrarsArray[n];
             LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
-        setRegCount(registrarsArray.length);
+
+        asyncUpdateLUSCount();
     }
 
 
