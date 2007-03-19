@@ -312,7 +312,7 @@ public class BuildAgent implements DiscoveryListener,
             public void run() {
                 setRegCount(getJoinManager().getDiscoveryManager().getRegistrars().length);
             }
-        }.start();
+        } .start();
     }
 
     public void discarded(final DiscoveryEvent evt) {
