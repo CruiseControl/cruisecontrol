@@ -2,6 +2,11 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 
+import java.io.IOException;
+import java.io.File;
+import java.io.OutputStream;
+import java.io.InputStream;
+
 /**
  * @author DRollo
  * Date: Jan 2, 2007
@@ -56,5 +61,30 @@ public class CommandLineTest extends TestCase {
         cl2.addArguments(new String[] { argWithMismatchedDblQuote });
         assertEquals("Did behavior of mismatched quotes change? Previously it would truncate args.",
                 DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " ", cl2.toString());
+    }
+
+    public void testShouldInvokeProvidedRuntime() throws IOException {
+        MockRuntime mockRuntime = new MockRuntime();
+        Commandline command = new Commandline("doesnt matter", mockRuntime);
+        command.execute();
+        assertTrue(mockRuntime.wasCalled());
+    }
+
+    class MockRuntime extends CruiseRuntime {
+        private boolean wasCalled;
+
+        public Process exec(String[] commandline) throws IOException {
+            wasCalled = true;
+            return new MockProcess();
+        }
+
+        public Process exec(String[] commandline, String[] o, File workingDir) throws IOException {
+            wasCalled = true;
+            return new MockProcess();
+        }
+
+        public boolean wasCalled() {
+            return wasCalled;
+        }
     }
 }
