@@ -4,8 +4,6 @@ import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.io.File;
-import java.io.OutputStream;
-import java.io.InputStream;
 
 /**
  * @author DRollo
