@@ -128,25 +128,33 @@ public class Commandline implements Cloneable {
     private String executable = null;
 
     private File workingDir = null;
+    private final CruiseRuntime runtime;
 
-    public Commandline(String toProcess) {
+    public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
         super();
-        String[] tmp = new String[0];
-        try {
-            tmp = translateCommandline(toProcess);
-        } catch (CruiseControlException e) {
-            LOG.error("Error translating Commandline.", e);
-        }
-        if (tmp != null && tmp.length > 0) {
-            setExecutable(tmp[0]);
-            for (int i = 1; i < tmp.length; i++) {
-                createArgument().setValue(tmp[i]);
+        this.runtime = cruiseRuntime;
+        if (toProcess != null) {
+            String[] tmp = new String[0];
+            try {
+                tmp = translateCommandline(toProcess);
+            } catch (CruiseControlException e) {
+                LOG.error("Error translating Commandline.", e);
+            }
+            if (tmp != null && tmp.length > 0) {
+                setExecutable(tmp[0]);
+                for (int i = 1; i < tmp.length; i++) {
+                    createArgument().setValue(tmp[i]);
+                }
             }
         }
     }
 
+    public Commandline(String toProcess) {
+        this(toProcess, new CruiseRuntime());
+    }
+
     public Commandline() {
-        super();
+        this(null);
     }
 
     protected File getWorkingDir() {
@@ -559,12 +567,12 @@ public class Commandline implements Cloneable {
 
         if (workingDir == null) {
             LOG.debug(msgCommandInfo);
-            process = Runtime.getRuntime().exec(getCommandline());
+            process = runtime.exec(getCommandline());
         } else {
             LOG.debug(msgCommandInfo
                     + " in directory "
                     + workingDir.getAbsolutePath());
-            process = Runtime.getRuntime().exec(getCommandline(), null, workingDir);
+            process = runtime.exec(getCommandline(), null, workingDir);
         }
 
         return process;
