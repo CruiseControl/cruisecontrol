@@ -4,6 +4,10 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
+
+import java.util.Map;
 
 /**
  * @author: Dan Rollo
@@ -118,7 +122,8 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         DistributedMasterBuilderTest.setupInsecurePolicy();
         DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         masterBuilder.setFailFast(true);
-        masterBuilder.setEntries(DistributedMasterBuilderTest.getTestDMBEntries());
+        // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
+        masterBuilder.setEntries(getTestDMBEntries());
         assertNull(masterBuilder.pickAgent());
     }
 
@@ -132,8 +137,18 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         DistributedMasterBuilder.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
-        masterBuilder.setEntries(DistributedMasterBuilderTest.getTestDMBEntries());
         assertNull(masterBuilder.pickAgent());
     }
 
+    private static String getTestDMBEntries() {
+        final Map userProps
+                = PropertiesHelper.loadRequiredProperties(BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+
+        final Object retval = userProps.get(BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE);
+        assertNotNull("Missing required entry for DMB unit test: " + BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE,
+                retval);
+        assertTrue(retval instanceof String);
+
+        return BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE + "=" + retval;
+    }
 }
