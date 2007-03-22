@@ -118,6 +118,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         DistributedMasterBuilderTest.setupInsecurePolicy();
         DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         masterBuilder.setFailFast(true);
+        masterBuilder.setEntries(DistributedMasterBuilderTest.getTestDMBEntries());
         assertNull(masterBuilder.pickAgent());
     }
 
@@ -131,6 +132,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         DistributedMasterBuilder.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
+        masterBuilder.setEntries(DistributedMasterBuilderTest.getTestDMBEntries());
         assertNull(masterBuilder.pickAgent());
     }
 

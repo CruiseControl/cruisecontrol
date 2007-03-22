@@ -115,7 +115,7 @@ public class BuildAgentTest extends TestCase {
         // work around timestamp prefix in build.type entry
         final int idxBuildTypeEntry = 3;
         assertEquals("Wrong entry in position where we expected to find 'build.type'.",
-                "build.type", ((PropertyEntry) entries[idxBuildTypeEntry]).name);
+                BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE, ((PropertyEntry) entries[idxBuildTypeEntry]).name);
         entries[idxBuildTypeEntry] = new PropertyEntry(((PropertyEntry) entries[idxBuildTypeEntry]).name, "test");
 
         final BuildAgentService agentService = (BuildAgentService) findAgent(reg, 3, true, entries);

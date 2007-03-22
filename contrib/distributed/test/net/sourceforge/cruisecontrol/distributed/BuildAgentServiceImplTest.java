@@ -28,6 +28,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     public static final String TEST_AGENT_PROPERTIES_FILE = "testdist.agent.properties";
     public static final String TEST_USER_DEFINED_PROPERTIES_FILE = "testdist.user-defined.properties";
+    public static final String ENTRY_NAME_BUILD_TYPE = "build.type";
 
     private static final File DIR_LOGS = new File(PropertiesHelper.RESULT_TYPE_LOGS);
     private static final File DIR_OUTPUT = new File(PropertiesHelper.RESULT_TYPE_OUTPUT);
