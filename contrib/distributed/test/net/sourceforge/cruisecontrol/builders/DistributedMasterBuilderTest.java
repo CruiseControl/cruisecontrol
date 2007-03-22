@@ -7,7 +7,6 @@ import junit.extensions.TestSetup;
 
 import java.util.Properties;
 import java.util.Arrays;
-import java.util.Map;
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
@@ -29,7 +28,6 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
-import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
 
@@ -457,17 +455,6 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
     }
 
-    public static String getTestDMBEntries() {
-        final Map userProps
-                = PropertiesHelper.loadRequiredProperties(BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
-
-        final Object retval = userProps.get(BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE);
-        assertNotNull("Missing required entry for DMB unit test: " + BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE,
-                retval);
-        assertTrue(retval instanceof String);
-
-        return BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE + "=" + retval;        
-    }
     private static void waitForCacheToDiscoverLUS()
             throws InterruptedException {
         // wait for cache to discover lookup service
@@ -495,7 +482,6 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         masterBuilder.setFailFast(true); // don't block until an available agent is found
-        masterBuilder.setEntries(getTestDMBEntries());
         return masterBuilder;
     }
 
