@@ -181,13 +181,24 @@ public class InteractiveBuildUtility {
             searchEntries = configEntries.getValue();
         }
         LOG.debug("Searching for serviceItems matching entries: " + searchEntries);
-        Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
-        final MulticastDiscovery discovery = new MulticastDiscovery(entries);
+        final Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
+
+        final MulticastDiscovery discovery = new MulticastDiscovery();
         System.out.println("Waiting 5 seconds for registrars to report in...");
         try { Thread.sleep(5 * 1000); } catch (InterruptedException e) {
             // ignore
         }
-        ServiceItem[] serviceItems = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
+        final ServiceItem[] serviceItems;
+        try {
+             serviceItems = discovery.findBuildAgentServices(
+                     entries, MulticastDiscovery.FLTR_ANY, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            String message = "Problem occurred finding Build Agents: " + e.getMessage();
+            LOG.error(message);
+            System.err.println(message);
+            throw new RuntimeException(e);
+        }
         if (serviceItems.length == 0) {
             String message = "No matches for your search - quitting...";
             System.err.println(message);

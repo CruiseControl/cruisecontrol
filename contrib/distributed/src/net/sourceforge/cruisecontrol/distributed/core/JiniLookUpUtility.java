@@ -56,7 +56,7 @@ public final class JiniLookUpUtility {
 
     private static final Logger LOG = Logger.getLogger(JiniLookUpUtility.class);
 
-    private final MulticastDiscovery discovery = new MulticastDiscovery(null);
+    private final MulticastDiscovery discovery = new MulticastDiscovery();
 
     private JiniLookUpUtility() {
         final String waitMessage = "Waiting 5 seconds for registrars to report in...";
@@ -69,10 +69,10 @@ public final class JiniLookUpUtility {
                 // ignore
             }
             final ServiceRegistrar[] registrars = discovery.getRegistrars();
+            System.out.println("\nFound " + registrars.length + " Lookup Services.");
             for (int x = 0; x < registrars.length; x++) {
                 final ServiceRegistrar registrar = registrars[x];
-                final String registrarInfo = "Registrar: " + registrar.getServiceID();
-                System.out.println();
+                final String registrarInfo = "Registrar: " + registrar.getServiceID();                
                 System.out.println(registrarInfo);
                 LOG.debug(registrarInfo);
                 final ServiceTemplate template = new ServiceTemplate(null, null, null);

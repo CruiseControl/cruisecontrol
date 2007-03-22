@@ -1,6 +1,9 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import junit.framework.TestCase;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.extensions.TestSetup;
 
 import java.util.Properties;
 import java.util.Arrays;
@@ -11,7 +14,6 @@ import java.net.URL;
 import java.net.InetAddress;
 import java.net.ConnectException;
 import java.net.SocketException;
-import java.net.MalformedURLException;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
@@ -23,13 +25,11 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
-import net.sourceforge.cruisecontrol.distributed.SearchablePropertyEntries;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
-import net.jini.core.entry.Entry;
-import net.jini.discovery.LookupDiscovery;
 
 /**
  * @author: Dan Rollo
@@ -45,6 +45,8 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static final String JINI_URL_LOCALHOST = "jini://localhost";
 
     public static final OSEnvironment OS_ENV = new OSEnvironment();
+
+    private static ProcessInfoPump jiniProcessPump;
 
     /**
      * Show what's happening with the Jini Process.
@@ -67,13 +69,15 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
+
     /**
      * @param logger the the logger to write Jini process messages to
-     * @param level the logger level at which to write Jini process messages
      * @return the Process in which Jini Lookup _service is running, for use in killing it.
      * @throws Exception if we can't start jini lookup service
      */
-    public static ProcessInfoPump startJini(final Logger logger, final Level level) throws Exception {
+    public static ProcessInfoPump startJini(final Logger logger) throws Exception {
+
+        final Level level = Level.INFO;
 
         // make sure local lookup service is not already running
         verifyNoLocalLookupService();
@@ -300,18 +304,45 @@ public class DistributedMasterBuilderTest extends TestCase {
         }
     }
 
-    private ProcessInfoPump jiniProcessPump;
 
+    /**
+     * Test Decorator to launch Jini LUS once for this class.
+     */
+    public static final class LUSTestSetup extends TestSetup {
 
+        public LUSTestSetup(Test test) {
+            super(test);
+        }
+
+        protected void setUp() throws Exception {
+            jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+        }
+
+        protected void tearDown() throws Exception {
+            DistributedMasterBuilderTest.killJini(jiniProcessPump);
+        }
+    }
+    /**
+     * Use LUSTestSetup decorator to run Jini LUS once for this test class.
+     * @return  a TestSuite wrapper by the LUSTestSetup decorator
+     */
+    public static Test suite() {
+        final TestSuite ts = new TestSuite();
+        ts.addTestSuite(DistributedMasterBuilderTest.class);
+        return new LUSTestSetup(ts);
+    }
+    // @todo Add one slash in front of "/*" below to run individual tests in an IDE
+    /*
     protected void setUp() throws Exception {
         jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
     }
-
     protected void tearDown() throws Exception {
         DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
+    //*/
 
 
+    
     public void testPickAgent2Agents() throws Exception {
         // register agent
         final BuildAgent agentAvailable = createBuildAgent();
@@ -320,7 +351,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             assertFalse(agentAvailable.getService().isBusy());
             assertFalse(agentAvailable2.getService().isBusy());
 
-            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agents
             final BuildAgentService agentFoundFirst = masterBuilder.pickAgent();
@@ -338,6 +369,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             // callTestDoBuild() only needed to clearOuputFiles() will succeed
             BuildAgentServiceImplTest.callTestDoBuild(false, agentAvailable.getService());
             agentAvailable.getService().clearOutputFiles();
+
             final BuildAgentService agentRefound = masterBuilder.pickAgent();
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
@@ -357,7 +389,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             assertFalse(agentAvailable.getService().isBusy());
             agentAvailable.getService().claim(); // mark as busy
 
-            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agent, shouldn't find any available
             assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
@@ -383,7 +415,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         try {
             assertFalse(agentAvailable.getService().isBusy());
 
-            final DistributedMasterBuilder masterBuilder = createMasterBuilder();
+            final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             final BuildAgentService agent = masterBuilder.pickAgent();
             assertNotNull("Couldn't find agent", agent);
@@ -391,7 +423,8 @@ public class DistributedMasterBuilderTest extends TestCase {
                     agent.isBusy());
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
+            assertNull("Shouldn't find any available agents",
+                    masterBuilder.pickAgent());
 
             // set Agent to Not busy, then make sure it can be found again.
             BuildAgentServiceImplTest.callTestDoBuild(false, agent); // only needed so clearOuputFiles() will succeed
@@ -408,44 +441,13 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public void testPickAgentNoAgents() throws Exception {
 
-        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
-        );
-
-        assertNull(masterBuilder.pickAgent());
-    }
-
-    public void testPickAgentNoRegistrars() throws Exception {
-        // kill local reggie
-        DistributedMasterBuilderTest.killJini(jiniProcessPump);
-
-        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
-        );
+        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
         assertNull(masterBuilder.pickAgent());
     }
 
 
 
-    private static DistributedMasterBuilder createMasterBuilder() throws MalformedURLException, InterruptedException {
-        DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostAndTestPropsONLY(
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE
-        );
-
-        // wait for cache to discover agent
-        int i = 0;
-        int waitSecs = 15;
-        while (!masterBuilder.getDiscovery().isDiscovered() && i < waitSecs) {
-            Thread.sleep(1000);
-            i++;
-        }
-        assertTrue("MasterBuilder was not discovered before timeout.\n"
-                + "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
-                + "2. No Firewall is blocking multicasts.\n",
-                masterBuilder.getDiscovery().isDiscovered());
-        return masterBuilder;
-    }
 
     private static BuildAgent createBuildAgent() {
         return new BuildAgent(
@@ -453,24 +455,33 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
     }
 
-    private static DistributedMasterBuilder getMasterBuilder_LocalhostAndTestPropsONLY(
-            final String testUserPropsFilename)
-            throws MalformedURLException {
 
-        DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+    private static void waitForCacheToDiscoverLUS()
+            throws InterruptedException {
+        // wait for cache to discover lookup service
+        int i = 0;
+        int waitSecs = 15;
+        while (!DistributedMasterBuilder.getDiscovery().isDiscovered() && i < waitSecs) {
+            Thread.sleep(1000);
+            i++;
+        }
+        assertTrue("Lookup Service was not discovered before timeout.\n"
+                + "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
+                + "2. No Firewall is blocking multicasts.\n"
+                + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n",
+                DistributedMasterBuilder.getDiscovery().isDiscovered());
+    }
 
-        final LookupLocator[] unicastLocators = new LookupLocator[] {
-                new LookupLocator(DistributedMasterBuilderTest.JINI_URL_LOCALHOST)
-        };
+    static DistributedMasterBuilder getMasterBuilder_LocalhostONLY() throws Exception {
 
-        final Entry[] entries = SearchablePropertyEntries.getPropertiesAsEntryArray(
-                new SearchablePropertyEntries(testUserPropsFilename).getProperties()
-        );
+        if (!DistributedMasterBuilder.isDiscoverySet()) {
+            final MulticastDiscovery discovery = MulticastDiscoveryTest.getLocalDiscovery();
+            DistributedMasterBuilder.setDiscovery(discovery);
+            // wait to discover lookupservice
+            waitForCacheToDiscoverLUS();
+        }
 
-        final MulticastDiscovery discovery = new MulticastDiscovery(
-                LookupDiscovery.ALL_GROUPS, unicastLocators, BuildAgentService.class, entries
-        );
-        masterBuilder.setDiscovery(discovery);
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         masterBuilder.setFailFast(true); // don't block until an available agent is found
         return masterBuilder;
     }

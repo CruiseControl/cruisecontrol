@@ -70,14 +70,17 @@ public class DistributedMasterBuilder extends Builder {
     private static final String CRUISE_PROPERTIES = "cruise.properties";
     private static final String CRUISE_RUN_DIR = "cruise.run.dir";
 
+    private static MulticastDiscovery discovery;
+
     // TODO: Change to property?
     private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
     private boolean isFailFast;
 
     // TODO: Can we get the module from the projectProperties instead of setting it via an attribute?
     //  Could be set in ModificationSet...
-    private String entries = "";
     private String module;
+
+    private Entry[] entries = new Entry[] {};
 
     private String agentLogDir;
     private String agentOutputDir;
@@ -89,7 +92,6 @@ public class DistributedMasterBuilder extends Builder {
     private Builder nestedBuilder;
 
     private String overrideTarget;
-    private MulticastDiscovery discovery;
     private File rootDir;
 
     static final String MSG_REQUIRED_ATTRIB_MODULE = "The 'module' attribute is required for DistributedMasterBuilder."
@@ -116,16 +118,25 @@ public class DistributedMasterBuilder extends Builder {
      * Intended only for use by unit tests.
      * @param multicastDiscovery lookup helper
      */
-    void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+    static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+        if (discovery != null) {
+            // release any existing discovery resources
+            discovery.terminate();
+            LOG.warn("WARNING: DistributedMasterBuilder released Discovery, acceptable only in Unit Tests.");
+        }
         discovery = multicastDiscovery;
     }
-    MulticastDiscovery getDiscovery() {
+    static MulticastDiscovery getDiscovery() {
         if (discovery == null) {
-            final Entry[] arrEntries = ReggieUtil.convertStringEntries(entries);
-            discovery = new MulticastDiscovery(arrEntries);
+            discovery = new MulticastDiscovery();
+            LOG.info("Created new MulticastDiscovery");
         }
 
         return discovery;
+    }
+    /** @return true if the {@link #discovery} variable is set, intended only for unit tests.  */
+    static boolean isDiscoverySet() {
+        return discovery != null;
     }
 
     private void loadRequiredProps() throws CruiseControlException {
@@ -326,10 +337,14 @@ public class DistributedMasterBuilder extends Builder {
         while (agent == null) {
             final ServiceItem serviceItem;
             try {
-                serviceItem = getDiscovery().findMatchingServiceAndClaim();
+                serviceItem = getDiscovery().findMatchingServiceAndClaim(entries,
+                        // Non-zero failfast value avoids intermittent failures in unit tests
+                        (isFailFast ? 1000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
+
             } catch (RemoteException e) {
                 throw new CruiseControlException("Error finding matching agent.", e);
             }
+
             if (serviceItem != null) {
                 agent = (BuildAgentService) serviceItem.service;
                 try {
@@ -361,7 +376,7 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     public void setEntries(final String entries) {
-        this.entries = entries;
+        this.entries = ReggieUtil.convertStringEntries(entries);
     }
 
 

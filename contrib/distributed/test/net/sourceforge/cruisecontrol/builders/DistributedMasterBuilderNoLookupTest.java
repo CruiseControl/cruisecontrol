@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol.builders;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 
 /**
  * @author: Dan Rollo
@@ -10,6 +11,17 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * Time: 2:08:30 AM
  */
 public class DistributedMasterBuilderNoLookupTest extends TestCase {
+
+    protected void setUp() throws Exception {
+        if (DistributedMasterBuilder.isDiscoverySet()) {
+            DistributedMasterBuilder.setDiscovery(null);
+        }
+    }
+    protected void tearDown() throws Exception {
+        if (DistributedMasterBuilder.isDiscoverySet()) {
+            DistributedMasterBuilder.setDiscovery(null);
+        }
+    }
 
     public void testDistAttribs() throws Exception {
 
@@ -97,4 +109,29 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
             assertEquals(DistributedMasterBuilder.MSG_REQUIRED_ATTRIB_MODULE, e.getMessage());
         }
     }
+
+    /**
+     * Ensures discovery in pickAgent() is referenced via getDiscovery() and not by static member var.  
+     * @throws Exception if test fails
+     */
+    public void testPickAgentDiscoveryNonNull() throws Exception {
+        DistributedMasterBuilderTest.setupInsecurePolicy();
+        DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        masterBuilder.setFailFast(true);
+        assertNull(masterBuilder.pickAgent());
+    }
+
+    /**
+     * This test lives here so we don't have to kill the Jini LUS to run it.
+     * @throws Exception if test fails
+     */
+    public void testPickAgentNoRegistrars() throws Exception {
+        DistributedMasterBuilderTest.setupInsecurePolicy();
+        // setup discovery so default logic will not wait to find a LUS
+        DistributedMasterBuilder.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
+
+        DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
+        assertNull(masterBuilder.pickAgent());
+    }
+
 }

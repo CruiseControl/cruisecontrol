@@ -304,15 +304,7 @@ public class BuildAgent implements DiscoveryListener,
             isNotFirstDiscovery = true;
         }
 
-        asyncUpdateLUSCount();
-    }
-
-    private void asyncUpdateLUSCount() {
-        new Thread() {
-            public void run() {
-                setRegCount(getJoinManager().getDiscoveryManager().getRegistrars().length);
-            }
-        } .start();
+        setRegCount(registrarsArray.length);
     }
 
     public void discarded(final DiscoveryEvent evt) {
@@ -323,7 +315,7 @@ public class BuildAgent implements DiscoveryListener,
             LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
 
-        asyncUpdateLUSCount();
+        setRegCount(registrarsArray.length);
     }
 
 
@@ -416,7 +408,7 @@ public class BuildAgent implements DiscoveryListener,
             }
             setMainThread(null);
         } else {
-            LOG.info("WARNING: Kill was called, but MainThread is null. Doing nothing.");
+            LOG.info("WARNING: Kill called, MainThread is null. Doing nothing. Acceptable only in Unit Tests.");
         }
     }
 
