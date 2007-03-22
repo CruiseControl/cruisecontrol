@@ -304,7 +304,7 @@ public class BuildAgent implements DiscoveryListener,
             isNotFirstDiscovery = true;
         }
 
-        setRegCount(registrarCount + registrarsArray.length);
+        setRegCount(getJoinManager().getDiscoveryManager().getRegistrars().length);
     }
 
     public void discarded(final DiscoveryEvent evt) {
@@ -315,7 +315,7 @@ public class BuildAgent implements DiscoveryListener,
             LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
 
-        setRegCount(registrarCount - registrarsArray.length);
+        setRegCount(getJoinManager().getDiscoveryManager().getRegistrars().length);
     }
 
 
