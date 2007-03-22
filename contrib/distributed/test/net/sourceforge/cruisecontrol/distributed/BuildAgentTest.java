@@ -1,8 +1,9 @@
 package net.sourceforge.cruisecontrol.distributed;
 
 import junit.framework.TestCase;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
@@ -21,17 +22,37 @@ public class BuildAgentTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(net.sourceforge.cruisecontrol.distributed.BuildAgentTest.class);
 
-    private DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
 
-    protected void setUp() throws Exception {
-        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
+    /**
+     * Use LUSTestSetup decorator to run Jini LUS once for this test class.
+     * @return  a TestSuite wrapper by the LUSTestSetup decorator
+     */
+    public static Test suite() {
+        final TestSuite ts = new TestSuite();
+        ts.addTestSuite(BuildAgentTest.class);
+        return new DistributedMasterBuilderTest.LUSTestSetup(ts);
     }
-
+    // @todo Remove one slash in front of "/*" below to run individual tests in an IDE
+    //*
     protected void tearDown() throws Exception {
         BuildAgent.kill();
-        DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
+    //*/
 
+    // @todo Add one slash in front of "/*" below to run individual tests in an IDE
+    /*
+    private static DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;    
+    protected void setUp() throws Exception {
+        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+    }
+    protected void tearDown() throws Exception {
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
+        BuildAgent.kill();
+    }
+    //*/
+
+
+    
     private static Object findAgent(final ServiceRegistrar reg,
                                     final int retries, final boolean expectedFoundResult)
             throws RemoteException, InterruptedException {
@@ -120,7 +141,7 @@ public class BuildAgentTest extends TestCase {
         assertNotNull("Couldn't find registrar.", reg);
         findAgent(reg, 3, false);
 
-        final Thread t = new Thread() {
+        final Thread t = new Thread("BuildAgentTest testKillNoUI Thread") {
             public void run() {
                 BuildAgent.main(new String[] {
                     "-" + BuildAgent.MAIN_ARG_AGENT_PROPS, BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
@@ -158,7 +179,7 @@ public class BuildAgentTest extends TestCase {
         assertNotNull("Couldn't find registrar.", reg);
         findAgent(reg, 3, false);
 
-        final Thread t = new Thread() {
+        final Thread t = new Thread("BuildAgentTest testKill Thread") {
             public void run() {
                 BuildAgent.main(new String[] {
                     "-" + BuildAgent.MAIN_ARG_AGENT_PROPS, BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,

@@ -179,7 +179,7 @@ public final class BuildAgentUtility {
             btnInvoke.setEnabled(false);
             btnInvokeOnAll.setEnabled(false);
             cmbAgents.setEnabled(false);
-            new Thread() {
+            new Thread("BuildAgentUtility refreshAgentList Thread") {
                 public void run() {
                     try {
                         final List tmpList = new ArrayList();
@@ -187,7 +187,7 @@ public final class BuildAgentUtility {
                         final ServiceItem[] serviceItems = (ServiceItem[]) tmpList.toArray(new ServiceItem[]{});
                         final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
                                 ComboItemWrapper.wrapArray(serviceItems));
-                        SwingUtilities.invokeLater(new Runnable() {
+                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
                             public void run() {
                                 UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
                                 cmbAgents.setModel(comboBoxModel);
@@ -195,7 +195,7 @@ public final class BuildAgentUtility {
                         });
                         setInfo(agentInfoAll);
                     } finally {
-                        SwingUtilities.invokeLater(new Runnable() {
+                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.setEnabled Thread") {
                             public void run() {
                                 btnRefresh.setEnabled(true);
                                 btnInvokeOnAll.setEnabled(true);
@@ -213,7 +213,7 @@ public final class BuildAgentUtility {
 
         private void setInfo(final String infoText) {
             LOG.debug(infoText);
-            SwingUtilities.invokeLater(new Runnable() {
+            SwingUtilities.invokeLater(new Thread("BuildAgentUtility txaConsole.setInfo Thread") {
                 public void run() {
                     txaConsole.setText(infoText);
                 }
@@ -221,7 +221,7 @@ public final class BuildAgentUtility {
         }
 
         private void appendInfo(final String infoText) {
-            SwingUtilities.invokeLater(new Runnable() {
+            SwingUtilities.invokeLater(new Thread("BuildAgentUtility txaConsole.appendInfo Thread") {
                 public void run() {
                     txaConsole.append(infoText + "\n");
                     if (txaConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
@@ -263,7 +263,7 @@ public final class BuildAgentUtility {
         final StringBuffer result = new StringBuffer();
         try {
             // Use new instance each time to avoid stale cached info
-            final MulticastDiscovery discovery = new MulticastDiscovery(null);
+            final MulticastDiscovery discovery = new MulticastDiscovery();
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e1) {
@@ -273,10 +273,10 @@ public final class BuildAgentUtility {
             // update LUS count
             lastLUSCount = discovery.getLUSCount();
 
-            final ServiceItem[] serviceItems
-                    = discovery.getLookupCache().lookup(MulticastDiscovery.FLTR_ANY, Integer.MAX_VALUE);
+            final ServiceItem[] serviceItems = discovery.findBuildAgentServices(
+                    null, MulticastDiscovery.FLTR_ANY, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
             // don't wait for the terminate
-            new Thread() {
+            new Thread("BuildAgentUtility discovery.terminate Thread") {
                 public void run() {
                     discovery.terminate();
                 }

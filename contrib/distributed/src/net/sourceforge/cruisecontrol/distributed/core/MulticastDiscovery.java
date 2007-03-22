@@ -49,10 +49,9 @@ import net.jini.core.entry.Entry;
 import net.jini.lease.LeaseRenewalManager;
 import net.jini.discovery.LookupDiscovery;
 import net.jini.discovery.LookupDiscoveryManager;
+import net.jini.discovery.DiscoveryListener;
+import net.jini.discovery.DiscoveryEvent;
 import net.jini.lookup.ServiceDiscoveryManager;
-import net.jini.lookup.LookupCache;
-import net.jini.lookup.ServiceDiscoveryEvent;
-import net.jini.lookup.ServiceDiscoveryListener;
 import net.jini.lookup.ServiceItemFilter;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
@@ -63,40 +62,42 @@ public class MulticastDiscovery {
 
     private static final Logger LOG = Logger.getLogger(MulticastDiscovery.class);
 
-    private final ServiceTemplate serviceTemplate;
-    private final ServiceDiscoveryManager clientMgr;
-    private final ServiceDiscListener serviceDiscListener;
-    private final LookupCache lookupCache;
+    /** Service Type array used to find BuildAgent services. */
+    private static final Class[] SERVICE_CLASSES_BUILDAGENT = new Class[] {BuildAgentService.class};
 
-    public MulticastDiscovery(final Entry[] entries) {
-        this(LookupDiscovery.ALL_GROUPS, null, BuildAgentService.class, entries);
+    public static final int DEFAULT_FIND_WAIT_DUR_MILLIS = 5000;
+
+    private final ServiceDiscoveryManager clientMgr;
+
+
+    public MulticastDiscovery() {
+        this(null);
     }
 
-    public MulticastDiscovery(final String[] lookupGroups, final LookupLocator[] unicastLocaters,
-                              final Class klass, final Entry[] entries) {
+    MulticastDiscovery(final LookupLocator[] unicastLocaters) {
+        final String[] lookupGroups = LookupDiscovery.ALL_GROUPS;
+
         LOG.debug("Starting multicast discovery for groups: " + lookupGroups);
         ReggieUtil.setupRMISecurityManager();
 
         try {
 
-            final LookupDiscoveryManager discoverMgr = new LookupDiscoveryManager(
-                lookupGroups, unicastLocaters, null);
+            final LookupDiscoveryManager discoverMgr = new LookupDiscoveryManager(lookupGroups, unicastLocaters,
+                    new DiscoveryListener() {
+                        public void discovered(DiscoveryEvent e) {
+                            setDiscovered(true);
+                            logASynchDiscoveryEvent(DiscEventType.DISCOVERED, e);
+                        }
+
+                        public void discarded(DiscoveryEvent e) {
+                            logASynchDiscoveryEvent(DiscEventType.DISCARDED, e);
+                        }
+                    });
 
             clientMgr = new ServiceDiscoveryManager(discoverMgr, new LeaseRenewalManager());
+
         } catch (IOException e) {
             final String message = "Error starting discovery";
-            LOG.debug(message, e);
-            throw new RuntimeException(message, e);
-        }
-
-        // create cache of desired _service providers
-        final Class[] classes = new Class[] {klass};
-        serviceTemplate = new ServiceTemplate(null, classes, entries);
-        try {
-            serviceDiscListener = new ServiceDiscListener(this);
-            lookupCache = getClientManager().createLookupCache(getServiceTemplate(), null, serviceDiscListener);
-        } catch (RemoteException e) {
-            final String message = "Error creating _service cache";
             LOG.debug(message, e);
             throw new RuntimeException(message, e);
         }
@@ -115,28 +116,42 @@ public class MulticastDiscovery {
          return getClientManager().getDiscoveryManager().getRegistrars().length;
     }
 
-    private ServiceTemplate getServiceTemplate() {
-        return serviceTemplate;
-    }
 
     private ServiceDiscoveryManager getClientManager() {
         return clientMgr;
     }
 
-    ServiceDiscListener getServiceDiscListener() {
-        return serviceDiscListener;
+
+
+    public ServiceItem[] findBuildAgentServices(final Entry[] entries, final ServiceItemFilter filter,
+                                                final long waitDurMillis)
+            throws RemoteException {
+
+        final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
+
+        try {                                 // minMatches must be > 0
+            return getClientManager().lookup(tmpl, 1, Integer.MAX_VALUE, filter, waitDurMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error finding BuildAgent services.", e);
+        }
+    }
+    public ServiceItem findBuildAgentService(final Entry[] entries, final ServiceItemFilter filter,
+                                             final long waitDurMillis)
+            throws RemoteException {
+
+        final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
+
+        try {
+            return getClientManager().lookup(tmpl, filter, waitDurMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error finding BuildAgent services.", e);
+        }
     }
 
-    /**
-     * Intended only for use by util classes.
-     * @return the cache of discovered services
-     */
-    public LookupCache getLookupCache() {
-        return lookupCache;
-    }
-
-    public ServiceItem findMatchingServiceAndClaim() throws RemoteException {
-        final ServiceItem result = getLookupCache().lookup(FLTR_AVAILABLE);
+    public ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
+            throws RemoteException {
+        
+        final ServiceItem result = findBuildAgentService(entries, FLTR_AVAILABLE, waitDurMillis);
         if (result != null) {
             ((BuildAgentService) result.service).claim();
         }
@@ -192,7 +207,27 @@ public class MulticastDiscovery {
         }
     }
 
+    private static final class DiscEventType {
+        static final DiscEventType DISCOVERED = new DiscEventType("Discovered");
+        static final DiscEventType DISCARDED = new DiscEventType("Discarded");
 
+        private final String name;
+        private DiscEventType(final String name) { this.name = name; }
+        public String toString() { return name; }
+    }
+    private static void logASynchDiscoveryEvent(final DiscEventType type, final DiscoveryEvent e) {
+        new Thread("Multicast logASynchDiscoveryEvent Thread") {
+            public void run() {
+                final ServiceRegistrar[] regs = e.getRegistrars();
+                String regMsg = ", " + regs.length + " LUS's: [";
+                for (int i = 0; i < regs.length; i++) {
+                    regMsg += regs[i].getServiceID() + ", ";
+                }
+                regMsg = regMsg.substring(0, regMsg.lastIndexOf(", ")) + "]";
+                LOG.info("LUS " + type + regMsg);
+            }
+        } .start();
+    }
 
     private boolean isDiscovered;
     private synchronized void setDiscovered(final boolean discovered) {
@@ -202,6 +237,7 @@ public class MulticastDiscovery {
         return isDiscovered;
     }
 
+    /*
     public final class ServiceDiscListener implements ServiceDiscoveryListener {
         private final MulticastDiscovery discovery;
 
@@ -243,13 +279,13 @@ public class MulticastDiscovery {
         }
     }
 
-
     private static void appendEvent(final StringBuffer msg, final ServiceItem serviceItem, String eventType) {
         msg.append(eventType);
         msg.append(serviceItem.service.getClass().toString());
         msg.append("; ID:").append(serviceItem.serviceID);
         appendEntries(msg, serviceItem.attributeSets);
     }
+    */
 
     private static String appendEntries(final StringBuffer sb, final Entry[] entries) {
         sb.append("\n\tEntries:\n\t");

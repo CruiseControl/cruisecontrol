@@ -87,7 +87,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     private void doExit() {
         btnStop.setEnabled(false);
         final BuildAgentUI theThis = this;
-        new Thread() {
+        new Thread("Build Agent doExit Thread") {
             public void run() {
                 BuildAgent.kill();
                 LOG.info("BuildAgent.kill() completed");
@@ -107,7 +107,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     void updateAgentInfoUI(final BuildAgentService buildAgentService) {
         // only update UI on event dispatch thread,
         // it's also good to wait a bit for the agent info to be updated...
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
                 public void run() {
                     String agentInfo = "";
                     if (buildAgentService != null) {
@@ -128,7 +128,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
 
     public void lusCountChanged(final int newLUSCount) {
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeLater(new Thread("Agent lusCountChanged Thread") {
             public void run() {
                 setTitle(origTitle + ", LUS's: " + newLUSCount);                                
             }
@@ -148,7 +148,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
         protected void append(final LoggingEvent event) {
             final String msg = event.getRenderedMessage();
-            SwingUtilities.invokeLater(new Runnable() {
+            SwingUtilities.invokeLater(new Thread("Agent Log4JJTextAreaAppender Thread") {
                 public void run() {
                     txaConsole.append(msg + "\n");
                     if (txaConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
