@@ -123,26 +123,24 @@ public class MulticastDiscovery {
 
 
 
-    public ServiceItem[] findBuildAgentServices(final Entry[] entries, final ServiceItemFilter filter,
-                                                final long waitDurMillis)
+    public ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
         final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
 
         try {                                 // minMatches must be > 0
-            return getClientManager().lookup(tmpl, 1, Integer.MAX_VALUE, filter, waitDurMillis);
+            return getClientManager().lookup(tmpl, 1, Integer.MAX_VALUE, MulticastDiscovery.FLTR_ANY, waitDurMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
-    public ServiceItem findBuildAgentService(final Entry[] entries, final ServiceItemFilter filter,
-                                             final long waitDurMillis)
+    private ServiceItem findAvailableBuildAgentService(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
         final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
 
         try {
-            return getClientManager().lookup(tmpl, filter, waitDurMillis);
+            return getClientManager().lookup(tmpl, FLTR_AVAILABLE, waitDurMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
@@ -151,7 +149,7 @@ public class MulticastDiscovery {
     public ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
         
-        final ServiceItem result = findBuildAgentService(entries, FLTR_AVAILABLE, waitDurMillis);
+        final ServiceItem result = findAvailableBuildAgentService(entries, waitDurMillis);
         if (result != null) {
             ((BuildAgentService) result.service).claim();
         }
@@ -159,7 +157,7 @@ public class MulticastDiscovery {
     }
 
     private static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
-    public static final BuildAgentFilter FLTR_ANY = new BuildAgentFilter(false);
+    private static final BuildAgentFilter FLTR_ANY = new BuildAgentFilter(false);
 
     static final class BuildAgentFilter implements ServiceItemFilter {
         private final boolean findOnlyNonBusy;
