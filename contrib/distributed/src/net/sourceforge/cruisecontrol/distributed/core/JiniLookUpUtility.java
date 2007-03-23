@@ -56,7 +56,7 @@ public final class JiniLookUpUtility {
 
     private static final Logger LOG = Logger.getLogger(JiniLookUpUtility.class);
 
-    private final MulticastDiscovery discovery = new MulticastDiscovery();
+    private final MulticastDiscovery discovery = MulticastDiscovery.getDiscovery();
 
     private JiniLookUpUtility() {
         final String waitMessage = "Waiting 5 seconds for registrars to report in...";
