@@ -48,6 +48,12 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     private static ProcessInfoPump jiniProcessPump;
 
+    /** Common error message if multicast is being blocked. */
+    private static final String MSG_DISOCVERY_CHECK_FIREWALL =
+            "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
+            + "2. No Firewall is blocking multicasts.\n"
+            + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n";
+
     /**
      * Show what's happening with the Jini Process.
      */
@@ -355,7 +361,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             // try to find agents
             final BuildAgentService agentFoundFirst = masterBuilder.pickAgent();
-            assertNotNull("Couldn't find first agent", agentFoundFirst);
+            assertNotNull("Couldn't find first agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
 
             final BuildAgentService agentFoundSecond = masterBuilder.pickAgent();
@@ -399,7 +405,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             BuildAgentServiceImplTest.callTestDoBuild(false, agentAvailable.getService());
             agentAvailable.getService().clearOutputFiles();
             final BuildAgentService agentRefound = masterBuilder.pickAgent();
-            assertNotNull("Couldn't find released agent", agentRefound);
+            assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
 
@@ -418,13 +424,12 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             final BuildAgentService agent = masterBuilder.pickAgent();
-            assertNotNull("Couldn't find agent", agent);
+            assertNotNull("Couldn't find agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agent);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agent.isBusy());
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents",
-                    masterBuilder.pickAgent());
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
 
             // set Agent to Not busy, then make sure it can be found again.
             BuildAgentServiceImplTest.callTestDoBuild(false, agent); // only needed so clearOuputFiles() will succeed
@@ -464,10 +469,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             Thread.sleep(1000);
             i++;
         }
-        assertTrue("Lookup Service was not discovered before timeout.\n"
-                + "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
-                + "2. No Firewall is blocking multicasts.\n"
-                + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n",
+        assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
                 DistributedMasterBuilder.getDiscovery().isDiscovered());
     }
 
