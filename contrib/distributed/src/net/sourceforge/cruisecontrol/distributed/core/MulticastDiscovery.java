@@ -58,7 +58,7 @@ import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 
-public class MulticastDiscovery {
+public final class MulticastDiscovery {
 
     private static final Logger LOG = Logger.getLogger(MulticastDiscovery.class);
 
@@ -70,7 +70,42 @@ public class MulticastDiscovery {
     private final ServiceDiscoveryManager clientMgr;
 
 
-    public MulticastDiscovery() {
+    /** Holds the singleton discovery instance. */
+    private static MulticastDiscovery discovery;
+
+
+    /**
+     * Intended only for use by unit tests.
+     * @param multicastDiscovery lookup helper
+     */
+    static synchronized void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+        if (discovery != null) {
+            // release any existing discovery resources
+            discovery.terminate();
+            LOG.error("WARNING: Discovery released, acceptable only in Unit Tests.");
+        }
+        discovery = multicastDiscovery;
+    }
+
+    /** @return the singleton discovery instance. */
+    public static synchronized MulticastDiscovery getDiscovery() {
+        if (discovery == null) {
+            discovery = new MulticastDiscovery();
+            LOG.info("Created new MulticastDiscovery");
+        }
+
+        return discovery;
+    }
+
+    /** @return true if the {@link #discovery} variable is set, intended only for unit tests.  */
+    public static synchronized boolean isDiscoverySet() {
+        return discovery != null;
+    }
+
+
+
+
+    private MulticastDiscovery() {
         this(null);
     }
 
@@ -85,12 +120,12 @@ public class MulticastDiscovery {
             final LookupDiscoveryManager discoverMgr = new LookupDiscoveryManager(lookupGroups, unicastLocaters,
                     new DiscoveryListener() {
                         public void discovered(DiscoveryEvent e) {
-                            setDiscovered(true);
-                            logASynchDiscoveryEvent(DiscEventType.DISCOVERED, e);
+                            setDiscovered();
+                            logDiscoveryEvent(DiscEventType.DISCOVERED, e);
                         }
 
                         public void discarded(DiscoveryEvent e) {
-                            logASynchDiscoveryEvent(DiscEventType.DISCARDED, e);
+                            logDiscoveryEvent(DiscEventType.DISCARDED, e);
                         }
                     });
 
@@ -109,18 +144,12 @@ public class MulticastDiscovery {
      */
     public ServiceRegistrar[] getRegistrars() {
         //@todo remove ?
-        return getClientManager().getDiscoveryManager().getRegistrars();
+        return clientMgr.getDiscoveryManager().getRegistrars();
     }
 
     public int getLUSCount() {
-         return getClientManager().getDiscoveryManager().getRegistrars().length;
+        return clientMgr.getDiscoveryManager().getRegistrars().length;
     }
-
-
-    private ServiceDiscoveryManager getClientManager() {
-        return clientMgr;
-    }
-
 
 
     public ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
@@ -129,7 +158,7 @@ public class MulticastDiscovery {
         final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
 
         try {                                 // minMatches must be > 0
-            return getClientManager().lookup(tmpl, 1, Integer.MAX_VALUE, MulticastDiscovery.FLTR_ANY, waitDurMillis);
+            return clientMgr.lookup(tmpl, 1, Integer.MAX_VALUE, MulticastDiscovery.FLTR_ANY, waitDurMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
@@ -140,7 +169,7 @@ public class MulticastDiscovery {
         final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
 
         try {
-            return getClientManager().lookup(tmpl, FLTR_AVAILABLE, waitDurMillis);
+            return clientMgr.lookup(tmpl, FLTR_AVAILABLE, waitDurMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
@@ -199,9 +228,9 @@ public class MulticastDiscovery {
         }
     }
 
-    public void terminate() {
-        if (getClientManager() != null) {
-            getClientManager().terminate();
+    private void terminate() {
+        if (clientMgr != null) {
+            clientMgr.terminate();
         }
     }
 
@@ -213,23 +242,20 @@ public class MulticastDiscovery {
         private DiscEventType(final String name) { this.name = name; }
         public String toString() { return name; }
     }
-    private static void logASynchDiscoveryEvent(final DiscEventType type, final DiscoveryEvent e) {
-        new Thread("Multicast logASynchDiscoveryEvent Thread") {
-            public void run() {
-                final ServiceRegistrar[] regs = e.getRegistrars();
-                String regMsg = ", " + regs.length + " LUS's: [";
-                for (int i = 0; i < regs.length; i++) {
-                    regMsg += regs[i].getServiceID() + ", ";
-                }
-                regMsg = regMsg.substring(0, regMsg.lastIndexOf(", ")) + "]";
-                LOG.info("LUS " + type + regMsg);
-            }
-        } .start();
+
+    private static void logDiscoveryEvent(final DiscEventType type, final DiscoveryEvent e) {
+        final ServiceRegistrar[] regs = e.getRegistrars();
+        String regMsg = ", " + regs.length + " LUS's: [";
+        for (int i = 0; i < regs.length; i++) {
+            regMsg += regs[i].getServiceID() + ", ";
+        }
+        regMsg = regMsg.substring(0, regMsg.lastIndexOf(", ")) + "]";
+        LOG.info("LUS " + type + regMsg);
     }
 
     private boolean isDiscovered;
-    private synchronized void setDiscovered(final boolean discovered) {
-        isDiscovered = discovered;
+    private synchronized void setDiscovered() {
+        isDiscovered = true;
     }
     public synchronized boolean isDiscovered() {
         return isDiscovered;

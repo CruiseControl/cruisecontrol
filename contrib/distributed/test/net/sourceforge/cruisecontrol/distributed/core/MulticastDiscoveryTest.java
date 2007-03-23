@@ -101,4 +101,12 @@ public class MulticastDiscoveryTest extends TestCase {
 
         return new MulticastDiscovery(unicastLocators);
     }
+
+    /**
+     * Expose method intended only for use by unit tests.
+     * @param multicastDiscovery lookup helper
+     */    
+    public static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+        MulticastDiscovery.setDiscovery(multicastDiscovery);
+    }
 }

@@ -5,6 +5,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 
 import java.util.Map;
@@ -17,13 +18,13 @@ import java.util.Map;
 public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
     protected void setUp() throws Exception {
-        if (DistributedMasterBuilder.isDiscoverySet()) {
-            DistributedMasterBuilder.setDiscovery(null);
+        if (MulticastDiscovery.isDiscoverySet()) {
+            MulticastDiscoveryTest.setDiscovery(null);
         }
     }
     protected void tearDown() throws Exception {
-        if (DistributedMasterBuilder.isDiscoverySet()) {
-            DistributedMasterBuilder.setDiscovery(null);
+        if (MulticastDiscovery.isDiscoverySet()) {
+            MulticastDiscoveryTest.setDiscovery(null);
         }
     }
 
@@ -134,7 +135,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
     public void testPickAgentNoRegistrars() throws Exception {
         DistributedMasterBuilderTest.setupInsecurePolicy();
         // setup discovery so default logic will not wait to find a LUS
-        DistributedMasterBuilder.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
+        MulticastDiscoveryTest.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
         assertNull(masterBuilder.pickAgent());

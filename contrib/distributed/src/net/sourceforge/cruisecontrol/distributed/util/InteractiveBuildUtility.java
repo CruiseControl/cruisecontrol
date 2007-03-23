@@ -183,7 +183,7 @@ public class InteractiveBuildUtility {
         LOG.debug("Searching for serviceItems matching entries: " + searchEntries);
         final Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
 
-        final MulticastDiscovery discovery = new MulticastDiscovery();
+        final MulticastDiscovery discovery = MulticastDiscovery.getDiscovery();
         System.out.println("Waiting 5 seconds for registrars to report in...");
         try { Thread.sleep(5 * 1000); } catch (InterruptedException e) {
             // ignore

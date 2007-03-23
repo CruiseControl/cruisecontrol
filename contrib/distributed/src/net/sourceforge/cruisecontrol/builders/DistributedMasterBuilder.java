@@ -70,8 +70,6 @@ public class DistributedMasterBuilder extends Builder {
     private static final String CRUISE_PROPERTIES = "cruise.properties";
     private static final String CRUISE_RUN_DIR = "cruise.run.dir";
 
-    private static MulticastDiscovery discovery;
-
     // TODO: Change to property?
     private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
     private boolean isFailFast;
@@ -112,31 +110,6 @@ public class DistributedMasterBuilder extends Builder {
     }
     private synchronized  boolean isFailFast() {
         return isFailFast;
-    }
-
-    /**
-     * Intended only for use by unit tests.
-     * @param multicastDiscovery lookup helper
-     */
-    static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
-        if (discovery != null) {
-            // release any existing discovery resources
-            discovery.terminate();
-            LOG.warn("WARNING: DistributedMasterBuilder released Discovery, acceptable only in Unit Tests.");
-        }
-        discovery = multicastDiscovery;
-    }
-    static MulticastDiscovery getDiscovery() {
-        if (discovery == null) {
-            discovery = new MulticastDiscovery();
-            LOG.info("Created new MulticastDiscovery");
-        }
-
-        return discovery;
-    }
-    /** @return true if the {@link #discovery} variable is set, intended only for unit tests.  */
-    static boolean isDiscoverySet() {
-        return discovery != null;
     }
 
     private void loadRequiredProps() throws CruiseControlException {
@@ -337,7 +310,7 @@ public class DistributedMasterBuilder extends Builder {
         while (agent == null) {
             final ServiceItem serviceItem;
             try {
-                serviceItem = getDiscovery().findMatchingServiceAndClaim(entries,
+                serviceItem = MulticastDiscovery.getDiscovery().findMatchingServiceAndClaim(entries,
                         // Non-zero failfast value avoids intermittent failures in unit tests
                         (isFailFast ? 1000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 

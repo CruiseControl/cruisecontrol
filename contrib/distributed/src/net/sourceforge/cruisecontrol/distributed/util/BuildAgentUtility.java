@@ -37,7 +37,7 @@ public final class BuildAgentUtility {
     private static final Logger LOG = Logger.getLogger(BuildAgentUtility.class);
 
     // @todo make BuidAgentService implement/extend jini ServiceUI?
-    private static final class UI extends JFrame {
+    static class UI extends JFrame {
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
         private final String origTitle;
@@ -54,6 +54,14 @@ public final class BuildAgentUtility {
         private final JButton btnClose = new JButton("Close");
         private final JTextArea txaConsole = new JTextArea();
         private final JScrollPane scrConsole = new JScrollPane();
+
+        /**
+         * No-arg constructor for use in unit tests, to be overridden by MockUI.
+         */
+        UI() {
+            origTitle = null;
+            buildAgentUtility = null;
+        }
 
         private UI(final BuildAgentUtility buildAgentUtil) {
             super("CruiseControl - Agent Utility " + CCDistVersion.getVersion());
@@ -247,40 +255,53 @@ public final class BuildAgentUtility {
 
     private int lastLUSCount;
 
+    private boolean isFailFast;
+    private boolean isInited;
+
+    private final MulticastDiscovery discovery = MulticastDiscovery.getDiscovery();
+
     private BuildAgentUtility() {
+        this(null);
+    }
+    BuildAgentUtility(final UI mockUI) {
 
         CCDistVersion.printCCDistVersion();
-        
-        ui = new UI(this);
-        ui.btnRefresh.doClick();
+
+        if (mockUI == null) {
+            ui = new UI(this);
+            ui.btnRefresh.doClick();
+        } else {
+            ui = mockUI;
+            isFailFast = true;
+        }
     }
 
-    private String getAgentInfoAll(final List lstServiceItems) {
-        final String waitMessage = "Waiting 5 seconds for registrars to report in...";
-        ui.setInfo(waitMessage);
-        LOG.info(waitMessage);
+    String getAgentInfoAll(final List lstServiceItems) {
 
         final StringBuffer result = new StringBuffer();
         try {
-            // Use new instance each time to avoid stale cached info
-            final MulticastDiscovery discovery = new MulticastDiscovery();
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e1) {
-                LOG.warn("Sleep interrupted", e1);
+
+            if (!isInited && !isFailFast) {
+                try {
+                    final String msgWaitLUS = "Waiting 5 seconds for registrars to report in...";
+                    ui.setInfo(msgWaitLUS);
+                    LOG.info(msgWaitLUS);
+
+                    Thread.sleep(5000);
+                    isInited = true;
+                } catch (InterruptedException e1) {
+                    LOG.warn("Sleep interrupted", e1);
+                }
             }
 
             // update LUS count
             lastLUSCount = discovery.getLUSCount();
 
-            final ServiceItem[] serviceItems = discovery.findBuildAgentServices(
-                    null, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
-            // don't wait for the terminate
-            new Thread("BuildAgentUtility discovery.terminate Thread") {
-                public void run() {
-                    discovery.terminate();
-                }
-            } .start();
+            final String waitMessage = "Waiting for Build Agents to report in...";
+            ui.setInfo(waitMessage);
+            LOG.info(waitMessage);
+            final ServiceItem[] serviceItems = discovery.findBuildAgentServices(null,
+                    (isFailFast ? 0 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 
             // clear and rebuild list
             for (int i = 0; i < lstServiceItems.size(); i++) {

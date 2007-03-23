@@ -257,9 +257,19 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
     private static void verifyNoLocalLookupService() throws IOException, ClassNotFoundException, InterruptedException {
-        ServiceRegistrar serviceRegistrar = findTestLookupService(1);
-        assertNull("Found local lookup service, but it should be dead. Is an orphaned java process still running?",
-                serviceRegistrar);
+
+        final String msgLUSFoundCheckForOrphanedProc
+                = "Found local lookup service, but it should be dead. Is an orphaned java process still running?";
+
+        final ServiceRegistrar serviceRegistrar;
+        try {
+            serviceRegistrar = findTestLookupService(1);
+        } catch (ClassNotFoundException e) {
+            assertFalse(msgLUSFoundCheckForOrphanedProc,
+                    "com.sun.jini.reggie.ConstrainableRegistrarProxy".equals(e.getMessage()));
+            throw e;
+        }
+        assertNull(msgLUSFoundCheckForOrphanedProc, serviceRegistrar);
     }
 
 
@@ -465,19 +475,19 @@ public class DistributedMasterBuilderTest extends TestCase {
         // wait for cache to discover lookup service
         int i = 0;
         int waitSecs = 15;
-        while (!DistributedMasterBuilder.getDiscovery().isDiscovered() && i < waitSecs) {
+        while (!MulticastDiscovery.getDiscovery().isDiscovered() && i < waitSecs) {
             Thread.sleep(1000);
             i++;
         }
         assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
-                DistributedMasterBuilder.getDiscovery().isDiscovered());
+                MulticastDiscovery.getDiscovery().isDiscovered());
     }
 
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY() throws Exception {
 
-        if (!DistributedMasterBuilder.isDiscoverySet()) {
+        if (!MulticastDiscovery.isDiscoverySet()) {
             final MulticastDiscovery discovery = MulticastDiscoveryTest.getLocalDiscovery();
-            DistributedMasterBuilder.setDiscovery(discovery);
+            MulticastDiscoveryTest.setDiscovery(discovery);
             // wait to discover lookupservice
             waitForCacheToDiscoverLUS();
         }
