@@ -7,6 +7,7 @@ import junit.extensions.TestSetup;
 
 import java.util.Properties;
 import java.util.Arrays;
+import java.util.Map;
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
@@ -29,6 +30,7 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
 
@@ -54,6 +56,18 @@ public class DistributedMasterBuilderTest extends TestCase {
             "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
             + "2. No Firewall is blocking multicasts.\n"
             + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n";
+
+    private static String getTestDMBEntries() {
+        final Map userProps
+                = PropertiesHelper.loadRequiredProperties(BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
+
+        final Object retval = userProps.get(BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE);
+        assertNotNull("Missing required entry for DMB unit test: " + BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE,
+                retval);
+        assertTrue(retval instanceof String);
+
+        return BuildAgentServiceImplTest.ENTRY_NAME_BUILD_TYPE + "=" + retval;
+    }
 
     /**
      * Show what's happening with the Jini Process.
@@ -498,7 +512,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
-        masterBuilder.setEntries(DistributedMasterBuilderNoLookupTest.getTestDMBEntries());
+        masterBuilder.setEntries(getTestDMBEntries());
         masterBuilder.setFailFast(); // don't block until an available agent is found
         return masterBuilder;
     }
