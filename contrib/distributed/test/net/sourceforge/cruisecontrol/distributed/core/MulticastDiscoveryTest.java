@@ -109,4 +109,11 @@ public class MulticastDiscoveryTest extends TestCase {
     public static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
         MulticastDiscovery.setDiscovery(multicastDiscovery);
     }
+    /**
+     * Expose method intended only for use by unit tests.
+     * @return true if any LUS has been found.
+     */
+    public static boolean isDiscovered() {
+        return MulticastDiscovery.isDiscovered();
+    }
 }

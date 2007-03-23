@@ -53,7 +53,7 @@ public class BuildAgentTest extends TestCase {
 
 
     
-    private static Object findAgent(final ServiceRegistrar reg,
+    private static void assertFindAgent(final ServiceRegistrar reg,
                                     final int retries, final boolean expectedFoundResult)
             throws RemoteException, InterruptedException {
 
@@ -61,7 +61,7 @@ public class BuildAgentTest extends TestCase {
                 new SearchablePropertyEntries(
                         BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE).getProperties()
         );
-        return findAgent(reg, retries, expectedFoundResult, entries);
+        findAgent(reg, retries, expectedFoundResult, entries);
     }
 
     private static Object findAgent(final ServiceRegistrar reg,
@@ -139,7 +139,7 @@ public class BuildAgentTest extends TestCase {
     public void testKillNoUI() throws Exception {
         ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
         assertNotNull("Couldn't find registrar.", reg);
-        findAgent(reg, 3, false);
+        assertFindAgent(reg, 3, false);
 
         final Thread t = new Thread("BuildAgentTest testKillNoUI Thread") {
             public void run() {
@@ -160,13 +160,13 @@ public class BuildAgentTest extends TestCase {
         }
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
         assertTrue("Agent didn't init before timeout.", BuildAgent.getMainThread().isAlive());
-        findAgent(reg, 10, true);
+        assertFindAgent(reg, 10, true);
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
         BuildAgent.kill();
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
-        findAgent(reg, 10, false);
+        assertFindAgent(reg, 10, false);
     }
 
     public void testKill() throws Exception {
@@ -177,7 +177,7 @@ public class BuildAgentTest extends TestCase {
 
         ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
         assertNotNull("Couldn't find registrar.", reg);
-        findAgent(reg, 3, false);
+        assertFindAgent(reg, 3, false);
 
         final Thread t = new Thread("BuildAgentTest testKill Thread") {
             public void run() {
@@ -197,12 +197,12 @@ public class BuildAgentTest extends TestCase {
         }
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
         assertTrue("Agent didn't init before timeout.", BuildAgent.getMainThread().isAlive());
-        findAgent(reg, 10, true);
+        assertFindAgent(reg, 10, true);
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
         BuildAgent.kill();
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
-        findAgent(reg, 10, false);
+        assertFindAgent(reg, 10, false);
     }
 }

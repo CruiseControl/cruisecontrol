@@ -183,14 +183,15 @@ public class InteractiveBuildUtility {
         LOG.debug("Searching for serviceItems matching entries: " + searchEntries);
         final Entry[] entries = ReggieUtil.convertStringEntries(searchEntries);
 
-        final MulticastDiscovery discovery = MulticastDiscovery.getDiscovery();
+        MulticastDiscovery.begin();
         System.out.println("Waiting 5 seconds for registrars to report in...");
         try { Thread.sleep(5 * 1000); } catch (InterruptedException e) {
             // ignore
         }
         final ServiceItem[] serviceItems;
         try {
-             serviceItems = discovery.findBuildAgentServices(entries, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
+             serviceItems = MulticastDiscovery.findBuildAgentServices(entries,
+                     MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
         } catch (RemoteException e) {
             e.printStackTrace();
             String message = "Problem occurred finding Build Agents: " + e.getMessage();

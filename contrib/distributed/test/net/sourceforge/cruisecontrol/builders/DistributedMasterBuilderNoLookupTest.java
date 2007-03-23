@@ -5,7 +5,6 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
-import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 
 import java.util.Map;
@@ -18,14 +17,7 @@ import java.util.Map;
 public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
     protected void setUp() throws Exception {
-        if (MulticastDiscovery.isDiscoverySet()) {
-            MulticastDiscoveryTest.setDiscovery(null);
-        }
-    }
-    protected void tearDown() throws Exception {
-        if (MulticastDiscovery.isDiscoverySet()) {
-            MulticastDiscoveryTest.setDiscovery(null);
-        }
+        DistributedMasterBuilderTest.setupInsecurePolicy();
     }
 
     public void testDistAttribs() throws Exception {
@@ -120,9 +112,8 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
      * @throws Exception if test fails
      */
     public void testPickAgentDiscoveryNonNull() throws Exception {
-        DistributedMasterBuilderTest.setupInsecurePolicy();
         DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
-        masterBuilder.setFailFast(true);
+        masterBuilder.setFailFast();
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
         masterBuilder.setEntries(getTestDMBEntries());
         assertNull(masterBuilder.pickAgent());
@@ -133,7 +124,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
      * @throws Exception if test fails
      */
     public void testPickAgentNoRegistrars() throws Exception {
-        DistributedMasterBuilderTest.setupInsecurePolicy();
         // setup discovery so default logic will not wait to find a LUS
         MulticastDiscoveryTest.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
