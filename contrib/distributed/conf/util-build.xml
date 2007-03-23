@@ -89,7 +89,7 @@
 
 	<target name="test-jini" description="Test that Jini is running and services are registered" >
 		<echo message="Listing registered Jini services..." level="info" />
-		<java classname="net.sourceforge.cruisecontrol.distributed.core.JiniLookUpUtility" fork="true">
+		<java classname="net.sourceforge.cruisecontrol.distributed.util.JiniLookUpUtility" fork="true">
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
             <classpath refid="path.util.lookup"/>
 		</java>
