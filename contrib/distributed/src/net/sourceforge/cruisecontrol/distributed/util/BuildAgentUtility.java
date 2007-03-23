@@ -294,14 +294,14 @@ public final class BuildAgentUtility {
                 }
             }
 
-            // update LUS count
-            lastLUSCount = discovery.getLUSCount();
-
             final String waitMessage = "Waiting for Build Agents to report in...";
             ui.setInfo(waitMessage);
             LOG.info(waitMessage);
             final ServiceItem[] serviceItems = discovery.findBuildAgentServices(null,
                     (isFailFast ? 0 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
+
+            // update LUS count
+            lastLUSCount = discovery.getLUSCount();
 
             // clear and rebuild list
             for (int i = 0; i < lstServiceItems.size(); i++) {
