@@ -274,7 +274,7 @@ public final class BuildAgentUtility {
             lastLUSCount = discovery.getLUSCount();
 
             final ServiceItem[] serviceItems = discovery.findBuildAgentServices(
-                    null, MulticastDiscovery.FLTR_ANY, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
+                    null, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
             // don't wait for the terminate
             new Thread("BuildAgentUtility discovery.terminate Thread") {
                 public void run() {

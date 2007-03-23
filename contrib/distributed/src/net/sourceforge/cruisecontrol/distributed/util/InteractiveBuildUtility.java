@@ -190,8 +190,7 @@ public class InteractiveBuildUtility {
         }
         final ServiceItem[] serviceItems;
         try {
-             serviceItems = discovery.findBuildAgentServices(
-                     entries, MulticastDiscovery.FLTR_ANY, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
+             serviceItems = discovery.findBuildAgentServices(entries, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
         } catch (RemoteException e) {
             e.printStackTrace();
             String message = "Problem occurred finding Build Agents: " + e.getMessage();
