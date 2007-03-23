@@ -131,7 +131,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         assertNull(masterBuilder.pickAgent());
     }
 
-    private static String getTestDMBEntries() {
+    static String getTestDMBEntries() {
         final Map userProps
                 = PropertiesHelper.loadRequiredProperties(BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE);
 
