@@ -450,7 +450,7 @@
 		<jar destfile="dist/core/ccdist-core.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.core.JiniLookUpUtility" />
+				<attribute name="Main-Class" value="net.sourceforge.cruisecontrol.distributed.util.JiniLookUpUtility" />
                 <attribute name="Implementation-Version" value="${ccdist.build.version} ${ccdist.build.version.info}" />
 			</manifest>
 			<fileset dir="${classes}">
