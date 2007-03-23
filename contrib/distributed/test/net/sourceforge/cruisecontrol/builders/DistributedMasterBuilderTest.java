@@ -497,6 +497,8 @@ public class DistributedMasterBuilderTest extends TestCase {
         }
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
+        masterBuilder.setEntries(DistributedMasterBuilderNoLookupTest.getTestDMBEntries());
         masterBuilder.setFailFast(); // don't block until an available agent is found
         return masterBuilder;
     }
