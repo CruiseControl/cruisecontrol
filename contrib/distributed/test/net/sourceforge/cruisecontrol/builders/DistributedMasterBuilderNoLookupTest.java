@@ -108,18 +108,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
     }
 
     /**
-     * Ensures discovery in pickAgent() is referenced via getDiscovery() and not by static member var.  
-     * @throws Exception if test fails
-     */
-    public void testPickAgentDiscoveryNonNull() throws Exception {
-        DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
-        masterBuilder.setFailFast();
-        // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
-        masterBuilder.setEntries(getTestDMBEntries());
-        assertNull(masterBuilder.pickAgent());
-    }
-
-    /**
      * This test lives here so we don't have to kill the Jini LUS to run it.
      * @throws Exception if test fails
      */
