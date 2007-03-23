@@ -50,7 +50,7 @@ import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 
 import org.apache.log4j.Logger;
 
-public class SearchablePropertyEntries {
+class SearchablePropertyEntries {
 
     private static final Logger LOG = Logger.getLogger(SearchablePropertyEntries.class);
 

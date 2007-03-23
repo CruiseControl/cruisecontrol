@@ -16,7 +16,6 @@ import java.rmi.RemoteException;
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 
 /**
@@ -68,8 +67,8 @@ public class BuildAgentServiceImplTest extends TestCase {
             return agentStatusChangeCount;
         }
 
-        void setAgentStatusChangeCount(int agentStatusChangeCount) {
-            this.agentStatusChangeCount = agentStatusChangeCount;
+        void resetAgentStatusChangeCount() {
+            this.agentStatusChangeCount = 0;
         }
     }
 
@@ -112,7 +111,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         
         distributedAgentProps.remove(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
         agentImpl.setBusy(false);
-        agentListener.setAgentStatusChangeCount(0);
+        agentListener.resetAgentStatusChangeCount();
         try {
             // gets far enough to fire 2nd agent status change
             agentImpl.doBuild(null, new HashMap(), distributedAgentProps);
@@ -378,7 +377,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     private static void checkResultsExistByType(String resultType)
-            throws CruiseControlException, IOException {
+            throws IOException {
         
         final File resultTypeBaseDir
                 = (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
@@ -538,7 +537,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static BuildAgentServiceImpl createTestAgent(boolean isBuildFailure, 
                                                          final Map distributedAgentProps)
-            throws CruiseControlException, RemoteException {
+            throws RemoteException {
 
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
@@ -550,18 +549,15 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     
     /**
-     * Call doBuild() on the given agent using test settings
-     * @param isBuildFailure if true, run a build that will fail
+     * Call doBuild() on a build that should succeed on the given agent using test settings
      * @param agent the build agent on which to run the build
      * @return the build result jdom element
-     * @throws CruiseControlException if build dies
      * @throws RemoteException if something else dies
      */
-    public static Element callTestDoBuild(boolean isBuildFailure,
-                                       final BuildAgentService agent) 
-            throws CruiseControlException, RemoteException {
+    public static Element callTestDoBuildSuccess(final BuildAgentService agent)
+            throws RemoteException {
         
-        return callTestDoBuild(isBuildFailure, agent, new HashMap());
+        return callTestDoBuild(false, agent, new HashMap());
     }
     
     /**
@@ -570,13 +566,12 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @param agent the build agent on which to run the build
      * @param distributedAgentProps the map of distributed props used by the build agent
      * @return the build result jdom element
-     * @throws CruiseControlException if build dies
      * @throws RemoteException if something else dies
      */
-    public static Element callTestDoBuild(final boolean isBuildFailure,
+    private static Element callTestDoBuild(final boolean isBuildFailure,
                                        final BuildAgentService agent,
                                        final Map distributedAgentProps) 
-            throws CruiseControlException, RemoteException {
+            throws RemoteException {
         
         final String moduleName;
         if (isBuildFailure) {

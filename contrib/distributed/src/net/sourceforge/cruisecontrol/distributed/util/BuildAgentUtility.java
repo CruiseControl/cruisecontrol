@@ -258,8 +258,6 @@ public final class BuildAgentUtility {
     private boolean isFailFast;
     private boolean isInited;
 
-    private final MulticastDiscovery discovery = MulticastDiscovery.getDiscovery();
-
     private BuildAgentUtility() {
         this(null);
     }
@@ -283,6 +281,7 @@ public final class BuildAgentUtility {
 
             if (!isInited && !isFailFast) {
                 try {
+                    MulticastDiscovery.begin();
                     final String msgWaitLUS = "Waiting 5 seconds for registrars to report in...";
                     ui.setInfo(msgWaitLUS);
                     LOG.info(msgWaitLUS);
@@ -297,11 +296,11 @@ public final class BuildAgentUtility {
             final String waitMessage = "Waiting for Build Agents to report in...";
             ui.setInfo(waitMessage);
             LOG.info(waitMessage);
-            final ServiceItem[] serviceItems = discovery.findBuildAgentServices(null,
+            final ServiceItem[] serviceItems = MulticastDiscovery.findBuildAgentServices(null,
                     (isFailFast ? 0 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 
             // update LUS count
-            lastLUSCount = discovery.getLUSCount();
+            lastLUSCount = MulticastDiscovery.getLUSCount();
 
             // clear and rebuild list
             for (int i = 0; i < lstServiceItems.size(); i++) {

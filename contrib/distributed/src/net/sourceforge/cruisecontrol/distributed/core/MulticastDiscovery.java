@@ -58,6 +58,10 @@ import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Synchronizes access to shared ServiceDiscoveryManager to allow multiple threads to
+ * safely access discovery features.
+ */
 public final class MulticastDiscovery {
 
     private static final Logger LOG = Logger.getLogger(MulticastDiscovery.class);
@@ -70,30 +74,32 @@ public final class MulticastDiscovery {
     private final ServiceDiscoveryManager clientMgr;
 
 
-    /** Holds the singleton discovery instance. */
-    private static MulticastDiscovery discovery;
+    /**
+     * Holds the singleton discovery instance.
+     * Instantiate here to avoid need to synchronize instance creation.
+     */
+    private static MulticastDiscovery discovery = new MulticastDiscovery();
 
 
     /**
      * Intended only for use by unit tests.
      * @param multicastDiscovery lookup helper
      */
-    static synchronized void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+    static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
         if (discovery != null) {
             // release any existing discovery resources
             discovery.terminate();
             LOG.error("WARNING: Discovery released, acceptable only in Unit Tests.");
         }
+
+        if (multicastDiscovery == null) {
+            throw new IllegalStateException("Can't set MulticastDiscovery singleton instance to null");
+        }
         discovery = multicastDiscovery;
     }
 
     /** @return the singleton discovery instance. */
-    public static synchronized MulticastDiscovery getDiscovery() {
-        if (discovery == null) {
-            discovery = new MulticastDiscovery();
-            LOG.info("Created new MulticastDiscovery");
-        }
-
+    private static MulticastDiscovery getDiscovery() {
         return discovery;
     }
 
@@ -120,7 +126,7 @@ public final class MulticastDiscovery {
             final LookupDiscoveryManager discoverMgr = new LookupDiscoveryManager(lookupGroups, unicastLocaters,
                     new DiscoveryListener() {
                         public void discovered(DiscoveryEvent e) {
-                            setDiscovered();
+                            setDiscoveredImpl();
                             logDiscoveryEvent(DiscEventType.DISCOVERED, e);
                         }
 
@@ -139,20 +145,40 @@ public final class MulticastDiscovery {
     }
 
     /**
+     * Start discovery of LUS's. Does NOT always need to be called, as calls to other methods
+     * will automatically start discovery.
+     * Only needed by short-lived classes, like JiniLookUpUtility and InteractiveBuildUtility.
+     */
+    public static synchronized void begin() {
+        getDiscovery();
+    }
+
+    /**
      * Only for use by JiniLookUpUtility and InteractiveBuilder.
      * @return an array of discovered LUS's
      */
-    public ServiceRegistrar[] getRegistrars() {
+    private ServiceRegistrar[] getRegistrarsImpl() {
         //@todo remove ?
         return clientMgr.getDiscoveryManager().getRegistrars();
     }
+    /**
+     * Only for use by JiniLookUpUtility and InteractiveBuilder.
+     * @return an array of discovered LUS's
+     */
+    public static synchronized ServiceRegistrar[] getRegistrars() {
+        //@todo remove ?
+        return getDiscovery().getRegistrarsImpl();
+    }
 
-    public int getLUSCount() {
+    private int getLUSCountImpl() {
         return clientMgr.getDiscoveryManager().getRegistrars().length;
+    }
+    public static synchronized int getLUSCount() {
+        return getDiscovery().getLUSCountImpl();
     }
 
 
-    public ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
+    private ServiceItem[] findBuildAgentServicesImpl(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
         final ServiceTemplate tmpl = new ServiceTemplate(null, SERVICE_CLASSES_BUILDAGENT, entries);
@@ -163,6 +189,12 @@ public final class MulticastDiscovery {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
+    public static synchronized ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
+            throws RemoteException {
+        return getDiscovery().findBuildAgentServicesImpl(entries, waitDurMillis);
+    }
+
+
     private ServiceItem findAvailableBuildAgentService(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
@@ -174,8 +206,7 @@ public final class MulticastDiscovery {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
-
-    public ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
+    private ServiceItem findMatchingServiceAndClaimImpl(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
         
         final ServiceItem result = findAvailableBuildAgentService(entries, waitDurMillis);
@@ -183,6 +214,11 @@ public final class MulticastDiscovery {
             ((BuildAgentService) result.service).claim();
         }
         return result;
+    }
+    public static synchronized ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
+            throws RemoteException {
+
+        return getDiscovery().findMatchingServiceAndClaimImpl(entries, waitDurMillis);
     }
 
     private static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
@@ -254,11 +290,14 @@ public final class MulticastDiscovery {
     }
 
     private boolean isDiscovered;
-    private synchronized void setDiscovered() {
+    private synchronized void setDiscoveredImpl() {
         isDiscovered = true;
     }
-    public synchronized boolean isDiscovered() {
+    private synchronized boolean isDiscoveredImpl() {
         return isDiscovered;
+    }
+    static synchronized boolean isDiscovered() {
+        return getDiscovery().isDiscoveredImpl();
     }
 
     /*
@@ -289,12 +328,12 @@ public final class MulticastDiscovery {
         }
 
         public void serviceAdded(final ServiceDiscoveryEvent event) {
-            discovery.setDiscovered(true);
+            discovery.setDiscoveredImpl(true);
             LOG.info(buildDiscoveryMsg(event, "Added"));
         }
 
         public void serviceRemoved(final ServiceDiscoveryEvent event) {
-            discovery.setDiscovered(false);
+            discovery.setDiscoveredImpl(false);
             LOG.info(buildDiscoveryMsg(event, "Removed"));
         }
 

@@ -102,11 +102,11 @@ public class DistributedMasterBuilder extends Builder {
 
 
     /**
-     * @param isFailFast If true, available agent lookup will not block until an agent is found,
-     * but will return null immediately.
+     * Available agent lookup will not block until an agent is found,
+     * but will return null immediately. Intended only for unit tests.
      */
-    public synchronized void setFailFast(final boolean isFailFast) {
-        this.isFailFast = isFailFast;
+    synchronized void setFailFast() {
+        this.isFailFast = true;
     }
     private synchronized  boolean isFailFast() {
         return isFailFast;
@@ -310,7 +310,7 @@ public class DistributedMasterBuilder extends Builder {
         while (agent == null) {
             final ServiceItem serviceItem;
             try {
-                serviceItem = MulticastDiscovery.getDiscovery().findMatchingServiceAndClaim(entries,
+                serviceItem = MulticastDiscovery.findMatchingServiceAndClaim(entries,
                         // Non-zero failfast value avoids intermittent failures in unit tests
                         (isFailFast ? 1000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 

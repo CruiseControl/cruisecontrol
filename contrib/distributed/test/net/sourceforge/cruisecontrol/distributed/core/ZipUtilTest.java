@@ -57,10 +57,10 @@ public class ZipUtilTest extends TestCase {
     private static final String TEMP_FILE = "data.txt";
     private String rootTempDirPath;
     private File rootTempDir;
-    private String filledDirName = "filled";
+    private static final String DIR_NAME_FILLED = "filled";
     private String filledDirPath;
     private File filledDir;
-    private String emptyDirName = "empty";
+    private static final String DIR_NAME_EMPTY = "empty";
     private String emptyDirPath;
     private File emptyDir;
 
@@ -71,10 +71,10 @@ public class ZipUtilTest extends TestCase {
             rootTempDir = new File(new File(dummyTempFile.getParent()), "testRoot");
             rootTempDirPath = rootTempDir.getCanonicalPath();
             rootTempDir.mkdir();
-            filledDir = new File(rootTempDirPath, filledDirName);
+            filledDir = new File(rootTempDirPath, DIR_NAME_FILLED);
             filledDir.mkdir();
             filledDirPath = filledDir.getCanonicalPath();
-            emptyDir = new File(rootTempDirPath, emptyDirName);
+            emptyDir = new File(rootTempDirPath, DIR_NAME_EMPTY);
             emptyDir.mkdir();
             emptyDirPath = emptyDir.getCanonicalPath();
         } catch (IOException ioe) {
@@ -86,7 +86,7 @@ public class ZipUtilTest extends TestCase {
         final String tempFile = TEMP_FILE;
         final Writer writer;
         try {
-            filledDirPath = rootTempDirPath + File.separator + filledDirName;
+            filledDirPath = rootTempDirPath + File.separator + DIR_NAME_FILLED;
             writer = new FileWriter(new File(filledDirPath, tempFile));
             writer.write("The quick brown fox, yadda, yadda, yadda...");
             writer.close();
@@ -137,7 +137,7 @@ public class ZipUtilTest extends TestCase {
 
     public void testZipWithIllegalArguments() {
         try {
-            ZipUtil.zipFolderContents(null, filledDirName);
+            ZipUtil.zipFolderContents(null, DIR_NAME_FILLED);
             fail("Should throw an exception since zip filename and/or dir is missing");
         } catch (java.lang.IllegalArgumentException e) {
             assertEquals("Missing output zip file name", e.getMessage());

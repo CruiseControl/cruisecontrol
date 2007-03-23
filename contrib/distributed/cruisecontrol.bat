@@ -39,6 +39,7 @@ REM ############################################################################
 
 REM Uncomment the following line if you have OutOfMemoryError errors
 REM set CC_OPTS=-Xms128m -Xmx256m
+set CC_OPTS=-Xms128m -Xmx768m -Dlog4j.configuration=ets_log4j.properties
 
 REM The root of the CruiseControl directory.  The key requirement is that this is the parent
 REM directory of CruiseControl's lib and dist directories.
