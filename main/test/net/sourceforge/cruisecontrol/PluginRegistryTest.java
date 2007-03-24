@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -60,14 +59,6 @@ public class PluginRegistryTest extends TestCase {
         super.setUp();
 
         defaultRegistry = PluginRegistry.loadDefaultPluginRegistry();
-    }
-
-    /**
-     * @deprecated Testing deprecated code
-     */
-    public void testGetDefaultPropertiesNoPlugin() {
-        PluginRegistry registry = PluginRegistry.createRegistry();
-        assertEquals(0, registry.getDefaultProperties("qwertyuiop").size());
     }
 
     public void testGettingPluginClass() throws Exception {
@@ -129,7 +120,6 @@ public class PluginRegistryTest extends TestCase {
      * 2 levels of plugin registry, 1 plugin, 2 properties defined in
      * parent, one overriden in child
      *
-     * @deprecated Testing deprecated code
      * @throws Exception on failure
      */
     public void testGetPluginConfigOverride() throws Exception {
@@ -156,17 +146,6 @@ public class PluginRegistryTest extends TestCase {
 
         PluginRegistry.registerToRoot(otherRootPluginElement);
 
-        Map defaultProperties;
-        // check getDefaultProperties
-        defaultProperties = registry.getDefaultProperties("testlistener");
-        assertEquals(2, defaultProperties.size());
-        assertEquals("default", defaultProperties.get("string"));
-        assertEquals("otherdefault", defaultProperties.get("string2"));
-
-        defaultProperties = registry.getDefaultProperties("testlistener2");
-        assertEquals(1, defaultProperties.size());
-        assertEquals("default2", defaultProperties.get("string"));
-
         // now let's make some 'overrides'
         Element pluginElement = new Element("plugin");
         pluginElement.setAttribute("name", "testlistener");
@@ -179,11 +158,6 @@ public class PluginRegistryTest extends TestCase {
         registry.register(pluginElement);
 
         // test the first plugin
-        defaultProperties = registry.getDefaultProperties("testlistener");
-        assertEquals(2, defaultProperties.size());
-        assertEquals("overriden", defaultProperties.get("string"));
-        assertEquals("otherdefault", defaultProperties.get("string2"));
-
         Element pluginConfig = registry.getPluginConfig("testlistener");
         assertEquals("testlistener", pluginConfig.getName());
         assertEquals("overriden", pluginConfig.getAttributeValue("string"));
@@ -203,10 +177,6 @@ public class PluginRegistryTest extends TestCase {
         assertEquals(expectedWrapperAttributes, wrapperAttributes);
 
         // test the second plugin
-        defaultProperties = registry.getDefaultProperties("testlistener2");
-        assertEquals(1, defaultProperties.size());
-        assertEquals("default2", defaultProperties.get("string"));
-
         Element otherPluginConfig = registry.getPluginConfig("testlistener2");
         assertEquals("testlistener2", otherPluginConfig.getName());
         assertEquals("default2", otherPluginConfig.getAttributeValue("string"));
