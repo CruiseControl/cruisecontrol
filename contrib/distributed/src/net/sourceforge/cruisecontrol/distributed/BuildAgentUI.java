@@ -140,30 +140,30 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
      */
     public class Log4JJTextAreaAppender extends AppenderSkeleton {
 
-        private final JTextArea txaConsole;
+        private final JTextArea txaL4JConsole;
 
         public Log4JJTextAreaAppender(final JTextArea txaConsole) {
-            this.txaConsole = txaConsole;
+            this.txaL4JConsole = txaConsole;
         }
 
         protected void append(final LoggingEvent event) {
             final String msg = event.getRenderedMessage();
             SwingUtilities.invokeLater(new Thread("Agent Log4JJTextAreaAppender Thread") {
                 public void run() {
-                    txaConsole.append(msg + "\n");
-                    if (txaConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
+                    txaL4JConsole.append(msg + "\n");
+                    if (txaL4JConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
                         // remove old lines
                         try {
-                            txaConsole.replaceRange("", 0,
-                                    txaConsole.getLineEndOffset(
-                                            txaConsole.getLineCount() - CONSOLE_LINE_BUFFER_SIZE
+                            txaL4JConsole.replaceRange("", 0,
+                                    txaL4JConsole.getLineEndOffset(
+                                            txaL4JConsole.getLineCount() - CONSOLE_LINE_BUFFER_SIZE
                                     ));
                         } catch (BadLocationException e) {
                             //ignore
                         }
                     }
                     // Make sure the last line is always visible
-                    txaConsole.setCaretPosition(txaConsole.getDocument().getLength());
+                    txaL4JConsole.setCaretPosition(txaL4JConsole.getDocument().getLength());
                 }
             });
 
