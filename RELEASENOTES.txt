@@ -19,6 +19,10 @@ PhingBuilder
 ----------------------
 * Add new plug-in for PHP build tool Phing (CC-613). Submitted by Hans Lellelid.
 
+PluginRegistry
+----------------------
+* Remove deprecated method PluginRegistry.getDefaultProperties(String pluginName).
+
 
 CruiseControl Release Notes - 2.6.1
 

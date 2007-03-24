@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -391,33 +390,5 @@ public final class PluginRegistry implements Serializable {
             pluginConfig = this.parentRegistry.overridePluginConfig(pluginName, pluginClass, pluginConfig);
         }
         return pluginConfig;
-    }
-
-    /**
-     * Returns a Map containing the default properties for the plugin
-     * with the given name. If there's no such plugin, an empty
-     * Map will be returned. The default properties can be inherited
-     * from a parent registry.
-     * @deprecated use FIXME that also supports preconfiguration of nested elements
-     */
-    public Map getDefaultProperties(String pluginName) {
-        Map defaultProperties = new HashMap();
-        Element pluginConfig = this.getPluginConfig(pluginName);
-        if (pluginConfig != null) {
-            List attributes = pluginConfig.getAttributes();
-            for (Iterator iter = attributes.iterator(); iter.hasNext(); ) {
-                Attribute attr = (Attribute) iter.next();
-                String name = attr.getName();
-                if (name.equals("name") || name.equals("classname")) {
-                    continue;
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("setting default property " + name + " to '" + attr.getValue()
-                       + "' for " + pluginName);
-                }
-                defaultProperties.put(name, attr.getValue());
-            }
-        }
-        return Collections.unmodifiableMap(defaultProperties);
     }
 }
