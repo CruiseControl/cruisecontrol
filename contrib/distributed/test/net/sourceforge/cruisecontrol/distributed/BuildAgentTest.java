@@ -152,10 +152,10 @@ public class BuildAgentTest extends TestCase {
         };
         t.start();
         // allow BuildAgent main to load and register
-        final int maxWaitSecsStartup = 30;
+        final int maxWaitStartup = 30;
         int count = 0;
-        while (count < maxWaitSecsStartup && BuildAgent.getMainThread() == null) {
-            Thread.sleep(1000);
+        while (count < maxWaitStartup && BuildAgent.getMainThread() == null) {
+            Thread.sleep(500);
             count++;
         }
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
@@ -189,10 +189,10 @@ public class BuildAgentTest extends TestCase {
         };
         t.start();
         // allow BuildAgent main to load and register
-        final int maxWaitSecsStartup = 30;
+        final int maxWaitStartup = 30;
         int count = 0;
-        while (count < maxWaitSecsStartup && BuildAgent.getMainThread() == null) {
-            Thread.sleep(1000);
+        while (count < maxWaitStartup && BuildAgent.getMainThread() == null) {
+            Thread.sleep(500);
             count++;
         }
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
@@ -203,6 +203,6 @@ public class BuildAgentTest extends TestCase {
 
         BuildAgent.kill();
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
-        assertFindAgent(reg, 10, false);
+        assertFindAgent(reg, 20, false);
     }
 }
