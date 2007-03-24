@@ -94,8 +94,7 @@ public final class ZipUtil {
                     }
                     // delete the empty zip file
                     if (!file.delete()) {
-                        throw new RuntimeException("Error deleting empty zip file: "
-                                + file.getAbsolutePath());
+                        throw new RuntimeException("Error deleting empty zip file: " + file.getAbsolutePath());
                     }
                     final String message2 = "Deleted empty zip file: " + outFilename;
                     LOG.debug(message2);
@@ -130,13 +129,16 @@ public final class ZipUtil {
                 LOG.debug("adding file [" + filePath + "]");
                 try {
                     in = new FileInputStream(new File(folderToZip, filename));
-                    zipOutputStream.putNextEntry(new ZipEntry(filePath.replace(File.separatorChar, '/')));
-                    int len;
-                    while ((len = in.read(buf)) > 0) {
-                        zipOutputStream.write(buf, 0, len);
+                    try {
+                        zipOutputStream.putNextEntry(new ZipEntry(filePath.replace(File.separatorChar, '/')));
+                        int len;
+                        while ((len = in.read(buf)) > 0) {
+                            zipOutputStream.write(buf, 0, len);
+                        }
+                        zipOutputStream.closeEntry();
+                    } finally {
+                        in.close();
                     }
-                    zipOutputStream.closeEntry();
-                    in.close();
                 } catch (IOException ioe) {
                     final String message = "Error occured while zipping file " + filePath;
                     LOG.error(message, ioe);

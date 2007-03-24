@@ -76,7 +76,11 @@ public final class PropertiesHelper {
             // resource loading technique below dies in webstart
             //InputStream fileStream = ClassLoader.getSystemResourceAsStream(filename);
             final InputStream fileStream = PropertiesHelper.class.getClassLoader().getResourceAsStream(filename);
-            requiredProperties.load(fileStream);
+            try {
+                requiredProperties.load(fileStream);
+            } finally {
+                fileStream.close();
+            }
         } catch (NullPointerException e) {
             throw new RuntimeException("Failed to load required properties file '" + filename + "'", e);
         } catch (IOException e) {
