@@ -89,6 +89,9 @@ public final class MulticastDiscovery {
         if (discovery != null) {
             // release any existing discovery resources
             discovery.terminate();
+            // kludged attempt to avoid occaisional test failures
+            try { Thread.sleep(1000); } catch (InterruptedException e) { //ignore
+            }                                                                                
             LOG.error("WARNING: Discovery released, acceptable only in Unit Tests.");
         }
 
