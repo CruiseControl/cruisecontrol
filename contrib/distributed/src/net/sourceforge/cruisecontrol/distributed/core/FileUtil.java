@@ -54,37 +54,40 @@ public final class FileUtil {
 
     public static byte[] getFileAsBytes(final File file) throws IOException {
         final InputStream is = new FileInputStream(file);
+        final byte[] bytes;
+        try {
 
-        // Get the size of the file
-        final long length = file.length();
+            // Get the size of the file
+            final long length = file.length();
 
-        // You cannot create an array using a long type.
-        // It needs to be an int type.
-        // Before converting to an int type, check
-        // to ensure that file is not larger than Integer.MAX_VALUE.
-        if (length > Integer.MAX_VALUE) {
-            // File is too large
-            throw new IOException("File too large. File size is " + length + ". Maximum allowed is "
-                    + Integer.MAX_VALUE);
+            // You cannot create an array using a long type.
+            // It needs to be an int type.
+            // Before converting to an int type, check
+            // to ensure that file is not larger than Integer.MAX_VALUE.
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+                throw new IOException("File too large. File size is " + length + ". Maximum allowed is "
+                        + Integer.MAX_VALUE);
+            }
+
+            // Create the byte array to hold the data
+            bytes = new byte[(int) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead;
+            while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in
+            if (offset < bytes.length) {
+                throw new IOException("Could not completely read file " + file.getName());
+            }
+        } finally {
+            // Close the input stream and return bytes
+            is.close();
         }
-
-        // Create the byte array to hold the data
-        final byte[] bytes = new byte[(int) length];
-
-        // Read in the bytes
-        int offset = 0;
-        int numRead;
-        while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-            offset += numRead;
-        }
-
-        // Ensure all the bytes have been read in
-        if (offset < bytes.length) {
-            throw new IOException("Could not completely read file " + file.getName());
-        }
-
-        // Close the input stream and return bytes
-        is.close();
         return bytes;
     }
 
@@ -92,10 +95,16 @@ public final class FileUtil {
         final File outFile = new File(filePath);
         try {
             final FileOutputStream fos = new FileOutputStream(outFile);
-            final ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(data);
-            oos.close();
-            fos.close();
+            try {
+                final ObjectOutputStream oos = new ObjectOutputStream(fos);
+                try {
+                    oos.writeObject(data);
+                } finally {
+                    oos.close();
+                }
+            } finally {
+                fos.close();
+            }
         } catch (IOException e) {
             final String message = "Error creating output file";
             LOG.error(message, e);
