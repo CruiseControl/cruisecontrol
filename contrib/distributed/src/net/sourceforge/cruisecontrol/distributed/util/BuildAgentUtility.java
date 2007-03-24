@@ -101,6 +101,8 @@ public final class BuildAgentUtility {
                                 ((ComboItemWrapper) cmbAgents.getSelectedItem()).getAgent()
                         );
                     } catch (RemoteException e1) {
+                        checkRestartRequiresWebStart(e1);
+                        LOG.info(e1.getMessage());
                         appendInfo(e1.getMessage());
                         throw new RuntimeException(e1);
                     }
@@ -113,6 +115,8 @@ public final class BuildAgentUtility {
                         try {
                             invokeOnAgent(((ComboItemWrapper) cmbAgents.getItemAt(i)).getAgent());
                         } catch (RemoteException e1) {
+                            checkRestartRequiresWebStart(e1);
+                            LOG.info(e1.getMessage());
                             appendInfo(e1.getMessage());
                             //throw new RuntimeException(e1); // allow remaining items to be invoked
                         }
@@ -149,6 +153,16 @@ public final class BuildAgentUtility {
             setVisible(true);
         }
 
+        private void checkRestartRequiresWebStart(RemoteException e) {
+            if (e.getCause() != null && e.getCause() instanceof ClassNotFoundException
+                    && "javax.jnlp.UnavailableServiceException".equals(e.getCause().getMessage())) {
+
+                final String msg = "\nNOTE: Restart feature is only available on Agents launched via WebStart.";
+                LOG.info(msg);
+                appendInfo(msg);
+            }
+        }
+
         private void invokeOnAgent(final BuildAgentService agent) throws RemoteException {
             if (METH_RESTART.equals(cmbRestartOrKill.getSelectedItem())) {
                 agent.restart(chkAfterBuildFinished.isSelected());
@@ -177,22 +191,29 @@ public final class BuildAgentUtility {
                 try {
                     return getAgent().getMachineName() + ": " + serviceItem.serviceID;
                 } catch (RemoteException e) {
+                    return "Remote Error: " + e.getMessage();
+                } catch (Exception e) {
                     return "Error: " + e.getMessage();
                 }
             }
         }
 
         private void refreshAgentList() {
-            btnRefresh.setEnabled(false);
-            btnInvoke.setEnabled(false);
-            btnInvokeOnAll.setEnabled(false);
-            cmbAgents.setEnabled(false);
+            SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.disable Thread") {
+                public void run() {
+                    btnRefresh.setEnabled(false);
+                    btnInvoke.setEnabled(false);
+                    btnInvokeOnAll.setEnabled(false);
+                    cmbAgents.setEnabled(false);
+                }
+            });
             new Thread("BuildAgentUtility refreshAgentList Thread") {
                 public void run() {
                     try {
                         final List tmpList = new ArrayList();
                         final String agentInfoAll = buildAgentUtility.getAgentInfoAll(tmpList);
-                        final ServiceItem[] serviceItems = (ServiceItem[]) tmpList.toArray(new ServiceItem[]{});
+                        final ServiceItem[] serviceItems
+                                = (ServiceItem[]) tmpList.toArray(new ServiceItem[tmpList.size()]);
                         final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
                                 ComboItemWrapper.wrapArray(serviceItems));
                         SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
@@ -203,7 +224,7 @@ public final class BuildAgentUtility {
                         });
                         setInfo(agentInfoAll);
                     } finally {
-                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.setEnabled Thread") {
+                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.enable Thread") {
                             public void run() {
                                 btnRefresh.setEnabled(true);
                                 btnInvokeOnAll.setEnabled(true);
@@ -310,6 +331,7 @@ public final class BuildAgentUtility {
                 lstServiceItems.add(serviceItems[i]);
             }
 
+            LOG.info("Agents found: " + serviceItems.length);
             result.append("Found: ").append(serviceItems.length).append(" agent")
                     .append(serviceItems.length != 1 ? "s" : "") 
                     .append(".\n");
