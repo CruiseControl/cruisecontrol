@@ -121,17 +121,19 @@ public class CurrentBuildStatusPageListenerTest extends TestCase {
         c.setFile(temp.getAbsolutePath());
         String tempDirPath = System.getProperty("java.io.tmpdir");
 
-        // for Windows
-        if (tempDirPath.endsWith("\\")) {
-            tempDirPath = tempDirPath.substring(0, tempDirPath.lastIndexOf("\\"));
-        }
-        
         c.setSourceFile(tempDirPath);
         try {
             c.validate();
             fail();
         } catch (CruiseControlException expected) {
-            assertEquals("'sourceFile' must be a file: " + tempDirPath, expected.getMessage());
+            String expectedMessage = "'sourceFile' must be a file: " + tempDirPath;
+            String message = expected.getMessage();
+            if (message.endsWith("\\")) {
+                expectedMessage = expectedMessage + "\\";
+            } else if (message.endsWith("/")) {
+                expectedMessage = expectedMessage + "/";
+            }
+            assertEquals(expectedMessage, message);
         }
     }
 
