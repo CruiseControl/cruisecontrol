@@ -5,6 +5,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.entry.Entry;
@@ -73,7 +74,8 @@ public class BuildAgentTest extends TestCase {
         boolean isFound;
         do {
             if (retryCount > 0) {
-                LOG.info("\tFind agent unit test retry " + retryCount + "...");
+                LOG.info("\tFind agent unit test retry " + retryCount + "...Entries: "
+                        + MulticastDiscovery.toStringEntries(entries));
                 Thread.sleep(1000); // wait a bit before retrying
             }
 
