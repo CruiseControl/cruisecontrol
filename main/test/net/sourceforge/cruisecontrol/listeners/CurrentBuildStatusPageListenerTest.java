@@ -119,12 +119,10 @@ public class CurrentBuildStatusPageListenerTest extends TestCase {
         File temp = getTempFile();
         CurrentBuildStatusPageListener c = new CurrentBuildStatusPageListener();
         c.setFile(temp.getAbsolutePath());
-        String tempDirPath = System.getProperty("java.io.tmpdir");
-
-        // for Windows (and Solaris?), et al who return trailing slash on sys property for temp dir.
-        if (tempDirPath.endsWith("\\")) {
-            tempDirPath = tempDirPath.substring(0, tempDirPath.lastIndexOf("\\"));
-        }
+        String tempDirPath
+                // the "new File(....).getAbsolutePath() stuff if for Windows (and Solaris?), et al who return
+                // trailing slash on sys property for temp dir.
+                = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
 
         c.setSourceFile(tempDirPath);
         try {
