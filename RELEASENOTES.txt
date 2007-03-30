@@ -29,6 +29,7 @@ contrib
 distributed
 ----------------------
 * Fix thread leak in DistributedMasterBuilder under high load (CC-625). Reported and Tested by Michael Van Hoff
+* Fix doc error regarding Unicast Lookup URL settings
 
 
 CruiseControl Release Notes - 2.6.1

@@ -143,7 +143,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <i>dist/util</i> dir <b>(formerly: <i>dist/master</i>)</b> will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
 						This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.<p></li>
  						<li>Build Agent UI: Build agents default to showing a simple User Interface. This UI can be bypassed by passing the switch: <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).<p></li>
- 						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: <code>registry.url</code> in the <i>user-defined.properties</i> file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical.<p></li>
+ 						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: <code>registry.url</code> in the <i>agent.properties</i> file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical. For example: <pre>registry.url=jini://ubuntudan,jini://10.6.18.51</pre><p></li>
 					</ol>
 				</li>
 			</ol>
