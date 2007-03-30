@@ -157,7 +157,8 @@ public final class BuildAgentUtility {
             if (e.getCause() != null && e.getCause() instanceof ClassNotFoundException
                     && "javax.jnlp.UnavailableServiceException".equals(e.getCause().getMessage())) {
 
-                final String msg = "\nNOTE: Restart feature is only available on Agents launched via WebStart.";
+                final String msg = "\nNOTE: Restart feature is only available on Agents launched via WebStart.\n"
+                        + e.getCause().getMessage();
                 LOG.info(msg);
                 appendInfo(msg);
             }

@@ -539,13 +539,6 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private void doRestart() {
         logPrefixInfo("Attempting agent restart.");
 
-        synchronized (busyLock) {
-            if (!isBusy()) {
-                // claim agent so no new build can start
-                claim();
-            }
-        }
-
         final BasicService basicService;
         try {
             basicService = (BasicService) ServiceManager.lookup(BasicService.class.getName());
@@ -554,6 +547,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             logPrefixError(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
+
+        // Normally, we would set the busy lock first, but here we should only set the lock after we are certain
+        // the required Webstart service is available.
+        synchronized (busyLock) {
+            if (!isBusy()) {
+                // claim agent so no new build can start
+                claim();
+            }
+        }
+
         final URL codeBaseURL = basicService.getCodeBase();
         logPrefixInfo("basicService.getCodeBase()=" + codeBaseURL.toString());
 
