@@ -90,6 +90,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         new Thread("Build Agent doExit Thread") {
             public void run() {
                 BuildAgent.kill();
+                // on some JVM's the kill call above doesn't return, so sys exit is done by main()
                 LOG.info("BuildAgent.kill() completed");
                 buildAgent.removeAgentStatusListener(theThis);
                 LOG.info("AgentStatusListener removed");

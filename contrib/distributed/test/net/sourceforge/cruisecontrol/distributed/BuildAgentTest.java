@@ -36,6 +36,7 @@ public class BuildAgentTest extends TestCase {
     // @todo Remove one slash in front of "/*" below to run individual tests in an IDE
     //*
     protected void tearDown() throws Exception {
+        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
     }
     //*/
@@ -166,6 +167,7 @@ public class BuildAgentTest extends TestCase {
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
+        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
         assertFindAgent(reg, 10, false);
@@ -203,6 +205,7 @@ public class BuildAgentTest extends TestCase {
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
+        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
         assertFindAgent(reg, 20, false);
