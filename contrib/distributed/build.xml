@@ -558,37 +558,52 @@
         <!-- load signing properties -->
         <property file="build-sign.properties"/>
 
+        <fileset id="fs.id.ws.conf" dir="${dir.webstart}/conf"/>
+        <antcall target="signDir">
+            <param name="dirToSignID" value="fs.id.ws.conf"/>
+        </antcall>
 
+        <fileset id="fs.id.ws.jinicore" dir="${dir.webstart}/${jini.core.DirName}"/>
+        <antcall target="signDir">
+            <param name="dirToSignID" value="fs.id.ws.jinicore"/>
+        </antcall>
+
+        <fileset id="fs.id.ws.lib" dir="${dir.webstart}/lib"/>
+        <antcall target="signDir">
+            <param name="dirToSignID" value="fs.id.ws.lib"/>
+        </antcall>
+
+    </target>
+    <target name="signDir">
+        <antcall target="signDirIfKeypass">
+            <param name="dirToSignID" value="${dirToSignID}"/>
+        </antcall>
+        <antcall target="signDirUnlessKeypass">
+            <param name="dirToSignID" value="${dirToSignID}"/>
+        </antcall>
+    </target>
+    <!-- Sign jars in a directory using the keypass value from build-sign.properties -->
+    <target name="signDirIfKeypass" if="security.keypass">
         <signjar keystore="${security.keystore}"
             storepass="${security.storepass}"
             alias="${security.alias}"
             keypass="${security.keypass}"
             >
-            <!--  maybe 'keypass' is not needed -->
 
-            <fileset dir="${dir.webstart}/conf"/>
-        </signjar>
-
-        <signjar keystore="${security.keystore}"
-            storepass="${security.storepass}"
-            alias="${security.alias}"
-            keypass="${security.keypass}"
-            >
-            <!--  maybe 'keypass' is not needed -->
-
-            <fileset dir="${dir.webstart}/${jini.core.DirName}"/>
-        </signjar>
-
-        <signjar keystore="${security.keystore}"
-            storepass="${security.storepass}"
-            alias="${security.alias}"
-            keypass="${security.keypass}"
-            >
-            <!--  maybe 'keypass' is not needed -->
-
-            <fileset dir="${dir.webstart}/lib"/>
+            <fileset refid="${dirToSignID}"/>
         </signjar>
     </target>
+    <!-- Sign jars in a directory if no keypass value exists in build-sign.properties -->
+    <target name="signDirUnlessKeypass" unless="security.keypass">
+        <signjar keystore="${security.keystore}"
+            storepass="${security.storepass}"
+            alias="${security.alias}"
+            >
+
+            <fileset refid="${dirToSignID}"/>
+        </signjar>
+    </target>
+
 
     <!-- NOTE: Copy the war file into your web server (the same dir as cruisecontrol.war). -->
     <target name="war-agent" description="Package the Agent in a war file with a Webstart launcher."
