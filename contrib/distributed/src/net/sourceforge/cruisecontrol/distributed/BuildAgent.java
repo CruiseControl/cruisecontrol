@@ -158,9 +158,8 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
-        // Use a comma separated list of Unicast Lookup Locaters (URL's) if defined. Useful if multicast isn't working.
-        // @todo It also could have a virtual url called "multicast",
-        // to make the property file more readable and understandable
+        // Use a comma separated list of Unicast Lookup Locaters (URL's) if defined in agent.properties. 
+        // Useful if multicast isn't working.
         final String registryURLList = configProperties.getProperty(REGISTRY_URL);
         final LookupLocatorDiscovery lld;
         if (registryURLList == null) {
@@ -172,10 +171,12 @@ public class BuildAgent implements DiscoveryListener,
                 try {
                     lookups[i] = new LookupLocator(registryURLs[i]);
                 } catch (MalformedURLException e) {
-                    final String message = "Error creating unicast lookup locator: " + registryURLs[i];
+                    final String message = "Error creating unicast lookup locator: " + registryURLs[i]
+                            + "; " + e.getMessage();
                     LOG.error(message, e);
                     throw new RuntimeException(message, e);
                 }
+                LOG.info("Using Unicast LookupLocator URL: " + registryURLs[i]);
             }
             lld = new LookupLocatorDiscovery(lookups);
         }
