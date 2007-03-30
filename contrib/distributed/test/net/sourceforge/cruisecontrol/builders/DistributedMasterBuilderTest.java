@@ -498,6 +498,8 @@ public class DistributedMasterBuilderTest extends TestCase {
         }
         assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
                 MulticastDiscoveryTest.isDiscovered());
+
+        Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
     }
 
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY()
