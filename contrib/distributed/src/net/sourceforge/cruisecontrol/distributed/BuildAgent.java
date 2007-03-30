@@ -330,6 +330,10 @@ public class BuildAgent implements DiscoveryListener,
         return mainThread;
     }
 
+    /** Intended only for unit tests to avoid killing the unit test VM. */
+    private static boolean isSkipMainSystemExit;
+    static void setSkipMainSystemExit() { isSkipMainSystemExit = true; }
+
     public static void main(final String[] args) {
 
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
@@ -364,6 +368,17 @@ public class BuildAgent implements DiscoveryListener,
             } finally {
                 buildAgent.terminate();
            }
+        }
+
+        LOG.info("Agent main thread exiting.");
+        // don't call sys exit during unit tests
+        if (!isSkipMainSystemExit) {
+            // on some JVM's (webstart - restart) the BuildAgent.kill() call doesn't return,
+            // so sys exit is also done here.            
+            LOG.info("Agent main thread calling System.exit().");
+            System.exit(0);
+        } else {
+            LOG.debug("Agent main thread skipping System.exit(), only valid in unit tests.");
         }
     }
 

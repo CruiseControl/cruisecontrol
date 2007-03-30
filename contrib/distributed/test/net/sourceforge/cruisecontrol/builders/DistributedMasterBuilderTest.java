@@ -498,8 +498,6 @@ public class DistributedMasterBuilderTest extends TestCase {
         }
         assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
                 MulticastDiscoveryTest.isDiscovered());
-
-        Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
     }
 
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY()
@@ -516,6 +514,9 @@ public class DistributedMasterBuilderTest extends TestCase {
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
         masterBuilder.setEntries(getTestDMBEntries());
         masterBuilder.setFailFast(); // don't block until an available agent is found
+
+        Thread.sleep(500); // kludged attempt to avoid occaisional test failures
+
         return masterBuilder;
     }
 
