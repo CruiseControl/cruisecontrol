@@ -310,8 +310,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                     + "\n\tAgentOutputDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
 
-            System.out.println();
-            System.out.println(infoMessage);
+            //System.out.println();
+            //System.out.println(infoMessage);
             logPrefixInfo(infoMessage);
 
             logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());
@@ -334,9 +334,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 throw new RemoteException(message, e);
             }
 
+            final String overrideTarget = (String) distributedAgentProps.get(
+                    PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
+
             final Element buildResults;
             try {
-                buildResults = nestedBuilder.build(projectPropertiesMap);
+                if (overrideTarget == null) {
+                    buildResults = nestedBuilder.build(projectPropertiesMap);
+                } else {
+                    buildResults = nestedBuilder.buildWithTarget(projectPropertiesMap, overrideTarget);
+                }
             } catch (CruiseControlException e) {
                 final String message = "Failed to complete build on agent";
                 logPrefixError(message, e);

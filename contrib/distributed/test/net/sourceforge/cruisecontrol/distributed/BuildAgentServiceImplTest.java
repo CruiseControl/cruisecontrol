@@ -33,6 +33,8 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static final File DIR_OUTPUT = new File(PropertiesHelper.RESULT_TYPE_OUTPUT);
 
     private Properties origSysProps;
+    private static final String TESTMODULE_FAIL = "testmodule-fail";
+    private static final String TESTMODULE_SUCCESS = "testmodule-success";
 
     protected void setUp() throws Exception {
         DIR_LOGS.delete();
@@ -72,7 +74,30 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
     }
 
-    /** 
+    public void testBuildOverrideTarget() throws Exception {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        final Map distributedAgentProps = new HashMap();
+        // build w/out override to verify null target value after build
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, TESTMODULE_SUCCESS);
+
+        final MockBuilder mockBuilder = createMockBuilder(TESTMODULE_SUCCESS, false);
+        assertNull(mockBuilder.getTarget());
+        assertNotNull(agentImpl.doBuild(mockBuilder, new HashMap(), distributedAgentProps));
+        clearDefaultSuccessResultDirs();
+        assertNull(mockBuilder.getTarget());
+
+        // build with override
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, TESTMODULE_SUCCESS);
+        assertNull(mockBuilder.getTarget());
+        assertNotNull(agentImpl.doBuild(mockBuilder, new HashMap(), distributedAgentProps));
+        clearDefaultSuccessResultDirs();
+        assertEquals(TESTMODULE_SUCCESS, mockBuilder.getTarget());
+    }
+
+    /**
      * Re-use of builder caused problems with null value in overrideTarget.
      * This test verifies null values in the Map are allowed.
      * @throws Exception if anything unexpected goes wrong in the test
@@ -386,7 +411,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final File testDirResult = new File(resultTypeBaseDir, 
                 (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
                         ? "myTest" + PropertiesHelper.RESULT_TYPE_LOGS + "Dir"
-                        : "testmodule-success")); // used default dir since no property is set
+                        : TESTMODULE_SUCCESS)); // used default dir since no property is set
         
         testDirResult.deleteOnExit();
         testDirResult.mkdirs();
@@ -437,11 +462,11 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static void clearDefaultSuccessResultDirs() {
         
-        final File tmpLogSuccessDir = new File(DIR_LOGS, "testmodule-success");
+        final File tmpLogSuccessDir = new File(DIR_LOGS, TESTMODULE_SUCCESS);
         new File(tmpLogSuccessDir, "TEST-bogustestclassSuccess.xml").delete();
         deleteDirConfirm(tmpLogSuccessDir);
 
-        final File tmpOutputSuccessDir = new File(DIR_OUTPUT, "testmodule-success");
+        final File tmpOutputSuccessDir = new File(DIR_OUTPUT, TESTMODULE_SUCCESS);
         new File(tmpOutputSuccessDir, "testoutputSuccess").delete();
         deleteDirConfirm(tmpOutputSuccessDir);
     }
@@ -542,6 +567,10 @@ public class BuildAgentServiceImplTest extends TestCase {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
+        if (!distributedAgentProps.containsKey(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET)) {
+            distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
+        }                                                                                         
+
         callTestDoBuild(isBuildFailure, agentImpl, distributedAgentProps);
 
         return agentImpl;
@@ -556,8 +585,12 @@ public class BuildAgentServiceImplTest extends TestCase {
      */
     public static Element callTestDoBuildSuccess(final BuildAgentService agent)
             throws RemoteException {
-        
-        return callTestDoBuild(false, agent, new HashMap());
+
+        final Map distributedAgentProps = new HashMap();
+        // handle re-use case of DMB when overrideTarget is null
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
+
+        return callTestDoBuild(false, agent, distributedAgentProps);
     }
     
     /**
@@ -575,17 +608,19 @@ public class BuildAgentServiceImplTest extends TestCase {
         
         final String moduleName;
         if (isBuildFailure) {
-            moduleName = "testmodule-fail";
+            moduleName = TESTMODULE_FAIL;
         } else {
-            moduleName = "testmodule-success";
+            moduleName = TESTMODULE_SUCCESS;
         }
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
-        
-        // handle re-use case of DMB when overrideTarget is null
-        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
+        final MockBuilder mockBuilder = createMockBuilder(moduleName, isBuildFailure);
 
-        final MockBuilder mockBuilder = new MockBuilder("testCCDistMockChildBuilder") {
+        return agent.doBuild(mockBuilder, new HashMap(), distributedAgentProps);
+    }
+
+    private static MockBuilder createMockBuilder(final String moduleName, final boolean isBuildFailure) {
+        return new MockBuilder("testCCDistMockChildBuilder") {
             public Element build(Map properties) {
                 final Element retVal = super.build(properties);
 
@@ -598,8 +633,6 @@ public class BuildAgentServiceImplTest extends TestCase {
                 return retVal;
             }
         };
-
-        return agent.doBuild(mockBuilder, new HashMap(), distributedAgentProps);
     }
 
     private static void createExpectedBuildArtifact(File buildProducedFile) {
