@@ -30,6 +30,7 @@ distributed
 ----------------------
 * Fix thread leak in DistributedMasterBuilder under high load (CC-625). Reported and Tested by Michael Van Hoff
 * Fix doc error regarding Unicast Lookup URL settings
+* Fix scripts to actually use jini.logging settings. Add readme notes for LAN's with broken hostname resolution.
 
 
 CruiseControl Release Notes - 2.6.1
