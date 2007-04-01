@@ -78,10 +78,10 @@
 
     <property name="jini.core.DirName" value="jini-core"/>
 
-    <property name="dist.lookup.DirName" value="dist/lookup"/>
-
     <property name="jini.lib.DirName" value="jini-lib"/>
     <property name="jini.libDownload.DirName" value="jini-lib-dl"/>
+
+    <property name="dist.lookup.DirName" value="dist/lookup"/>
 
 
     <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
@@ -126,6 +126,10 @@
              <include name="*.jar" />
          </fileset>
     </path>
+
+     <fileset id="fs.jini.lib.jsk-platform" dir="${jini.lib.DirName}">
+         <include name="jsk-platform.jar" />
+     </fileset>
 
 
     <path id="compile.classpath">
@@ -246,6 +250,7 @@
 				<include name="jini.logging" />
 				<include name="log4j.properties" />
 				<include name="start-jini.config" />
+				<include name="transient-reggie.config" />
 			</fileset>
 		</copy>
         <copy todir="${dist.lookup.DirName}/${jini.lib.DirName}">
@@ -264,6 +269,7 @@
 		<mkdir dir="dist/agent" />
 		<mkdir dir="dist/agent/lib" />
 		<mkdir dir="dist/agent/${jini.core.DirName}" />
+		<mkdir dir="dist/agent/${jini.lib.DirName}" />
 		<mkdir dir="dist/agent/conf" />
 		<copy file="conf/agent-build.xml" tofile="dist/agent/build.xml" />
 		<copy todir="dist/agent/conf">
@@ -277,6 +283,9 @@
 		</copy>
 		<copy todir="dist/agent/${jini.core.DirName}">
 			<fileset refid="fs.jini.core"/>
+        </copy>
+		<copy todir="dist/agent/${jini.lib.DirName}">
+			<fileset refid="fs.jini.lib.jsk-platform"/>
         </copy>
         <copy todir="dist/agent/lib">
             <fileset dir="${dir.main.lib}">
@@ -294,6 +303,7 @@
 		<mkdir dir="dist/util" />
 		<mkdir dir="dist/util/lib" />
 		<mkdir dir="dist/util/${jini.core.DirName}" />
+		<mkdir dir="dist/util/${jini.lib.DirName}" />
 		<mkdir dir="dist/util/conf" />
 		<copy file="conf/util-build.xml" tofile="dist/util/build.xml" />
 		<copy todir="dist/util/conf">
@@ -308,7 +318,10 @@
 		<copy todir="dist/util/${jini.core.DirName}">
 			<fileset refid="fs.jini.core"/>
         </copy>
-        <copy todir="dist/util/lib">
+		<copy todir="dist/util/${jini.lib.DirName}">
+			<fileset refid="fs.jini.lib.jsk-platform"/>
+        </copy>
+       <copy todir="dist/util/lib">
             <fileset dir="${dir.main.lib}">
                 <patternset refid="ps.main.lib-common" />
                 <patternset refid="ps.jarnames-xml-libs"/>
@@ -551,6 +564,9 @@
         <copy todir="${dir.webstart}/${jini.core.DirName}">
             <fileset dir="dist/agent/${jini.core.DirName}"/>
         </copy>
+        <copy todir="${dir.webstart}/${jini.lib.DirName}">
+            <fileset dir="dist/agent/${jini.lib.DirName}"/>
+        </copy>
         <copy todir="${dir.webstart}/lib">
             <fileset dir="dist/agent/lib"/>
         </copy>
@@ -566,6 +582,11 @@
         <fileset id="fs.id.ws.jinicore" dir="${dir.webstart}/${jini.core.DirName}"/>
         <antcall target="signDir">
             <param name="dirToSignID" value="fs.id.ws.jinicore"/>
+        </antcall>
+
+        <fileset id="fs.id.ws.jinilib" dir="${dir.webstart}/${jini.lib.DirName}"/>
+        <antcall target="signDir">
+            <param name="dirToSignID" value="fs.id.ws.jinilib"/>
         </antcall>
 
         <fileset id="fs.id.ws.lib" dir="${dir.webstart}/lib"/>
@@ -615,6 +636,7 @@
             <fileset dir="${dir.webstart}" includes="*"/><!-- .jnlp file -->
 
             <zipfileset dir="${dir.webstart}/${jini.core.DirName}" prefix="${jini.core.DirName}"/>
+            <zipfileset dir="${dir.webstart}/${jini.lib.DirName}" prefix="${jini.lib.DirName}"/>
             <zipfileset dir="${dir.webstart}/lib" prefix="lib"/>
 
             <zipfileset dir="${dir.webstart}/conf" prefix="conf"/>

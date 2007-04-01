@@ -59,6 +59,9 @@
         <fileset id="fs.jini.core" dir="jini-core">
             <include name="**/*.jar" />
         </fileset>
+        <fileset id="fs.jini.lib.jsk-platform" dir="jini-lib">
+            <include name="jsk-platform.jar" />
+        </fileset>
     </path>
 
 
@@ -66,12 +69,17 @@
 		<echo message="Starting InteractiveBuildUtility..." level="info" />
 		<java classname="net.sourceforge.cruisecontrol.distributed.util.InteractiveBuildUtility" fork="true">
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
+
+            <jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
+            <jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
+
 			<classpath>
                 <pathelement path="conf"/>
                 <fileset dir="lib">
                     <include name="**/*.jar" />
                 </fileset>
                 <fileset refid="fs.jini.core"/>
+                <fileset refid="fs.jini.lib.jsk-platform"/>
                 <fileset dir="../builder">
                     <include name="ccdist-masterbuilder.jar" />
                 </fileset>
@@ -83,7 +91,11 @@
 		<echo message="Starting BuildAgentUtility..." level="info" />
 		<java classname="net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility" fork="true">
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
-			<classpath refid="path.util.lookup"/>
+
+            <jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
+            <jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
+
+            <classpath refid="path.util.lookup"/>
 		</java>
 	</target>
 
@@ -91,6 +103,10 @@
 		<echo message="Listing registered Jini services..." level="info" />
 		<java classname="net.sourceforge.cruisecontrol.distributed.util.JiniLookUpUtility" fork="true">
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
+
+            <jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
+            <jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
+
             <classpath refid="path.util.lookup"/>
 		</java>
 	</target>

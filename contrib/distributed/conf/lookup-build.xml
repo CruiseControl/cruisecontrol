@@ -55,6 +55,10 @@
 	<target name="start-jini" description="Start the Jini HTTP class server, registrar, and other Jini services" >
 		<echo message="Starting Jini HTTP ClassServer and Jini Services..." level="info"/>
 		<java jar="${jini.libDirName}/start.jar" fork="true" >
+
+            <jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
+            <jvmarg value="-Djava.util.logging.config.file=conf/jini.logging"/>
+
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
 	        <jvmarg value="-Djini.lib=${jini.libDirName}" />
 	        <jvmarg value="-Djini.lib.dl=jini-lib-dl" />  <!-- Downloadable Jini jars -->
