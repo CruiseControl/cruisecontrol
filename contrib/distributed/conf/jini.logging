@@ -39,7 +39,8 @@ handlers = java.util.logging.ConsoleHandler
 # level setting (set below) to limit messages printed to
 # the console.
 
-.level = FINEST
+#.level = FINEST
+.level = INFO
 
 ############################################################
 # Handler specific properties: formatters and logger levels
@@ -50,7 +51,8 @@ handlers = java.util.logging.ConsoleHandler
 # to the given level and above.
 
 java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
-java.util.logging.ConsoleHandler.level = FINEST
+#java.util.logging.ConsoleHandler.level = FINEST
+java.util.logging.ConsoleHandler.level = INFO
 
 # For messages printed to a file, do the following:
 # - use either a standard or XML formatter

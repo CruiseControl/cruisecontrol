@@ -69,12 +69,19 @@
     	<echo message="Starting Build Agent" level="info"/>
     	<java classname="net.sourceforge.cruisecontrol.distributed.BuildAgent" fork="true">
     		<jvmarg value="-Djava.security.policy=${jini.policy.file}"/>
+
+    		<jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
+    		<jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
+
     		<classpath>
     			<pathelement path="conf"/>
     			<fileset dir="lib">               <!-- Includes copied ccdist-buildAgentService.jar, ccdist-core.jar -->
     				<include name="**/*.jar" />
     			</fileset>
     			<fileset dir="jini-core">
+    				<include name="**/*.jar" />
+    			</fileset>
+    			<fileset dir="jini-lib">
     				<include name="**/*.jar" />
     			</fileset>
                 <path refid="jnlpServiceAPI.classpath"/>
