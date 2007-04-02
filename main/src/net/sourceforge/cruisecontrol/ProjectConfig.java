@@ -382,7 +382,7 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     public void stop() {
-        project.start();
+        project.stop();
     }
 
     // TODO remove this. only here till tests are fixed up.

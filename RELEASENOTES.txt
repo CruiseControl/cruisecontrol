@@ -27,6 +27,10 @@ PluginRegistry
 ----------------------
 * Remove deprecated method PluginRegistry.getDefaultProperties(String pluginName).
 
+ProjectConfig
+----------------------
+* Fixed a bug where ProjectConfig.stop() was calling Project.start() instead of Project.stop(). The effect of this would be for projects that have been removed from config.xml to continue to build.
+
 contrib
 ======================
 
