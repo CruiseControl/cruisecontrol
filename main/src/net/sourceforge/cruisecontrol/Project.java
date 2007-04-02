@@ -285,7 +285,9 @@ public class Project implements Serializable, Runnable {
             while (!stopped) {
                 try {
                     waitIfPaused();
-                    waitForNextBuild();
+                    if (!stopped) {
+                        waitForNextBuild();
+                    }
                     if (!stopped) {
                         setState(ProjectState.QUEUED);
                         synchronized (scheduleMutex) {
@@ -810,6 +812,15 @@ public class Project implements Serializable, Runnable {
         LOG.info("Project " + name + " stopping");
         stopped = true;
         setState(ProjectState.STOPPED);
+        synchronized (pausedMutex) {
+            pausedMutex.notifyAll();
+        }
+        synchronized (waitMutex) {
+            waitMutex.notifyAll();
+        }
+        synchronized (scheduleMutex) {
+            scheduleMutex.notifyAll();            
+        }
     }
 
     public String toString() {
