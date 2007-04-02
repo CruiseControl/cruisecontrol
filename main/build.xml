@@ -251,6 +251,7 @@
 
     <macrodef name="test-macro">
         <attribute name="includes" default="**/${tests}.class" />
+        <attribute name="excludes" default="" />
         <element implicit="true" name="nested" optional="true" />
         <sequential>
             <junit fork="true" forkmode="perBatch" haltonfailure="true" printsummary="true" dir="${target}">
@@ -260,7 +261,7 @@
                 <formatter type="brief" usefile="false" />
                 <formatter type="xml" />
                 <batchtest todir="${junit.results}">
-                    <fileset dir="${test.classes}" includes="@{includes}" />
+                    <fileset dir="${test.classes}" includes="@{includes}" excludes="@{excludes}"/>
                 </batchtest>
                 <nested />
             </junit>
@@ -268,7 +269,7 @@
     </macrodef>
 
     <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
-        <test-macro>
+        <test-macro excludes="**/ThreadQueueTest*">            
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
         </test-macro>
