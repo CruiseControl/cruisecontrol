@@ -91,6 +91,11 @@ public class MKS implements SourceControl {
      * the values from the last run,  and -maybe- results return by MKS for this run.
      */
     private List listOfModifications = new ArrayList();
+    
+    /**
+     * The listOfModifications is cleared when new value for lastBuild is used.
+     */
+    private Date lastBuild = new Date();
 
     public void setProject(String project) {
         this.project = project;
@@ -142,19 +147,24 @@ public class MKS implements SourceControl {
             properties.modificationFound();
             return listOfModifications;
         }
+        
+        if (this.lastBuild.compareTo(lastBuild) != 0) {
+            listOfModifications.clear();
+            this.lastBuild = lastBuild;
+        }
 
         String projectFilePath = getProjectFilePath();
         
         Commandline cmdLine = createResyncCommandLine(projectFilePath);
 
-        executeResyncAndParseModifications(cmdLine);
+        executeResyncAndParseModifications(cmdLine, listOfModifications);
 
         return listOfModifications;
     }
 
-    private void executeResyncAndParseModifications(Commandline cmdLine) {
+    void executeResyncAndParseModifications(Commandline cmdLine, List modifications) {
         try {
-            StreamConsumer stderr = new ModificationsConsumer(listOfModifications);
+            StreamConsumer stderr = new ModificationsConsumer(modifications);
             StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
             Processes.waitFor(cmdLine.execute(), stdout, stderr);
         } catch (Exception ex) {
@@ -163,7 +173,7 @@ public class MKS implements SourceControl {
         LOG.info("resync finished");
     }
 
-    private Commandline createResyncCommandLine(String projectFilePath) {
+    Commandline createResyncCommandLine(String projectFilePath) {
         Commandline cmdLine = new Commandline();
         cmdLine.setExecutable("si");
         cmdLine.createArgument("resync");
