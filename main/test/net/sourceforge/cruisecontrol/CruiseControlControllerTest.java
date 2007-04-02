@@ -65,6 +65,7 @@ public class CruiseControlControllerTest extends TestCase {
     }
 
     public void tearDown() {
+        ccController.pause();
         ccController = null;
         ensureFileDoesntExist(configFile);
         ensureFileDoesntExist(configFile2);
