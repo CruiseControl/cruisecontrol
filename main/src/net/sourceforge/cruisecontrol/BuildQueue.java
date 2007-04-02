@@ -161,7 +161,9 @@ public class BuildQueue implements Runnable {
 
     void stop() {
         LOG.info("Stopping BuildQueue");
-        buildQueueThread.interrupt();
+        if (buildQueueThread != null) {
+            buildQueueThread.interrupt();
+        }
         synchronized (queue) {
             queue.notify();
         }
