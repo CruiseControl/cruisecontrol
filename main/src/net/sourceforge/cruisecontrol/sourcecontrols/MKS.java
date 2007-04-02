@@ -143,11 +143,27 @@ public class MKS implements SourceControl {
             return listOfModifications;
         }
 
-        String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
-        if (!new File(projectFilePath).exists()) {
-            throw new RuntimeException("project file not found at " + projectFilePath);
-        }
+        String projectFilePath = getProjectFilePath();
         
+        Commandline cmdLine = createResyncCommandLine(projectFilePath);
+
+        executeResyncAndParseModifications(cmdLine);
+
+        return listOfModifications;
+    }
+
+    private void executeResyncAndParseModifications(Commandline cmdLine) {
+        try {
+            StreamConsumer stderr = new ModificationsConsumer(listOfModifications);
+            StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
+            Processes.waitFor(cmdLine.execute(), stdout, stderr);
+        } catch (Exception ex) {
+            LOG.warn(ex.getMessage(), ex);
+        }
+        LOG.info("resync finished");
+    }
+
+    private Commandline createResyncCommandLine(String projectFilePath) {
         Commandline cmdLine = new Commandline();
         cmdLine.setExecutable("si");
         cmdLine.createArgument("resync");
@@ -160,25 +176,15 @@ public class MKS implements SourceControl {
         } catch (CruiseControlException e) {
             throw new RuntimeException(e);
         }
-        
-        /* Sample output on stderr:
-         * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
-         * as dominik.hirt ... Resynchronizing files...
-         * c:\temp\test\Admin\ComponentBuild\antfile.xml
-         * c:\temp\test\Admin\PCEAdminCommand\projectbuild.properties: checked
-         * out revision 1.1
-         */
+        return cmdLine;
+    }
 
-        try {
-            StreamConsumer stderr = new ModificationsConsumer();
-            StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
-            Processes.waitFor(cmdLine.execute(), stdout, stderr);
-        } catch (Exception ex) {
-            LOG.warn(ex.getMessage(), ex);
+    String getProjectFilePath() {
+        String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
+        if (!new File(projectFilePath).exists()) {
+            throw new RuntimeException("project file not found at " + projectFilePath);
         }
-        LOG.info("resync finished");
-
-        return listOfModifications;
+        return projectFilePath;
     }
 
     /**
@@ -225,7 +231,21 @@ public class MKS implements SourceControl {
         }
     }
 
-    private class ModificationsConsumer implements StreamConsumer {
+    /* Sample output on stderr:
+     * output: Connecting to baswmks1:7001 ... Connecting to baswmks1:7001
+     * as dominik.hirt ... Resynchronizing files...
+     * c:\temp\test\Admin\ComponentBuild\antfile.xml
+     * c:\temp\test\Admin\PCEAdminCommand\projectbuild.properties: checked
+     * out revision 1.1
+     */
+
+    private final class ModificationsConsumer implements StreamConsumer {
+        public List modifications;
+        
+        private ModificationsConsumer(List modifications) {
+            this.modifications = modifications;
+        }
+        
         public void consumeLine(String line) {
             int idxCheckedOutRevision = line
                     .indexOf(": checked out revision");
@@ -248,7 +268,7 @@ public class MKS implements SourceControl {
             modification.revision = modFile.revision;
             setUserNameAndComment(modification, folderName, fileName);
 
-            listOfModifications.add(modification);
+            modifications.add(modification);
 
             properties.modificationFound();
         }
