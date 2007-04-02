@@ -101,6 +101,7 @@ public class ThreadQueueTest extends TestCase {
                 }
             }
             allFinished = !anyActive;
+            loops++;
         }
         
         for (int i = 1; i < TASK_COUNT + 1; i++) {
