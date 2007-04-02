@@ -15,6 +15,10 @@ HttpFile
 ----------------------
 * Fix bug where HttpFile didn't work with domain only (http://host.com) urls (CC-614). Patch by J. David Beutel
 
+MKS
+----------------------
+* Fix bug where modifications were returned from all previous builds, not just the current build (CC-628). Patch by Min Li
+
 PhingBuilder
 ----------------------
 * Add new plug-in for PHP build tool Phing (CC-613). Submitted by Hans Lellelid.

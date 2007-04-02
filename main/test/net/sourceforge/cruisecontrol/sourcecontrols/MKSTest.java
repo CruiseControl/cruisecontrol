@@ -36,15 +36,58 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class MKSTest extends TestCase {
 
-    public MKSTest(String name) {
-        super(name);
-    }
+    public void testShouldReturnPreviousModificationOnlyWhenPassedSameLastBuildDate() {
+        final List expected = new ArrayList();
+        
+        MKS mks = new MKS() {
 
+            Commandline createResyncCommandLine(String projectFilePath) {
+                return null;
+            }
+
+            void executeResyncAndParseModifications(Commandline cmdLine, List modifications) {
+                Modification mod = new Modification();
+                mod.modifiedTime = new Date();
+                mod.userName = "";
+                
+                expected.add(mod);
+                modifications.add(mod);
+            }
+
+            String getProjectFilePath() {
+                return null;
+            }
+            
+        };
+        
+        Date lastBuild = new Date(10000);  
+        
+        List actual = mks.getModifications(lastBuild, null);
+        assertEquals(1, actual.size());
+        assertEquals(expected.get(0), actual.get(0));
+        
+        actual = mks.getModifications(lastBuild, null);
+        assertEquals(2, actual.size());
+        assertEquals(expected.get(0), actual.get(0));
+        assertEquals(expected.get(1), actual.get(1));
+        
+        Date newLastBuild = new Date(20000);
+        actual = mks.getModifications(newLastBuild, null);
+        assertEquals(1, actual.size());
+        assertEquals(expected.get(2), actual.get(0));
+    }
+    
     public void testValidate() {
 
         MKS mks = new MKS();
