@@ -1,0 +1,199 @@
+#macro (addemptylines $nb)
+#if ($nb > 0)
+#foreach( $i in [1..$nb] )
+&nbsp;
+#end
+#end
+#end
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>CruiseControl Configuration Reference</title>
+    <style type="text/css" media="all">
+        @import "../../docs/cruisecontrol.css";
+
+        .index h2 {
+            margin-top: 1em;
+        }
+
+        #alphabetical {
+            float: right;
+            width: 43%;
+        }
+
+        #hierarchical {
+            float: left;
+            width: 55%;
+        }
+
+        a.toplink {
+            float: right;
+            font-size: smaller;
+            font-weight: bold;
+        }
+
+        @media print {
+            .elementdocumentation p,
+            .hierarchy {
+                page-break-inside: avoid;
+            }
+
+            #alphabetical,
+            #hierarchical,
+            a.toplink {
+                display: none;
+            }
+        }
+    </style>
+    <link href="../../docs/print.css" type="text/css" rel="stylesheet" media="print"/>
+    <script type="text/javascript" src="../../docs/tables.js"></script>
+</head>
+<body>
+<div class="header">
+    <a name="top"/>
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
+    </div>
+    <img alt="CruiseControl" src="../../docs/banner.png"/>
+</div> <!-- header -->
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li><a href="../../docs/index.html">home</a></li>
+            <li><a href="../../docs/download.html">download</a></li>
+            <li><a href="../../docs/license.html">license</a></li>
+            <li><h2>documentation</h2></li>
+            <li><a href="../../docs/overview.html">overview</a></li>
+            <li><a class="expandmenu" href="index.html">build loop</a></li>
+            <li><a class="expandmenu" href="../../reporting/jsp/docs/index.html">results jsp</a></li>
+            <li><a class="expandmenu" href="../../docs/gettingstarted.html">getting started</a></li>
+            <li><p id="menuselected">config ref</p></li>
+            <li><a href="../../docs/faq.html">faq</a></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="../../docs/developers.html">developers</a></li>
+            <li><a href="../../docs/contact.html">mailing lists</a></li>
+            <li><a href="../../docs/svn.html">source repository</a></li>
+            <li><p id="menubottom">Release: %%VERSION%%</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1><span class="printonly">CruiseControl</span> Configuration Reference</h1>
+
+        <p>CruiseControl configuration files are written in XML. This document
+        describes the XML elements and attributes for a valid configuration
+        file.</p>
+
+        <p>The use of <a href="plugins.html">plugins</a> means that other
+        elements not documented here can also be used in the configuration.
+        At a minimum, though, the config file contains a single top level
+        <code>&lt;cruisecontrol&gt;</code> element, with one or more child
+        <code>&lt;project&gt;</code> elements.</p>
+
+
+#set( $nbPlugins = $tree.alphabeticalPluginIndex.size() )
+#set ($hierarchicalTree = $tree.printTreeToPreTag() )
+#set ($nbLinesInTree = $tree.countLinesInTree($hierarchicalTree) )
+
+        <div>
+        <div id="alphabetical" class="index">
+        <h2>Alphabetical Index</h2>
+
+        <pre style="font-size: smaller;">
+#foreach( $node in $tree.alphabeticalPluginIndex )
+#if ( $node.me.isInterface() )
+<a href="#if_$node.nodeName">- $node.nodeName -</a>
+#else
+<a href="#$node.nodeName">&lt;$node.nodeName&gt;</a>
+#end
+#end
+#set($missingemptylines = $nbLinesInTree - $nbPlugins)
+#addemptylines($missingemptylines)
+</pre>
+        </div>
+
+        <div id="hierarchical" class="index">
+        <h2>Hierarchical Index</h2>
+
+<pre style="font-size: smaller;">$hierarchicalTree</pre>
+        </div>
+        </div>
+
+        <p style="clear: both">&nbsp;</p>
+
+#foreach( $treenode in $tree.getFlattenedPluginTree() )
+#set( $model = $treenode.me )
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+#if($model.isInterface())
+        <h2><a name="if_$treenode.nodeName">- $treenode.nodeName -</a></h2>
+#else
+        <h2><a name="$treenode.nodeName">&lt;$treenode.nodeName&gt;</a></h2>
+#end
+
+        <div class="hierarchy">
+<pre>$tree.printHierarchyToPreTag($treenode.nodeName)</pre>
+        </div>
+
+        $model.description
+
+
+#if($model.attributes.attributes.size() > 0)
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Default value</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+
+#foreach( $attr in $model.attributes.attributes )
+                <tr>
+                    <td>$attr.name</td>
+                    <td>$attr.required</td>
+                    <td>$attr.defaultValue</td>
+                    <td>$attr.description</td>
+                </tr>
+#end
+            </tbody>
+        </table>
+#end
+
+#if($model.children.children.size() > 0)
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+                <tr>
+                    <th>Element</th>
+                    <!--th>Cardinality</th-->
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+
+#foreach( $child in $model.children.children )
+                <tr>
+                    <td><a href="#$child.name">&lt;$child.name&gt;</a></td>
+                    <!--td>$child.name</td-->
+                    <td>$child.description</td>
+                </tr>
+#end
+            </tbody>
+        </table>
+#end
+
+        </div> <!-- elementdocumentation -->
+#end
+
+    </div> <!-- content -->
+</div> <!-- container -->
+</body>
+</html>
