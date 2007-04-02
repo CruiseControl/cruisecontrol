@@ -69,13 +69,6 @@ public class IdleThreadQueueClient implements WorkerThread {
         return result;
     }
 
-    public void terminate() {
-        synchronized (mutex) {
-            mutex.notifyAll();
-        }
-        return;
-    }
-
     public String getName() {
         return name;
     }

@@ -48,7 +48,6 @@ public interface WorkerThread extends Runnable {
 
   public Object getResult();
   public String getName();
-  public void terminate();
 
   public static final String BLANK_NAME = "blank name";
 }

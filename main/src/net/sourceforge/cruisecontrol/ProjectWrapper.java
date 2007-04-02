@@ -92,10 +92,6 @@ public class ProjectWrapper implements WorkerThread {
     }
   }
 
-  public void terminate() {
-    myProject.stop();
-  }
-
   public String getName() {
     return myProject.getName();
   }
