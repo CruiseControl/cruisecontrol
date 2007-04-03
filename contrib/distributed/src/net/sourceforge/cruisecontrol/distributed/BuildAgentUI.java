@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,6 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.SwingUtilities;
+import javax.swing.JOptionPane;
 import java.rmi.RemoteException;
 
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
@@ -75,7 +77,24 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         txaAgentInfo = new JTextArea("Registering with Lookup Services...");
         txaAgentInfo.setEditable(false);
         pnlN.add(txaAgentInfo, BorderLayout.CENTER);
-        pnlN.add(btnStop, BorderLayout.EAST);
+        final JPanel pnlButtons = new JPanel(new GridLayout(0, 1));
+        pnlButtons.add(btnStop);
+
+        final JButton btnEditEntryOverrides = new JButton("Entries");
+        btnEditEntryOverrides.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new BuildAgentEntryOverrideUI(BuildAgentUI.this, buildAgent.getService());
+                } catch (RemoteException e1) {
+                    JOptionPane.showMessageDialog(BuildAgentUI.this,
+                            "An error occurred while editing entry overrides: " + e1.getMessage(),
+                            "Error Editing Entry Overrides", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        pnlButtons.add(btnEditEntryOverrides);
+        
+        pnlN.add(pnlButtons, BorderLayout.EAST);
 
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(pnlN, BorderLayout.NORTH);

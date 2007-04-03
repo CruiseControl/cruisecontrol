@@ -21,7 +21,7 @@ import java.awt.GraphicsEnvironment;
  */
 public class BuildAgentTest extends TestCase {
 
-    private static final Logger LOG = Logger.getLogger(net.sourceforge.cruisecontrol.distributed.BuildAgentTest.class);
+    private static final Logger LOG = Logger.getLogger(BuildAgentTest.class);
 
 
     /**

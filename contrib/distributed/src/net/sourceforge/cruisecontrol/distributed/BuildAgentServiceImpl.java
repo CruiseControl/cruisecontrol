@@ -665,13 +665,23 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return sb.toString();
     }
 
+    
     public void setEntryOverrides(PropertyEntry[] entryOverrides) {
         serviceContainer.setEntryOverrides(entryOverrides);
+        // this is done only to update agent UI info with new entries info
+        fireAgentStatusChanged();
     }
 
     public void clearEntryOverrides() {
         serviceContainer.clearEntryOverrides();
+        // this is done only to update agent UI info with new entries info
+        fireAgentStatusChanged();
     }
+
+    public PropertyEntry[] getEntryOverrides() {
+        return serviceContainer.getEntryOverrides();
+    }
+
 
     public void addAgentStatusListener(final BuildAgent.AgentStatusListener listener) {
         agentStatusListeners.add(listener);
