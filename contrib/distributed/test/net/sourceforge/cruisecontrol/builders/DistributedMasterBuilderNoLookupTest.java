@@ -112,7 +112,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         MulticastDiscoveryTest.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
-        assertNull(masterBuilder.pickAgent());
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
     }
 
 }
