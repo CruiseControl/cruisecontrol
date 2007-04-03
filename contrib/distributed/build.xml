@@ -163,6 +163,9 @@
             <include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent -->
         </fileset>
         <path refid="jini.core.classpath"/>
+        <fileset dir="${jini.lib.DirName}">
+             <include name="tools.jar" /> <!-- required to read start-jini.config settings in unit test. -->
+         </fileset>
         <path refid="jnlpServiceAPI.classpath"/>
 
         <!-- required unit test helper class from main test-classes -->
