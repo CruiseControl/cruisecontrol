@@ -50,6 +50,7 @@ import java.util.Properties;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.awt.GraphicsEnvironment;
 
 import net.jini.core.lookup.ServiceID;
@@ -214,6 +215,30 @@ public class BuildAgent implements DiscoveryListener,
         joinManager.setAttributes(getEntries());
     }
 
+    private Properties getEntryOverrideProps() {
+        // check for entry overrides in preferences
+        final String[] overrideKeys;
+        try {
+            overrideKeys = prefs.keys();
+        } catch (BackingStoreException e) {
+            LOG.error("Error reading entry override prefs keys.", e);
+            throw new RuntimeException(e);
+        }
+        final Properties overrideEntryProps = new Properties();
+        if (overrideKeys.length > 0) {
+            String key;
+            for (int i = 0; i < overrideKeys.length; i++) {
+                key = overrideKeys[i];
+                overrideEntryProps.put(key, prefs.get(key, "unknown value"));
+            }
+        }
+        return overrideEntryProps;
+    }
+
+    PropertyEntry[] getEntryOverrides() {
+        return SearchablePropertyEntries.getPropertiesAsEntryArray(getEntryOverrideProps());
+    }
+
     void clearEntryOverrides() {
 
         // clear stored override preferences settings
@@ -261,17 +286,10 @@ public class BuildAgent implements DiscoveryListener,
     }
 
     PropertyEntry[] getEntries() {
-        // @todo implement this
-        // check for entry overrides in preferences
-        final String[] overrideKeys;
-        try {
-            overrideKeys = prefs.keys();
-        } catch (BackingStoreException e) {
-            LOG.error("Error reading entry override prefs keys.", e);
-            throw new RuntimeException(e);
-        }
+
         final PropertyEntry[] currentEntries;
-        if (overrideKeys.length > 0) {
+        final Properties entryOverrideProps = getEntryOverrideProps();
+        if (entryOverrideProps.size() > 0) {
             // add system entries first (preserves order)
             final Properties systemEntryProps = SearchablePropertyEntries.getSystemEntryProps();
             // use a props object to enforce precendence of overrides over original settings
@@ -281,13 +299,18 @@ public class BuildAgent implements DiscoveryListener,
             allEntries.putAll(entryProperties);
             // now add override entries that do NOT step on system entries
             String key;
-            for (int i = 0; i < overrideKeys.length; i++) {
-                key = overrideKeys[i];
+            String value;
+            final Enumeration enm = entryOverrideProps.keys();
+            while (enm.hasMoreElements()) {
+                key = (String) enm.nextElement();
+                value = (String) entryOverrideProps.get(key);
                 // don't allow override of system entry props
                 if (!systemEntryProps.containsKey(key)) {
-                    allEntries.put(key, prefs.get(key, "unknown value"));
+                    allEntries.put(key, value);
                 } else {
-                    LOG.warn("WARNING: Can't override system entry: " + key + "=" + systemEntryProps.get(key));
+                    LOG.warn("WARNING: Can't override system entry: "
+                            + key + "=" + systemEntryProps.get(key)
+                            + " with new value: " + value);
                 }
             }
 
