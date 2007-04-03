@@ -76,7 +76,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testBuildOverrideTarget() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         final Map distributedAgentProps = new HashMap();
@@ -104,7 +104,7 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @throws Exception if anything unexpected goes wrong in the test
      */
      public void testGetPropertiesMap() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         MyAgentStatusListener agentListener = new MyAgentStatusListener();  
@@ -159,7 +159,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
     
     public void testAsString() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         String agentAsString = agentImpl.asString();
@@ -214,7 +214,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testGetBuildingModule() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertNull(agentImpl.getModule());
@@ -240,7 +240,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testKillNoWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -265,7 +265,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRestartNoWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -294,7 +294,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testKillWithWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -318,7 +318,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRestartWithWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -564,7 +564,7 @@ public class BuildAgentServiceImplTest extends TestCase {
                                                          final Map distributedAgentProps)
             throws RemoteException {
 
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         if (!distributedAgentProps.containsKey(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET)) {
@@ -732,7 +732,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static BuildAgentServiceImpl createAndClaimNewBuildAgent() {
 
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl();
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());

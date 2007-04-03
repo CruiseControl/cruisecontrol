@@ -510,7 +510,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
 
 
-    private static BuildAgent createBuildAgent() {
+    public static BuildAgent createBuildAgent() {
         final BuildAgent agent = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);

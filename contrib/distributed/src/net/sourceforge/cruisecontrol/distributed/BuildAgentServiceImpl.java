@@ -149,9 +149,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
 
-    /** Constructor. */
-    public BuildAgentServiceImpl() {
+    private final BuildAgent serviceContainer;
+
+    /**
+     * Constructor. 
+     * @param serviceContainer the BuildAgent instance in charge of publishing this service.
+     */
+    BuildAgentServiceImpl(final BuildAgent serviceContainer) {
         dateStarted = new Date();
+
+        this.serviceContainer = serviceContainer;
 
         try {
             machineName = InetAddress.getLocalHost().getHostName();
@@ -656,6 +663,14 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         sb.append(getPendingKillSince());
 
         return sb.toString();
+    }
+
+    public void setEntryOverrides(PropertyEntry[] entryOverrides) {
+        serviceContainer.setEntryOverrides(entryOverrides);
+    }
+
+    public void clearEntryOverrides() {
+        serviceContainer.clearEntryOverrides();
     }
 
     public void addAgentStatusListener(final BuildAgent.AgentStatusListener listener) {

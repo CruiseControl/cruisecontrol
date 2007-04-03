@@ -43,13 +43,15 @@ import java.net.MalformedURLException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.ExportException;
+import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
+import java.awt.GraphicsEnvironment;
 
-import net.jini.core.entry.Entry;
 import net.jini.core.lookup.ServiceID;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
@@ -89,7 +91,7 @@ public class BuildAgent implements DiscoveryListener,
     private static final String REGISTRY_URL = "registry.url";
 
     private final BuildAgentServiceImpl serviceImpl;
-    private final Entry[] entries;
+    private final PropertyEntry[] origEntries;
     private final Exporter exporter;
     private final JoinManager joinManager;
     private ServiceID serviceID;
@@ -134,16 +136,16 @@ public class BuildAgent implements DiscoveryListener,
                       final boolean isSkipUI) {
         loadProperties(propsFile, userDefinedPropertiesFilename);
 
-        serviceImpl = new BuildAgentServiceImpl();
+        serviceImpl = new BuildAgentServiceImpl(this);
         serviceImpl.setAgentPropertiesFilename(propsFile);
 
-        entries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
-        if (!isSkipUI) {
+        origEntries = SearchablePropertyEntries.getPropertiesAsEntryArray(entryProperties);
+        if (!isSkipUI && !GraphicsEnvironment.isHeadless()) {
             LOG.info("Loading Build Agent UI (use param -" + MAIN_ARG_SKIP_UI + " to bypass).");
             ui = new BuildAgentUI(this);
             //ui.updateAgentInfoUI(getService());
         } else {
-            LOG.info("Bypassing Build Agent UI.");
+            LOG.info("Bypassing Build Agent UI (headless).");
             ui = null;
         }
 
@@ -182,7 +184,7 @@ public class BuildAgent implements DiscoveryListener,
         }
 
         try {
-            joinManager = new JoinManager(getProxy(), entries, this, lld, null);
+            joinManager = new JoinManager(getProxy(), getEntries(), this, lld, null);
         } catch (IOException e) {
             final String message = "Error starting discovery";
             LOG.error(message, e);
@@ -190,6 +192,45 @@ public class BuildAgent implements DiscoveryListener,
         }
 
         getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
+    }
+
+    /**
+     * Gets the preferences node this this user, shared among all BuildAgents running
+     * under this userID on the current machine.
+     * @todo Should this node be more granular, like per Agent ServiceID? if so we must store/resuse serviceID
+     */
+    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+
+    void setEntryOverrides(final PropertyEntry[] entryOverrides) {
+        // clear stored override preferences settings
+        clearOverridePrefs();
+
+        // store override props using Preferences api
+        for (int i = 0; i < entryOverrides.length; i++) {
+            prefs.put(entryOverrides[i].name, entryOverrides[i].value);
+        }
+
+        // publish using entries reloaded via getEntries, which adds entry overrides from prefs
+        joinManager.setAttributes(getEntries());
+    }
+
+    void clearEntryOverrides() {
+
+        // clear stored override preferences settings
+        clearOverridePrefs();
+
+        // publish using entries reloaded via getEntries, which adds entry overrides from prefs
+        joinManager.setAttributes(getEntries());
+    }
+
+    private void clearOverridePrefs() {
+        // clear stored override preferences settings
+        try {
+            prefs.clear();
+        } catch (BackingStoreException e) {
+            LOG.error("Error clearing prefs.", e);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -219,8 +260,44 @@ public class BuildAgent implements DiscoveryListener,
         return joinManager;
     }
 
-    Entry[] getEntries() {
-        return entries;
+    PropertyEntry[] getEntries() {
+        // @todo implement this
+        // check for entry overrides in preferences
+        final String[] overrideKeys;
+        try {
+            overrideKeys = prefs.keys();
+        } catch (BackingStoreException e) {
+            LOG.error("Error reading entry override prefs keys.", e);
+            throw new RuntimeException(e);
+        }
+        final PropertyEntry[] currentEntries;
+        if (overrideKeys.length > 0) {
+            // add system entries first (preserves order)
+            final Properties systemEntryProps = SearchablePropertyEntries.getSystemEntryProps();
+            // use a props object to enforce precendence of overrides over original settings
+            final Properties allEntries = new Properties();
+            allEntries.putAll(systemEntryProps);
+            // add props loaded from user-defined.properties file
+            allEntries.putAll(entryProperties);
+            // now add override entries that do NOT step on system entries
+            String key;
+            for (int i = 0; i < overrideKeys.length; i++) {
+                key = overrideKeys[i];
+                // don't allow override of system entry props
+                if (!systemEntryProps.containsKey(key)) {
+                    allEntries.put(key, prefs.get(key, "unknown value"));
+                } else {
+                    LOG.warn("WARNING: Can't override system entry: " + key + "=" + systemEntryProps.get(key));
+                }
+            }
+
+            // add to original entries
+            currentEntries = SearchablePropertyEntries.getPropertiesAsEntryArray(allEntries);
+        } else {
+            // use original props file entries
+            currentEntries = origEntries;
+        }
+        return currentEntries;
     }
 
     void addAgentStatusListener(final BuildAgent.AgentStatusListener listener) {

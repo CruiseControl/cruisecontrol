@@ -89,4 +89,8 @@ public interface BuildAgentService extends Remote {
     public Date getPendingRestartSince() throws RemoteException;
 
     public String asString() throws RemoteException;
+
+    public void setEntryOverrides(PropertyEntry[] entryOverrides) throws RemoteException;
+
+    public void clearEntryOverrides() throws RemoteException;
 }

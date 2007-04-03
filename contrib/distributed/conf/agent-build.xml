@@ -73,6 +73,9 @@
     		<jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
     		<jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
 
+            <!-- pass headless prop from command line if it exists. -->
+            <jvmarg value="-Djava.awt.headless=${java.awt.headless}"/>
+
     		<classpath>
     			<pathelement path="conf"/>
     			<fileset dir="lib">               <!-- Includes copied ccdist-buildAgentService.jar, ccdist-core.jar -->

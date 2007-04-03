@@ -214,4 +214,49 @@ public class BuildAgentTest extends TestCase {
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
         assertFindAgent(reg, 20, false);
     }
+
+    public void testSetEntryOverrides() throws Exception {
+        final BuildAgent buildAgent = DistributedMasterBuilderTest.createBuildAgent();
+        try {
+            final int expectedOrigEntryCount = 4;
+            final PropertyEntry[] origEnties = buildAgent.getEntries();
+            assertEquals("Did the unit test props file change? : "
+                    + BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
+                    expectedOrigEntryCount, origEnties.length);
+
+            // add new prop entry
+            final PropertyEntry newPropEntry = new PropertyEntry("newEntryName", "newEntryValue");
+            buildAgent.setEntryOverrides(new PropertyEntry[] { newPropEntry });
+            assertEquals(expectedOrigEntryCount + 1, buildAgent.getEntries().length);
+
+            // set to empty array
+            buildAgent.setEntryOverrides(new PropertyEntry[]{});
+            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);
+
+            // test clear overrides
+            buildAgent.setEntryOverrides(new PropertyEntry[] { newPropEntry });
+            assertEquals(expectedOrigEntryCount + 1, buildAgent.getEntries().length);
+            buildAgent.clearEntryOverrides();
+            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);
+            // test multiple clear calls
+            buildAgent.clearEntryOverrides();
+            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);
+
+            // test override user-defined entry and system entry
+            final PropertyEntry newOverrideUser = new PropertyEntry("build.type", "OverrideTest");
+            final PropertyEntry newOverrideSystem
+                    = new PropertyEntry(SearchablePropertyEntries.SYSTEM_ENTRY_KEYS[0], "OverrideSystemEntry");
+            buildAgent.setEntryOverrides(new PropertyEntry[] { newPropEntry, newOverrideUser, newOverrideSystem });
+            assertEquals(expectedOrigEntryCount + 1, buildAgent.getEntries().length);
+
+            buildAgent.clearEntryOverrides();
+            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);            
+        } finally {
+            // clear overrides
+            buildAgent.clearEntryOverrides();
+
+            BuildAgent.setSkipMainSystemExit();
+            BuildAgent.kill();
+        }
+    }
 }
