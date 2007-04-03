@@ -99,6 +99,10 @@ public class BuildAgentTest extends TestCase {
         return result;
     }
 
+    public static void setTerminateFast(final BuildAgent agent) {
+        agent.setTerminateFast();
+    }
+
     /**
      * This test requires a bunch of manual steps:
      * 1. Build the cc-agent.war (created via: ant war-agent).
@@ -108,7 +112,7 @@ public class BuildAgentTest extends TestCase {
      * @throws Exception if anything unexpected goes wrong in the test
      */
     public void manual_testRestart() throws Exception {
-        final ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
+        final ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20 * 1000);
         assertNotNull("Couldn't find registrar.", reg);
 
         final Entry[] entries = SearchablePropertyEntries.getPropertiesAsEntryArray(
@@ -125,7 +129,7 @@ public class BuildAgentTest extends TestCase {
         assertNotNull(agentService.getMachineName());
         agentService.restart(false);
         // allow time for the relaunched agent to spin up and register
-        Thread.sleep(60 * 1000);
+        Thread.sleep(20 * 1000);
         // verify first agent is dead
         try {
             agentService.getMachineName();
@@ -140,7 +144,7 @@ public class BuildAgentTest extends TestCase {
     }
 
     public void testKillNoUI() throws Exception {
-        ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
+        ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20 * 1000);
         assertNotNull("Couldn't find registrar.", reg);
         assertFindAgent(reg, 3, false);
 
@@ -179,7 +183,7 @@ public class BuildAgentTest extends TestCase {
             return;
         }
 
-        ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20);
+        ServiceRegistrar reg = DistributedMasterBuilderTest.findTestLookupService(20 * 1000);
         assertNotNull("Couldn't find registrar.", reg);
         assertFindAgent(reg, 3, false);
 
