@@ -230,15 +230,23 @@ public class BuildAgent implements DiscoveryListener,
         serviceImpl.removeAgentStatusListener(listener);
     }
 
+    /** Only for unit testing. */
+    private boolean isTerminateFast;
+    /** Only for unit testing. */
+    void setTerminateFast() { isTerminateFast = true; }
+
     public void terminate() {
         LOG.info("Terminating build agent.");
         getExporter().unexport(true);
         getJoinManager().terminate();
-        // allow some time for cleanup
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            LOG.warn("Sleep interrupted during terminate", e);
+
+        if (!isTerminateFast) {
+            // allow some time for cleanup
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                LOG.warn("Sleep interrupted during terminate", e);
+            }
         }
 
         if (ui != null) {
