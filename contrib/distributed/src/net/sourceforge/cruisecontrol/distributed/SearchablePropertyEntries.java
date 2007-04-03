@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 
 import org.apache.log4j.Logger;
@@ -57,6 +56,10 @@ class SearchablePropertyEntries {
     private static final String OS_NAME = "os.name";
     private static final String JAVA_VM_VERSION = "java.vm.version";
     private static final String HOSTNAME = "hostname";
+    // Use enumeration when min JRE version allows it...
+    public static final String[] SYSTEM_ENTRY_KEYS = new String[] {
+            OS_NAME, JAVA_VM_VERSION, HOSTNAME
+    };
 
     private final Properties entryProperties = new Properties();
 
@@ -65,41 +68,50 @@ class SearchablePropertyEntries {
     }
 
     public SearchablePropertyEntries(final String userDefinedPropertiesFilename) {
+        entryProperties.putAll(getSystemEntryProps());
+
+        final Map tempProperties = PropertiesHelper.loadOptionalProperties(userDefinedPropertiesFilename);
+        for (Iterator iter = tempProperties.keySet().iterator(); iter.hasNext();) {
+            String key = (String) iter.next();
+            String value = (String) tempProperties.get(key);
+            entryProperties.put(key, value);
+            LOG.debug("Set user-defined search entry " + key + " to: " + value);
+        }
+    }
+
+    static Properties getSystemEntryProps() {
+        final Properties systemEntryProps = new Properties();
+
+        final String osName = System.getProperty(OS_NAME);
+        systemEntryProps.put(OS_NAME, osName);
+        LOG.debug("Set search entry " + OS_NAME + " to: " + osName);
+
+        final String javaVmVersion = System.getProperty(JAVA_VM_VERSION);
+        systemEntryProps.put(JAVA_VM_VERSION, javaVmVersion);
+        LOG.debug("Set search entry " + JAVA_VM_VERSION + " to: " + javaVmVersion);
+
+        final String hostname;
         try {
-            final String osName = System.getProperty(OS_NAME);
-            entryProperties.put(OS_NAME, osName);
-            LOG.debug("Set search entry " + OS_NAME + " to: " + osName);
-
-            final String javaVmVersion = System.getProperty(JAVA_VM_VERSION);
-            entryProperties.put(JAVA_VM_VERSION, javaVmVersion);
-            LOG.debug("Set search entry " + JAVA_VM_VERSION + " to: " + javaVmVersion);
-
-            final String hostname = InetAddress.getLocalHost().getHostName();
-            entryProperties.put(HOSTNAME, hostname);
-            LOG.debug("Set search entry " + HOSTNAME + " to: " + hostname);
-
-            final Map tempProperties = PropertiesHelper.loadOptionalProperties(userDefinedPropertiesFilename);
-            for (Iterator iter = tempProperties.keySet().iterator(); iter.hasNext();) {
-                String key = (String) iter.next();
-                String value = (String) tempProperties.get(key);
-                entryProperties.put(key, value);
-                LOG.debug("Set user-defined search entry " + key + " to: " + value);
-            }
+             hostname = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             final String message = "Failed to set hostname";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
+        systemEntryProps.put(HOSTNAME, hostname);
+        LOG.debug("Set search entry " + HOSTNAME + " to: " + hostname);
+
+        return systemEntryProps;
     }
 
-    public static Entry[] getPropertiesAsEntryArray(final Properties properties) {
+    public static PropertyEntry[] getPropertiesAsEntryArray(final Properties properties) {
         final List entries = new ArrayList();
         for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
             entries.add(new PropertyEntry((String) entry.getKey(), (String) entry.getValue()));
         }
-        return (Entry[]) entries.toArray(new PropertyEntry[entries.size()]);
+        return (PropertyEntry[]) entries.toArray(new PropertyEntry[entries.size()]);
     }
 
 }
