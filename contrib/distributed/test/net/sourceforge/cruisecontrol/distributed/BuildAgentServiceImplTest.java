@@ -35,6 +35,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     private Properties origSysProps;
     private static final String TESTMODULE_FAIL = "testmodule-fail";
     private static final String TESTMODULE_SUCCESS = "testmodule-success";
+    private static final int KILL_DELAY = 250;
 
     protected void setUp() throws Exception {
         DIR_LOGS.delete();
@@ -340,8 +341,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertNotNull(agentImpl.getPendingRestartSince());
 
         // use a fairly short delay in unit test
-        final int delay = 1500;
-        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, delay + "");
+        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, KILL_DELAY + "");
 
         // fake finish agent build
         assertTrue(agentImpl.isBusy());
@@ -351,7 +351,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertEquals(BuildAgentServiceImpl.DelayedAction.Type.RESTART,
                 agentImpl.getLastDelayedAction().getType());
         // wait for Restart() outside of webstart exception
-        Thread.sleep(delay * 2);
+        Thread.sleep(KILL_DELAY * 2);
         assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
                 agentImpl.getLastDelayedAction().getThrown().getMessage());
     }
@@ -675,8 +675,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final Date firstClaimDate = agentImpl.getDateClaimed();
 
         // use a fairly short delay in unit test
-        final int delay = 1500;
-        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, delay + "");
+        System.setProperty(BuildAgentServiceImpl.SYSPROP_CCDIST_DELAY_MS_KILLRESTART, KILL_DELAY + "");
 
         // set a pending Restart
         agentImpl.kill(true);
@@ -686,13 +685,13 @@ public class BuildAgentServiceImplTest extends TestCase {
         // call doBuild() on agent
         callDoBuildWithNulls(agentImpl, firstClaimDate);
 
-        assertEquals("Agent kill should be delayed " + delay
+        assertEquals("Agent kill should be delayed " + KILL_DELAY
                 + " milliseconds, and agent should be busy during delay.",
                 true, agentImpl.isBusy());
         assertFalse("Kill should not have executed.", agentImpl.isDoKillExecuted());
 
         // wait long enough for doKill to execute
-        Thread.sleep(delay * 2);
+        Thread.sleep(KILL_DELAY * 2);
         assertTrue("Kill should have executed.", agentImpl.isDoKillExecuted());
 
         // Agent will still show as "claimed" in unit tests (since it can't system.exit).
