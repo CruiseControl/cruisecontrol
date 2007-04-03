@@ -27,12 +27,16 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
+import net.sourceforge.cruisecontrol.distributed.BuildAgentTest;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.discovery.LookupLocator;
+import net.jini.config.ConfigurationProvider;
+import net.jini.config.Configuration;
+import net.jini.config.ConfigurationException;
 
 /**
  * @author: Dan Rollo
@@ -45,7 +49,25 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     private static final String INSECURE_POLICY_FILENAME = "insecure.policy";
     private static Properties origSysProps;
-    public static final String JINI_URL_LOCALHOST = "jini://localhost";
+
+    private static final String CONFIG_START_JINI = "conf/start-jini.config";
+    public static final String JINI_URL_LOCALHOST;
+    static {
+        final Configuration config;
+        String hostname;
+        try {
+            config = ConfigurationProvider.getInstance(new String[] {CONFIG_START_JINI});            
+            hostname = (String) config.getEntry("com.sun.jini.start", "hostname", String.class);
+        } catch (ConfigurationException e) {
+            throw new RuntimeException("Error loading jini config: " + CONFIG_START_JINI, e);
+        }
+        if (hostname != null) {
+            JINI_URL_LOCALHOST = "jini://" + hostname;
+        } else {
+            JINI_URL_LOCALHOST = "jini://localhost";
+        }
+        LOG.info("Using local Jini URL: " + JINI_URL_LOCALHOST);
+    }
 
     private static final OSEnvironment OS_ENV = new OSEnvironment();
 
@@ -97,6 +119,7 @@ public class DistributedMasterBuilderTest extends TestCase {
      * @throws Exception if we can't start jini lookup service
      */
     public static ProcessInfoPump startJini(final Logger logger) throws Exception {
+        final long begin = System.currentTimeMillis();
 
         final Level level = Level.INFO;
 
@@ -132,7 +155,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         argStart.setLine("-jar " + jiniLibDir + "/start.jar");
 
         Commandline.Argument argProg = cmdLine.createArgument();
-        argProg.setValue("conf/start-jini.config"); // ${jini.config}
+        argProg.setValue(CONFIG_START_JINI); // ${jini.config}
 
         cmdLine.setExecutable(getJavaExec());
 
@@ -150,19 +173,31 @@ public class DistributedMasterBuilderTest extends TestCase {
                     new PrefixedStreamConsumer("[JiniOut] ", logger, level)),
             logger, level);
 
+        Thread.sleep(2000); // allow LUS some spin up time
+
 
         // Verify the Lookup Service started
 
         // setup security policy
         setupInsecurePolicy();
 
-        ServiceRegistrar serviceRegistrar = findTestLookupService(20);
-        assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
+        ServiceRegistrar serviceRegistrar = findTestLookupService(20 * 1000);
+        try {
+            assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
+        } finally {
+            if (serviceRegistrar == null) {
+                // kill service in case it is just really slow to start, to help avoid orphaned LUS processes
+                killJini(jiniProcessInfoPump);
+            }
+        }
         assertEquals("Unexpected local lookup _service host",
             InetAddress.getLocalHost().getCanonicalHostName(),
             serviceRegistrar.getLocator().getHost());
 
         Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
+
+        LOG.info("Jini Startup took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+        
         return jiniProcessInfoPump;
     }
 
@@ -220,7 +255,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
-    public static ServiceRegistrar findTestLookupService(int retryTimeoutSecs)
+    public static ServiceRegistrar findTestLookupService(int retryTimeoutMillis)
             throws IOException, ClassNotFoundException, InterruptedException {
 
         // find/wait for lookup _service
@@ -228,10 +263,10 @@ public class DistributedMasterBuilderTest extends TestCase {
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
 
-        final int sleepMillisAfterException = 500;
+        final int sleepMillisAfterException = 100;
 
         while (serviceRegistrar == null
-                && (System.currentTimeMillis() - startTime < (retryTimeoutSecs * 1000))) {
+                && (System.currentTimeMillis() - startTime < retryTimeoutMillis)) {
 
             try {
                 serviceRegistrar = lookup.getRegistrar();
@@ -251,20 +286,14 @@ public class DistributedMasterBuilderTest extends TestCase {
     public static void killJini(final ProcessInfoPump jiniProcessPump) throws Exception {
         if (jiniProcessPump != null) {
 
+            final long begin = System.currentTimeMillis();
+
             jiniProcessPump.kill();
             LOG.debug("Jini process killed.");
 
-            // make sure local Lookup Service is dead
-            // @todo why do we need to retry this on Linux?
-            if (findTestLookupService(1) != null) {
-                final int secs = 5;
-                LOG.warn("********* Waiting " + secs + " seconds for Lookup Service to die...need to fix this.");
-                Thread.sleep(secs * 1000);
-            }
-
             verifyNoLocalLookupService();
 
-            Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
+            LOG.info("Jini Shutdown took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
         }
 
         // restore original system properties
@@ -278,7 +307,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final ServiceRegistrar serviceRegistrar;
         try {
-            serviceRegistrar = findTestLookupService(1);
+            serviceRegistrar = findTestLookupService(1000);
         } catch (ClassNotFoundException e) {
             assertFalse(msgLUSFoundCheckForOrphanedProc,
                     "com.sun.jini.reggie.ConstrainableRegistrarProxy".equals(e.getMessage()));
@@ -365,7 +394,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     // @todo Add one slash in front of "/*" below to run individual tests in an IDE
     /*
     protected void setUp() throws Exception {
-        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG, Level.INFO);
+        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
     }
     protected void tearDown() throws Exception {
         DistributedMasterBuilderTest.killJini(jiniProcessPump);
@@ -475,25 +504,28 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
-        assertNull(masterBuilder.pickAgent());
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
     }
 
 
 
 
     private static BuildAgent createBuildAgent() {
-        return new BuildAgent(
+        final BuildAgent agent = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
+
+        BuildAgentTest.setTerminateFast(agent);
+        return agent;
     }
 
     private static void waitForCacheToDiscoverLUS()
             throws InterruptedException {
         // wait for cache to discover lookup service
         int i = 0;
-        int waitSecs = 15;
-        while (!MulticastDiscoveryTest.isDiscovered() && i < waitSecs) {
-            Thread.sleep(1000);
+        int waitRepeat = 15;
+        while (!MulticastDiscoveryTest.isDiscovered() && i < waitRepeat) {
+            Thread.sleep(500);
             i++;
         }
         assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
@@ -514,8 +546,6 @@ public class DistributedMasterBuilderTest extends TestCase {
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
         masterBuilder.setEntries(getTestDMBEntries());
         masterBuilder.setFailFast(); // don't block until an available agent is found
-
-        Thread.sleep(500); // kludged attempt to avoid occaisional test failures
 
         return masterBuilder;
     }
