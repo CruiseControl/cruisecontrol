@@ -15,6 +15,10 @@ configxml.html
 build loop
 ======================
 
+CruiseControlConfig
+----------------------
+* Added the ability to use "global" properties in include.projects elements, e.g. <property environment="env" toupper="true" /> <include.projects file="config_${env.HOSTNAME}.xml" />. Patch by Andreas Mettlen.
+
 CompositeBuilder
 ----------------------
 * Fix validation error due to multiple calls to builder.validate() (CC-620). Reported by Tim Morrow
