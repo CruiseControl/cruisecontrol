@@ -52,6 +52,6 @@ public class Log4jThreadGroup extends ThreadGroup {
     }
 
     public void uncaughtException(Thread t, Throwable e) {
-         logger.error("uncaugth exception in " + t.getName(), e);
+         logger.error("uncaught exception in " + t.getName(), e);
     }
 }

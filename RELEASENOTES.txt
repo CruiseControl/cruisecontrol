@@ -27,6 +27,10 @@ HttpFile
 ----------------------
 * Fix bug where HttpFile didn't work with domain only (http://host.com) urls (CC-614). Patch by J. David Beutel
 
+Log4jThreadGroup
+----------------------
+* Spelling correction: "uncaugth" changed to "uncaught". Pointed out by Martin Sweitzer. 
+
 MKS
 ----------------------
 * Fix bug where modifications were returned from all previous builds, not just the current build (CC-628). Patch by Min Li
