@@ -88,6 +88,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     static final String OFFICIAL_CVS_NAME = "CVS";
     static final Version DEFAULT_CVS_SERVER_VERSION = new Version(OFFICIAL_CVS_NAME, "1.11");
     public static final String LOG_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss z";
+    private boolean reallyQuiet;
 
     /**
      * Represents the version of a CVS client or server
@@ -285,6 +286,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
     public void setPropertyOnDelete(String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
+    }
+
+    /**
+     * @param reallyQuiet When true, this class should use the -Q cvs option instead of -q for the log command.
+     */
+    public void setReallyQuiet(boolean reallyQuiet) {
+        this.reallyQuiet = reallyQuiet;
     }
 
     protected Version getCvsServerVersion() {
@@ -532,7 +540,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         if (cvsroot != null) {
             commandLine.createArguments("-d", cvsroot);
         }
-        commandLine.createArgument("-q");
+        commandLine.createArgument(reallyQuiet ? "-Q" : "-q");
 
         if (local != null) {
             commandLine.setWorkingDirectory(local);
