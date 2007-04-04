@@ -51,6 +51,11 @@ ProjectConfig
 ----------------------
 * Fixed a bug where ProjectConfig.stop() was calling Project.start() instead of Project.stop(). The effect of this would be for projects that have been removed from config.xml to continue to build.
 
+Pvcs
+----------------------
+* Fixed bug where extra double quotes were being added to the call to pcli (CC-604). Patches by Karsten Wintermann and Dave Kilroy.
+
+
 reporting
 ======================
 
