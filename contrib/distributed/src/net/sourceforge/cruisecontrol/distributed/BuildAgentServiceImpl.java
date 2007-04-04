@@ -672,12 +672,6 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         fireAgentStatusChanged();
     }
 
-    public void clearEntryOverrides() {
-        serviceContainer.clearEntryOverrides();
-        // this is done only to update agent UI info with new entries info
-        fireAgentStatusChanged();
-    }
-
     public PropertyEntry[] getEntryOverrides() {
         return serviceContainer.getEntryOverrides();
     }

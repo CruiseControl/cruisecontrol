@@ -92,7 +92,5 @@ public interface BuildAgentService extends Remote {
 
     public void setEntryOverrides(PropertyEntry[] entryOverrides) throws RemoteException;
 
-    public void clearEntryOverrides() throws RemoteException;
-
     public PropertyEntry[] getEntryOverrides() throws RemoteException;
 }
