@@ -31,6 +31,15 @@ ProjectConfig
 ----------------------
 * Fixed a bug where ProjectConfig.stop() was calling Project.start() instead of Project.stop(). The effect of this would be for projects that have been removed from config.xml to continue to build.
 
+reporting
+======================
+
+XmlServlet
+----------------------
+* Enhancement to enable Cruise to work with the cctray distributed as part of CruiseControl.net. Patch by Davie Moston.
+    Install cctray from  http://sourceforge.net/project/showfiles.php?group_id=71179
+    Then run cctray, select setting from the tray icon, then add, add server, "Use Custom URL"  with a URL of "http://YOUR_SERVER/cruisecontrol/xml", then select the project you want to monitor and hit OK.
+
 contrib
 ======================
 
