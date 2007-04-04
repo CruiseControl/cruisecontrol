@@ -53,8 +53,8 @@ public class StatusHelper {
     private BuildInfo newestBuild;
     private BuildInfo newestSuccessfulBuild;
 
-    private static final String PASSED = "passed";
-    private static final String FAILED = "failed";
+    public static final String PASSED = "passed";
+    public static final String FAILED = "failed";
 
     public void setProjectDirectory(File directory) {
         LogFile newestLogfile = LogFile.getLatestLogFile(directory);
@@ -100,6 +100,9 @@ return null;
 }
 return newestBuild.getBuildDate();
 }
+    public BuildInfo getLastBuild() {
+        return newestBuild;
+    }
 
     public String getLastSuccessfulBuildLabel() {
         if (newestSuccessfulBuild == null) {

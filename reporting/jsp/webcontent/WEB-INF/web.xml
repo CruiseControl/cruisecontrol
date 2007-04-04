@@ -180,6 +180,11 @@
     </servlet>
 
     <servlet>
+    	<servlet-name>XmlServlet</servlet-name>
+    	<servlet-class>net.sourceforge.cruisecontrol.servlet.XmlServlet</servlet-class>
+    </servlet>
+
+    <servlet>
         <servlet-name>LogServlet</servlet-name>
         <servlet-class>net.sourceforge.cruisecontrol.servlet.LogFileServlet</servlet-class>
     </servlet>
@@ -236,6 +241,11 @@
     <servlet-mapping>
       <servlet-name>rss</servlet-name>
       <url-pattern>/rss/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>XmlServlet</servlet-name>
+        <url-pattern>/xml/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

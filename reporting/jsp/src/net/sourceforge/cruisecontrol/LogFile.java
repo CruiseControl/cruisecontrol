@@ -198,4 +198,11 @@ public class LogFile implements Serializable {
         }
         return log;
     }
+    
+    public LogFileReader getReader() throws JDOMException, IOException {
+        return new LogFileReader(asDocument());
+        
+    }
+    
+    
 }
