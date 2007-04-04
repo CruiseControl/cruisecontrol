@@ -145,14 +145,20 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         return buildAgent.getPrefsRoot().node(PREFS_NODE_SCREEN_SIZE);
     }
 
-    private void doExit() {
-        atnStop.setEnabled(false);
+    public void dispose() {
+        // ensure we do cleanup even when closing due to webstart resart
 
         // save screen info
         getPrefNodeScreenPosition().putInt(PREFS_NODE_X, (int) getLocation().getX());
         getPrefNodeScreenPosition().putInt(PREFS_NODE_Y, (int) getLocation().getY());
         getPrefNodeScreenSize().putInt(PREFS_NODE_WIDTH, getWidth());
         getPrefNodeScreenSize().putInt(PREFS_NODE_HEIGHT, getHeight());
+
+        super.dispose();
+    }
+
+    private void doExit() {
+        atnStop.setEnabled(false);
 
         final BuildAgentUI theThis = this;
         new Thread("Build Agent doExit Thread") {
