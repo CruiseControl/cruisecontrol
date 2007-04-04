@@ -237,6 +237,7 @@ public class PVCS implements SourceControl {
      */
     Commandline buildExecCommand(String lastBuild, String now) {
         Commandline command = new Commandline();
+        command.useSafeQuoting(false);
         command.setExecutable(getExecutable("pcli"));
         command.createArgument("run");
         command.createArgument("-ns");

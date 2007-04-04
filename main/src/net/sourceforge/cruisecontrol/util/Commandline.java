@@ -149,6 +149,8 @@ public class Commandline implements Cloneable {
         }
     }
 
+    private boolean safeQuoting = true;
+
     public Commandline(String toProcess) {
         this(toProcess, new CruiseRuntime());
     }
@@ -489,6 +491,8 @@ public class Commandline implements Cloneable {
         Commandline c = new Commandline();
         c.setExecutable(executable);
         c.addArguments(getArguments());
+        c.useSafeQuoting(safeQuoting);
+
         return c;
     }
 
@@ -531,6 +535,19 @@ public class Commandline implements Cloneable {
     }
 
     /**
+     * Enables and disables safe quoting when executing a command.
+     * When enabled:
+     *   Quotes any arguments that need it when executing command.
+     *   This should handle filenames with spaces, but may fall
+     *   over if the arguments already have quoting within them.
+     * When disables:
+     *   Arguments are passed as is.
+     */
+    public void useSafeQuoting(boolean safe) {
+        safeQuoting = safe;
+    }
+
+    /**
      * Sets exeuction directory
      */
     public void setWorkingDir(File workingDir) throws CruiseControlException {
@@ -567,12 +584,21 @@ public class Commandline implements Cloneable {
 
         if (workingDir == null) {
             LOG.debug(msgCommandInfo);
-            process = runtime.exec(getCommandline());
+            if (safeQuoting) {
+                process = runtime.exec(getCommandline());
+            } else {
+                process = runtime.exec(toStringNoQuoting());
+            }
+
         } else {
             LOG.debug(msgCommandInfo
                     + " in directory "
                     + workingDir.getAbsolutePath());
-            process = runtime.exec(getCommandline(), null, workingDir);
+            if (safeQuoting) {
+                process = runtime.exec(getCommandline(), null, workingDir);
+            } else {
+                process = runtime.exec(toStringNoQuoting(), null, workingDir);
+            }
         }
 
         return process;
