@@ -441,11 +441,11 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         long tenMinutes = 10 * 60 * 1000;
         Date lastBuildTime = new Date(checkTime.getTime() - tenMinutes);
 
-        ConcurrentVersionsSystem element = new ConcurrentVersionsSystem();
-        element.setCvsRoot("cvsroot");
-        element.setLocalWorkingCopy(".");
+        ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem();
+        cvs.setCvsRoot("cvsroot");
+        cvs.setLocalWorkingCopy(".");
 
-        String[] expectedCommand = new String[] {
+        String[] expectedCommand = {
                 "cvs",
                 "-d",
                 "cvsroot",
@@ -455,16 +455,21 @@ public class ConcurrentVersionsSystemTest extends TestCase {
                 "-d" + ConcurrentVersionsSystem.formatCVSDate(lastBuildTime) + "<"
                         + ConcurrentVersionsSystem.formatCVSDate(checkTime), "-b" };
 
-        String[] noTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        String[] noTagCommand = cvs.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
         assertCommandsEqual(expectedCommand, noTagCommand);
 
-        element.setTag("");
-        String[] emptyStringTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        cvs.setTag("");
+        String[] emptyStringTagCommand = cvs.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
         assertCommandsEqual(expectedCommand, emptyStringTagCommand);
 
-        element.setTag("HEAD");
-        String[] headTagCommand = element.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        cvs.setTag("HEAD");
+        String[] headTagCommand = cvs.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
         assertCommandsEqual(expectedCommand, headTagCommand);
+
+        cvs.setReallyQuiet(true);
+        expectedCommand[3] = "-Q";
+        String[] reallyQuietCommand = cvs.buildHistoryCommand(lastBuildTime, checkTime).getCommandline();
+        assertCommandsEqual(expectedCommand, reallyQuietCommand);
     }
 
     /**

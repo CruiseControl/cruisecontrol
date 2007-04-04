@@ -15,6 +15,10 @@ configxml.html
 build loop
 ======================
 
+ConcurrentVersionsSystem
+----------------------
+* Added new attribute named "reallyQuiet" which will result in a "-Q" getting passed to cvs for the log command, instead of the default "-q". (CC-607) Suggested by Chris Nappin and Gisbert Amm.
+
 CruiseControlConfig
 ----------------------
 * Added the ability to use "global" properties in include.projects elements, e.g. <property environment="env" toupper="true" /> <include.projects file="config_${env.HOSTNAME}.xml" />. Patch by Andreas Mettlen.

@@ -3300,6 +3300,13 @@ password=P@ssW0rd!
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
+            <tr>
+                <td>reallyQuiet</td>
+                <td>No</td>
+                <td>Sets whether to use "-Q", instead of the default "-q" for the cvs log command. Setting this
+                    attribute to true can help to reduce CruiseControl log file size, especially when using branches.
+                    Defaults to false.</td>
+            </tr>
             </tbody>
         </table>
         </div>
