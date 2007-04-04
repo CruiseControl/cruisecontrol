@@ -26,6 +26,11 @@ public class BuildAgentUtilityTest extends TestCase {
         DistributedMasterBuilderTest.setupInsecurePolicy();
         mockUI = new MockUI();
     }
+    protected void tearDown() throws Exception {
+        // clear all agent util prefs        
+        mockUI.getPrefsRoot().removeNode();
+        mockUI.getPrefsRoot().flush();
+    }
 
 
     public void testDiscoveryInstanceReuse() throws Exception {

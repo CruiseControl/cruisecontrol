@@ -55,8 +55,8 @@ class SearchablePropertyEntries {
 
     private static final String OS_NAME = "os.name";
     private static final String JAVA_VM_VERSION = "java.vm.version";
-    private static final String HOSTNAME = "hostname";
-    // Use enumeration when min JRE version allows it...
+    public static final String HOSTNAME = "hostname";
+    // @todo Use enumeration when min JRE version allows it...
     public static final String[] SYSTEM_ENTRY_KEYS = new String[] {
             OS_NAME, JAVA_VM_VERSION, HOSTNAME
     };

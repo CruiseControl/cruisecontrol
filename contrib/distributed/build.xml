@@ -474,6 +474,7 @@
 				<include name="**/distributed/core/**" />
                 <include name="**/PropertyEntry.class"/>              <!-- Moving this to core package is not backwards compatible -->
                 <include name="**/SearchablePropertyEntries.class"/>  <!-- Moving this to core package is not backwards compatible -->
+                <include name="**/BuildAgentEntryOverrideUI*.class"/> <!-- Change this to a Jini ServiceUI component -->
 			</fileset>
 		</jar>
 
@@ -514,6 +515,7 @@
                 <exclude name="**/BuildAgentService.class"/>          <!-- Moving this to core package is not backwards compatible -->
                 <exclude name="**/PropertyEntry.class"/>              <!-- Moving this to core package is not backwards compatible -->
                 <exclude name="**/SearchablePropertyEntries.class"/>  <!-- Moving this to core package is not backwards compatible -->
+                <exclude name="**/BuildAgentEntryOverrideUI*.class"/> <!-- Change this to a Jini ServiceUI component -->
 			</fileset>
 		</jar>
 		<!--<jar destfile="dist/lookup/${jini.libDownload.DirName}/cc-agent-dl.jar">-->
