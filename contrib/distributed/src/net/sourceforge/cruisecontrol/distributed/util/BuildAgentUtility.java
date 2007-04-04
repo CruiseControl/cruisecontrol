@@ -2,7 +2,9 @@ package net.sourceforge.cruisecontrol.distributed.util;
 
 import org.apache.log4j.Logger;
 import net.jini.core.lookup.ServiceItem;
+import net.jini.core.lookup.ServiceID;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.BuildAgentEntryOverrideUI;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 
@@ -17,6 +19,9 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.SwingUtilities;
+import javax.swing.Action;
+import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 import java.rmi.RemoteException;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -25,8 +30,10 @@ import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.prefs.Preferences;
 
 /**
  * @author: Dan Rollo
@@ -40,11 +47,19 @@ public final class BuildAgentUtility {
     static class UI extends JFrame {
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
+        private static final String PREFS_NODE_SCREEN_POSITION = "screenPosition";
+        private static final String PREFS_NODE_X = "x";
+        private static final String PREFS_NODE_Y = "y";
+        private static final String PREFS_NODE_SCREEN_SIZE = "screenSize";
+        private static final String PREFS_NODE_WIDTH = "w";
+        private static final String PREFS_NODE_HEIGHT = "h";
+
         private final String origTitle;
         private final BuildAgentUtility buildAgentUtility;
         private final JButton btnRefresh = new JButton("Refresh");
         private final JComboBox cmbAgents = new JComboBox();
-        private final JButton btnInvoke = new JButton("Invoke");
+        private final Action atnInvoke;
+        private final Action atnEditEntries;
         private static final String METH_RESTART = "restart";
         private static final String METH_KILL = "kill";
         private final JComboBox cmbRestartOrKill = new JComboBox(new String[] {METH_RESTART, METH_KILL});
@@ -55,12 +70,19 @@ public final class BuildAgentUtility {
         private final JTextArea txaConsole = new JTextArea();
         private final JScrollPane scrConsole = new JScrollPane();
 
+        private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+        Preferences getPrefsRoot() { return prefs; }
+        private final Preferences prfScrPosition = prefs.node(PREFS_NODE_SCREEN_POSITION);
+        private final Preferences prfScrSize = prefs.node(PREFS_NODE_SCREEN_SIZE);
+
         /**
          * No-arg constructor for use in unit tests, to be overridden by MockUI.
          */
         UI() {
             origTitle = null;
             buildAgentUtility = null;
+            atnInvoke = null;
+            atnEditEntries = null;
         }
 
         private UI(final BuildAgentUtility buildAgentUtil) {
@@ -89,12 +111,12 @@ public final class BuildAgentUtility {
 
             cmbAgents.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    btnInvoke.setEnabled(true);
+                    atnInvoke.setEnabled(true);
+                    atnEditEntries.setEnabled(true);
                 }
             });
 
-            btnInvoke.setEnabled(false);
-            btnInvoke.addActionListener(new ActionListener() {
+            atnInvoke = new AbstractAction("Invoke") {
                 public void actionPerformed(final ActionEvent e) {
                     try {
                         invokeOnAgent(
@@ -107,7 +129,29 @@ public final class BuildAgentUtility {
                         throw new RuntimeException(e1);
                     }
                 }
-            });
+            };
+            atnInvoke.setEnabled(false);
+
+            atnEditEntries = new AbstractAction("Entries") {
+                public void actionPerformed(final ActionEvent e) {
+                    try {
+                        final ComboItemWrapper agentWrapper = ((ComboItemWrapper) cmbAgents.getSelectedItem());
+                        final BuildAgentService agentService = agentWrapper.getAgent();
+
+                        new BuildAgentEntryOverrideUI(BuildAgentUtility.UI.this, agentService,
+                                agentService.getMachineName() + ": " + agentWrapper.getServiceID());
+
+                    } catch (RemoteException e1) {
+                        final String msg = "An error occurred while editing entry overrides: ";
+                        LOG.error(msg, e1);
+                        appendInfo(msg + e1.getMessage());
+                        JOptionPane.showMessageDialog(BuildAgentUtility.UI.this, msg + "\n\n" + e1.getMessage(),
+                                "Error Editing Entry Overrides", JOptionPane.ERROR_MESSAGE);
+                        throw new RuntimeException(e1);
+                    }
+                }
+            };
+            atnEditEntries.setEnabled(false);
 
             btnInvokeOnAll.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
@@ -127,14 +171,21 @@ public final class BuildAgentUtility {
             txaConsole.setFont(new Font("Courier New", 0, 12));
 
             scrConsole.setViewportView(txaConsole);
-            scrConsole.setPreferredSize(new Dimension(550, 300));
+            scrConsole.setPreferredSize(new Dimension(626, 300));
 
 
             getContentPane().setLayout(new BorderLayout());
             final JPanel pnlNN = new JPanel(new BorderLayout());
             pnlNN.add(btnRefresh, BorderLayout.WEST);
+
             pnlNN.add(cmbAgents, BorderLayout.CENTER);
-            pnlNN.add(btnInvoke, BorderLayout.EAST);
+
+            final JPanel pnlButtonsTop = new JPanel(new GridLayout(1, 0));
+            final JButton btnInvoke = new JButton(atnInvoke);
+            btnInvoke.setPreferredSize(new Dimension(76, -1));
+            pnlButtonsTop.add(btnInvoke);
+            pnlButtonsTop.add(new JButton(atnEditEntries));
+            pnlNN.add(pnlButtonsTop, BorderLayout.EAST);
 
             final JPanel pnlNS = new JPanel(new BorderLayout());
             pnlNS.add(btnClose, BorderLayout.EAST);
@@ -150,6 +201,11 @@ public final class BuildAgentUtility {
             getContentPane().add(northPanel, BorderLayout.NORTH);
             getContentPane().add(scrConsole, BorderLayout.CENTER);
             pack();
+
+            // set screen info from last run
+            setLocation(prfScrPosition.getInt(PREFS_NODE_X, 0), prfScrPosition.getInt(PREFS_NODE_Y, 0));
+            setSize(prfScrSize.getInt(PREFS_NODE_WIDTH, getWidth()), prfScrSize.getInt(PREFS_NODE_HEIGHT, getHeight()));
+
             setVisible(true);
         }
 
@@ -185,17 +241,32 @@ public final class BuildAgentUtility {
             private ComboItemWrapper(final ServiceItem serviceItemToWrap) {
                 this.serviceItem = serviceItemToWrap;
             }
+
             public BuildAgentService getAgent() {
                 return (BuildAgentService) serviceItem.service;
             }
+
+            public ServiceID getServiceID() {
+                return serviceItem.serviceID;
+            }
+
+
+            private String errToString;
+
             public String toString() {
+                // don't make remote calls if agent has errored out already, otherwise may appear to hang ui
+                if (errToString != null) {
+                    return errToString;
+                }
+
                 try {
                     return getAgent().getMachineName() + ": " + serviceItem.serviceID;
                 } catch (RemoteException e) {
-                    return "Remote Error: " + e.getMessage();
+                    errToString = "Remote Error: " + e.getMessage();
                 } catch (Exception e) {
-                    return "Error: " + e.getMessage();
+                    errToString = "Error: " + e.getMessage();
                 }
+                return errToString;
             }
         }
 
@@ -203,7 +274,8 @@ public final class BuildAgentUtility {
             SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.disable Thread") {
                 public void run() {
                     btnRefresh.setEnabled(false);
-                    btnInvoke.setEnabled(false);
+                    atnInvoke.setEnabled(false);
+                    atnEditEntries.setEnabled(false);
                     btnInvokeOnAll.setEnabled(false);
                     cmbAgents.setEnabled(false);
                 }
@@ -237,7 +309,13 @@ public final class BuildAgentUtility {
             } .start();
         }
 
-        private static void exitForm() {
+        private void exitForm() {
+            // save screen info
+            prfScrPosition.putInt(PREFS_NODE_X, (int) getLocation().getX());
+            prfScrPosition.putInt(PREFS_NODE_Y, (int) getLocation().getY());
+            prfScrSize.putInt(PREFS_NODE_WIDTH, getWidth());
+            prfScrSize.putInt(PREFS_NODE_HEIGHT, getHeight());
+
             System.exit(0);
         }
 

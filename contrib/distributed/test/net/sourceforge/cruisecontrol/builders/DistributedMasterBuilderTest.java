@@ -525,7 +525,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         int i = 0;
         int waitRepeat = 15;
         while (!MulticastDiscoveryTest.isDiscovered() && i < waitRepeat) {
-            Thread.sleep(500);
+            Thread.sleep(1000);
             i++;
         }
         assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,

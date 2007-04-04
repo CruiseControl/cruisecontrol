@@ -254,6 +254,9 @@ public class BuildAgentTest extends TestCase {
         } finally {
             // clear overrides
             buildAgent.clearEntryOverrides();
+            // clear all agent prefs
+            buildAgent.getPrefsRoot().removeNode();
+            buildAgent.getPrefsRoot().flush();
 
             BuildAgent.setSkipMainSystemExit();
             BuildAgent.kill();

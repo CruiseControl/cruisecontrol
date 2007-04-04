@@ -195,12 +195,15 @@ public class BuildAgent implements DiscoveryListener,
         getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
     }
 
+
+    private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+    Preferences getPrefsRoot() { return prefs; }
     /**
-     * Gets the preferences node this this user, shared among all BuildAgents running
+     * Gets the EntryOverrides preferences node this this user, shared among all BuildAgents running
      * under this userID on the current machine.
      * @todo Should this node be more granular, like per Agent ServiceID? if so we must store/resuse serviceID
      */
-    private Preferences prefs = Preferences.userNodeForPackage(this.getClass());
+    private final Preferences prefsEntryOverrides = prefs.node("entryOverrides");
 
     void setEntryOverrides(final PropertyEntry[] entryOverrides) {
         // clear stored override preferences settings
@@ -208,35 +211,11 @@ public class BuildAgent implements DiscoveryListener,
 
         // store override props using Preferences api
         for (int i = 0; i < entryOverrides.length; i++) {
-            prefs.put(entryOverrides[i].name, entryOverrides[i].value);
+            prefsEntryOverrides.put(entryOverrides[i].name, entryOverrides[i].value);
         }
 
         // publish using entries reloaded via getEntries, which adds entry overrides from prefs
         joinManager.setAttributes(getEntries());
-    }
-
-    private Properties getEntryOverrideProps() {
-        // check for entry overrides in preferences
-        final String[] overrideKeys;
-        try {
-            overrideKeys = prefs.keys();
-        } catch (BackingStoreException e) {
-            LOG.error("Error reading entry override prefs keys.", e);
-            throw new RuntimeException(e);
-        }
-        final Properties overrideEntryProps = new Properties();
-        if (overrideKeys.length > 0) {
-            String key;
-            for (int i = 0; i < overrideKeys.length; i++) {
-                key = overrideKeys[i];
-                overrideEntryProps.put(key, prefs.get(key, "unknown value"));
-            }
-        }
-        return overrideEntryProps;
-    }
-
-    PropertyEntry[] getEntryOverrides() {
-        return SearchablePropertyEntries.getPropertiesAsEntryArray(getEntryOverrideProps());
     }
 
     void clearEntryOverrides() {
@@ -251,12 +230,37 @@ public class BuildAgent implements DiscoveryListener,
     private void clearOverridePrefs() {
         // clear stored override preferences settings
         try {
-            prefs.clear();
+            prefsEntryOverrides.clear();
         } catch (BackingStoreException e) {
             LOG.error("Error clearing prefs.", e);
             throw new RuntimeException(e);
         }
     }
+
+    private Properties getEntryOverrideProps() {
+        // check for entry overrides in preferences
+        final String[] overrideKeys;
+        try {
+            overrideKeys = prefsEntryOverrides.keys();
+        } catch (BackingStoreException e) {
+            LOG.error("Error reading entry override prefs keys.", e);
+            throw new RuntimeException(e);
+        }
+        final Properties overrideEntryProps = new Properties();
+        if (overrideKeys.length > 0) {
+            String key;
+            for (int i = 0; i < overrideKeys.length; i++) {
+                key = overrideKeys[i];
+                overrideEntryProps.put(key, prefsEntryOverrides.get(key, "unknown value"));
+            }
+        }
+        return overrideEntryProps;
+    }
+
+    PropertyEntry[] getEntryOverrides() {
+        return SearchablePropertyEntries.getPropertiesAsEntryArray(getEntryOverrideProps());
+    }
+
 
     /**
      * @param propsFile path to config properties file
@@ -388,7 +392,7 @@ public class BuildAgent implements DiscoveryListener,
         }
         LOG.info("Registering BuildAgentService with Registrar: " + host);
 
-        final String machineName = (String) entryProperties.get("hostname");
+        final String machineName = (String) entryProperties.get(SearchablePropertyEntries.HOSTNAME);
         LOG.debug("Registered machineName: " + machineName);
 
         LOG.debug("Entries: ");

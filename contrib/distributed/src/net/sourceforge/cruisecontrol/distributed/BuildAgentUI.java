@@ -5,7 +5,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
@@ -19,7 +18,10 @@ import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.SwingUtilities;
 import javax.swing.JOptionPane;
+import javax.swing.Action;
+import javax.swing.AbstractAction;
 import java.rmi.RemoteException;
+import java.util.prefs.Preferences;
 
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
@@ -36,9 +38,17 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
     private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
+    private static final String PREFS_NODE_SCREEN_POSITION = "screenPosition";
+    private static final String PREFS_NODE_X = "x";
+    private static final String PREFS_NODE_Y = "y";
+    private static final String PREFS_NODE_SCREEN_SIZE = "screenSize";
+    private static final String PREFS_NODE_WIDTH = "w";
+    private static final String PREFS_NODE_HEIGHT = "h";
+
     private final BuildAgent buildAgent;
     private final JTextArea txaAgentInfo;
-    private final JButton btnStop = new JButton("Stop");
+    private final Action atnStop;
+    private final Action atnEditEntries;
     private final JTextArea txaConsole = new JTextArea();
     private final JScrollPane scrConsole = new JScrollPane();
     private final String origTitle;
@@ -53,11 +63,11 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         buildAgent.addLUSCountListener(this);
         buildAgent.addAgentStatusListener(this);
 
-        btnStop.addActionListener(new ActionListener() {
+        atnStop = new AbstractAction("Stop") {
             public void actionPerformed(final ActionEvent e) {
                 doExit();
             }
-        });
+        };
         addWindowListener(new WindowAdapter() {
             public void windowClosing(final WindowEvent evt) {
                 doExit();
@@ -67,7 +77,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         txaConsole.setFont(new java.awt.Font("Courier New", 0, 12));
 
         scrConsole.setViewportView(txaConsole);
-        scrConsole.setPreferredSize(new Dimension(500, 300));
+        scrConsole.setPreferredSize(new Dimension(550, 300));
 
         txaConsole.setEditable(false);
         // need to register with BuildAgent Logger (not UI Logger).
@@ -77,22 +87,40 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         txaAgentInfo = new JTextArea("Registering with Lookup Services...");
         txaAgentInfo.setEditable(false);
         pnlN.add(txaAgentInfo, BorderLayout.CENTER);
+
+        final JButton btnStop = new JButton(atnStop);
+        btnStop.setToolTipText("Terminates this Build Agent. (If agent is busy, the build may not stop.)");
+        btnStop.setPreferredSize(new Dimension(62, -1));
+
         final JPanel pnlButtons = new JPanel(new GridLayout(0, 1));
         pnlButtons.add(btnStop);
 
-        final JButton btnEditEntryOverrides = new JButton("Entries");
-        btnEditEntryOverrides.addActionListener(new ActionListener() {
+        atnEditEntries = new AbstractAction("Entries") {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    new BuildAgentEntryOverrideUI(BuildAgentUI.this, buildAgent.getService());
+                    final BuildAgentService agentService = buildAgent.getService();
+                    final BuildAgentEntryOverrideUI ui
+                            = new BuildAgentEntryOverrideUI(BuildAgentUI.this, agentService,
+                                    agentService.getMachineName() + ": " + buildAgent.getServiceID());
+
+                    ui.addWindowListener(new WindowAdapter() {
+                        public void windowClosing(final WindowEvent evt) {
+                            atnEditEntries.setEnabled(true);
+                        }
+                    });
+
+                    atnEditEntries.setEnabled(false);
                 } catch (RemoteException e1) {
-                    JOptionPane.showMessageDialog(BuildAgentUI.this,
-                            "An error occurred while editing entry overrides: " + e1.getMessage(),
+                    final String msg = "An error occurred while editing entry overrides: ";
+                    LOG.error(msg, e1);
+                    JOptionPane.showMessageDialog(BuildAgentUI.this, msg + e1.getMessage(),
                             "Error Editing Entry Overrides", JOptionPane.ERROR_MESSAGE);
                 }
             }
-        });
-        pnlButtons.add(btnEditEntryOverrides);
+        };
+        final JButton btnEntries = new JButton(atnEditEntries);
+        btnEntries.setToolTipText("Edit Entry Overrides. System provided entries are not editable.");
+        pnlButtons.add(btnEntries);
         
         pnlN.add(pnlButtons, BorderLayout.EAST);
 
@@ -100,11 +128,32 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         getContentPane().add(pnlN, BorderLayout.NORTH);
         getContentPane().add(scrConsole, BorderLayout.CENTER);
         pack();
+
+        // set screen info from last run
+        final Preferences prfScrPosition = getPrefNodeScreenPosition();
+        setLocation(prfScrPosition.getInt(PREFS_NODE_X, 0), prfScrPosition.getInt(PREFS_NODE_Y, 0));
+        final Preferences prfScrSize = getPrefNodeScreenSize();
+        setSize(prfScrSize.getInt(PREFS_NODE_WIDTH, getWidth()), prfScrSize.getInt(PREFS_NODE_HEIGHT, getHeight()));
+
         setVisible(true);
     }
 
+    private Preferences getPrefNodeScreenPosition() {
+        return buildAgent.getPrefsRoot().node(PREFS_NODE_SCREEN_POSITION);
+    }
+    private Preferences getPrefNodeScreenSize() {
+        return buildAgent.getPrefsRoot().node(PREFS_NODE_SCREEN_SIZE);
+    }
+
     private void doExit() {
-        btnStop.setEnabled(false);
+        atnStop.setEnabled(false);
+
+        // save screen info
+        getPrefNodeScreenPosition().putInt(PREFS_NODE_X, (int) getLocation().getX());
+        getPrefNodeScreenPosition().putInt(PREFS_NODE_Y, (int) getLocation().getY());
+        getPrefNodeScreenSize().putInt(PREFS_NODE_WIDTH, getWidth());
+        getPrefNodeScreenSize().putInt(PREFS_NODE_HEIGHT, getHeight());
+
         final BuildAgentUI theThis = this;
         new Thread("Build Agent doExit Thread") {
             public void run() {

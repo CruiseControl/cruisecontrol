@@ -1,5 +1,7 @@
 package net.sourceforge.cruisecontrol.distributed;
 
+import org.apache.log4j.Logger;
+
 import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -13,6 +15,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
@@ -26,7 +29,10 @@ import java.util.Properties;
  * Date: Apr 3, 2007
  * Time: 1:48:11 PM
  */
+// @todo Change this class into a Jini ServiceUI component
 public class BuildAgentEntryOverrideUI extends JDialog {
+
+    private static final Logger LOG = Logger.getLogger(BuildAgentEntryOverrideUI.class);
 
     private static final class PropRow {
         private String name;
@@ -111,12 +117,13 @@ public class BuildAgentEntryOverrideUI extends JDialog {
      * Constructor
      * @param owner parent of this dialog
      * @param agent the BuildAgentService who's entries we are editing
+     * @param agentInfo text identifying the agent who's entries we are editing
      * @throws RemoteException if an error occurs getting entry overrides from agent
      */
-    public BuildAgentEntryOverrideUI(final Frame owner, final BuildAgentService agent) 
+    public BuildAgentEntryOverrideUI(final Frame owner, final BuildAgentService agent, final String agentInfo)
             throws RemoteException {
 
-        super(owner);
+        super(owner, "Edit Entry Overrides - " + agentInfo);
 
         // populate table with existing entry overrides
 
@@ -134,9 +141,10 @@ public class BuildAgentEntryOverrideUI extends JDialog {
         tblEntries.getTableHeader().getColumnModel().getColumn(COL_NAME).setHeaderValue("Name");
         tblEntries.getTableHeader().getColumnModel().getColumn(COL_VALUE).setHeaderValue("Value");
         tblEntries.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-        final JScrollPane jscp = new JScrollPane(tblEntries);
+        final JScrollPane scrTable = new JScrollPane(tblEntries);
+        scrTable.setPreferredSize(new Dimension(550, 200));
         final JPanel pnlMain = new JPanel();
-        pnlMain.add(jscp);
+        pnlMain.add(scrTable);
 
         atnSave = new AbstractAction("Save") {
             public void actionPerformed(ActionEvent e) {
@@ -154,7 +162,8 @@ public class BuildAgentEntryOverrideUI extends JDialog {
                     agent.setEntryOverrides(SearchablePropertyEntries.getPropertiesAsEntryArray(props));
                 } catch (RemoteException e1) {
                     final String msg = "Error saving entry overrides.";
-                    JOptionPane.showMessageDialog(BuildAgentEntryOverrideUI.this, msg,
+                    LOG.error(msg, e1);
+                    JOptionPane.showMessageDialog(BuildAgentEntryOverrideUI.this, msg + "\n\n" + e1.getMessage(),
                             "Error Saving Changes", JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(msg, e1);
                 }
@@ -191,6 +200,7 @@ public class BuildAgentEntryOverrideUI extends JDialog {
         });
 
         pack();
+        setLocationRelativeTo(owner);
         setVisible(true);
     }
 
