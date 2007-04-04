@@ -329,7 +329,9 @@ public class DistributedMasterBuilder extends Builder {
                 break;
             } else {
                 // wait a bit and try again
-                LOG.info("Couldn't find available agent. Waiting "
+                LOG.info("Couldn't find available agent with entries: \n"
+                        + MulticastDiscovery.toStringEntries(entries) 
+                        + " \nto build " + module + ". Waiting "
                         + (DEFAULT_CACHE_MISS_WAIT / 1000) + " seconds before retry.");
                 try {
                     Thread.sleep(DEFAULT_CACHE_MISS_WAIT);
