@@ -134,6 +134,7 @@ public class CruiseControlConfig {
             return;
         }
         try {
+            path = ProjectXMLHelper.parsePropertiesInString(rootProperties, path, FAIL_UPON_MISSING_PROPERTY);
             LOG.debug("getting included projects from " + path);
             Element includedElement = xmlResolver.getElement(path);
             CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);

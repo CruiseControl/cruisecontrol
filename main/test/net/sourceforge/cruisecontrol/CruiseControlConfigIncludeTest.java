@@ -101,6 +101,55 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         assertIsFooProject(config.getProject("in.root"));
     }
 
+    public void testIncludeFilenameContainsProperty() throws CruiseControlException {
+        XmlResolver includeFOOXmlResolver = new XmlResolver() {
+            private Element includePropertyElement;
+            {
+                StringBuffer includeText = new StringBuffer(200);
+                includeText.append("<cruisecontrol>");
+                includeText.append("  <foo.project name='in.include.withproperty'/>");
+                includeText.append("</cruisecontrol>");
+                includePropertyElement = elementFromString(includeText.toString());
+            }
+
+            public Element getElement(String path) throws CruiseControlException {
+                assertEquals("include_FOO_.xml", path);
+                return includePropertyElement;
+            }
+        };
+
+        Element propertyElement = new Element("property");
+        propertyElement.setAttribute("name", "filenameswitch");
+        propertyElement.setAttribute("value", "_FOO_");
+        rootElement.addContent(propertyElement);
+        rootElement.removeChild("include.projects");
+        Element includeTagElement = new Element("include.projects");
+        includeTagElement.setAttribute("file", "include${filenameswitch}.xml");
+        rootElement.addContent(includeTagElement);
+
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeFOOXmlResolver);
+        assertEquals(2, config.getProjectNames().size());
+        assertIsFooProject(config.getProject("in.root"));
+        assertIsFooProject(config.getProject("in.include.withproperty"));
+    }
+
+    public void testIncludeFilenameContainsUnsetProperty() throws CruiseControlException {
+        XmlResolver includeUnknownXmlResolver = new XmlResolver() {
+            public Element getElement(String path) throws CruiseControlException {
+                throw new CruiseControlException("failed to load file []");
+            }
+        };
+
+        rootElement.removeChild("include.projects");
+        Element includeTagElement = new Element("include.projects");
+        includeTagElement.setAttribute("file", "include${filenameswitch}.xml");
+        rootElement.addContent(includeTagElement);
+
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeUnknownXmlResolver);
+        assertEquals(1, config.getProjectNames().size());
+        assertIsFooProject(config.getProject("in.root"));
+    }
+
     private Element elementFromString(String text) throws CruiseControlException {
         InputStream is = new ByteArrayInputStream(text.getBytes());
         return Util.loadRootElement(is);
