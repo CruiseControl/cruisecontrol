@@ -48,6 +48,7 @@ public final class PropertiesHelper {
 
     private static final Logger LOG = Logger.getLogger(PropertiesHelper.class);
 
+    // Property Names, used between DistributedMasterBuilder and Build Agent
     public static final String DISTRIBUTED_OVERRIDE_TARGET = "distributed.overrideTarget";
     public static final String DISTRIBUTED_MODULE = "distributed.module";
     public static final String DISTRIBUTED_AGENT_LOGDIR = "distributed.agentlogdir";

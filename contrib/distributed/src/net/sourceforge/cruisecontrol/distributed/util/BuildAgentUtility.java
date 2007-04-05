@@ -7,6 +7,7 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentEntryOverrideUI;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
+import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -47,13 +48,6 @@ public final class BuildAgentUtility {
     static class UI extends JFrame {
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
-        private static final String PREFS_NODE_SCREEN_POSITION = "screenPosition";
-        private static final String PREFS_NODE_X = "x";
-        private static final String PREFS_NODE_Y = "y";
-        private static final String PREFS_NODE_SCREEN_SIZE = "screenSize";
-        private static final String PREFS_NODE_WIDTH = "w";
-        private static final String PREFS_NODE_HEIGHT = "h";
-
         private final String origTitle;
         private final BuildAgentUtility buildAgentUtility;
         private final JButton btnRefresh = new JButton("Refresh");
@@ -70,10 +64,8 @@ public final class BuildAgentUtility {
         private final JTextArea txaConsole = new JTextArea();
         private final JScrollPane scrConsole = new JScrollPane();
 
-        private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-        Preferences getPrefsRoot() { return prefs; }
-        private final Preferences prfScrPosition = prefs.node(PREFS_NODE_SCREEN_POSITION);
-        private final Preferences prfScrSize = prefs.node(PREFS_NODE_SCREEN_SIZE);
+        private final Preferences prefsBase = Preferences.userNodeForPackage(this.getClass());
+        Preferences getPrefsRoot() { return prefsBase; }
 
         /**
          * No-arg constructor for use in unit tests, to be overridden by MockUI.
@@ -203,8 +195,7 @@ public final class BuildAgentUtility {
             pack();
 
             // set screen info from last run
-            setLocation(prfScrPosition.getInt(PREFS_NODE_X, 0), prfScrPosition.getInt(PREFS_NODE_Y, 0));
-            setSize(prfScrSize.getInt(PREFS_NODE_WIDTH, getWidth()), prfScrSize.getInt(PREFS_NODE_HEIGHT, getHeight()));
+            PreferencesHelper.applyWindowInfo(prefsBase, this);
 
             setVisible(true);
         }
@@ -311,10 +302,7 @@ public final class BuildAgentUtility {
 
         private void exitForm() {
             // save screen info
-            prfScrPosition.putInt(PREFS_NODE_X, (int) getLocation().getX());
-            prfScrPosition.putInt(PREFS_NODE_Y, (int) getLocation().getY());
-            prfScrSize.putInt(PREFS_NODE_WIDTH, getWidth());
-            prfScrSize.putInt(PREFS_NODE_HEIGHT, getHeight());
+            PreferencesHelper.saveWindowInfo(this, prefsBase);
 
             System.exit(0);
         }
