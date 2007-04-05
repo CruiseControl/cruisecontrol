@@ -21,10 +21,10 @@ import javax.swing.JOptionPane;
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import java.rmi.RemoteException;
-import java.util.prefs.Preferences;
 
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
+import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
 
 /**
  * @author: Dan Rollo
@@ -37,13 +37,6 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     private static final Logger LOG = Logger.getLogger(BuildAgentUI.class);
 
     private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
-
-    private static final String PREFS_NODE_SCREEN_POSITION = "screenPosition";
-    private static final String PREFS_NODE_X = "x";
-    private static final String PREFS_NODE_Y = "y";
-    private static final String PREFS_NODE_SCREEN_SIZE = "screenSize";
-    private static final String PREFS_NODE_WIDTH = "w";
-    private static final String PREFS_NODE_HEIGHT = "h";
 
     private final BuildAgent buildAgent;
     private final JTextArea txaAgentInfo;
@@ -129,30 +122,18 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         getContentPane().add(scrConsole, BorderLayout.CENTER);
         pack();
 
-        // set screen info from last run
-        final Preferences prfScrPosition = getPrefNodeScreenPosition();
-        setLocation(prfScrPosition.getInt(PREFS_NODE_X, 0), prfScrPosition.getInt(PREFS_NODE_Y, 0));
-        final Preferences prfScrSize = getPrefNodeScreenSize();
-        setSize(prfScrSize.getInt(PREFS_NODE_WIDTH, getWidth()), prfScrSize.getInt(PREFS_NODE_HEIGHT, getHeight()));
+        // apply screen info from last run
+        PreferencesHelper.applyWindowInfo(buildAgent.getPrefsRoot(), this);
 
         setVisible(true);
     }
 
-    private Preferences getPrefNodeScreenPosition() {
-        return buildAgent.getPrefsRoot().node(PREFS_NODE_SCREEN_POSITION);
-    }
-    private Preferences getPrefNodeScreenSize() {
-        return buildAgent.getPrefsRoot().node(PREFS_NODE_SCREEN_SIZE);
-    }
 
     public void dispose() {
         // ensure we do cleanup even when closing due to webstart resart
 
         // save screen info
-        getPrefNodeScreenPosition().putInt(PREFS_NODE_X, (int) getLocation().getX());
-        getPrefNodeScreenPosition().putInt(PREFS_NODE_Y, (int) getLocation().getY());
-        getPrefNodeScreenSize().putInt(PREFS_NODE_WIDTH, getWidth());
-        getPrefNodeScreenSize().putInt(PREFS_NODE_HEIGHT, getHeight());
+        PreferencesHelper.saveWindowInfo(this, buildAgent.getPrefsRoot());
 
         super.dispose();
     }

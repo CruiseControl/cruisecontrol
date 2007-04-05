@@ -196,14 +196,14 @@ public class BuildAgent implements DiscoveryListener,
     }
 
 
-    private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
-    Preferences getPrefsRoot() { return prefs; }
+    private final Preferences prefsBase = Preferences.userNodeForPackage(this.getClass());
+    Preferences getPrefsRoot() { return prefsBase; }
     /**
      * Gets the EntryOverrides preferences node this this user, shared among all BuildAgents running
      * under this userID on the current machine.
      * @todo Should this node be more granular, like per Agent ServiceID? if so we must store/resuse serviceID
      */
-    private final Preferences prefsEntryOverrides = prefs.node("entryOverrides");
+    private final Preferences prefsEntryOverrides = prefsBase.node("entryOverrides");
 
     void setEntryOverrides(final PropertyEntry[] entryOverrides) {
         // clear stored override preferences settings
@@ -232,7 +232,7 @@ public class BuildAgent implements DiscoveryListener,
         try {
             prefsEntryOverrides.clear();
         } catch (BackingStoreException e) {
-            LOG.error("Error clearing prefs.", e);
+            LOG.error("Error clearing entry override prefs.", e);
             throw new RuntimeException(e);
         }
     }
