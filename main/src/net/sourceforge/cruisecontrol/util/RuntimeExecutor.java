@@ -49,6 +49,6 @@ public class RuntimeExecutor implements Executor {
     }
 
     public Process exec(Commandline c) throws IOException {
-        return delegate.exec(c.getCommandline());
+        return delegate.exec(c.getCommandline(), null, c.getWorkingDir());
     }
 }
