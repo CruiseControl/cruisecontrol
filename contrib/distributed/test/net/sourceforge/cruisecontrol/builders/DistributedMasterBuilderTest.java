@@ -181,7 +181,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         // setup security policy
         setupInsecurePolicy();
 
-        ServiceRegistrar serviceRegistrar = findTestLookupService(20 * 1000);
+        ServiceRegistrar serviceRegistrar = findTestLookupService(30 * 1000);
         try {
             assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
         } finally {
