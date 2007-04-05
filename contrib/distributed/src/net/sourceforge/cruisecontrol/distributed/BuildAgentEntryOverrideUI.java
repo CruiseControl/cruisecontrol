@@ -178,6 +178,7 @@ public class BuildAgentEntryOverrideUI extends JDialog {
         atnNewRow = new AbstractAction("New Row") {
             public void actionPerformed(ActionEvent e) {
                 mdlTable.addRow(new PropRow(null, null));
+                tblEntries.requestFocusInWindow();
             }
         };
         pnlButtons.add(new JButton(atnNewRow));
