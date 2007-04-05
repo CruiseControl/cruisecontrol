@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JButton;
@@ -21,6 +22,7 @@ import javax.swing.JOptionPane;
 import javax.swing.Action;
 import javax.swing.AbstractAction;
 import java.rmi.RemoteException;
+import java.util.prefs.Preferences;
 
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
@@ -32,7 +34,8 @@ import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
  * Time: 3:38:53 PM
  */
 // @todo Use JDesktop stuff for tray icon??
-final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListener, BuildAgent.LUSCountListener {
+final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListener, BuildAgent.LUSCountListener,
+        PreferencesHelper.UIPreferences {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentUI.class);
 
@@ -123,7 +126,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         pack();
 
         // apply screen info from last run
-        PreferencesHelper.applyWindowInfo(buildAgent.getPrefsRoot(), this);
+        PreferencesHelper.applyWindowInfo(this);
 
         setVisible(true);
     }
@@ -133,7 +136,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         // ensure we do cleanup even when closing due to webstart resart
 
         // save screen info
-        PreferencesHelper.saveWindowInfo(this, buildAgent.getPrefsRoot());
+        PreferencesHelper.saveWindowInfo(this);
 
         super.dispose();
     }
@@ -189,6 +192,14 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
                 setTitle(origTitle + ", LUS's: " + newLUSCount);                                
             }
         });
+    }
+
+    public Preferences getPrefsBase() {
+        return buildAgent.getPrefsRoot();
+    }
+
+    public Window getWindow() {
+        return this;
     }
 
     /**
