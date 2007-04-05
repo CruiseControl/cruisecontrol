@@ -32,6 +32,10 @@ EmailPublisher
 ----------------------
 * Validate that email addresses are legal (CC-601). Patch by Jerome Lacoste. 
 
+HtmlEmailPublisher
+----------------------
+* Expanded automatic search path for xsl and css files to work better with binary distribution (CC-566). Patch by Michael Kloss. 
+
 HttpFile
 ----------------------
 * Fix bug where HttpFile didn't work with domain only (http://host.com) urls (CC-614). Patch by J. David Beutel
