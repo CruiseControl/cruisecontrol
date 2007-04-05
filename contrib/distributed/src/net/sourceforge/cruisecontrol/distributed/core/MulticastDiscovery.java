@@ -206,7 +206,7 @@ public final class MulticastDiscovery {
         try {
             return clientMgr.lookup(tmpl, FLTR_AVAILABLE, waitDurMillis);
         } catch (InterruptedException e) {
-            throw new RuntimeException("Error finding BuildAgent services.", e);
+            throw new RuntimeException("Error finding BuildAgent service.", e);
         }
     }
     private ServiceItem findMatchingServiceAndClaimImpl(final Entry[] entries, final long waitDurMillis)
