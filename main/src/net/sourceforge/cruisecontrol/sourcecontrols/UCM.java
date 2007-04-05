@@ -74,6 +74,7 @@ public class UCM implements SourceControl {
 
     private String stream;
     private String viewPath;
+    private boolean multiVob;
     private boolean contributors = true;
     private boolean rebases = false;
 
@@ -145,6 +146,24 @@ public class UCM implements SourceControl {
     public void setViewPath(String viewPath) {
         this.viewPath = viewPath;
     }
+    
+    /**
+     * get whether the view contains multiple vobs
+     *
+     * @return true, if the view contains multiple vobs, else false
+     */
+    public boolean isMultiVob() {
+        return this.multiVob;
+    }
+
+    /**
+     * set whether the view contains multiple vobs
+     *
+     * @param contributors boolean indicating whether the view contains multiple vobs
+     */
+    public void setMultiVob(boolean multiVob) {
+        this.multiVob = multiVob;
+    }    
 
     /**
      * Set the name of the pvob to use for queries.
@@ -337,14 +356,27 @@ public class UCM implements SourceControl {
      */
     public Commandline buildListStreamCommand(String lastBuildDate) {
         Commandline commandLine = new Commandline();
+        if (isMultiVob()) {
+            try {
+                commandLine.setWorkingDirectory(getViewPath());
+            } catch (CruiseControlException e) {
+               LOG.error("Error in setting workdirectory", e);
+            }
+        }
         commandLine.setExecutable("cleartool");
         commandLine.createArgument("lshistory");
         commandLine.createArguments("-branch", getStream());
-        commandLine.createArgument("-r");
+        if (isMultiVob()) {
+            commandLine.createArgument("-avobs");
+        } else {
+            commandLine.createArgument("-r");
+        }
         commandLine.createArgument("-nco");
         commandLine.createArguments("-since", lastBuildDate);
         commandLine.createArguments("-fmt", "%o~#~%[activity]Xp~#~%Nd\n");
-        commandLine.createArgument(getViewPath());
+        if (!isMultiVob()) {
+            commandLine.createArgument(getViewPath());
+        }
         return commandLine;
     }
 

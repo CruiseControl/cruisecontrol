@@ -55,6 +55,9 @@ Pvcs
 ----------------------
 * Fixed bug where extra double quotes were being added to the call to pcli (CC-604). Patches by Karsten Wintermann and Dave Kilroy.
 
+UCM
+----------------------
+* Added support for multiple vobs (CC-597). Patch by Mark Holster.
 
 reporting
 ======================
