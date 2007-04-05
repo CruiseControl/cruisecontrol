@@ -58,6 +58,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.Property;
+import net.sourceforge.cruisecontrol.launch.Launcher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -150,8 +151,8 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * or null if it can't be found.
      */
     private String getCssFromClasspath() {
-        File cssFile = new File(getCruiseRootDir(), "reporting/jsp/webcontent/css/cruisecontrol.css");
-        if (cssFile.exists()) {
+        File cssFile = guessFileForResource("css/cruisecontrol.css");
+        if (cssFile != null && cssFile.exists()) {
             return cssFile.getAbsolutePath();
         }
         return null;
@@ -162,13 +163,40 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * or null if it can't be found.
      */
     private String getXslDirFromClasspath() {
-        File xsl = new File(getCruiseRootDir(), "reporting/jsp/webcontent/xsl");
-        if (xsl.isDirectory()) {
+        File xsl = guessFileForResource("xsl");
+        if (xsl != null && xsl.isDirectory()) {
             return xsl.getAbsolutePath();
         }
         return null;
     }
 
+    /**
+     * Try some path constellations to see if the relative resource exists somewhere.
+     * First existing resource will be returned. At the moment we use the source-path and
+     * cc.home-property in combination with the source-tree and binary-contribution tree.
+     * @param relativeResource 
+     * @return an existing resource as file or null
+     */
+    private File guessFileForResource(String relativeResource) {
+        File ccHome = getCruiseRootDir();
+        if (System.getProperty(Launcher.CCHOME_PROPERTY) != null) {
+            ccHome = new File(System.getProperty(Launcher.CCHOME_PROPERTY));
+        }
+        String cruise = "reporting/jsp/webcontent/";
+        String binaryDistribution = "webapps/cruisecontrol/";
+        File[] possiblePaths = {new File(getCruiseRootDir(), cruise + relativeResource),
+                new File(getCruiseRootDir(), binaryDistribution + relativeResource),
+                new File(ccHome, cruise + relativeResource),
+                new File(ccHome, binaryDistribution + relativeResource)};
+        for (int i = 0; i < possiblePaths.length; i++) {
+            if (possiblePaths[i].exists()) {
+                return possiblePaths[i];
+            }
+            
+        }
+        return null;
+    }
+    
     /**
      * @return the root directory of the running cruisecontrol installation.
      * Uses Ant's Locator.
