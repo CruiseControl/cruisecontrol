@@ -32,6 +32,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
@@ -44,8 +45,14 @@ import java.util.prefs.Preferences;
 public final class BuildAgentUtility {
     private static final Logger LOG = Logger.getLogger(BuildAgentUtility.class);
 
+    // helps make UI class testable in a headless environment
+    static interface UISetInfo {
+        void setInfo(final String infoText);
+    }
+
     // @todo make BuidAgentService implement/extend jini ServiceUI?
-    static class UI extends JFrame {
+    static class UI extends JFrame implements PreferencesHelper.UIPreferences, UISetInfo {
+
         private static final int CONSOLE_LINE_BUFFER_SIZE = 1000;
 
         private final String origTitle;
@@ -64,8 +71,8 @@ public final class BuildAgentUtility {
         private final JTextArea txaConsole = new JTextArea();
         private final JScrollPane scrConsole = new JScrollPane();
 
-        private final Preferences prefsBase = Preferences.userNodeForPackage(this.getClass());
-        Preferences getPrefsRoot() { return prefsBase; }
+        private static final Preferences PREFS_BASE = Preferences.userNodeForPackage(UI.class);
+        static Preferences getPrefsRoot() { return PREFS_BASE; }
 
         /**
          * No-arg constructor for use in unit tests, to be overridden by MockUI.
@@ -195,7 +202,7 @@ public final class BuildAgentUtility {
             pack();
 
             // set screen info from last run
-            PreferencesHelper.applyWindowInfo(prefsBase, this);
+            PreferencesHelper.applyWindowInfo(this);
 
             setVisible(true);
         }
@@ -218,6 +225,16 @@ public final class BuildAgentUtility {
                 agent.kill(chkAfterBuildFinished.isSelected());
             }
         }
+
+        // begin implementation of UIPreferences
+        public Preferences getPrefsBase() {
+            return UI.getPrefsRoot();
+        }
+
+        public Window getWindow() {
+            return this;
+        }
+        // end implementation of UIPreferences
 
         private static final class ComboItemWrapper {
             private static ComboItemWrapper[] wrapArray(final ServiceItem[] serviceItems) {
@@ -302,12 +319,13 @@ public final class BuildAgentUtility {
 
         private void exitForm() {
             // save screen info
-            PreferencesHelper.saveWindowInfo(this, prefsBase);
+            PreferencesHelper.saveWindowInfo(this);
 
             System.exit(0);
         }
 
-        private void setInfo(final String infoText) {
+        // Only public to allow testing of UI in headless environs
+        public void setInfo(final String infoText) {
             LOG.debug(infoText);
             SwingUtilities.invokeLater(new Thread("BuildAgentUtility txaConsole.setInfo Thread") {
                 public void run() {
@@ -339,7 +357,7 @@ public final class BuildAgentUtility {
         }
     }
 
-    private final UI ui;
+    private final UISetInfo ui;
 
     private int lastLUSCount;
 
@@ -349,13 +367,13 @@ public final class BuildAgentUtility {
     private BuildAgentUtility() {
         this(null);
     }
-    BuildAgentUtility(final UI mockUI) {
+    BuildAgentUtility(final UISetInfo mockUI) {
 
         CCDistVersion.printCCDistVersion();
 
         if (mockUI == null) {
             ui = new UI(this);
-            ui.btnRefresh.doClick();
+            ((UI) ui).btnRefresh.doClick();
         } else {
             ui = mockUI;
             isFailFast = true;

@@ -4,9 +4,11 @@ import junit.framework.TestCase;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.awt.GraphicsEnvironment;
+import java.util.prefs.Preferences;
+import java.awt.Window;
 
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
 import org.apache.log4j.Logger;
 
 /**
@@ -18,10 +20,21 @@ public class BuildAgentUtilityTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentUtilityTest.class);
 
-    private static final class MockUI extends BuildAgentUtility.UI {
-        private MockUI() {
-            super();
+    private static final class MockUI implements PreferencesHelper.UIPreferences, BuildAgentUtility.UISetInfo {
+
+        public Preferences getPrefsBase() {
+            return Preferences.userNodeForPackage(BuildAgentUtility.UI.class);
         }
+
+        public Window getWindow() {
+            final String msg = "Dummy unit test method not implemented, and should NOT have been called.";
+            LOG.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+        private String infoTextSet;
+        public void setInfo(final String infoText) { infoTextSet = infoText; }
+        public String getLastInfo() { return infoTextSet; }
     }
     private MockUI mockUI;
 
@@ -29,34 +42,31 @@ public class BuildAgentUtilityTest extends TestCase {
     protected void setUp() throws Exception {
         DistributedMasterBuilderTest.setupInsecurePolicy();
 
-        if (GraphicsEnvironment.isHeadless()) {
-            LOG.warn("WARNING: DETECTED HEADLESS ENVIRONMENT. Skipping test: "
-                    + getClass().getName() + ".setUp() MockUI creation");
-        } else {
-            mockUI = new MockUI();
-        }
+        mockUI = new MockUI();
     }
     protected void tearDown() throws Exception {
-        if (mockUI != null) {
-            // clear all agent util prefs
-            mockUI.getPrefsRoot().removeNode();
-            mockUI.getPrefsRoot().flush();
-        }
+        // clear all agent util prefs
+        mockUI.getPrefsBase().removeNode();
+        mockUI.getPrefsBase().flush();
     }
 
 
     public void testDiscoveryInstanceReuse() throws Exception {
-        if (GraphicsEnvironment.isHeadless()) {
-            LOG.warn("WARNING: DETECTED HEADLESS ENVIRONMENT. Skipping test: "
-                    + getClass().getName() + ".testDiscoveryInstanceReuse()");
-            return;
-        }
 
         final BuildAgentUtility buildAgentUtility = new BuildAgentUtility(mockUI);
         final List agents = new ArrayList();
+
+        assertNull(mockUI.getLastInfo());
         buildAgentUtility.getAgentInfoAll(agents);
+        assertNotNull(mockUI.getLastInfo());
+
+        // reset
+        mockUI.setInfo(null);
+        assertNull(mockUI.getLastInfo());
+
         // call again to make sure disovery instance is not terminated
         buildAgentUtility.getAgentInfoAll(agents);
+        assertNotNull(mockUI.getLastInfo());
     }
 
 }
