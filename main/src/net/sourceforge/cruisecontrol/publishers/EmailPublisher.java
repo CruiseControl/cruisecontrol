@@ -71,6 +71,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
+import org.apache.commons.validator.EmailValidator;
 import org.jdom.Element;
 
 /**
@@ -281,7 +282,19 @@ public abstract class EmailPublisher implements Publisher {
 
         Set emails = new TreeSet();
         mapperHelper.mapUsers(this, users, emails);
+
+        for (Iterator iterator = emails.iterator(); iterator.hasNext();) {
+            String email = (String) iterator.next();
+            if (!isValid(email)) {
+                LOG.warn("Invalid email: " + email);
+            }
+        }
+
         return emails;
+    }
+
+    boolean isValid(String address) {
+        return EmailValidator.getInstance().isValid(address);
     }
 
     /**
@@ -305,7 +318,7 @@ public abstract class EmailPublisher implements Publisher {
         if (shouldSend(helper)) {
             userSet.addAll(createUserSet(helper));
             // Do not send duplicates to users who received an alert email
-            userSet.removeAll(alertSet);
+            userSet.removeAll(alertSet);                              
 
             if (!userSet.isEmpty()) {
                 sendMail(createEmailString(userSet), subject, createMessage(helper), important);

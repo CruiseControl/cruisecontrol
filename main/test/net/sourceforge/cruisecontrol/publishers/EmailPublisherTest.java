@@ -168,6 +168,13 @@ public class EmailPublisherTest extends TestCase {
         publisher.validate();
     }
 
+    public void testEmailValidator() {
+        assertTrue(emailPublisher.isValid("jerome@coffeebreaks.org"));
+        assertFalse(emailPublisher.isValid("jerome@coffeebreaks."));
+        assertTrue(emailPublisher.isValid("\"email with space\"@test.com"));
+        assertTrue(emailPublisher.isValid("emailWith$Sign@test.com"));
+    }
+
     public void testValidateAlwaysAddresses() throws CruiseControlException {
         Always always = emailPublisher.createAlways();
         try {
