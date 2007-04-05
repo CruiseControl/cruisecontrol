@@ -408,7 +408,17 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             // use canonical behavior if attribute is not set
             resultDir = buildRootDir + File.separator + resultType + File.separator + getModule();
         }
-        new File(resultDir).mkdirs();
+
+        // ensure dir exists
+        final File fileResultDir = new File(resultDir);
+        if (!fileResultDir.exists()) {
+            if (!fileResultDir.mkdirs()) {
+                final String msg = "Error creating Agent result dir: " + fileResultDir.getAbsolutePath();
+                LOG.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+
         return resultDir;
     }
 
