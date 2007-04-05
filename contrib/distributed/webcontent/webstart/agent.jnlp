@@ -35,6 +35,8 @@
         <jar href="jini-core/jini-core.jar"/>
         <jar href="jini-core/jini-ext.jar"/>
 
+        <jar href="jini-lib/jsk-platform.jar"/>
+
     </resources>
 
     <application-desc main-class="net.sourceforge.cruisecontrol.distributed.BuildAgent"/>
