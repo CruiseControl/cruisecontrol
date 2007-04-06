@@ -66,7 +66,7 @@ emma.jar		2.0.4217	CPL v1.0	cpl-license.txt
 emma_ant.jar		2.0.4217	CPL v1.0	cpl-license.txt
 win32comm.dll		2.0win		Sun BCLA	comm-license.txt
 commons-net-1.1.0.jar	1.1.0		ASL v1.1	apache-license-1.1.txt
-jakarta-oro-2.0.3.jar	2.0.3		ASL v1.1	apache-license-1.1.txt
+jakarta-oro-2.0.8.jar	2.0.8		ASL v2.0	apache-license-2.0.txt
 jdom.jar		1.0				jdom-license.txt
 junit.jar		3.8.1		CPL v1.0	cpl-license.txt
 log4j.jar		1.2.4		ASL v.1.1	apache-license-1.1.txt

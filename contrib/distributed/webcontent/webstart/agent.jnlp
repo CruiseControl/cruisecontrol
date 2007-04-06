@@ -23,7 +23,7 @@
 
         <jar href="lib/cruisecontrol.jar"/>
 
-        <jar href="lib/jakarta-oro-2.0.3.jar"/>
+        <jar href="lib/jakarta-oro-2.0.8.jar"/>
         <jar href="lib/jdom.jar"/>
         <jar href="lib/log4j.jar"/>
 
