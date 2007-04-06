@@ -72,7 +72,7 @@ set CCDIST_CORE=%CCDIST%\dist\core\
 set CCDIST_JINICORE=%CCDIST%\jini-core\
 set CCDIST_CONF=%CCDIST%\conf
 
-set EXEC=%JAVA_PATH% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%CCDIST_CONF%\insecure.policy -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar -lib "%JAVA_HOME%\lib\tools.jar" -lib %CCDIST_BUILDER%;%CCDIST_CORE%;%CCDIST_JINICORE%;%CCDIST_CONF% %*
+set EXEC=%JAVA_PATH% %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=%CCDIST_CONF%\insecure.policy -Dcc.library.dir=%LIBDIR% -Dcc.dist.dir=%DISTDIR% -jar %DISTDIR%\cruisecontrol-launcher.jar -lib "%JAVA_HOME%\lib\tools.jar" -lib %CCDIST_BUILDER%;%CCDIST_CORE%;%CCDIST_JINICORE%;%CCDIST_CONF% %*
 echo %EXEC%
 %EXEC%
 
