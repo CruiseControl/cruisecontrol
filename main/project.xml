@@ -132,7 +132,7 @@
     <dependency>
       <groupId>jakarta</groupId>
       <artifactId>oro</artifactId>
-      <version>2.0.3</version> <!-- FIXME not in ibiblio. upgrade? -->
+      <version>2.0.8</version> <!-- FIXME not in ibiblio. upgrade? -->
       <url>http://jakarta.apache.org/oro/</url>
     </dependency>
     <dependency>
