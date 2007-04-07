@@ -369,6 +369,15 @@ public class BuildAgent implements DiscoveryListener,
         return serviceImpl;
     }
 
+    // For unit tests only
+    void addDiscoveryListener(final DiscoveryListener serviceIDListener) {
+        getJoinManager().getDiscoveryManager().addDiscoveryListener(serviceIDListener);
+    }
+    void removeDiscoveryListener(final DiscoveryListener serviceIDListener) {
+        getJoinManager().getDiscoveryManager().removeDiscoveryListener(serviceIDListener);
+    }
+    boolean isServiceIDAssigned() { return serviceID == null; }
+
 
     public synchronized void serviceIDNotify(final ServiceID serviceID) {
         // @todo technically, should serviceID be stored permanently and reused?....

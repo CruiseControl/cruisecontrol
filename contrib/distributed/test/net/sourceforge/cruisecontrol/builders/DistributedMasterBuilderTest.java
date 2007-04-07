@@ -37,6 +37,8 @@ import net.jini.core.discovery.LookupLocator;
 import net.jini.config.ConfigurationProvider;
 import net.jini.config.Configuration;
 import net.jini.config.ConfigurationException;
+import net.jini.discovery.DiscoveryListener;
+import net.jini.discovery.DiscoveryEvent;
 
 /**
  * @author: Dan Rollo
@@ -263,7 +265,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
 
-        final int sleepMillisAfterException = 250;
+        final int sleepMillisAfterException = 100;
 
         while (serviceRegistrar == null
                 && (System.currentTimeMillis() - startTime < retryTimeoutMillis)) {
@@ -510,36 +512,82 @@ public class DistributedMasterBuilderTest extends TestCase {
 
 
 
-    public static BuildAgent createBuildAgent() {
+    public static BuildAgent createBuildAgent() throws InterruptedException {
+
+        final long begin = System.currentTimeMillis();
+
         final BuildAgent agent = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
 
         BuildAgentTest.setTerminateFast(agent);
-        return agent;
-    }
 
-    private static void waitForCacheToDiscoverLUS()
-            throws InterruptedException {
-        // wait for cache to discover lookup service
-        int i = 0;
-        int waitRepeat = 15;
-        while (!MulticastDiscoveryTest.isDiscovered() && i < waitRepeat) {
-            Thread.sleep(1000);
-            i++;
+        // wait for agent to discover LUS
+        final DiscoveryListener discoveryListener = new DiscoveryListener() {
+
+            public void discovered(DiscoveryEvent e) {
+                synchronized (agent) {
+                    agent.notifyAll();
+                }
+            }
+
+            public void discarded(DiscoveryEvent e) {
+                synchronized (agent) {
+                    agent.notifyAll();
+                }
+            }
+        };
+        BuildAgentTest.addDiscoveryListener(agent, discoveryListener);
+        try {
+            synchronized (agent) {
+                agent.wait(10 * 1000);
+            }
+        } finally {
+            BuildAgentTest.removeDiscoveryListener(agent, discoveryListener);
         }
-        assertTrue("Lookup Service was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
-                MulticastDiscoveryTest.isDiscovered());
+        assertTrue("Unit test Agent was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
+                BuildAgentTest.isServiceIDAssigned(agent));
+
+        LOG.info("Unit test Agent discovery took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+
+        return agent;
     }
 
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY()
             throws MalformedURLException, InterruptedException {
 
         if (!MulticastDiscovery.isDiscoverySet()) {
+            final long begin = System.currentTimeMillis();
+
             final MulticastDiscovery discovery = MulticastDiscoveryTest.getLocalDiscovery();
             MulticastDiscoveryTest.setDiscovery(discovery);
             // wait to discover lookupservice
-            waitForCacheToDiscoverLUS();
+            final DiscoveryListener discoveryListener = new DiscoveryListener() {
+
+                public void discovered(DiscoveryEvent e) {
+                    synchronized (discovery) {
+                        discovery.notifyAll();
+                    }
+                }
+
+                public void discarded(DiscoveryEvent e) {
+                    synchronized (discovery) {
+                        discovery.notifyAll();
+                    }
+                }
+            };
+            MulticastDiscoveryTest.addDiscoveryListener(discoveryListener);
+            try {
+                synchronized (discovery) {
+                    discovery.wait(10 * 1000);
+                }
+            } finally {
+                MulticastDiscoveryTest.removeDiscoveryListener(discoveryListener);
+            }
+            assertTrue("MulticastDiscovery was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
+                    MulticastDiscoveryTest.isDiscovered());
+
+            LOG.info("Unit test MulticastDiscovery took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
         }
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();

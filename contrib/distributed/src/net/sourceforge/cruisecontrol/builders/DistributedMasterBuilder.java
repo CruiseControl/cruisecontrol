@@ -312,7 +312,7 @@ public class DistributedMasterBuilder extends Builder {
             try {
                 serviceItem = MulticastDiscovery.findMatchingServiceAndClaim(entries,
                         // Non-zero failfast value avoids intermittent failures in unit tests
-                        (isFailFast ? 2000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
+                        (isFailFast ? 1000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 
             } catch (RemoteException e) {
                 throw new CruiseControlException("Error finding matching agent.", e);

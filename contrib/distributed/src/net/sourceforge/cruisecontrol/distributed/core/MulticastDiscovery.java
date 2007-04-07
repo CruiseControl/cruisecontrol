@@ -292,6 +292,19 @@ public final class MulticastDiscovery {
         LOG.info("LUS " + type + regMsg);
     }
 
+    // For unit tests only
+    private void addDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+        clientMgr.getDiscoveryManager().addDiscoveryListener(discoveryListener);
+    }
+    static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
+        getDiscovery().addDiscoveryListenerImpl(discoveryListener);
+    }
+    private void removeDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+        clientMgr.getDiscoveryManager().removeDiscoveryListener(discoveryListener);
+    }
+    static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
+        getDiscovery().removeDiscoveryListenerImpl(discoveryListener);
+    }
     private boolean isDiscovered;
     private synchronized void setDiscoveredImpl() {
         isDiscovered = true;
