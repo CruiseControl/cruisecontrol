@@ -181,7 +181,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         // setup security policy
         setupInsecurePolicy();
 
-        ServiceRegistrar serviceRegistrar = findTestLookupService(30 * 1000);
+        ServiceRegistrar serviceRegistrar = findTestLookupService(50 * 1000);
         try {
             assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
         } finally {
@@ -263,7 +263,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
 
-        final int sleepMillisAfterException = 100;
+        final int sleepMillisAfterException = 250;
 
         while (serviceRegistrar == null
                 && (System.currentTimeMillis() - startTime < retryTimeoutMillis)) {
