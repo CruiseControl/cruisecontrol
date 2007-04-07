@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.distributed.core;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.jini.core.discovery.LookupLocator;
+import net.jini.discovery.DiscoveryListener;
 
 import java.net.MalformedURLException;
 
@@ -116,4 +117,12 @@ public class MulticastDiscoveryTest extends TestCase {
     public static boolean isDiscovered() {
         return MulticastDiscovery.isDiscovered();
     }
+
+    public static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
+        MulticastDiscovery.addDiscoveryListener(discoveryListener);
+    }
+    public static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
+        MulticastDiscovery.removeDiscoveryListener(discoveryListener);
+    }
+
 }
