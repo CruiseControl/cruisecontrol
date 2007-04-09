@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 
 import org.jdom.Element;
+import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
+import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 
 /**
  * @author: Dan Rollo
@@ -24,6 +26,8 @@ import net.sourceforge.cruisecontrol.builders.MockBuilder;
  * Time: 1:54:38 PM
  */
 public class BuildAgentServiceImplTest extends TestCase {
+
+    private static final Logger LOG = Logger.getLogger(BuildAgentServiceImplTest.class);
 
     public static final String TEST_AGENT_PROPERTIES_FILE = "testdist.agent.properties";
     public static final String TEST_USER_DEFINED_PROPERTIES_FILE = "testdist.user-defined.properties";
@@ -350,8 +354,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertNotNull(agentImpl.getLastDelayedAction());
         assertEquals(BuildAgentServiceImpl.DelayedAction.Type.RESTART,
                 agentImpl.getLastDelayedAction().getType());
-        // wait for Restart() outside of webstart exception
-        Thread.sleep(KILL_DELAY * 2);
+        waitForDelayedAction(agentImpl);
+
         assertEquals("Couldn't find webstart Basic Service. Is Agent running outside of webstart?",
                 agentImpl.getLastDelayedAction().getThrown().getMessage());
     }
@@ -690,8 +694,9 @@ public class BuildAgentServiceImplTest extends TestCase {
                 true, agentImpl.isBusy());
         assertFalse("Kill should not have executed.", agentImpl.isDoKillExecuted());
 
-        // wait long enough for doKill to execute
-        Thread.sleep(KILL_DELAY * 2);
+        // wait for doKill to execute
+        waitForDelayedAction(agentImpl);
+
         assertTrue("Kill should have executed.", agentImpl.isDoKillExecuted());
 
         // Agent will still show as "claimed" in unit tests (since it can't system.exit).
@@ -700,6 +705,21 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertEquals("Agent should be busy after doKill executes in unit test.",
                 true, agentImpl.isBusy());
         assertEquals(firstClaimDate, agentImpl.getDateClaimed());
+    }
+
+
+    private static void waitForDelayedAction(BuildAgentServiceImpl agentImpl) throws InterruptedException {
+        // wait for Restart() outside of webstart exception
+        final long begin = System.currentTimeMillis();
+
+        final BuildAgentServiceImpl.DelayedAction delayedAction = agentImpl.getLastDelayedAction();
+        int cnt = 0;
+        while (!delayedAction.isFinished() && cnt < 5) {
+            Thread.sleep(100);
+        }
+
+        LOG.info(DistributedMasterBuilderTest.MSG_PREFIX_STATS + "Unit test Agent Delayed Action took: "
+                + (System.currentTimeMillis() - begin) / 1000f + " sec");
     }
 
 

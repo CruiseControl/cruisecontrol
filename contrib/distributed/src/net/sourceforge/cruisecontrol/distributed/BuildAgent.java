@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Collections;
+import java.util.Collection;
 import java.awt.GraphicsEnvironment;
 
 import net.jini.core.lookup.ServiceID;
@@ -370,11 +372,12 @@ public class BuildAgent implements DiscoveryListener,
     }
 
     // For unit tests only
-    void addDiscoveryListener(final DiscoveryListener serviceIDListener) {
-        getJoinManager().getDiscoveryManager().addDiscoveryListener(serviceIDListener);
+    private final Collection utestServiceIDListeners = Collections.synchronizedCollection(new ArrayList());
+    void addServiceIDListener(final ServiceIDListener serviceIDListener) {
+        utestServiceIDListeners.add(serviceIDListener);
     }
-    void removeDiscoveryListener(final DiscoveryListener serviceIDListener) {
-        getJoinManager().getDiscoveryManager().removeDiscoveryListener(serviceIDListener);
+    void removeServiceIDListener(final ServiceIDListener serviceIDListener) {
+        utestServiceIDListeners.add(serviceIDListener);
     }
     boolean isServiceIDAssigned() { return serviceID == null; }
 
@@ -385,6 +388,16 @@ public class BuildAgent implements DiscoveryListener,
         LOG.info("ServiceID assigned: " + this.serviceID);
         if (ui != null) {
             ui.updateAgentInfoUI(getService());
+        }
+
+        // For unit tests only
+        if (utestServiceIDListeners.size() > 0) {
+            synchronized (utestServiceIDListeners) {
+                Iterator itr = utestServiceIDListeners.iterator(); // Must be in the synchronized block
+                while (itr.hasNext()) {
+                    ((ServiceIDListener) itr.next()).serviceIDNotify(serviceID);
+                }
+            }
         }
     }
     synchronized ServiceID getServiceID() {

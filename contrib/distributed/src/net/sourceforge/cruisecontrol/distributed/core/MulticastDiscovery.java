@@ -87,11 +87,10 @@ public final class MulticastDiscovery {
      */
     static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
         if (discovery != null) {
+
             // release any existing discovery resources
             discovery.terminate();
-            // kludged attempt to avoid occaisional test failures
-            try { Thread.sleep(1000); } catch (InterruptedException e) { //ignore
-            }                                                                                
+
             LOG.error("WARNING: Discovery released, acceptable only in Unit Tests.");
         }
 
@@ -107,7 +106,7 @@ public final class MulticastDiscovery {
     }
 
     /** @return true if the {@link #discovery} variable is set, intended only for unit tests.  */
-    public static synchronized boolean isDiscoverySet() {
+    static synchronized boolean isDiscoverySet() {
         return discovery != null;
     }
 
