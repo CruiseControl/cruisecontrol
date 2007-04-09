@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * @author: Dan Rollo
@@ -88,7 +89,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, TESTMODULE_SUCCESS);
 
-        final MockBuilder mockBuilder = createMockBuilder(TESTMODULE_SUCCESS, false);
+        final MockBuilder mockBuilder = createMockBuilder(TESTMODULE_SUCCESS, false, false);
         assertNull(mockBuilder.getTarget());
         assertNotNull(agentImpl.doBuild(mockBuilder, new HashMap(), distributedAgentProps));
         clearDefaultSuccessResultDirs();
@@ -423,7 +424,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final Map distributedAgentProps = new HashMap();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testDirResult.getAbsolutePath());
-        final BuildAgentServiceImpl agentImpl = createTestAgent(false, distributedAgentProps);        
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps);
         // clear out default result dirs
         clearDefaultSuccessResultDirs();
 
@@ -484,7 +485,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testLogDir.getAbsolutePath());
 
-        final BuildAgentServiceImpl agentImpl = createTestAgent(false, distributedAgentProps);
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps);
 
         // clear out default log dir
         clearDefaultSuccessResultDirs();
@@ -537,7 +538,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildSuccess() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgent(false, new HashMap());
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, new HashMap());
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
@@ -551,7 +552,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildFail() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgent(true, new HashMap());
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(true, new HashMap());
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
@@ -564,23 +565,64 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertFalse(agentImpl.isBusy());
     }
 
-    private static BuildAgentServiceImpl createTestAgent(boolean isBuildFailure, 
+    public void testClearOutputFilesBuildValidateError() throws Exception {
+        final HashMap distributedAgentProps = new HashMap();
+        final BuildAgentServiceImpl agentImpl = createTestAgent(true, distributedAgentProps);
+        try {
+            callTestDoBuild(true, agentImpl, distributedAgentProps, true);
+        } catch (RemoteException e) {
+            assertTrue("Wrong root cause of exception", e.getCause() instanceof CruiseControlException);
+            CruiseControlException ce = (CruiseControlException) e.getCause();
+            assertEquals("Wrong excecption msg", MSG_BUILDER_VALIDATE_FAIL, ce.getMessage());
+        }
+        try {
+            // NOTE: prepareLogsAndArtifacts() sets log/output member vars, but is not called if
+            // builder.validate() fails. May want to change this?
+            //agentImpl.prepareLogsAndArtifacts();
+            //assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
+            //assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
+
+            assertFalse("Agent should NOT be busy after builder.validate() error.",
+                    agentImpl.isBusy());
+        } finally {
+            // cleanup left over files
+            agentImpl.clearOutputFiles();
+        }
+        assertFalse(agentImpl.isBusy());
+    }
+
+    private static BuildAgentServiceImpl createTestAgentDoBuild(final boolean isBuildFailure,
                                                          final Map distributedAgentProps)
             throws RemoteException {
 
+        final BuildAgentServiceImpl agentImpl = createTestAgent(isBuildFailure, distributedAgentProps);
+
+        callTestDoBuild(isBuildFailure, agentImpl, distributedAgentProps, false);
+
+        return agentImpl;
+    }
+
+    private static BuildAgentServiceImpl createTestAgent(final boolean isBuildFailure,
+                                                         final Map distributedAgentProps) {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         if (!distributedAgentProps.containsKey(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET)) {
             distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
-        }                                                                                         
+        }
 
-        callTestDoBuild(isBuildFailure, agentImpl, distributedAgentProps);
+        final String moduleName;
+        if (isBuildFailure) {
+            moduleName = TESTMODULE_FAIL;
+        } else {
+            moduleName = TESTMODULE_SUCCESS;
+        }
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
 
         return agentImpl;
     }
 
-    
+
     /**
      * Call doBuild() on a build that should succeed on the given agent using test settings
      * @param agent the build agent on which to run the build
@@ -594,7 +636,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         // handle re-use case of DMB when overrideTarget is null
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
-        return callTestDoBuild(false, agent, distributedAgentProps);
+        return callTestDoBuild(false, agent, distributedAgentProps, false);
     }
     
     /**
@@ -602,29 +644,38 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @param isBuildFailure if true, run a build that will fail
      * @param agent the build agent on which to run the build
      * @param distributedAgentProps the map of distributed props used by the build agent
+     * @param isValidateFailure if true, force the builder.validate() call to fail.
      * @return the build result jdom element
      * @throws RemoteException if something else dies
      */
     private static Element callTestDoBuild(final boolean isBuildFailure,
                                        final BuildAgentService agent,
-                                       final Map distributedAgentProps) 
+                                       final Map distributedAgentProps,
+                                       final boolean isValidateFailure)
             throws RemoteException {
         
-        final String moduleName;
-        if (isBuildFailure) {
-            moduleName = TESTMODULE_FAIL;
-        } else {
-            moduleName = TESTMODULE_SUCCESS;
-        }
-        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, moduleName);
-
-        final MockBuilder mockBuilder = createMockBuilder(moduleName, isBuildFailure);
+        final MockBuilder mockBuilder = createMockBuilder(
+                (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_MODULE),
+                isBuildFailure, isValidateFailure);
 
         return agent.doBuild(mockBuilder, new HashMap(), distributedAgentProps);
     }
 
-    private static MockBuilder createMockBuilder(final String moduleName, final boolean isBuildFailure) {
+    
+    private static final String MSG_BUILDER_VALIDATE_FAIL = "Unit Test forced builder.validate() failure.";
+
+    private static MockBuilder createMockBuilder(final String moduleName, final boolean isBuildFailure,
+                                                 final boolean isValidateFailure) {
+
         return new MockBuilder("testCCDistMockChildBuilder") {
+
+            public void validate() throws CruiseControlException {
+                super.validate();
+                if (isValidateFailure) {
+                    throw new CruiseControlException(MSG_BUILDER_VALIDATE_FAIL);
+                }
+            }
+
             public Element build(Map properties) {
                 final Element retVal = super.build(properties);
 
