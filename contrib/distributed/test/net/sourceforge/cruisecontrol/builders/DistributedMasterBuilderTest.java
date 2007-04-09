@@ -33,12 +33,14 @@ import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.lookup.ServiceID;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.config.ConfigurationProvider;
 import net.jini.config.Configuration;
 import net.jini.config.ConfigurationException;
 import net.jini.discovery.DiscoveryListener;
 import net.jini.discovery.DiscoveryEvent;
+import net.jini.lookup.ServiceIDListener;
 
 /**
  * @author: Dan Rollo
@@ -80,6 +82,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
             + "2. No Firewall is blocking multicasts.\n"
             + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n";
+
+    public static final String MSG_PREFIX_STATS = "STATS: ";
 
     private static String getTestDMBEntries() {
         final Map userProps
@@ -175,14 +179,12 @@ public class DistributedMasterBuilderTest extends TestCase {
                     new PrefixedStreamConsumer("[JiniOut] ", logger, level)),
             logger, level);
 
-        Thread.sleep(2000); // allow LUS some spin up time
-
-
         // Verify the Lookup Service started
 
         // setup security policy
         setupInsecurePolicy();
 
+        // The startup time for the first LUS appears to be much longer than subsequent startups... 
         ServiceRegistrar serviceRegistrar = findTestLookupService(50 * 1000);
         try {
             assertNotNull("Failed to start local lookup _service.", serviceRegistrar);
@@ -196,9 +198,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             InetAddress.getLocalHost().getCanonicalHostName(),
             serviceRegistrar.getLocator().getHost());
 
-        Thread.sleep(1000); // kludged attempt to avoid occaisional test failures
-
-        LOG.info("Jini Startup took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+        LOG.info(MSG_PREFIX_STATS + "Jini Startup took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
         
         return jiniProcessInfoPump;
     }
@@ -262,6 +262,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         // find/wait for lookup _service
         final long startTime = System.currentTimeMillis();
+
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
 
@@ -282,6 +283,11 @@ public class DistributedMasterBuilderTest extends TestCase {
             // more exceptions will likely need to added here as the Jini libraries are updated.
             // could catch a generic super class, but I kinda like to know what's being thrown.
         }
+
+        LOG.info(MSG_PREFIX_STATS + "Find Test LUS took: "
+                + (System.currentTimeMillis() - startTime) / 1000f + " sec; Timeout: " + retryTimeoutMillis
+                + "; Found: " + (serviceRegistrar != null));
+
         return serviceRegistrar;
     }
 
@@ -295,7 +301,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             verifyNoLocalLookupService();
 
-            LOG.info("Jini Shutdown took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+            LOG.info(MSG_PREFIX_STATS + "Jini Shutdown took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
         }
 
         // restore original system properties
@@ -309,7 +315,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final ServiceRegistrar serviceRegistrar;
         try {
-            serviceRegistrar = findTestLookupService(1000);
+            serviceRegistrar = findTestLookupService(100);
         } catch (ClassNotFoundException e) {
             assertFalse(msgLUSFoundCheckForOrphanedProc,
                     "com.sun.jini.reggie.ConstrainableRegistrarProxy".equals(e.getMessage()));
@@ -523,32 +529,29 @@ public class DistributedMasterBuilderTest extends TestCase {
         BuildAgentTest.setTerminateFast(agent);
 
         // wait for agent to discover LUS
-        final DiscoveryListener discoveryListener = new DiscoveryListener() {
+        final ServiceIDListener serviceIDListener = new ServiceIDListener() {
 
-            public void discovered(DiscoveryEvent e) {
-                synchronized (agent) {
-                    agent.notifyAll();
-                }
-            }
-
-            public void discarded(DiscoveryEvent e) {
+            public void serviceIDNotify(ServiceID serviceID) {
                 synchronized (agent) {
                     agent.notifyAll();
                 }
             }
         };
-        BuildAgentTest.addDiscoveryListener(agent, discoveryListener);
+        BuildAgentTest.addServiceIDListener(agent, serviceIDListener);
         try {
             synchronized (agent) {
-                agent.wait(10 * 1000);
+                if (!BuildAgentTest.isServiceIDAssigned(agent)) {
+                    agent.wait(10 * 1000);
+                }
             }
         } finally {
-            BuildAgentTest.removeDiscoveryListener(agent, discoveryListener);
+            BuildAgentTest.removeServiceIDListener(agent, serviceIDListener);
         }
         assertTrue("Unit test Agent was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
                 BuildAgentTest.isServiceIDAssigned(agent));
 
-        LOG.info("Unit test Agent discovery took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+        LOG.info(MSG_PREFIX_STATS + "Unit test Agent discovery took: "
+                + (System.currentTimeMillis() - begin) / 1000f + " sec");
 
         return agent;
     }
@@ -556,7 +559,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY()
             throws MalformedURLException, InterruptedException {
 
-        if (!MulticastDiscovery.isDiscoverySet()) {
+        if (!MulticastDiscoveryTest.isDiscoverySet()) {
             final long begin = System.currentTimeMillis();
 
             final MulticastDiscovery discovery = MulticastDiscoveryTest.getLocalDiscovery();
@@ -579,7 +582,9 @@ public class DistributedMasterBuilderTest extends TestCase {
             MulticastDiscoveryTest.addDiscoveryListener(discoveryListener);
             try {
                 synchronized (discovery) {
-                    discovery.wait(10 * 1000);
+                    if (!MulticastDiscoveryTest.isDiscovered()) {
+                        discovery.wait(10 * 1000);
+                    }
                 }
             } finally {
                 MulticastDiscoveryTest.removeDiscoveryListener(discoveryListener);
@@ -587,7 +592,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             assertTrue("MulticastDiscovery was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
                     MulticastDiscoveryTest.isDiscovered());
 
-            LOG.info("Unit test MulticastDiscovery took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");
+            LOG.info(MSG_PREFIX_STATS + "Unit test MulticastDiscovery took: "
+                    + (System.currentTimeMillis() - begin) / 1000f + " sec");
         }
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();

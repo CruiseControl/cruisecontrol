@@ -211,6 +211,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         private Throwable thrown;
         private final int delay;
         private final Type type;
+        private boolean isFinished;
 
         DelayedAction(final Type type) {
             delay = Integer.getInteger(
@@ -232,6 +233,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             } catch (Throwable t) {
                 thrown = t;
                 LOG.error("Error executing delayed action.", t);
+            } finally {
+                isFinished = true;
             }
         }
 
@@ -239,6 +242,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
         public Type getType() { return type; }
 
+        public boolean isFinished() { return isFinished; }
         /**
          * Implement in order to run the desired Action
          */

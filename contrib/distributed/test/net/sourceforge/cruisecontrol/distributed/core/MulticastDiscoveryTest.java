@@ -44,7 +44,11 @@ import net.jini.discovery.DiscoveryListener;
 
 import java.net.MalformedURLException;
 
+import org.apache.log4j.Logger;
+
 public class MulticastDiscoveryTest extends TestCase {
+
+    private static final Logger LOG = Logger.getLogger(MulticastDiscoveryTest.class);
 
     /*
     private MulticastDiscovery discovery;
@@ -108,8 +112,18 @@ public class MulticastDiscoveryTest extends TestCase {
      * @param multicastDiscovery lookup helper
      */    
     public static void setDiscovery(final MulticastDiscovery multicastDiscovery) {
+        final long begin = System.currentTimeMillis();
+
         MulticastDiscovery.setDiscovery(multicastDiscovery);
+
+        LOG.info(DistributedMasterBuilderTest.MSG_PREFIX_STATS + "Unit test Agent discovery took: "
+                + (System.currentTimeMillis() - begin) / 1000f + " sec");
     }
+    /** @return true if the discovery singleton variable is set, intended only for unit tests.  */
+    public static synchronized boolean isDiscoverySet() {
+        return MulticastDiscovery.isDiscoverySet();
+    }
+    
     /**
      * Expose method intended only for use by unit tests.
      * @return true if any LUS has been found.
