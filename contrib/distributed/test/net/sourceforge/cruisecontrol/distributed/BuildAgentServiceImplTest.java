@@ -764,9 +764,26 @@ public class BuildAgentServiceImplTest extends TestCase {
         final long begin = System.currentTimeMillis();
 
         final BuildAgentServiceImpl.DelayedAction delayedAction = agentImpl.getLastDelayedAction();
-        int cnt = 0;
-        while (!delayedAction.isFinished() && cnt < 10) {
-            Thread.sleep(250);
+
+        final BuildAgentServiceImpl.DelayedAction.FinishedListener finishedListener
+                = new BuildAgentServiceImpl.DelayedAction.FinishedListener() {
+
+            public void finished(final BuildAgentServiceImpl.DelayedAction delayedAction) {
+                synchronized (delayedAction) {
+                    delayedAction.notifyAll();
+                }
+            }
+        };
+
+        delayedAction.setFinishedListener(finishedListener);
+        try {
+            synchronized (delayedAction) {
+                if (!delayedAction.isFinished()) {
+                    delayedAction.wait(10 * 1000);
+                }
+            }
+        } finally {
+            delayedAction.setFinishedListener(null);
         }
 
         assertTrue("Delayed action didn't finish before timeout.", delayedAction.isFinished());
