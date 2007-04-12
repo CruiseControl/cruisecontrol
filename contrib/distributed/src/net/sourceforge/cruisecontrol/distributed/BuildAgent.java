@@ -337,9 +337,9 @@ public class BuildAgent implements DiscoveryListener,
     }
 
     /** Only for unit testing. */
-    private boolean isTerminateFast;
+    private static boolean isTerminateFast;
     /** Only for unit testing. */
-    void setTerminateFast() { isTerminateFast = true; }
+    static void setTerminateFast() { isTerminateFast = true; }
 
     public void terminate() {
         LOG.info("Terminating build agent.");
@@ -504,15 +504,17 @@ public class BuildAgent implements DiscoveryListener,
            }
         }
 
-        LOG.info("Agent main thread exiting.");
+        final String mainThreadName = Thread.currentThread().getName();
+        LOG.info("Agent main thread (" + mainThreadName + ") exiting.");
         // don't call sys exit during unit tests
         if (!isSkipMainSystemExit) {
             // on some JVM's (webstart - restart) the BuildAgent.kill() call doesn't return,
             // so sys exit is also done here.            
-            LOG.info("Agent main thread calling System.exit().");
+            LOG.info("Agent main thread (" + mainThreadName + ") calling System.exit().");
             System.exit(0);
         } else {
-            LOG.debug("Agent main thread skipping System.exit(), only valid in unit tests.");
+            LOG.debug("Agent main thread (" + mainThreadName
+                    + ") skipping System.exit(), only valid in unit tests.");
         }
     }
 
@@ -544,17 +546,18 @@ public class BuildAgent implements DiscoveryListener,
     public static void kill() {
         final Thread main = getMainThread();
         if (main != null) {
+            final String mainThreadName = main.getName();
             main.interrupt();
-            LOG.info("Waiting for main thread to finish.");
+            LOG.info("Waiting for main thread (" + mainThreadName + ") to finish.");
             try {
                 main.join(30 * 1000);
                 //main.join();
             } catch (InterruptedException e) {
-                LOG.error("Error during waiting from Agent to die.", e);
+                LOG.error("Error while waiting for Agent thread (" + mainThreadName + ") to die.", e);
             }
             if (main.isAlive()) {
                 main.interrupt(); // how can this happen?
-                LOG.error("Main thread should have died.");
+                LOG.error("Main thread (" + mainThreadName + ") should have died.");
             }
             setMainThread(null);
         } else {
