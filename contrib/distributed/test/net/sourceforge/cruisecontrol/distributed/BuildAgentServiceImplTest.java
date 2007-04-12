@@ -769,6 +769,8 @@ public class BuildAgentServiceImplTest extends TestCase {
             Thread.sleep(100);
         }
 
+        assertTrue("Delayed action didn't finish before timeout.", delayedAction.isFinished());
+
         LOG.info(DistributedMasterBuilderTest.MSG_PREFIX_STATS + "Unit test Agent Delayed Action took: "
                 + (System.currentTimeMillis() - begin) / 1000f + " sec");
     }
