@@ -765,8 +765,8 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         final BuildAgentServiceImpl.DelayedAction delayedAction = agentImpl.getLastDelayedAction();
         int cnt = 0;
-        while (!delayedAction.isFinished() && cnt < 5) {
-            Thread.sleep(100);
+        while (!delayedAction.isFinished() && cnt < 10) {
+            Thread.sleep(250);
         }
 
         assertTrue("Delayed action didn't finish before timeout.", delayedAction.isFinished());
