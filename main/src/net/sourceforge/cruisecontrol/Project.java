@@ -700,6 +700,9 @@ public class Project implements Serializable, Runnable {
 
     protected Map getProjectPropertiesMap(Date now) {
         Map buildProperties = new HashMap();
+
+        buildProperties.put("projectname", name);
+
         buildProperties.put("label", label);
         
         // TODO: Shouldn't have CVS specific properties here
