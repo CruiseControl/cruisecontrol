@@ -179,6 +179,9 @@ public class DistributedMasterBuilderTest extends TestCase {
                     new PrefixedStreamConsumer("[JiniOut] ", logger, level)),
             logger, level);
 
+        Thread.sleep(2000); // allow LUS some spin up time, first time is longest (~3.5 secs)
+
+
         // Verify the Lookup Service started
 
         // setup security policy
@@ -266,7 +269,8 @@ public class DistributedMasterBuilderTest extends TestCase {
         ServiceRegistrar serviceRegistrar = null;
         final LookupLocator lookup = new LookupLocator(JINI_URL_LOCALHOST);
 
-        final int sleepMillisAfterException = 100;
+        // making this polling loop pause too short actually slows the unit tests down
+        final int sleepMillisAfterException = 250;
 
         while (serviceRegistrar == null
                 && (System.currentTimeMillis() - startTime < retryTimeoutMillis)) {
@@ -315,7 +319,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final ServiceRegistrar serviceRegistrar;
         try {
-            serviceRegistrar = findTestLookupService(100);
+            serviceRegistrar = findTestLookupService(1000);
         } catch (ClassNotFoundException e) {
             assertFalse(msgLUSFoundCheckForOrphanedProc,
                     "com.sun.jini.reggie.ConstrainableRegistrarProxy".equals(e.getMessage()));
