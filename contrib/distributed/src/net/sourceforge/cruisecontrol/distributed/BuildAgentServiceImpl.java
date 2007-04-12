@@ -197,6 +197,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
      * Executes the {@link #execAction()} method after a fixed delay has expired.
      */
     abstract static class DelayedAction extends Thread {
+        /** Allow unit test to be notified when delayed action completes. */
+        static interface FinishedListener {
+            public void finished(final DelayedAction delayedAction);
+        }
+
         static final class Type {
             public static final Type RESTART = new Type("restart");
             public static final Type KILL = new Type("kill");
@@ -212,6 +217,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         private final int delay;
         private final Type type;
         private boolean isFinished;
+
+        /** Allow unit test to be notified when delayed action completes. */
+        private FinishedListener finishedListener;
 
         DelayedAction(final Type type) {
             delay = Integer.getInteger(
@@ -235,7 +243,14 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 LOG.error("Error executing delayed action.", t);
             } finally {
                 isFinished = true;
+                if (finishedListener != null) {
+                    finishedListener.finished(this);
+                }
             }
+        }
+
+        void setFinishedListener(final FinishedListener finishedListener) {
+            this.finishedListener = finishedListener;
         }
 
         public Throwable getThrown() { return thrown; }
