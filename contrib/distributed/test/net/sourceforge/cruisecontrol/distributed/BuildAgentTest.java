@@ -36,8 +36,11 @@ public class BuildAgentTest extends TestCase {
     }
     // @todo Remove one slash in front of "/*" below to run individual tests in an IDE
     //*
+    protected void setUp() throws Exception {
+        BuildAgentTest.setSkipMainSystemExit();
+        BuildAgentTest.setTerminateFast();
+    }
     protected void tearDown() throws Exception {
-        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
     }
     //*/
@@ -47,6 +50,8 @@ public class BuildAgentTest extends TestCase {
     private static DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;    
     protected void setUp() throws Exception {
         jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+        BuildAgent.setSkipMainSystemExit();
+        BuildAgentTest.setTerminateFast();
     }
     protected void tearDown() throws Exception {
         DistributedMasterBuilderTest.killJini(jiniProcessPump);
@@ -100,8 +105,10 @@ public class BuildAgentTest extends TestCase {
         return result;
     }
 
-    public static void setTerminateFast(final BuildAgent agent) {
-        agent.setTerminateFast();
+    public static void setSkipMainSystemExit() { BuildAgent.setSkipMainSystemExit(); }
+
+    public static void setTerminateFast() {
+        BuildAgent.setTerminateFast();
     }
 
     public static void addServiceIDListener(final BuildAgent agent, final ServiceIDListener serviceIDListener) {
@@ -172,18 +179,19 @@ public class BuildAgentTest extends TestCase {
         // allow BuildAgent main to load and register
         final int maxWaitStartup = 30;
         int count = 0;
-        while (count < maxWaitStartup && BuildAgent.getMainThread() == null) {
+        while (count < maxWaitStartup && t.isAlive() && BuildAgent.getMainThread() == null) {
             Thread.sleep(500);
             count++;
         }
+        assertTrue("Agent start thread should be alive.", t.isAlive());
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
         assertTrue("Agent didn't init before timeout.", BuildAgent.getMainThread().isAlive());
         assertFindAgent(reg, 10, true);
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
-        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
+        assertFalse("Agent start thread should be dead.", t.isAlive());
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
         assertFindAgent(reg, 10, false);
     }
@@ -210,18 +218,19 @@ public class BuildAgentTest extends TestCase {
         // allow BuildAgent main to load and register
         final int maxWaitStartup = 30;
         int count = 0;
-        while (count < maxWaitStartup && BuildAgent.getMainThread() == null) {
+        while (count < maxWaitStartup && t.isAlive() && BuildAgent.getMainThread() == null) {
             Thread.sleep(500);
             count++;
         }
+        assertTrue("Agent start thread should be alive.", t.isAlive());
         assertNotNull("Agent didn't start before timeout.", BuildAgent.getMainThread());
         assertTrue("Agent didn't init before timeout.", BuildAgent.getMainThread().isAlive());
         assertFindAgent(reg, 10, true);
         final Thread mainThread = BuildAgent.getMainThread(); // hold onto main thread since kill nullifies it
         assertNotNull("Main thread should not be null.", mainThread);
 
-        BuildAgent.setSkipMainSystemExit();
         BuildAgent.kill();
+        assertFalse("Agent start thread should be dead.", t.isAlive());
         assertFalse("Agent didn't die before timeout.", mainThread.isAlive()); // check held thread
         assertFindAgent(reg, 20, false);
     }
@@ -269,7 +278,6 @@ public class BuildAgentTest extends TestCase {
             buildAgent.getPrefsRoot().removeNode();
             buildAgent.getPrefsRoot().flush();
 
-            BuildAgent.setSkipMainSystemExit();
             BuildAgent.kill();
         }
     }

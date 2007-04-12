@@ -40,7 +40,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     private Properties origSysProps;
     private static final String TESTMODULE_FAIL = "testmodule-fail";
     private static final String TESTMODULE_SUCCESS = "testmodule-success";
-    private static final int KILL_DELAY = 250;
+    private static final int KILL_DELAY = 1000;
 
     protected void setUp() throws Exception {
         DIR_LOGS.delete();

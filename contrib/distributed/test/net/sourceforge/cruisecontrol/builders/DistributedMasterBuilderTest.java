@@ -526,11 +526,13 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final long begin = System.currentTimeMillis();
 
+        BuildAgentTest.setSkipMainSystemExit();
+        BuildAgentTest.setTerminateFast();
+
         final BuildAgent agent = new BuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
 
-        BuildAgentTest.setTerminateFast(agent);
 
         // wait for agent to discover LUS
         final ServiceIDListener serviceIDListener = new ServiceIDListener() {
