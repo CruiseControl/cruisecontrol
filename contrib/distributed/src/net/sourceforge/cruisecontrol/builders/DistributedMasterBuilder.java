@@ -74,10 +74,6 @@ public class DistributedMasterBuilder extends Builder {
     private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
     private boolean isFailFast;
 
-    // TODO: Can we get the module from the projectProperties instead of setting it via an attribute?
-    //  Could be set in ModificationSet...
-    private String module;
-
     private Entry[] entries = new Entry[] {};
 
     private String agentLogDir;
@@ -92,13 +88,12 @@ public class DistributedMasterBuilder extends Builder {
     private String overrideTarget;
     private File rootDir;
 
-    static final String MSG_REQUIRED_ATTRIB_MODULE = "The 'module' attribute is required for DistributedMasterBuilder."
-            + "\n Consider adding module=\"${project.name}\" as a preconfigured setting in config.xml, "
-            + "for example:\n\n"
-            + "<plugin name=\"distributed\"\n"
-            + "        classname=\"net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder\"\n"
-            + "        module=\"${project.name}\"\n"
-            + "    />";
+    /** @deprecated 'module' attribute is no longer used. */
+    static final String MSG_DEPRECATED_ATTRIB_MODULE = "The 'module' attribute is deprecated and is no longer used."
+            + "\n ************* Please remove the 'module' attribute from <distributed> tags in your config.xml.";
+
+    static final String MSG_MISSING_PROJECT_NAME = "Missing required property: " + PropertiesHelper.PROJECT_NAME
+            + " in projectProperties";
 
 
     /**
@@ -158,11 +153,6 @@ public class DistributedMasterBuilder extends Builder {
         // In order to support Build Agents who's build tree does not exactly match the Master, only validate
         // the nested builder on the Build Agent (so don't validate it here).
         //nestedBuilder.validate();
-
-        if (module == null) {
-            LOG.warn(MSG_REQUIRED_ATTRIB_MODULE);
-            throw new CruiseControlException(MSG_REQUIRED_ATTRIB_MODULE);
-        }
     }
 
 
@@ -193,7 +183,12 @@ public class DistributedMasterBuilder extends Builder {
 
     public Element build(final Map projectProperties) throws CruiseControlException {
         try {
-            final BuildAgentService agent = pickAgent();
+            final String projectName = (String) projectProperties.get(PropertiesHelper.PROJECT_NAME);
+            if (null == projectName) {
+                throw new CruiseControlException(MSG_MISSING_PROJECT_NAME);
+            }
+            
+            final BuildAgentService agent = pickAgent(projectName);
             // agent is now marked as claimed
 
             String agentMachine = "unknown";
@@ -207,7 +202,6 @@ public class DistributedMasterBuilder extends Builder {
             try {
                 final Map distributedAgentProps = new HashMap();
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
-                distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_MODULE, module);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, agentLogDir);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, agentOutputDir);
 
@@ -220,7 +214,7 @@ public class DistributedMasterBuilder extends Builder {
 
                 LOG.debug("Project Props: " + projectProperties.toString());
 
-                LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of module: " + module);
+                LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of project: " + projectName);
 
                 buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps);
 
@@ -241,7 +235,7 @@ public class DistributedMasterBuilder extends Builder {
             } catch (RemoteException e) {
                 final String message = "RemoteException from"
                         + "\nagent on: " + agentMachine
-                        + "\nwhile building module: " + module;
+                        + "\nwhile building project: " + projectName;
                 LOG.error(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 try {
@@ -304,7 +298,7 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    BuildAgentService pickAgent() throws CruiseControlException {
+    BuildAgentService pickAgent(final String projectName) throws CruiseControlException {
         BuildAgentService agent = null;
 
         while (agent == null) {
@@ -331,7 +325,7 @@ public class DistributedMasterBuilder extends Builder {
                 // wait a bit and try again
                 LOG.info("Couldn't find available agent with: "
                         + MulticastDiscovery.toStringEntries(entries) 
-                        + " to build module: " + module + ". Waiting "
+                        + " to build project: " + projectName + ". Waiting "
                         + (DEFAULT_CACHE_MISS_WAIT / 1000) + " seconds before retry.");
                 try {
                     Thread.sleep(DEFAULT_CACHE_MISS_WAIT);
@@ -345,9 +339,15 @@ public class DistributedMasterBuilder extends Builder {
         return agent;
     }
 
-
+    /**
+     * This method is no longer used, as "module" has been replaced by the "projectname" passed into
+     * {@link #build(java.util.Map) build(Map projectProperties)}.
+     * @param module the projectname being built, obsolete, and will now be auto detected as the project name.
+     * @deprecated The project name is now read from projectProperties passed into
+     *  {@link #build(java.util.Map) build(Map projectProperties)}.
+     */
     public void setModule(final String module) {
-        this.module = module;
+        LOG.warn(MSG_DEPRECATED_ATTRIB_MODULE);
     }
 
     public void setEntries(final String entries) {

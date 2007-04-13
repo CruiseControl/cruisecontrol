@@ -4,6 +4,10 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
+import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author: Dan Rollo
@@ -28,13 +32,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         }
         final Builder mockBuilder = new MockBuilder();
         masterBuilder.add(mockBuilder);
-        try {
-            masterBuilder.validate();
-            fail("missing module attrib");
-        } catch (CruiseControlException e) {
-            assertEquals(DistributedMasterBuilder.MSG_REQUIRED_ATTRIB_MODULE, e.getMessage());
-        }
-        masterBuilder.setModule("testModule");
+
         masterBuilder.validate();
     }
 
@@ -47,7 +45,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         nestedBuilder.setMultiple(2);
 
         masterBuilder.add(nestedBuilder);
-        masterBuilder.setModule("testModule");
         masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 7, masterBuilder.getDay());
@@ -63,7 +60,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder nestedBuilder = new MockBuilder();
         nestedBuilder.setTime("530");
         masterBuilder.add(nestedBuilder);
-        masterBuilder.setModule("testModule");
         masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 530, masterBuilder.getTime());
@@ -79,7 +75,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder nestedBuilder = new MockBuilder();
         nestedBuilder.setMultiple(2);
         masterBuilder.add(nestedBuilder);
-        masterBuilder.setModule("testModule");
         masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 2, masterBuilder.getMultiple());
@@ -89,17 +84,31 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
                 Builder.NOT_SET, masterBuilder.getDay());
     }
 
-    public void testDefaultModuleValue() throws Exception {
+    public void testProjectNameValue() throws Exception {
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
 
         final Builder nestedBuilder = new MockBuilder();
         masterBuilder.add(nestedBuilder);
-        // @todo Find a way to use Project.name as default value for "module" attribute
+
+        // @todo Remove this when deprecated "module" attribute is deleted
+        masterBuilder.setModule("deprecatedModule");
+
         try {
-            masterBuilder.validate();
+            masterBuilder.build(new HashMap());
+            fail("Missing projectname property should have failed.");
         } catch (CruiseControlException e) {
-            assertEquals(DistributedMasterBuilder.MSG_REQUIRED_ATTRIB_MODULE, e.getMessage());
+            assertEquals(DistributedMasterBuilder.MSG_MISSING_PROJECT_NAME, e.getMessage());
+        }
+
+        final Map projectProperties = new HashMap();
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
+        masterBuilder.setFailFast(); // to avoid pickAgent() retry loop
+        try {
+            masterBuilder.build(projectProperties);
+            fail("Null agent should have failed.");
+        } catch (CruiseControlException e) {
+            assertEquals("Distributed build runtime exception", e.getMessage());
         }
     }
 
@@ -112,7 +121,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         MulticastDiscoveryTest.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
-        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
     }
 
 }
