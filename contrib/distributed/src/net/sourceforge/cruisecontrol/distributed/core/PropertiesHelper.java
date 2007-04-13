@@ -50,7 +50,7 @@ public final class PropertiesHelper {
 
     // Property Names, used between DistributedMasterBuilder and Build Agent
     public static final String DISTRIBUTED_OVERRIDE_TARGET = "distributed.overrideTarget";
-    public static final String DISTRIBUTED_MODULE = "distributed.module";
+    public static final String PROJECT_NAME = "projectname";
     public static final String DISTRIBUTED_AGENT_LOGDIR = "distributed.agentlogdir";
     public static final String DISTRIBUTED_AGENT_OUTPUTDIR = "distributed.agentoutputdir";
 

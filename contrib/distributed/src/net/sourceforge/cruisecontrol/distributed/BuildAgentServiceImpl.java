@@ -102,12 +102,15 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private Date pendingRestartSince;
 
     private Properties configProperties;
+
+    private String projectName;
     private final Map distributedAgentProps = new HashMap();
-    private String logDir;
-    private String outputDir;
-    private String buildRootDir;
-    private String logsFilePath;
-    private String outputFilePath;
+
+    private File logDir;
+    private File outputDir;
+    private File buildRootDir;
+    private File zippedLogs;
+    private File zippedOutput;
 
     private final List agentStatusListeners = new ArrayList();
 
@@ -177,9 +180,19 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return dateStarted;
     }
 
-    /** @return the module being built now, or null if no module is being built. */
+    /**
+     * @return the project being built now, or null if no project is being built.
+     * @deprecated replaced by {@link #getProjectName()}.
+     */
+    //@todo remove after 2.6.2
     public synchronized String getModule() {
-        return (String) distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_MODULE);
+        return getProjectName();
+    }
+    /**
+     * @return the project being built now, or null if no project is being built.
+     */
+    public synchronized String getProjectName() {
+        return projectName;
     }
 
     void setAgentPropertiesFilename(final String filename) {
@@ -292,6 +305,9 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             // clear out distributed build agent props
             distributedAgentProps.clear();
 
+            // clear project name
+            projectName = null;
+
             dateClaimed = null;
         } else {
             dateClaimed = new Date();
@@ -315,6 +331,12 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             }
         }
 
+        projectName = (String) projectPropertiesMap.get(PropertiesHelper.PROJECT_NAME);
+        if (null == projectName) {
+            throw new RemoteException("Missing required property: " + PropertiesHelper.PROJECT_NAME
+                    + " in projectProperties");
+        }
+
         final Level origLogLevel = Logger.getRootLogger().getLevel();
         final boolean isDebugBuild = Boolean.valueOf(
                 (String) distributedAgentProperties.get(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG)).booleanValue();
@@ -330,7 +352,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
             distributedAgentProps.putAll(distributedAgentProperties);
 
-            final String infoMessage = "Building module: " + getModule()
+            final String infoMessage = "Building project: " + projectName
                     + "\n\tAgentLogDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
                     + "\n\tAgentOutputDir: " + distributedAgentProps.get(
@@ -342,7 +364,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
             logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());
 
-            // this is done only to update agent UI info regarding Module - which isn't available
+            // this is done only to update agent UI info regarding ProjectName - which isn't available
             // until projectPropertiesMap has been set.
             fireAgentStatusChanged();
 
@@ -397,13 +419,14 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     void prepareLogsAndArtifacts() {
         final String buildDirProperty = configProperties.getProperty(CRUISE_BUILD_DIR);
         try {
-            buildRootDir = new File(buildDirProperty).getCanonicalPath();
+            buildRootDir = new File(buildDirProperty).getCanonicalFile();
         } catch (IOException e) {
             final String message = "Couldn't create " + buildDirProperty;
             logPrefixError(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message);
         }
+
 
         logDir = getAgentResultDir(PropertiesHelper.RESULT_TYPE_LOGS,
                 PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR);
@@ -412,20 +435,40 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
 
 
-        logsFilePath = buildRootDir + File.separator + PropertiesHelper.RESULT_TYPE_LOGS + ".zip";
-        ZipUtil.zipFolderContents(logsFilePath, logDir);
-        outputFilePath = buildRootDir + File.separator + PropertiesHelper.RESULT_TYPE_OUTPUT + ".zip";
-        ZipUtil.zipFolderContents(outputFilePath, outputDir);
+        zippedLogs = getTempResultsZipFile(PropertiesHelper.RESULT_TYPE_LOGS);
+        ZipUtil.zipFolderContents(zippedLogs.getAbsolutePath(), logDir.getAbsolutePath());
+
+        zippedOutput = getTempResultsZipFile(PropertiesHelper.RESULT_TYPE_OUTPUT);
+        ZipUtil.zipFolderContents(zippedOutput.getAbsolutePath(), outputDir.getAbsolutePath());
     }
 
-    private String getAgentResultDir(final String resultType, final String resultProperty) {
+    /**
+     * Use a unique temp file to avoid collisions when multiple build agents run on the same machine.
+     * @param resultsType the type of results
+     * @return a unique zip file to be filled with the content for the given results type
+     */
+    private File getTempResultsZipFile(final String resultsType) {
+        final File tempResultsFile;
+        try {
+            tempResultsFile = File.createTempFile(projectName + "-" + resultsType + "-", ".zip", buildRootDir);
+        } catch (IOException e) {
+            final String message = "Couldn't create temp " + resultsType + " results zip file in: "
+                    + buildRootDir.getAbsolutePath();
+            logPrefixError(message, e);
+            System.err.println(message + " - " + e.getMessage());
+            throw new RuntimeException(message);
+        }
+        return tempResultsFile;
+    }
+
+    private File getAgentResultDir(final String resultType, final String resultProperty) {
         String resultDir;
         resultDir = (String) distributedAgentProps.get(resultProperty);
         logPrefixDebug("Result: " + resultType + "Prop value: " + resultDir);
 
         if (resultDir == null || "".equals(resultDir)) {
             // use canonical behavior if attribute is not set
-            resultDir = buildRootDir + File.separator + resultType + File.separator + getModule();
+            resultDir = buildRootDir + File.separator + resultType + File.separator + projectName;
         }
 
         // ensure dir exists
@@ -438,7 +481,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             }
         }
 
-        return resultDir;
+        return fileResultDir;
     }
 
     public String getMachineName() {
@@ -451,8 +494,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         synchronized (busyLock) {
             if (isBusy()) {
                 throw new IllegalStateException("Cannot claim agent on " + getMachineName()
-                        + " that is busy building module: "
-                        + getModule());
+                        + " that is busy building project: "
+                        + projectName);
             }
             setBusy(true);
         }
@@ -503,9 +546,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
-            return recursiveFilesExist(new File(logDir));
+            return recursiveFilesExist(logDir);
+        } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
+            return recursiveFilesExist(outputDir);
         } else {
-            return resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT) && recursiveFilesExist(new File(outputDir));
+            throw new RemoteException("Unrecognized result type: " + resultsType);
         }
     }
 
@@ -526,19 +571,38 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         return false;
     }
 
+    /**
+     * Return the file containing the given type of results. Package visible for unit testing.
+     * @param resultsType the type of results file
+     * @return the file containing the given type of results. Package visible for unit testing.
+     * @throws RemoteException if an invalid result type is given.
+     */
+    File getResultsZip(final String resultsType) throws RemoteException {
+        final File zipFile;
+        if (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultsType)) {
+            zipFile = zippedLogs;
+        } else if (PropertiesHelper.RESULT_TYPE_OUTPUT.equals(resultsType)) {
+            zipFile = zippedOutput;
+        } else {
+            throw new RemoteException("Unrecognized result type: " + resultsType);
+        }
+        return zipFile;
+    }
+
     public byte[] retrieveResultsAsZip(final String resultsType) throws RemoteException {
 
-        final String zipFilePath = buildRootDir + File.separator + resultsType + ".zip";
+        final File zipFile = getResultsZip(resultsType);
 
         final byte[] response;
         try {
-            response = FileUtil.getFileAsBytes(new File(zipFilePath));
+            response = FileUtil.getFileAsBytes(zipFile);
         } catch (IOException e) {
-            final String message = "Unable to get file " + zipFilePath;
+            final String message = "Unable to get file " + zipFile.getAbsolutePath();
             logPrefixError(message, e);
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
+
         return response;
     }
 
@@ -546,26 +610,28 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         try {
             if (logDir != null) {
                 logPrefixDebug("Deleting contents of " + logDir);
-                IO.delete(new File(logDir));
+                IO.delete(logDir);
             } else {
                 logPrefixDebug("Skip delete agent logDir: " + logDir);
             }
-            if (logsFilePath != null) {
-                logPrefixDebug("Deleting log zip " + logsFilePath);
-                IO.delete(new File(logsFilePath));
+            if (zippedLogs != null) {
+                logPrefixDebug("Deleting log zip " + zippedLogs);
+                zippedLogs.deleteOnExit();
+                IO.delete(zippedLogs);
             } else {
                 logPrefixError("Skipping delete of log zip, file path is null.");
             }
 
             if (outputDir != null) {
                 logPrefixDebug("Deleting contents of " + outputDir);
-                IO.delete(new File(outputDir));
+                IO.delete(outputDir);
             } else {
                 logPrefixDebug("Skip delete agent outputDir: " + outputDir);
             }
-            if (outputFilePath != null) {
-                logPrefixDebug("Deleting output zip " + outputFilePath);
-                IO.delete(new File(outputFilePath));
+            if (zippedOutput != null) {
+                logPrefixDebug("Deleting output zip " + zippedOutput);
+                zippedOutput.deleteOnExit();
+                IO.delete(zippedOutput);
             } else {
                 logPrefixError("Skipping delete of output zip, file path is null.");
             }
@@ -669,27 +735,27 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     public String asString() {
         final StringBuffer sb = new StringBuffer();
         sb.append("Machine Name: ");
-        sb.append(getMachineName());
+        sb.append(machineName);
         sb.append(";\t");
         sb.append("Started: ");
-        sb.append(getDateStarted());
+        sb.append(dateStarted);
 
         sb.append("\n\tBusy: ");
-        sb.append(isBusy());
+        sb.append(isBusy);
         sb.append(";\tSince: ");
-        sb.append(getDateClaimed());
-        sb.append(";\tModule: ");
-        sb.append(getModule());
+        sb.append(dateClaimed);
+        sb.append(";\tProject: ");
+        sb.append(projectName);
 
         sb.append("\n\tPending Restart: ");
-        sb.append(isPendingRestart());
+        sb.append(isPendingRestart);
         sb.append(";\tPending Restart Since: ");
-        sb.append(getPendingRestartSince());
+        sb.append(pendingRestartSince);
 
         sb.append("\n\tPending Kill: ");
-        sb.append(isPendingKill());
+        sb.append(isPendingKill);
         sb.append(";\tPending Kill Since: ");
-        sb.append(getPendingKillSince());
+        sb.append(pendingKillSince);
 
         return sb.toString();
     }

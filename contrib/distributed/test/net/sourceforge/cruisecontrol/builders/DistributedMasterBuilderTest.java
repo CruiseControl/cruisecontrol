@@ -426,23 +426,23 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agents
-            final BuildAgentService agentFoundFirst = masterBuilder.pickAgent();
+            final BuildAgentService agentFoundFirst = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find first agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
 
-            final BuildAgentService agentFoundSecond = masterBuilder.pickAgent();
+            final BuildAgentService agentFoundSecond = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find second agent", agentFoundSecond);
             assertTrue(agentFoundFirst.isBusy());
             assertTrue(agentFoundSecond.isBusy());
 
-            assertNull("Shouldn't find third agent", masterBuilder.pickAgent());
+            assertNull("Shouldn't find third agent", masterBuilder.pickAgent(null));
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
 
-            final BuildAgentService agentRefound = masterBuilder.pickAgent();
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -464,13 +464,13 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
-            final BuildAgentService agentRefound = masterBuilder.pickAgent();
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -489,20 +489,20 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
-            final BuildAgentService agent = masterBuilder.pickAgent();
+            final BuildAgentService agent = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agent);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agent.isBusy());
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
 
             // set Agent to Not busy, then make sure it can be found again.
 
             // only needed so clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agent)); 
             agent.clearOutputFiles();
-            final BuildAgentService agentRefound = masterBuilder.pickAgent();
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -516,7 +516,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
-        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent());
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
     }
 
 
