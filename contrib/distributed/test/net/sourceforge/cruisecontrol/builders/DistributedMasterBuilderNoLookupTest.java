@@ -86,7 +86,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
     public void testProjectNameValue() throws Exception {
 
-        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        final DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
 
         final Builder nestedBuilder = new MockBuilder();
         masterBuilder.add(nestedBuilder);
