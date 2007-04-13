@@ -90,6 +90,8 @@ distributed
 * Fix doc error regarding Unicast Lookup URL settings
 * Fix scripts to actually use jini.logging settings. Add readme notes for LAN's with broken hostname resolution.
 * Change BuildAgent to auto detect headless environment and run in headless mode.
+* Deprecate 'module' attribute, use Project Name automatically.
+* Add 'EntryOverrides' feature to add new 'entries' to specific running Agents.
 
 
 CruiseControl Release Notes - 2.6.1
