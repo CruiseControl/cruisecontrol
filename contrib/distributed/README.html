@@ -141,8 +141,16 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 						Be sure you update <i>build-sign.properties</i> appropriately to use your signing information/certificate.<p></li>
 						<li>Agent Utility: Running <code>ant agent-util</code> from inside the <i>dist/util</i> dir <b>(formerly: <i>dist/master</i>)</b> will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
 						This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.<p></li>
- 						<li>Build Agent UI: Build agents default to showing a simple User Interface. This UI can be bypassed by passing the switch: <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).<p></li>
+ 						<li>Build Agent UI: Build Agents default to showing a simple User Interface. The Build Agent will detect if it is running in a headles environment and automatically bypass the UI. This UI can be manually bypassed by adding: <code>-Djava.awt.headless=true</code> or <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).<p></li>
  						<li>Build Agent Unicast Lookup URL(s): To make BuildAgents find a Lookup Service via unicast, create the property: <code>registry.url</code> in the <i>agent.properties</i> file and set it's value to the url of the Lookup Service. If you need multiple unicast URL's, use a comma separated list of Unicast Lookup Locaters (URL's) as the property value. This can be useful in environments where multicast is not working or practical. For example: <pre>registry.url=jini://ubuntudan,jini://10.6.18.51</pre><p></li>
+ 						<li>Build Agent <a name="advancedConfigEntryOverrides">Entry Overrides:</a> Build Agents now support the assignment of 'EntryOverrides' that can be set at runtime. This allows you to add new 'entries' to certain agents while they are running. NOTE: If your are running multiple Agents on the same machine, they will share their EntryOverride settings.
+                             <p>Use Case: You have a Project that must only be built on machines with specific audio hardware. You can add a new "entries" value to the &lt;distributed&gt; tag of this Project in your config.xml, like:
+
+ <pre>&lt;distributed entries="sound=hardwaremixable"&gt;
+     ...
+ &lt;/distributed&gt;</pre>
+
+                             Deploy and launch all your agents, <b>without</b> modifying entries in <i>user-defined.properties</i>. You can now add a new 'Entry Override' (ie: <code>sound=hardwaremixable</code>) to only those agents running on the correct hardware. Do this via the Build Agent UI or the Build Agent Utility. This new Agent entry will persist across Agent restarts. (Be aware there is a potential bug in the Preferences API implementation in JRE 6.0 that prevents these settings from persisting on non-Windows OS's. TODO: add Sun FileSystemPrefs BugID here - similar to BugID: 6396599)<p></li>
 					</ol>
 				</li>
 			</ol>
@@ -164,9 +172,9 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 
             <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
             <h4>v2.6.2</h4>
-            CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. Also, the <code>module</code> attribute is no longer used by the DistributedMasterBuilder. The Project Name is used instead (since the 'projectname' property is now passed into all build() calls). The <code>module</code> attribute is deprecated and will be removed in a future release, so you should remove it from your config.xml.
+            CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. Also, the <code>module</code> attribute is no longer used by the DistributedMasterBuilder. The Project Name is used instead (since the 'projectname' property is now passed into all Builder.build() calls). The <code>module</code> attribute is deprecated and will be removed in a future release, so you should remove it from your config.xml.
             <p>
-            Build Agents now support the assignment of 'EntryOverrides' that can be set at runtime. This allows you to add new 'entries' to certain agents while they are running. NOTE: If your are running multiple Agents on the same machine, they will share their EntryOverride settings. Also, be aware there is a potential bug in the Preferences API impmementation in JRE 6.0 that prevenets these settings from persisting on non-Windows OS's. (TODO: add Sun BugID here)   
+            Build Agents now support the assignment of 'EntryOverrides' that can be set at runtime. see <a href="#advancedConfigEntryOverrides">Advanced Configuration - Build Agent Entry Overrides</a>  for details.
             </p>
             <h4>v2.6.1</h4>
             The current version of the CruiseControl Distributed extensions (CCDist) has been updated to use the most recent version of Jini (v2.1). In an attempt to better organize the CCDist tree to support the new Jini, a problem was discovered with the packaging of CCDist in versions up to and including v2.6.
