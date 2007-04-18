@@ -1,0 +1,59 @@
+<changelog>
+<patch author="william.wong@mootermedia.com" date="20070320055706" local_date="Tue Mar 20 16:57:06 EST 2007" inverted="False" hash="20070320055706-fe39b-12d00d6f8c6bd047528bb94e6149edbd61f29b9d.gz">
+	<name>[DEV-3650] First cut of Bucket Search screen.</name>
+</patch>
+<patch author="thomas.brand@mootermedia.com" date="20070320081753" local_date="Tue Mar 20 19:17:53 EST 2007" inverted="False" hash="20070320081753-772ed-12b8a3fa401b7194651fa5146d8e64196ddcfd48.gz">
+	<name>[DEV-3644] Convert PartOfSpeech class into a proper enum.</name>
+</patch>
+<patch author="yukun@mootermedia.com" date="20070320055811" local_date="Tue Mar 20 16:58:11 EST 2007" inverted="False" hash="20070320055811-801b7-5f11733a5b611c924df1fb526d5811d6f71713cd.gz">
+	<name>[DEV-3649] create ClassificationYieldStrategy</name>
+</patch>
+<patch author="julia.to@mootermedia.com" date="20070320044517" local_date="Tue Mar 20 15:45:17 EST 2007" inverted="False" hash="20070320044517-40eb8-9135eabde3ce046f095f0f9b8915fd1aa5db2bbd.gz">
+	<name>[DEV-3647] Added providerId to TermSet</name>
+</patch>
+<patch author="julia.to@mootermedia.com" date="20070320021212" local_date="Tue Mar 20 13:12:12 EST 2007" inverted="False" hash="20070320021212-40eb8-72f06061efdd5ecfdda057e76a280a2da88ca7a3.gz">
+	<name>[DEV-3646] Extracted method to find waterfalls by classification id</name>
+</patch>
+<patch author="julia.to@mootermedia.com" date="20070320014953" local_date="Tue Mar 20 12:49:53 EST 2007" inverted="False" hash="20070320014953-40eb8-8b24c5ae8cf46e657d9ba1df688d1b8e91834eda.gz">
+	<name>[DEV-3646] Extracted method to find waterfalls by classification id</name>
+</patch>
+<patch author="kim.pepper@mootermedia.com" date="20070320225642" local_date="Wed Mar 21 09:56:42 EST 2007" inverted="False" hash="20070320225642-5e0a3-ee235d5533d7dd57942f2d2c3d43a5b4124fb19e.gz">
+	<name>[DEV-3646] added missing migratiosns for classification strategy</name>
+</patch>
+<patch author="kim.pepper@mootermedia.com" date="20070320054246" local_date="Tue Mar 20 16:42:46 EST 2007" inverted="False" hash="20070320054246-5e0a3-54d8a4b71d84c5512e2609e1275bc0b100b7c669.gz">
+	<name>[DEV-3646] improved debug messages; added a finally block</name>
+</patch>
+<patch author="kim.pepper@mootermedia.com" date="20070320052002" local_date="Tue Mar 20 16:20:02 EST 2007" inverted="False" hash="20070320052002-5e0a3-2352b8c181792174d2c4b47d4fd44798af561b98.gz">
+	<name>[DEV-3646] undid the build.properties change that was accidentally commited (again)</name>
+</patch>
+<patch author="kim.pepper@mootermedia.com" date="20070320051430" local_date="Tue Mar 20 16:14:30 EST 2007" inverted="False" hash="20070320051430-5e0a3-9510de1212ebe989cf69983fca9cd1feffc70c90.gz">
+	<name>[DEV-3646] integrated strategy into adserver; wired up analysisExcecutor in spring</name>
+</patch>
+<patch author="nicola.west@mootermedia.com" date="20070320023818" local_date="Tue Mar 20 13:38:18 EST 2007" inverted="False" hash="20070320023818-43f10-1b0de9a5ee6ef94c94295b076d1ed1c543994f9e.gz">
+	<name>[DEV-3615] updated iteration number</name>
+</patch>
+<patch author="mick.barry@mootermedia.com" date="20070320021040" local_date="Tue Mar 20 13:10:40 EST 2007" inverted="False" hash="20070320021040-66f90-f2efec784a3cf7c798bfb3291a456f8be824646a.gz">
+	<name>[OPS-848] ntt reports changes</name>
+</patch>
+<patch author="mick.barry@mootermedia.com" date="20070320020931" local_date="Tue Mar 20 13:09:31 EST 2007" inverted="False" hash="20070320020931-66f90-b2b0316fb12b787b655c1401cf8c1ad5ab179f76.gz">
+	<name>[OPS-993] change spreadsheet recipients</name>
+</patch>
+<patch author="mick.barry@mootermedia.com" date="20070320013321" local_date="Tue Mar 20 12:33:21 EST 2007" inverted="False" hash="20070320013321-66f90-5e3e736eaa70224203cc2bfade044f44f66e8106.gz">
+	<name>[DEV-3620] Add messages to assertions and compare time in millis directly</name>
+</patch>
+<patch author="nicola.west@mootermedia.com" date="20070320011600" local_date="Tue Mar 20 12:16:00 EST 2007" inverted="False" hash="20070320011600-43f10-8c71b008b95d011645d503f6e24f1ba13185f32b.gz">
+	<name>[DEV-3615] adding test suite for block hosts</name>
+</patch>
+<patch author="nicola.west@mootermedia.com" date="20070320004710" local_date="Tue Mar 20 11:47:10 EST 2007" inverted="False" hash="20070320004710-43f10-ed0eae3572c1239b4c3262a0301a62640603674b.gz">
+	<name>[DEV-3615] moving test cases to template suites</name>
+</patch>
+<patch author="nicola.west@mootermedia.com" date="20070320003237" local_date="Tue Mar 20 11:32:37 EST 2007" inverted="False" hash="20070320003237-43f10-ff2e4e507d0acefb2587bec38811a2d153a99bae.gz">
+	<name>[DEV-3615] rearranging template tests into suites</name>
+</patch>
+<patch author="will.mcrae@mootermedia.com" date="20070320001446" local_date="Tue Mar 20 11:14:46 EST 2007" inverted="False" hash="20070320001446-7ff43-e374463b5394a0ef96eed0377a807470378213ce.gz">
+	<name>[DEV-3625] adding classification type by name.</name>
+</patch>
+<patch author="nicola.west@mootermedia.com" date="20070320000452" local_date="Tue Mar 20 11:04:52 EST 2007" inverted="False" hash="20070320000452-43f10-a86793516c85d7ea5ddb76bf36ffb29913c705df.gz">
+	<name>[DEV-3615] moved au test cases from html to template</name>
+</patch>
+</changelog>

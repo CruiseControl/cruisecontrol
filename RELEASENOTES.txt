@@ -28,6 +28,10 @@ CompositeBuilder
 ----------------------
 * Fix validation error due to multiple calls to builder.validate() (CC-620). Reported by Tim Morrow
 
+Darcs Source Control
+----------------------
+* New source control plugin for Darcs scm (CC-626). Contributed by Kim Pepper.  
+
 EmailPublisher
 ----------------------
 * Validate that email addresses are legal (CC-601). Patch by Jerome Lacoste. 
