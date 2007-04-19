@@ -88,6 +88,10 @@ UCM
 ----------------------
 * Added support for multiple vobs (CC-597). Patch by Mark Holster.
 
+YahooPublisher
+----------------------
+* Publishing build results url to Yahoo IM (CC-382). See configxml.html documentation about required third-party libraries. Contributed by Markus M. May.
+
 reporting
 ======================
 

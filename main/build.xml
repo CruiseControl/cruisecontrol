@@ -110,6 +110,7 @@
         <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present" />
         <available file="${lib}/STComm.jar" property="sametime-sdk-present" />
         <available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
+        <available file="${lib}/ymsg_support_v0_6.jar" property="yahoo-sdk-present"/>
         <tstamp />
         <property name="build.version" value="${cc.release.label}" />
         <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}" />
@@ -146,6 +147,7 @@
         <compile-macro>
             <exclude name="**/StarTeam*" />
             <exclude name="**/Sametime*" />
+            <exclude name="**/Yahoo*"/>
         </compile-macro>
 
         <copy todir="${classes}">
@@ -173,11 +175,18 @@
         </compile-macro>
     </target>
 
+    <target name="compile-yahoo" if="yahoo-sdk-present" depends="init">
+        <compile-macro>
+            <include name="**/Yahoo*" />
+        </compile-macro>
+    </target>
+
     <target name="compile-test" depends="compile" description="Compile test code">
         <compile-macro srcdir="${test}" destdir="${test.classes}">
             <classpath refid="project.runtime.classpath" />
             <exclude name="**/StarTeam*" />
             <exclude name="**/Sametime*" />
+            <exclude name="**/Yahoo*"/>
         </compile-macro>
 
         <copy todir="${test.classes}">
@@ -203,6 +212,13 @@
         <compile-macro srcdir="${test}" destdir="${test.classes}">
             <classpath refid="project.runtime.classpath" />
             <include name="**/Sametime*" />
+        </compile-macro>
+    </target>
+
+    <target name="compile-test-yahoo" if="yahoo-sdk-present" depends="compile-yahoo">
+        <compile-macro srcdir="${test}" destdir="${test.classes}">
+            <classpath refid="project.runtime.classpath" />
+            <include name="**/Yahoo*" />
         </compile-macro>
     </target>
 
@@ -281,6 +297,10 @@
 
     <target name="test-sametime" depends="init, compile-test-sametime" unless="test.skip">
         <test-macro includes="**/Sametime*Test.class" />
+    </target>
+
+    <target name="test-yahoo" depends="init, compile-test-yahoo" unless="test.skip">
+        <test-macro includes="**/Yahoo*Test.class" />
     </target>
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
