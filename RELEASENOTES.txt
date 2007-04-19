@@ -87,6 +87,10 @@ UCM
 reporting
 ======================
 
+build.xml
+----------------------
+* Now prompts user for jmxport (CC-448). Root cruise build defaults to 8000, as before. Patch by Antek Baranski.
+
 XmlServlet
 ----------------------
 * Enhancement to enable Cruise to work with the cctray distributed as part of CruiseControl.net. Patch by Davie Moston.

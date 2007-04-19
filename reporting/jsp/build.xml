@@ -179,6 +179,7 @@
         <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
         <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
         <filter token="ARTIFACTS DIRECTORY" value="${cruise.build.artifacts.dir}"/>
+        <filter token="JMXPORT" value="${cruise.build.jmxport}"/>
         <copy filtering="true" todir="${temp.dir}" file="${webcontent}/WEB-INF/web.xml" />
     </target>
 
@@ -195,6 +196,10 @@
     <target name="-set.artifacts.dir" unless="cruise.build.artifacts.dir">
         <input message="WARNING! Property cruise.build.artifacts.dir not set!  Please enter the absolute path to the directory where additional build artifacts are stored:"
             addproperty="cruise.build.artifacts.dir"/>
+    </target>
+
+    <target name="-set.jmxport" unless="cruise.build.jmxport">
+        <input message="WARNING! Property cruise.build.jmxport not set!  Please enter the jmxport on which cruisecontrol is running:" addproperty="cruise.build.jmxport"/>
     </target>
 
     <target name="war" depends="compile, create-web-xml">
