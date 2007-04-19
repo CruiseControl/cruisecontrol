@@ -36,6 +36,8 @@ import java.io.PipedOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -221,7 +223,13 @@ public class NantBuilderTest extends TestCase {
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException(e);
                 }
-                File simulatedFile = new File(path);
+                File simulatedFile;
+                try {
+                    //done this way to handle spaces in the full pathname
+                    simulatedFile = new File(new URI(resource.toString()));
+                } catch (URISyntaxException e) {
+                    throw new CruiseControlException(e);
+                }
                 return super.getNantLogAsElement(simulatedFile);
             }
         };
