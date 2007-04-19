@@ -49,6 +49,7 @@ import com.starbase.starteam.User;
 import com.starbase.starteam.UserAccount;
 import com.starbase.starteam.View;
 import com.starbase.starteam.ViewConfiguration;
+import com.starbase.starteam.PropertyEnums;
 import com.starbase.util.OLEDate;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -84,6 +85,7 @@ public class StarTeam implements SourceControl {
     private OLEDate nowDate;
     private Folder lastBuildRoot;
     private PropertyNames stPropertyNames;
+    private PropertyEnums stPropertyEnums;
     private Server server;
     private TypeNames stTypeNames;
 
@@ -178,6 +180,7 @@ public class StarTeam implements SourceControl {
 
             stPropertyNames = server.getPropertyNames();
             stTypeNames = server.getTypeNames();
+            stPropertyEnums = server.getPropertyEnums();
             // properties to fetch immediately and cache
             final String[] propertiesToCache =
                 new String[] {
@@ -356,9 +359,9 @@ public class StarTeam implements SourceControl {
                     Item[] audits = parentFolder.getItems(stTypeNames.AUDIT);
                     for (int i = 0; i < audits.length && !foundAudit; i++) {
                         com.starbase.starteam.Audit audit = (com.starbase.starteam.Audit) (audits[i]);
-                        if (audit.getItemDescriptor().equals(fileName) && (audit.getEnumDisplayName(
-                                stPropertyNames.AUDIT_EVENT_ID, audit.getInt(stPropertyNames.AUDIT_EVENT_ID)).equals(
-                                "Deleted"))) {
+                        if (audit.getItemDescriptor().equals(fileName)
+                              && audit.getInt(stPropertyNames.AUDIT_EVENT_ID)
+                              == stPropertyEnums.AUDIT_EVENT_ID_DELETED) {
                             foundAudit = true;
                             mod.modifiedTime = audit.getModifiedTime().createDate();
                             user = server.getUser(audit.getInt(stPropertyNames.AUDIT_USER_ID));
