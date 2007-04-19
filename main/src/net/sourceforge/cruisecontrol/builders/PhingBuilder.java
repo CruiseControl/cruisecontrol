@@ -236,8 +236,6 @@ public class PhingBuilder extends Builder {
 
     /**
      * Set the name of the temporary file used to capture output.
-     *
-     * @param tempFileName
      */
     public void setTempFile(String tempFileName) {
         this.tempFileName = tempFileName;
@@ -264,8 +262,6 @@ public class PhingBuilder extends Builder {
 
     /**
      * Sets whether Phing will use the custom loggers.
-     *
-     * @param useLogger
      */
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
