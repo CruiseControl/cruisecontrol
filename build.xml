@@ -25,6 +25,7 @@
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>
             <property name="cruise.build.artifacts.dir" value="artifacts"/>
+            <property name="cruise.build.jmxport" value="8000"/>
         </ant>
     </target>
 
