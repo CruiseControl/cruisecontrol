@@ -47,6 +47,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -285,6 +286,17 @@ public class Modification implements Comparable, Serializable {
         } else {
             return ((ModifiedFile) files.get(0)).folderName;
         }
+    }
+
+
+    /**
+     * Returns the list of modified files for this modification set.
+     *
+     * @return  list of {@link ModifiedFile} objects. If there are no files, this returns an empty list
+     * (<code>null</code> is never returned).
+     */
+    public List getModifiedFiles() {
+        return Collections.unmodifiableList(files);
     }
 
 

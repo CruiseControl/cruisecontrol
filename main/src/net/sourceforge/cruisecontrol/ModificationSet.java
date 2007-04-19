@@ -266,34 +266,46 @@ public class ModificationSet implements Serializable {
     }
 
     private boolean isIgnoredModification(Modification modification) {
-        File file;
-        if (modification.getFolderName() == null) {
-            if (modification.getFileName() == null) {
-                return false;
+        boolean foundAny = false;
+        
+        // Go through all the files in the modification. If all are ignored, ignore this modification.
+        for (final Iterator modFileIter = modification.getModifiedFiles().iterator(); modFileIter.hasNext();) {
+            final Modification.ModifiedFile modFile = (Modification.ModifiedFile) modFileIter.next();
+            
+            File file;
+            if (modFile.folderName == null) {
+                if (modification.getFileName() == null) {
+                    continue;
+                } else {
+                    file = new File(modFile.fileName);
+                }
             } else {
-                file = new File(modification.getFileName());
+                file = new File(modFile.folderName, modFile.fileName);
             }
-        } else {
-            file = new File(modification.getFolderName(), modification.getFileName());
-        }
-        String path = file.toString();
+            String path = file.toString();
+            foundAny = true;
 
-        // On systems with a '\' as pathseparator convert it to a forward slash '/'
-        // That makes patterns platform independent
-        if (File.separatorChar == '\\') {
-            path = path.replace('\\', '/');
-        }
+            // On systems with a '\' as pathseparator convert it to a forward slash '/'
+            // That makes patterns platform independent
+            if (File.separatorChar == '\\') {
+                path = path.replace('\\', '/');
+            }
 
-        for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext();) {
-            GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
+            boolean useThisFile = true;
+            for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext() && useThisFile;) {
+                GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
 
-            // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
-            // the path, so we use the complete path as the 'filename'-argument.
-            if (pattern.accept(file, path)) {
-                return true;
+                // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
+                // the path, so we use the complete path as the 'filename'-argument.
+                if (pattern.accept(file, path)) {
+                    useThisFile = false;
+                }
+            }
+            if (useThisFile) {
+                return false;
             }
         }
-        return false;
+        return foundAny;
     }
 
     public Date getTimeOfCheck() {
