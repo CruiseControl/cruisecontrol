@@ -189,6 +189,7 @@
 <a href="#weblogpublisher">&lt;weblog&gt;</a>
 <a href="#x10">&lt;x10&gt;</a>
 <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
+<a href="#yahoopublisher">&lt;yahoopublisher&gt;</a>
 &nbsp;
 &nbsp;
 &nbsp;
@@ -320,6 +321,7 @@
          <a href="#weblogpublisher">&lt;weblog&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
+         <a href="#yahoopublisher">&lt;yahoopublisher/&gt;</a>         
       &lt;/publishers&gt;
    &lt;/project&gt;
 &lt;/cruisecontrol&gt;</pre>
@@ -6027,6 +6029,12 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>0 .. *</td>
                 <td>Performs a transformation of the log file</td>
             </tr>
+            <tr>
+                <td><a href="#yahoopublisher"><code>&lt;yahoopublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Sends an instant message with a link to the build results
+                via a Yahoo IM message</td>
+            </tr>            
             </tbody>
         </table>
         </div>
@@ -8310,6 +8318,71 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tbody>
         </table>
         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="yahoopublisher">&lt;yahoopublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;yahoopublisher&gt;</pre>
+        </div>
+
+        <p>Sends an instant message with a link to the build results via a Yahoo IM message. You need to put the files
+        ymsg_network_v0_6.jar and ymsg_support_v0_6.jar into the library path of CC. These can be downloaded at 
+        <a href="http://jymsg9.sourceforge.net/">http://jymsg9.sourceforge.net/</a>.
+        </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Username of the account used to send the instant message. For individuals,
+                    this is typically of the form 'foo' as opposed to 'foo@yahoo.com'</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password of the sender account</td>
+            </tr>
+            <tr>
+                <td>recipient</td>
+                <td>Yes</td>
+                <td>Username of the recipient of the instant message. Recipient username
+                    is typically of the form 'foo' as opposed to 'foo@yahoo.com'</td>
+            </tr>
+            <tr>
+                <td>buildresultsurl</td>
+                <td>Yes</td>
+                <td>Email will include link to the build results.</td>
+            </tr>
+            <tr>
+                <td>proxyHost</td>
+                <td>No</td>
+                <td>HTTP proxy to use.</td>
+            </tr>
+            <tr>
+                <td>proxyPort</td>
+                <td>No</td>
+                <td>HTTP proxy port to use.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
