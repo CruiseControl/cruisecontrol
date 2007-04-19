@@ -48,6 +48,10 @@ Log4jThreadGroup
 ----------------------
 * Spelling correction: "uncaugth" changed to "uncaught". Pointed out by Martin Sweitzer. 
 
+Maven2Script
+----------------------
+* Fixed issue where passing more than one flag to Maven resulted in an error (CC-606). Patch by David Turanski.
+
 MKS
 ----------------------
 * Fix bug where modifications were returned from all previous builds, not just the current build (CC-628). Patch by Min Li

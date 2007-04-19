@@ -95,7 +95,10 @@ public class Maven2Script implements Script, StreamConsumer {
         }
 
         if (flags != null) {
-            cmdLine.createArgument(flags);
+            StringTokenizer stok = new StringTokenizer(flags, " \t\r\n");
+            while (stok.hasMoreTokens()) {
+                cmdLine.createArgument(stok.nextToken());
+            }
         }
 
 
