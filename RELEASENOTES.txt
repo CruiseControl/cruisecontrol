@@ -80,6 +80,10 @@ Pvcs
 ----------------------
 * Fixed bug where extra double quotes were being added to the call to pcli (CC-604). Patches by Karsten Wintermann and Dave Kilroy.
 
+SSCM
+----------------------
+* Fixed bug that caused SSCM to NOT find Surround SCM modifications if email field is empty (CC-631). Fix suggested by Richie Yan & Bob.
+
 StartTeam
 ----------------------
 * Fixed issue that deleted Starteam-files were always detected as Modifications from a 'Unknown'-User, when the Locale was not English (CC-455). Patch by Markus Grieder, reviewed by Benjamin Burgess.

@@ -270,7 +270,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
                                     // Email
                                     iRight = str.indexOf(">", iLeft);
-                                    if (iRight > iLeft) {
+                                    if (iRight >= iLeft) {
                                         mod.emailAddress = str.substring(iLeft, iRight);
                                         fValid = true;
                                     }
