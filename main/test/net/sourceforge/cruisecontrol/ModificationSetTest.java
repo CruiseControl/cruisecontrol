@@ -381,4 +381,49 @@ public class ModificationSetTest extends TestCase {
 
         assertEquals(mod3, modifications.get(0));
     }
+
+
+    /**
+     * Tests ignoring files when multiple files exist in the modification sets.
+     */
+    public void testFilterIgnoredFilesMultipleFiles() throws CruiseControlException, ParseException {
+        final DateFormat formatter = DateFormatFactory.getDateFormat();
+        final List modifications = new ArrayList();
+
+        final Modification mod1 = new Modification();
+        mod1.type = "Checkin";
+        mod1.userName = "user1";
+        mod1.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod1.comment = "comment1";
+        mod1.createModifiedFile("ignore1", "dir1");
+        mod1.createModifiedFile("ignore2", "dir1");
+        modifications.add(mod1);
+
+        final Modification mod2 = new Modification();
+        mod2.type = "Checkin";
+        mod2.userName = "user2";
+        mod2.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod2.comment = "comment2";
+        mod2.createModifiedFile("ignore2", "dir1");
+        mod2.createModifiedFile("keep2", "dir1");
+        modifications.add(mod2);
+
+        final Modification mod3 = new Modification();
+        mod3.type = "Checkin";
+        mod3.userName = "user3";
+        mod3.modifiedTime = formatter.parse("02/02/2002 17:23:50");
+        mod3.comment = "comment1";
+        mod3.createModifiedFile("file3", "dir1");
+        modifications.add(mod3);
+
+        modSet.setIgnoreFiles("dir1/ignore*");
+        modSet.filterIgnoredModifications(modifications);
+        assertEquals ("Incorrect number of modifications were filtered out", 2, modifications.size());
+
+        final List expectedModifications = new ArrayList();
+        expectedModifications.add(mod2);
+        expectedModifications.add(mod3);
+
+        assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
+    }
 }

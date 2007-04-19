@@ -53,6 +53,10 @@ Maven2Script
 ----------------------
 * Fixed issue where passing more than one flag to Maven resulted in an error (CC-606). Patch by David Turanski.
 
+ModificationSet
+----------------------
+* Fixed bug where ignoreFiles attribute of modificationset config element only considers the first file for each Modification (CC-612). Patch by David Jackman.
+
 MKS
 ----------------------
 * Fix bug where modifications were returned from all previous builds, not just the current build (CC-628). Patch by Min Li

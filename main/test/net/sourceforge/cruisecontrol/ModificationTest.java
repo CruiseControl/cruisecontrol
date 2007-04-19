@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -117,5 +118,64 @@ public class ModificationTest extends TestCase {
 
         // Test getFullPath() of Modificaiton object.
         assertEquals("Folder'Name/File\"Name&", modification.getFullPath());
+    }
+
+
+    public void testGettingModifiedFiles() {
+        Modification mod = new Modification();
+
+        // Test getting when no files are present
+        assertNull(mod.getFileName());
+        assertNull(mod.getFolderName());
+        assertNotNull(mod.getModifiedFiles());
+        assertEquals(0, mod.getModifiedFiles().size());
+        
+        // Add first file
+        final String filename1 = "filename-1";
+        final String folder1 = "folder-1";
+        Modification.ModifiedFile file1 = mod.createModifiedFile(filename1, folder1);
+        
+        assertEquals(filename1, file1.fileName);
+        assertEquals(folder1, file1.folderName);
+        
+        assertEquals(filename1, mod.getFileName());
+        assertEquals(folder1, mod.getFolderName());
+        
+        List modList = mod.getModifiedFiles();
+        assertEquals(1, modList.size());
+        assertSame(file1, modList.get(0));
+        
+        // Add second file
+        final String filename2 = "filename-2";
+        final String folder2 = "folder-2";
+        Modification.ModifiedFile file2 = mod.createModifiedFile(filename2, folder2);
+        
+        assertEquals(filename2, file2.fileName);
+        assertEquals(folder2, file2.folderName);
+        
+        assertEquals(filename1, mod.getFileName());
+        assertEquals(folder1, mod.getFolderName());
+        
+        modList = mod.getModifiedFiles();
+        assertEquals(2, modList.size());
+        assertSame(file1, modList.get(0));
+        assertSame(file2, modList.get(1));
+        
+        // Add third file
+        final String filename3 = "filename-3";
+        final String folder3 = "folder-3";
+        Modification.ModifiedFile file3 = mod.createModifiedFile(filename3, folder3);
+        
+        assertEquals(filename3, file3.fileName);
+        assertEquals(folder3, file3.folderName);
+        
+        assertEquals(filename1, mod.getFileName());
+        assertEquals(folder1, mod.getFolderName());
+        
+        modList = mod.getModifiedFiles();
+        assertEquals(3, modList.size());
+        assertSame(file1, modList.get(0));
+        assertSame(file2, modList.get(1));
+        assertSame(file3, modList.get(2));
     }
 }
