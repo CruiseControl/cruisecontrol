@@ -80,6 +80,10 @@ Pvcs
 ----------------------
 * Fixed bug where extra double quotes were being added to the call to pcli (CC-604). Patches by Karsten Wintermann and Dave Kilroy.
 
+StartTeam
+----------------------
+* Fixed issue that deleted Starteam-files were always detected as Modifications from a 'Unknown'-User, when the Locale was not English (CC-455). Patch by Markus Grieder, reviewed by Benjamin Burgess.
+
 UCM
 ----------------------
 * Added support for multiple vobs (CC-597). Patch by Mark Holster.
