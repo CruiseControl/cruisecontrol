@@ -56,6 +56,10 @@ MKS
 ----------------------
 * Fix bug where modifications were returned from all previous builds, not just the current build (CC-628). Patch by Min Li
 
+NantBuilderTest
+----------------------
+* Fixed bug in testing when path to data file contained spaces (CC-304). Patch by John Lewis.
+
 PhingBuilder
 ----------------------
 * Add new plug-in for PHP build tool Phing (CC-613). Submitted by Hans Lellelid.
