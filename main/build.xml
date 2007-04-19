@@ -357,7 +357,7 @@
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
     <target name="all"
-            depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,jar"
+            depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,test-yahoo,jar"
             description="Performs a build, runs tests, and builds jar" />
 
 </project>
