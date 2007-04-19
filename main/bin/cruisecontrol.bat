@@ -54,7 +54,7 @@ set DEFAULT_CCDIR=
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
-set JAVA_PATH="%JAVA_HOME%"\bin\java
+set JAVA_PATH="%JAVA_HOME%\bin\java"
 goto setCruise
 
 :noJavaHome

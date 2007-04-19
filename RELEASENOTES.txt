@@ -114,6 +114,14 @@ XmlServlet
     Install cctray from  http://sourceforge.net/project/showfiles.php?group_id=71179
     Then run cctray, select setting from the tray icon, then add, add server, "Use Custom URL"  with a URL of "http://YOUR_SERVER/cruisecontrol/xml", then select the project you want to monitor and hit OK.
 
+scripting
+======================
+
+cruisecontrol.bat
+----------------------
+* Fixed bug with quoting arounnd JAVA_HOME, when no JAVA_HOME set (CC-605). Fixed suggested by Harlan Iverson.
+
+
 contrib
 ======================
 
