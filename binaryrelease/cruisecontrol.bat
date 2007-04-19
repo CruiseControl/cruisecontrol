@@ -52,7 +52,7 @@ set CCDIR=%~dp0
 
 :checkJava
 if not defined JAVA_HOME goto noJavaHome
-set JAVA_PATH="%JAVA_HOME%"\bin\java
+set JAVA_PATH="%JAVA_HOME%\bin\java"
 set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
