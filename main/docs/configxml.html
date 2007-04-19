@@ -677,6 +677,15 @@
 	<p>Project names must still remain unique. The first project with a given name will
 	be loaded and any subsequent projects attempting to use the same name will be skipped.</p>
 
+    <p><strong>There is currently a bug, such that changes to included project files does not result in the
+        configuration file getting automatically reloaded by CruiseControl, as would be the case for changes made to the
+        parent configuration file.</strong> See
+        <a href="http://jira.public.thoughtworks.org/browse/CC-630">Issue CC-630</a> and
+        <a href="http://jira.public.thoughtworks.org/browse/CC-266">Issue CC-260</a> for more detail.</p>
+
+    <p>For now, you will need to restart CruiseControl, or "touch" the parent configuration file, to make it recognize
+        changes made in included projects.</p>
+
         <h3>Attributes</h3>
 
         <table class="documentation">

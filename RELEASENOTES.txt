@@ -12,6 +12,7 @@ configxml.html
 * Added "veto" sourcecontrol to modificationset overview documentation (main/docs/configxml.html#modificationset). Patch by Allan Wick.
 * Added "composite" builder to schedule overview documentation (main/docs/configxml.html#schedule). Pointed out by Kevin Quigley.
 * Clarified documentation and fixed a typo for MKSBootstrapper (CC-584). Patch by Markus M. May.
+* Documented bug where included.projects do not get auto-updated when changes are made (CC-266).
 
 build loop
 ======================
