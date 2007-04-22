@@ -45,6 +45,10 @@ HttpFile
 ----------------------
 * Fix bug where HttpFile didn't work with domain only (http://host.com) urls (CC-614). Patch by J. David Beutel
 
+LockFileBootstrapper/LockFileListener
+----------------------
+* Fix bug where projects with multiple locks could leave dangling files (CC-568).
+
 Log4jThreadGroup
 ----------------------
 * Spelling correction: "uncaugth" changed to "uncaught". Pointed out by Martin Sweitzer. 
