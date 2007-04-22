@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -29,7 +30,7 @@ public class LockFileBootstrapper implements Bootstrapper {
                     LOG.debug("Lock file [" + path + "] already exists but project names match");
                 }
             } else {
-                Util.writeStringToFile(projectName, lock);
+                IO.write(lock, projectName);
                 LOG.debug("Created lock file [" + path + "]");
                 lock.deleteOnExit();
             }
