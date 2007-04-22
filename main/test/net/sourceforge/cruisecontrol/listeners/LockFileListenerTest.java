@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
-import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.IO;
 
 public class LockFileListenerTest extends TestCase {
 
@@ -60,11 +60,11 @@ public class LockFileListenerTest extends TestCase {
         assertFalse(lock.exists());
     }
     
-    private File createLockFile(String projectName) throws IOException {
+    private File createLockFile(String projectName) throws IOException, CruiseControlException {
         File lock = File.createTempFile("test", ".lck");
         filesToDelete.add(lock);
         assertTrue(lock.exists());
-        Util.writeStringToFile(projectName, lock);
+        IO.write(lock, projectName);
         return lock;
     }
     
