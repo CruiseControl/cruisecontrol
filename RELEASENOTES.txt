@@ -12,7 +12,6 @@ configxml.html
 * Added "veto" sourcecontrol to modificationset overview documentation (main/docs/configxml.html#modificationset). Patch by Allan Wick.
 * Added "composite" builder to schedule overview documentation (main/docs/configxml.html#schedule). Pointed out by Kevin Quigley.
 * Clarified documentation and fixed a typo for MKSBootstrapper (CC-584). Patch by Markus M. May.
-* Documented bug where included.projects do not get auto-updated when changes are made (CC-630).
 
 build loop
 ======================
@@ -100,6 +99,10 @@ StartTeam
 UCM
 ----------------------
 * Added support for multiple vobs (CC-597). Patch by Mark Holster.
+
+XMLConfigManager
+----------------------
+* Check files included with the include.projects mechanism when deciding if configuration file needs to be reloaded. Part of (CC-266).
 
 YahooPublisher
 ----------------------

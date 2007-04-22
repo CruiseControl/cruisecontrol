@@ -39,6 +39,9 @@ package net.sourceforge.cruisecontrol.config;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -63,17 +66,19 @@ public class XMLConfigManager {
     private final File configFile;
     private CruiseControlConfig config;
     private String hash;
+    private Resolver resolver = new Resolver();
 
     public XMLConfigManager(File file) throws CruiseControlException {
         configFile = file;
-        hash = calculateMD5(configFile);
         loadConfig(configFile);
+        hash = calculateMD5(configFile);
     }
 
     private void loadConfig(File file) throws CruiseControlException {
         LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadRootElement(file);
-        config = new CruiseControlConfig(element, new Resolver());
+        resolver.resetResolvedFiles();
+        config = new CruiseControlConfig(element, resolver);
     }
 
     public File getConfigFile() {
@@ -100,9 +105,18 @@ public class XMLConfigManager {
         return fileChanged;
     }
 
-    private String calculateMD5(File file) {
+    private String calculateMD5(File file) throws CruiseControlException {
         LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
-        String md5 = null;
+        String md5 = calculatePartialMD5(file);
+        Set includedFiles = resolver.getResolvedFiles();
+        for (Iterator iter = includedFiles.iterator(); iter.hasNext();) {
+            md5 += calculatePartialMD5((File) iter.next());
+        }
+        return md5;
+    }
+
+    private String calculatePartialMD5(File file) {
+        String md5 = "";
         MD5OutputStream stream = null;
         try {
             Element element = Util.loadRootElement(file);
@@ -121,10 +135,20 @@ public class XMLConfigManager {
     }
 
     class Resolver implements XmlResolver {
+        private Set resolvedFiles = new HashSet();
 
         public Element getElement(String path) throws CruiseControlException {
             File file = new File(configFile.getParentFile(), path);
+            resolvedFiles.add(file);
             return Util.loadRootElement(file);
+        }
+
+        public Set getResolvedFiles() {
+            return resolvedFiles;
+        }
+
+        public void resetResolvedFiles() {
+            resolvedFiles.clear();
         }
 
     }
