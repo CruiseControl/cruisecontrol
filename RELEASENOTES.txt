@@ -79,6 +79,7 @@ PluginRegistry
 Project
 ----------------------
 * Add "projectname" property to properties passed to Builder.build().
+* Fixed issue introduced by CC-519 where the value of label passed to the build didn't match the value for the label displayed in the reporting application and email. Fix was to revert the patch for CC-519.
 
 ProjectConfig
 ----------------------

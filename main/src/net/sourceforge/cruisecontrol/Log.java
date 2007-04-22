@@ -299,21 +299,6 @@ public class Log implements Serializable {
         buildLog.addContent(newContent);
     }
 
-    public void updateLabel(String newLabel) throws CruiseControlException {
-        Element infoElement = buildLog.getChild("info");
-        List infoPropertyElements = infoElement.getChildren();
-        Iterator iterator = infoPropertyElements.iterator();
-        while (iterator.hasNext()) {
-            Element infoPropertyElement = (Element) iterator.next();
-            String infoPropertyName = infoPropertyElement.getAttributeValue("name");
-            if (infoPropertyName.equals("label")) {
-                infoPropertyElement.setAttribute("value", newLabel);
-                return;
-            }
-        }
-        throw new CruiseControlException("Could not find label property in log file when attempting to update label");
-    }
-
     public Element getContent() {
         return (Element) buildLog.clone();
     }

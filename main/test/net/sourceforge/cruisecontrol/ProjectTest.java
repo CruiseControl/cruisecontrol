@@ -173,7 +173,7 @@ public class ProjectTest extends TestCase {
         project.start();
         project.build();
         project.stop();
-        File expectedLogFile = new File(logDir, "log" + DateUtil.getFormattedTime(now) + "L1.2.3.xml");
+        File expectedLogFile = new File(logDir, "log" + DateUtil.getFormattedTime(now) + "L1.2.2.xml");
         assertTrue(expectedLogFile.isFile());
         filesToDelete.add(expectedLogFile);
 
@@ -195,7 +195,7 @@ public class ProjectTest extends TestCase {
                 + "<property name=\"cctimestamp\" value=\""
                 + DateUtil.getFormattedTime(now)
                 + "\" />"
-                + "<property name=\"label\" value=\"1.2.3\" />"
+                + "<property name=\"label\" value=\"1.2.2\" />"
                 + "<property name=\"interval\" value=\"300\" />"
                 + "<property name=\"lastbuildsuccessful\" value=\"false\" />"
                 + "<property name=\"logdir\" value=\""
@@ -204,7 +204,7 @@ public class ProjectTest extends TestCase {
                 + "<property name=\"logfile\" value=\""
                 + "log"
                 + DateUtil.getFormattedTime(now)
-                + "L1.2.3.xml\" />"
+                + "L1.2.2.xml\" />"
                 + "</info><build /><one /><testsuite><testcase /></testsuite><testsuite /></cruisecontrol>";
         assertEquals(expected, Util.readFileToString(expectedLogFile));
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
