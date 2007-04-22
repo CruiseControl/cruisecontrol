@@ -38,53 +38,80 @@
 package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Listener;
 import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
 
 public class LockFileListener implements Listener {
 
+    private static final Logger LOG = Logger.getLogger(LockFileListener.class);
+
     private String path;
-    private boolean needToDeleteLock = false;
+    private String projectName;
 
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (!(event instanceof ProjectStateChangedEvent)) {
             return;
         }
 
-        ProjectState newState = ((ProjectStateChangedEvent) event).getNewState();
-
-        if (projectGotPastBootstrapping(newState)) {
-            needToDeleteLock = true;
+        if (!ProjectState.IDLE.equals(((ProjectStateChangedEvent) event).getNewState())) {
+            return;
+        }
+        
+        File lock = new File(path);
+        String message = "Project " + event.getProjectName() + " failed to delete lock file " + path;
+        
+        if (!lock.exists()) {
+            LOG.debug(message);
+            LOG.debug("Lockfile didn't exist");
+            return;
+        }
+        
+        String nameInLockFile = getFileContents(lock);
+        if (!projectName.equalsIgnoreCase(nameInLockFile)) {
+            LOG.debug(message);
+            LOG.debug("Content (" + nameInLockFile + ") didn't match projectName attribute (" + projectName + ")");
+            return;
         }
 
-        if (newState.equals(ProjectState.IDLE) && needToDeleteLock) {
-            needToDeleteLock = false;
-            boolean deletedFile = attemptToDeleteLock();
-            if (!deletedFile) {
-                throw new CruiseControlException("project " + event.getProjectName()
-                                + " failed to delete lock file " + path);
-            }
+        boolean deletedFile = attemptToDeleteLock();
+        if (!deletedFile) {
+            throw new CruiseControlException(message);
         }
+    }
+
+    String getFileContents(File lock) throws CruiseControlException {
+        String nameInLockFile;
+        try {
+            nameInLockFile = Util.readFileToString(lock);
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
+        }
+        return nameInLockFile;
     }
 
     boolean attemptToDeleteLock() {
         return new File(path).delete();
     }
 
-    private boolean projectGotPastBootstrapping(ProjectState newState) {
-        return newState.equals(ProjectState.MODIFICATIONSET);
-    }
-
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(path, "lockfile", LockFileListener.class);
+        ValidationHelper.assertIsSet(projectName, "projectName", LockFileListener.class);
     }
 
     public void setLockFile(String path) {
         this.path = path;
+    }
+
+    public void setProjectName(String string) {
+        projectName = string;
     }
 
 }

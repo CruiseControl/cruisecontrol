@@ -1217,6 +1217,11 @@ password=P@ssW0rd!
                 <td>Yes</td>
                 <td>The name (and path) of the file to serve as the lock between multiple projects.</td>
             </tr>
+            <tr>
+                <td>projectname</td>
+                <td>Yes</td>
+                <td>Lockfile only deleted when contents match the value set for project name.</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -1938,6 +1943,11 @@ password=P@ssW0rd!
                 <td>lockfile</td>
                 <td>Yes</td>
                 <td>The name (and path) of the file to serve as the lock between multiple projects.</td>
+            </tr>
+            <tr>
+                <td>projectname</td>
+                <td>Yes</td>
+                <td>The project name is written to the lockfile so that the LockFileListener knows which to delete.</td>
             </tr>
             </tbody>
         </table>

@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Util;
 
 public class LockFileListenerTest extends TestCase {
 
@@ -39,46 +40,65 @@ public class LockFileListenerTest extends TestCase {
         listener = null;
     }
     
-    public void testShouldNotDeleteLockIfDidntGetPastBootstrapping() throws IOException, CruiseControlException {
-        File lock = File.createTempFile("test", ".lck");
-        filesToDelete.add(lock);
-        listener.setLockFile(lock.getAbsolutePath());
-        assertTrue(lock.exists());
+    public void testShouldNotDeleteLockIfContentDoesntMatchProjectName() throws IOException, CruiseControlException {
+        File lock = createLockFile("project.name");
 
-        listener.handleEvent(BOOTSTRAPPING);
+        listener.setLockFile(lock.getAbsolutePath());
+        listener.setProjectName("different.name");
         listener.handleEvent(IDLE);
-        listener.handleEvent(WAITING);
-        listener.handleEvent(QUEUED);
-        listener.handleEvent(PAUSED);
-        listener.handleEvent(STOPPED);
         
         assertTrue(lock.exists());
     }
+
+    public void testShouldDeleteLockIfContentMatchesProjectName() throws IOException, CruiseControlException {
+        File lock = createLockFile("project.name");
+        
+        listener.setLockFile(lock.getAbsolutePath());
+        listener.setProjectName("project.name");
+        listener.handleEvent(IDLE);
+        
+        assertFalse(lock.exists());
+    }
     
-    public void testShouldDeleteLockIfGotPastBootstrapping() throws IOException, CruiseControlException {
+    private File createLockFile(String projectName) throws IOException {
         File lock = File.createTempFile("test", ".lck");
         filesToDelete.add(lock);
-        listener.setLockFile(lock.getAbsolutePath());
         assertTrue(lock.exists());
+        Util.writeStringToFile(projectName, lock);
+        return lock;
+    }
+    
+    public void testShouldOnlyDeleteLockWhenProjectGoesIdle() throws IOException, CruiseControlException {
+        File lock = createLockFile("project.name");
+        
+        listener.setLockFile(lock.getAbsolutePath());
+        listener.setProjectName("project.name");
         
         listener.handleEvent(BOOTSTRAPPING);
         listener.handleEvent(MODIFICATIONSET);
         listener.handleEvent(BUILDING);
         listener.handleEvent(MERGING_LOGS);
         listener.handleEvent(PUBLISHING);
+        listener.handleEvent(WAITING);
+        listener.handleEvent(QUEUED);
+        listener.handleEvent(PAUSED);
+        listener.handleEvent(STOPPED);
         assertTrue(lock.exists());
         
         listener.handleEvent(IDLE);
         assertFalse(lock.exists());
     }
     
-    public void testShouldThrowExceptionWhenFailsToDeleteLock() throws CruiseControlException {
+    public void testShouldThrowExceptionWhenFailsToDeleteLock() throws CruiseControlException, IOException {
+        File lock = createLockFile("project.name");
         listener = new LockFileListener() {
             boolean attemptToDeleteLock() {
                 return false;
             }
         };
-        
+        listener.setLockFile(lock.getAbsolutePath());
+        listener.setProjectName("project.name");
+
         listener.handleEvent(MODIFICATIONSET);
         try {
             listener.handleEvent(IDLE);
@@ -87,14 +107,35 @@ public class LockFileListenerTest extends TestCase {
         }
     }
     
-    public void testValidate() throws CruiseControlException {
+    public void testValidateShouldThrowExceptionWhenRequiredAttributesNotSet() {
+        try {
+            listener.validate();
+            fail("should throw exception when lock file and project name not set");
+        } catch (CruiseControlException expected) {
+        }
+    }
+    
+    public void testValidateShouldThrowExceptionWhenLockFileNotSet() {
+        listener.setProjectName("project.name");
         try {
             listener.validate();
             fail("should throw exception when lock file not set");
         } catch (CruiseControlException expected) {
         }
-        
+    }
+    
+    public void testValidateShouldThrowExceptionWhenProjectNameNotSet() {
         listener.setLockFile("delete.me");
+        try {
+            listener.validate();
+            fail("should throw exception when project name not set");
+        } catch (CruiseControlException expected) {
+        }        
+    }
+        
+    public void testValidateShouldNotThrowExceptionWhenRequiredAttributesSet() throws CruiseControlException {
+        listener.setLockFile("delete.me");
+        listener.setProjectName("project.name");
         listener.validate();
     }
 
