@@ -42,20 +42,27 @@ import org.jdom.Element;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 
 public class XMLConfigManagerTest extends TestCase {
     private File configurationFile;
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         configurationFile = File.createTempFile("config", "xml");
-        configurationFile.deleteOnExit();
+        filesToDelete.add(configurationFile);
+        
         writeConfigurationFile(
-                "<cruisecontrol><project name=\"DOESNTMATTER\"><schedule>"
+                "<cruisecontrol><include.projects file='foo.xml'/><project name=\"DOESNTMATTER\"><schedule>"
                         + "<ant/></schedule></project></cruisecontrol>\n");
     }
 
-    public void testShouldStoreUpdatedMD5HashWhenItChanges() throws Exception {
+    protected void tearDown() throws Exception {
+        filesToDelete.delete();
+    }
+
+    public void testShouldStoreUpdatedMD5HashWhenItChanges() throws CruiseControlException {
         XMLConfigManager configManager = new XMLConfigManager(configurationFile);
 
         assertFalse(configManager.reloadIfNecessary());
@@ -67,11 +74,25 @@ public class XMLConfigManagerTest extends TestCase {
 
         assertFalse(configManager.reloadIfNecessary());
     }
+    
+    public void testShouldDetectChangesToIncludedFiles() throws CruiseControlException {
+        File includedFile = new File(configurationFile.getParentFile(), "foo.xml");
+        filesToDelete.add(includedFile);
+        IO.write(includedFile, "<cruisecontrol></cruisecontrol>");
+        
+        XMLConfigManager configManager = new XMLConfigManager(configurationFile);
+        assertFalse(configManager.reloadIfNecessary());
+        
+        IO.write(includedFile, "<cruisecontrol><property name='foo' value='bar'/></cruisecontrol>");
+        
+        assertTrue(configManager.reloadIfNecessary());
+        assertFalse(configManager.reloadIfNecessary());
+    }
 
     public void testResolverShouldReturnCorrectElement() throws Exception {
         XMLConfigManager configManager = new XMLConfigManager(configurationFile);
         File file = File.createTempFile("XmlConfigManagerTest", ".xml", configurationFile.getParentFile());
-        file.deleteOnExit();
+        filesToDelete.add(file);
         IO.write(file, "<foo><bar/></foo>");
         XmlResolver resolver = configManager.new Resolver();
         Element element = resolver.getElement(file.getName());
