@@ -224,7 +224,6 @@ public class Project implements Serializable, Runnable {
 
             if (!getLabelIncrementer().isPreBuildIncrementer() && buildSuccessful) {
                 label = getLabelIncrementer().incrementLabel(label, buildLog.getContent());
-                buildLog.updateLabel(label);
             }
 
             setState(ProjectState.MERGING_LOGS);
