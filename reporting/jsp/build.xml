@@ -176,6 +176,7 @@
     </target>
 
     <target name="create-web-xml" depends="-set.log.dir, -set.status.file, -set.artifacts.dir">
+                                  <!-- Add: , -set.jmxport above to depends require jmxport -->
         <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
         <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
         <filter token="ARTIFACTS DIRECTORY" value="${cruise.build.artifacts.dir}"/>
