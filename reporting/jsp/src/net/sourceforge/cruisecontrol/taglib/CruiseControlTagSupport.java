@@ -74,6 +74,13 @@ public class CruiseControlTagSupport extends TagSupport {
 
     private String projectName = null;
 
+    protected void debug(String message) {
+        getLog(this.getClass()).debug(message);
+    }
+    protected void debug(String message, Throwable throwable) {
+        getLog(this.getClass()).debug(message, throwable);
+    }
+
     protected void info(String message) {
         getLog(this.getClass()).info(message);
     }
@@ -109,6 +116,7 @@ public class CruiseControlTagSupport extends TagSupport {
      *
      *  @return The specified log file or the latest log, if no log file is
      *          specified in the request.
+     * @throws JspException if logDir either does not exist, or is not a directory
      */
     protected LogFile findLogFile() throws JspException {
         String logFile = getPageContext().getRequest().getParameter(LOG_PARAMETER);
@@ -199,6 +207,7 @@ public class CruiseControlTagSupport extends TagSupport {
      * Create a link to the app, including the supplied parameter, but preserving all other parameters.
      * @param paramName  the name of the parameter.
      * @param paramValue the value of the parameter
+     * @return a link to the app, including the supplied parameter, but preserving all other parameters.
      */
     protected String createUrl(String paramName, String paramValue) {
         StringBuffer url = new StringBuffer(getServletPath());

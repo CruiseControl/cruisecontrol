@@ -49,13 +49,13 @@ import javax.servlet.jsp.tagext.Tag;
  */
 public class JmxBaseTag extends CruiseControlTagSupport {
     private static final String JMX_HOST = "cruisecontrol.jmxhost";
-    private static final String JMX_PORT = "cruisecontrol.jmxport";
+    static final String JMX_PORT = "cruisecontrol.jmxport";
     private static final String DEFAULT_JMX_HOST = "localhost";
     private static final String DEFAULT_JMX_PATH = "/";
-    private static final int DEFAULT_JMX_PORT = 8000;
+    static final int DEFAULT_JMX_PORT = 8000;
 
     public int doStartTag() throws JspException {
-        URL jmxBase = null;
+        URL jmxBase;
         try {
             jmxBase = createJmxUrl();
         } catch (MalformedURLException muex) {
@@ -77,7 +77,7 @@ public class JmxBaseTag extends CruiseControlTagSupport {
         return value;
     }
 
-    private URL createJmxUrl() throws JspException, MalformedURLException {
+    URL createJmxUrl() throws JspException, MalformedURLException {
         String jmxHost = getParameter(JMX_HOST);
         if (jmxHost == null) {
             try {
@@ -92,11 +92,17 @@ public class JmxBaseTag extends CruiseControlTagSupport {
         }
 
         String jmxPortNumber = getParameter(JMX_PORT);
-        int jmxPort = 0;
+        int jmxPort;
         if (jmxPortNumber == null) {
             jmxPort = DEFAULT_JMX_PORT;
         } else {
-            jmxPort = Integer.parseInt(jmxPortNumber);
+            try {
+                jmxPort = Integer.parseInt(jmxPortNumber);
+            } catch (NumberFormatException e) {
+                debug("Error parsing jmxPortNumber: " + jmxPortNumber, e);
+                jmxPort = DEFAULT_JMX_PORT;
+                debug("Using default jmx port: " + jmxPort);
+            }
         }
 
         return new URL("http", jmxHost, jmxPort, DEFAULT_JMX_PATH);
