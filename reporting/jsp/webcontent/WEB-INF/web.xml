@@ -95,7 +95,7 @@
 
     <context-param>
       <param-name>cruisecontrol.jmxport</param-name>
-      <param-value>@JMXPORT</param-value>
+      <param-value>@JMXPORT@</param-value>
       <description>The port on which CruiseControl will connect to the JMX HttpAdaptor to "force" builds or view the
           control panel. This value can be overriden using an environment variable with the same name.
       </description>
