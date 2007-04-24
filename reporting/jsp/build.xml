@@ -176,10 +176,11 @@
     </target>
 
     <target name="create-web-xml" depends="-set.log.dir, -set.status.file, -set.artifacts.dir">
-                                  <!-- Add: , -set.jmxport above to depends require jmxport -->
+                                  <!-- Add: ", -set.jmxport" to "depends" list to prompt for jmxport -->
         <filter token="YOUR CRUISECONTROL LOG DIRECTORY" value="${user.log.dir}" />
         <filter token="CURRENT BUILD STATUS FILE" value="${user.build.status.file}" />
         <filter token="ARTIFACTS DIRECTORY" value="${cruise.build.artifacts.dir}"/>
+        <property name="cruise.build.jmxport" value="8000"/>
         <filter token="JMXPORT" value="${cruise.build.jmxport}"/>
         <copy filtering="true" todir="${temp.dir}" file="${webcontent}/WEB-INF/web.xml" />
     </target>
