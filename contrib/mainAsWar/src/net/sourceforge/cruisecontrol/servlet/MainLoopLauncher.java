@@ -22,17 +22,20 @@ public class MainLoopLauncher extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         Integer jmxport;
+        Integer rmiport;
         Boolean start;
         try {
             InitialContext ic = new InitialContext();
             Context context = (Context) ic.lookup("java:comp/env");
             jmxport = (Integer) context.lookup("cruisecontrol.jmxport");
+            rmiport = (Integer) context.lookup("cruisecontrol.rmiport");
             start = (Boolean) context.lookup("cruisecontrol.run.on.start");
         } catch (NamingException e) {
             throw new ServletException(e);
         }
         if (start.booleanValue()) {
-            thread = new Thread(new MainLoopRunner(jmxport));
+            thread = new Thread(new MainLoopRunner(jmxport, rmiport));
+            thread.setDaemon(true);
             thread.start();
         }
     }

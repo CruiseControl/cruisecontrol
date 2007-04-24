@@ -142,6 +142,10 @@ distributed
 * Deprecate 'module' attribute, use Project Name automatically.
 * Add 'EntryOverrides' feature to add new 'entries' to specific running Agents.
 
+mainAsWar
+----------------------
+* Add ability to set the rmi port from the "cruisecontrol-main" web application (CC-637). Patch by Rich Seddon
+
 
 CruiseControl Release Notes - 2.6.1
 
