@@ -114,7 +114,7 @@ reporting
 
 build.xml
 ----------------------
-* Now prompts user for jmxport (CC-448). Root cruise build defaults to 8000, as before. Patch by Antek Baranski.
+* Allow user to override jmxport via -Dcruise.build.jmxport=xxxx on ant commad line, or override.properties (see CC-448). Root cruise build defaults to 8000, as before. Patch by Antek Baranski.
 
 XmlServlet
 ----------------------
