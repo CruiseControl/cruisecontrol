@@ -143,11 +143,17 @@ public class MergeLogger implements BuildLogger {
             for (int j = 0; j < children.length; j++) {
                 mergeFile(children[j], buildLog);
             }
-        } else {
-            Element auxLogElement = getElement(nextLogFile);
-            if (auxLogElement != null) {
-                buildLog.addContent(auxLogElement.detach());
+        } else if (nextLogFile.isFile()) {
+            if (nextLogFile.length() == 0) {
+                LOG.warn(nextLogFile.toString() + " is empty. Skipping ...");
+            } else {
+                Element auxLogElement = getElement(nextLogFile);
+                if (auxLogElement != null) {
+                    buildLog.addContent(auxLogElement.detach());
+                }
             }
+        } else {
+            LOG.warn(nextLogFile.toString() + " is not a directory or a file. Skipping ...");
         }
     }
 
