@@ -58,10 +58,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -108,11 +106,12 @@ public class XSLTag extends CruiseControlTagSupport {
             }
             transformer.transform(new StreamSource(in), new StreamResult(out));
         } catch (ArrayIndexOutOfBoundsException e) {
-            err(e);
-            throw new CCTagException("Error transforming '" + xmlFile.getName()
+            String message = "Error transforming '" + xmlFile.getName()
                     + "'. You might be experiencing XML parser issues."
                     + " Are your xalan & xerces jar files mismatched? Check your JVM version. "
-                    + e.getMessage(), e);
+                    + e.getMessage();
+            err(message, e);
+            throw new CCTagException(message, e);
         } catch (TransformerException e) {
             err(e);
             throw new CCTagException("Error transforming '" + xmlFile.getName()
