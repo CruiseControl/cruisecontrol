@@ -58,8 +58,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -75,6 +77,8 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  */
 public class XSLTag extends CruiseControlTagSupport {
     private static final String XSLT_PARAMETER_PREFIX = "xslt.";
+    private static final String SAXON_VERSION_WARNING =
+            "http://saxon.sf.net/feature/version-warning";
     private String xslFileName;
     private static final String CACHE_DIR = "_cache";
 
@@ -94,17 +98,7 @@ public class XSLTag extends CruiseControlTagSupport {
         InputStream in = null;
 
         try {
-            TransformerFactory tFactory = TransformerFactory.newInstance();
-            Transformer transformer = tFactory.newTransformer(new StreamSource(style.toExternalForm()));
-            Map parameters = getXSLTParameters();
-            if (!parameters.isEmpty()) {
-                transformer.clearParameters();
-                for (Iterator i = parameters.entrySet().iterator(); i.hasNext(); ) {
-                    Map.Entry entry = (Map.Entry) i.next();
-                    transformer.setParameter((String) entry.getKey(), entry.getValue());
-                }
-            }
-
+            Transformer transformer = newTransformer(style);
             try {
                 in = xmlFile.getInputStream();
             } catch (IOException ioex) {
@@ -126,6 +120,25 @@ public class XSLTag extends CruiseControlTagSupport {
         } finally {
             closeQuietly(in);
         }
+    }
+
+    private Transformer newTransformer(final URL style) throws TransformerException {
+        TransformerFactory tFactory = TransformerFactory.newInstance();
+        try {
+            tFactory.setAttribute(SAXON_VERSION_WARNING, Boolean.FALSE);
+        } catch (IllegalArgumentException iaex) {
+            debug("could not silence Saxon XSLT 2.0 warning, processor is probably not saxon: " + iaex.getMessage());
+        }
+        Transformer transformer = tFactory.newTransformer(new StreamSource(style.toExternalForm()));
+        Map parameters = getXSLTParameters();
+        if (!parameters.isEmpty()) {
+            transformer.clearParameters();
+            for (Iterator i = parameters.entrySet().iterator(); i.hasNext(); ) {
+                Map.Entry entry = (Map.Entry) i.next();
+                transformer.setParameter((String) entry.getKey(), entry.getValue());
+            }
+        }
+        return transformer;
     }
 
     /**
