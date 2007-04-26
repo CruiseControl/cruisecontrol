@@ -16,6 +16,10 @@ configxml.html
 build loop
 ======================
 
+BuildQueue
+----------------------
+* Fix project blocked in Completed state in the queue, never gets to be built again (CC-443)
+
 ConcurrentVersionsSystem
 ----------------------
 * Added new attribute named "reallyQuiet" which will result in a "-Q" getting passed to cvs for the log command, instead of the default "-q". (CC-607) Suggested by Chris Nappin and Gisbert Amm.
@@ -121,6 +125,10 @@ XmlServlet
 * Enhancement to enable Cruise to work with the cctray distributed as part of CruiseControl.net. Patch by Davie Moston.
     Install cctray from  http://sourceforge.net/project/showfiles.php?group_id=71179
     Then run cctray, select setting from the tray icon, then add, add server, "Use Custom URL"  with a URL of "http://YOUR_SERVER/cruisecontrol/xml", then select the project you want to monitor and hit OK.
+
+XSLTag
+----------------------
+* silence "Warning: Running an XSLT 1.0 stylesheet with an XSLT 2.0 processor" when using Saxon as XSLT processor
 
 scripting
 ======================
