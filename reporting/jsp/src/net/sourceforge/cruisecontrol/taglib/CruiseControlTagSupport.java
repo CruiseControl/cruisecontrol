@@ -93,6 +93,10 @@ public class CruiseControlTagSupport extends TagSupport {
         getLog(this.getClass()).error(exception);
     }
 
+    protected void err(String message, Throwable cause) {
+        getLog(this.getClass()).error(message, cause);
+    }
+
     protected String getBaseLogDir() throws JspException {
         String logDirName = getContextParam("logDir");
         if (logDirName == null) {
