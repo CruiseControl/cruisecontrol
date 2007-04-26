@@ -204,7 +204,9 @@ public class Project implements Serializable, Runnable {
             buildLog.addContent(modifications);
 
             Date now = new Date();
-            if (projectConfig.getModificationSet() != null) {
+            if (projectConfig.getModificationSet() != null
+                    && projectConfig.getModificationSet().getTimeOfCheck() != null) {
+                
                 now = projectConfig.getModificationSet().getTimeOfCheck();
             }
 
