@@ -2,6 +2,8 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.6.3
+
 CruiseControl Release Notes - 2.6.2
 
 documentation
