@@ -91,8 +91,7 @@ public final class FileUtil {
         return bytes;
     }
 
-    private static String bytesToFile(final byte[] data, final String filePath) {
-        final File outFile = new File(filePath);
+    public static void bytesToFile(final byte[] data, final File outFile) {
         try {
             final FileOutputStream fos = new FileOutputStream(outFile);
             try {
@@ -106,22 +105,10 @@ public final class FileUtil {
                 fos.close();
             }
         } catch (IOException e) {
-            final String message = "Error creating output file";
+            final String message = "Error creating output file: " + outFile.getAbsolutePath();
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
         }
-        return filePath;
     }
 
-    public static String bytesToFile(final byte[] data, final String parentDirName, final String fileName) {
-        String filePath = null;
-        try {
-            filePath = new File(parentDirName, fileName).getCanonicalPath();
-        } catch (IOException e) {
-            String message = "Could not determine canonical name for: " + parentDirName + File.separator + fileName;
-            System.err.println(message);
-            LOG.error(message, e);
-        }
-        return bytesToFile(data, filePath);
-    }
 }

@@ -218,19 +218,19 @@ public class DistributedMasterBuilder extends Builder {
 
                 buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps);
 
-                final String rootDirPath;
+                final File rootDirCanon;
                 try {
                     // watch out on Windoze, problems if root dir is c: instead of c:/
                     LOG.debug("rootDir: " + rootDir + "; rootDir.cp: " + rootDir.getCanonicalPath());
-                    rootDirPath = rootDir.getCanonicalPath();
+                    rootDirCanon = rootDir.getCanonicalFile();
                 } catch (IOException e) {
-                    final String message = "Error getting canonical path for: " + rootDir;
+                    final String message = "Error getting canonical file for: " + rootDir;
                     LOG.error(message);
                     System.err.println(message);
                     throw new CruiseControlException(message, e);
                 }
 
-                retrieveBuildArtifacts(agent, rootDirPath);
+                retrieveBuildArtifacts(agent, rootDirCanon, projectName);
 
             } catch (RemoteException e) {
                 final String message = "RemoteException from"
@@ -255,45 +255,49 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    private void retrieveBuildArtifacts(BuildAgentService agent, String rootDirPath) throws RemoteException {
-        getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS, rootDirPath,
-                resolveMasterDestDir(masterLogDir, rootDirPath, PropertiesHelper.RESULT_TYPE_LOGS));
+    private void retrieveBuildArtifacts(BuildAgentService agent, final File workDir, final String projectName)
+            throws RemoteException {
 
-        getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT, rootDirPath,
-                resolveMasterDestDir(masterOutputDir, rootDirPath, PropertiesHelper.RESULT_TYPE_OUTPUT));
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS,
+                resolveMasterDestDir(masterLogDir, workDir, PropertiesHelper.RESULT_TYPE_LOGS));
+
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT,
+                resolveMasterDestDir(masterOutputDir, workDir, PropertiesHelper.RESULT_TYPE_OUTPUT));
 
         agent.clearOutputFiles();
     }
 
     
-    private static String resolveMasterDestDir(final String masterDestDir, final String rootDirPath,
+    private static File resolveMasterDestDir(final String masterDestDir, final File workDir,
                                                final String resultType) {
-        final String resultDir;
+        final File resultDir;
         if (masterDestDir == null || "".equals(masterDestDir)) {
-            resultDir = rootDirPath + File.separator + resultType;
+            resultDir = new File(workDir, resultType);
         } else {
-            resultDir = masterDestDir;
+            resultDir = new File(masterDestDir);
         }
         return resultDir;
     }
 
-    public static void getResultsFiles(final BuildAgentService agent, final String resultsType,
-                                       final String rootDirPath, final String masterDestDir)
+    public static void getResultsFiles(final BuildAgentService agent, final File workDir, final String projectName,
+                                       final String resultsType, final File masterDestDir)
             throws RemoteException {
 
         if (agent.resultsExist(resultsType)) {
-            final String zipFilePath = FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), rootDirPath,
-                    resultsType + ".zip");
+
+            final File zipFile = ZipUtil.getTempResultsZipFile(workDir, projectName, resultsType);
+            FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), zipFile);
+
             try {
-                LOG.info("unzip " + resultsType + " (" + zipFilePath + ") to: " + masterDestDir);
-                ZipUtil.unzipFileToLocation(zipFilePath, masterDestDir);
-                IO.delete(new File(zipFilePath));
+                LOG.info("unzip " + resultsType + " (" + zipFile.getAbsolutePath() + ") to: " + masterDestDir);
+                ZipUtil.unzipFileToLocation(zipFile.getAbsolutePath(), masterDestDir.getAbsolutePath());
+                IO.delete(zipFile);
             } catch (IOException e) {
                 // Empty zip for log results--ignore
                 LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
             }
         } else {
-            final String message = "No results returned for " + resultsType;
+            final String message = projectName + ": No results returned for " + resultsType;
             LOG.info(message);
         }
     }

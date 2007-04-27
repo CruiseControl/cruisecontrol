@@ -435,30 +435,11 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
 
 
-        zippedLogs = getTempResultsZipFile(PropertiesHelper.RESULT_TYPE_LOGS);
+        zippedLogs = ZipUtil.getTempResultsZipFile(buildRootDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS);
         ZipUtil.zipFolderContents(zippedLogs.getAbsolutePath(), logDir.getAbsolutePath());
 
-        zippedOutput = getTempResultsZipFile(PropertiesHelper.RESULT_TYPE_OUTPUT);
+        zippedOutput = ZipUtil.getTempResultsZipFile(buildRootDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT);
         ZipUtil.zipFolderContents(zippedOutput.getAbsolutePath(), outputDir.getAbsolutePath());
-    }
-
-    /**
-     * Use a unique temp file to avoid collisions when multiple build agents run on the same machine.
-     * @param resultsType the type of results
-     * @return a unique zip file to be filled with the content for the given results type
-     */
-    private File getTempResultsZipFile(final String resultsType) {
-        final File tempResultsFile;
-        try {
-            tempResultsFile = File.createTempFile(projectName + "-" + resultsType + "-", ".zip", buildRootDir);
-        } catch (IOException e) {
-            final String message = "Couldn't create temp " + resultsType + " results zip file in: "
-                    + buildRootDir.getAbsolutePath();
-            logPrefixError(message, e);
-            System.err.println(message + " - " + e.getMessage());
-            throw new RuntimeException(message);
-        }
-        return tempResultsFile;
     }
 
     private File getAgentResultDir(final String resultType, final String resultProperty) {
