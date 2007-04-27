@@ -301,10 +301,13 @@ public class InteractiveBuildUtility {
 
     private void retrieveBuildArtifacts(final BuildAgentService agent) {
         try {
-            DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_LOGS,
-                    ".", "resultsInteractive");
-            DistributedMasterBuilder.getResultsFiles(agent, PropertiesHelper.RESULT_TYPE_OUTPUT,
-                    ".", "resultsInteractive");
+            final File currentDir = new File(".");
+            DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
+                    PropertiesHelper.RESULT_TYPE_LOGS, currentDir);
+
+            DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
+                    PropertiesHelper.RESULT_TYPE_OUTPUT, currentDir);
+            
             agent.clearOutputFiles();
         } catch (RemoteException e) {
             String message = "Problem occurred getting or unzipping results";

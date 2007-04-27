@@ -262,4 +262,25 @@ public final class ZipUtil {
             }
         }
     }
+
+    /**
+     * Create a unique temp file for results to avoid collisions between concurrent builds.
+     * @param workDir directory in which to create the temp file
+     * @param projectName the project name being built
+     * @param resultsType the type of results
+     * @return a unique zip file to be filled with the content for the given results type
+     */
+    public static File getTempResultsZipFile(final File workDir, final String projectName, final String resultsType) {
+        final File tempResultsFile;
+        try {
+            tempResultsFile = File.createTempFile(projectName + "-" + resultsType + "-", ".zip", workDir)
+                    .getCanonicalFile();
+        } catch (IOException e) {
+            final String message = "Couldn't create temp " + resultsType + " results zip file in: "
+                    + workDir.getAbsolutePath();
+            LOG.error(message, e);
+            throw new RuntimeException(message);
+        }
+        return tempResultsFile;
+    }
 }
