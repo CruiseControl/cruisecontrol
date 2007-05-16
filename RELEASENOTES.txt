@@ -18,6 +18,14 @@ JMX
 * Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
 * Added the ability to retrieve statuses of all projects.  
 
+contrib
+======================
+
+mainAsWar
+----------------------
+* Stop the non-daemon threads (BuildQueue and JMX Adapters) when the servlet is destroyed to allow a clean exit by the servlet container.
+
+
 CruiseControl Release Notes - 2.6.2
 
 documentation

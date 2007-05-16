@@ -10,9 +10,14 @@ public class MainLoopLauncher extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     private Thread thread;
+    private MainLoopRunner runner;
 
     public void destroy() {
         super.destroy();
+        if (runner != null) {
+            runner.stop();
+            runner = null;
+        }
         if (thread != null) {
             thread.interrupt();
             thread = null;
@@ -34,7 +39,8 @@ public class MainLoopLauncher extends HttpServlet {
             throw new ServletException(e);
         }
         if (start.booleanValue()) {
-            thread = new Thread(new MainLoopRunner(jmxport, rmiport));
+            runner = new MainLoopRunner(jmxport, rmiport);
+            thread = new Thread(runner);
             thread.setDaemon(true);
             thread.start();
         }
