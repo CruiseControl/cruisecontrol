@@ -77,6 +77,10 @@ public final class Main implements CruiseControlMain {
         }
     }
 
+    private CruiseControlController controller;
+
+    private CruiseControlControllerAgent agent;
+
     /**
      * Print the version, configure the project with serialized build info and/or arguments and start the project build
      * process.
@@ -95,7 +99,16 @@ public final class Main implements CruiseControlMain {
             if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
-            startController(args, versionProperties);
+            controller = createController(args, versionProperties);
+            if (shouldStartJmxAgent(args)) {
+                agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
+                        parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
+                agent.start();
+            }
+            if (shouldStartEmbeddedServer(args)) {
+                startEmbeddedServer(args);
+            }
+            controller.resume();
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             printUsage();
@@ -104,27 +117,20 @@ public final class Main implements CruiseControlMain {
         return true;
     }
 
-    private void startController(String[] args, Properties versionProperties) throws CruiseControlException {
-        CruiseControlController controller = new CruiseControlController();
-        controller.setVersionProperties(versionProperties);
+    private CruiseControlController createController(String[] args, Properties versionProperties)
+      throws CruiseControlException {
+        CruiseControlController ccController = new CruiseControlController();
+        ccController.setVersionProperties(versionProperties);
         File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
         try {
-          controller.setConfigFile(configFile);
+          ccController.setConfigFile(configFile);
         } catch (CruiseControlException e) {
             LOG.error("error setting config file on controller", e);
             throw e;
         }
         ServerXMLHelper helper = new ServerXMLHelper(configFile);
         ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
-        if (shouldStartJmxAgent(args)) {
-            CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
-                    parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
-            agent.start();
-        }
-        if (shouldStartEmbeddedServer(args)) {
-            startEmbeddedServer(args);
-        }
-        controller.resume();
+        return ccController;
     }
 
     /**
@@ -320,5 +326,10 @@ public final class Main implements CruiseControlMain {
     static boolean shouldPrintUsage(String[] args) {
         return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND
                 || MainArgs.findIndex(args, "help") != MainArgs.NOT_FOUND;
+    }
+
+    public void stop() {
+        controller.pause();
+        agent.stop();
     }
 }
