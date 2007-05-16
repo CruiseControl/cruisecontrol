@@ -7,10 +7,12 @@ body {
 }
 
 .header {
-    color: white;
-    background-color: #000033;
+    overflow:auto;
+    color: black;
+    background-color: white;
     margin: 0;
     padding: 0;
+    border-bottom:1px solid black;
 }
 
 .hostedby {
@@ -21,7 +23,11 @@ body {
     font-size: x-small;
     font-weight: bold;
 }
-
+.logo {
+    float: left;
+    padding-top: 10px;
+    padding-left: 30px;
+}
 a img {
     border: 0;
 }
@@ -39,9 +45,8 @@ a img {
     position: absolute;
     top: 0;
     left: 0;
-    background: url(menubg.png);
-    color: white;
-    background-color: black;
+    color: #020253;
+    background-color: white;
     font-weight: bold;
     font-size: smaller;
 }
@@ -53,17 +58,19 @@ a img {
 }
 
 #menu ul#menulist {
-    padding: 12px 0 0 0;
-    border-bottom: 1px solid white;
-    background: top right no-repeat url(menutopright.png);
+    padding: 0 0 0 0;
+    border-bottom: 1px solid black;
+    background: top right no-repeat;
 }
 
 #menu li {
-    border-top: 1px solid white;
+    border-top: 1px solid black;
     margin: 0;
     padding: 0;
 }
-
+#menu ul#menulist .top {
+  border-top: 0px solid black;
+}
 #menu li li {
     padding-left: 0.75em;
 }
@@ -76,14 +83,14 @@ a img {
 #menu li p {
     margin: 0;
     padding: 5px 5px 5px 23px;
-    border-right: 11px solid white;
+    border-right: 1px solid black;
     width: 100%;
 }
 
 #menu li h2 {
     margin: 0;
     padding: 15px 15px 5px 13px;
-    border-right: 11px solid white;
+    border-right: 1px solid black;
     border-left: 10px none;
     font-size: 1.25em;
     width: 100%;
@@ -91,18 +98,18 @@ a img {
 
 #menu li p#menuselected {
     padding: 5px 5px 5px 13px;
-    border-left: 10px solid #1c64d1;
-    background-color: #2586d7;
+    border-left: 10px solid #020253;
+    background-color: #8dc3d7;
 }
 
 #menu li a {
     display: block;
     padding: 5px 5px 5px 13px;
-    border-left: 10px solid #1958b7;
-    border-right: 11px solid white;
-    color: white;
+    border-left: 10px solid #020253;
+    border-right: 1px solid black;
     text-decoration: none;
     width: 100%;
+    color:#020253;
 }
 
 #menu li a.external {
@@ -125,13 +132,9 @@ html>body #menu li h2 {
 }
 
 #menu li a:hover {
-    border-left: 10px solid #1c64d1;
-    background-color: #2586d7;
-    color: white;
-}
-
-#menu li p#menubottom {
-    background: bottom right no-repeat url(menubottomright.png);
+    border-left: 10px solid #020253;
+    background-color: #8dc3d7;
+    color: #020253;
 }
 
 .content {
@@ -198,7 +201,7 @@ table.documentation th {
     text-align: left;
     font-weight: bold;
     color: white;
-    background-color: #303060;
+    background-color: #020253;
     vertical-align: top;
 }
 

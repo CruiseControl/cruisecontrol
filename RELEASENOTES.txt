@@ -4,6 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.6.3-dev
 
+documentation
+======================
+* Update the look and feel of the documentation to be less intrusive and more contemporary in design. Added in newly trademarked CruiseControl logo.
+
+
 build loop
 ======================
 
