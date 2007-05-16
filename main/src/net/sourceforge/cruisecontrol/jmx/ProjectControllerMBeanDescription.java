@@ -93,6 +93,8 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
 
         ATTR_DESCRIPTIONS.put("BuildStartTime",
                               "Start Time of the last build, using the format 'yyyyMMddHHmmss'");
+        ATTR_DESCRIPTIONS.put("CommitMessage",
+                    "Gets the commit message which includes the user name and the message.");
     }
 
     public String getOperationDescription(Method method) {

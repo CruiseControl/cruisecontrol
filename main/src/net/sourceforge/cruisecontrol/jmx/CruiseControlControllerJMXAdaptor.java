@@ -36,18 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
-import net.sourceforge.cruisecontrol.CruiseControlConfig;
-import net.sourceforge.cruisecontrol.CruiseControlController;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.PluginDetail;
-import net.sourceforge.cruisecontrol.PluginRegistry;
-import net.sourceforge.cruisecontrol.PluginType;
-import net.sourceforge.cruisecontrol.ProjectInterface;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
@@ -58,16 +58,22 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
+import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.PluginDetail;
+import net.sourceforge.cruisecontrol.PluginRegistry;
+import net.sourceforge.cruisecontrol.PluginType;
+import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.ProjectInterface;
+import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  *
@@ -292,5 +298,19 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         synchronized (SEQUENCE_LOCK) {
             return ++sequence;
         }
+    }
+
+    public Map getAllProjectsStatus() {
+        Map allStatus = new HashMap();
+        for (Iterator iter = getProjects().iterator(); iter.hasNext();) {
+            ProjectConfig projectConfig = (ProjectConfig) iter.next();
+            String projectName = projectConfig.getName();
+            String status = projectConfig.getStatus();
+            if (ProjectState.BUILDING.hasDescription(status)) {
+                status = status + " since " + projectConfig.getBuildStartTime();
+            }
+            allStatus.put(projectName, status);
+        }
+        return allStatus;
     }
 }

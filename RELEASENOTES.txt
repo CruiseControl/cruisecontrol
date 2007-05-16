@@ -4,6 +4,15 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.6.3-dev
 
+build loop
+======================
+
+JMX
+----------------------
+* Added the ability to retrieve commit messages for a project's "current" modification set.
+* Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
+* Added the ability to retrieve statuses of all projects.  
+
 CruiseControl Release Notes - 2.6.2
 
 documentation
