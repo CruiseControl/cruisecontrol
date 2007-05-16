@@ -389,4 +389,12 @@ public class ProjectConfig implements ProjectInterface {
     Project getProject() {
         return project;
     }
+
+    public String getStatus() {
+        return project.getStatus();
+    }
+
+    public String getBuildStartTime() {
+        return project.getBuildStartTime();
+    }
 }

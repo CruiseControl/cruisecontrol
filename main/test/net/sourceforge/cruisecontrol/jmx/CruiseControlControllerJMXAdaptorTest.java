@@ -6,9 +6,14 @@
  */
 package net.sourceforge.cruisecontrol.jmx;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ProjectConfig;
 
 /**
  * @author alwick
@@ -19,8 +24,63 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
-        
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController());
+    }
+
+    public void testShouldReturnAllProjectWithStatus() throws Exception {
+        final ProjectConfig projectConfig = new ProjectConfig() {
+            private static final long serialVersionUID = 1L;
+
+            public String getName() {
+                return "test";
+            }
+
+            public String getStatus() {
+                return "now building";
+            }
+            
+            public String getBuildStartTime() {
+                return "20070420061700";
+            }
+            
+        };
+        adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
+            public List getProjects() {
+                List list = new ArrayList();
+                list.add(projectConfig);
+                return list;
+            }
+        });
+        Map projectsStatus = adaptor.getAllProjectsStatus();
+        assertEquals("now building since 20070420061700", projectsStatus.get("test"));
+    }
+
+    public void testShouldNotIncludeBuildStartTimeInWaitingStatus() throws Exception {
+        final ProjectConfig projectConfig = new ProjectConfig() {
+            private static final long serialVersionUID = 1L;
+            
+            public String getName() {
+                return "test";
+            }
+            
+            public String getStatus() {
+                return "waiting for next time to build";
+            }
+            
+            public String getBuildStartTime() {
+                return "20070420061700";
+            }
+            
+        };
+        adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
+            public List getProjects() {
+                List list = new ArrayList();
+                list.add(projectConfig);
+                return list;
+            }
+        });
+        Map projectsStatus = adaptor.getAllProjectsStatus();
+        assertEquals(projectConfig.getStatus(), projectsStatus.get("test"));
     }
 
     public void testInvalid() throws Exception {
@@ -29,7 +89,7 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             sb.append("<cruisecontrol>");
             sb.append("<project name=\"test\" foo=\"foo\"></project>");
             sb.append("</cruisecontrol>");
-            
+
             adaptor.validateConfig(sb.toString());
             fail("No exception found");
         } catch (CruiseControlException cce) {
@@ -46,7 +106,7 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             sb.append("<schedule><ant/></schedule>");
             sb.append("</project>");
             sb.append("</cruisecontrol>");
-            
+
             adaptor.validateConfig(sb.toString());
 
         } catch (CruiseControlException cce) {

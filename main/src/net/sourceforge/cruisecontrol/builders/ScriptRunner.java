@@ -40,7 +40,9 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.File;
 import java.io.IOException;
 
+import net.sourceforge.cruisecontrol.BuildOutputBufferManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.BuildOutputBuffer;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CompositeConsumer;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -106,20 +108,19 @@ public class ScriptRunner  {
                     + script.toString() + "'. CruiseControl cannot continue.", e);
         }
 
-        StreamPumper errorPumper;
-        StreamPumper outPumper;
+        CompositeConsumer comsumerForError = new CompositeConsumer(StreamLogger.getWarnLogger(LOG));
+        CompositeConsumer comumerForOut = new CompositeConsumer(StreamLogger.getInfoLogger(LOG));
+        //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
+        BuildOutputBuffer buildOutputConsumer = BuildOutputBufferManager.INSTANCE.create("");
+        comsumerForError.add(buildOutputConsumer);
+        comumerForOut.add(buildOutputConsumer);
         if (script instanceof StreamConsumer) {
-            CompositeConsumer consumer = new CompositeConsumer((StreamConsumer) script);
-            consumer.add(StreamLogger.getWarnLogger(LOG));
-            errorPumper = new StreamPumper(p.getErrorStream(), consumer);
-            consumer = new CompositeConsumer((StreamConsumer) script);
-            consumer.add(StreamLogger.getInfoLogger(LOG));
-            outPumper = new StreamPumper(p.getInputStream(), consumer);
-        } else {
-            errorPumper = StreamLogger.getWarnPumper(LOG, p);
-            outPumper = StreamLogger.getInfoPumper(LOG, p);
+            comsumerForError.add((StreamConsumer) script);
+            comumerForOut.add((StreamConsumer) script);
         }
 
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), comsumerForError);
+        StreamPumper outPumper = new StreamPumper(p.getInputStream(), comumerForOut);
 
         Thread stderr = new Thread(errorPumper);
         stderr.start();

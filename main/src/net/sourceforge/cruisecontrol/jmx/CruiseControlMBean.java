@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.management.InvalidAttributeValueException;
@@ -62,6 +63,7 @@ public interface CruiseControlMBean {
     //void validateConfigFile(String contents) throws CruiseControlException;
 
     List getProjects();
+    Map getAllProjectsStatus();
 
     PluginDetail[] getAvailableBootstrappers();
     PluginDetail[] getAvailablePublishers();

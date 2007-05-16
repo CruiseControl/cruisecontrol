@@ -921,4 +921,12 @@ public class Project implements Serializable, Runnable {
         projectController.register(server);
     }
 
+    public ProjectConfig getProjectConfig() {
+        return projectConfig;
+    }
+
+    public Date getLastBuildDate() {
+        return lastBuild;
+    }
+
 }

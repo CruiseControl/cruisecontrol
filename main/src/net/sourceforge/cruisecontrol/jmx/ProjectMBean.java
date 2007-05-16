@@ -152,4 +152,11 @@ public interface ProjectMBean {
      * Gets the human-readable version of the project status
      */
     public String getStatus();
+
+    /**
+     * @return the commit message includes the commiter and message
+     */
+    public String[][] getCommitMessages();
+
+    public String[] getBuildOutput(Integer firstLine);
 }

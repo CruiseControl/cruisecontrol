@@ -103,4 +103,8 @@ public final class ProjectState implements Serializable {
     private Object readResolve() throws ObjectStreamException {
         return ALL_STATES.get(name);
     }
+
+    public boolean hasDescription(String description) {
+        return this.description.equals(description);
+    }
 }

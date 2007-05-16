@@ -36,6 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
 import javax.management.MBeanRegistrationException;
@@ -44,9 +49,13 @@ import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
+import net.sourceforge.cruisecontrol.BuildOutputBufferManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.ModificationSet;
 import net.sourceforge.cruisecontrol.Project;
+import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
@@ -246,4 +255,36 @@ public class ProjectController extends NotificationBroadcasterSupport
         server.registerMBean(this, projectName);
     }
 
+    /**
+     * @return All the commit messages associated with the "current" modification set as
+     *  string[user name][commit message].
+     */
+    public String[][] getCommitMessages() {
+        ModificationSet modificationSet = project.getProjectConfig().getModificationSet();
+        List sourceControls = modificationSet.getSourceControls();
+        Iterator iterator = sourceControls.iterator();
+        List modifications = new ArrayList();
+        while (iterator.hasNext()) {
+            SourceControl sourcecontrol = (SourceControl) iterator.next();
+            modifications.addAll(sourcecontrol.getModifications(project.getLastBuildDate(),
+                    new Date()));
+        }
+        String[][] commitMessages = new String[modifications.size()][];
+        for (int i = 0; i < modifications.size(); i++) {
+            Modification modication = (Modification) modifications.get(i);
+            commitMessages[i] = new String[2];
+            commitMessages[i][0] = modication.userName;
+            commitMessages[i][1] = modication.comment;
+        }
+        return commitMessages;
+    }
+
+    /**
+     * Ouptut from the build output buffer, after line specified (inclusive).
+     * @see net.sourceforge.cruisecontrol.util.BuildOutputBuffer
+     */
+    public String[] getBuildOutput(Integer firstLine) {
+        //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
+        return BuildOutputBufferManager.INSTANCE.lookupOrCreate("").retrieveLines(firstLine.intValue());
+    }
 }
