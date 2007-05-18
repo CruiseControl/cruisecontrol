@@ -1,0 +1,49 @@
+<script>
+    var tab_ids = ['buildoutput', 'modifications']
+	
+    new Ajax.Request('getProjectBuildStatus.ajax', {
+        asynchronous: 1,
+        onSuccess: function(transport, json) {
+            ajax_periodical_refresh_active_build_executer_oncomplete(json, '$projectName')
+        }
+    });
+	
+    ajax_periodical_refresh_active_build_executer('$projectName');
+    ajax_periodical_refresh_active_build_output_executer('$projectName');
+</script>
+
+
+<div class="building">
+    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+    <div class="build_detail_summary">
+			<h3>${projectName} is now <span class='build_status'>${building_status}</span></h3>
+        	<ul class="summary">
+				<li><strong>Building since:</strong> $buildSince</li>
+				<li><strong>Elapsed time:</strong> <span id="${projectName}_time_elapsed"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
+                <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
+				<li><strong>Remaining time:</strong> <span id="${projectName}_time_remaining"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
+		    </ul>
+	</div>
+    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+</div>
+
+<div class="build_detail_container">
+    
+    <div class="build_detail_container_menu">
+        <ul>
+            <li class="current_tab" onclick='build_detail_toggle_tab_content(this)'><a><span>Ant</span></a></li>
+            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
+        </ul>
+    </div>
+    
+    <div class="build_detail_container_content">
+    
+    	#set($buildoutput_extra_attrs="")
+    	#parse("build_detail_buildoutput.vm")
+
+		#set($modification_extra_attrs="style='display:none'")
+    	#parse("build_detail_modification_building.vm")
+    
+    </div>
+	
+</div>

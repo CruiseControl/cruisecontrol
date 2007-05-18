@@ -1,0 +1,220 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ /* @override css/build_profile.css */
+
+.build_profile {
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    padding: 10px 3px 11px 42px;
+    line-height : 50px;
+    vertical-align:middle;
+    margin-bottom:1px;
+    margin-right : 10px;
+    z-index:0;
+}
+
+.yui-ge .build_status_bar_container {
+	padding : 0;
+	margin : 0;
+	background : none;
+}
+
+.yui-ge .first .build_status_bar_container {
+	background-color : #f1f0ec;
+}
+
+
+#tabContent2 b.r1, #tabContent2 b.r2, #tabContent2 b.r3, #tabContent2 b.r4 {
+	display : none;
+}
+
+.build_profile img {
+   vertical-align: middle;
+}
+
+.build_profile a.clickable_target {
+	text-decoration : none;
+}
+
+.build_profile.passed a.clickable_target, .build_profile.passed span.no_decoration {
+	color : #030;
+}
+
+.build_profile.failed a.clickable_target, .build_profile.failed span.no_decoration {
+	color : #300;	
+}
+
+.build_profile.long_failed a.clickable_target, .build_profile.long_failed span.no_decoration {
+	color : #300;
+}
+
+.build_profile.inactive a.clickable_target, .build_profile.inactive span.no_decoration {
+	color : #666;
+}
+
+.build_profile.building a.clickable_target, .build_profile.building span.no_decoration {
+	color : #C30;
+}
+
+div.timer span {
+	color : #C30;
+}
+
+.build_profile.passed {
+    background-image: url( "../images/icon-success-medium.gif" );
+    border : 1px dashed #d4dbad;
+}
+
+.build_profile.long_passed {
+    background-image: url( "../images/icon-success-medium-prolonged.gif" );
+    border : 1px dashed #8aab47;
+}
+
+.build_profile.failed {
+    background-image: url( "../images/icon-failure-medium.gif" );
+    border : 1px dashed #e2cdc9;	    
+}
+
+.build_profile.long_failed {
+    background-image: url( "../images/icon-failure-medium-prolonged.gif" );
+    border : 1px dashed #ba5758;	    
+}
+
+.build_profile.building {
+    background-image: url( "../images/icon-building-medium.gif" );
+    border : 1px dashed #e6dbb3;	    
+}
+
+.build_profile.inactive {
+    background-image: url( "../images/icon-inactive-medium.gif" );
+    border : 1px dashed #ddd;	    
+}
+
+.control_panel {
+   float:right;
+}
+
+.description {
+    float:left;
+}
+
+.timer {
+   clear:both;
+}
+
+.description .project_name {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.description a {
+  padding-left:2px;
+  padding-right:2px;
+}
+
+.toolkit_panel {
+	background-color:#FFFFE1;
+	position:absolute;
+	border:1px solid #79ABC6;
+	padding-left:4px;
+	top:30px;
+	right:15px;
+	height:150px;
+	width:250px;
+	z-index:3;
+}
+
+.toolkit_panel .toolkit_entry {
+	padding-top : 5px;
+	padding-left : 2px;
+	padding-right : 5px;
+}
+
+.toolkit_panel .toolkit_entry a {
+   margin-right : 2px;
+}
+
+.toolkit_panel .toolkit_entry .close {
+   text-align:right;
+   font-family: Verdana;
+   float:right;
+}
+
+.toolkit_panel .toolkit_entry .close:hover{
+	cursor:pointer;
+}
+
+.toolkit_panel .toolkit_entry .title {
+  font-size: 1.3em;
+  font-weight: bold;
+  text-decoration: none;
+  text-align:left;
+  float:left;
+}
+
+.buildlist_header h1 {
+	display : inline;
+	font-size : 1.7em;
+	font-weight : normal;
+	background : url( ../images/roundrect_header_left.gif ) left top no-repeat;
+	padding-left : 5px;
+}
+
+div.buildlist_header {
+	margin-top : 5px;
+	margin-right : 10px;
+	padding-bottom : 5px;
+	padding-right : 5px;
+	background : #f1f0ec url( ../images/roundrect_header_right.gif ) right top no-repeat;
+	margin-bottom : 1px;
+}
+
+.successfulBuilds .build_profile, .allBuilds .build_profile {
+	margin-right : 0;
+}
+
+.successfulBuilds .yui-u.first, .allBuilds .yui-u.first {
+	width : 100%;
+}
+
+.successfulBuilds div#container, .allBuilds div#container {
+	margin-right : 10px;
+}
+
+.successfulBuilds .build_profile a, .allBuilds .build_profile a {
+	display : block;
+}

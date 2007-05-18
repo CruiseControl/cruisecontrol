@@ -1,0 +1,12 @@
+    <link href="$req.getContextPath()/css/main.css" rel="stylesheet" type="text/css"/>
+	<link href="$req.getContextPath()/css/niftyCorners.css" rel="stylesheet" type="text/css" />
+    <script>
+        contextPath = "$req.getContextPath()"
+    </script>
+    <script src="$req.getContextPath()/javascripts/prototype.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/scriptaculous.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/transparent_message.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/dashboard_global.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/timer.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/cc.js" type="text/javascript"></script>
+    <script src="$req.getContextPath()/javascripts/nifty.js" type="text/javascript"></script>

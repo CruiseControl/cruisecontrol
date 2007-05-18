@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    #parse("head.vm")
+    <link href="$req.getContextPath()/css/mbean_console.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+    <title>JMX Console for $projectName</title>
+	<script>
+	function set_jmx_console_url(port, context) {
+	    $('console').src = join_root_with_context(port, context);
+	}
+	</script>
+</head>
+<body>
+	<div id="doc3" class="yui-t7">
+		#parse('menu_admin.vm')
+
+	   <div id="bd">
+		  <div id="console_title">JMX Console for $projectName</div>
+		  <div id="console_container"><iframe id="console" src =""></iframe></div>
+		  <script>
+		      set_jmx_console_url($port, "$context");
+		  </script>
+	   </div>
+
+	</div>
+</body>
+</html>

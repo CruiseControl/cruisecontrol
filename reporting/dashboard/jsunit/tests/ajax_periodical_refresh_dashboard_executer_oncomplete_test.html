@@ -1,0 +1,101 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript">
+
+function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invoke_functions() {
+	var json = ['','']
+	var is_update_project_box_called = false;
+	this.ajax_periodical_refresh_dashboard_update_project_box=function() {
+		is_update_project_box_called=true;
+	}
+	var is_category_projects_called = false;
+	var is_included_inactive = false;
+	this.category_projects_info_by_status=function(json, statis) {
+		is_category_projects_called=true;
+		var keys = statis.keys();
+		if (keys.toString().indexOf('inactive') > 0) {
+			is_included_inactive = true
+		}
+	}
+	var is_caculate_called = false;
+	this.calculate_projects_statistics=function() {
+		is_caculate_called = true;
+	}
+	var is_refresh_called = false;
+	this.ajax_periodical_refresh_statistics_summary_infos=function() {
+		is_refresh_called = true;
+	}
+	var is_set_inactive_called = false;
+	this.set_inactive_projects_amount=function() {
+		is_set_inactive_called = true;
+	}
+	assertFalse(is_update_project_box_called)
+	assertFalse(is_refresh_called);
+	assertFalse(is_caculate_called)
+	assertFalse(is_refresh_called)
+	assertFalse(is_included_inactive)
+	assertFalse(is_set_inactive_called)
+	ajax_periodical_refresh_dashboard_executer_oncomplete(json)
+	assertTrue(is_update_project_box_called);
+	assertTrue(is_refresh_called);
+	assertTrue(is_caculate_called)
+	assertTrue(is_refresh_called)
+	assertTrue(is_set_inactive_called)
+	assertFalse(is_included_inactive)
+}
+
+</script>
+</head>
+<body>
+</body>
+</html>

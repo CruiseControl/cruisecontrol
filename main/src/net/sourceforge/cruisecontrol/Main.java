@@ -39,19 +39,17 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import net.sourceforge.cruisecontrol.web.EmbeddedJettyServer;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
- * 
+ *
  * @author alden almagro, ThoughtWorks, Inc. 2002
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
  */
@@ -59,15 +57,24 @@ public final class Main implements CruiseControlMain {
 
     private static final Logger LOG = Logger.getLogger(Main.class);
 
-    /** the default webapp directory. */
+    /**
+     * the default webapp directory.
+     */
     private static final String DEFAULT_WEBAPP_PATH = "./webapps/cruisecontrol";
 
-    /** the default port for the embedded Jetty. */
+    /**
+     * the default dashboard (new webapp) directory.
+     */
+    private static final String DEFAULT_DASHBOARD_PATH = "./webapps/dashboard";
+
+    /**
+     * the default port for the embedded Jetty.
+     */
     private static final int DEFAULT_WEB_PORT = 8080;
 
     /**
      * Commandline entry point into the application.
-     * 
+     *
      * @deprecated Use the Launcher class instead
      */
     public static void main(String[] args) {
@@ -84,7 +91,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Print the version, configure the project with serialized build info and/or arguments and start the project build
      * process.
-     * 
+     *
      * @return true indicates normal return/exit.
      */
     public boolean start(String[] args) {
@@ -137,12 +144,12 @@ public final class Main implements CruiseControlMain {
      * Starts the embedded Jetty server on the port given by the command line argument -webport and loads the
      * application from the path specified by the command line argument -webapppath. Uses default values if either
      * argument are not specified.
-     * 
-     * @param args
-     *            command line arguments
+     *
+     * @param args command line arguments
      */
-    void startEmbeddedServer(final String[] args) {
-        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(parseWebPort(args), parseWebappPath(args));
+    void startEmbeddedServer(final String[] args) throws CruiseControlException {
+        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(parseWebPort(args), parseWebappPath(args),
+                parseDashboardPath(args), parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
         embeddedJettyServer.start();
 
     }
@@ -179,14 +186,15 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -webport [number]       port for the Reporting website; default 8080");
         System.out.println("  -webapppath directory   location of the exploded WAR file; ");
         System.out.println("                          default ./webapps/cruisecontrol");
+        System.out.println("  -dashboard directory   location of the exploded WAR file for new webapp; ");
+        System.out.println("                          default ./webapps/dashboard");
         System.out.println("");
     }
 
     /**
      * Parse webport from arguments.
-     * 
-     * @param args
-     *            command line arguments.
+     *
+     * @param args command line arguments.
      * @return the webport if specified on the command line, otherwise DEFAULT_WEB_PORT.
      */
     static int parseWebPort(String[] args) {
@@ -195,36 +203,52 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Parse webapppath from arguments.
-     * 
-     * @param args
-     *            command line arguments.
+     *
+     * @param args command line arguments.
      * @return the webappdir if specified in the command line arguments, otherwise returns DEFAULT_WEBAPP_DIR.
      */
     static String parseWebappPath(String[] args) {
         String webappPath = MainArgs.parseArgument(args, "webapppath", DEFAULT_WEBAPP_PATH, DEFAULT_WEBAPP_PATH);
         if (webappPath != null) {
-            File directory = new File(webappPath);
-            if (!directory.isDirectory()) {
-                throw new IllegalArgumentException(
-                        "'webapppath' argument must specify an existing directory but was " + webappPath);
-            }
-            directory = new File(webappPath, "WEB-INF");
-            if (!directory.isDirectory()) {
-                throw new IllegalArgumentException("'webapppath' argument must point to an exploded web app.  "
-                        + "No WEB-INF directory exists for: " + webappPath);
-            }
+            validateWebAppPath(webappPath, "webapppath");
         }
         return webappPath;
     }
 
     /**
+     * Parse dashboardpath (new webapp) from arguments.
+     *
+     * @param args command line arguments.
+     * @return the directory if specified in the command line arguments, otherwise returns DEFAULT_DASHBOARD_PATH.
+     */
+    static String parseDashboardPath(String[] args) {
+        String dashboardPath = MainArgs
+                .parseArgument(args, "dashboard", DEFAULT_DASHBOARD_PATH, DEFAULT_DASHBOARD_PATH);
+        if (dashboardPath != null) {
+            validateWebAppPath(dashboardPath, "dashboard");
+        }
+        return dashboardPath;
+    }
+
+    private static void validateWebAppPath(String webappPath, String path) {
+        File directory = new File(webappPath);
+        if (!directory.isDirectory()) {
+            throw new IllegalArgumentException(
+                    "'" + path + "' argument must specify an existing directory but was " + webappPath);
+        }
+        directory = new File(webappPath, "WEB-INF");
+        if (!directory.isDirectory()) {
+            throw new IllegalArgumentException("'" + path + "' argument must point to an exploded web app.  "
+                    + "No WEB-INF directory exists for: " + webappPath);
+        }
+    }
+
+    /**
      * Parse configfile from arguments and override any existing configfile value from reading serialized Project info.
-     * 
-     * @param configFileName
-     *            existing configfile value read from serialized Project info
+     *
+     * @param configFileName existing configfile value read from serialized Project info
      * @return final value of configFileName; never null
-     * @throws CruiseControlException
-     *             if final configfile value is null
+     * @throws CruiseControlException if final configfile value is null
      */
     static String parseConfigFileName(String[] args, String configFileName) throws CruiseControlException {
         configFileName = MainArgs.parseArgument(args, "configfile", configFileName, null);
@@ -235,16 +259,15 @@ public final class Main implements CruiseControlMain {
     }
 
     static boolean shouldStartJmxAgent(String[] args) {
-        return MainArgs.argumentPresent(args, "jmxport") || MainArgs.argumentPresent(args, "rmiport")
-                || MainArgs.argumentPresent(args, "port");
+        return MainArgs.argumentPresent(args, "jmxport") || MainArgs.argumentPresent(args, "rmiport") || MainArgs
+                .argumentPresent(args, "port");
     }
 
     /**
      * If either -webport or -webapppath are specified on the command line, then the embedded Jetty server should be
      * started, otherwise it should not.
-     * 
-     * @param args
-     *            command line arguments.
+     *
+     * @param args command line arguments.
      * @return true if the embedded Jetty server should be started, false if not.
      */
     static boolean shouldStartEmbeddedServer(String[] args) {
@@ -253,15 +276,14 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Parse port number from arguments.
-     * 
+     *
      * @return port number
-     * @throws IllegalArgumentException
-     *             if port argument is invalid
+     * @throws IllegalArgumentException if port argument is invalid
      */
     static int parseJMXHttpPort(String[] args) {
         if (MainArgs.argumentPresent(args, "jmxport") && MainArgs.argumentPresent(args, "port")) {
-            throw new IllegalArgumentException("'jmxport' and 'port' arguments are not valid together. Use"
-                    + " 'jmxport' instead.");
+            throw new IllegalArgumentException(
+                    "'jmxport' and 'port' arguments are not valid together. Use" + " 'jmxport' instead.");
         } else if (MainArgs.argumentPresent(args, "jmxport")) {
             return MainArgs.parseInt(args, "jmxport", MainArgs.NOT_FOUND, 8000);
         } else {
@@ -278,8 +300,8 @@ public final class Main implements CruiseControlMain {
         if (xslpath != null) {
             File directory = new File(xslpath);
             if (!directory.isDirectory()) {
-                throw new IllegalArgumentException("'xslpath' argument must specify an existing directory but was "
-                        + xslpath);
+                throw new IllegalArgumentException(
+                        "'xslpath' argument must specify an existing directory but was " + xslpath);
             }
         }
         return xslpath;
@@ -287,7 +309,7 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Parse password from arguments and override any existing password value from reading serialized Project info.
-     * 
+     *
      * @return final value of password.
      */
     static String parsePassword(String[] args) {
@@ -296,7 +318,7 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Parse user from arguments and override any existing user value from reading serialized Project info.
-     * 
+     *
      * @return final value of user.
      */
     static String parseUser(String[] args) {

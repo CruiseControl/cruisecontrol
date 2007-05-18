@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ -->
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+    <import resource="propertyConfigurer.xml"/>
+
+    <bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="contentTypeInterceptor"/>
+				<ref bean="configInterceptor" />
+				<ref bean="flashMessageInterceptor" />
+				<ref bean="tabHighlightInterceptor" />
+				<ref bean="serverNameInterceptor" />
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<!--project category-->
+				<prop key="/project/download/log/**">downloadLogController</prop>
+				<prop key="/project/download/artifacts/**">downloadArtifactController</prop>
+				<prop key="/project/live/*">getActiveBuildInfoController</prop>
+				<prop key="/detail/**">buildDetailController</prop>
+				<!--which category-->
+				<prop key="/**/plugin/panopticode/**">panopticodeController</prop>
+				<!--list projects category-->
+				<prop key="/">latestBuildsListingController</prop>
+				<prop key="/dashboard">latestBuildsListingController</prop>
+				<prop key="/list/**">buildListingController</prop>
+				<!--admin category-->
+				<prop key="/admin/mx4j/**">mbeanConsoleController</prop>
+				<prop key="/admin/config/update">updateConfigXmlContentController</prop>
+				<prop key="/admin/config/setup">updateConfigXmlLocationController</prop>
+				<prop key="/admin/config">adminController</prop>
+				<prop key="/admin/project/add">addProjectController</prop>
+			</props>
+		</property>
+	</bean>
+
+    <!-- Interceptors -->
+
+    <bean id="contentTypeInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.PageContentTypeInterceptor" />
+    <bean id="flashMessageInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.FlashMessageInterceptor" />
+    <bean id="serverNameInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.ServerNameInterceptor" />
+	<bean id="configInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.ConfigInterceptor">
+		<constructor-arg ref="configuration" />
+	</bean>
+	<bean id="tabHighlightInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.TabHighlightInterceptor" />
+
+
+    <!-- Controllers -->
+
+	<bean id="adminController" class="net.sourceforge.cruisecontrol.dashboard.web.AdminController">
+        <constructor-arg ref="configuration" />
+	</bean>
+	<bean id="updateConfigXmlContentController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlContentController">
+		<constructor-arg ref="configuration" />
+	</bean>
+	<bean id="updateConfigXmlLocationController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlLocationController">
+		<constructor-arg ref="configuration" />
+	</bean>
+	<bean id="addProjectController" class="net.sourceforge.cruisecontrol.dashboard.web.AddProjectController" />
+	<bean id="latestBuildsListingController" class="net.sourceforge.cruisecontrol.dashboard.web.LatestBuildsListingController">
+		<constructor-arg ref="buildSummariesService" />
+		<constructor-arg ref="buildSummaryUIService" />
+	</bean>
+	<bean id="buildListingController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildListingController">
+		<constructor-arg ref="buildSummariesService" />
+	    <property name="methodNameResolver" ref="buildListingResolver"/>
+	</bean>
+	<bean id="buildListingResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		  <property name="mappings">
+			    <value>
+			    	/list/passed/*=passed
+			        /list/all/*=all
+			    </value>
+		  </property>
+	</bean>
+	<bean id="buildDetailController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildDetailController">
+		<constructor-arg ref="buildService"/>
+		<constructor-arg ref="buildSummariesService"/>
+		<constructor-arg ref="pluginOutputService"/>
+		<constructor-arg ref="buildSummaryUIService"/>
+	    <property name="methodNameResolver" ref="projectDetailResolver"/>
+	</bean>
+	<bean id="projectDetailResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		  <property name="mappings">
+			    <value>
+			    	/detail/*=latest
+			        /detail/*/*=history
+			    </value>
+		  </property>
+	</bean>
+	<bean id="downloadLogController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadLogController">
+		<constructor-arg ref="configuration" />
+		<constructor-arg ref="buildService" />
+	</bean>
+	<bean id="downloadArtifactController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadArtifactController">
+		<constructor-arg ref="buildService" />
+	</bean>
+	<bean id="getActiveBuildInfoController" class="net.sourceforge.cruisecontrol.dashboard.web.GetActiveBuildInfoController">
+		<constructor-arg ref="${cruise.jmx.service.imp}" />
+		<constructor-arg ref="buildSummariesService" />
+		<constructor-arg ref="buildSummaryUIService" />
+	</bean>
+	<bean id="mbeanConsoleController" class="net.sourceforge.cruisecontrol.dashboard.web.MBeanConsoleController">
+		<constructor-arg ref="${cruise.jmx.service.imp}" />
+	    <property name="methodNameResolver" ref="mx4jResolver"/>
+	</bean>
+	<bean id="mx4jResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		  <property name="mappings">
+			    <value>
+			    	/admin/mx4j=server
+			        /admin/mx4j/*=mbean
+			    </value>
+		  </property>
+	</bean>
+	<bean id="panopticodeController" class="net.sourceforge.cruisecontrol.dashboard.web.PanopticodeController">
+		<constructor-arg ref="configuration" />
+	</bean>
+    <!-- Views and resolvers -->
+    <bean id="velocityConfig"
+          class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="resourceLoaderPath" value="/WEB-INF/vm" />
+    </bean>
+
+    <bean id="velocityViewResolver"
+          class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="cache" value="true" />
+		<property name="prefix" value="" />
+		<property name="suffix" value=".vm" />
+		<property name="exposeSpringMacroHelpers" value="true" />
+		<property name="requestContextAttribute" value="req"/>
+		<property name="order" value="2" />
+	</bean>
+	<bean id="beanNameViewResolver"
+          class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="1" />
+	</bean>
+	<bean id="downloadXmlView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DownloadView" />
+	<bean id="downloadBinView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DownloadView">
+		<property name="contentType" value="application/octstream" />
+	</bean>
+
+</beans>

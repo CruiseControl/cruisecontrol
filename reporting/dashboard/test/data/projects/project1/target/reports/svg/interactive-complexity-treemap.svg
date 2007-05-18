@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0.0 0.0 1024.0 768.0">
+  <text x="512.0" y="20.0" style="text-anchor: middle;">panopticode_sample Complexity</text>
+  <script type="text/ecmascript"><![CDATA[
+function showDetails(projectName, projectMetrics, packageName, packageMetrics, fileName, fileMetrics, className, classMetrics, methodName, methodMetrics) {
+  replaceText('projectName', 'Project: ' + projectName);
+  replaceText('packageName', 'Package: ' + packageName);
+  replaceText('Total_Class_CountPackageMetric', 'Total Class Count: ' + getMetric(packageMetrics, 'Total Class Count'));
+  replaceText('Concrete_Class_CountPackageMetric', 'Concrete Class Count: ' + getMetric(packageMetrics, 'Concrete Class Count'));
+  replaceText('Abstract_Class_CountPackageMetric', 'Abstract Class Count: ' + getMetric(packageMetrics, 'Abstract Class Count'));
+  replaceText('Afferent_Coupling_Count__Ca_PackageMetric', 'Afferent Coupling Count (Ca): ' + getMetric(packageMetrics, 'Afferent Coupling Count (Ca)'));
+  replaceText('Efferent_Coupling_Count__Ce_PackageMetric', 'Efferent Coupling Count (Ce): ' + getMetric(packageMetrics, 'Efferent Coupling Count (Ce)'));
+  replaceText('Abstractness__A_PackageMetric', 'Abstractness (A): ' + getMetric(packageMetrics, 'Abstractness (A)'));
+  replaceText('Instability__I_PackageMetric', 'Instability (I): ' + getMetric(packageMetrics, 'Instability (I)'));
+  replaceText('Distance__D_PackageMetric', 'Distance (D): ' + getMetric(packageMetrics, 'Distance (D)'));
+  replaceText('Volatility__V_PackageMetric', 'Volatility (V): ' + getMetric(packageMetrics, 'Volatility (V)'));
+  replaceText('fileName', 'File: ' + fileName);
+  replaceText('className', 'Class: ' + className);
+  replaceText('NCSSClassMetric', 'NCSS: ' + getMetric(classMetrics, 'NCSS'));
+  replaceText('Method_CoverageClassMetric', 'Method Coverage: ' + getMetric(classMetrics, 'Method Coverage'));
+  replaceText('Block_CoverageClassMetric', 'Block Coverage: ' + getMetric(classMetrics, 'Block Coverage'));
+  replaceText('Line_CoverageClassMetric', 'Line Coverage: ' + getMetric(classMetrics, 'Line Coverage'));
+  replaceText('methodName', 'Method: ' + methodName);
+  replaceText('NCSSMethodMetric', 'NCSS: ' + getMetric(methodMetrics, 'NCSS'));
+  replaceText('CCNMethodMetric', 'CCN: ' + getMetric(methodMetrics, 'CCN'));
+  replaceText('Block_CoverageMethodMetric', 'Block Coverage: ' + getMetric(methodMetrics, 'Block Coverage'));
+  replaceText('Line_CoverageMethodMetric', 'Line Coverage: ' + getMetric(methodMetrics, 'Line Coverage'));
+}
+
+function getMetric(metricsMap, key) {
+  var index;
+  for (index = 0; index < metricsMap.length; index++) {
+    if (metricsMap[index][0] == key) {
+      return metricsMap[index][1];
+    }
+  }
+  return 'Unknown';
+}
+
+function replaceText(id, newText) {
+  var parentElement;
+  var newTextNode;
+
+  newTextNode = document.createTextNode(newText);
+
+  parentElement = document.getElementById(id);
+  parentElement.replaceChild(newTextNode, parentElement.firstChild);
+}
+]]></script>
+  <g id="details">
+    <text x="726.0" y="51.0" id="detailsTitle" font-size="1.0em" style="text-decoration: underline;">Details</text>
+    <text x="726.0" y="71.0" id="detailsHint" font-size="0.8em" stroke="gray" fill="gray">( Click on a rectangle to view details )</text>
+    <text x="726.0" y="106.0" id="projectName" font-size="0.8em">Project:</text>
+    <text x="726.0" y="131.0" id="packageName" font-size="0.8em">Package:</text>
+    <text x="736.0" y="151.0" id="Total_Class_CountPackageMetric" font-size="0.8em">Total Class Count:</text>
+    <text x="736.0" y="171.0" id="Concrete_Class_CountPackageMetric" font-size="0.8em">Concrete Class Count:</text>
+    <text x="736.0" y="191.0" id="Abstract_Class_CountPackageMetric" font-size="0.8em">Abstract Class Count:</text>
+    <text x="736.0" y="211.0" id="Afferent_Coupling_Count__Ca_PackageMetric" font-size="0.8em">Afferent Coupling Count (Ca):</text>
+    <text x="736.0" y="231.0" id="Efferent_Coupling_Count__Ce_PackageMetric" font-size="0.8em">Efferent Coupling Count (Ce):</text>
+    <text x="736.0" y="251.0" id="Abstractness__A_PackageMetric" font-size="0.8em">Abstractness (A):</text>
+    <text x="736.0" y="271.0" id="Instability__I_PackageMetric" font-size="0.8em">Instability (I):</text>
+    <text x="736.0" y="291.0" id="Distance__D_PackageMetric" font-size="0.8em">Distance (D):</text>
+    <text x="736.0" y="311.0" id="Volatility__V_PackageMetric" font-size="0.8em">Volatility (V):</text>
+    <text x="726.0" y="336.0" id="fileName" font-size="0.8em">File:</text>
+    <text x="726.0" y="361.0" id="className" font-size="0.8em">Class:</text>
+    <text x="736.0" y="381.0" id="NCSSClassMetric" font-size="0.8em">NCSS:</text>
+    <text x="736.0" y="401.0" id="Method_CoverageClassMetric" font-size="0.8em">Method Coverage:</text>
+    <text x="736.0" y="421.0" id="Block_CoverageClassMetric" font-size="0.8em">Block Coverage:</text>
+    <text x="736.0" y="441.0" id="Line_CoverageClassMetric" font-size="0.8em">Line Coverage:</text>
+    <text x="726.0" y="466.0" id="methodName" font-size="0.8em">Method:</text>
+    <text x="736.0" y="486.0" id="NCSSMethodMetric" font-size="0.8em">NCSS:</text>
+    <text x="736.0" y="506.0" id="CCNMethodMetric" font-size="0.8em">CCN:</text>
+    <text x="736.0" y="526.0" id="Block_CoverageMethodMetric" font-size="0.8em">Block Coverage:</text>
+    <text x="736.0" y="546.0" id="Line_CoverageMethodMetric" font-size="0.8em">Line Coverage:</text>
+  </g>
+  <g desc="Project - panopticode_sample">
+    <g desc="Package - net.sourceforge.cruisecontrol.sampleproject.connectfour">
+      <g desc="Class - Cell">
+        <rect x="7.0" y="35.0" width="235.47619047619045" height="69.59090909090908" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'Cell.java', [], 'Cell', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (15.0/15.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'Cell(int, int)', [['CCN', '1'], ['NCSS', '3'], ['Block Coverage', '100.0% (9.0/9.0)'], ['Line Coverage', '100.0% (4.0/4.0)']]);"/>
+        <rect x="242.47619047619045" y="35.0" width="156.984126984127" height="69.59090909090908" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'Cell.java', [], 'Cell', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (15.0/15.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'getColumn()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+        <rect x="399.4603174603174" y="35.0" width="156.984126984127" height="69.59090909090908" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'Cell.java', [], 'Cell', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (15.0/15.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'getRow()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+      </g>
+      <g desc="Class - Chip">
+        <rect x="558.4444444444445" y="35.0" width="76.77777777777777" height="69.59090909090908" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'Chip.java', [], 'Chip', [['Method Coverage', '100.0% (2.0/2.0)'], ['NCSS', '4'], ['Block Coverage', '100.0% (12.0/12.0)'], ['Line Coverage', '100.0% (4.0/4.0)']], 'Chip()', [['CCN', '1'], ['NCSS', '1'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (2.0/2.0)']]);"/>
+      </g>
+      <g desc="Class - Direction">
+        <rect x="637.2222222222223" y="35.0" width="76.77777777777777" height="69.59090909090908" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'Direction.java', [], 'Direction', [['Method Coverage', '100.0% (2.0/2.0)'], ['NCSS', '6'], ['Block Coverage', '100.0% (20.0/20.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'Direction()', [['CCN', '1'], ['NCSS', '1'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (2.0/2.0)']]);"/>
+      </g>
+      <g desc="Class - FullColumnException"/>
+      <g desc="Class - GameNotOverException"/>
+      <g desc="Class - GameOverException"/>
+      <g desc="Class - InvalidColumnException"/>
+      <g desc="Class - OutOfTurnException"/>
+      <g desc="Class - PlayingStand">
+        <rect x="7.0" y="106.59090909090908" width="58.78601567209164" height="190.64624505928856" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'dropRed(int)', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (5.0/5.0)'], ['Line Coverage', '100.0% (2.0/2.0)']]);"/>
+        <rect x="65.78601567209164" y="106.59090909090908" width="58.78601567209164" height="190.64624505928856" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'dropBlack(int)', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (5.0/5.0)'], ['Line Coverage', '100.0% (2.0/2.0)']]);"/>
+        <rect x="124.57203134418327" y="106.59090909090908" width="499.68113321277895" height="190.64624505928856" fill="red" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'dropChip(Chip, int)', [['CCN', '13'], ['NCSS', '17'], ['Block Coverage', '100.0% (74.0/74.0)'], ['Line Coverage', '100.0% (17.0/17.0)']]);"/>
+        <rect x="7.0" y="297.2371541501976" width="154.31329113924056" height="181.56785243741766" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'isFull()', [['CCN', '4'], ['NCSS', '5'], ['Block Coverage', '100.0% (20.0/20.0)'], ['Line Coverage', '100.0% (4.0/4.0)']]);"/>
+        <rect x="161.31329113924056" y="297.2371541501976" width="277.763924050633" height="181.56785243741766" fill="yellow" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'areFourConnected()', [['CCN', '9'], ['NCSS', '9'], ['Block Coverage', '100.0% (55.0/55.0)'], ['Line Coverage', '100.0% (8.0/8.0)']]);"/>
+        <rect x="439.0772151898735" y="297.2371541501976" width="185.17594936708866" height="181.56785243741766" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'hasHorizontalMatch(int, int)', [['CCN', '5'], ['NCSS', '6'], ['Block Coverage', '100.0% (53.0/53.0)'], ['Line Coverage', '100.0% (5.0/5.0)']]);"/>
+        <rect x="7.0" y="478.80500658761525" width="205.75105485232075" height="163.4110671936759" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'hasUpwardDiagonalMatch(int, int)', [['CCN', '5'], ['NCSS', '6'], ['Block Coverage', '100.0% (59.0/59.0)'], ['Line Coverage', '100.0% (5.0/5.0)']]);"/>
+        <rect x="212.75105485232075" y="478.80500658761525" width="205.75105485232075" height="163.4110671936759" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'hasDownwardDiagonalMatch(int, int)', [['CCN', '5'], ['NCSS', '6'], ['Block Coverage', '100.0% (59.0/59.0)'], ['Line Coverage', '100.0% (5.0/5.0)']]);"/>
+        <rect x="418.5021097046415" y="478.80500658761525" width="205.75105485232075" height="163.4110671936759" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'hasVerticalMatch(int, int)', [['CCN', '5'], ['NCSS', '6'], ['Block Coverage', '100.0% (53.0/53.0)'], ['Line Coverage', '100.0% (5.0/5.0)']]);"/>
+        <rect x="7.0" y="642.2160737812912" width="123.45063291139245" height="90.78392621870883" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'getWinner()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+        <rect x="130.45063291139246" y="642.2160737812912" width="123.45063291139245" height="90.78392621870883" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'isGameOver()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+        <rect x="253.9012658227849" y="642.2160737812912" width="370.3518987341773" height="90.78392621870883" fill="yellow" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand', [['Method Coverage', '100.0% (13.0/13.0)'], ['NCSS', '87'], ['Block Coverage', '100.0% (420.0/420.0)'], ['Line Coverage', '100.0% (64.0/64.0)']], 'getWinningPlacement()', [['CCN', '6'], ['NCSS', '6'], ['Block Coverage', '100.0% (20.0/20.0)'], ['Line Coverage', '100.0% (5.0/5.0)']]);"/>
+      </g>
+      <g desc="Class - PlayingStand.WinningPlacement">
+        <rect x="626.2531645569621" y="106.59090909090908" width="87.746835443038" height="187.92272727272726" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand.WinningPlacement', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (22.0/22.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'PlayingStand.WinningPlacement(int, int, Direction)', [['CCN', '1'], ['NCSS', '3'], ['Block Coverage', '100.0% (16.0/16.0)'], ['Line Coverage', '100.0% (4.0/4.0)']]);"/>
+        <rect x="626.2531645569621" y="294.51363636363635" width="87.746835443038" height="125.28181818181817" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand.WinningPlacement', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (22.0/22.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'getStartingCell()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+        <rect x="626.2531645569621" y="419.7954545454545" width="87.746835443038" height="125.28181818181817" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand.WinningPlacement', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (22.0/22.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'getDirection()', [['CCN', '1'], ['NCSS', '2'], ['Block Coverage', '100.0% (3.0/3.0)'], ['Line Coverage', '100.0% (1.0/1.0)']]);"/>
+        <rect x="626.2531645569621" y="545.0772727272727" width="87.746835443038" height="187.92272727272726" fill="green" stroke="black" stroke-width="1" onclick="showDetails('panopticode_sample', [], 'net.sourceforge.cruisecontrol.sampleproject.connectfour', [['Afferent Coupling Count (Ca)', '0'], ['Concrete Class Count', '11'], ['Volatility (V)', '1'], ['Distance (D)', '1.0'], ['Instability (I)', '0.0'], ['Total Class Count', '11'], ['Efferent Coupling Count (Ce)', '0'], ['Abstractness (A)', '0.0'], ['Abstract Class Count', '0']], 'PlayingStand.java', [], 'PlayingStand.WinningPlacement', [['Method Coverage', '100.0% (3.0/3.0)'], ['NCSS', '10'], ['Block Coverage', '100.0% (22.0/22.0)'], ['Line Coverage', '100.0% (6.0/6.0)']], 'PlayingStand.WinningPlacement(int, int, Direction)', [['CCN', '1'], ['NCSS', '3'], ['Block Coverage', '100.0% (16.0/16.0)'], ['Line Coverage', '100.0% (4.0/4.0)']]);"/>
+      </g>
+      <g desc="Class - StalemateException"/>
+    </g>
+  </g>
+  <rect x="3.0" y="740.0" width="1018.0" height="25.0" fill="none" stroke="black" stroke-width="1"/>
+  <rect x="9.0" y="745.0" width="15.0" height="15.0" fill="green" stroke="black" stroke-width="1"/>
+  <text x="31.0" y="757.0">CCN 1-5</text>
+  <rect x="212.6" y="745.0" width="15.0" height="15.0" fill="yellow" stroke="black" stroke-width="1"/>
+  <text x="234.6" y="757.0">CCN 6-9</text>
+  <rect x="416.2" y="745.0" width="15.0" height="15.0" fill="red" stroke="black" stroke-width="1"/>
+  <text x="438.2" y="757.0">CCN 10-24</text>
+  <rect x="619.8" y="745.0" width="15.0" height="15.0" fill="black" stroke="red" stroke-width="1"/>
+  <text x="641.8" y="757.0">CCN 25+</text>
+  <rect x="823.4" y="745.0" width="15.0" height="15.0" fill="blue" stroke="black" stroke-width="1"/>
+  <text x="845.4" y="757.0">N/A</text>
+</svg>

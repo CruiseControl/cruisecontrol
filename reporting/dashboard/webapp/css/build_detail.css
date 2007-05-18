@@ -1,0 +1,255 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ /* @override css/build_detail.css */
+
+/*- Menu Tabs B--------------------------- */
+.build_detail_container_menu {
+	float: left;
+	width: 100%;
+	font-size: 93%;
+	line-height: normal;
+	margin-top: 2em;
+}
+
+.build_detail_container_menu ul {
+	list-style: none;
+}
+
+.build_detail_container_menu li {
+	display: inline;	
+}
+
+.build_detail_container_menu a {
+	float: left;
+	background: url( '../images/tableftB.gif' ) no-repeat left -42px;
+	padding: 0 0 0 4px;
+	text-decoration: none;
+	position : relative;
+	top : 1px;	
+}
+
+.build_detail_container_menu a span {
+	font: bold 11px Arial, Verdana, sans-serif;
+	float: left;
+	display: block;
+	background: url( '../images/tabrightB.gif' ) no-repeat right -42px;
+	padding: 5px 15px 4px 6px;
+	color: #666;
+}
+
+/* Commented Backslash Hack hides rule from IE5-Mac \*/
+.build_detail_container_menu a span {
+	float: none;
+}
+/* End IE5-Mac hack */
+
+.build_detail_container_menu a:hover span {
+	color: #000;
+}
+
+.build_detail_container_menu a:hover {
+	background-position: 0% top;
+}
+
+.build_detail_container_menu a:hover span {
+	background-position: 100% top;
+}
+
+.build_detail_container_menu .current_tab a {
+	background-position: 0% top;
+	border-bottom : 1px solid white;
+}
+
+.build_detail_container_menu .current_tab a span {
+	background-position: 100% top;
+}
+
+div.maincol.build_detail b.rtop {
+	background-color : white;
+}
+
+.maincol {
+    width: 100%;
+}
+.maincol .build_detail_container_content {
+    #height: 300px; /*IE hack*/
+    min-height: 300px;
+    background: white;
+    border : 1px solid #ccc;
+    padding-top: 1em;
+    clear: both;
+}
+
+.sidecol {
+    margin-top: -14px;
+    padding: 1em;
+	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) left top repeat-x;
+}
+
+.sidecol p {
+	margin-left : 5px;
+	overflow:auto;
+}
+
+.sidecol p.sidecol_header {
+	background : url( ../images/summary_panel_title_background.gif ) right top no-repeat;
+	padding : 5px 5px 5px 0;
+	margin : 0 5px;
+	font-weight : bold;
+}
+
+.sidecol p.sidecol_header span {
+	background : #e0dfd5 url( ../images/summary_panel_title_background.gif ) left top no-repeat;
+	padding-left : 5px;
+	padding-top : 5px;	
+	float:left;
+}
+
+.sidecol p.sidecol_header a {
+	display : block;
+	float : right;
+	margin-left : 0.2em;
+	position : relative;
+	top : -2px;
+	float:right;
+}
+
+ul.buildlist li {
+	padding : 5px 5px 5px 25px;
+	margin : 0 5px
+}
+
+ul.buildlist li.passed {
+	background-image : url( ../images/icon-success-small.gif );
+	background-position : 4px center;
+	background-repeat : no-repeat;
+}
+
+ul.buildlist li.failed {
+	background-image : url( ../images/icon-failure-small.gif );
+	background-position : 4px center;
+	background-repeat : no-repeat;
+}
+
+ul.buildlist li.long_failed {
+	background-image : url( ../images/icon-failure-small.gif );
+	background-position : 4px center;
+	background-repeat : no-repeat;
+}
+
+
+ul.summary {
+    list-style: none;
+    width: 95%;
+}
+
+ul.summary li {
+    line-height: 1.2em;
+    margin-bottom: 0.5em;
+    float: left;
+    width: 47%;
+}
+
+div.build_detail_container {
+    padding: 0;
+    width : 100%
+}
+
+div.build_detail_container_content {
+	padding : 1em;
+}
+
+
+
+.errors ul, .failures ul {
+    list-style: none;
+}
+
+.errors pre, .failures pre, .stacktrace pre, .buildoutput pre{
+    height: 400px;
+    overflow: scroll;
+}
+
+.messages {
+    font-family: "Courier", "Courier New", monospace;
+    overflow: auto;
+}
+
+.modifications .added {
+    padding-left: 22px;
+    background-image: url( "../images/table_add.png" );
+    background-repeat: no-repeat;
+}
+
+.modifications .deleted {
+    padding-left: 22px;
+    background-image: url( "../images/table_delete.png" );
+    background-repeat: no-repeat;
+}
+
+.modifications .user {
+    padding-left: 22px;
+    background-image: url( "../images/user.png" );
+    background-repeat: no-repeat;
+    font-weight: bold;
+}
+
+.log, .artifacts{
+    margin-bottom: 1.5em;
+}
+.log .logfile {
+    padding-left: 22px;
+    background-image: url( "../images/script.png" );
+    background-repeat: no-repeat;
+}
+
+.artifacts .artifact {
+    padding-left: 22px;
+    background-image: url( "../images/brick.png" );
+    background-repeat: no-repeat;
+}
+
+.tests {
+    list-style: none;
+    overflow: auto;
+    width : 90%;
+    height : auto;
+}
+
+.tests li {
+    margin-bottom: 0.5em;
+}

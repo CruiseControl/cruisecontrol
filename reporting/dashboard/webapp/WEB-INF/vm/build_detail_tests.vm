@@ -1,0 +1,15 @@
+<div id="tests" class="tests" $tests_extra_attrs>
+    <h2>Test Suites</h2>
+    <ul class="tests">
+        #if( $build.build.testSuites.size() == 0)
+        	<p>No test cases found.</p>
+        #end
+        #foreach ($testSuite in $build.build.testSuites)
+        <li>
+            $testSuite.name <br/>
+            Tests: $testSuite.numberOfTests, Failures: $testSuite.numberOfFailures, Errors:
+            $testSuite.numberOfErrors, Duration: $testSuite.durationInSeconds
+        </li>
+        #end
+    </ul>
+</div>	

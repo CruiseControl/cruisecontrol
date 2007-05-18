@@ -1,0 +1,330 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+-->
+<project name="cruise-dashboard" default="all.test.local">
+	<property file="cruisepanel.properties" />
+	<property name="build.dir" value="target" />
+	<property name="properties.dir" value="properties" />
+	<property name="ccmain.dist.dir" value="${basedir}/../../main/dist" />
+	<property name="dist.dir" value="dist" />
+	<property name="war.dir" value="${build.dir}/war" />
+    <property name="app.classes.dir" value="${war.dir}/WEB-INF/classes" />
+    <property name="test.classes.dir" value="${build.dir}/classes/test" />
+    <property name="test.data.dir" value="${build.dir}/classes/data" />
+	<property name="functionaltest.classes.dir" value="${build.dir}/classes/functionaltest" />
+	<property name="src.dir" value="src" />
+    <property name="war.src.dir" value="webapp" />
+    <property name="resources.dir" value="resources" />
+	<property name="test.dir" value="test" />
+	<property name="unittest.dir" value="${test.dir}/unit" />
+	<property name="functionaltest.dir" value="${test.dir}/functional" />
+	<property name="reports.dir" value="${build.dir}/reports" />
+	<property name="emma.dir" location="target/emma" />
+
+	<import file="checklicense.xml" />
+
+	<import file="jsunit/jsunit.xml" />
+
+	<path id="lib.classpath">
+        <fileset dir="${ccmain.dist.dir}" includes="cruisecontrol.jar" />
+        <fileset dir="${basedir}/lib" includes="**/*.jar" />
+	</path>
+
+	<path id="emma.lib.dir">
+		<fileset dir="${basedir}/lib" includes="**/emma*.jar" />
+	</path>
+
+	<path id="app.classpath">
+		<path refid="lib.classpath" />
+		<pathelement path="${app.classes.dir}" />
+	</path>
+
+	<path id="emma.classpath">
+		<path refid="lib.classpath" />
+		<pathelement path="${emma.dir}/classes" />
+	</path>
+
+	<fileset dir="lib" id="product.lib">
+		<include name="*.jar" />
+	</fileset>
+
+	<path id="product.lib.path">
+		<fileset refid="product.lib" />
+	</path>
+
+	<path id="test.classpath">
+		<path refid="emma.classpath" />
+		<path refid="app.classpath" />
+		<pathelement path="${test.classes.dir}" />
+		<pathelement path="${functionaltest.classes.dir}" />
+		<pathelement path="${war.dir}/WEB-INF" />
+	</path>
+
+	<taskdef resource="emma_ant.properties" classpathref="emma.lib.dir" />
+
+	<target name="-clean">
+		<delete dir="${emma.dir}/classes" quiet="true" />
+		<delete dir="${build.dir}" quiet="true" />
+		<mkdir dir="${build.dir}" />
+		<delete dir="${app.classes.dir}" quiet="true" />
+	    <mkdir dir="${app.classes.dir}" />
+	</target>
+
+	<target name="-compile">
+		<javac destdir="${app.classes.dir}" classpathref="app.classpath" debug="true" source="1.4" target="1.4">
+			<src location="${src.dir}" />
+		</javac>
+	</target>
+
+	<target name="-compile-tests">
+		<mkdir dir="${test.classes.dir}" />
+		<mkdir dir="${functionaltest.classes.dir}" />
+		<javac destdir="${test.classes.dir}" classpathref="test.classpath" debug="true" failonerror="true" source="1.4" target="1.4">
+			<src location="${unittest.dir}" />
+		</javac>
+		<javac destdir="${functionaltest.classes.dir}" classpathref="test.classpath" debug="true" failonerror="true" source="1.4" target="1.4">
+			<src location="${functionaltest.dir}" />
+		</javac>
+	</target>
+
+	<target name="-copy-test-data">
+		<copy todir="${test.data.dir}">
+			<fileset dir="${test.dir}/data">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+	</target>
+
+
+    <target name="-unit-tests">
+        <mkdir dir="${reports.dir}" />
+		<mkdir dir="${test.classes.dir}/build" />
+		<junit printsummary="true" dir="${basedir}" haltonfailure="true" fork="true" forkMode="once">
+			<classpath refid="test.classpath" />
+			<jvmarg value="-Demma.coverage.out.file=${emma.dir}/coverage.emma" />
+			<jvmarg value="-Demma.coverage.out.merge=true" />
+
+			<formatter type="xml" />
+            <batchtest todir="${reports.dir}">
+				<fileset dir="${unittest.dir}">
+					<include name="**/*Test.java" />
+					<exclude name="**/AllTests.java" />
+					<exclude name="**/SpringBasedControllerTest.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+
+	<target name="-functional-tests">
+		<mkdir dir="${reports.dir}" />
+		<junit printsummary="true" fork="true" haltonfailure="true" dir="${basedir}">
+			<classpath refid="test.classpath" />
+			<formatter type="xml" />
+			<test name="net.sourceforge.cruisecontrol.dashboard.jwebunittests.AllTests" todir="${reports.dir}" />
+		</junit>
+	</target>
+
+	<target name="-selenium.tests">
+		<mkdir dir="${reports.dir}" />
+		<junit printsummary="true" fork="true" haltonfailure="true" dir="${basedir}">
+			<classpath refid="test.classpath" />
+			<formatter type="xml" />
+			<test name="net.sourceforge.cruisecontrol.dashboard.seleniumtests.AllSeleniumTests" todir="${reports.dir}" />
+		</junit>
+	</target>
+
+	<target name="-copy.resources.web">
+		<mkdir dir="${war.dir}" />
+		<copy todir="${war.dir}">
+			<fileset dir="${war.src.dir}">
+	          <exclude name="**/classes/**"/>
+            </fileset>
+		</copy>
+	</target>
+
+	<!-- checkstyle -->
+	<target name="-checkstyle-main">
+		<taskdef classpathref="lib.classpath" resource="checkstyletask.properties" />
+		<sequential>
+			<checkstyle config="checkstyle.xml">
+				<fileset dir="${src.dir}" includes="**/*.java" />
+				<fileset dir="${unittest.dir}" includes="**/*.java" />
+				<formatter type="plain" />
+				<formatter type="xml" toFile="${reports.dir}/checkstyle-log.xml" />
+			</checkstyle>
+		</sequential>
+	</target>
+
+	<target name="-war.production">
+		<mkdir dir="${dist.dir}" />
+		<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
+			<fileset dir="${war.dir}">
+				<exclude name="**/applicationContext-development.xml" />
+			</fileset>
+			<lib dir="${ccmain.dist.dir}" >
+                <include name="cruisecontrol.jar" />
+			 </lib>
+			<lib refid="product.lib" />
+			<lib dir="lib">
+				<include name="licenses/*" />
+			</lib>
+		</war>
+	</target>
+
+	<target name="-war.development">
+		<mkdir dir="${dist.dir}" />
+		<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
+			<fileset dir="${war.dir}" />
+			<classes dir="${test.classes.dir}" />
+			<lib dir="lib" />
+		</war>
+	</target>
+
+	<target name="-properties.production">
+		<copy todir="${app.classes.dir}" overwrite="true">
+			<fileset dir="${properties.dir}/src/" />
+		</copy>
+	</target>
+
+	<target name="-properties.development">
+		<copy todir="${app.classes.dir}">
+			<fileset dir="${properties.dir}/test/" />
+		</copy>
+	</target>
+
+	<target name="-start-jetty-server">
+		<java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer" fork="true">
+			<classpath refid="test.classpath" />
+		</java>
+	</target>
+
+	<target name="-emma.instr">
+		<mkdir dir="${emma.dir}" />
+		<mkdir dir="${emma.dir}/classes" />
+		<property name="junit.fail.on.error" value="false" />
+		<emma enabled="true">
+			<instr instrpath="${app.classes.dir}" destdir="${emma.dir}/classes" metadatafile="${emma.dir}/metadata.emma" merge="true">
+				<filter excludes="net.sourceforge.cruisecontrol.dashboard.web.command.*" />
+				<filter excludes="net.sourceforge.cruisecontrol.dashboard.exception.*" />
+                <filter excludes="net.sourceforge.cruisecontrol.dashboard.testhelpers.*"/>
+                <filter excludes="net.sourceforge.cruisecontrol.dashboard.seleniumtests.*"/>
+                <filter excludes="net.sourceforge.cruisecontrol.dashboard.jwebunittests.*"/>
+			</instr>
+		</emma>
+	</target>
+
+	<target name="-emma.reporting">
+		<emma enabled="true">
+			<report sort="+name" metrics="method:83,block:83,line:74,class:88">
+				<fileset dir="${emma.dir}">
+					<include name="*.emma" />
+				</fileset>
+				<xml outfile="${emma.dir}/coverage.xml" />
+				<html outfile="${emma.dir}/coverage.html" />
+			</report>
+		</emma>
+	</target>
+
+	<target name="-emma.check">
+		<loadfile property="emma.output" srcFile="${emma.dir}/coverage.html" />
+		<fail message="Your code coverage is too low.">
+			<condition>
+				<contains string="${emma.output}" substring="class=&quot;h&quot;" casesensitive="false" />
+			</condition>
+		</fail>
+	</target>
+
+	<target name="-emma.clean">
+		<delete dir="${emma.dir}" />
+	</target>
+
+	<target name="-publish.war">
+		<copy file="${dist.dir}/dashboard.war" todir="${deploy.home}/webapps/" failonerror="true" overwrite="true" verbose="true" />
+	</target>
+
+	<target name="-jsunit">
+		<copy todir="jsunit/ccjs" overwrite="true">
+			<fileset dir="${war.src.dir}/javascripts">
+				<include name="*.js" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="-start.selenium.server">
+		<java jar="lib/buildtime/selenium-server.jar" fork="true" spawn="true">
+	            <arg line="-timeout 30"/>
+	    </java>
+		<waitfor maxwait="1" maxwaitunit="minute" checkevery="1" checkeveryunit="second">
+			<socket server="localhost" port="4444" />
+		</waitfor>
+	</target>
+
+	<target name="-stop.selenium.server">
+		<get taskname="selenium-shutdown"  src="http://localhost:4444/selenium-server/driver/?cmd=shutDown" dest="selenium-result.txt" ignoreerrors="true" />
+	</target>
+
+	<target name="--compile" depends="-clean, -copy.resources.web, -compile" />
+	<target name="--run.unit.tests" depends="--compile, -compile-tests, -copy-test-data, -properties.development, -unit-tests" />
+	<target name="--run.functional.tests" depends="--prepare.functional.tests, -functional-tests" />
+	<target name="--stat" depends="-emma.clean, --compile, -compile-tests, -copy-test-data, -properties.development, -emma.instr, -unit-tests, -emma.reporting, -emma.check" />
+	<target name="--start-jetty-server" depends="--package.development, -start-jetty-server" />
+	<target name="--run.all.tests" depends="--check.license, --run.unit.tests, --run.functional.tests, -checkstyle-main" />
+	<target name="--cruise" depends="--run.all.tests, -properties.production, -war.production, -publish.war" />
+	<target name="--package.production" depends="-clean, --compile, -properties.production, -war.production" />
+	<target name="--package.development" depends="-clean, --compile, -compile-tests, -properties.development, -war.development" />
+	<target name="--prepare.functional.tests" depends="--compile, -compile-tests, -war.development, -copy-test-data, -properties.development" />
+	<target name="--run.selenium.tests" depends="-start.selenium.server, -selenium.tests, -stop.selenium.server" />
+
+
+	<target name="package.development" depends="--package.development" description="package for development" />
+	<target name="package.production" depends="--package.production" description="package application for production" />
+	<target name="ut" depends="--run.unit.tests" description="run all unit tests" />
+	<target name="ft" depends="--run.functional.tests" description="run all functional tests" />
+	<target name="start.server" depends="--start-jetty-server" description="start jetty server" />
+	<target name="all.test" depends="--run.all.tests" description="run unit tests and functional tests" />
+	<target name="all.test.local" depends="--run.all.tests, js.unit, --run.selenium.tests" description="run unit tests and functional tests" />
+	<target name="cruise" depends="--cruise" description="target for cruise control" />
+	<target name="clean" depends="-clean" description="clean all" />
+	<target name="stat" depends="--stat" description="generating the test coverage of source code" />
+	<target name="deploy" depends="package.production, -publish.war" description="deploy the production war" />
+	<target name="checkstyle" depends="-checkstyle-main" description="checkstyle" />
+	<target name="js.unit" depends="-jsunit, jsunit" description="run jsunit test"/>
+	<target name="selenium" depends="--prepare.functional.tests, --run.selenium.tests" description="run selenium test"/>
+	<target name="dist" depends="-clean, --run.all.tests, -properties.production, -war.production" description="build and package war"/>
+</project>
