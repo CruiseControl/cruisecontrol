@@ -17,7 +17,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
     private XmlResolver resolver;
 
     protected void setUp() throws Exception {
-        StringBuffer configText = new StringBuffer(100);
+        StringBuffer configText = new StringBuffer(200);
         configText.append("<cruisecontrol>");
         configText.append("  <plugin name='foo.project'");
         configText.append("  classname='net.sourceforge.cruisecontrol.MockProjectInterface'/>");
@@ -45,6 +45,26 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
         assertEquals(2, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
+        assertIsFooProject(config.getProject("in.include"));
+    }
+    
+    public void testShouldLoadedNestedIncludes() throws Exception {        
+        StringBuffer includeText = new StringBuffer(200);
+        includeText.append("<cruisecontrol>");
+        includeText.append("  <include.projects file='include.xml'/>");
+        includeText.append("  <foo.project name='in.first.include'/>");
+        includeText.append("</cruisecontrol>");
+        Element includeWithNestedInclude = elementFromString(includeText.toString());
+        
+        Element[] elements = new Element[2];
+        elements[0] = includeWithNestedInclude;
+        elements[1] = includeElement;
+        resolver = new IncludeXmlResolver(elements);
+        
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);        
+        assertEquals(3, config.getProjectNames().size());
+        assertIsFooProject(config.getProject("in.root"));
+        assertIsFooProject(config.getProject("in.first.include"));
         assertIsFooProject(config.getProject("in.include"));
     }
 
@@ -162,15 +182,22 @@ public class CruiseControlConfigIncludeTest extends TestCase {
     
     private class IncludeXmlResolver implements XmlResolver {
         
-        private Element includeElement;
+        private Element[] includeElements;
+        private int count = 0;
         
         IncludeXmlResolver(Element element) {
-            includeElement = element;
+            includeElements = new Element[] {element};
+        }
+        
+        IncludeXmlResolver(Element[] elements) {
+            includeElements = elements;
         }
         
         public Element getElement(String path) throws CruiseControlException {
             assertEquals("include.xml", path);
-            return includeElement;
+            Element element = includeElements[count];
+            count++;
+            return element;
         }
     }
 
