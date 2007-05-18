@@ -117,6 +117,7 @@ public class CruiseControlConfig {
     }
 
     private CruiseControlConfig(Element includedElement, CruiseControlConfig parent) throws CruiseControlException {
+        xmlResolver = parent.xmlResolver;
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap(parent.rootProperties);
         templatePluginProperties = new HashMap(parent.templatePluginProperties);

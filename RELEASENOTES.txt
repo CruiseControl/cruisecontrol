@@ -8,6 +8,7 @@ dashboard
 ======================
 * Initial checkin of new CruiseControl dashboard.
 
+
 documentation
 ======================
 * Update the look and feel of the documentation to be less intrusive and more contemporary in design. Added in newly trademarked CruiseControl logo.
@@ -16,11 +17,16 @@ documentation
 build loop
 ======================
 
+CruiseControlConfig
+----------------------
+* <include.projects> now handles nested <include.projects>
+
 JMX
 ----------------------
 * Added the ability to retrieve commit messages for a project's "current" modification set.
 * Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
 * Added the ability to retrieve statuses of all projects.  
+
 
 contrib
 ======================
