@@ -1,0 +1,14 @@
+    <project name="$projectname">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <$bootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <$repository localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+    </project>

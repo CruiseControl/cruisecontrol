@@ -1,0 +1,130 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript">
+
+contextPath = "/dashboard"
+
+function test_ajax_periodical_refresh_active_build_should_update_css_when_build_finished() {
+    $$('.build_detail_summary')[0].ancestors()[0].className = "building"
+	var json = {
+	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
+	}
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals("building", $$('.build_detail_summary')[0].ancestors()[0].className);
+
+	json.building_info.css_class_name = "passed"
+	json.building_info.building_status = "passed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals("passed", $$('.build_detail_summary')[0].ancestors()[0].className);
+	
+	json.building_info.css_class_name = "failed"
+	json.building_info.building_status = "failed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals("failed", $$('.build_detail_summary')[0].ancestors()[0].className);
+}
+
+function test_ajax_periodical_refresh_active_build_should_update_title_when_build_finished() {
+    $$('.build_detail_summary h3')[0].innerHTML = 'project1 is now <span class="build_status">building</span>'
+	var json = {
+	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_log_file_name : "1.log"  }
+	}
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals('project1 is now <span class="build_status">building</span>', $$('.build_detail_summary h3')[0].innerHTML);
+
+	json.building_info.css_class_name = "passed"
+	json.building_info.building_status = "passed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals("project1 <span class=\"build_status\">passed</span> (<a href=\"/dashboard/detail/project1/1.log\">see details</a>)", $$('.build_detail_summary h3')[0].innerHTML);
+	
+	json.building_info.css_class_name = "failed"
+	json.building_info.building_status = "failed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertEquals('project1 <span class="build_status">failed</span> (<a href="/dashboard/detail/project1/1.log">see details</a>)', $$('.build_detail_summary h3')[0].innerHTML);
+}
+
+function test_ajax_periodical_refresh_active_build_should_stop_timer_when_build_finished() {
+	var json = {
+	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_log_file_name : "1.log"  }
+	}
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertFalse(project1_timer.is_stopped());
+
+	json.building_info.css_class_name = "passed"
+	json.building_info.building_status = "passed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertTrue(project1_timer.is_stopped());
+	
+	json.building_info.css_class_name = "failed"
+	json.building_info.building_status = "failed"
+	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
+	assertTrue(project1_timer.is_stopped());
+}
+
+</script>
+</head>
+<body>
+<div class="building">
+    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+    <div class="build_detail_summary">
+			<h3>project1 is now <span class='build_status'>building</span></h3>
+        	<ul class="summary">
+				<li><strong>Building since:</strong> $buildSince</li>
+				<li><strong>Elapsed time:</strong> <span id="${projectName}_time_elapsed"><img src="images/yellow-wait.gif"/></span></li>
+                <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
+				<li><strong>Remaining time:</strong> <span id="${projectName}_time_remaining"><img src="images/yellow-wait.gif"/></span></li>
+		    </ul>
+	</div>
+    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+</div>
+</body>
+</html>

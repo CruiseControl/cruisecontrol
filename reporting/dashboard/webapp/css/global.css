@@ -1,0 +1,169 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ /* @override css/global.css */
+
+/* Uses icons from http://www.famfamfam.com/lab/icons/silk/ */
+
+body {
+	font-family : verdana, arial, geneva, helvetica, sans-serif;
+}
+
+/* header and footer */
+
+#header {
+  background-position: top;
+  background-repeat: repeat-x;
+  font-weight: normal;
+  clear: both;
+}
+
+div#pageTitle {
+	font-size : 16pt;
+	font-weight : bold;
+	padding-top : 15px;
+	float : left;
+	margin : 10px 0;
+}
+
+div#logo {
+	float : right;
+	margin : 20px 5px 10px 0;
+}
+
+body {
+    text-align: left;
+}
+
+h1 {
+    font-weight: bold;
+    font-size : 2em;
+    text-transform: capitalize;
+}
+
+a:hover	{
+	cursor : pointer;
+}
+
+a {
+  color:black;
+  text-decoration:none;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin: 8px 4px 4px 0;
+    white-space: nowrap;
+}
+
+img { border-style: none; }
+
+h2 {
+    font-weight: bold;
+    font-size : 1.5em;
+}
+
+h3 {
+    font-weight : bold;
+    font-size :  1.25em;
+}
+
+/* forms: see http://www.456bereastreet.com/lab/forms/ for form layout styling */
+
+form label.req {
+    font-weight: bold;
+    color: #300;
+}
+
+div.inputblk {
+    display: block;
+    margin: 1em 1em 1em 0;
+}
+
+input {
+    padding: 0;
+    margin: 0;
+}
+
+input.txt,
+    textarea.txt {
+    border: 1px solid black;
+    color: #000;
+    background-color: #fff;
+}
+
+input.txt:focus,
+    textarea.txt:focus {
+    background-color: #fffff0;
+}
+
+input.txt:hover,
+    textarea.txt:hover {
+    border-color: #36c;
+}
+
+input.btn {
+    cursor: pointer;
+    background-color: #dde;
+    padding: 2px;
+    margin: 2px;
+}
+
+input.btn:hover{
+	border-color: #36c;
+}
+
+div#content {
+	margin : 0 0 0 10px;
+	position :  relative;
+}
+
+#doc3 {
+	margin : 0;
+}
+
+.clickable {
+	cursor:pointer;
+}
+
+div.clear {
+	clear : both;
+	font-size : 1px;
+	line-height : 1px;
+	height : 1px;
+	overflow : hidden;
+}

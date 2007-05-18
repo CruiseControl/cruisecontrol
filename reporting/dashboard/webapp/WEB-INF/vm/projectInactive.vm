@@ -1,0 +1,8 @@
+#set($building_status="Inactive")
+#set($onforcebuild="javascript:void(0)")
+#set($project_name_href='javascript:void(0)')
+#set($build_date_text=' : Waiting for first build...')
+#set($success_build_href='javascript:void(0)')
+#set($all_build_href='javascript:void(0)')
+
+#parse ("project_status_partial.vm")

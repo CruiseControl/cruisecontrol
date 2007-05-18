@@ -1,0 +1,113 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+package net.sourceforge.cruisecontrol.dashboard.web.view;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import junit.framework.TestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+public class JsonViewTest extends TestCase {
+
+    public void testShouldReturnOutputWithoutWhitespaceThatIsNotAllowedInHeaders() throws Exception {
+        JsonView view = new JsonView();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        Map map = new HashMap();
+        map.put("key", "\r\t\n");
+        view.renderMergedOutputModel(map, new MockHttpServletRequest(), response);
+        assertEquals("{ \"key\" : \"\" }", response.getHeader("X-JSON"));
+    }
+
+    public void testShouldRenderEmptyEmptyMap() throws Exception {
+        JsonView view = new JsonView();
+        String output = view.renderJson(new HashMap());
+        assertEquals("{  }", output);
+    }
+
+    public void testShouldRenderAllKeyValuePairsFromMap() throws Exception {
+        Map map = new HashMap();
+        map.put("key1", "value1");
+        map.put("key2", "value2");
+        JsonView view = new JsonView();
+
+        String output = view.renderJson(map);
+
+        // This is a bit dodgy because the order of keys is not really guaranteed
+        assertEquals("{ \"key1\" : \"value1\", \"key2\" : \"value2\" }", output);
+    }
+
+    public void testShouldRenderNestedMaps() throws Exception {
+        Map map = new HashMap();
+        Map nestedMap = new HashMap();
+        nestedMap.put("keyA", "valueA");
+        map.put("key1", nestedMap);
+        JsonView view = new JsonView();
+
+        String output = view.renderJson(map);
+
+        assertEquals("{ \"key1\" : { \"keyA\" : \"valueA\" } }", output);
+    }
+
+    public void testShouldRenderMapWithSingleBlankKeyDirectly() throws Exception {
+        Map map = new HashMap();
+        map.put(" ", "value");
+        JsonView view = new JsonView();
+
+        String output = view.renderJson(map);
+
+        assertEquals("\"value\"", output);
+    }
+
+    public void testShouldRenderArrays() throws Exception {
+        Map map = new HashMap();
+        List array = new ArrayList();
+        Map nestedMap = new HashMap();
+        nestedMap.put("key1", "value1");
+        array.add(nestedMap);
+        array.add("value2");
+        map.put(" ", array);
+        JsonView view = new JsonView();
+
+        String output = view.renderJson(map);
+
+        assertEquals("[ { \"key1\" : \"value1\" }, \"value2\" ]", output);
+    }
+
+}

@@ -27,6 +27,8 @@
             <property name="cruise.build.artifacts.dir" value="artifacts"/>
             <property name="cruise.build.jmxport" value="8000"/>
         </ant>
+        <ant inheritAll="false" dir="reporting/dashboard" target="dist" >
+	    </ant>
     </target>
 
     <target name="website" depends="checklabel" description="Create documentation website">
@@ -152,13 +154,14 @@
             <zipfileset src="binaryrelease/connectfour.zip" filemode="644" dirmode="755" prefix="${cc.bin.zip.prefix}/projects"/>
             <zipfileset src="${apache.ant.zip}" prefix="${cc.bin.zip.prefix}"/>
             <zipfileset dir="main/lib" includes="junit*.jar" prefix="${cc.bin.zip.prefix}/${apache.ant}/lib"/>
-            <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.bin.zip.prefix}/lib" excludes="inmemorysfee*.jar"/>
+            <zipfileset dir="main/lib" includes="*.jar" prefix="${cc.bin.zip.prefix}/lib" excludes="inmemorysfee*.jar, checkstyle*, **/.svn"/>
             <zipfileset dir="main/lib/licenses" includes="*.txt" prefix="${cc.bin.zip.prefix}/lib/licenses"/>
             <zipfileset file="main/lib/ant/ant.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset file="main/lib/ant/ant-launcher.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset dir="main/dist" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
+            <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
     </target>

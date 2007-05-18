@@ -1,0 +1,12 @@
+#foreach($pluginDisplayName in $build.build.getPluginOutputs().keySet())
+	<div id="$pluginDisplayName.toLowerCase()" class="tests" style="display:none">
+	#if($build.build.getPluginOutputs().get($pluginDisplayName))
+		<pre>
+$build.build.getPluginOutputs().get($pluginDisplayName)
+		</pre>
+	#else
+		<h2>No information for $pluginDisplayName</h2>
+	#end
+    </div>
+#end
+

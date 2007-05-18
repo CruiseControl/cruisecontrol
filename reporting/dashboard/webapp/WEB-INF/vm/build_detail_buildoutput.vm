@@ -1,0 +1,4 @@
+<div id="ant" class="buildoutput"  $buildoutput_extra_attrs>
+	<h2>Ant</h2>
+	<span class="buildoutput"><pre id="buildoutput_span"></pre></span>
+</div>

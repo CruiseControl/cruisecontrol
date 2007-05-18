@@ -1,0 +1,96 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>JsUnit Test Suite</title>
+    <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+    <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+    <script language="JavaScript" type="text/javascript">
+
+        function coreSuite() {
+            var result = new top.jsUnitTestSuite();
+            result.addTestPage("tests/display_toolkit_test.html");
+            result.addTestPage("tests/join_root_with_context_test.html");
+            result.addTestPage("tests/build_detail_toggle_tab_content_test.html");
+            result.addTestPage("tests/register_onclick_on_clickable_element_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_active_build_executer_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_active_build_output_executer_oncomplete_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_executer_oncomplete_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_statistics_summary_infos_test.html");
+			result.addTestPage("tests/category_projects_info_by_status_test.html");
+            result.addTestPage("tests/calculate_projects_statistics_test.html");
+            result.addTestPage("tests/calculate_projects_statistics_test_sad_path.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_project_bar_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_project_box_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_project_build_detail_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_tooltip_test.html");
+			result.addTestPage("tests/get_inactive_projects_amount_test.html");
+            result.addTestPage("tests/ajax_update_icons_and_invoke_callback_function_test.html");
+            result.addTestPage("tests/eval_timer_object_test.html");
+            result.addTestPage("tests/evaluate_time_to_seconds_test.html");
+            result.addTestPage("tests/get_link_by_building_status_test.html");
+            result.addTestPage("tests/timer_test.html");
+            result.addTestPage("tests/toggle_tab_content_test.html");
+            result.addTestPage("tests/toggle_tab_test.html");
+            result.addTestPage("tests/rounded_test.html");
+            return result;
+        }
+
+        function librariesSuite() {
+            var result = new top.jsUnitTestSuite();
+            return result;
+        }
+
+        function suite() {
+            var newsuite = new top.jsUnitTestSuite();
+            newsuite.addTestSuite(coreSuite());
+            newsuite.addTestSuite(librariesSuite());
+            return newsuite;
+        }
+    </script>
+</head>
+
+<body>
+<h1>JsUnit Test Suite</h1>
+
+<p>This page contains a suite of tests for testing JsUnit.</p>
+</body>
+</html>

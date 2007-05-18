@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    #parse("head.vm")
+<link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_detail_summary.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_detail.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_profile.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+
+</head>
+<body>
+	<div id="doc3" class="yui-t7 successfulBuilds">
+		   #parse('menu_build_detail.vm')
+		   <div id="bd">
+			    <div class="yui-ge">
+			    	<div class="yui-u first">
+                  <div class="buildlist_header"><h1>$projectName</h1> &mdash; All successful builds</div>
+                  <div id="container">
+                        #if( $buildSummaries.size() == 0)
+                        <p>No successful builds found.</p>
+                        #end
+                        #foreach( $buildSummary in $buildSummaries )
+                           <div class="build_profile passed">
+                             <a href="$req.getContextPath()/detail/$projectName/$buildSummary.buildLogFilename">$buildSummary.name $!buildSummary.label</a>
+               				    <ul class="modifications">
+							        #foreach ($mod in $buildSummary.modificationSet.modifications)
+							            <li class="modification">
+							                <span class="user">$mod.user</span><br /><span class="comment">$mod.comment</span>
+		               				    </li>
+	                                #end
+               				    </ul>
+    	                     </div>
+                        #end
+                     </div>
+               </div>
+             </div>
+         </div>
+   </div>
+</body>
+</html>

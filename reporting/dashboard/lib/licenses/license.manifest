@@ -1,0 +1,30 @@
+commons-collections-3.2.jar : Apache License Version 2.0
+
+commons-io-1.3.jar : Apache License Version 2.0
+
+commons-lang-2.2.jar : Apache License Version 2.0
+
+commons-logging-1.1.jar : Apache License Version 2.0
+
+cruisecontrol.jar : cruisecontrol-license.txt (A BSD-Style License)
+
+jmxremote.jar :sun-binary-code-license.txt
+
+jmxri.jar :sun-binary-code-license.txt
+
+joda-time-1.4.jar : Apache License Version 2.0
+
+log4j-1.2.12.jar : Apache License Version 2.0
+
+sitemesh-2.3.jar : The OpenSymphony Software License, Version 1.1 (this license is derived and fully compatible with the Apache Software License - see http://www.apache.org/LICENSE.txt)
+
+spring-2.0-rc3.jar : Apache License Version 2.0
+
+velocity-1.5.jar : Apache License Version 2.0
+
+velocity-tools-view-1.2.jar : Apache License Version 2.0
+
+xalan-2.7.0.jar : Apache License Version 2.0
+
+xml-apis-1.3.03.jar :  Apache License Version 2.0  (Depends on LICENSE.dom-documentation.txt, LICENSE.dom-software.txt, LICENSE.sax.txt)
+

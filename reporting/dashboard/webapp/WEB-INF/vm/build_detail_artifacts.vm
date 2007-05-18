@@ -1,0 +1,11 @@
+<div class="artifacts" id="artifacts" $artifacts_extra_attrs>
+    <h2>Artifacts</h2>
+    <ul class="files">
+        #if( $build.build.artifactNames.size() == 0)
+        	<p>No artifacts found.</p>
+        #end
+        #foreach ($artifactName in $build.build.artifactNames)
+	        <li><span class="artifact"><a href="$req.getContextPath()/project/download/artifacts/$build.build.getProjectName()/$logfile/$artifactName">$artifactName</a></span></li>
+        #end
+    </ul>
+</div>

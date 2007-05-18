@@ -1,0 +1,2 @@
+#set($href="javascript:void(0)")
+#parse('project_bar_partial.vm')

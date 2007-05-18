@@ -1,0 +1,95 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ /* @override /css/build_common.css */
+
+.relative_box{
+	position:relative;
+}
+.passed {
+    background-color: #E8F1BF;
+    color : #030;
+}
+.long_passed {
+    background-color: #D1E37F;
+    color : #300;
+}
+
+.failed {
+    background-color: #F5CDCF;
+    color : #300;
+}
+
+.long_failed {
+    background-color: #EC9C9F;
+    color : #300;
+}
+
+.building {
+    background-color: #f9d861;
+    color : #c30;
+}
+
+.inactive {
+    background-color: #ccc;
+    color : #666;
+}
+
+.r1 {background:white;}
+
+.passed .r2{background:#E8F1BF;}
+.passed .r3{background:#E8F1BF;}
+.passed .r4{background:#E8F1BF;}
+
+.long_passed .r2{background:#D1E37F;}
+.long_passed .r3{background:#D1E37F;}
+.long_passed .r4{background:#D1E37F;}
+
+.failed .r2{background:#F5CDCF;}
+.failed .r3{background:#F5CDCF;}
+.failed .r4{background:#F5CDCF;}
+
+.building .r2{background:#f9d861;}
+.building .r3{background:#f9d861;}
+.building .r4{background:#f9d861;}
+
+.inactive .r2{background:#ccc;}
+.inactive .r3{background:#ccc;}
+.inactive .r4{background:#ccc;}
+
+.long_failed .r2{background:#EC9C9F;}
+.long_failed .r3{background:#EC9C9F;}
+.long_failed .r4{background:#EC9C9F;}

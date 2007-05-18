@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.web;
 
 import java.io.IOException;
+import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
@@ -57,6 +58,10 @@ public class EmbeddedJettyServer {
     /** the path to the CruiseControl webapp served by the embedded server. */
     private String webappPath;
 
+    /** the path to the CruiseControl new web dashboard served by the embedded server. */
+    private String newWebappPath;
+    private String configFileName;
+
     /** the embedded Jetty server. */
     private Server jettyServer;
 
@@ -65,11 +70,13 @@ public class EmbeddedJettyServer {
 
     /**
      * Creates a new embeded Jetty server with the given listen port and the given webapp path.
-     * 
+     *
      * @param webPort
      *            the port the embedded Jetty server will listen on.
      * @param webappPath
      *            the path to the CruiseControl web application served by the embedded server.
+     *
+     * @deprecated Use constructor that also sets up new dashboard
      */
     public EmbeddedJettyServer(int webPort, String webappPath) {
         this.webPort = webPort;
@@ -77,14 +84,39 @@ public class EmbeddedJettyServer {
     }
 
     /**
+     * Creates a new embeded Jetty server with the given listen port and the given webapp path.
+     *
+     * @param webPort
+     *            the port the embedded Jetty server will listen on.
+     * @param webappPath
+ *            the path to the CruiseControl web application served by the embedded server.
+     * @param newWebappPath
+     * @param configFileName
+     *         the name of the config file
+     */
+    public EmbeddedJettyServer(int webPort, String webappPath, String newWebappPath, String configFileName) {
+        this.webPort = webPort;
+        this.webappPath = webappPath;
+        this.newWebappPath = newWebappPath;
+        this.configFileName = configFileName;
+    }
+
+    /**
      * Starts the embedded Jetty server.
      */
     public void start() {
         if (isRunning) {
-            LOG.info("EmbeddeedJettyServer.start() called, but server already running.");
+            LOG.info("EmbeddedJettyServer.start() called, but server already running.");
             return;
         }
 
+        if (configFileName != null) {
+            File configFile = new File(configFileName);
+            if (!configFile.exists()) {
+                throw new RuntimeException("Cannot find config file at " + configFile.getAbsolutePath());
+            }
+            System.setProperty("cc.config", configFile.getAbsolutePath());
+        }
         jettyServer = new Server();
         SocketListener listener = new SocketListener();
         listener.setPort(webPort);
@@ -92,6 +124,9 @@ public class EmbeddedJettyServer {
         try {
             jettyServer.addWebApplication("/cruisecontrol", webappPath);
             jettyServer.addWebApplication("/", webappPath);
+            if (newWebappPath != null) {
+                jettyServer.addWebApplication("/dashboard", newWebappPath);
+            }
         } catch (IOException e) {
             String msg = "Exception adding cruisecontrol webapp to embedded Jetty server: " + e.getMessage();
             LOG.error(msg, e);

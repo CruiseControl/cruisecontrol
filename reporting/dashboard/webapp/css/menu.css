@@ -1,0 +1,136 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ 
+
+#menu {
+	margin-left: 4px;
+	padding: 0;
+	background: transparent;
+	voice-family: "\"}\"";
+	voice-family: inherit;
+	padding-left: 5px;
+	margin-bottom: 0;
+	min-height: 62px;
+}
+
+#menu ul {
+	font: 13px verdana, arial, geneva, helvetica, sans-serif;
+	margin-top: 10px;
+	list-style: none;
+	clear : both;
+}
+
+#menu li {
+	float: left;
+	margin-right: .75em;
+	list-style: none;
+	text-align : center;
+	padding : 0;
+}
+
+#menu li.currenttab a {
+	background-color : #87c0d4;
+	color : #003;
+	font-weight : bold;
+}
+
+#menu a {
+	float: left;
+	background: #538aa7 url(left-top1.gif) no-repeat left top;
+	text-decoration: none;
+	text-align: center;
+	color : white;
+}
+
+#menu a span {
+	display: block;
+	background: transparent url(right-top1.gif) no-repeat right top;
+	padding: 1px 2em 4px 2em;
+}
+
+#menu a:hover {
+	color: #999;
+}
+
+#menu a:hover span {
+	background: transparent url(right-top2.gif) no-repeat right top;
+}
+
+#menu_bottom {
+	border-top: 4px solid #87c0d4;
+	clear: both;
+	background : url( ../images/menu_shadow.png ) left bottom repeat-x;
+	padding-bottom : 14px;
+}
+
+#menu .rtop,.rbottom {
+	display: block;
+	background: white;
+}
+
+#menu .rtop *,.rbottom * {
+	display: block;
+	height: 1px;
+	overflow: hidden;
+	background: white;
+}
+
+#menu .r1 {
+	margin: 0 5px;
+	background: #538aa7;
+}
+
+#menu li.currenttab .r1, #menu li.currenttab .r2, #menu li.currenttab .r3, #menu li.currenttab .r4 {
+	background : #87c0d4;
+}
+
+#menu .r2 {
+	margin: 0 3px;
+	background: #538aa7;
+}
+
+#menu .r3 {
+	margin: 0 2px;
+	background: #538aa7;
+}
+
+#menu .r4 {
+	margin: 0 1px;
+	height: 2px;
+	background: #538aa7;
+}
+
