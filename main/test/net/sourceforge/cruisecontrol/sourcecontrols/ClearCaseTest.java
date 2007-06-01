@@ -163,7 +163,6 @@ public class ClearCaseTest extends TestCase {
         }
 
         cc.setViewpath("path");
-        cc.setBranch("branch");
 
         try {
             cc.validate();

@@ -172,7 +172,6 @@ public class ClearCase implements SourceControl {
     }
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(branch, "branch", this.getClass());
         ValidationHelper.assertIsSet(viewPath, "viewpath", this.getClass());
         if (recursive == ENABLED && all == ENABLED) {
             ValidationHelper.fail("'recursive' and 'all' are mutually exclusive attributes for ClearCase");
