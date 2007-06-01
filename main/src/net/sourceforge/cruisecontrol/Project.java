@@ -682,9 +682,7 @@ public class Project implements Serializable, Runnable {
                 DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
         addProperty(infoElement, "builddate", DateFormatFactory.getDateFormat().format(now));
-        if (now != null) {
-            addProperty(infoElement, "cctimestamp", DateUtil.getFormattedTime(now));
-        }
+        addProperty(infoElement, "cctimestamp", DateUtil.getFormattedTime(now));
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));
         addProperty(infoElement, "lastbuildsuccessful", String.valueOf(wasLastBuildSuccessful));
