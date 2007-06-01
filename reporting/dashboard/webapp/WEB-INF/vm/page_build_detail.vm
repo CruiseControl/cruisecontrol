@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+#parse("partial/partial_head.vm")
+
+<link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_detail_summary.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_detail.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+#set($projectName=$build.build.getProjectName())
+#if ($status.toLowerCase() == 'passed' || $status.toLowerCase() == 'failed')
+<title>Project $build.build.getProjectName() - Build $build.build.getBuildDate()</title>
+#else
+<title>Project $projectName - $status.toLowerCase()</title>
+#end
+</head>
+<body>
+    <div id="doc3" class="yui-t7">
+           #parse('menu/menu_builds.vm')
+           <div id="bd">
+                <div class="yui-ge">
+                    <div class="yui-u first">
+                        <div class="maincol build_detail">
+                            #parse("build_detail/build_detail_${status.toLowerCase()}.vm")
+                        </div>
+                    </div>
+                    <div class="yui-u">
+                        #parse("build_detail/build_detail_partial_side_column.vm")
+                    </div>
+                </div>
+            </div>
+    </div>
+</body>
+</html>

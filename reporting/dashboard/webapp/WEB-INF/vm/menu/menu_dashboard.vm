@@ -1,0 +1,18 @@
+#set($dashboard_href='javascript:void(0)')
+#set($dashboard_onclick='toggle_tab(1)')
+#set($builds_href='javascript:void(0)')
+#set($builds_onclick='toggle_tab(2)')
+
+#if ($hightLightedTab == 'builds') 
+    #set($tabheader2_class='currenttab')
+    #set($builds='style="display:block"')
+    #set($dashboard='style="display:none"')
+    #set($project_summary_layout='yui-g')
+#else
+    #set($tabheader1_class='currenttab')
+    #set($dashboard='style="display:block"')
+    #set($builds='style="display:none"')
+    #set($project_summary_layout='yui-u')
+#end
+
+#parse('menu/menu_partial.vm')

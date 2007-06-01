@@ -34,7 +34,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/build_bar.css */
+ 
+ /* Styles for build boxes on compact dashboard page */
 
 .bar {
     display: block;
@@ -43,8 +44,9 @@
     min-height: 38px;
     margin: 0.5em;
     float: left;
-    margin-left: 1px;
 }
+
+/* Ensure that links in build boxes cover the entire area of the box */
 
 .bar a {
 	display: block;

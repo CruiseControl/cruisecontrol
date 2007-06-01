@@ -42,15 +42,16 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import org.apache.commons.io.FileUtils;
 
 public final class DataUtils {
-    public static final String TEST_DATA_DIR = "target/classes/data/";
+    public static final String TEST_DATA_DIR = "test/data/";
     public static final String CONFIG_XML = "config.xml";
     public static final String FAILING_LOG = "cruisecontrollog_internalerror.log";
-    public static final String FAILING_BUILD_XML = "log20051209122103.xml";
+    public static final String FAILING_BUILD_XML = "log20051209122104.xml";
     public static final String PASSING_BUILD_LBUILD_0_XML = "log20051209122103Lbuild.489.xml";
     public static final String TESTSUITE_IN_BUILD_LBUILD =
-            "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
+                "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
     public static final String LOGFILE_OF_PROJECT2 = "log20060703155722.xml";
 
     private DataUtils() {
@@ -62,6 +63,15 @@ public final class DataUtils {
 
     public static File getConfigXmlAsFile() throws Exception {
         return getData(CONFIG_XML);
+    }
+
+
+    public static File getConfigXmlOfWebApp() throws Exception {
+        File ccRoot = getConfigXmlAsFile().getParentFile();
+        File tmpCCRoot = FilesystemUtils.createDirectory("tmpCCRoot");
+        FileUtils.copyDirectoryToDirectory(ccRoot, tmpCCRoot);
+        File copiedCCRoot = new File(tmpCCRoot, ccRoot.getName());
+        return new File(copiedCCRoot, "config.xml");
     }
 
     public static File getLogDirAsFile() throws Exception {

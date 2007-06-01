@@ -1,0 +1,55 @@
+
+<div class="building">
+    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+    <div class="build_detail_summary">
+            <h3>${projectName} is now <span class='build_status'>${status.toLowerCase()}</span></h3>
+            <ul class="summary">
+                <li><strong>Building since:</strong> $buildSince</li>
+                <li><strong>Elapsed time:</strong> <span id="${projectName}_time_elapsed"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
+                <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
+                <li><strong>Remaining time:</strong> <span id="${projectName}_time_remaining"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
+            </ul>
+            <div class="clear">&nbsp;</div>
+    </div>
+    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+</div>
+
+<div class="build_detail_container">
+    
+    <div class="build_detail_container_menu">
+        <ul>
+            <li onclick='build_detail_toggle_tab_content(this)' class="current_tab"><a><span>Ant</span></a></li>
+            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
+        </ul>
+    </div>
+    
+    <div class="build_detail_container_content">
+    
+        #set($buildoutput_extra_attrs="")
+        #parse("build_detail/build_detail_partial_buildoutput.vm")
+
+        #set($modification_extra_attrs="style='display:none'")
+        #parse("build_detail/build_detail_partial_modification_building.vm")
+    
+    </div>
+    
+</div>
+    
+<script>
+    new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
+        asynchronous: 1,
+        method:'GET',
+        onSuccess: function(transport, json) {
+            ajax_periodical_refresh_active_build_executer_oncomplete(json, '$build.build.projectName')
+        }
+    });
+    new Ajax.Request(context_path('getCommitMessage.ajax?project=$build.build.projectName'), {
+        asynchronous: 1,
+        method:'GET',
+        onSuccess: function(transport, json) {
+            ajax_refresh_active_build_commit_message(json)
+        }
+    });
+    ajax_periodical_refresh_active_build_executer('$projectName');
+    ajax_periodical_refresh_active_build_output_executer('$build.build.projectName');
+</script>

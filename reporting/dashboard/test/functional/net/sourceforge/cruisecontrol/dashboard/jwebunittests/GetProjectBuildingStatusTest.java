@@ -37,11 +37,12 @@
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
 import org.apache.commons.lang.StringUtils;
 
 public class GetProjectBuildingStatusTest extends BaseFunctionalTest {
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldReturnWaitingPageWhenCruiseControlsIsBuilding() throws Exception {
@@ -51,10 +52,8 @@ public class GetProjectBuildingStatusTest extends BaseFunctionalTest {
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");
         assertTrue(StringUtils.contains(json, ": \"Bootstrapping\""));
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");
-        assertFalse(StringUtils.contains(json, ": \"Bootstrapping\""));
         assertTrue(StringUtils.contains(json, ": \"ModificationSet\""));
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");
-        assertFalse(StringUtils.contains(json, ": \"ModificationSet\""));
         assertTrue(StringUtils.contains(json, ": \"Building\""));
     }
 }

@@ -62,29 +62,36 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
 
     private Build lastSucceed;
 
+    private Mock mockBuildSummaryService;
+
     protected void setUp() throws Exception {
-        ealiestFailed = new BuildSummary("", "2005-12-07 12:21.03", "build1", ProjectBuildStatus.FAILED, "log1");
-        lastSucceed = new BuildSummary("", "2005-12-05 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1");
+        ealiestFailed =
+                new BuildSummary("", "2005-12-07 12:21.03", "build1", ProjectBuildStatus.FAILED, "log1");
+        lastSucceed =
+                new BuildSummary("", "2005-12-05 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1");
         setUpMock();
-        controller = new LatestBuildsListingController(buildSummaryService,
-                new BuildSummaryUIService(buildSummaryService));
+        controller =
+                new LatestBuildsListingController(buildSummaryService, new BuildSummaryUIService(
+                        buildSummaryService));
     }
 
     private void setUpMock() throws Exception {
-        Mock mockBuildSummaryService = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class},
-                new Object[]{null, new BuildSummaryService()});
-        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments()
-                .will(returnValue(returnedValue()));
-        mockBuildSummaryService.expects(atLeastOnce()).method("getEaliestFailed")
-                .withAnyArguments().will(returnValue(ealiestFailed));
-        mockBuildSummaryService.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
+        mockBuildSummaryService =
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                new BuildSummaryService()});
+        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments().will(
+                returnValue(returnedValue()));
+        mockBuildSummaryService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(ealiestFailed));
+        mockBuildSummaryService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
                 .will(returnValue(lastSucceed));
         buildSummaryService = (BuildSummariesService) mockBuildSummaryService.proxy();
     }
 
     public void testShouldBeAbleToListAllTheProjectInDirectory() throws Exception {
-        ModelAndView mov = controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+        ModelAndView mov =
+                controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
         Map model = mov.getModel();
         List projects = (List) model.get("buildSummaries");
         assertEquals(5, projects.size());
@@ -94,17 +101,34 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         assertEquals(new Integer(2), projectStatistics.inactive());
     }
 
+    public void testShouldUseCachedLatestBuildSummaries() throws Exception {
+        controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+        mockBuildSummaryService =
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                new BuildSummaryService()});
+        mockBuildSummaryService.expects(never()).method("getLatestOfProjects").withNoArguments().will(
+                returnValue(returnedValue()));
+        mockBuildSummaryService.expects(never()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(ealiestFailed));
+        mockBuildSummaryService.expects(never()).method("getLastSucceed").withAnyArguments().will(
+                returnValue(lastSucceed));
+        controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+    }
+
     private List returnedValue() {
         List list = new ArrayList();
-        BuildSummary build1 = new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
-                "log1");
-        Build build2 = new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log2");
-        BuildSummary build3 = new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.BUILDING,
-                "log3");
-        BuildSummary build4 = new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE,
-                "log4");
-        BuildSummary build5 = new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE,
-                "log5");
+        BuildSummary build1 =
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
+                        "log1");
+        Build build2 =
+                new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log2");
+        BuildSummary build3 =
+                new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.BUILDING, "log3");
+        BuildSummary build4 =
+                new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log4");
+        BuildSummary build5 =
+                new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log5");
         list.add(build1);
         list.add(build2);
         list.add(build3);

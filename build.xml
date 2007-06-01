@@ -15,6 +15,9 @@
 
     <target name="clean" description="Clean dirs">
         <delete dir="target" failonerror="false"/>
+		<ant inheritAll="false" dir="main" target="clean"/>
+		<ant inheritAll="false" dir="reporting/jsp" target="clean"/>
+		<ant inheritAll="false" dir="reporting/dashboard" target="clean"/>
     </target>
 
     <target name="build" depends="checklabel" description="Create core lib and webapp">

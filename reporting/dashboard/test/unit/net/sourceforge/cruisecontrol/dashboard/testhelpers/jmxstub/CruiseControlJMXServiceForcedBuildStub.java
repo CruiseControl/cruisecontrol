@@ -37,12 +37,29 @@
 package net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 
 public class CruiseControlJMXServiceForcedBuildStub extends CruiseControlJMXService {
+    public CruiseControlJMXServiceForcedBuildStub() {
+        super(null);
+    }
+
     public String getBuildStatus(String projectName) {
         return "now building since 20070420211341";
+    }
+
+    public Map getAllProjectsStatus() {
+        return new HashMap() {
+            private static final long serialVersionUID = 1L;
+
+            public Object get(Object key) {
+                return "now building since 20070420211341";
+            }
+        };
     }
 
     public List getCommitMessages(String projectName) {

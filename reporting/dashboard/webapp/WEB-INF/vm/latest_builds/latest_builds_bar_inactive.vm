@@ -1,0 +1,2 @@
+#set($href="javascript:void(0)")
+#parse('latest_builds/latest_builds_bar_partial.vm')

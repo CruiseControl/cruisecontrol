@@ -43,6 +43,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
+import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.exception.ShouldStopParsingException;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.BasicInfoExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.CompositeExtractor;
@@ -51,12 +52,14 @@ import net.sourceforge.cruisecontrol.dashboard.saxhandler.ModificationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.SAXBasedExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.StackTraceExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.TestSuiteExtractor;
+import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.BuildSummariesFilters;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 public class BuildService {
-    private static Logger logger = Logger.getLogger(BuildService.class);
+    private static final Logger LOGGER = Logger.getLogger(BuildService.class);
 
     private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
 
@@ -64,13 +67,34 @@ public class BuildService {
         this.configuration = configuration;
     }
 
+    public Build getActiveBuild(final String projectName) {
+        return new BuildDetail(new HashMap()) {
+            public String getStatus() {
+                return ProjectBuildStatus.BUILDING.getStatus();
+            }
+
+            public String getProjectName() {
+                return projectName;
+            }
+
+            public String getBuildLogFilename() {
+                String now = CCDateFormatter.yyyyMMddHHmmss(new DateTime());
+                return "log" + now + ".xml";
+            }
+
+            public DateTime getBuildDate() {
+                return new DateTime();
+            }
+        };
+    }
+
     public Build getBuild(String projectName, String buildLogFilename) {
         return createBuildFromFile(getBuildFile(projectName, buildLogFilename));
     }
 
     public File getBuildFile(String projectName, String buildLogFileName) {
-        return new File(configuration.getCruiseLogfileLocation() + File.separator + projectName + File.separator
-                + buildLogFileName);
+        return new File(configuration.getCruiseLogfileLocation() + File.separator + projectName
+                + File.separator + buildLogFileName);
     }
 
     public BuildDetail createBuildFromFile(File logFile) {
@@ -78,10 +102,11 @@ public class BuildService {
             Map properties = new HashMap();
             parseLogFile(logFile, properties);
             properties.put("logfile", logFile);
-            properties.put("artifactfolder", getArtifactsRootDir((String) properties.get("projectname")));
+            properties.put("artifactfolder", getArtifactsRootDir((String) properties
+                    .get("projectname")));
             return new BuildDetail(properties);
         } catch (Exception e) {
-            logger.error("Can not parse the log file: " + logFile.getAbsolutePath(), e);
+            LOGGER.error("Can not parse the log file: " + logFile.getAbsolutePath(), e);
             return null;
         }
     }
@@ -89,21 +114,23 @@ public class BuildService {
     private void parseLogFile(File buildLogFile, Map props) throws Exception {
         // TODO injection
         SAXBasedExtractor[] handlers;
-        if (BuildSummariesFilters.succeedFilter().accept(buildLogFile.getParentFile(), buildLogFile.getName())) {
+        if (BuildSummariesFilters.succeedFilter().accept(buildLogFile.getParentFile(),
+                buildLogFile.getName())) {
             handlers =
                     new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
                             new BasicInfoExtractor()};
         } else {
             handlers =
                     new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
-                            new BasicInfoExtractor(), new StackTraceExtractor(), new TestSuiteExtractor()};
+                            new BasicInfoExtractor(), new StackTraceExtractor(),
+                            new TestSuiteExtractor()};
         }
         SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
         CompositeExtractor compositeExtractor = new CompositeExtractor(handlers);
         try {
             saxParser.parse(buildLogFile, compositeExtractor);
         } catch (ShouldStopParsingException e) {
-            // just stop parsing.
+            LOGGER.debug("Intentionally throwing exception to stop parsing.");
         }
         compositeExtractor.report(props);
     }

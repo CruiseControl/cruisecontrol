@@ -48,16 +48,21 @@
 <script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
 <script language="JavaScript" type="text/javascript">
 function test_should_convert_human_reading_time_to_seconds() {
-	var time = "1 hours 1 minutes 1 seconds"
-	assertEquals(3661, evaluate_time_to_seconds(time));	
-	time = "1 hours 1 seconds"
-	assertEquals(3601, evaluate_time_to_seconds(time));
+	var time = "2 hours 2 minutes 2 seconds"
+	assertEquals(7322, evaluate_time_to_seconds(time));	
+	time = "2 hours 2 seconds"
+	assertEquals(7202, evaluate_time_to_seconds(time));
 	time = "10 minutes"
 	assertEquals(600, evaluate_time_to_seconds(time));
 	time = "1 hours"
 	assertEquals(3600, evaluate_time_to_seconds(time));
 	time = " 14 seconds"
 	assertEquals(14, evaluate_time_to_seconds(time));	
+}
+function test_should_return_human_for_singular_reading_time_to_seconds() {
+	var time = "1 hour 1 minute 1 second"
+	assertEquals(3661, evaluate_time_to_seconds(time));	
+
 }
 
 function test_should_return_0_when_failed_to_eval_the_time() {

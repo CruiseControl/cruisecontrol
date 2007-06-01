@@ -37,16 +37,20 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ForceBuildCommand;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -55,19 +59,31 @@ public class LatestBuildsListingController implements Controller {
 
     private final BuildSummaryUIService buildSummaryUIService;
 
+    private static final int CACHE_MILLISECONDS = 5000;
+
+    private long lastScanTime = 0;
+
+    private Map cachedDataMap;
+
     public LatestBuildsListingController(BuildSummariesService buildSummaryService,
-                                         BuildSummaryUIService buildSummaryUIService) {
+            BuildSummaryUIService buildSummaryUIService) {
         this.buildSummariesService = buildSummaryService;
         this.buildSummaryUIService = buildSummaryUIService;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        Map model = new HashMap();
-        List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
-        model.put("buildSummaries", buildSummaryUIService.transform(allProjectsBuildSummaries));
-        model.put("command", new ForceBuildCommand());
-        model.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
-        return new ModelAndView("latestBuilds", model);
+    public synchronized ModelAndView handleRequest(HttpServletRequest request,
+            HttpServletResponse response) throws ServletException, IOException {
+        long now = new Date().getTime();
+        if (lastScanTime == 0 || (now - lastScanTime) > CACHE_MILLISECONDS) {
+            lastScanTime = now;
+            cachedDataMap = new HashMap();
+            List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
+            cachedDataMap.put("buildSummaries", buildSummaryUIService
+                    .transform(allProjectsBuildSummaries));
+            cachedDataMap.put("command", new ForceBuildCommand());
+            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
+                    allProjectsBuildSummaries));
+        }
+        return new ModelAndView("page_latest_builds", cachedDataMap);
     }
 }

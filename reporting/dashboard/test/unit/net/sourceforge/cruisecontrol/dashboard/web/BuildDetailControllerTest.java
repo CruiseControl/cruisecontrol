@@ -47,10 +47,11 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.PluginOutputService;
+import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemFixture;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
+import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
@@ -59,8 +60,11 @@ import org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResol
 public class BuildDetailControllerTest extends SpringBasedControllerTests {
 
     private BuildDetailController controller;
+
     private Configuration configuration;
+
     private File tmpFile;
+
     private PropertiesMethodNameResolver projectDetailResolver;
 
     protected void onControllerSetup() throws Exception {
@@ -84,6 +88,10 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         getRequest().setRequestURI("/detail/" + projectName + "/" + name);
     }
 
+    private BuildDetail getBuildDetail(BuildCommand buildCommand) {
+        return (BuildDetail) buildCommand.getBuild();
+    }
+
     public void testShouldBeAbleToShowFailedTestCasesForFailedBuild() throws Exception {
         prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
         ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
@@ -98,29 +106,25 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         BuildTestCase testCase = (BuildTestCase) suite.getFailingTestCases().get(0);
         assertEquals("testSomething", testCase.getName());
         assertEquals("3.807", testCase.getDuration());
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
-                testCase.getClassname());
+        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", testCase
+                .getClassname());
         assertEquals("junit.framework.AssertionFailedError: Error during schema validation \n"
                 + "\tat junit.framework.Assert.fail(Assert.java:47)", testCase.getMessageBody());
         assertEquals(1, suite.getErrorTestCases().size());
         testCase = (BuildTestCase) suite.getErrorTestCases().get(0);
         assertEquals("testFourConnected", testCase.getName());
         assertEquals("0.016", testCase.getDuration());
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
-                testCase.getClassname());
+        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", testCase
+                .getClassname());
         assertEquals("java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor\n"
-                + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)",
-                testCase.getMessageBody());
-    }
-
-    private BuildDetail getBuildDetail(BuildCommand buildCommand) {
-        return (BuildDetail) buildCommand.getBuild();
+                + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)", testCase
+                .getMessageBody());
     }
 
     public void testShouldBeAbleToFindArtifactsForSuccessfulBuildOfConfiguredProject() throws Exception {
         prepareRequest(DataUtils.getPassingBuildLbuildAsFile().getName(), "project1");
         ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("buildDetail", mav.getViewName());
+        assertEquals("page_build_detail", mav.getViewName());
         BuildCommand buildCommand = (BuildCommand) mav.getModel().get("build");
         BuildDetail build = getBuildDetail(buildCommand);
         String artifacts = build.getArtifacts().toString();
@@ -135,42 +139,15 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
         Map model = mav.getModel();
         String buildDuration = (String) model.get("durationToSuccessfulBuild");
-        assertEquals("N/A", buildDuration);
-    }
-
-    public void testShouldBeAbleToGetLastestSuccessfulBuild() throws Exception {
-        File folder = DataUtils.getFailedBuildLbuildAsFile().getParentFile();
-        tmpFile = FilesystemFixture.createFile("log19990704155710Lbuild.489.xml", folder);
-        prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
-        ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
-        Map model = mav.getModel();
-        String buildDuration = (String) model.get("durationToSuccessfulBuild");
-        assertTrue(StringUtils.contains(buildDuration, "days"));
-        assertTrue(StringUtils.contains(buildDuration, "hours"));
-        assertTrue(StringUtils.contains(buildDuration, "minutes"));
-        assertTrue(StringUtils.contains(buildDuration, "seconds"));
-        assertTrue(StringUtils.contains(buildDuration, "ago"));
-    }
-
-    public void testShouldBeAbleToGetLastestSuccessfulBuildWithoutDays() throws Exception {
-        File folder = DataUtils.getFailedBuildLbuildAsFile().getParentFile();
-        tmpFile = FilesystemFixture.createFile("log20051209112103Lbuild.489.xml", folder);
-        prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
-        ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
-        Map model = mav.getModel();
-        String buildDuration = (String) model.get("durationToSuccessfulBuild");
-        assertFalse(StringUtils.contains(buildDuration, "days"));
-        assertTrue(StringUtils.contains(buildDuration, "hours"));
-        assertFalse(StringUtils.contains(buildDuration, "minutes"));
-        assertFalse(StringUtils.contains(buildDuration, "seconds"));
-        assertTrue(StringUtils.contains(buildDuration, "ago"));
+        assertEquals("1 seconds ago", buildDuration);
     }
 
     public void testShouldBeAbleToShowFailedCheckStyleForFailedBuild() throws Exception {
         prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
         ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
-        assertTrue(StringUtils.contains((String) build.getPluginOutputs().get("Merged Check Style"), "Parser.java"));
+        assertTrue(StringUtils.contains((String) build.getPluginOutputs().get("Merged Check Style"),
+                "Parser.java"));
     }
 
     public void setProjectDetailResolver(PropertiesMethodNameResolver resolver) {
@@ -180,29 +157,41 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
     public void testShouldBeAbleToInvokePluginOutputServiceStub() throws Exception {
         prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
         BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService());
-        BuildDetailController newController = new BuildDetailController(new BuildService(configuration), service,
-                new PluginOutputServiceStub(configuration), new BuildSummaryUIService(service));
+        BuildDetailController newController =
+                new BuildDetailController(new BuildService(configuration), service, new WidgetPluginService(
+                        configuration) {
+                    public void mergePluginOutput(BuildDetail build, Map parameters) {
+                        build.addPluginOutput("checkstyle", "some thing got wrong");
+                    }
+                }, new BuildSummaryUIService(service), null);
         newController.setMethodNameResolver(projectDetailResolver);
         ModelAndView mav = newController.handleRequest(getRequest(), getResponse());
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
         assertEquals("some thing got wrong", build.getPluginOutputs().get("checkstyle"));
     }
 
-    private static class PluginOutputServiceStub extends PluginOutputService {
-        public PluginOutputServiceStub(Configuration configuration) {
-            super(configuration);
-        }
-
-        public void mergePluginOutput(BuildDetail build, Map parameters) {
-            build.addPluginOutput("checkstyle", "some thing got wrong");
-        }
+    public void testShouldPassWebContextRootToWidgets() throws Exception {
+        prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
+        getRequest().setContextPath("any_new_context_path");
+        BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService());
+        BuildDetailController newController =
+                new BuildDetailController(new BuildService(configuration), service, new WidgetPluginService(
+                        configuration) {
+                    public void mergePluginOutput(BuildDetail build, Map parameters) {
+                        build.addPluginOutput("checkstyle", parameters.get(Widget.PARAM_WEB_CONTEXT_PATH));
+                    }
+                }, new BuildSummaryUIService(service), null);
+        newController.setMethodNameResolver(projectDetailResolver);
+        ModelAndView mav = newController.handleRequest(getRequest(), getResponse());
+        BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
+        assertEquals("any_new_context_path", build.getPluginOutputs().get("checkstyle"));
     }
 
     public void testShouldBeAbleToGetCheckstyleInfoAndMergeItToBuild() throws Exception {
         prepareRequest("log20051209122103.xml", "project2");
         ModelAndView mav = this.controller.handleRequest(getRequest(), getResponse());
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
-        assertTrue(StringUtils.contains((String) build.getPluginOutputs().get("Merged Check Style"), "Parser.java"));
+        assertTrue(StringUtils.contains((String) build.getPluginOutputs().get("Merged Check Style"),
+                "Parser.java"));
     }
-
 }

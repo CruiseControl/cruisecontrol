@@ -12,7 +12,7 @@ import org.xml.sax.SAXException;
  */
 public class CompositeExtractor extends SAXBasedExtractor {
 
-    private static final RuntimeException SHOULD_STOP_EXCEPTION = new ShouldStopParsingException();
+    private static final SAXException SHOULD_STOP_EXCEPTION = new ShouldStopParsingException("");
 
     private final SAXBasedExtractor[] handlers;
 
@@ -48,7 +48,7 @@ public class CompositeExtractor extends SAXBasedExtractor {
         throwExceptionIfCanStop();
     }
 
-    private void throwExceptionIfCanStop() {
+    private void throwExceptionIfCanStop() throws SAXException {
         for (int i = 0; i < handlers.length; i++) {
             if (!handlers[i].canStop()) {
                 return;

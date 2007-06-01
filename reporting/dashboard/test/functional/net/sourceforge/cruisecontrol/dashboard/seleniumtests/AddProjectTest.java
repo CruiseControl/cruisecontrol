@@ -36,7 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
+import java.io.File;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -44,11 +47,13 @@ public class AddProjectTest extends SeleniumTestCase {
 
     private String originalText = "";
 
+    private File addProjectTestProject;
+
     public void testShouldBeAbleToAddNewProjectToConfigXml() throws Exception {
         selenium.open("/dashboard/admin/config");
         String text = selenium.getText("configFileContent");
         assertFalse(StringUtils.contains(text, "addProjectTestProject"));
-        selenium.open("/dashboard/admin/project/add");
+        selenium.open("/dashboard/admin/action/add");
         selenium.type("projectName", "addProjectTestProject");
         selenium.type("url", "valid");
         selenium.click("addButton");
@@ -59,13 +64,39 @@ public class AddProjectTest extends SeleniumTestCase {
         assertTrue(StringUtils.contains(text, "addProjectTestProject"));
         selenium.open("/dashboard/dashboard?s=1");
         assertTrue(selenium.isTextPresent("addProjectTestProject"));
+        selenium.open("/dashboard/forcebuild.ajax?projectName=addProjectTestProject");
+        selenium.open("/dashboard/dashboard?s=1");
+        createLogFile();
+        Thread.sleep(19000);
+        String htmlSource = selenium.getHtmlSource();
+        assertTrue(StringUtils.contains(htmlSource, "detail/live/addProjectTestProject"));
+        assertTrue(StringUtils.contains(htmlSource, "list/all/addProjectTestProject"));
+        assertTrue(StringUtils.contains(htmlSource, "list/passed/addProjectTestProject"));
+        assertFalse(selenium.isTextPresent("NaN"));
+        selenium.click("addProjectTestProject_config_panel");
+        assertTrue(selenium.isVisible("toolkit_addProjectTestProject"));
+        Thread.sleep(35000);
+        htmlSource = selenium.getHtmlSource();
+        String exptectedBar = "id=\"addProjectTestProject_bar\" class=\"bar round_corner failed";
+        assertTrue(StringUtils.contains(htmlSource, exptectedBar));
+        assertTrue(StringUtils.contains(htmlSource, "detail/addProjectTestProject"));
+    }
+
+    private void createLogFile() throws Exception {
+        File root = DataUtils.getConfigXmlOfWebApp().getParentFile();
+        File logs = new File(root, "logs");
+        addProjectTestProject = new File(logs, "addProjectTestProject");
+        addProjectTestProject.mkdir();
+        File log = new File(addProjectTestProject, "log20051209122103.xml");
+        log.createNewFile();
     }
 
     protected void doTearDown() throws Exception {
-        FileUtils.writeStringToFile(DataUtils.getConfigXmlAsFile(), originalText);
+        FileUtils.deleteDirectory(addProjectTestProject);
+        FileUtils.writeStringToFile(DataUtils.getConfigXmlOfWebApp(), originalText);
     }
 
     protected void doSetUp() throws Exception {
-        originalText = FileUtils.readFileToString(DataUtils.getConfigXmlAsFile(), null);
+        originalText = FileUtils.readFileToString(DataUtils.getConfigXmlOfWebApp(), null);
     }
 }

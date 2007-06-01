@@ -40,12 +40,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.joda.time.DateTime;
 
 public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
+    public CruiseControlJMXServiceStub() {
+        super(null);
+    }
+
     private static final int DEFAULT_HTTP_PORT = 8000;
 
     private static final int WAITING_LOOP = 6;
@@ -133,12 +139,12 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
         }
     }
 
-    public void fourceBuild(String projectName) throws Exception {
+    public void fourceBuild(String projectName) {
         projectStatues.put(projectName, BOOTSTRAPPING);
     }
 
     public String[] getBuildOutput(String projectName, int firstLine) {
-        return new String[]{"Build Failed.\nBuild Duration: 0s"};
+        return new String[] {"Build Failed.\nBuild Duration: 0s"};
     }
 
     public int getHttpPortForMBeanConsole() {

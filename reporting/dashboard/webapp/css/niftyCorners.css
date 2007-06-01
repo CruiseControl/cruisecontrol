@@ -1,3 +1,7 @@
+/* Draws rounded corners on divs by adding b elements with successively narrower side margins */
+
+/* From http://www.html.it/articoli/nifty/index.html */
+
 .rtop,.rbottom{display:block}
 .rtop *,.rbottom *{display:block;height: 1px;overflow: hidden}
 .r1{margin: 0 5px}

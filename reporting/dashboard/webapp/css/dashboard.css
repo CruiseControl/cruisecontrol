@@ -34,7 +34,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/dashboard.css */
+ 
+/* Styles for the compact dashboard overview */
+
+/* styles for yui-u are active on the Dashboard tab */
+/* styles for yui-g are active on the Builds tab */
 
 .tabContent {
 	clear : both;
@@ -131,58 +135,62 @@ div#tabContent2.tabContent {
 	background : #eee url( ../images/roundrect_header_right.gif ) right top no-repeat;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder {
+/* Toolbar */
+
+#project_summary_panel.yui-g .tools_bar_holder {
 	width : 29%;
 	float : left;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder div.title, #project_summary_panel.yui-g .actions_bar_holder div.projects_summary {
+#project_summary_panel.yui-g .tools_bar_holder div.title, #project_summary_panel.yui-g .tools_bar_holder div.projects_summary {
 	width : 100%;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder div.entry a {
+#project_summary_panel.yui-g .tools_bar_holder div.entry a {
 	display : block;
 	padding : 10px 10px 10px 40px;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder div.entry {
+#project_summary_panel.yui-u .tools_bar_holder div.entry {
 	padding : 0;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder div.entry a {
+#project_summary_panel.yui-u .tools_bar_holder div.entry a {
 	display : block;
 	padding : 5px 0 5px 30px;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder #add_project.entry a {
+/* Add icons for toolbar activities */
+
+#project_summary_panel.yui-g .tools_bar_holder #add_project.entry a {
 	background : url( ../images/icon-add-project.gif ) 10px center no-repeat;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder #add_project.entry a {
+#project_summary_panel.yui-u .tools_bar_holder #add_project.entry a {
 	background : url( ../images/icon-add-project.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder #rss_feed_for_all.entry a {
+#project_summary_panel.yui-g .tools_bar_holder #rss_feed_for_all.entry a {
 	background : url( ../images/rssicon_small.gif ) 10px center no-repeat;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder #rss_feed_for_all.entry a {
+#project_summary_panel.yui-u .tools_bar_holder #rss_feed_for_all.entry a {
 	background : url( ../images/rssicon_small.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder #configure_panel.entry a {
+#project_summary_panel.yui-g .tools_bar_holder #configure_panel.entry a {
 	background : url( ../images/icon-configure-panel.gif ) 10px center no-repeat;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder #configure_panel.entry a {
+#project_summary_panel.yui-u .tools_bar_holder #configure_panel.entry a {
 	background : url( ../images/icon-configure-panel.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g .actions_bar_holder #cctray.entry a {
+#project_summary_panel.yui-g .tools_bar_holder #cctray.entry a {
 	background : url( ../images/cctrayicon_small.gif ) 10px center no-repeat;
 }
 
-#project_summary_panel.yui-u .actions_bar_holder #cctray.entry a {
+#project_summary_panel.yui-u .tools_bar_holder #cctray.entry a {
 	background : url( ../images/cctrayicon_small.gif ) left center no-repeat;
 }
 
@@ -192,7 +200,7 @@ div#tabContent2.tabContent {
 	padding : 10px 10px 10px 30px;
 	display : block;
 	float : left;
-	white-space : nowrap;
+	width : 31%;
 }
 
 #project_summary_panel.yui-u div.entry_set span.info {
@@ -206,8 +214,18 @@ div#tabContent2.tabContent {
 	padding-left : 0;
 }
 
+#project_summary_panel.yui-g div.entry_set span.info.total {
+	position : absolute;
+	width : 19%;
+}
+
+
 #project_summary_panel div.entry_set span.info.passed {
 	background : url( ../images/icon-success-medium.gif ) left center no-repeat;
+}
+
+#project_summary_panel.yui-g div.entry_set span.info.passed {
+	margin-left : 20%;
 }
 
 #project_summary_panel div.entry_set span.info.failed {
@@ -216,6 +234,11 @@ div#tabContent2.tabContent {
 
 #project_summary_panel div.entry_set span.info.building {
 	background : url( ../images/icon-building-medium.gif ) left center no-repeat;
+}
+
+#project_summary_panel.yui-g div.entry_set span.info.building {
+	clear : left;
+	margin-left : 20%;
 }
 
 #project_summary_panel div.entry_set span.info.inactive {
@@ -242,17 +265,19 @@ div#tabContent2.tabContent {
 	margin-top : 1em;
 }
 
-.yui-g .projects_summary .summary {
-	float : right;
-	margin-right : 1em;
-	margin-top : 0.8em;
-	margin-bottom : 0.8em;	
+.yui-g .projects_summary div.summary {
+	display : block;
+	clear : left;
+	margin-left : 57%;
+	padding-left : 32px;
+	padding-top : 1.8em;
+	margin-bottom : 1.8em;	
 }
 
 #project_summary_panel.yui-g div.entry_set div.summary span#statistics_rate.summary, #project_summary_panel.yui-u div.entry_set div.summary span#statistics_rate.summary {
 	display : inline;
 	float : none;
-	padding-left : 1em;
+	padding-left : 0.3em;
 	font-weight : bold;
 }
 

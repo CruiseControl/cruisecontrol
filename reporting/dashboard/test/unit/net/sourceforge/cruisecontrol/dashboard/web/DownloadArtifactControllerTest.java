@@ -42,7 +42,7 @@ import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
-    private DownloadArtifactController controller;
+    private DownloadController controller;
 
     private Configuration configuration;
 
@@ -50,7 +50,7 @@ public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
         this.configuration = configuration;
     }
 
-    public void setDownloadArtifactController(DownloadArtifactController controller) {
+    public void setDownloadController(DownloadController controller) {
         this.controller = controller;
     }
 
@@ -59,12 +59,11 @@ public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
         configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
         String logDirPath = DataUtils.getProjectLogDirAsFile().getAbsolutePath();
         configuration.setCruiseLogfileLocation(logDirPath);
-        getRequest().addParameter("project", "project1");
     }
 
     private void prepareRequest(String artifacts) {
         getRequest().setMethod("GET");
-        getRequest().setRequestURI("/project/project1/log20051209122103Lbuild.489.xml/" + artifacts);
+        getRequest().setRequestURI("/download/artifacts/project1/log20051209122103Lbuild.489.xml/" + artifacts);
     }
 
     public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
@@ -79,14 +78,14 @@ public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
     public void testShouldRenderErrorPageIfFileNotExist() throws Exception {
         prepareRequest("IDontExist");
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("error", mov.getViewName());
+        assertEquals("page_error", mov.getViewName());
         assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
     }
 
     public void testShouldRenderErrorPageIfGivenFileIsDirectory() throws Exception {
         prepareRequest("subdir");
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("error", mov.getViewName());
+        assertEquals("page_error", mov.getViewName());
         assertEquals("File can not be read.", mov.getModel().get("errorMessage"));
     }
 

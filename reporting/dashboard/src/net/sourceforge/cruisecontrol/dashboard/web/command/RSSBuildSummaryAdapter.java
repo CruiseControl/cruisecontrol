@@ -63,12 +63,13 @@ public class RSSBuildSummaryAdapter implements XmlAdapter {
 
     public String toXml() {
         StringBuffer sb = new StringBuffer();
-        sb.append("  <item>").append('\n').append("    <title>").append(getProjectName()).append(" ")
-                .append(getStatus()).append(" ").append(getPubDate()).append("</title>")
-                .append('\n').append("    <description>Build ").append(getStatus()).append("</description>")
-                .append('\n').append("    <pubDate>").append(getPubDate())
-                .append("</pubDate>").append('\n').append("    <link>").append(baseURL).append("</link>").append('\n')
-                .append("  </item>").append('\n');
+        sb.append("  <item>").append('\n').append("    <title>").append(getProjectName()).append(
+                " ").append(getStatus()).append(" ").append(getPubDate()).append("</title>")
+                .append('\n').append("    <description>Build ").append(getStatus()).append(
+                        "</description>").append('\n').append("    <pubDate>").append(getPubDate())
+                .append("</pubDate>").append('\n').append("    <link>").append(baseURL).append(
+                        "build/detail/").append(getProjectName()).append("</link>").append('\n').append(
+                        "  </item>").append('\n');
         return sb.toString();
     }
 

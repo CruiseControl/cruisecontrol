@@ -76,11 +76,11 @@ public class BuildSummaryUIService {
         String status = command.getBuild().getStatus();
         String projectName = command.getBuild().getProjectName();
         if (ProjectBuildStatus.FAILED.getStatus().equals(status)) {
-            Build earliesFailedBuild = buildSummariesService.getEaliestFailed(projectName, command.getBuild()
-                    .getBuildDate());
+            Build earliesFailedBuild =
+                    buildSummariesService.getEaliestFailed(projectName, command.getBuild().getBuildDate());
             command.updateFailedCSS(earliesFailedBuild);
         } else if (ProjectBuildStatus.PASSED.getStatus().equals(status)) {
-            Build lastSucceed = buildSummariesService.getLastSucceed(projectName, new DateTime());
+            Build lastSucceed = buildSummariesService.getEarliestSucceeded(projectName, new DateTime());
             command.updatePassedCss(lastSucceed);
         } else {
             command.updateDefaultCss();
@@ -98,8 +98,7 @@ public class BuildSummaryUIService {
                     adapter = new RSSBuildSummaryAdapter(baseUrl, buildSummary);
                 } else {
                     adapter = new CCTrayBuildSummaryAdapter(baseUrl, buildSummary);
-                    buildSummary.updateStatus((String) buildStatuses.get(buildSummary
-                            .getProjectName()));
+                    buildSummary.updateStatus((String) buildStatuses.get(buildSummary.getProjectName()));
                 }
                 sb.append(adapter.toXml());
             }

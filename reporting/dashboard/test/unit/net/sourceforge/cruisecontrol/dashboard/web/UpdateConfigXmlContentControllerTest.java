@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.apache.commons.io.FileUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -60,7 +62,7 @@ public class UpdateConfigXmlContentControllerTest extends TestCase {
     private File configFile;
 
     protected void setUp() throws Exception {
-        configuration = new Configuration(new ConfigXmlFileService(new OSEnvironment()));
+        configuration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
         configFile = DataUtils.createDefaultCCConfigFile();
         configuration.setCruiseConfigLocation(configFile.getPath());
         request = new MockHttpServletRequest();
@@ -71,22 +73,25 @@ public class UpdateConfigXmlContentControllerTest extends TestCase {
     public void testShouldShowFormViewWithSuccessMessageAfterUpdatingConfig() throws Exception {
         request.addParameter("configFileContent", configFileContent);
         assertFalse(configFileContent.equals(FileUtils.readFileToString(configFile, null)));
-        UpdateConfigXmlContentController controller = new UpdateConfigXmlContentController(configuration);
+        UpdateConfigXmlContentController controller =
+                new UpdateConfigXmlContentController(configuration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("redirect:/admin/config", mov.getViewName());
-        Assert.assertEquals(AdminController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY, mov.getModel()
-                .get("flash_message"));
+        Assert.assertEquals(UpdateConfigXmlContentController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY, mov
+                .getModel().get("edit_flash_message"));
         assertTrue(configFileContent.equals(FileUtils.readFileToString(configFile, null)));
     }
 
     public void testShouldShowFormViewWithErrorMessageIfConfigFileIsNotValidXML() throws Exception {
         request.addParameter("configFileContent", "some thing wrong");
         assertFalse("some thing wrong".equals(FileUtils.readFileToString(configFile, null)));
-        UpdateConfigXmlContentController controller = new UpdateConfigXmlContentController(configuration);
+        UpdateConfigXmlContentController controller =
+                new UpdateConfigXmlContentController(configuration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
-        assertEquals("admin", mov.getViewName());
-        //TODO
-        //assertEquals(AdminController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY, mov.getModel().get("message"));
+        assertEquals("page_admin", mov.getViewName());
+        // TODO
+        // assertEquals(AdminController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY,
+        // mov.getModel().get("message"));
         assertFalse("some thing wrong".equals(FileUtils.readFileToString(configFile, null)));
     }
 }

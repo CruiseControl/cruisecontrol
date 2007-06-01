@@ -39,11 +39,10 @@ package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 import java.net.InetAddress;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
-
 public class LatestBuildsTest extends BaseFunctionalTest {
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldBeAbleToVisitTheButton() throws Exception {

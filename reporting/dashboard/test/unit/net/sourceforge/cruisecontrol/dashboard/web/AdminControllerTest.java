@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -50,7 +52,8 @@ import org.springframework.web.servlet.ModelAndView;
 public class AdminControllerTest extends TestCase {
     private Configuration editConfiguration;
 
-    private final String configFileContent = "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n";
+    private final String configFileContent =
+            "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n";
 
     private File configFile;
 
@@ -62,18 +65,20 @@ public class AdminControllerTest extends TestCase {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         configFile = DataUtils.createDefaultCCConfigFile();
-        editConfiguration = new Configuration(new ConfigXmlFileService(new OSEnvironment()));
+        editConfiguration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
         editConfiguration.setCruiseConfigLocation(configFile.getPath());
     }
 
     public void testViewNameShouldBeAdminWhenGetIt() throws Exception {
-        AdminController controller = new AdminController(editConfiguration);
+        AdminController controller =
+                new AdminController(editConfiguration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
-        assertEquals("admin", mov.getViewName());
+        assertEquals("page_admin", mov.getViewName());
     }
 
     public void testShouldShowExistingConfigFileLocationAndContentIfItHasBeenSet() throws Exception {
-        AdminController controller = new AdminController(editConfiguration);
+        AdminController controller =
+                new AdminController(editConfiguration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
         ConfigurationCommand command = (ConfigurationCommand) mov.getModel().get("command");
         assertEquals(configFile.getAbsolutePath(), command.getConfigFileLocation());
@@ -82,7 +87,8 @@ public class AdminControllerTest extends TestCase {
     }
 
     public void testShouldPutIsConfigurationEditableInputModel() throws Exception {
-        AdminController controller = new AdminController(editConfiguration);
+        AdminController controller =
+                new AdminController(editConfiguration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
         assertNotNull(mov.getModel().get("isConfigFileEditable"));
     }

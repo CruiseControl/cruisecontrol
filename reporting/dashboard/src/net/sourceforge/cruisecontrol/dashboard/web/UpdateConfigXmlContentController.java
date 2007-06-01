@@ -41,6 +41,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.validator.ConfigXmlContentValidator;
 import org.springframework.validation.BindException;
@@ -48,31 +49,34 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
 public class UpdateConfigXmlContentController extends SimpleFormController {
-    public static final String CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY = "Configuration has been updated "
-            + "successfully";
+    public static final String CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY =
+            "Configuration has been updated successfully";
 
     private Configuration configuration;
 
-    public UpdateConfigXmlContentController(Configuration configuration) {
+    private final EnvironmentService service;
+
+    public UpdateConfigXmlContentController(Configuration configuration, EnvironmentService service) {
         this.configuration = configuration;
+        this.service = service;
         this.setCommandClass(ConfigurationCommand.class);
         this.setValidator(new ConfigXmlContentValidator());
-        this.setFormView("admin");
+        this.setFormView("page_admin");
     }
 
-    protected ModelAndView showForm(HttpServletRequest request, HttpServletResponse response, BindException errors)
-            throws Exception {
+    protected ModelAndView showForm(HttpServletRequest request, HttpServletResponse response,
+            BindException errors) throws Exception {
         ModelAndView mov = new ModelAndView(this.getFormView());
-        mov.getModel().put("isConfigFileEditable", Boolean.valueOf(configuration.isConfigFileEditable()));
+        mov.getModel().put("isConfigFileEditable", Boolean.valueOf(service.isConfigFileEditable()));
         mov.getModel().putAll(errors.getModel());
         return mov;
     }
 
     protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
-                                    BindException errors) throws Exception {
+            BindException errors) throws Exception {
         configuration.updateConfigFile(request.getParameter("configFileContent"));
         Map model = new HashMap();
-        model.put("flash_message", CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY);
+        model.put("edit_flash_message", CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY);
         return new ModelAndView("redirect:/admin/config", model);
     }
 }

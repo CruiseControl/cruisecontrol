@@ -34,29 +34,79 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override /css/build_common.css */
 
 .relative_box{
 	position:relative;
 }
+
+/* Define status colours across the entire site */
+
 .passed {
-    background-color: #E8F1BF;
+    background-color: #B6FFB1;
     color : #030;
 }
-.long_passed {
-    background-color: #D1E37F;
-    color : #300;
+.passed_level_0 {
+    background-color: #51FF51;
+}
+.passed_level_1 {
+    background-color: #00FF00;
+}
+.passed_level_2 {
+    background-color: #00EE00;
+}
+.passed_level_3 {
+    background-color: #00CD00;
+}
+.passed_level_4 {
+    background-color: #009900;
+}
+.passed_level_5 {
+    background-color: #008b00;
+}
+.passed_level_6 {
+    background-color: #008000;
+}
+.passed_level_7 {
+    background-color: #006400;
+}
+.passed_level_8 {
+    background-color: #004F00;
 }
 
 .failed {
-    background-color: #F5CDCF;
+    background-color: #FFC2C9;
     color : #300;
 }
 
-.long_failed {
-    background-color: #EC9C9F;
-    color : #300;
+.failed_level_0 {
+    background-color: #FF5A5A;
 }
+.failed_level_1 {
+    background-color: #FF4646;
+}
+.failed_level_2 {
+    background-color: #FF4141;
+}
+.failed_level_3 {
+    background-color: #FF3c3c;
+}
+.failed_level_4 {
+    background-color: #FF3737;
+}
+.failed_level_5 {
+    background-color: #FF2828;
+}
+.failed_level_6 {
+    background-color: #FF1d1d;
+}
+.failed_level_7 {
+    background-color: #F50000;
+}
+.failed_level_8 {
+    background-color: #ee0000;
+}
+
+/* Only one grade of colour for building and inactive projects */
 
 .building {
     background-color: #f9d861;
@@ -68,19 +118,17 @@
     color : #666;
 }
 
+/* Colours for rounded corners (see niftyCorners.css) */
+
 .r1 {background:white;}
 
-.passed .r2{background:#E8F1BF;}
-.passed .r3{background:#E8F1BF;}
-.passed .r4{background:#E8F1BF;}
+.passed .r2{background:#B6FFB1;}
+.passed .r3{background:#B6FFB1;}
+.passed .r4{background:#B6FFB1;}
 
-.long_passed .r2{background:#D1E37F;}
-.long_passed .r3{background:#D1E37F;}
-.long_passed .r4{background:#D1E37F;}
-
-.failed .r2{background:#F5CDCF;}
-.failed .r3{background:#F5CDCF;}
-.failed .r4{background:#F5CDCF;}
+.failed .r2{background:#FFC2C9;}
+.failed .r3{background:#FFC2C9;}
+.failed .r4{background:#FFC2C9;}
 
 .building .r2{background:#f9d861;}
 .building .r3{background:#f9d861;}
@@ -89,7 +137,3 @@
 .inactive .r2{background:#ccc;}
 .inactive .r3{background:#ccc;}
 .inactive .r4{background:#ccc;}
-
-.long_failed .r2{background:#EC9C9F;}
-.long_failed .r3{background:#EC9C9F;}
-.long_failed .r4{background:#EC9C9F;}

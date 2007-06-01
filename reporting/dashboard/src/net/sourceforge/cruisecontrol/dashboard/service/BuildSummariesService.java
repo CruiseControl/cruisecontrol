@@ -67,8 +67,7 @@ public class BuildSummariesService {
 
     private final Configuration configuration;
 
-    public BuildSummariesService(Configuration configuration,
-            BuildSummaryService buildSummaryService) {
+    public BuildSummariesService(Configuration configuration, BuildSummaryService buildSummaryService) {
         this.configuration = configuration;
         this.buildSummaryService = buildSummaryService;
     }
@@ -87,8 +86,8 @@ public class BuildSummariesService {
 
     public List getAllSucceed(String projectName) {
         File pjDir = configuration.getLogRoot(projectName);
-        return getBuildSummariesObject(getBuildSummariesFile(pjDir, BuildSummariesFilters
-                .succeedFilter(), Integer.MAX_VALUE));
+        return getBuildSummariesObject(getBuildSummariesFile(pjDir, BuildSummariesFilters.succeedFilter(),
+                Integer.MAX_VALUE));
     }
 
     public List getAll(String projectName) {
@@ -98,6 +97,10 @@ public class BuildSummariesService {
 
     public Build getLastSucceed(String projectName, DateTime datetime) {
         return filterBuildSummaries(projectName, BuildSummariesFilters.lastSucceedFilter(datetime));
+    }
+
+    public Build getLastFailed(String projectName, DateTime datetime) {
+        return filterBuildSummaries(projectName, BuildSummariesFilters.lastFailedFilter(datetime));
     }
 
     private Build filterBuildSummaries(String projectName, ReportableFilter filter) {
@@ -111,13 +114,23 @@ public class BuildSummariesService {
     }
 
     public Build getEaliestFailed(String projectName, DateTime datetime) {
-        Build lastReferenced = getLastSucceed(projectName, datetime);
-        if (lastReferenced == null) {
+        Build lastSucceeded = getLastSucceed(projectName, datetime);
+        if (lastSucceeded == null) {
             List summaries = getAll(projectName);
             return summaries.size() == 0 ? null : (Build) summaries.get(summaries.size() - 1);
         }
-        return filterBuildSummaries(projectName, BuildSummariesFilters
-                .earliestFailedFilter(lastReferenced.getBuildDate()));
+        return filterBuildSummaries(projectName, BuildSummariesFilters.earliestFailedFilter(lastSucceeded
+                .getBuildDate()));
+    }
+
+    public Build getEarliestSucceeded(String projectName, DateTime datetime) {
+        Build lastFailed = getLastFailed(projectName, datetime);
+        if (lastFailed == null) {
+            List summaries = getAll(projectName);
+            return summaries.size() == 0 ? null : (Build) summaries.get(summaries.size() - 1);
+        }
+        return filterBuildSummaries(projectName, BuildSummariesFilters.earliestSucceededFilter(lastFailed
+                .getBuildDate()));
     }
 
     public String getDurationFromLastSuccessfulBuild(String projectName, DateTime datetime) {

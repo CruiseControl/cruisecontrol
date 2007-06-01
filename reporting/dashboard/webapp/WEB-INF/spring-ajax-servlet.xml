@@ -47,6 +47,7 @@
             <props>
                 <prop key="/**/forcebuild.ajax">forcebuildController</prop>
                 <prop key="/**/addProjectFromVersionControl.ajax">addProjectFromVersionControlController</prop>
+                <prop key="/**/getCommitMessage.ajax">getCommitMessageController</prop>
                 <prop key="/**/getProjectBuildStatus.ajax">getProjectBuildStatusController</prop>
                 <prop key="/**/getProjectBuildOutput.ajax">getProjectBuildOutputController</prop>
                 <prop key="/**/cctray.xml">getProjectBuildStatusXmlController</prop>
@@ -74,6 +75,10 @@
     </bean>
 
     <bean id="getProjectBuildOutputController" class="net.sourceforge.cruisecontrol.dashboard.web.GetProjectBuildOutputController">
+        <constructor-arg ref="${cruise.jmx.service.imp}" />
+    </bean>
+
+    <bean id="getCommitMessageController" class="net.sourceforge.cruisecontrol.dashboard.web.GetCommitMessageController">
         <constructor-arg ref="${cruise.jmx.service.imp}" />
     </bean>
 

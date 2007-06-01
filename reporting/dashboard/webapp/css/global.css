@@ -34,7 +34,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/global.css */
 
 /* Uses icons from http://www.famfamfam.com/lab/icons/silk/ */
 
@@ -80,7 +79,7 @@ a:hover	{
 
 a {
   color:black;
-  text-decoration:none;
+  text-decoration:underline;
 }
 
 label {
@@ -152,13 +151,19 @@ div#content {
 	position :  relative;
 }
 
+/* doc3 is inherited from the Yahoo UI toolkit, it gets reset here for consistency across tab pages */
+
 #doc3 {
 	margin : 0;
 }
 
+/* Use hand cursor on build status bars where links are added in javascript */
+
 .clickable {
 	cursor:pointer;
 }
+
+/* Generic clearing div to ensure certain floated elements are enclosed by parent */
 
 div.clear {
 	clear : both;

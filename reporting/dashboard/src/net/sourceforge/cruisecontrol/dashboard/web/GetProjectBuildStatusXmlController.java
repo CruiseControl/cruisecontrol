@@ -83,7 +83,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
         writer.println("  <title>CruiseControl Results</title>");
         writer.print("  <link>");
         writer.print(getBaseURL(req));
-        writer.println("projects.html</link>");
+        writer.println("</link>");
         writer.println("  <description>Summary of the project build results.</description>");
         writer.println("  <language>en-us</language>");
         writer.println(uiService.toXml(getLatestSummariesForRSS(req), cruiseControlJMXService

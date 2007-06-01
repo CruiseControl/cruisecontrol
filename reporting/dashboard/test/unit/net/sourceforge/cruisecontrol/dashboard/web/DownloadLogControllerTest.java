@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
 import org.springframework.web.servlet.ModelAndView;
 
 public class DownloadLogControllerTest extends SpringBasedControllerTests {
-    private DownloadLogController controller;
+    private DownloadController controller;
 
     private Configuration configuration;
 
@@ -52,7 +54,7 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
         this.configuration = configuration;
     }
 
-    public void setDownloadLogController(DownloadLogController controller) {
+    public void setDownloadController(DownloadController controller) {
         this.controller = controller;
     }
 
@@ -70,7 +72,8 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
 
         assertEquals("downloadXmlView", mov.getViewName());
         String logfilePath =
-                configuration.getCruiseLogfileLocation() + File.separator + "project1" + File.separator + LOG_FILE;
+                configuration.getCruiseLogfileLocation() + File.separator + "project1"
+                        + File.separator + LOG_FILE;
         assertEquals(new File(logfilePath), mov.getModel().get("targetFile"));
     }
 
@@ -79,7 +82,7 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
 
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
 
-        assertEquals("error", mov.getViewName());
+        assertEquals("page_error", mov.getViewName());
         assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
     }
 
@@ -87,7 +90,7 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
         getRequest().setRequestURI("/download/log/project1/archives");
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
 
-        assertEquals("error", mov.getViewName());
+        assertEquals("page_error", mov.getViewName());
         assertEquals("File can not be read.", mov.getModel().get("errorMessage"));
     }
 
@@ -96,11 +99,8 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
         this.configuration.setCruiseLogfileLocation(otherFolder);
         String filePath = ".." + File.separator + ".." + File.separator + LOG_FILE;
         getRequest().setRequestURI("/download/log/project1/" + filePath);
-
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-
-        assertEquals("error", mov.getViewName());
-        assertEquals("Permission Denied: you don't have permission to download this file.",
-                mov.getModel().get("errorMessage"));
+        assertEquals("page_error", mov.getViewName());
+        assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
     }
 }

@@ -1,9 +1,0 @@
-#set($double_quote='"')
-#set($building_status="Failed")
-#set($onforcebuild="ajax_force_build(${double_quote}projectName${double_quote}, ${double_quote}${buildSummary.build.projectName}${double_quote}, event)")
-#set($project_name_href="$req.getContextPath()/detail/$buildSummary.build.projectName")
-#set($build_date_text=" at ${buildSummary.dateStringInHumanBeingReadingStyle}")
-#set($success_build_href="$req.getContextPath()/list/passed/$buildSummary.build.projectName")
-#set($all_build_href="$req.getContextPath()/list/all/$buildSummary.build.projectName")
-
-#parse ("project_status_partial.vm")

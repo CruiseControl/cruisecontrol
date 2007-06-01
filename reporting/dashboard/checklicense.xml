@@ -61,13 +61,18 @@
 			<param name="production.license.file" value="apache-license-2.0.txt" />
 		</antcall>
 		<antcall target="-check.license.exist">
-			<param name="production.library.file" value="jmxremote.jar" />
-			<param name="production.license.file" value="sun-binary-code-license.txt" />
+			<param name="production.library.file" value="mx4j.jar" />
+			<param name="production.license.file" value="mx4j-license.txt" />
 		</antcall>
 		<antcall target="-check.license.exist">
-			<param name="production.library.file" value="jmxri.jar" />
-			<param name="production.license.file" value="sun-binary-code-license.txt" />
+			<param name="production.library.file" value="mx4j-remote.jar" />
+			<param name="production.license.file" value="mx4j-license.txt" />
 		</antcall>
+		<antcall target="-check.license.exist">
+			<param name="production.library.file" value="mx4j-tools.jar" />
+			<param name="production.license.file" value="mx4j-license.txt" />
+		</antcall>
+
 		<antcall target="-check.license.exist">
 			<param name="production.library.file" value="joda-time-1.4.jar" />
 			<param name="production.license.file" value="apache-license-2.0.txt" />

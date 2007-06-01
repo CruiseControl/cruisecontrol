@@ -181,6 +181,7 @@ public class MockProcess extends Process {
      * @see java.lang.Process#waitFor()
      */
     public int waitFor() throws InterruptedException {
+        Thread.sleep(100);
         return exitValue;
     }
 

@@ -34,7 +34,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/build_profile.css */
+
+/* Styles for summary build list page */
+
+/* Common styles for each bar */
 
 .build_profile {
     background-repeat: no-repeat;
@@ -66,9 +69,20 @@
    vertical-align: middle;
 }
 
+/* Underline links to clarify user path */
+
 .build_profile a.clickable_target {
-	text-decoration : none;
+	text-decoration : underline;
 }
+
+/* Inactive builds aren't clickable so remove the link cues */
+
+.build_profile_inactive a.clickable_target {
+	text-decoration : none;
+	cursor : default;
+}
+
+/* Set text colours for four types of build */
 
 .build_profile.passed a.clickable_target, .build_profile.passed span.no_decoration {
 	color : #030;
@@ -76,10 +90,6 @@
 
 .build_profile.failed a.clickable_target, .build_profile.failed span.no_decoration {
 	color : #300;	
-}
-
-.build_profile.long_failed a.clickable_target, .build_profile.long_failed span.no_decoration {
-	color : #300;
 }
 
 .build_profile.inactive a.clickable_target, .build_profile.inactive span.no_decoration {
@@ -94,35 +104,29 @@ div.timer span {
 	color : #C30;
 }
 
+/* Apply icons to bars as background images */
+
 .build_profile.passed {
     background-image: url( "../images/icon-success-medium.gif" );
-    border : 1px dashed #d4dbad;
-}
-
-.build_profile.long_passed {
-    background-image: url( "../images/icon-success-medium-prolonged.gif" );
-    border : 1px dashed #8aab47;
 }
 
 .build_profile.failed {
     background-image: url( "../images/icon-failure-medium.gif" );
-    border : 1px dashed #e2cdc9;	    
 }
 
 .build_profile.long_failed {
     background-image: url( "../images/icon-failure-medium-prolonged.gif" );
-    border : 1px dashed #ba5758;	    
 }
 
 .build_profile.building {
     background-image: url( "../images/icon-building-medium.gif" );
-    border : 1px dashed #e6dbb3;	    
 }
 
 .build_profile.inactive {
     background-image: url( "../images/icon-inactive-medium.gif" );
-    border : 1px dashed #ddd;	    
 }
+
+/* Icons on the right of the build bar */
 
 .control_panel {
    float:right;
@@ -146,6 +150,8 @@ div.timer span {
   padding-right:2px;
 }
 
+/* Dropdown toolkit panel */
+
 .toolkit_panel {
 	background-color:#FFFFE1;
 	position:absolute;
@@ -156,6 +162,26 @@ div.timer span {
 	height:150px;
 	width:250px;
 	z-index:3;
+}
+
+/* Add icons for RSS and JMX without having the link underline on them too */
+
+.toolkit_panel a.toolkit_rss {
+	display : block;
+	padding-left : 24px;
+	margin : 2px 0;
+	background : url(../images/rssicon_small.gif) left top no-repeat;
+	padding-top : 1px;
+	padding-bottom : 5px;
+}
+
+.toolkit_panel a.toolkit_jmx {
+	display : block;
+	padding-left : 24px;
+	margin : 2px 0;
+	background : url(../images/icon-configure-panel.gif) left top no-repeat;
+	padding-top : 1px;
+	padding-bottom : 5px;	
 }
 
 .toolkit_panel .toolkit_entry {
@@ -185,6 +211,8 @@ div.timer span {
   text-align:left;
   float:left;
 }
+
+/* Rounded corners added using the sliding doors technique on the div and its contained h1 */
 
 .buildlist_header h1 {
 	display : inline;

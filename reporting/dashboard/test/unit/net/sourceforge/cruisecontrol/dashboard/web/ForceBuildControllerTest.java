@@ -37,31 +37,41 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.Map;
+
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import junit.framework.TestCase;
+
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jdelegator.JDelegator;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
 
-public class ForceBuildControllerTest extends SpringBasedControllerTests {
+public class ForceBuildControllerTest extends TestCase {
+
+    private static final String PROJECT_NAME = "project";
 
     private CruiseControlJMXService service;
+
     private ForceBuildController controller;
 
-    protected void onControllerSetup() throws Exception {
-        super.onControllerSetup();
-        service = (CruiseControlJMXService) JDelegator.delegate(CruiseControlJMXService.class)
-                .to(new CruiseControlJMXServiceStub());
+    protected void setUp() throws Exception {
+        service = new CruiseControlJMXServiceStub();
         controller = new ForceBuildController(service);
-
     }
 
     public void testShouldBeAbleToForceBuildUsingHtmlAdapter() throws Exception {
-        String projectName = "project";
         Map allProjectsStatus = service.getAllProjectsStatus();
-        String status = (String) allProjectsStatus.get("project");
-        this.getRequest().setMethod("GET");
-        this.getRequest().addParameter("projectName", projectName);
-        controller.handleRequest(this.getRequest(), this.getResponse());
-        String status2 = (String) allProjectsStatus.get("project");
+        String status = (String) allProjectsStatus.get(PROJECT_NAME);
+        MockHttpServletRequest request = this.getRequest();
+        controller.handleRequest(request, new MockHttpServletResponse());
+        String status2 = (String) allProjectsStatus.get(PROJECT_NAME);
         assertFalse(status.equals(status2));
+    }
+
+    private MockHttpServletRequest getRequest() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.addParameter("projectName", PROJECT_NAME);
+        return request;
     }
 }

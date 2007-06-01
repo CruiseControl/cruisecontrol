@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    #parse("partial/partial_head.vm")
+    <title>CruiseControl configuration file admin</title>
+    <link href="$req.getContextPath()/css/admin.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    #parse("menu/menu_admin.vm")
+    <div id="tabscontent" class="adminPage">
+        <div id="tabContent1" class="tabContent">
+            <div id="container">
+                #if(!$isConfigFileEditable)
+                    Access to the configuration via the Dashboard has been disabled.
+                #else
+					<h1><span>Specify Configuration File</span></h1>
+                    <div class="admin_holder">
+                          <div class="info filepath">
+                              #if(!${command.configFileLocation})
+                                  <p>Please tell CruiseControl where your configuration file is. If you like, you can set the system property "cc.config" to this location and you won't be asked again.</p>
+                              #end
+                              <form id="specifyConfigLocation" name="specifyConfigLocation" action="$req.getContextPath()/admin/config/setup" method="post">
+                                  <div class="messages" id='location_message'>$!location_flash_message</div>
+                                  <div class="errors">$!error</div>
+                                  <label for="configFileLocation">Configuration File Path: </label>
+                                  #springBind("command.configFileLocation")
+                                  <div id="path_error" class="errors">#foreach($error in $status.errorMessages)<span>$error</span><br>#end</div>
+                                  <input type="text" class="txt"size="60" name="${status.expression}" id="${status.expression}" value="$!command.configFileLocation"/>
+								  <input type="submit" class="btn" id="specify_config_location_frm_submit" value="Save Location" />
+                              </form>
+                            <div class="clear">&nbsp;</div>
+                          </div>
+				    </div>
+
+					<h1><span>Edit Configuration File</span></h1>
+					<div class="admin_holder">
+                          <div class="info inlineedit">
+                              <form id="editConfig" name="editConfig" action="$req.getContextPath()/admin/config/update" method="post">
+                                  #springBind("command.configFileContent")
+                                  <div class="messages" id='edit_message'>$!edit_flash_message</div>
+                                  <div class="errors">#foreach($error in $status.errorMessages) <span id="error_${velocityCount}">$error</span><br>#end</div>
+                                  <input type="submit" class="btn" value="Save File" />
+                                  <textarea id="${status.expression}" name="${status.expression}" rows="40" cols="105">$!{status.value}</textarea><br />
+                                  #springBind("command.configFileLocation")
+                                  <input type="hidden" class="txt" name="configFileLocation" id="configFileLocation" value="$!command.configFileLocation"/><br>
+                                  <input type="submit" class="btn" value="Save File" />
+                              </form>
+                            <div class="clear">&nbsp;</div>
+                          </div>
+                    </div>
+                #end
+            </div>
+        </div>
+    </div>
+</body>
+</html>

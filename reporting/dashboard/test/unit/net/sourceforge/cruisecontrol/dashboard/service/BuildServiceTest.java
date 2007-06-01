@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.util.Collection;
 import java.util.List;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCaseResult;
@@ -48,7 +49,7 @@ import net.sourceforge.cruisecontrol.dashboard.ModificationAction;
 import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.ModifiedFile;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
@@ -63,7 +64,7 @@ public class BuildServiceTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         mockConfiguration =
                 mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {new ConfigXmlFileService(new OSEnvironment())});
+                        new Object[] {new ConfigXmlFileService(new EnvironmentService())});
         configurationMock = (Configuration) mockConfiguration.proxy();
         mockConfiguration.expects(once()).method("getArtifactRoot").will(
                 returnValue(DataUtils.getProject1ArtifactDirAsFile()));

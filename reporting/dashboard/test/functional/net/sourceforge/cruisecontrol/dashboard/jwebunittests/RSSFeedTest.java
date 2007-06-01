@@ -40,7 +40,7 @@ import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public class RSSFeedTest extends BaseFunctionalTest {
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldReturnAllActiveProjectsInfomationOfRSS() throws Exception {

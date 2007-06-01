@@ -1,7 +1,0 @@
-#foreach($pluginDisplayName in $build.build.getPluginOutputs().keySet())
-	#if($build.build.getPluginOutputs().size() > 0)
-	    <li onclick='build_detail_toggle_tab_content(this)'><a><span>$pluginDisplayName</span></a></li>
-	#else
-		<h2>No information for $pluginDisplayName</h2>
-	#end
-#end

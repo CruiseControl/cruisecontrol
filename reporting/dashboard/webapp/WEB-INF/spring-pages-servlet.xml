@@ -37,8 +37,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
  -->
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
     <import resource="propertyConfigurer.xml"/>
 
@@ -54,29 +55,25 @@
 		</property>
 		<property name="mappings">
 			<props>
-				<!--project category-->
-				<prop key="/project/download/log/**">downloadLogController</prop>
-				<prop key="/project/download/artifacts/**">downloadArtifactController</prop>
-				<prop key="/project/live/*">getActiveBuildInfoController</prop>
+				<!--main/default page-->
+				<prop key="*">latestBuildsListingController</prop>
+				<!--build category-->
+				<prop key="/download/**">downloadController</prop>
 				<prop key="/detail/**">buildDetailController</prop>
-				<!--which category-->
-				<prop key="/**/plugin/panopticode/**">panopticodeController</prop>
-				<!--list projects category-->
-				<prop key="/">latestBuildsListingController</prop>
-				<prop key="/dashboard">latestBuildsListingController</prop>
+				<!--project category-->
+				<prop key="/plugin/panopticode/**">panopticodeController</prop>
 				<prop key="/list/**">buildListingController</prop>
 				<!--admin category-->
-				<prop key="/admin/mx4j/**">mbeanConsoleController</prop>
-				<prop key="/admin/config/update">updateConfigXmlContentController</prop>
-				<prop key="/admin/config/setup">updateConfigXmlLocationController</prop>
-				<prop key="/admin/config">adminController</prop>
-				<prop key="/admin/project/add">addProjectController</prop>
+				<prop key="/mx4j/**">mbeanConsoleController</prop>
+				<prop key="/config/update">updateConfigXmlContentController</prop>
+				<prop key="/config/setup">updateConfigXmlLocationController</prop>
+				<prop key="/config">adminController</prop>
+				<prop key="/action/add">addProjectController</prop>
 			</props>
 		</property>
 	</bean>
 
     <!-- Interceptors -->
-
     <bean id="contentTypeInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.PageContentTypeInterceptor" />
     <bean id="flashMessageInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.FlashMessageInterceptor" />
     <bean id="serverNameInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.ServerNameInterceptor" />
@@ -87,15 +84,17 @@
 
 
     <!-- Controllers -->
-
 	<bean id="adminController" class="net.sourceforge.cruisecontrol.dashboard.web.AdminController">
-        <constructor-arg ref="configuration" />
+        <constructor-arg ref="configuration"/>
+		<constructor-arg ref="envService"/>
 	</bean>
 	<bean id="updateConfigXmlContentController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlContentController">
 		<constructor-arg ref="configuration" />
+		<constructor-arg ref="envService" />
 	</bean>
 	<bean id="updateConfigXmlLocationController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlLocationController">
 		<constructor-arg ref="configuration" />
+		<constructor-arg ref="envService" />
 	</bean>
 	<bean id="addProjectController" class="net.sourceforge.cruisecontrol.dashboard.web.AddProjectController" />
 	<bean id="latestBuildsListingController" class="net.sourceforge.cruisecontrol.dashboard.web.LatestBuildsListingController">
@@ -117,8 +116,9 @@
 	<bean id="buildDetailController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildDetailController">
 		<constructor-arg ref="buildService"/>
 		<constructor-arg ref="buildSummariesService"/>
-		<constructor-arg ref="pluginOutputService"/>
+		<constructor-arg ref="widgetPluginService"/>
 		<constructor-arg ref="buildSummaryUIService"/>
+		<constructor-arg ref="${cruise.jmx.service.imp}"/>
 	    <property name="methodNameResolver" ref="projectDetailResolver"/>
 	</bean>
 	<bean id="projectDetailResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
@@ -126,30 +126,35 @@
 			    <value>
 			    	/detail/*=latest
 			        /detail/*/*=history
+			        /detail/live/*=live
 			    </value>
 		  </property>
 	</bean>
-	<bean id="downloadLogController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadLogController">
+
+
+	<bean id="downloadResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		  <property name="mappings">
+			    <value>
+			    	/download/log/**=log
+			        /download/artifacts/**=artifacts
+			    </value>
+		  </property>
+	</bean>
+
+	<bean id="downloadController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadController">
 		<constructor-arg ref="configuration" />
-		<constructor-arg ref="buildService" />
+	    <property name="methodNameResolver" ref="downloadResolver"/>
 	</bean>
-	<bean id="downloadArtifactController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadArtifactController">
-		<constructor-arg ref="buildService" />
-	</bean>
-	<bean id="getActiveBuildInfoController" class="net.sourceforge.cruisecontrol.dashboard.web.GetActiveBuildInfoController">
-		<constructor-arg ref="${cruise.jmx.service.imp}" />
-		<constructor-arg ref="buildSummariesService" />
-		<constructor-arg ref="buildSummaryUIService" />
-	</bean>
+
 	<bean id="mbeanConsoleController" class="net.sourceforge.cruisecontrol.dashboard.web.MBeanConsoleController">
-		<constructor-arg ref="${cruise.jmx.service.imp}" />
+		<constructor-arg ref="envService" />
 	    <property name="methodNameResolver" ref="mx4jResolver"/>
 	</bean>
 	<bean id="mx4jResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
 		  <property name="mappings">
 			    <value>
-			    	/admin/mx4j=server
-			        /admin/mx4j/*=mbean
+			    	/mx4j=server
+			        /mx4j/*=mbean
 			    </value>
 		  </property>
 	</bean>

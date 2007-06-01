@@ -34,7 +34,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/tool_tip.css */
+
+/* Styles for popup tooltip on compact dashboard page */
+
+/* Negative margins to place the point of the tooltip's arrow at the cursor */
 
 .tooltip {
 	position: absolute;
@@ -45,12 +48,13 @@
 	z-index : 10;
 }
 
-
 .tooltip .tooltip_content {
 	border-left:  1px solid #a49e9e;
 	border-right: 1px solid #a49e9e;
     padding: 10px 10px 15px 40px ;
 }
+
+/* Draw rounded corners on tooltips - see niftyCorners.css */
 
 .tooltip .r1 {	
 	background : #a49e9e;
@@ -67,43 +71,40 @@
 	height : 16px;
 	min-height : 16px;
 }
+
+/* Icons and colours for the four states of build */
+
+/* Passing builds */
+
 .tooltip.tooltip_passed .tooltip_header {
 	background: url( '../images/tooltip-passed.gif' ) no-repeat top left;
 }
+
 .tooltip.tooltip_passed .r2, .tooltip.tooltip_passed .r3,  .tooltip.tooltip_passed .r4 {
-	background-color: #E8F1BF;
+	background-color: #B6FFB1;
 }
 
 .tooltip.tooltip_passed .tooltip_content {
-	background : #E8F1BF url( ../images/icon-success-medium.gif ) no-repeat 7px 15px;
+	background : #B6FFB1 url( ../images/icon-success-medium.gif ) no-repeat 7px 15px;
 	color : #030;
 }
 
-.tooltip.tooltip_long_passed .tooltip_header {
-	background: url( '../images/tooltip-long-passed.gif' ) no-repeat top left;
-}
-.tooltip.tooltip_long_passed .r2, .tooltip.tooltip_long_passed .r3,  .tooltip.tooltip_long_passed .r4 {
-	background-color: #D1E37F;
-}
-
-.tooltip.tooltip_long_passed .tooltip_content {
-	background : #D1E37F url( ../images/icon-success-medium-prolonged.gif ) no-repeat 7px 15px;
-	color : #030;
-}
-
+/* Failing builds */
 
 .tooltip.tooltip_failed .tooltip_header {
 	background: url( '../images/tooltip-failed.gif' ) no-repeat top left;
 }
 
 .tooltip.tooltip_failed .tooltip_content {
-	background : #F5CDCF url( ../images/icon-failure-medium.gif ) no-repeat 7px 15px;
+	background : #FFC2C9 url( ../images/icon-failure-medium.gif ) no-repeat 7px 15px;
 	color : #300;
 }
 
 .tooltip.tooltip_failed .r2, .tooltip.tooltip_failed .r3,  .tooltip.tooltip_failed .r4 {
-	background-color: #F5CDCF;
+	background-color: #FFC2C9;
 }
+
+/* In-progress builds */
 
 .tooltip.tooltip_building .tooltip_header {
 	background: url( '../images/tooltip-building.gif' ) no-repeat top left;
@@ -118,6 +119,8 @@
 	background-color: #f9d861;
 }
 
+/* Inactive builds */
+
 .tooltip.tooltip_inactive .tooltip_header {
 	background: url( '../images/tooltip-unknown.gif' ) no-repeat top left;
 }
@@ -131,23 +134,13 @@
 	background-color: #ccc;
 }
 
-
-.tooltip.tooltip_long_failed .tooltip_header {
-	background: url( '../images/tooltip-long-failed.gif' ) no-repeat left top;
-}
-
-.tooltip.tooltip_long_failed .tooltip_content {
-	background : #EC9C9F url( ../images/icon-failure-medium-prolonged.gif ) no-repeat 7px 15px;
-	color : #300;
-}
-
-.tooltip.tooltip_long_failed .r2, .tooltip.tooltip_long_failed .r3,  .tooltip.tooltip_long_failed .r4 {
-	background-color: #EC9C9F;
-}
+/* draw the bottom edge */
 
 .tooltip .rbottom {
 	background : none;
 }
+
+/* The whole tooltip will be a link so a tags within may be hidden */
 
 .tooltip a {
 	display: none;

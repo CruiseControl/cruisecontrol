@@ -34,15 +34,21 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+
+/* Popup status messages */
+
+/* Basic transparent message definition - a DirectX filter will be used to add opacity effects in IE */
+
+/* Where vendor-specific prefixes are used (as in -moz-border-radius) for rules in forthcoming specifications, the non-prefixed rule should also be included in anticipation of other user-agents supporting the same rule */
+
  .transparent_message {
-  width: 95%;
+  width : 90%;
   text-align: center;
   font-size: 30px;
   opacity:  0.8;
   position: absolute;
-  top: 20px;
+  border-radius : 10px;  
   -moz-border-radius:10px;
-	
 }
 
 .transparent_error {
@@ -53,6 +59,8 @@
 .transparent_error p {
   color: #560109;
 }
+
+/* Below are the rules for the "Your build is scheduled" message on the build list page */
 
 .transparent_notice {
   background-color: gold;
@@ -72,11 +80,14 @@
   opacity:  0.7;
 }
 
+/* On the admin page the message is displayed inline, not on top of other elements */
+
 .admin.transparent_message {
   width: 90%;
   text-align: center center;
   font-size: 12px;
   -moz-border-radius:10px;
+  border-radius : 10px;
   position:static;
 }
 

@@ -36,7 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -45,8 +46,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 public class MBeanConsoleControllerTest extends MockObjectTestCase {
 
-    private Mock serviceMock;
-
     private MBeanConsoleController controller;
 
     private MockHttpServletRequest request;
@@ -54,12 +53,13 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
     private MockHttpServletResponse response;
 
     protected void setUp() throws Exception {
-        serviceMock = mock(CruiseControlJMXService.class);
-        controller = new MBeanConsoleController((CruiseControlJMXService) serviceMock.proxy());
+        Mock mockEnvironmentService = mock(EnvironmentService.class);
+        controller =
+                new MBeanConsoleController((EnvironmentService) mockEnvironmentService.proxy());
         request = new MockHttpServletRequest();
         request.setMethod("GET");
         response = new MockHttpServletResponse();
-        serviceMock.expects(once()).method("getHttpPortForMBeanConsole").will(returnValue(8000));
+        mockEnvironmentService.expects(once()).method("getJmxPort").will(returnValue(8000));
     }
 
     private void prepareRequest() {
@@ -85,15 +85,14 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
     public void testShouldReturnContextPathForSpecificProject() throws Exception {
         prepareRequest("project1");
         ModelAndView mov = controller.mbean(request, response);
-        assertEquals("mbean?objectname=CruiseControl+Project%3Aname%3Dproject1", mov.getModel()
-                .get("context"));
+        assertEquals("mbean?objectname=CruiseControl Project:name=project1", mov.getModel().get(
+                "context"));
     }
 
-    public void testShouldReplaceSpaceWithPlusInLinkWhenProjectNameContainsSpace() throws Exception {
+    public void testShouldNotEscapeForProjectName() throws Exception {
         prepareRequest("project name with space");
         ModelAndView mov = controller.mbean(request, response);
-        assertEquals("mbean?objectname=CruiseControl+Project%3Aname%3Dproject+name+with+space", mov
-                .getModel().get("context"));
+        assertEquals("project name with space", mov.getModel().get("projectName"));
     }
 
     public void testShouldReturnProjectName() throws Exception {

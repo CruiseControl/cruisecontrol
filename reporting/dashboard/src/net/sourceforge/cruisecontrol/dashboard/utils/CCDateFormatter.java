@@ -45,22 +45,25 @@ import org.joda.time.format.DateTimeFormatter;
 public final class CCDateFormatter {
 
     private static final int DATE_START = 3;
+
     private static final int DATE_END = 17;
+
     private static final int MILLONS_OF_DAY = 1000 * 3600 * 24;
 
     private static DateTimeFormatter yyyyMMddHHmmssPattern = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+
     private static SimpleDateFormat yyyyMMddHHmmssSimpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
 
     private CCDateFormatter() {
     }
 
     public static String duration(long timeSpan) {
-        String when = timeSpan > 0 ? " ago" : " later";
+        String when = timeSpan > 0 ? "ago" : "later";
         long days = timeSpan / CCDateFormatter.MILLONS_OF_DAY;
-        if (days == 0) {
-            return DateUtil.formatTime(timeSpan) + when;
-        }
-        return days + " days " + DateUtil.formatTime(timeSpan - days * CCDateFormatter.MILLONS_OF_DAY) + when;
+        String daysString = days == 0 ? "" : days + " days ";
+        String remaining = DateUtil.formatTime(timeSpan - days * CCDateFormatter.MILLONS_OF_DAY);
+        String space = remaining.endsWith(" ") ? "" : " ";
+        return daysString + remaining + space + when;
     }
 
     public static String getDateStringInHumanBeingReadingStyle(DateTime date) {

@@ -38,46 +38,63 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.validator.ConfigXmlLocationValidator;
 import net.sourceforge.cruisecontrol.dashboard.web.validator.ConfigXmlNameValidator;
+
 import org.springframework.validation.BindException;
 import org.springframework.validation.Validator;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
 public class UpdateConfigXmlLocationController extends SimpleFormController {
-    public static final String CONFIGURATION_FILE_HAS_BEEN_SET_SUCCESSFULLY =
-            "Configuration file has been set successfully. "
-                    + "Click <a href='projects.html'>here</a> to go to the project dashboard.";
+    private Configuration configuration;
 
-    private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
+    private final EnvironmentService service;
 
-    public UpdateConfigXmlLocationController(net.sourceforge.cruisecontrol.dashboard.Configuration configuration) {
+    public String message;
+
+    public UpdateConfigXmlLocationController(Configuration configuration, EnvironmentService service) {
         this.configuration = configuration;
-        this.setValidators(new Validator[]{new ConfigXmlNameValidator(), new ConfigXmlLocationValidator()});
+        this.service = service;
+        this.setValidators(new Validator[] {new ConfigXmlNameValidator(), new ConfigXmlLocationValidator()});
         this.setCommandClass(ConfigurationCommand.class);
-        this.setFormView("admin");
+        this.setFormView("page_admin");
     }
 
-    protected ModelAndView showForm(HttpServletRequest request, HttpServletResponse response, BindException errors)
-            throws Exception {
-        ModelAndView view = new ModelAndView("admin");
+    protected ModelAndView showForm(HttpServletRequest request, HttpServletResponse response,
+            BindException errors) throws Exception {
+        ModelAndView view = new ModelAndView("page_admin");
         Map model = view.getModel();
-        model.put("isConfigFileEditable", Boolean.valueOf(configuration.isConfigFileEditable()));
+        model.put("isConfigFileEditable", Boolean.valueOf(service.isConfigFileEditable()));
         model.putAll(errors.getModel());
         return view;
     }
 
     protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object command,
-                                    BindException errors) throws Exception {
+            BindException errors) throws Exception {
         Map model = new HashMap();
-        if (configuration.isConfigFileEditable()) {
+        if (service.isConfigFileEditable()) {
             configuration.setCruiseConfigLocation(request.getParameter("configFileLocation"));
-            model.put("flash_message", CONFIGURATION_FILE_HAS_BEEN_SET_SUCCESSFULLY);
+            model.put("location_flash_message", getMessage(request));
         }
         return new ModelAndView("redirect:/admin/config", model);
+    }
+
+    // TODO move this message to VM rather then generate here.
+    private String getMessage(HttpServletRequest request) {
+        if (message == null) {
+            message =
+                    "Configuration file has been set successfully. " + "<a href='" + request.getContextPath()
+                            + "/dashboard'>Go to dashboard to see your projects</a>.";
+        }
+        return message;
+
     }
 }

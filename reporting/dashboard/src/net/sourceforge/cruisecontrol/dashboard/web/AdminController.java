@@ -39,46 +39,42 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
+
 import org.apache.commons.io.FileUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
 public class AdminController implements Controller {
 
-    public static final String CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY = "Configuration has been updated "
-            + "successfully";
+    private Configuration configuration;
 
-    public static final String CRUISE_CONFIGURATION_FILE_MISSING = "Cruise configuration file missing. Please check "
-            + "your <a href=\"admin/config\">configuration.";
+    private EnvironmentService envService;
 
-    private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
-
-    public static final String CONFIGURATION_FILE_HAS_BEEN_SET_SUCCESSFULLY =
-            "Configuration file has been set successfully. "
-                    + "Click <a href='projects.html'>here</a> to go to the project dashboard.";
-
-    public AdminController(Configuration configuration) {
+    public AdminController(Configuration configuration, EnvironmentService envService) {
         this.configuration = configuration;
+        this.envService = envService;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         ConfigurationCommand adminCommand = new ConfigurationCommand();
-        boolean configured = false;
         String location = configuration.getCruiseConfigLocation();
         if (location != null) {
             adminCommand.setConfigFileLocation(location);
             adminCommand.setConfigFileContent(FileUtils.readFileToString(new File(location), null));
-            configured = true;
         }
         Map model = new HashMap();
-        model.put("configured", Boolean.valueOf(configured));
-        model.put("isConfigFileEditable", Boolean.valueOf(configuration.isConfigFileEditable()));
+        model.put("isConfigFileEditable", Boolean.valueOf(envService.isConfigFileEditable()));
         model.put("command", adminCommand);
-        model.put("flash_message", request.getParameter("flash_message"));
-        return new ModelAndView("admin", model);
+        model.put("location_flash_message", request.getParameter("location_flash_message"));
+        model.put("edit_flash_message", request.getParameter("edit_flash_message"));
+        return new ModelAndView("page_admin", model);
     }
 }

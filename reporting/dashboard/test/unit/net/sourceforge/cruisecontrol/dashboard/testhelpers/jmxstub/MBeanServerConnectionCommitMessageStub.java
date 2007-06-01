@@ -36,10 +36,168 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub;
 
-import javax.management.ObjectName;
+import java.io.IOException;
+import java.util.Set;
 
-public class MBeanServerConnectionCommitMessageStub {
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.ListenerNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanInfo;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServerConnection;
+import javax.management.NotCompliantMBeanException;
+import javax.management.NotificationFilter;
+import javax.management.NotificationListener;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.QueryExp;
+import javax.management.ReflectionException;
+
+public class MBeanServerConnectionCommitMessageStub implements MBeanServerConnection {
     public Object getAttribute(ObjectName name, String attr) {
-        return new String[][]{{"commiter", "message 1"}};
+        return new String[][] { {"commiter", "message 1"}, {"commiter", "message 1"},
+                {"commiter", "message 2"}};
+    }
+
+    public void addNotificationListener(ObjectName name, NotificationListener listener,
+            NotificationFilter filter, Object handback) throws InstanceNotFoundException, IOException {
+
+    }
+
+    public void addNotificationListener(ObjectName name, ObjectName listener, NotificationFilter filter,
+            Object handback) throws InstanceNotFoundException, IOException {
+
+    }
+
+    public ObjectInstance createMBean(String className, ObjectName name) throws ReflectionException,
+            InstanceAlreadyExistsException, MBeanRegistrationException, MBeanException,
+            NotCompliantMBeanException, IOException {
+
+        return null;
+    }
+
+    public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName)
+            throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            MBeanException, NotCompliantMBeanException, InstanceNotFoundException, IOException {
+
+        return null;
+    }
+
+    public ObjectInstance createMBean(String className, ObjectName name, Object[] params, String[] signature)
+            throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            MBeanException, NotCompliantMBeanException, IOException {
+
+        return null;
+    }
+
+    public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName,
+            Object[] params, String[] signature) throws ReflectionException, InstanceAlreadyExistsException,
+            MBeanRegistrationException, MBeanException, NotCompliantMBeanException,
+            InstanceNotFoundException, IOException {
+
+        return null;
+    }
+
+    public AttributeList getAttributes(ObjectName name, String[] attributes)
+            throws InstanceNotFoundException, ReflectionException, IOException {
+
+        return null;
+    }
+
+    public String getDefaultDomain() throws IOException {
+
+        return null;
+    }
+
+    public String[] getDomains() throws IOException {
+
+        return null;
+    }
+
+    public Integer getMBeanCount() throws IOException {
+
+        return null;
+    }
+
+    public MBeanInfo getMBeanInfo(ObjectName name) throws InstanceNotFoundException, IntrospectionException,
+            ReflectionException, IOException {
+
+        return null;
+    }
+
+    public ObjectInstance getObjectInstance(ObjectName name) throws InstanceNotFoundException, IOException {
+
+        return null;
+    }
+
+    public Object invoke(ObjectName name, String operationName, Object[] params, String[] signature)
+            throws InstanceNotFoundException, MBeanException, ReflectionException, IOException {
+
+        return null;
+    }
+
+    public boolean isInstanceOf(ObjectName name, String className) throws InstanceNotFoundException,
+            IOException {
+
+        return false;
+    }
+
+    public boolean isRegistered(ObjectName name) throws IOException {
+
+        return false;
+    }
+
+    public Set queryMBeans(ObjectName name, QueryExp query) throws IOException {
+
+        return null;
+    }
+
+    public Set queryNames(ObjectName name, QueryExp query) throws IOException {
+
+        return null;
+    }
+
+    public void removeNotificationListener(ObjectName name, ObjectName listener)
+            throws InstanceNotFoundException, ListenerNotFoundException, IOException {
+
+    }
+
+    public void removeNotificationListener(ObjectName name, NotificationListener listener)
+            throws InstanceNotFoundException, ListenerNotFoundException, IOException {
+
+    }
+
+    public void removeNotificationListener(ObjectName name, ObjectName listener, NotificationFilter filter,
+            Object handback) throws InstanceNotFoundException, ListenerNotFoundException, IOException {
+
+    }
+
+    public void removeNotificationListener(ObjectName name, NotificationListener listener,
+            NotificationFilter filter, Object handback) throws InstanceNotFoundException,
+            ListenerNotFoundException, IOException {
+
+    }
+
+    public void setAttribute(ObjectName name, Attribute attribute) throws InstanceNotFoundException,
+            AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException,
+            IOException {
+
+    }
+
+    public AttributeList setAttributes(ObjectName name, AttributeList attributes)
+            throws InstanceNotFoundException, ReflectionException, IOException {
+
+        return null;
+    }
+
+    public void unregisterMBean(ObjectName name) throws InstanceNotFoundException,
+            MBeanRegistrationException, IOException {
+
     }
 }

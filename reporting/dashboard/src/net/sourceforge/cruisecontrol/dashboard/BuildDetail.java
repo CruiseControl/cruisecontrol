@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -174,10 +175,10 @@ public class BuildDetail implements Comparable, Build {
         if (artifactNames == null) {
             artifactNames = new ArrayList();
             try {
-                List tempArtifacts = getArtifacts();
                 String artifactsRootDir = getArtifactFolder().getPath();
-                for (int i = 0; i < tempArtifacts.size(); i++) {
-                    String artifactPath = (String) tempArtifacts.get(i);
+                Iterator iter = getArtifacts().iterator();
+                while (iter.hasNext()) {
+                    String artifactPath = (String) iter.next();
                     artifactNames.add(StringUtils.remove(artifactPath, artifactsRootDir + File.separator));
                 }
             } catch (Exception e) {

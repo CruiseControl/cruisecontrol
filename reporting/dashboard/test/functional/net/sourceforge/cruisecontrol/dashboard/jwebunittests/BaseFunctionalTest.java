@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequestSettings;
@@ -68,6 +69,10 @@ public abstract class BaseFunctionalTest extends TestCase {
     }
 
     protected final String getJSONWithAjaxInvocation(final String path) throws Exception {
+        //The reporting system will cache the result for 5 second, jmx stub only changed
+        //status when getAllProjectStatus invoked, so wait for 6 second and ping
+        //server to make the jmx stub change status.
+        Thread.sleep(6000);
         final WebClient webClient = new WebClient();
         WebRequestSettings settings = new WebRequestSettings(new URL(BASE_URL + path));
         WebResponse response = webClient.getWebConnection().getResponse(settings);
@@ -82,7 +87,7 @@ public abstract class BaseFunctionalTest extends TestCase {
     }
 
     protected void typeLogLocation() throws Exception {
-        tester.setTextField(CONFIG_FILE_LOCATION_FIELD_NAME, DataUtils.getLogDirAsFile()
-                .getAbsolutePath());
+        File logs = new File(DataUtils.getConfigXmlOfWebApp().getParentFile(), "logs");
+        tester.setTextField(CONFIG_FILE_LOCATION_FIELD_NAME, logs.getAbsolutePath());
     }
 }

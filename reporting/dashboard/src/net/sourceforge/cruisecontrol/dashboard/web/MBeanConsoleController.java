@@ -38,46 +38,42 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-public class MBeanConsoleController extends MultiActionController {
+public class MBeanConsoleController extends BaseMultiActionController {
 
-    private static final String MBEAN_ROOT = "mbean?objectname=CruiseControl+Project%3Aname%3D";
+    private static final String MBEAN_ROOT = "mbean?objectname=CruiseControl Project:name=";
 
-    private CruiseControlJMXService jmxService;
+    private final EnvironmentService envService;
 
-    public MBeanConsoleController(CruiseControlJMXService service) {
-        this.jmxService = service;
-        this.setSupportedMethods(new String[]{"GET"});
+    public MBeanConsoleController(EnvironmentService envService) {
+        this.envService = envService;
+        this.setSupportedMethods(new String[] {"GET"});
     }
 
     public ModelAndView server(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView mov = renderMbeanConsole(request);
-        mov.getModel().put("context", "");
         mov.getModel().put("projectName", "CruiseControl");
+        mov.getModel().put("context", "");
         return mov;
     }
 
-    public ModelAndView mbean(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView mbean(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = url[url.length - 1];
+        String projectName = decode(url[url.length - 1]);
         ModelAndView mov = renderMbeanConsole(request);
         mov.getModel().put("projectName", projectName);
-        mov.getModel().put("context", getContextForProject(projectName));
+        mov.getModel().put("context", MBEAN_ROOT + projectName);
         return mov;
     }
 
     private ModelAndView renderMbeanConsole(HttpServletRequest request) {
-        ModelAndView mov = new ModelAndView("mbeanConsole");
-        mov.getModel().put("port", "" + jmxService.getHttpPortForMBeanConsole());
+        ModelAndView mov = new ModelAndView("page_mbean_console");
+        mov.getModel().put("port", String.valueOf(envService.getJmxPort()));
         return mov;
-    }
-
-    private String getContextForProject(String projectName) {
-        String context = MBEAN_ROOT + projectName;
-        return StringUtils.replace(context, " ", "+");
     }
 }

@@ -58,8 +58,9 @@ public class BuildSummaryCommandTest extends TestCase {
         Build buildSummary = new BuildSummary("", "", "", ProjectBuildStatus.PASSED, "");
         buildSummary.updateStatus("now building since 20070420170000");
         BuildCommand command = new BuildCommand(buildSummary);
-        Long elapsedSeconds = command
-                .getElapsedTimeBuilding(CCDateFormatter.format("2007-04-20 18:00:00", "yyyy-MM-dd HH:mm:ss"));
+        Long elapsedSeconds =
+                command.getElapsedTimeBuilding(CCDateFormatter.format("2007-04-20 18:00:00",
+                        "yyyy-MM-dd HH:mm:ss"));
         assertEquals(new Long(3600), elapsedSeconds);
     }
 
@@ -68,7 +69,8 @@ public class BuildSummaryCommandTest extends TestCase {
         Build lastSuccessful = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
         BuildCommand command = new BuildCommand(buildSummary);
         command.updateFailedCSS(lastSuccessful);
-        assertEquals("long_failed", command.toJsonHash().get("css_class_name"));
+        assertEquals("failed", command.toJsonHash().get("css_class_name"));
+        assertEquals("failed_level_8", command.toJsonHash().get("css_class_name_for_dashboard"));
     }
 
     public void testShouldClassNameAsFailedWhenBuildIsLessThanFailed24HoursAgo() {
@@ -80,15 +82,18 @@ public class BuildSummaryCommandTest extends TestCase {
         Map json = command.toJsonHash();
         command.updateFailedCSS(lastSuccessfualBuild);
         assertEquals("failed", json.get("css_class_name"));
+        assertEquals("failed_level_0", json.get("css_class_name_for_dashboard"));
     }
 
     public void testShouldNotReturnDarkRedWhenBuildIsPassed() {
         Build buildSummary = new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
         BuildCommand command = new BuildCommand(buildSummary);
-        BuildSummary lastSuccessful = new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary lastSuccessful =
+                new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
         command.updatePassedCss(lastSuccessful);
         Map json = command.toJsonHash();
-        assertEquals("long_passed", json.get("css_class_name"));
+        assertEquals("passed", json.get("css_class_name"));
+        assertEquals("passed_level_8", json.get("css_class_name_for_dashboard"));
     }
 
     public void testShouldNotReturnCurrentStatusWhenLastSuccessfulBuildIsEmpty() {
@@ -96,7 +101,8 @@ public class BuildSummaryCommandTest extends TestCase {
         BuildCommand command = new BuildCommand(buildSummary);
         command.updateFailedCSS(null);
         Map json = command.toJsonHash();
-        assertEquals("long_failed", json.get("css_class_name"));
+        assertEquals("failed", json.get("css_class_name"));
+        assertEquals("failed_level_8", json.get("css_class_name_for_dashboard"));
     }
 
     public void testShouldReturnBuildSinceForActiveBuild() throws Exception {

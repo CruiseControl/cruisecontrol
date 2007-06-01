@@ -88,14 +88,14 @@ function test_should_change_class_when_inactive_project_had_been_built() {
 }
 
 function test_should_be_able_to_update_long_failed_class() {
-	$('project1_profile').className = 'long_failed'
+	$('project1_profile').className = 'failed_level_8'
 	var json = {
 	  building_info : {css_class_name : "passed", project_name : "project1", building_status : "Passed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
-	assertTrue(Element.hasClassName($('project1_profile'), 'long_failed'));
+	assertTrue(Element.hasClassName($('project1_profile'), 'failed_level_8'));
 	ajax_periodical_refresh_dashboard_update_project_build_detail(json);
 	assertTrue(Element.hasClassName($('project1_profile'), 'passed'));
-	assertFalse(Element.hasClassName($('project1_profile'), 'long_failed'));
+	assertFalse(Element.hasClassName($('project1_profile'), 'failed_level_8'));
 }
 
 </script>

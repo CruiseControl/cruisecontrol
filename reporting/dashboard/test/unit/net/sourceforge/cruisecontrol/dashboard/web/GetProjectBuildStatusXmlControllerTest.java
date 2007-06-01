@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
@@ -47,6 +48,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -65,22 +67,26 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
 
     private Mock mockBuildSummaryService;
 
-    private net.sourceforge.cruisecontrol.dashboard.BuildSummary oneBuild;
+    private BuildSummary oneBuild;
 
     protected void setUp() throws Exception {
-        oneBuild = new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1");
-        mockBuildSummaryService = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class}, new Object[]{null, null});
+        oneBuild =
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build1",
+                        ProjectBuildStatus.PASSED, "log1");
+        mockBuildSummaryService =
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class}, new Object[] {null, null});
         buildSummariesService = (BuildSummariesService) mockBuildSummaryService.proxy();
-        CruiseControlJMXService cruisecontrolJMXService = new CruiseControlJMXService() {
+        CruiseControlJMXService cruisecontrolJMXService = new CruiseControlJMXService(null) {
             public Map getAllProjectsStatus() {
                 Map map = new HashMap();
                 map.put("project1", "now building since");
                 return map;
             }
         };
-        controller = new GetProjectBuildStatusXmlController(buildSummariesService, cruisecontrolJMXService,
-                new BuildSummaryUIService(buildSummariesService));
+        controller =
+                new GetProjectBuildStatusXmlController(buildSummariesService,
+                        cruisecontrolJMXService, new BuildSummaryUIService(buildSummariesService));
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("GET");
@@ -88,8 +94,9 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
 
     private List returnedValue() {
         List list = new ArrayList();
-        BuildSummary build2 = new BuildSummary("project2", "2005-12-09 12:21.03", "build2", ProjectBuildStatus.INACTIVE,
-                "log2");
+        BuildSummary build2 =
+                new BuildSummary("project2", "2005-12-09 12:21.03", "build2",
+                        ProjectBuildStatus.INACTIVE, "log2");
         list.add(oneBuild);
         list.add(build2);
         return list;
@@ -115,7 +122,7 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
         assertTrue(StringUtils.contains(xml, "<rss version=\"2.0\">"));
         assertTrue(StringUtils.contains(xml, "<channel>"));
         assertTrue(StringUtils.contains(xml, "<title>CruiseControl Results</title>"));
-        assertTrue(StringUtils.contains(xml, "<link>http://localhost:80/dashboard/projects.html</link>"));
+        assertTrue(StringUtils.contains(xml, "<link>http://localhost:80/dashboard/</link>"));
         assertTrue(StringUtils.contains(xml, "<language>en-us</language>"));
         assertTrue(StringUtils.contains(xml, "</channel>"));
         assertTrue(StringUtils.contains(xml, "<channel>"));
@@ -123,7 +130,8 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnSpecificRssFormat() throws Exception {
-        mockBuildSummaryService.expects(once()).method("getLatest").with(eq("project1")).will(returnValue(oneBuild));
+        mockBuildSummaryService.expects(once()).method("getLatest").with(eq("project1")).will(
+                returnValue(oneBuild));
         request.setRequestURI("/dashboard/rss.xml");
         request.addParameter("projectName", "project1");
         controller.handleRequest(request, response);
@@ -132,7 +140,7 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
         assertTrue(StringUtils.contains(xml, "<rss version=\"2.0\">"));
         assertTrue(StringUtils.contains(xml, "<channel>"));
         assertTrue(StringUtils.contains(xml, "<title>CruiseControl Results</title>"));
-        assertTrue(StringUtils.contains(xml, "<link>http://localhost:80/dashboard/projects.html</link>"));
+        assertTrue(StringUtils.contains(xml, "<link>http://localhost:80/dashboard/</link>"));
         assertTrue(StringUtils.contains(xml, "<language>en-us</language>"));
         assertTrue(StringUtils.contains(xml, "</channel>"));
         assertTrue(StringUtils.contains(xml, "<channel>"));

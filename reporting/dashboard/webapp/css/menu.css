@@ -35,6 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
  
+/* Tab bar styles */
 
 #menu {
 	margin-left: 4px;
@@ -46,6 +47,8 @@
 	margin-bottom: 0;
 	min-height: 62px;
 }
+
+/* The tabs are an unordered list */
 
 #menu ul {
 	font: 13px verdana, arial, geneva, helvetica, sans-serif;
@@ -62,6 +65,8 @@
 	padding : 0;
 }
 
+/* The active tab gets a class of currenttab */
+
 #menu li.currenttab a {
 	background-color : #87c0d4;
 	color : #003;
@@ -70,7 +75,7 @@
 
 #menu a {
 	float: left;
-	background: #538aa7 url(left-top1.gif) no-repeat left top;
+	background-color: #538aa7;
 	text-decoration: none;
 	text-align: center;
 	color : white;
@@ -78,7 +83,6 @@
 
 #menu a span {
 	display: block;
-	background: transparent url(right-top1.gif) no-repeat right top;
 	padding: 1px 2em 4px 2em;
 }
 
@@ -86,9 +90,7 @@
 	color: #999;
 }
 
-#menu a:hover span {
-	background: transparent url(right-top2.gif) no-repeat right top;
-}
+/* Drop shadow under the tab bar. Some elements in the body of the page are given a top margin of -14px so as to butt up directly to the bottom of the tab bar */
 
 #menu_bottom {
 	border-top: 4px solid #87c0d4;
@@ -97,25 +99,30 @@
 	padding-bottom : 14px;
 }
 
-#menu .rtop,.rbottom {
+#menu .rtop, .rbottom {
 	display: block;
 	background: white;
 }
 
-#menu .rtop *,.rbottom * {
+#menu .rtop *, .rbottom * {
 	display: block;
 	height: 1px;
 	overflow: hidden;
 	background: white;
 }
 
-#menu .r1 {
-	margin: 0 5px;
-	background: #538aa7;
-}
+
+/* Rounded corners on menu tab - currently selected */
 
 #menu li.currenttab .r1, #menu li.currenttab .r2, #menu li.currenttab .r3, #menu li.currenttab .r4 {
 	background : #87c0d4;
+}
+
+/* Rounded corners on unselected menu tabs */
+
+#menu .r1 {
+	margin: 0 5px;
+	background: #538aa7;
 }
 
 #menu .r2 {

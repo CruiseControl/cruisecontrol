@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
-import junit.framework.Assert;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -59,11 +61,8 @@ public class UpdateConfigXmlLocationControllerTest extends TestCase {
 
     private MockHttpServletResponse response;
 
-    private OSEnvironment environment;
-
     protected void setUp() throws Exception {
-        environment = new OSEnvironment();
-        configuration = new Configuration(new ConfigXmlFileService(environment));
+        configuration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
         configFile = DataUtils.createDefaultCCConfigFile();
         configuration.setCruiseConfigLocation(configFile.getPath());
         newConfigFilePath = DataUtils.createTempFile("config", ".xml").toString();
@@ -73,34 +72,37 @@ public class UpdateConfigXmlLocationControllerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_EDITABLE, "");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "");
     }
 
     public void testShouldShowFormViewWithSuccessMessageAfterSetLocation() throws Exception {
         request.setParameter("configFileLocation", newConfigFilePath);
-        UpdateConfigXmlLocationController controller = new UpdateConfigXmlLocationController(configuration);
+        UpdateConfigXmlLocationController controller =
+                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
         assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("redirect:/admin/config", mov.getViewName());
-        Assert.assertEquals(AdminController.CONFIGURATION_FILE_HAS_BEEN_SET_SUCCESSFULLY, mov.getModel()
-                .get("flash_message"));
+        assertTrue(StringUtils.contains((String) mov.getModel().get("location_flash_message"),
+                "Configuration file has been set successfully."));
         assertEquals(newConfigFilePath, configuration.getCruiseConfigLocation());
     }
 
     public void testShouldNotUpdateConfigXmlIfConfigXmlEditableIsFalse() throws Exception {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_EDITABLE, "false");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "false");
         request.setParameter("configFileLocation", newConfigFilePath);
-        UpdateConfigXmlLocationController controller = new UpdateConfigXmlLocationController(configuration);
+        UpdateConfigXmlLocationController controller =
+                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
         controller.handleRequest(request, response);
         assertFalse(newConfigFilePath.equals(configuration.getCruiseConfigLocation()));
     }
 
     public void testShouldShowFormViewWithErrorMessageIfConfigFilePathIsBlank() throws Exception {
         request.setParameter("configFileLocation", "");
-        UpdateConfigXmlLocationController controller = new UpdateConfigXmlLocationController(configuration);
+        UpdateConfigXmlLocationController controller =
+                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
         assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
         ModelAndView view = controller.handleRequest(request, response);
-        assertEquals("admin", view.getViewName());
+        assertEquals("page_admin", view.getViewName());
         assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
     }
 }

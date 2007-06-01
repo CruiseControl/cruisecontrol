@@ -37,14 +37,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
  -->
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    
     <bean id="buildService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildService">
 		<constructor-arg ref="configuration"/>
 	</bean>
 
 	<bean id="jmxService" class="net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService">
-        <property name="jmxConnector" ref="jmxConnector"/>
+		<constructor-arg ref="jmxFactory"/>
     </bean>
 
     <bean id="vcsFactory" class="net.sourceforge.cruisecontrol.dashboard.service.VersionControlFactory">
@@ -64,12 +66,14 @@
 
 	<bean id="buildSummaryService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService"/>
 
+	<bean id="envService" class="net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService"/>
+
 	<bean id="configXmlFileService" class="net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService">
-        <constructor-arg ref="oSEnvironment"/>
+        <constructor-arg ref="envService"/>
         <constructor-arg ref="templateRenderService" />
     </bean>
 
-	<bean id="pluginOutputService" class="net.sourceforge.cruisecontrol.dashboard.service.PluginOutputService">
+	<bean id="widgetPluginService" class="net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService">
 		<constructor-arg ref="configuration"/>
 	</bean>
 </beans>

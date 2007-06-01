@@ -1,3 +1,5 @@
+
+
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -34,15 +36,17 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/build_detail_summary.css */
+
+/* Styles for summary bar at the top of build detail pages */
 
 .build_detail_summary {
     padding: 6px 0px 6px 80px;
     background-position: 16px center;
     background-repeat: no-repeat;
-    height:6em;
-
+    min-height : 6em;
 }
+
+/* Define individual icon images for the three project states */
 
 .passed .build_detail_summary, .long_passed .build_detail_summary {
 	background-image : url( ../images/icon-success-large.gif );
@@ -64,17 +68,10 @@
 	padding: 0;
 }
 
-
-
 .build_detail_summary h3 span {
-
 	font-size: 0.9em;
-
 }
 
-
 .build_detail_summary h3 a {
-
 	text-decoration: underline;
-
 }

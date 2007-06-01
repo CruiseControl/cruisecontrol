@@ -45,9 +45,10 @@ public final class BuildSummariesFilters {
 
     private static FilenameFilter cclog = new CCLogFilter();
 
-    private static FilenameFilter succeed = new And(new FilenameFilter[]{new SuccessLogFilter(), cclog});
+    private static FilenameFilter succeed = new And(new FilenameFilter[] {new SuccessLogFilter(), cclog});
 
-    private static FilenameFilter failed = new And(new FilenameFilter[]{new Not(new SuccessLogFilter()), cclog});
+    private static FilenameFilter failed =
+            new And(new FilenameFilter[] {new Not(new SuccessLogFilter()), cclog});
 
     public static FilenameFilter cclogFilter() {
         return cclog;
@@ -58,16 +59,27 @@ public final class BuildSummariesFilters {
     }
 
     public static ReportableFilter lastSucceedFilter(DateTime time) {
-        return new ReportAdapterFilter(
-                new And(new FilenameFilter[]{succeed, new OlderLogFilter(time), new NearestLogFilter(time)}));
+        return new ReportAdapterFilter(new And(new FilenameFilter[] {succeed, new OlderLogFilter(time),
+                new NearestLogFilter(time)}));
     }
 
     public static ReportableFilter earliestFailedFilter(DateTime time) {
-        return new ReportAdapterFilter(
-                new And(new FilenameFilter[]{failed, new Not(new OlderLogFilter(time)), new NearestLogFilter(time)}));
+        return new ReportAdapterFilter(new And(new FilenameFilter[] {failed,
+                new Not(new OlderLogFilter(time)), new NearestLogFilter(time)}));
     }
 
     public static ReportableFilter lastFilter() {
-        return new ReportAdapterFilter(new And(new FilenameFilter[]{cclog, new NearestLogFilter(new DateTime())}));
+        return new ReportAdapterFilter(new And(new FilenameFilter[] {cclog,
+                new NearestLogFilter(new DateTime())}));
+    }
+
+    public static ReportableFilter lastFailedFilter(DateTime time) {
+        return new ReportAdapterFilter(new And(new FilenameFilter[] {failed, new OlderLogFilter(time),
+                new NearestLogFilter(time)}));
+    }
+
+    public static ReportableFilter earliestSucceededFilter(DateTime time) {
+        return new ReportAdapterFilter(new And(new FilenameFilter[] {succeed,
+                new Not(new OlderLogFilter(time)), new NearestLogFilter(time)}));
     }
 }
