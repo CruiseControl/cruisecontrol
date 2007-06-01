@@ -17,6 +17,10 @@ documentation
 build loop
 ======================
 
+ClearCase
+----------------------
+* Change validation so that branch is not a required attribute.
+
 CruiseControlConfig
 ----------------------
 * <include.projects> now handles nested <include.projects>
