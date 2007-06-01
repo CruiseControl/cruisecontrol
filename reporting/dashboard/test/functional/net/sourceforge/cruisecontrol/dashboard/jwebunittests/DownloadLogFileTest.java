@@ -43,25 +43,25 @@ public class DownloadLogFileTest extends BaseFunctionalTest {
     private File downloadedFile;
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().toString());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().toString());
         downloadedFile = DataUtils.createTempFile("downloadedLogFile", "xml");
     }
 
     public void testShouldBeAbleToDownloadLogFile() throws Exception {
-        tester.beginAt("/project/download/log/project1/" + DataUtils.getPassingBuildLbuildAsFile().getName());
+        tester.beginAt("/build/download/log/project1/" + DataUtils.getPassingBuildLbuildAsFile().getName());
         tester.saveAs(downloadedFile);
         String content = DataUtils.readFileContent(downloadedFile);
         assertTrue(content.indexOf("<email>Chris.Read@somewhere.com</email>") > 0);
     }
 
     public void testShouldShowErrorMessageIfFileNotExist() {
-        tester.beginAt("/project/download/log/project1/IDontExist");
+        tester.beginAt("/build/download/log/project1/IDontExist");
         tester.assertTitleEquals("Error");
         tester.assertTextPresent("File does not exist");
     }
 
     public void testShouldShowErrorMessageIfGivenFileIsADirectory() {
-        tester.beginAt("/project/download/log/project1/archives");
+        tester.beginAt("/build/download/log/project1/archives");
         tester.assertTitleEquals("Error");
         tester.assertTextPresent("File can not be read");
     }

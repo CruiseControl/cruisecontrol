@@ -40,33 +40,26 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import net.sourceforge.cruisecontrol.dashboard.Projects;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.ConfigurationHandler;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class ConfigXmlFileService {
 
-    public static final String CC_CONFIG = "cc.config";
-
-    public static final String CC_CONFIG_EDITABLE = "cc.config.editable";
-
-    public static final String CRUISE_CONFIG_FILE = "CRUISE_CONFIG_FILE";
-
-    public static final String CRUISE_CONFIG_EDITABLE = "CRUISE_CONFIG_EDITABLE";
-
-    private final OSEnvironment oSEnvironment;
+    private EnvironmentService envService;
 
     private final TemplateRenderService renderService;
 
     // this is only here for unit tests. should refactor those.
-    public ConfigXmlFileService(OSEnvironment env) {
-        this(env, getDefaultRenderService());
+    public ConfigXmlFileService(EnvironmentService envSerivce) {
+        this(envSerivce, getDefaultRenderService());
     }
 
     private static TemplateRenderService getDefaultRenderService() {
@@ -79,8 +72,8 @@ public class ConfigXmlFileService {
         return renderService;
     }
 
-    public ConfigXmlFileService(OSEnvironment env, TemplateRenderService renderService) {
-        this.oSEnvironment = env;
+    public ConfigXmlFileService(EnvironmentService envService, TemplateRenderService renderService) {
+        this.envService = envService;
         this.renderService = renderService;
     }
 
@@ -105,9 +98,8 @@ public class ConfigXmlFileService {
         if (isConfigFileValid(cruiseConfigFile)) {
             return cruiseConfigFile;
         }
-        File configFile = new File(getConfigProperty(CRUISE_CONFIG_FILE, CC_CONFIG));
-        if (isConfigFileValid(configFile)) {
-            return configFile;
+        if (isConfigFileValid(envService.getConfigXml())) {
+            return envService.getConfigXml();
         }
         return null;
     }
@@ -155,19 +147,7 @@ public class ConfigXmlFileService {
         }
     }
 
-    private String getConfigProperty(String configFile, String fileProperties) {
-        String systemProperty = System.getProperty(fileProperties);
-        String env = oSEnvironment.getVariable(configFile);
-        return StringUtils.isNotBlank(systemProperty) ? systemProperty : StringUtils
-                .defaultString(env);
-    }
-
     public boolean isConfigFileEditable() {
-        String configProperty = getConfigProperty(CRUISE_CONFIG_EDITABLE, CC_CONFIG_EDITABLE);
-        if (StringUtils.isEmpty(configProperty)) {
-            return true;
-        } else {
-            return BooleanUtils.toBoolean(configProperty);
-        }
+        return this.envService.isConfigFileEditable();
     }
 }

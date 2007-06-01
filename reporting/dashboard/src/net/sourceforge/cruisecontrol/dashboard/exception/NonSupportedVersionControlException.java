@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.dashboard.exception;
 
 public class NonSupportedVersionControlException extends Exception {
 
+    private static final long serialVersionUID = -6578284336733088593L;
+
     public NonSupportedVersionControlException(String message) {
         super(message);
     }

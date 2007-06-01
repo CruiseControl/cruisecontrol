@@ -71,13 +71,13 @@ public class RSSBuildSummaryAdapterTest extends TestCase {
         assertTrue(StringUtils.contains(xml, "<title>connectfour FAILED " + expected + "</title>"));
         assertTrue(StringUtils.contains(xml, "<description>Build FAILED</description>"));
         assertTrue(StringUtils.contains(xml, "<pubDate>" + expected + "</pubDate>"));
-        assertTrue(StringUtils.contains(xml, "<link>http://localhost:8080/dashboard/</link>"));
+        assertTrue(StringUtils.contains(xml, "<link>http://localhost:8080/dashboard/build/detail/connectfour</link>"));
     }
 
     public void testShouldReturnXmlIncludeNecessaryInfomationForPassedBuild() throws Exception {
         BuildSummary summary = new BuildSummary("connectfive", "2007-04-03 12:52.49", "", ProjectBuildStatus.PASSED,
                 "");
-        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("http://localhost:8080/dashboard/", summary);
+        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("http://localhost:8080/dashboard", summary);
         String xml = adapter.toXml();
         assertTrue(StringUtils.contains(xml, "<title>connectfive passed"));
         assertTrue(StringUtils.contains(xml, "<description>Build passed</description>"));

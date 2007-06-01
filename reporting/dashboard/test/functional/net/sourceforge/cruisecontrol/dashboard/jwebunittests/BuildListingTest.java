@@ -41,25 +41,31 @@ import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 public class BuildListingTest extends BaseFunctionalTest {
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldListAllBuildsOfProject() throws Exception {
-        tester.beginAt("/list/all/project1");
+        tester.beginAt("/project/list/all/project1");
         tester.assertTextPresent("build.489");
     }
 
     public void testShouldShowCommitMessageForSuccessfulBuild() throws Exception {
-        tester.beginAt("/list/passed/project1");
+        tester.beginAt("/project/list/passed/project1");
         tester.assertTextPresent("project1");
         tester.assertTextPresent("readcb");
         tester.assertTextPresent("project name changed to cache");
-
     }
 
     public void testShouldNOTShowCommitMessageIfNoAnySuccessfulBuild() throws Exception {
-        tester.beginAt("/list/passed/project2");
+        tester.beginAt("/project/list/passed/project2");
         tester.assertTextPresent("project2");
         tester.assertTextPresent("No successful builds found");
+    }
+
+    public void testShouldListProjectNameWithSpace() throws Exception {
+        tester.beginAt("/project/list/passed/project%20space");
+        tester.assertTextPresent("project space");
+        tester.beginAt("/project/list/all/project%20space");
+        tester.assertTextPresent("project space");
     }
 }

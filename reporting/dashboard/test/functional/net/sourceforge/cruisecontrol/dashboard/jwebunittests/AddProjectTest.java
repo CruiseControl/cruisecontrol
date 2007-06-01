@@ -54,9 +54,9 @@ public class AddProjectTest extends BaseFunctionalTest {
     private File configurationFile;
 
     protected void onSetUp() throws Exception {
-        configurationFile = DataUtils.getConfigXmlAsFile();
+        configurationFile = DataUtils.getConfigXmlOfWebApp();
         setConfigFileAndSubmitForm(configurationFile.toString());
-        tester.beginAt("/admin/project/add");
+        tester.beginAt("/admin/action/add");
     }
 
     public void testShouldBeAbleToNagivateToAddProjectPageWithInputBox() {

@@ -38,11 +38,12 @@ package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.io.File;
 import java.util.List;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemFixture;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -59,15 +60,15 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         projectName = "listingProject";
-        projectDirectory = FilesystemFixture.createDirectory(projectName);
+        projectDirectory = FilesystemUtils.createDirectory(projectName);
         createLogFiles(projectDirectory);
         configurationMock = mock(Configuration.class, new Class[]{ConfigXmlFileService.class},
-                new Object[]{new ConfigXmlFileService(new OSEnvironment())});
+                new Object[]{new ConfigXmlFileService(new EnvironmentService())});
         Configuration configuration = (Configuration) configurationMock.proxy();
         buildSummariesSevice = new BuildSummariesService(configuration, new BuildSummaryService());
     }
 
-    private void setMockBehaviour() {
+    private void setUpConfigurationMock() {
         configurationMock.expects(atLeastOnce()).method("getLogRoot").will(returnValue(projectDirectory));
     }
 
@@ -80,7 +81,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
                 fileName += "Lbuild." + (label + i);
             }
             fileName += ".xml";
-            FilesystemFixture.createFile(fileName, projectDirectory);
+            FilesystemUtils.createFile(fileName, projectDirectory);
         }
     }
 
@@ -89,7 +90,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldBeAbleToReturnLastest25BuildOfSpecificProject() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         List lastest25 = buildSummariesSevice.getLastest25(projectName);
         assertEquals(25, lastest25.size());
         assertEquals("log20060704155735.xml", ((Build) lastest25.get(0))
@@ -99,34 +100,34 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldBeAbleToReturnLastSuccessfulBuild() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         DateTime time = CCDateFormatter.formatLogName("log20060704155710Lbuild.489.xml");
         Build lastSucceed = buildSummariesSevice.getLastSucceed(projectName, time);
         assertNull(lastSucceed);
     }
 
     public void testShouldReturnTheTopSucceedWhenCurrentTimeIsNew() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         DateTime time = CCDateFormatter.formatLogName("log20060704155759Lbuild.503.xml");
         Build lastSucceed = buildSummariesSevice.getLastSucceed(projectName, time);
         assertEquals("log20060704155731Lbuild.510.xml", lastSucceed.getBuildLogFilename());
     }
 
     public void testShouldReturnTheBottomSucceedWhenCurrentTimeIsNew() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         DateTime time = CCDateFormatter.formatLogName("log20060704155730.xml");
         Build lastSucceed = buildSummariesSevice.getLastSucceed(projectName, time);
         assertEquals("log20060704155724Lbuild.503.xml", lastSucceed.getBuildLogFilename());
     }
 
     public void testShouldBeAbleToReturnEarilestFailedBuild() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         Build earilestFailed = buildSummariesSevice.getEaliestFailed(projectName, new DateTime());
         assertEquals("log20060704155732.xml", earilestFailed.getBuildLogFilename());
     }
 
     public void testShouldBeAbleToReturnAllSuccessfulBuildOfSpecificProject() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         List allSuccessful = buildSummariesSevice.getAllSucceed(projectName);
         assertEquals(4, allSuccessful.size());
         assertEquals("log20060704155731Lbuild.510.xml", ((Build) allSuccessful.get(0))
@@ -140,7 +141,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldBeAbleToReturnAllBuildOfSpecificProject() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         List all = buildSummariesSevice.getAll(projectName);
         assertEquals(26, all.size());
         assertEquals("log20060704155735.xml", ((Build) all.get(0)).getBuildLogFilename());
@@ -149,7 +150,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldBeAbleToReturnLatestBuildSpecificProject() {
-        setMockBehaviour();
+        setUpConfigurationMock();
         Build summary = buildSummariesSevice.getLatest(projectName);
         assertNotNull(summary);
         assertEquals("log20060704155735.xml", summary.getBuildLogFilename());
@@ -168,4 +169,26 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
                 .getProjectName());
         assertEquals("listingProject", ((Build) allLatestOfProjects.get(2)).getProjectName());
     }
+
+    public void testShouldReturnNotApplicableWhenNoSuccessfulBuildOccured() {
+        setUpConfigurationMock();
+        String lastSuccessfulBuild = buildSummariesSevice
+                .getDurationFromLastSuccessfulBuild(projectName, new DateTime(2005, 12, 9, 11, 21, 3, 0));
+        assertEquals("N/A", lastSuccessfulBuild);
+    }
+
+    public void testShouldReturnTimeSinceLastSucceeded() {
+        setUpConfigurationMock();
+        String lastSuccessfulBuild = buildSummariesSevice
+                .getDurationFromLastSuccessfulBuild(projectName, new DateTime(2006, 7, 6, 16, 58, 32, 0));
+        assertEquals("2 days 1 hours 1 minutes 1 seconds ago", lastSuccessfulBuild);
+    }
+
+    public void testShouldReturnTimeSinceLastSucceededOmittingUnnecessaryParts() {
+        setUpConfigurationMock();
+        String lastSuccessfulBuild = buildSummariesSevice
+                .getDurationFromLastSuccessfulBuild(projectName, new DateTime(2006, 7, 4, 15, 58, 31, 0));
+        assertEquals("1 minutes ago", lastSuccessfulBuild);
+    }
+
 }

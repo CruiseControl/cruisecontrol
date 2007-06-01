@@ -56,8 +56,4 @@ public class CheckoutAdapter {
     public String checkoutMessage() {
         return pipe.output();
     }
-
-    public StringBuffer outputBuffer() {
-        return pipe.getOutputBuffer();
-    }
 }

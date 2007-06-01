@@ -38,16 +38,18 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.exception.NonSupportedVersionControlException;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.VersionControlFactory;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResult;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResultContext;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
@@ -65,9 +67,9 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
 
     protected void onControllerSetup() throws Exception {
         configurationFile = DataUtils.createTempFile("config", ".xml");
-        DataUtils
-                .writeContentToFile(configurationFile, "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
-        mockupConfiguration = new Configuration(new ConfigXmlFileService(new OSEnvironment()));
+        DataUtils.writeContentToFile(configurationFile,
+                "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
+        mockupConfiguration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
         mockupConfiguration.setCruiseConfigLocation(configurationFile.getAbsolutePath());
     }
 
@@ -92,8 +94,9 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
     }
 
     public void testShouldPromptErrorMessageWhenProjectAlreadyExist() throws Exception {
-        controller = new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
-                mockupConfiguration);
+        controller =
+                new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
+                        mockupConfiguration);
         getRequest().setMethod("POST");
         getRequest().addParameter("url", "valid");
         getRequest().addParameter("projectName", "project1");
@@ -154,8 +157,9 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
     }
 
     private void prepareControllerAndRequestParameter(String url, String projectName, String vcsType) {
-        controller = new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
-                mockupConfiguration);
+        controller =
+                new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
+                        mockupConfiguration);
         getRequest().setMethod("POST");
         getRequest().addParameter("url", url);
         getRequest().addParameter("projectName", projectName);

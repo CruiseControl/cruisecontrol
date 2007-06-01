@@ -38,23 +38,26 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
+import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jdelegator.JDelegator;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceForcedBuildStub;
+import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
+
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
+import org.joda.time.DateTime;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -62,58 +65,59 @@ import org.springframework.web.servlet.ModelAndView;
 public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     private CruiseControlJMXServiceStub jmxStub;
-    private GetActiveBuildInfoController controller;
-    private CruiseControlJMXService jmxService;
+
+    private BuildDetailController controller;
+
     private MockHttpServletRequest request;
+
     private MockHttpServletResponse response;
+
     private BuildSummariesService buildSummariesService;
 
+    private Mock mockBuildSummariesService;
+
+    private Mock mockBuildService;
+
     protected void setUp() throws Exception {
-        List allBuilds = Arrays.asList(new Build[]{new BuildSummary("", "", "", ProjectBuildStatus.PASSED, "")});
-        Mock mockBuildSummariesService = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class}, new Object[]{null, null});
+        List allBuilds =
+                Arrays.asList(new Build[] {new BuildSummary("", "", "", ProjectBuildStatus.PASSED, "")});
+        mockBuildSummariesService =
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                null});
         buildSummariesService = (BuildSummariesService) mockBuildSummariesService.proxy();
-        mockBuildSummariesService.expects(once()).method("getLastest25").withAnyArguments()
-                .will(returnValue(allBuilds));
+        mockBuildSummariesService.expects(once()).method("getLastest25").withAnyArguments().will(
+                returnValue(allBuilds));
         mockBuildSummariesService.expects(once()).method("getDurationFromLastSuccessfulBuild")
                 .withAnyArguments().will(returnValue("1 days 3 hours"));
         jmxStub = new CruiseControlJMXServiceStub();
-        jmxService = (CruiseControlJMXService) JDelegator.delegate(CruiseControlJMXService.class).to(jmxStub);
-        controller = new GetActiveBuildInfoController(jmxService, buildSummariesService,
-                new BuildSummaryUIService(buildSummariesService));
+        mockBuildService = mock(BuildService.class, new Class[] {Configuration.class}, new Object[] {null});
+        controller =
+                new BuildDetailController((BuildService) mockBuildService.proxy(), buildSummariesService,
+                        new WidgetPluginService(null), new BuildSummaryUIService(buildSummariesService),
+                        jmxStub);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setRequestURI("/project/connectfour");
+        request.setRequestURI("/detail/live/connectfour");
     }
 
     protected void tearDown() throws Exception {
         jmxStub.getBuildStatus("");
     }
 
-    public void testShouldReturnCommitMessageInBuildingStatusAndCommitMessagesIsNotEmpty() throws Throwable {
-        fakeJMXReturnBuildingAsStatus();
-        ModelAndView mov = controller.handleRequest(request, response);
-        Map model = mov.getModel();
-        List messages = (List) model.get("commitMessages");
-        ModificationKey key = (ModificationKey) messages.get(0);
-        assertEquals("joe", key.getUser());
-        assertEquals("Some random change", key.getComment());
-        assertEquals("buildDetail", mov.getViewName());
-        assertEquals("connectfour", model.get("projectName"));
-        assertEquals(ProjectBuildStatus.BUILDING.getStatus(), model.get("status"));
-    }
-
     public void testShouldReturnDurationFromLastSuccessfulBuildInBuildingStatus() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        ModelAndView mov = controller.handleRequest(request, response);
+        mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
+        ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
         assertTrue(StringUtils.contains((String) model.get("durationToSuccessfulBuild"), "1 days 3 hours"));
     }
 
     public void testShouldReturnBuildSince() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        ModelAndView mov = controller.handleRequest(request, response);
+        mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
+        ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
         assertNotNull(model.get("buildSince"));
         assertFalse(StringUtils.contains((String) model.get("buildSince"), "N/A"));
@@ -121,10 +125,24 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnLastBuildSummaries() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        ModelAndView mov = controller.handleRequest(request, response);
+        mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
+        ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
         assertNotNull(model.get("summaries"));
         assertEquals(1, ((Collection) model.get("summaries")).size());
+    }
+
+    public void testShouldReturnCommitMessageInWaitingStatus() throws Exception {
+        BuildSummary latest = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.FAILED, "");
+        mockBuildSummariesService.expects(once()).method("getLatest").withAnyArguments().will(
+                returnValue(latest));
+        mockBuildSummariesService.expects(once()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(latest));
+        mockBuildService.expects(once()).method("getBuild").withAnyArguments().will(
+                returnValue(getFailedBuild()));
+        ModelAndView mov = controller.live(request, response);
+        Map model = mov.getModel();
+        assertEquals("Failed", model.get("status"));
     }
 
     private void fakeJMXReturnBuildingAsStatus() throws Exception {
@@ -133,30 +151,43 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
         jmxStub.getBuildStatus("connectfour");
     }
 
-    public void testShouldReturnCommitMessageInWaitingStatus() throws Exception {
-        ModelAndView mov = controller.handleRequest(request, response);
-        Map model = mov.getModel();
-        assertEquals("Waiting for checking in", model.get("flash_message"));
-        assertEquals("Waiting", model.get("status"));
+    public Build getActiveBuild() {
+        return new BuildDetail(new HashMap()) {
+            public String getStatus() {
+                return ProjectBuildStatus.BUILDING.getStatus();
+            }
+
+            public String getProjectName() {
+                return "connectfour";
+            }
+
+            public String getBuildLogFilename() {
+                return "log20060101121212.xml";
+            }
+
+            public DateTime getBuildDate() {
+                return new DateTime();
+            }
+        };
     }
 
-    public void testShouldReturnProjectObject() throws Exception {
-        ModelAndView mov = controller.handleRequest(request, response);
-        Map model = mov.getModel();
-        assertEquals("connectfour", (String) model.get("projectName"));
+    public Build getFailedBuild() {
+        return new BuildDetail(new HashMap()) {
+            public String getStatus() {
+                return ProjectBuildStatus.FAILED.getStatus();
+            }
+
+            public String getProjectName() {
+                return "connectfour";
+            }
+
+            public String getBuildLogFilename() {
+                return "log20060101121212.xml";
+            }
+
+            public DateTime getBuildDate() {
+                return new DateTime();
+            }
+        };
     }
-
-    public void testShouldReturnTextThatBuildIsForcedBuildingStatusWhenCommitMessagesIsEmpty() throws Throwable {
-        CruiseControlJMXService stub = new CruiseControlJMXServiceForcedBuildStub();
-        CruiseControlJMXService service = (CruiseControlJMXService) JDelegator.delegate(CruiseControlJMXService.class)
-                .to(stub);
-        controller = new GetActiveBuildInfoController(service, buildSummariesService,
-                new BuildSummaryUIService(buildSummariesService));
-        ModelAndView mov = controller.handleRequest(request, response);
-        Map model = mov.getModel();
-        assertEquals("Build forced, No new code is committed into repository", model
-                .get("flash_message"));
-
-    }
-
 }

@@ -1,2 +1,0 @@
-#set($href="$req.getContextPath()/detail/$buildSummary.build.projectName")
-#parse('project_bar_partial.vm')

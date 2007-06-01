@@ -1,0 +1,6 @@
+#if ($flash_message && $flash_message != "")
+    <div id="flash_message"class="transparent_message transparent_notice" style="">$flash_message</div>
+    <script>
+        setTimeout("$('flash_message').style.display='none'", "3000");
+    </script>
+#end

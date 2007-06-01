@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -48,7 +49,9 @@ import net.sourceforge.cruisecontrol.dashboard.saxhandler.DurationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.ModificationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.SAXBasedExtractor;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public class BuildSummary implements Build {
@@ -65,6 +68,8 @@ public class BuildSummary implements Build {
     private DateTime buildingSince;
 
     private Map propertiesFromLogContent = new HashMap();
+
+    private static final Logger LOGGER = Logger.getLogger(BuildSummary.class);
 
     public BuildSummary(String projectName, String name, String label, ProjectBuildStatus status,
             String buildLogFilename) {
@@ -123,17 +128,16 @@ public class BuildSummary implements Build {
             }
             return (String) propertiesFromLogContent.get("duration");
         } catch (Exception e) {
-            return "";
+            return "0 second";
         }
     }
 
     private void parseLogFile(SAXBasedExtractor extractor) {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-            saxParser.parse(buildLogFile, new CompositeExtractor(
-                    new SAXBasedExtractor[] {extractor}));
+            saxParser.parse(buildLogFile, new CompositeExtractor(new SAXBasedExtractor[] {extractor}));
         } catch (ShouldStopParsingException se) {
-            // stop parsing then.
+            LOGGER.debug("Intentionally throwing exception to stop parsing " + se.getMessage());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

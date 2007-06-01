@@ -48,11 +48,11 @@ import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
 
 public class BuildSummaryUIServiceTest extends MockObjectTestCase {
-    private static final String THREE_HOURS_AGO = CCDateFormatter
-            .format(new DateTime().minusHours(3), "yyyy-MM-dd HH:mm.ss");
+    private static final String THREE_HOURS_AGO =
+            CCDateFormatter.format(new DateTime().minusHours(3), "yyyy-MM-dd HH:mm.ss");
 
-    private static final String THREE_DAYS_AGO = CCDateFormatter
-            .format(new DateTime().minusDays(3), "yyyy-MM-dd HH:mm.ss");
+    private static final String THREE_DAYS_AGO =
+            CCDateFormatter.format(new DateTime().minusDays(3), "yyyy-MM-dd HH:mm.ss");
 
     private static final String NOW = CCDateFormatter.format(new DateTime(), "yyyy-MM-dd HH:mm.ss");
 
@@ -63,8 +63,10 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
     private BuildSummaryUIService service;
 
     protected void setUp() throws Exception {
-        mockService = mock(BuildSummariesService.class, new Class[]{Configuration.class, BuildSummaryService.class},
-                new Object[]{null, null});
+        mockService =
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                null});
         buildSummariesService = (BuildSummariesService) mockService.proxy();
         service = new BuildSummaryUIService(buildSummariesService);
     }
@@ -72,8 +74,8 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
     public void testShouldBeAbleIngoreInactiveCaseAndReturnCommand() {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
-        BuildSummary buildSummary = new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.INACTIVE,
-                "log.xml");
+        BuildSummary buildSummary =
+                new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.INACTIVE, "log.xml");
         List summaries = new ArrayList();
         summaries.add(buildSummary);
         List transformed = service.transform(summaries);
@@ -81,74 +83,83 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         assertTrue(transformed.get(0) instanceof BuildCommand);
         assertEquals(ProjectBuildStatus.INACTIVE.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
                 .getStatus());
-        assertEquals(ProjectBuildStatus.INACTIVE.getStatus().toLowerCase(),
-                ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals(ProjectBuildStatus.INACTIVE.getStatus().toLowerCase(), ((BuildCommand) transformed
+                .get(0)).getCssClassName());
     }
 
     public void testShouldBeAbleIngoreBuildingCaseAndReturnCommand() {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
-        BuildSummary buildSummary = new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.BUILDING,
-                "log.xml");
+        BuildSummary buildSummary =
+                new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.BUILDING, "log.xml");
         List summaries = new ArrayList();
         summaries.add(buildSummary);
         List transformed = service.transform(summaries);
         assertEquals(1, transformed.size());
         assertTrue(transformed.get(0) instanceof BuildCommand);
-        assertEquals(ProjectBuildStatus.BUILDING.getStatus(),
-                ((BuildCommand) transformed.get(0)).getBuild().getStatus());
-        assertEquals(ProjectBuildStatus.BUILDING.getStatus().toLowerCase(),
-                ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals(ProjectBuildStatus.BUILDING.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
+                .getStatus());
+        assertEquals(ProjectBuildStatus.BUILDING.getStatus().toLowerCase(), ((BuildCommand) transformed
+                .get(0)).getCssClassName());
     }
 
     public void testShouldBeAbleToUpdateTheFailedBuildToLongFailedBaseOnLastFailedBuildAndReturn() {
-        BuildSummary earilestFailed = new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
-        mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments()
-                .will(returnValue(earilestFailed));
+        BuildSummary earilestFailed =
+                new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
+        mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(earilestFailed));
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
         List transformed = service.transform(summaries);
-        assertEquals(ProjectBuildStatus.FAILED.getStatus(), ((BuildCommand) transformed.get(0)).getBuild().getStatus());
-        assertEquals("long_failed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals(ProjectBuildStatus.FAILED.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
+                .getStatus());
+        assertEquals("failed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals("failed_level_8", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
 
     public void testShouldBeAbleToUpdateTheFailedBuildFailedBaseOnLastFailedBuildAndReturn() {
-        BuildSummary earilestFailed = new BuildSummary("", THREE_HOURS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
-        mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments()
-                .will(returnValue(earilestFailed));
+        BuildSummary earilestFailed =
+                new BuildSummary("", THREE_HOURS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
+        mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(earilestFailed));
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
         List transformed = service.transform(summaries);
         assertEquals("failed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals("failed_level_1", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
 
     public void testShouldBeAbleToUpdateThePassedBuildToLongPassedBaseOnLastSucceedBuildAndReturn() {
-        BuildSummary earilestSuccess = new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.PASSED, "log.xml");
+        BuildSummary earilestSuccess =
+                new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.PASSED, "log.xml");
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
-        mockService.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(earilestSuccess));
+        mockService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments().will(
+                returnValue(earilestSuccess));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
         List transformed = service.transform(summaries);
         assertEquals(ProjectBuildStatus.PASSED.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
                 .getStatus());
-        assertEquals("long_passed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals("passed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals("passed_level_8", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
 
     public void testShouldBeAbleToUpdateThePassedBuildToPassedBaseOnLastSucceedBuildAndReturn() {
-        BuildSummary earilestSuccess = new BuildSummary("", THREE_HOURS_AGO, "", ProjectBuildStatus.PASSED, "log.xml");
+        BuildSummary earilestSuccess =
+                new BuildSummary("", THREE_HOURS_AGO, "", ProjectBuildStatus.PASSED, "log.xml");
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
-        mockService.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(earilestSuccess));
+        mockService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments().will(
+                returnValue(earilestSuccess));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
         List transformed = service.transform(summaries);
         assertEquals("passed", ((BuildCommand) transformed.get(0)).getCssClassName());
+        assertEquals("passed_level_1", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
 }

@@ -37,11 +37,13 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -100,7 +102,7 @@ public class PanopticodeControllerTest extends TestCase {
     private static class ConfigurationStub extends Configuration {
 
         public ConfigurationStub() {
-            super(new ConfigXmlFileService(new OSEnvironment()));
+            super(new ConfigXmlFileService(new EnvironmentService()));
         }
 
         public String getCruiseConfigDirLocation() {

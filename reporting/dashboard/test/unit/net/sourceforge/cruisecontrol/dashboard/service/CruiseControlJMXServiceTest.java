@@ -38,34 +38,49 @@ package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.util.List;
 import java.util.Map;
-import javax.management.MBeanServerConnection;
+
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
-import net.sourceforge.cruisecontrol.dashboard.web.SpringBasedControllerTests;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jdelegator.JDelegator;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionBuildOutputStub;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionCommitMessageStub;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionMBeanConsoleHttpPortStub;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionProjectsStatusStub;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionStatusStub;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerErrorConnectionStub;
 
-public class CruiseControlJMXServiceTest extends SpringBasedControllerTests {
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+
+public class CruiseControlJMXServiceTest extends MockObjectTestCase {
     private static final String PROJECT_NAME = "connectfour";
 
     private CruiseControlJMXService jmxService;
 
+    private Mock mockJMXFactory;
+
+    protected void setUp() throws Exception {
+        mockJMXFactory =
+                mock(JMXFactory.class, new Class[] {EnvironmentService.class,
+                        JMXConnectorFactory.class}, new Object[] {new EnvironmentService(),
+                        new JMXConnectorFactory()});
+        jmxService = new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy());
+
+    }
+
     public void testShouldGetStatusByProjectName() throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionStatusStub());
-        jmxService.setJmxConnector(connection);
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionStatusStub()));
         String status = jmxService.getBuildStatus(PROJECT_NAME);
         assertEquals("waiting for next time to build", status);
     }
 
     public void testStatusOfProjectShouldBeChangedAfterForceBuildByRMIConnection() throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionStatusStub());
-        jmxService.setJmxConnector(connection);
+        MBeanServerConnectionStatusStub beanServerConnectionStatusStub =
+                new MBeanServerConnectionStatusStub();
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(beanServerConnectionStatusStub));
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(beanServerConnectionStatusStub));
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(beanServerConnectionStatusStub));
         String statusBefore = jmxService.getBuildStatus(PROJECT_NAME);
         jmxService.fourceBuild(PROJECT_NAME);
         String statusAfter = jmxService.getBuildStatus(PROJECT_NAME);
@@ -73,73 +88,69 @@ public class CruiseControlJMXServiceTest extends SpringBasedControllerTests {
     }
 
     public void testStatusUnknownShouldBeReturnedJMXErrorHappens() throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerErrorConnectionStub());
-        jmxService.setJmxConnector(connection);
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerErrorConnectionStub()));
+        mockJMXFactory.expects(once()).method("closeConnector");
         String buildStatus = jmxService.getBuildStatus(PROJECT_NAME);
         assertNull(buildStatus);
     }
 
     public void testShouldReturnArrayContainsCommiterAndCommitMessageWhenInvokeJMXWithAttributeCommitMessage()
             throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionCommitMessageStub());
-        jmxService.setJmxConnector(connection);
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionCommitMessageStub()));
         List commitMessages = jmxService.getCommitMessages(PROJECT_NAME);
         ModificationKey message = (ModificationKey) commitMessages.get(0);
         assertEquals("commiter", message.getUser());
         assertEquals("message 1", message.getComment());
     }
 
+    public void testShouldNOTReturnDuplicateCommitMessage() throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionCommitMessageStub()));
+        List commitMessages = jmxService.getCommitMessages(PROJECT_NAME);
+
+        assertEquals(2, commitMessages.size());
+        ModificationKey message = (ModificationKey) commitMessages.get(0);
+        assertEquals("commiter", message.getUser());
+        assertEquals("message 1", message.getComment());
+        message = (ModificationKey) commitMessages.get(1);
+        assertEquals("commiter", message.getUser());
+        assertEquals("message 2", message.getComment());
+    }
+
     public void testShouldReturnBuildOutput() throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionBuildOutputStub());
-        jmxService.setJmxConnector(connection);
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionBuildOutputStub()));
         String[] output = jmxService.getBuildOutput(PROJECT_NAME, 0);
         assertEquals("Build Failed", output[0]);
         assertEquals("Build Duration: 10s", output[1]);
     }
 
-    public void testShouldReturnEmptyArrayWhenExceptionOccurs() {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerErrorConnectionStub());
-        jmxService.setJmxConnector(connection);
+    public void testShouldReturnEmptyArrayWhenExceptionOccurs() throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerErrorConnectionStub()));
+        mockJMXFactory.expects(once()).method("closeConnector");
         List commitMessages = jmxService.getCommitMessages(PROJECT_NAME);
         assertNotNull(commitMessages);
         assertEquals(0, commitMessages.size());
     }
 
-    public void testShouldReturnArrayContainsProjectNameAndStatusWhenInvokeJMXWithAttributeAllProjectsStatus() {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionProjectsStatusStub());
-        jmxService.setJmxConnector(connection);
+    public void testShouldReturnArrayContainsProjectNameAndStatusWhenInvokeJMXWithAttributeAllProjectsStatus()
+            throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionProjectsStatusStub()));
         Map projectsStatus = jmxService.getAllProjectsStatus();
         assertEquals("now building since 20070420174744", projectsStatus.get("project1"));
     }
 
-    public void testShouldReturnEmptyMaoWhenInvokeJMXWithAttributeAllProjectsStatus() {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerErrorConnectionStub());
-        jmxService.setJmxConnector(connection);
+    public void testShouldReturnEmptyMaoWhenInvokeJMXWithAttributeAllProjectsStatus()
+            throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerErrorConnectionStub()));
+        mockJMXFactory.expects(once()).method("closeConnector");
         Map projectsStatus = jmxService.getAllProjectsStatus();
         assertNotNull(projectsStatus);
         assertEquals(0, projectsStatus.size());
     }
-
-    public void testShouldReturnHttpPortForMBeanConsole() throws Exception {
-        MBeanServerConnection connection = (MBeanServerConnection) JDelegator.delegate(MBeanServerConnection.class)
-                .to(new MBeanServerConnectionMBeanConsoleHttpPortStub());
-        jmxService.setJmxConnector(connection);
-        int port = jmxService.getHttpPortForMBeanConsole();
-        assertEquals(8000, port);
-    }
-
-    public CruiseControlJMXService getjmxService() {
-        return jmxService;
-    }
-
-    public void setJmxService(CruiseControlJMXService jmxService) {
-        this.jmxService = jmxService;
-    }
-
 }

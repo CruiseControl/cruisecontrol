@@ -57,7 +57,7 @@ public abstract class SeleniumTestCase extends TestCase {
 
     private void setConfigFileLocation() throws Exception {
         selenium.open("/dashboard/admin/config");
-        selenium.type("configFileLocation", DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        selenium.type("configFileLocation", DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
         selenium.submit("specifyConfigLocation");
         selenium.waitForPageToLoad("5000");
     }

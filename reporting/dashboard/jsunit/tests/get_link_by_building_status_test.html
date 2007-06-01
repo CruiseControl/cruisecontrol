@@ -53,7 +53,7 @@ function test_should_return_link_to_commit_message_when_status_is_not_building()
 	var json = {
 	  building_info : { project_name : "project1", building_status : "Passed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
-    var expected = 'detail/' + json.building_info.project_name
+    var expected = 'build/detail/' + json.building_info.project_name
 	assertEquals(expected, get_link_by_building_status(json));
 	json = {
 	  building_info : { project_name : "project1", building_status : "Failed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
@@ -65,7 +65,7 @@ function test_should_return_link_to_commit_message_when_status_is_building() {
 	var json = {
 	  building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
-    var expected = 'project/live/' + json.building_info.project_name;
+    var expected = 'build/detail/live/' + json.building_info.project_name;
 	assertEquals(expected, get_link_by_building_status(json));
 }
 

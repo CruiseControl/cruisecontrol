@@ -36,26 +36,33 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
+import java.net.InetAddress;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
 import org.apache.commons.lang.StringUtils;
 
 public class MBeanConsoleTest extends BaseFunctionalTest {
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldShowMBeanConsoleForServer() throws Exception {
         tester.beginAt("/admin/mx4j");
         tester.assertTextPresent("JMX Console for CruiseControl");
-        assertTrue(StringUtils.contains(tester.getPageSource(), "set_jmx_console_url(8000, \"\")"));
+        assertTrue(StringUtils.contains(tester.getPageSource(), getURL("")));
     }
 
     public void testShouldShowMBeanConsoleForSpecificProject() throws Exception {
         tester.beginAt("/admin/mx4j/project1");
         tester.assertTextPresent("JMX Console for project1");
-        assertTrue(StringUtils
-                .contains(tester.getPageSource(),
-                "set_jmx_console_url(8000, \"mbean?objectname=CruiseControl+Project%3Aname%3Dproject1\")"));
+        String context = "mbean?objectname=CruiseControl Project:name=project1";
+        assertTrue(StringUtils.contains(tester.getPageSource(), getURL(context)));
+    }
+
+    public String getURL(String context) throws Exception {
+        String hostName = InetAddress.getLocalHost().getHostName();
+        return "http://" + hostName + ":8000/" + context;
     }
 }

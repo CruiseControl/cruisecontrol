@@ -76,8 +76,7 @@ public class ProjectBuildStatusTest extends TestCase {
 
     public void testShouldReturnWaitingObjectBaseOnValue() {
         String exptected = new StatusWaiting().toString();
-        ProjectBuildStatus waiting = ProjectBuildStatus
-                .getProjectBuildStatus(exptected);
+        ProjectBuildStatus waiting = ProjectBuildStatus.getProjectBuildStatus(exptected);
         assertTrue(waiting instanceof StatusWaiting);
         assertEquals("Waiting", waiting.getStatus());
     }

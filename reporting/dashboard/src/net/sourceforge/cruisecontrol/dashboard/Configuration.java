@@ -56,15 +56,9 @@ public class Configuration {
 
     private Projects projects;
 
-    /**
-     * @deprecated for mocking only *
-     */
-    protected Configuration() {
-    }
-
     public Configuration(ConfigXmlFileService service) {
         this.service = service;
-        configFile = service.getConfigXmlFile(configFile);
+        configFile = service.getConfigXmlFile(null);
         projects = service.getProjects(configFile);
     }
 
@@ -132,9 +126,5 @@ public class Configuration {
     public File[] getProjectDirectoriesFromFileSystem() {
         File root = new File(getCruiseLogfileLocation());
         return root.listFiles(new CCProjectFolderFilter());
-    }
-
-    public boolean isConfigFileEditable() {
-        return service.isConfigFileEditable();
     }
 }

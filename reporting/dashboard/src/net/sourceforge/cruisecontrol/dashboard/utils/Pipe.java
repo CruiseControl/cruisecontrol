@@ -37,17 +37,27 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
 import java.io.InputStream;
+
+import org.apache.log4j.Logger;
+
 import net.sourceforge.cruisecontrol.dashboard.exception.ExecutionException;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.CompositeConsumer;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 
 public class Pipe {
     private final Process process;
+
     private final StringBuffer errorBuffer;
+
     private final StringBuffer outputBuffer;
+
     private final String commandLine;
+
+    private final Logger logger = Logger.getLogger(Pipe.class);
+
     private boolean complete;
 
     public Pipe(Commandline command) {
@@ -58,25 +68,31 @@ public class Pipe {
             throw new ExecutionException("Couldn't execute command " + commandLine, e);
         }
 
-        InputStream error = process.getErrorStream();
-        //i.e. the process' output. What a stupid method name.
-        InputStream output = process.getInputStream();
-        errorBuffer = getStringBuffer(error);
-        outputBuffer = getStringBuffer(output);
+        errorBuffer = getStringBuffer(process.getErrorStream());
+        outputBuffer = getStringBuffer(process.getInputStream());
     }
 
     private StringBuffer getStringBuffer(InputStream stream) {
-        final StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
+        StreamConsumer consumer = assembleStreamConsumers(buffer);
+        new Thread(new StreamPumper(stream, consumer)).start();
+        return buffer;
+    }
 
-        StreamConsumer consumer = new StreamConsumer() {
+    private StreamConsumer assembleStreamConsumers(final StringBuffer buffer) {
+        StreamConsumer stringConsumer = new StreamConsumer() {
             public void consumeLine(String line) {
                 buffer.append(line + '\n');
             }
         };
-
-        StreamPumper pumper = new StreamPumper(stream, consumer);
-        pumper.run();
-        return buffer;
+        StreamConsumer consoleConsumer = new StreamConsumer() {
+            public void consumeLine(String line) {
+                logger.info(line);
+            }
+        };
+        CompositeConsumer consumer = new CompositeConsumer(stringConsumer);
+        consumer.add(consoleConsumer);
+        return consumer;
     }
 
     public void waitFor() {
@@ -92,29 +108,13 @@ public class Pipe {
         }
     }
 
-    public boolean isComplete() {
-        if (complete) {
-            return true;
-        }
-        try {
-            process.exitValue();
-            IO.close(process);
-            complete = true;
-            return true;
-        } catch (IllegalThreadStateException itse) {
-            return false;
-        }
-    }
-
-    public StringBuffer getOutputBuffer() {
-        return outputBuffer;
-    }
-
     public String error() {
+        waitFor();
         return errorBuffer.toString();
     }
 
     public String output() {
+        waitFor();
         return outputBuffer.toString();
     }
 }

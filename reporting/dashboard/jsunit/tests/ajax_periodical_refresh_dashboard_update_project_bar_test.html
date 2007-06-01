@@ -63,7 +63,7 @@ function tearDown() {
 
 function test_should_update_build_summary_status_bar() {
 	var json = {
-	  building_info : { project_name : "project1", building_status : "passed", css_class_name : "passed" }
+	  building_info : { project_name : "project1", building_status : "passed", css_class_name : "passed", css_class_name_for_dashboard : "passed" }
 	}	
 	var is_called = false;
 	this.reround = function() {
@@ -84,13 +84,13 @@ function test_should_contains_link_to_project_details_when_status_is_building_in
 }
 
 function test_should_contains_link_to_project_details_when_status_is_building_in_bar() {
-	$('project1_bar').className = 'long_failed'
+	$('project1_bar').className = 'failed_level_8'
 	var json = {
-	  building_info : {css_class_name : "building", project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
+	  building_info : {css_class_name : "building", css_class_name_for_dashboard : "building", project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
-	assertTrue(Element.hasClassName($('project1_bar'), 'long_failed'));
+	assertTrue(Element.hasClassName($('project1_bar'), 'failed_level_8'));
 	ajax_periodical_refresh_dashboard_update_project_bar(json);
-	assertFalse(Element.hasClassName($('project1_bar'), 'long_failed'));
+	assertFalse(Element.hasClassName($('project1_bar'), 'failed_level_8'));
 	assertTrue(Element.hasClassName($('project1_bar'), 'building'));
 }
 </script>

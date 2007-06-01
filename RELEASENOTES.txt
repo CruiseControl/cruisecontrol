@@ -7,7 +7,24 @@ CruiseControl Release Notes - 2.6.3-dev
 dashboard
 ======================
 * Initial checkin of new CruiseControl dashboard.
-
+* Tidied the failed and building pages, so that the text is aligned accordingly and does not leak out of the colored box.
+* Performance enhancements to the active build page.
+* Documentation enhancements, and updated to use newest screenshots.
+* Reorganize the modifications tab so that messages are ordered.
+* Clarified the administration page so that the difference between the config file location and config file editor is clear.
+* Made hyperlinks clearly delineated.
+* Fixed issue with refs to default servlet which would break in other web containers.
+* Fixed bug with newly added projects reporting incorrect build times.
+* Fixed broken link from active build page after build completed.
+* Disabled configuration panel for inactive projects.
+* CSS commenting to make clearer.
+* Created documentation on writing "widgets".
+* Enhanced reds and greens on the dashboard to provide a better sense of the state of the entire enterprise.
+* Renamed "Last 25 Builds" to "Latest Builds" to more accurate.
+* Fixed bug in project summation reporting the wrong number of builds.
+* Fixed bug with remaining time calculation.
+* Fixed bug where forcing a build wouldn't update the project statistics.
+* Swapped the All Builds and All Successful Builds icons so that the wording and placement would make them more intuitive.
 
 documentation
 ======================
@@ -17,13 +34,22 @@ documentation
 build loop
 ======================
 
+build.xml
+----------------------
+* Added the clean targets for the subbuilds to the main build, so that cleaning at the root will actually clean everything.
+
 ClearCase
 ----------------------
 * Change validation so that branch is not a required attribute.
 
 CruiseControlConfig
-----------------------
+
 * <include.projects> now handles nested <include.projects>
+
+EmbeddedJettyServer
+----------------------
+* Added jmxport and rmiport parameters to the embedded jetty server that are passed to the dashboard.
+
 
 JMX
 ----------------------

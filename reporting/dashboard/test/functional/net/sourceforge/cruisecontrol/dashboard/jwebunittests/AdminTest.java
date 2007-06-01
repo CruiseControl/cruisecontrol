@@ -38,8 +38,10 @@ package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import java.io.File;
 import java.io.IOException;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.web.AdminController;
+import net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlContentController;
+
 import org.apache.commons.io.FileUtils;
 
 public class AdminTest extends BaseFunctionalTest {
@@ -51,20 +53,22 @@ public class AdminTest extends BaseFunctionalTest {
 
     private static final String EDIT_CONFIG_FILE_URL = "/admin/config";
 
-    private static final String UPDATED_CONFIG_FILE_CONTENTS = "<cruisecontrol><project name=\"project2\"/>"
-        + "</cruisecontrol>\n";
+    private static final String UPDATED_CONFIG_FILE_CONTENTS =
+            "<cruisecontrol><project name=\"project2\"/>" + "</cruisecontrol>\n";
 
     private static final String INVALID_CONFIG_FILE_CONTENTS = "<cruisecontrol><project";
 
     private File configFile;
 
-    public void testShouldBeAbleToShowEditConfigFormAndShowConfigFileContentsAndUpdateContents() throws IOException {
+    public void testShouldBeAbleToShowEditConfigFormAndShowConfigFileContentsAndUpdateContents()
+            throws IOException {
         setConfigFileLocationAndGoToEditConfigPage();
         assertEditConfigFormPresent();
         assertConfigFileContentsPresent(FileUtils.readFileToString(configFile, null));
         updateConfigFileContents(UPDATED_CONFIG_FILE_CONTENTS);
         assertEditConfigFormPresent();
-        tester.assertTextInElement("message", AdminController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY);
+        tester.assertTextInElement("edit_message",
+                UpdateConfigXmlContentController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY);
         assertConfigFileContentsPresent(UPDATED_CONFIG_FILE_CONTENTS);
     }
 

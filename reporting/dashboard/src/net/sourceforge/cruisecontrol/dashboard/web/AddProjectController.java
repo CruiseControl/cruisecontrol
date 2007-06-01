@@ -44,6 +44,6 @@ import org.springframework.web.servlet.mvc.Controller;
 public class AddProjectController implements Controller {
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return new ModelAndView("addProject");
+        return new ModelAndView("page_add_project");
     }
 }

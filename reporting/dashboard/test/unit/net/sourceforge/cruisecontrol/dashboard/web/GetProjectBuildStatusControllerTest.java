@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
@@ -48,7 +49,9 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -72,9 +75,15 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     private Mock buildSummaryServiceMock;
 
+    private Mock jmxServiceMock;
+
     protected void setUp() throws Exception {
-        earliestFailed = new BuildSummary("project1", "2004-04-20 17:47.44", "", ProjectBuildStatus.FAILED, "");
-        lastPassed = new BuildSummary("project1", "2004-04-20 17:47.44", "", ProjectBuildStatus.PASSED, "");
+        earliestFailed =
+                new BuildSummary("project1", "2004-04-20 17:47.44", "", ProjectBuildStatus.FAILED,
+                        "");
+        lastPassed =
+                new BuildSummary("project1", "2004-04-20 17:47.44", "", ProjectBuildStatus.PASSED,
+                        "");
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
         request.setMethod("GET");
@@ -82,24 +91,29 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
     }
 
     private void setUpControllerWithBuildSummaryService() {
-        buildSummaryServiceMock = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class}, new Object[]{null, null});
+        buildSummaryServiceMock =
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class}, new Object[] {null, null});
         buildSummaryServiceMock.expects(atLeastOnce()).method("getLatestOfProjects")
                 .withAnyArguments().will(returnValue(buidSummaries()));
         buildSummaryService = (BuildSummariesService) buildSummaryServiceMock.proxy();
-        Mock jmxServiceMock = mock(CruiseControlJMXService.class);
-        jmxServiceMock.expects(once()).method("getAllProjectsStatus").withNoArguments()
-                .will(returnValue(returnedMap()));
-        controller = new GetProjectBuildStatusController(buildSummaryService,
-                (CruiseControlJMXService) jmxServiceMock.proxy(), new BuildSummaryUIService(buildSummaryService));
+        jmxServiceMock =
+                mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class},
+                        new Object[] {null});
+        jmxServiceMock.expects(once()).method("getAllProjectsStatus").withNoArguments().will(
+                returnValue(returnedMap()));
+        controller =
+                new GetProjectBuildStatusController(buildSummaryService,
+                        (CruiseControlJMXService) jmxServiceMock.proxy(),
+                        new BuildSummaryUIService(buildSummaryService));
     }
 
     public void testShouldReturnViewIncludeMultipleProjects() throws Exception {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
@@ -126,8 +140,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
@@ -138,8 +152,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
@@ -150,20 +164,20 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
-        assertTrue(StringUtils.contains(output, "long_failed"));
+        assertTrue(StringUtils.contains(output, "failed_level_8"));
     }
 
     public void testShouldReturnPassedJasonViewInWaitingStatus() throws Exception {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
@@ -174,23 +188,25 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         setUpControllerWithBuildSummaryService();
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
                 .withAnyArguments().will(returnValue(earliestFailed));
-        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastSucceed").withAnyArguments()
-                .will(returnValue(lastPassed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getHeader("X-JSON").toString();
-        assertTrue(StringUtils.contains(output, GetProjectBuildStatusController.PROJECT_STATUS_IN_BUILDING));
+        assertTrue(StringUtils.contains(output,
+                GetProjectBuildStatusController.PROJECT_STATUS_IN_BUILDING));
         assertTrue(output.indexOf("build_time_elapsed") >= 0);
     }
 
     public void testShouldReturnJsonErrorWhenStatusCallFails() throws Exception {
-
-        Mock failingServiceMock = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class}, new Object[]{null, null});
-        failingServiceMock.expects(once()).method("getLatestOfProjects")
-                .will(throwException(new RuntimeException("xyz")));
-        controller = new GetProjectBuildStatusController((BuildSummariesService) failingServiceMock
-                .proxy(), null, null);
+        Mock failingServiceMock =
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class}, new Object[] {null, null});
+        failingServiceMock.expects(once()).method("getLatestOfProjects").will(
+                throwException(new RuntimeException("xyz")));
+        controller =
+                new GetProjectBuildStatusController((BuildSummariesService) failingServiceMock
+                        .proxy(), null, null);
 
         ModelAndView mov = controller.handleRequest(request, response);
 
@@ -198,6 +214,24 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         Map model = mov.getModelMap();
         assertEquals(1, model.size());
         assertEquals("xyz", model.get("error"));
+    }
+
+    public void testShouldUseCachedDataModelWithinTheCachePeriod() throws Exception {
+        setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed")
+                .withAnyArguments().will(returnValue(earliestFailed));
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded")
+                .withAnyArguments().will(returnValue(lastPassed));
+        controller.handleRequest(request, response);
+        buildSummaryServiceMock.expects(never()).method("getLatestOfProjects").withAnyArguments()
+                .will(returnValue(buidSummaries()));
+        jmxServiceMock.expects(never()).method("getAllProjectsStatus").withNoArguments().will(
+                returnValue(returnedMap()));
+        buildSummaryServiceMock.expects(never()).method("getEaliestFailed").withAnyArguments()
+                .will(returnValue(earliestFailed));
+        buildSummaryServiceMock.expects(never()).method("getLastSucceed").withAnyArguments().will(
+                returnValue(lastPassed));
+        controller.handleRequest(request, response);
     }
 
     private Map returnedMap() {
@@ -212,16 +246,21 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     private List buidSummaries() {
         List list = new ArrayList();
-        BuildSummary build1 = new BuildSummary("project1", "2005-12-09 12:21.03", "build.1", ProjectBuildStatus.PASSED,
-                "log1");
-        BuildSummary build2 = new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED,
-                "log2");
-        BuildSummary build3 = new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.BUILDING,
-                "log2");
-        BuildSummary build4 = new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE,
-                "log2");
-        BuildSummary build5 = new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE,
-                "log2");
+        BuildSummary build1 =
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build.1",
+                        ProjectBuildStatus.PASSED, "log1");
+        BuildSummary build2 =
+                new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED,
+                        "log2");
+        BuildSummary build3 =
+                new BuildSummary("project3", "2005-12-09 12:21.03", "",
+                        ProjectBuildStatus.BUILDING, "log2");
+        BuildSummary build4 =
+                new BuildSummary("project4", "2005-12-09 12:21.03", "",
+                        ProjectBuildStatus.INACTIVE, "log2");
+        BuildSummary build5 =
+                new BuildSummary("project5", "2005-12-09 12:21.03", "",
+                        ProjectBuildStatus.INACTIVE, "log2");
         list.add(build1);
         list.add(build2);
         list.add(build3);

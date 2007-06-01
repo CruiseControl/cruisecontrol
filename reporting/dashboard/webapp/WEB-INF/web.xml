@@ -38,12 +38,31 @@
  -->
  <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-     http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+     
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>/WEB-INF/applicationContext-*.xml</param-value>
     </context-param>
+
+    <!--
+    <context-param>
+      <param-name>cruisecontrol.jmxport</param-name>
+      <param-value>8000</param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.rmiport</param-name>
+      <param-value>1099</param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.config.file</param-name>
+      <param-value></param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.config.editable</param-name>
+      <param-value>true</param-value>
+    </context-param>
+    -->
 
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -67,7 +86,22 @@
 
     <servlet-mapping>
         <servlet-name>spring-pages</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/build/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/project/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-pages</servlet-name>
+        <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -85,31 +119,6 @@
         <url-pattern>/rss.xml</url-pattern>
     </servlet-mapping>
 
-	<servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.css</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.js</url-pattern>
-    </servlet-mapping>
-
-	<servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.png</url-pattern>
-    </servlet-mapping>
-
-	<servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.gif</url-pattern>
-    </servlet-mapping>
-	
-	<servlet-mapping>
-        <servlet-name>default</servlet-name>
-        <url-pattern>*.html</url-pattern>
-    </servlet-mapping>
-    
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>

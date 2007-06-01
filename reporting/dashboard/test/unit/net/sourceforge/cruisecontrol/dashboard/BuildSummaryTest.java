@@ -51,8 +51,8 @@ public class BuildSummaryTest extends TestCase {
         assertFalse("Building".equals(buildSummary.getStatus()));
         buildSummary.updateStatus("now building since 20070420174744");
         assertEquals("Building", buildSummary.getStatus());
-        assertEquals(CCDateFormatter.format("2007-04-20 17:47:44", "yyyy-MM-dd HH:mm:ss"),
-                buildSummary.getBuildingSince());
+        assertEquals(CCDateFormatter.format("2007-04-20 17:47:44", "yyyy-MM-dd HH:mm:ss"), buildSummary
+                .getBuildingSince());
     }
 
     public void testShouldReturnBuildingAsStatusWhenTheStatusIsNotWaiting() {
@@ -71,5 +71,9 @@ public class BuildSummaryTest extends TestCase {
         Build buildSummary1 = new BuildSummary("project1", "", "", ProjectBuildStatus.PASSED, "");
         Build buildSummary2 = new BuildSummary("Project1", "", "", ProjectBuildStatus.PASSED, "");
         assertTrue(buildSummary1.compareTo(buildSummary2) > 0);
+    }
+
+    public void testShouldReturn0SecondAsDefaultDuration() throws Exception {
+        assertEquals("0 second", buildSummary.getDuration());
     }
 }

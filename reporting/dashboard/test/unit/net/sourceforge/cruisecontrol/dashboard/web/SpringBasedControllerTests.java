@@ -56,7 +56,7 @@ public abstract class SpringBasedControllerTests extends AbstractDependencyInjec
 
     protected String[] getConfigLocations() {
         this.setAutowireMode(AUTOWIRE_BY_NAME);
-        return new String[]{"classpath*:**/applicationContext-*.xml", "classpath*:**/*-servlet.xml"};
+        return new String[]{"classpath*:WEB-INF/applicationContext-*.xml", "classpath*:WEB-INF/*-servlet.xml"};
     }
 
     protected MockHttpServletRequest getRequest() {

@@ -38,7 +38,8 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -59,7 +60,7 @@ public class ConfigInterceptorTest extends MockObjectTestCase {
         request = new MockHttpServletRequest();
         reponse = new MockHttpServletResponse();
         mockConfiguration = mock(Configuration.class, new Class[]{ConfigXmlFileService.class},
-                new Object[]{new ConfigXmlFileService(new OSEnvironment())});
+                new Object[]{new ConfigXmlFileService(new EnvironmentService())});
         configurationMock = (Configuration) mockConfiguration.proxy();
         interceptor = new ConfigInterceptor(configurationMock);
     }

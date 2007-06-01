@@ -37,16 +37,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
  -->
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
-	<bean id="jmxConnector" class="org.springframework.jmx.support.MBeanServerConnectionFactoryBean">
-		<property name="serviceUrl" value="${cruise.jmx.connector}"/>
-		<property name="connectOnStartup" value="false"/>
-		<property name="environment">
-			<map>
-				<entry key="java.naming.factory.initial"
-					value="com.sun.jndi.rmi.registry.RegistryContextFactory"/>
-			</map>
-		</property>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    
+    <bean id="jmxFactory" class="net.sourceforge.cruisecontrol.dashboard.service.JMXFactory">
+		<constructor-arg ref="envService"/>
+		<constructor-arg ref="jmxConnectorFactory"/>
 	</bean>
+    <bean id="jmxConnectorFactory" class="net.sourceforge.cruisecontrol.dashboard.service.JMXConnectorFactory"/>
 </beans>

@@ -88,7 +88,7 @@ public class CCTrayBuildSummaryAdapter implements XmlAdapter {
                 .append(quote(this.getActivity())).append(" lastBuildStatus=").append(quote(this.getLastBuildStatus()))
                 .append(" lastBuildLabel=").append(quote(this.getLastBuildLabel())).append(" lastBuildTime=")
                 .append(quote(this.getLastBuildTime())).append(" webUrl=")
-                .append(quote(baseUrl + "buildDetail.html?project=" + this.getName()))
+                .append(quote(baseUrl + "build/detail/" + this.getName()))
                 .append(" />").append("\n");
         return sb.toString();
     }

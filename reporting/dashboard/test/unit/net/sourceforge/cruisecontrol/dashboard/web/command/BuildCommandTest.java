@@ -63,13 +63,16 @@ public class BuildCommandTest extends TestCase {
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
         BuildCommand command = new BuildCommand(build);
-        BuildSummary buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary buildSummary =
+                new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
         command.updateFailedCSS(buildSummary);
-        assertEquals("long_failed", command.getCssClassName());
+        assertEquals("failed", command.getCssClassName());
+        assertEquals("failed_level_8", command.getCssClassNameForDashboard());
     }
 
     public void testShouldReturnClassNameAsFailedWhenBuildIsLessThanFailed24HoursAgo() {
-        String dateBuildSummary = new SimpleDateFormat("yyyy-MM-dd HH:mm.ss", Locale.ENGLISH).format(new Date());
+        String dateBuildSummary =
+                new SimpleDateFormat("yyyy-MM-dd HH:mm.ss", Locale.ENGLISH).format(new Date());
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
@@ -77,16 +80,17 @@ public class BuildCommandTest extends TestCase {
         BuildSummary buildSummary = new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
         command.updateFailedCSS(buildSummary);
         assertEquals("failed", command.getCssClassName());
+        assertEquals("failed_level_0", command.getCssClassNameForDashboard());
     }
 
     public void testShouldReturnClassNameAsFailedWhenBuildNeverPassed() {
         Map props = new HashMap();
         props.put("logfile", new File("log20051209122103.xml"));
-        props.put("passed", Boolean.FALSE);
         BuildDetail build = new BuildDetail(props);
         BuildCommand command = new BuildCommand(build);
         command.updateFailedCSS(null);
-        assertEquals("long_failed", command.getCssClassName());
+        assertEquals("failed", command.getCssClassName());
+        assertEquals("failed_level_8", command.getCssClassNameForDashboard());
     }
 
     public void testShouldNotReturnDarkRedWhenBuildIsPassed() {
@@ -97,4 +101,15 @@ public class BuildCommandTest extends TestCase {
         assertEquals("passed", buildCommand.getCssClassName());
     }
 
+    public void testCassNameShouldBeLevel8WhenTheLatestSuccessfulBuildIs24HoursAgo() throws Exception {
+        Map props = new HashMap();
+        props.put("logfile", new File("log19991212050505Lbuild.9.xml"));
+        BuildDetail build = new BuildDetail(props);
+        BuildCommand buildCommand = new BuildCommand(build);
+        BuildSummary buildSummary =
+                new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
+        buildCommand.updatePassedCss(buildSummary);
+        assertEquals("passed", buildCommand.getCssClassName());
+        assertEquals("passed_level_8", buildCommand.getCssClassNameForDashboard());
+    }
 }

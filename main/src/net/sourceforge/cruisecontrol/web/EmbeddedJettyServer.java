@@ -68,6 +68,10 @@ public class EmbeddedJettyServer {
     /** the current state of the embedded Jetty server. */
     private boolean isRunning;
 
+    private int jmxPort;
+
+    private int rmiPort;
+
     /**
      * Creates a new embeded Jetty server with the given listen port and the given webapp path.
      *
@@ -94,13 +98,28 @@ public class EmbeddedJettyServer {
      * @param configFileName
      *         the name of the config file
      */
-    public EmbeddedJettyServer(int webPort, String webappPath, String newWebappPath, String configFileName) {
+    public EmbeddedJettyServer(int webPort, String webappPath, String newWebappPath,
+            String configFileName, int jmxPort, int rmiPort) {
         this.webPort = webPort;
         this.webappPath = webappPath;
         this.newWebappPath = newWebappPath;
         this.configFileName = configFileName;
+        this.jmxPort = jmxPort;
+        this.rmiPort = rmiPort;
     }
 
+    private void setUpSystemPropertiesForDashboard() {
+        if (configFileName != null) {
+            File configFile = new File(configFileName);
+            if (!configFile.exists()) {
+                throw new RuntimeException("Cannot find config file at " + configFile.getAbsolutePath());
+            }
+            System.setProperty("cc.config.file", configFile.getAbsolutePath());
+        }
+        System.setProperty("cc.rmiport", String.valueOf(rmiPort));
+        System.setProperty("cc.jmxport", String.valueOf(jmxPort));
+    }
+    
     /**
      * Starts the embedded Jetty server.
      */
@@ -109,14 +128,7 @@ public class EmbeddedJettyServer {
             LOG.info("EmbeddedJettyServer.start() called, but server already running.");
             return;
         }
-
-        if (configFileName != null) {
-            File configFile = new File(configFileName);
-            if (!configFile.exists()) {
-                throw new RuntimeException("Cannot find config file at " + configFile.getAbsolutePath());
-            }
-            System.setProperty("cc.config", configFile.getAbsolutePath());
-        }
+        setUpSystemPropertiesForDashboard();
         jettyServer = new Server();
         SocketListener listener = new SocketListener();
         listener.setPort(webPort);

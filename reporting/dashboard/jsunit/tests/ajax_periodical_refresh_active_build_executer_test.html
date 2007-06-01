@@ -84,12 +84,12 @@ function test_ajax_periodical_refresh_active_build_should_update_title_when_buil
 	json.building_info.css_class_name = "passed"
 	json.building_info.building_status = "passed"
 	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
-	assertEquals("project1 <span class=\"build_status\">passed</span> (<a href=\"/dashboard/detail/project1/1.log\">see details</a>)", $$('.build_detail_summary h3')[0].innerHTML);
+	assertEquals("project1 <span class=\"build_status\">passed</span> (<a href=\"/dashboard/build/detail/project1/1.log\">see details</a>)", $$('.build_detail_summary h3')[0].innerHTML);
 	
 	json.building_info.css_class_name = "failed"
 	json.building_info.building_status = "failed"
 	ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
-	assertEquals('project1 <span class="build_status">failed</span> (<a href="/dashboard/detail/project1/1.log">see details</a>)', $$('.build_detail_summary h3')[0].innerHTML);
+	assertEquals('project1 <span class="build_status">failed</span> (<a href="/dashboard/build/detail/project1/1.log">see details</a>)', $$('.build_detail_summary h3')[0].innerHTML);
 }
 
 function test_ajax_periodical_refresh_active_build_should_stop_timer_when_build_finished() {

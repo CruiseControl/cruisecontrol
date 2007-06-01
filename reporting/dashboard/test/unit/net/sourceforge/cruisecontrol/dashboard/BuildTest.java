@@ -44,7 +44,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemFixture;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 import org.apache.commons.io.FileUtils;
 
 public class BuildTest extends TestCase {
@@ -140,11 +140,11 @@ public class BuildTest extends TestCase {
     public void testShouldReturnAllArtifactsForTheBuild() throws IOException {
         String projectName = "p1";
         String timeStamp = "20001212050505";
-        File artifactsRoot = FilesystemFixture.createDirectory(projectName);
-        File artifactsDir = FilesystemFixture.createDirectory(timeStamp, projectName);
-        FilesystemFixture.createFile("p1.jar", artifactsDir);
-        FilesystemFixture.createFile("p1.war", artifactsDir);
-        FilesystemFixture.createFile("p1.ear", artifactsDir);
+        File artifactsRoot = FilesystemUtils.createDirectory(projectName);
+        File artifactsDir = FilesystemUtils.createDirectory(timeStamp, projectName);
+        FilesystemUtils.createFile("p1.jar", artifactsDir);
+        FilesystemUtils.createFile("p1.war", artifactsDir);
+        FilesystemUtils.createFile("p1.ear", artifactsDir);
 
         Map props = new HashMap();
         props.put("logfile", new File("log20001212050505.xml"));
@@ -157,15 +157,15 @@ public class BuildTest extends TestCase {
     public void testShouldGetArtifactsInSubDirectories() throws Exception {
         String projectName = "p2";
         String timeStamp = "20001212050505";
-        File artifactsRoot = FilesystemFixture.createDirectory(projectName);
-        File artifactsDir = FilesystemFixture.createDirectory(timeStamp, projectName);
-        FilesystemFixture.createFile("p2.jar", artifactsDir);
-        FilesystemFixture.createFile("p2.war", artifactsDir);
-        FilesystemFixture.createFile("p2.ear", artifactsDir);
+        File artifactsRoot = FilesystemUtils.createDirectory(projectName);
+        File artifactsDir = FilesystemUtils.createDirectory(timeStamp, projectName);
+        FilesystemUtils.createFile("p2.jar", artifactsDir);
+        FilesystemUtils.createFile("p2.war", artifactsDir);
+        FilesystemUtils.createFile("p2.ear", artifactsDir);
         File subDir = new File(artifactsDir, "subdir");
 
         FileUtils.forceMkdir(subDir);
-        FilesystemFixture.createFile("chnakd.ear", subDir);
+        FilesystemUtils.createFile("chnakd.ear", subDir);
         Map props = new HashMap();
         props.put("logfile", new File("log20001212050505.xml"));
         props.put("artifactfolder", artifactsRoot);
@@ -177,13 +177,13 @@ public class BuildTest extends TestCase {
     public void testShouldIgnoreFilesWithDotPrefix() throws Exception {
         String projectName = "p3";
         String timeStamp = "20001212050505";
-        File artifactsRoot = FilesystemFixture.createDirectory(projectName);
-        File artifactsDir = FilesystemFixture.createDirectory(timeStamp, projectName);
-        FilesystemFixture.createFile("p3.jar", artifactsDir);
-        FilesystemFixture.createFile("p3.war", artifactsDir);
-        FilesystemFixture.createFile("p3.ear", artifactsDir);
+        File artifactsRoot = FilesystemUtils.createDirectory(projectName);
+        File artifactsDir = FilesystemUtils.createDirectory(timeStamp, projectName);
+        FilesystemUtils.createFile("p3.jar", artifactsDir);
+        FilesystemUtils.createFile("p3.war", artifactsDir);
+        FilesystemUtils.createFile("p3.ear", artifactsDir);
 
-        File startWithDot = FilesystemFixture.createFile(".start.with.file", artifactsDir);
+        File startWithDot = FilesystemUtils.createFile(".start.with.file", artifactsDir);
         assertTrue(startWithDot.exists());
 
         Map props = new HashMap();

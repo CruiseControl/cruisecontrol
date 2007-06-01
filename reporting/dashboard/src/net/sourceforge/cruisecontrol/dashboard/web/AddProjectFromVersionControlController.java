@@ -59,7 +59,7 @@ public class AddProjectFromVersionControlController implements Controller {
     private VersionControlFactory vcsFactory;
 
     private static final String BUILD_FILE_NOT_FOUND = "You may need to edit cruisecontrol configuration file at "
-            + "Administration page to specify the build.xml.";
+            + "the Administration page to specify the build.xml.";
 
     public static final String ERROR_WHILE_PARSING_CRUISE_CONFIG_FILE = "Error while parsing Cruise config file.";
 

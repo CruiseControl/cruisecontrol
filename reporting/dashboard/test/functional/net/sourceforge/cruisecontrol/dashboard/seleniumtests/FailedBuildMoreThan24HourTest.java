@@ -45,28 +45,72 @@ import org.joda.time.DateTime;
 
 public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
 
-    private File longFailed;
-    private File failAgain;
-    private File successful;
-    private File jusfFailed;
+    private File failedLevel8;
+
+    private File failedLevel7;
+
+    private File failedLevel6;
+
+    private File failedLevel5;
+
+    private File failedLevel4;
+
+    private File failedLevel3;
+
+    private File failedLevel2;
+
+    private File failedLevel1;
+
+    private File failedLevel0;
+
+    private File justSucceeded;
+
+    private File justFailed;
 
     protected void doSetUp() throws Exception {
-        File root = DataUtils.getConfigXmlAsFile().getAbsoluteFile().getParentFile();
+        File root = DataUtils.getConfigXmlOfWebApp().getParentFile();
         File logs = new File(root, "logs");
         File projectWithoutPublishers = new File(logs, "projectWithoutPublishers");
-        longFailed = new File(projectWithoutPublishers,
-                "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime().minusDays(2)) + ".xml");
-        failAgain = new File(projectWithoutPublishers,
-                "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime().minusMinutes(30)) + ".xml");
-        successful = new File(projectWithoutPublishers,
-                "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime().minusMinutes(10)) + "Lbuild.510.xml");
-        jusfFailed = new File(projectWithoutPublishers,
-                "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime()) + ".xml");
-
+        DateTime now = new DateTime();
+        failedLevel8 =
+                new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(2))
+                        + ".xml");
+        failedLevel7 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(7 * 180 + 12)) + ".xml");
+        failedLevel6 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(6 * 180 + 12)) + ".xml");
+        failedLevel5 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(5 * 180 + 12)) + ".xml");
+        failedLevel4 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(4 * 180 + 12)) + ".xml");
+        failedLevel3 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(3 * 180 + 12)) + ".xml");
+        failedLevel2 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(2 * 180 + 12)) + ".xml");
+        failedLevel1 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(1 * 180 + 12)) + ".xml");
+        failedLevel0 =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 12)) + ".xml");
+        justSucceeded =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 8)) + "Lbuild.123.xml");
+        justFailed =
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 5)) + ".xml");
     }
 
     protected void doTearDown() throws Exception {
-        File[] files = new File[]{longFailed, successful, jusfFailed, failAgain};
+        File[] files =
+                new File[] {failedLevel8, failedLevel7, failedLevel6, failedLevel5, failedLevel4,
+                        failedLevel3, failedLevel2, failedLevel1, failedLevel0, justSucceeded, justFailed};
         for (int i = 0; i < files.length; i++) {
             try {
                 FileUtils.forceDelete(files[i]);
@@ -77,19 +121,26 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
     }
 
     public void testChangeColorWhenFailedDateChanges() throws Exception {
-        selenium.open("/dashboard/dashboard?s=1");
-        assertClassName(longFailed, "long_failed");
-        assertClassName(failAgain, "long_failed");
-        assertClassName(successful, "passed");
-        assertClassName(jusfFailed, "failed");
+        selenium.open("/dashboard/dashboard");
+        assertClassName(failedLevel0, "failed_level_0");
+        assertClassName(failedLevel1, "failed_level_1");
+        assertClassName(failedLevel2, "failed_level_2");
+        assertClassName(failedLevel3, "failed_level_3");
+        assertClassName(failedLevel4, "failed_level_4");
+        assertClassName(failedLevel5, "failed_level_5");
+        assertClassName(failedLevel6, "failed_level_6");
+        assertClassName(failedLevel7, "failed_level_7");
+        assertClassName(failedLevel8, "failed_level_8");
+        assertClassName(justSucceeded, "passed_level_0");
+        assertClassName(justFailed, "failed_level_0");
     }
 
     private void assertClassName(File file, String className) throws Exception {
-        String exptected = "id=\"tooltip_projectWithoutPublishers\" class=\"tooltip tooltip_" + className + "";
+        String exptectedBar = "id=\"projectWithoutPublishers_bar\" class=\"bar round_corner " + className;
         file.createNewFile();
         Thread.sleep(7000);
         String htmlSource = selenium.getHtmlSource();
-        assertTrue(StringUtils.contains(htmlSource, exptected));
+        assertTrue(htmlSource, StringUtils.contains(htmlSource, exptectedBar));
     }
 
 }

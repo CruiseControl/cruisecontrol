@@ -53,6 +53,7 @@ var replaced_method_1 =  this.ajax_periodical_refresh_dashboard_update_project_b
 var replaced_method_2 =  this.ajax_periodical_refresh_dashboard_update_tooltip;
 var replaced_method_3 =  this.ajax_periodical_refresh_dashboard_update_project_bar;
 var replaced_method_4 =  this.eval_timer_object;
+var replaced_method_5 =  ajax_periodical_refresh_dashboard_update_inactive_partial_links;
 function setUp() {
 	json = {
 	  building_info : { project_name : "project1", building_status : "passed", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
@@ -63,7 +64,8 @@ function tearDown() {
 	this.ajax_periodical_refresh_dashboard_update_project_build_detail = replaced_method_1
 	this.ajax_periodical_refresh_dashboard_update_tooltip = replaced_method_2
 	this.ajax_periodical_refresh_dashboard_update_project_bar = replaced_method_3
-	this.eval_timer_object = replaced_method_4
+	this.eval_timer_object = replaced_method_4;
+	this.ajax_periodical_refresh_dashboard_update_inactive_partial_links = replaced_method_5;
 }
 
 
@@ -73,6 +75,7 @@ function test_ajax_periodical_refresh_dashboard_update_tooltip_should_be_invoked
 	var is_timer_called=false;
 	var is_correct_parameter = false;
 	var is_build_detail_called = false;
+	var is_update_link_called = false;
 	this.ajax_periodical_refresh_dashboard_update_project_build_detail = function() {
 		is_build_detail_called = true;
 	}
@@ -81,6 +84,9 @@ function test_ajax_periodical_refresh_dashboard_update_tooltip_should_be_invoked
 	}
 	this.ajax_periodical_refresh_dashboard_update_project_bar=function() {
 		is_bar_called = true;
+	}
+	this.ajax_periodical_refresh_dashboard_update_inactive_partial_links=function() {
+	    is_update_link_called = true;
 	}
 	this.eval_timer_object=function(project_name, build_status, build_duration, elapsed_time) {
 		is_timer_called = true;
@@ -97,6 +103,7 @@ function test_ajax_periodical_refresh_dashboard_update_tooltip_should_be_invoked
 	assertTrue(is_timer_called);
 	assertTrue(is_correct_parameter);
 	assertTrue(is_build_detail_called)
+	assertTrue(is_update_link_called)
 }
 
 

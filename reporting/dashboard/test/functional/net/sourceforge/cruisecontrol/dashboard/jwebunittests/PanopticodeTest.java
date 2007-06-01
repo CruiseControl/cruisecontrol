@@ -41,16 +41,16 @@ import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 public class PanopticodeTest extends BaseFunctionalTest {
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getAbsolutePath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
     }
 
     public void testShouldReturnSvgfileForProjectWithPanopticode() throws Exception {
-        tester.beginAt("/plugin/panopticode/project1/coverage");
+        tester.beginAt("project/plugin/panopticode/project1/coverage");
         tester.assertTextPresent("<svg");
     }
 
     public void testShouldShowMessageForProjectWithoutPanopticode() throws Exception {
-        tester.beginAt("/plugin/panopticode/project2/coverage");
+        tester.beginAt("project/plugin/panopticode/project2/coverage");
         tester.assertTextPresent("No panopticode output found for project2");
     }
 }

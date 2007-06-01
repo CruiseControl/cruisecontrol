@@ -54,19 +54,14 @@ public class ConfigXmlContentValidator implements Validator {
     public void validate(Object object, Errors errors) {
         ConfigurationCommand cmd = (ConfigurationCommand) object;
         String configFileContent = cmd.getConfigFileContent();
-        if (configFileContent == null || configFileContent.equals("")) {
-            return;
-        }
         factory.setNamespaceAware(true);
-        DocumentBuilder builder;
 
         try {
-            builder = factory.newDocumentBuilder();
+            DocumentBuilder builder = factory.newDocumentBuilder();
             builder.parse(new ByteArrayInputStream(configFileContent.getBytes()));
         } catch (Exception spe) {
             errors.rejectValue("configFileContent", "configFileContents.format.error",
                     "The configuration file is not valid XML: " + spe.getMessage());
         }
-
     }
 }

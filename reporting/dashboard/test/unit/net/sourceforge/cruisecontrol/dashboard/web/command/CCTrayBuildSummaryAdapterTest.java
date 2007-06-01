@@ -98,7 +98,7 @@ public class CCTrayBuildSummaryAdapterTest extends TestCase {
         assertTrue(StringUtils.contains(xml, "lastBuildLabel=\"build1\""));
         assertTrue(StringUtils.contains(xml, "lastBuildTime=\"2005-12-09T12:21:03"));
         assertTrue(StringUtils.contains(xml,
-                "webUrl=\"http://localhost:8080/dashboard/buildDetail.html?project=project1"));
+                "webUrl=\"http://localhost:8080/dashboard/build/detail/project1"));
 
     }
 }

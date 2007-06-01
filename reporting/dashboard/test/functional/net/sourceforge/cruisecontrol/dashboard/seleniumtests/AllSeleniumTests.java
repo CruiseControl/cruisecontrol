@@ -52,7 +52,7 @@ public final class AllSeleniumTests {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite("Test for org.thoughtworks.cruisepanel.seleniuim") {
+        TestSuite suite = new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
             public void run(TestResult arg0) {
                 try {
                     SERVER.start();

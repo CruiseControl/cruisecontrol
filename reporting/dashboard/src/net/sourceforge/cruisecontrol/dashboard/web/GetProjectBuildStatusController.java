@@ -37,18 +37,22 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -61,24 +65,34 @@ public class GetProjectBuildStatusController implements Controller {
 
     private final BuildSummaryUIService uiService;
 
+    private static final int CACHE_MILLISECONDS = 5000;
+
+    private long lastScanTime = 0;
+
+    private Map cachedBuildInfo = new HashMap();
+
     public GetProjectBuildStatusController(BuildSummariesService buildSummarySerivce,
-                                           CruiseControlJMXService jmxSerivce, BuildSummaryUIService uiService) {
+            CruiseControlJMXService jmxSerivce, BuildSummaryUIService uiService) {
         this.buildSummariesSerivce = buildSummarySerivce;
         this.cruiseControlJMXService = jmxSerivce;
         this.uiService = uiService;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
-        Map map = new HashMap();
-        try {
-            List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
-            updateWithLiveStatus(projectsBuildSummaries);
-            List buildSummaryCommands = uiService.transform(projectsBuildSummaries);
-            map.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
-        } catch (Exception e) {
-            map.put("error", e.getMessage());
+    public synchronized ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
+        long now = new Date().getTime();
+        if ((now - lastScanTime) > CACHE_MILLISECONDS) {
+            lastScanTime = now;
+            cachedBuildInfo = new HashMap();
+            try {
+                List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
+                updateWithLiveStatus(projectsBuildSummaries);
+                List buildSummaryCommands = uiService.transform(projectsBuildSummaries);
+                cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
+            } catch (Exception e) {
+                cachedBuildInfo.put("error", e.getMessage());
+            }
         }
-        return new ModelAndView(new JsonView(), map);
+        return new ModelAndView(new JsonView(), new HashMap(cachedBuildInfo));
     }
 
     private void updateWithLiveStatus(List projectsBuildSummaries) {

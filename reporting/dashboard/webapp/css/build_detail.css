@@ -34,7 +34,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- /* @override css/build_detail.css */
 
 /*- Menu Tabs B--------------------------- */
 .build_detail_container_menu {
@@ -52,6 +51,8 @@
 .build_detail_container_menu li {
 	display: inline;	
 }
+
+/* To build the tabs we use the "sliding doors" method on an a tag and a span within the a */
 
 .build_detail_container_menu a {
 	float: left;
@@ -77,6 +78,8 @@
 }
 /* End IE5-Mac hack */
 
+/* on hover display the over state of the tab - reposition background graphics to show the over portion */
+
 .build_detail_container_menu a:hover span {
 	color: #000;
 }
@@ -88,6 +91,8 @@
 .build_detail_container_menu a:hover span {
 	background-position: 100% top;
 }
+
+/* Mark currently selected tab */
 
 .build_detail_container_menu .current_tab a {
 	background-position: 0% top;
@@ -125,9 +130,11 @@ div.maincol.build_detail b.rtop {
 	overflow:auto;
 }
 
+/* Sliding doors used again to draw rounded corners on the sidebar heading */
+
 .sidecol p.sidecol_header {
 	background : url( ../images/summary_panel_title_background.gif ) right top no-repeat;
-	padding : 5px 5px 5px 0;
+	padding : 0 5px 5px 0;
 	margin : 0 5px;
 	font-weight : bold;
 }
@@ -139,19 +146,29 @@ div.maincol.build_detail b.rtop {
 	float:left;
 }
 
+/* Position the two image links for the build lists */
+
 .sidecol p.sidecol_header a {
 	display : block;
 	float : right;
 	margin-left : 0.2em;
 	position : relative;
-	top : -2px;
+	top : 3px;
 	float:right;
 }
+
+.sidecol ul.buildlist a {
+	text-decoration : none;
+}
+
+/* The list of builds in the side column */
 
 ul.buildlist li {
 	padding : 5px 5px 5px 25px;
 	margin : 0 5px
 }
+
+/* Set icons - colours are set in build_common.css */
 
 ul.buildlist li.passed {
 	background-image : url( ../images/icon-success-small.gif );
@@ -165,12 +182,7 @@ ul.buildlist li.failed {
 	background-repeat : no-repeat;
 }
 
-ul.buildlist li.long_failed {
-	background-image : url( ../images/icon-failure-small.gif );
-	background-position : 4px center;
-	background-repeat : no-repeat;
-}
-
+/* Status list in the summary bar at the top of the page */
 
 ul.summary {
     list-style: none;
@@ -193,7 +205,7 @@ div.build_detail_container_content {
 	padding : 1em;
 }
 
-
+/* Styles in tabbed report section below summary bar */
 
 .errors ul, .failures ul {
     list-style: none;

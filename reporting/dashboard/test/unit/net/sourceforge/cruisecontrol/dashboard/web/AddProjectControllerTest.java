@@ -42,6 +42,6 @@ public class AddProjectControllerTest extends SpringBasedControllerTests {
     public void testShouldReturnAddProjectView() throws Exception {
         AddProjectController controller = new AddProjectController();
         ModelAndView view = controller.handleRequest(getRequest(), getResponse());
-        assertEquals("addProject", view.getViewName());
+        assertEquals("page_add_project", view.getViewName());
     }
 }

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    #parse("partial/partial_head.vm")
+    <title>Add New Project</title>
+</head>
+<body>
+<script>
+    Event.observe(self, 'keydown', key_down_handler, false);
+
+    function key_down_handler(evt){
+        var key_code = evt.keyCode
+        if (key_code == Event.KEY_RETURN) {
+          checkAndAddProject();
+        }
+    }
+
+    function toggleModuleInputBox(vcsType) {
+        if (vcsType.value == 'cvs') {
+            $$('.cvs').each(function(e) {
+                e.show();
+            });
+            $('url_label').innerHTML = "CVS server url: ";
+            $('module_label').innerHTML = "Module name: ";
+        }
+        else if(vcsType.value == 'perforce') {
+            $$('.cvs').each(function(e) {
+                e.show();
+            });
+            $('url_label').innerHTML = "Perforce port(server:port): ";
+            $('module_label').innerHTML = "Depot path: ";
+        }
+        else {
+            $$('.cvs').each(function(e) {
+                e.hide();
+            });
+        }
+    }
+
+</script>
+#parse("menu/menu_admin.vm")
+<div id="container">
+    <h1>Add New Project</h1>
+
+    <div class="info">
+        <div id='trans_message_container'>
+            <div id="vc_success_info" class="transparent_message transparent_notice admin" style="display:none"></div>
+        </div>
+        <form id="addProject" name="addProject" action="" method="post" >
+            <p>If you need more options than are offered here, you can edit the CruiseControl XML configuration file as before
+             using the <a href="$req.getContextPath()/admin/config">Administration page</a>.</p>
+            <label for="projectName">Project Name: </label>
+            <input class="txt" type="text" size="60" name="projectName" id="projectName" value=""/><img id="projectName_icon" src="$req.getContextPath()/images/space.png" /><br>
+            <label for="vcsType">Version control system: </label>
+            <select name="vcsType" id="vcsType" onchange="toggleModuleInputBox(this)">
+              <option value ="svn">svn</option>
+            </select>
+            <label for="url" id="url_label">Version control URL: </label>
+            <input class="txt" type="text" size="60" name="url" id="url" value=""/><img id="url_icon" src="$req.getContextPath()/images/space.png" /><br>
+            <label for="moduleName" id="module_label" class="cvs">Module name: </label>
+            <input class="txt cvs" type="text" size="60" name="moduleName" id="moduleName" value=""/><img id="moduleName_icon" class="cvs" src="$req.getContextPath()/images/space.png" />
+
+            <div id="vcError" class="vc_error" style="margin:1px 0px 1px 0px;"></div>
+
+            <input id="addButton" type="button" class="btn" value="Add" onclick="checkAndAddProject()" />
+        </form>
+    </div>
+</div>
+
+<script>
+if ($('vcsType').value == 'svn') {
+    $$('.cvs').each(function(e) {
+        e.hide();
+    });
+}
+</script>
+</body>
+</html>

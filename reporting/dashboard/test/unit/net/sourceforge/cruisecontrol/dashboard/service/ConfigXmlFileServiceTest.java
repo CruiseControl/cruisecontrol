@@ -37,42 +37,34 @@
 package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.io.File;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Projects;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Svn;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemFixture;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class ConfigXmlFileServiceTest extends TestCase {
-    private static final String CRUISE_CONFIG_FILE = "CRUISE_CONFIG_FILE";
-
     private File tempDirForSetup;
 
     private ConfigXmlFileService service;
-
-    private OSEnvironment environment;
 
     private File configFile;
 
     public void setUp() throws Exception {
         tempDirForSetup = DataUtils.createTempDirectory("temp");
-        environment = new OSEnvironment();
         TemplateRenderService renderService = new TemplateRenderService();
         renderService.loadTemplates();
-        service = new ConfigXmlFileService(environment, renderService);
-        File configDirectory = FilesystemFixture.createDirectory("tempDir");
-        configFile = FilesystemFixture.createFile("config.xml", configDirectory);
-        environment.add(CRUISE_CONFIG_FILE, "");
+        service = new ConfigXmlFileService(new EnvironmentService(), renderService);
+        File configDirectory = FilesystemUtils.createDirectory("tempDir");
+        configFile = FilesystemUtils.createFile("config.xml", configDirectory);
     }
 
     public void tearDown() throws Exception {
         FileUtils.deleteDirectory(tempDirForSetup);
-        System.setProperty(ConfigXmlFileService.CRUISE_CONFIG_FILE, "");
-        environment.add(CRUISE_CONFIG_FILE, "");
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_EDITABLE, "");
     }
 
     public void testShouldBeAbleToReadConfigXml() throws Exception {
@@ -89,40 +81,27 @@ public class ConfigXmlFileServiceTest extends TestCase {
     }
 
     public void testShouldReturnNullWhenInvalidConfigurationDirectoryIsSpecified() {
-        String expectedLocation = "Some fake directory";
-        System.setProperty(ConfigXmlFileService.CRUISE_CONFIG_FILE, expectedLocation);
         assertNull(service.getConfigXmlFile(new File("")));
-    }
-
-    public void testShouldReturnNullWhenInvalidConfigurationDirectoryIsSpecifiedThoughEnv() {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_FILE, "invalid");
-        assertNull(service.getConfigXmlFile(new File("")));
-    }
-
-    public void testShouldBeNotNullWhenValidConfigurationDirectoryIsSpecifiedThoughEnv() {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_FILE, configFile.getAbsolutePath());
-        assertNotNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldReturnNullWhenInvalidConfigurationDirectoryIsSpecifiedThoughProp() {
-        System.setProperty(ConfigXmlFileService.CC_CONFIG, "invalid");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "invalid");
         assertNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldBeNotNullWhenValidConfigurationDirectoryIsSpecifiedThoughProp() {
-        System.setProperty(ConfigXmlFileService.CC_CONFIG, configFile.getAbsolutePath());
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, configFile.getAbsolutePath());
         assertNotNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldReturnNullThatTheTemporaryDirectoryWithoutConfigFileIsAnInvalidLocation() {
-        FilesystemFixture.createDirectory("tempDir");
-        System.setProperty(ConfigXmlFileService.CC_CONFIG, "");
+        FilesystemUtils.createDirectory("tempDir");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
         assertNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldSayThatTheTemporaryDirectoryWithConfigFileIsAValidLocation()
             throws Exception {
-        System.setProperty(ConfigXmlFileService.CRUISE_CONFIG_FILE, "");
         assertNotNull(service.getConfigXmlFile(configFile));
     }
 
@@ -143,7 +122,7 @@ public class ConfigXmlFileServiceTest extends TestCase {
     }
 
     public void testShouldBeAbleToAddNewProjectToCurrentConfigXml() throws Exception {
-        File configDirectory = FilesystemFixture.createDirectory("cruisecontrol");
+        File configDirectory = FilesystemUtils.createDirectory("cruisecontrol");
         FileUtils.copyFileToDirectory(DataUtils.getConfigXmlAsFile(), configDirectory);
         File config = new File(configDirectory, "config.xml");
         service.addProject(config, "CruiseControlOSS", new Svn(null, null));
@@ -155,8 +134,8 @@ public class ConfigXmlFileServiceTest extends TestCase {
     }
 
     public void testShouldAddBootstrapperAndRepositoryBaseOnVCS() throws Exception {
-        File configDirectory = FilesystemFixture.createDirectory("cruisecontrol");
-        File configxml = FilesystemFixture.createFile("config3.xml", configDirectory);
+        File configDirectory = FilesystemUtils.createDirectory("cruisecontrol");
+        File configxml = FilesystemUtils.createFile("config3.xml", configDirectory);
         FileUtils.writeStringToFile(configxml, "<cruisecontrol></cruisecontrol>");
         File config = new File(configDirectory, "config.xml");
         service.addProject(config, "CruiseControlOSS", new Svn(null, null));
@@ -166,17 +145,4 @@ public class ConfigXmlFileServiceTest extends TestCase {
         assertTrue(StringUtils.contains(currentFile, "<svn localWorkingCopy="));
     }
 
-    public void testShouldReturnTrueIfNotCruiseConfigSetup() throws Exception {
-        assertEquals(true, service.isConfigFileEditable());
-    }
-
-    public void testShouldReturnTrueIfCruiseConfigIsSetupToTrue() throws Exception {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_EDITABLE, "true");
-        assertEquals(true, service.isConfigFileEditable());
-    }
-
-    public void testShouldReturnFalseIfCruiseConfigIsSetupToFalse() throws Exception {
-        environment.add(ConfigXmlFileService.CRUISE_CONFIG_EDITABLE, "false");
-        assertEquals(false, service.isConfigFileEditable());
-    }
 }

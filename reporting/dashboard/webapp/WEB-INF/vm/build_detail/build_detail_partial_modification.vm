@@ -1,0 +1,18 @@
+<div id="modifications" class="modifications" $modification_extra_attrs>
+    <h2>Modifications</h2>
+    <ul class="modifications">
+        #if( $build.build.modificationSet.modifications.size() == 0)
+            <p>No modifications found.</p>
+        #end
+        #foreach ($mod in $build.build.modificationSet.modifications)
+            <li class="modification">
+                <span class="user">$mod.user</span><br /><span class="comment">$mod.comment</span>
+                <ul class="files">
+                #foreach ($file in $mod.modifiedFiles)
+                    <li>[$file.revision] <span class="$file.action">$file.action</span> $file.filename</li>
+                #end
+                </ul>
+            </li>
+        #end
+    </ul>
+</div>

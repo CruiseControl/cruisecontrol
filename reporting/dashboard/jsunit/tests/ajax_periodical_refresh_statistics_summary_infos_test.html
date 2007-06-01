@@ -59,6 +59,12 @@ function test_should_return_hash_contains_statistics_infos() {
 	assertEquals('4', $('statistics_total').innerHTML);
 	assertEquals('25.0%', $('statistics_rate').innerHTML);
 }
+
+function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
+	var hash = $H({passed : 0, failed : 0, building : 0, inactive : '1'})
+	calculate_projects_statistics(hash);
+	assertEquals('0%', hash.rate);
+}
 </script>
 </head>
 <body>

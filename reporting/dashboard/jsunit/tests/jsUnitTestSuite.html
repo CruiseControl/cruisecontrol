@@ -48,13 +48,14 @@
         function coreSuite() {
             var result = new top.jsUnitTestSuite();
             result.addTestPage("tests/display_toolkit_test.html");
-            result.addTestPage("tests/join_root_with_context_test.html");
             result.addTestPage("tests/build_detail_toggle_tab_content_test.html");
             result.addTestPage("tests/register_onclick_on_clickable_element_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_inactive_partial_links_test.htm");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_executer_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_output_executer_oncomplete_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_dashboard_executer_oncomplete_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_statistics_summary_infos_test.html");
+            result.addTestPage("tests/ajax_refresh_active_build_commit_message_test.html");
 			result.addTestPage("tests/category_projects_info_by_status_test.html");
             result.addTestPage("tests/calculate_projects_statistics_test.html");
             result.addTestPage("tests/calculate_projects_statistics_test_sad_path.html");

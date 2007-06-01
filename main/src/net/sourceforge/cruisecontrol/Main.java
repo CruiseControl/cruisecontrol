@@ -84,10 +84,6 @@ public final class Main implements CruiseControlMain {
         }
     }
 
-    private CruiseControlController controller;
-
-    private CruiseControlControllerAgent agent;
-
     /**
      * Print the version, configure the project with serialized build info and/or arguments and start the project build
      * process.
@@ -106,16 +102,7 @@ public final class Main implements CruiseControlMain {
             if (MainArgs.findIndex(args, "debug") != MainArgs.NOT_FOUND) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
-            controller = createController(args, versionProperties);
-            if (shouldStartJmxAgent(args)) {
-                agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
-                        parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
-                agent.start();
-            }
-            if (shouldStartEmbeddedServer(args)) {
-                startEmbeddedServer(args);
-            }
-            controller.resume();
+            startController(args, versionProperties);
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
             printUsage();
@@ -124,20 +111,27 @@ public final class Main implements CruiseControlMain {
         return true;
     }
 
-    private CruiseControlController createController(String[] args, Properties versionProperties)
-      throws CruiseControlException {
-        CruiseControlController ccController = new CruiseControlController();
-        ccController.setVersionProperties(versionProperties);
+    private void startController(String[] args, Properties versionProperties) throws CruiseControlException {
+        CruiseControlController controller = new CruiseControlController();
+        controller.setVersionProperties(versionProperties);
         File configFile = new File(parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
         try {
-          ccController.setConfigFile(configFile);
+            controller.setConfigFile(configFile);
         } catch (CruiseControlException e) {
             LOG.error("error setting config file on controller", e);
             throw e;
         }
         ServerXMLHelper helper = new ServerXMLHelper(configFile);
         ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
-        return ccController;
+        if (shouldStartJmxAgent(args)) {
+            CruiseControlControllerAgent agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
+                    parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
+            agent.start();
+        }
+        if (shouldStartEmbeddedServer(args)) {
+            startEmbeddedServer(args);
+        }
+        controller.resume();
     }
 
     /**
@@ -149,7 +143,8 @@ public final class Main implements CruiseControlMain {
      */
     void startEmbeddedServer(final String[] args) throws CruiseControlException {
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(parseWebPort(args), parseWebappPath(args),
-                parseDashboardPath(args), parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+                parseDashboardPath(args), parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME)
+                , parseJMXHttpPort(args), parseRmiPort(args));
         embeddedJettyServer.start();
 
     }
@@ -183,7 +178,8 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -xslpath directory     location of jmx xsl files; default files in package");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
-        System.out.println("  -webport [number]       port for the Reporting website; default 8080");
+        System.out.println("  -webport [number]       port for the Reporting website; default 8080, delete");
+        System.out.println("                          this propery will make cruisecontrol start without reporting");
         System.out.println("  -webapppath directory   location of the exploded WAR file; ");
         System.out.println("                          default ./webapps/cruisecontrol");
         System.out.println("  -dashboard directory   location of the exploded WAR file for new webapp; ");
@@ -348,10 +344,5 @@ public final class Main implements CruiseControlMain {
     static boolean shouldPrintUsage(String[] args) {
         return MainArgs.findIndex(args, "?") != MainArgs.NOT_FOUND
                 || MainArgs.findIndex(args, "help") != MainArgs.NOT_FOUND;
-    }
-
-    public void stop() {
-        controller.pause();
-        agent.stop();
     }
 }

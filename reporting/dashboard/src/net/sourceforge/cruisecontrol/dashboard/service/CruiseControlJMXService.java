@@ -36,70 +36,97 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.management.JMException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
+
 import org.apache.log4j.Logger;
 
 public class CruiseControlJMXService {
 
     public static final String JMXATTR_BUILD_STATUS = "Status";
+
     public static final String JMXCOMMAND_BUILD = "build";
+
     public static final String JMXCOMMAND_COMMIT_MESSAGE = "CommitMessages";
+
     public static final String JMXCOMMAND_BUILD_OUTPUT = "getBuildOutput";
+
     public static final String JMXCOMMAND_ALL_PROJECT_STATUS = "AllProjectsStatus";
 
     private static final Logger LOGGER = Logger.getLogger(CruiseControlJMXService.class);
 
-    private MBeanServerConnection jmxConnection;
-    private int httpPort = -1;
+    private static final String WAITING_STATUS = "waiting for next time to build";
+
+    private static final String[] SUPPORTED_STATUS_ARRAY =
+            new String[] {"bootstrapping", "checking for modifications", "now building",
+                    WAITING_STATUS};
+
+    private static final List SUPPORTED_STATUS_LIST = Arrays.asList(SUPPORTED_STATUS_ARRAY);
+
+    private JMXFactory jmxFactory;
+
+    public CruiseControlJMXService(JMXFactory jmxFactory) {
+        this.jmxFactory = jmxFactory;
+    }
 
     public String getBuildStatus(String projectName) {
+        String buildStatus = null;
         try {
-            String buildStatus = (String) jmxConnection.getAttribute(getObjectName(projectName), JMXATTR_BUILD_STATUS);
+            buildStatus =
+                    (String) getJMXConnection().getAttribute(getObjectName(projectName),
+                            JMXATTR_BUILD_STATUS);
             return buildStatus;
-        } catch (Exception e) {
-            return null;
+        } catch (JMException e) {
+            jmxFactory.closeConnector();
+        } catch (IOException e) {
+            jmxFactory.closeConnector();
         }
+        return buildStatus;
     }
 
     private ObjectName getObjectName(String projectName) throws MalformedObjectNameException {
         return ObjectName.getInstance("CruiseControl Project:name=" + projectName);
     }
 
-    public void fourceBuild(String projectName) throws Exception {
-        jmxConnection.invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
-    }
-
-    public MBeanServerConnection getJmxConnector() {
-        return jmxConnection;
-    }
-
-    public void setJmxConnector(MBeanServerConnection jmxConnector) {
-        jmxConnection = jmxConnector;
+    public void fourceBuild(String projectName) {
+        try {
+            getJMXConnection().invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
+        } catch (JMException e) {
+            jmxFactory.closeConnector();
+        } catch (IOException e) {
+            jmxFactory.closeConnector();
+        }
     }
 
     public List getCommitMessages(String projectName) {
-        List list = new ArrayList();
-        String[][] commitMessages;
+        Set set = new LinkedHashSet();
         try {
-            commitMessages = (String[][]) jmxConnection
-                    .getAttribute(getObjectName(projectName), JMXCOMMAND_COMMIT_MESSAGE);
-        } catch (Exception e) {
-            return list;
+            String[][] commitMessages =
+                    (String[][]) getJMXConnection().getAttribute(getObjectName(projectName),
+                            JMXCOMMAND_COMMIT_MESSAGE);
+            for (int i = 0; i < commitMessages.length; i++) {
+                set.add(new ModificationKey(commitMessages[i][1], commitMessages[i][0]));
+            }
+        } catch (JMException e) {
+            jmxFactory.closeConnector();
+        } catch (IOException e) {
+            jmxFactory.closeConnector();
         }
-        for (int i = 0; i < commitMessages.length; i++) {
-            ModificationKey key = new ModificationKey(commitMessages[i][1], commitMessages[i][0]);
-            list.add(key);
-        }
-        return list;
+        return new ArrayList(set);
     }
 
     public Map getAllProjectsStatus() {
@@ -107,44 +134,45 @@ public class CruiseControlJMXService {
         String ccManagerName = "CruiseControl Manager:id=unique";
         try {
             ObjectName objectName = ObjectName.getInstance(ccManagerName);
-            Map projectsInfo = (Map) jmxConnection.getAttribute(objectName, JMXCOMMAND_ALL_PROJECT_STATUS);
+            Map projectsInfo =
+                    (Map) getJMXConnection()
+                            .getAttribute(objectName, JMXCOMMAND_ALL_PROJECT_STATUS);
             for (Iterator iter = projectsInfo.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
-                result.put(entry.getKey(), entry.getValue());
+                result.put(entry.getKey(), getSupportedStatus((String) entry.getValue()));
             }
-        } catch (Exception e) {
+        } catch (JMException e) {
             LOGGER.warn("Failed to connect to CruiseControl build loop via JMX.", e);
+            jmxFactory.closeConnector();
+        } catch (IOException e) {
+            LOGGER.warn("Failed to connect to CruiseControl build loop via JMX.", e);
+            jmxFactory.closeConnector();
         }
         return result;
     }
 
+    private String getSupportedStatus(String status) {
+        if (status.startsWith("now building")) {
+            return status;
+        }
+        return SUPPORTED_STATUS_LIST.contains(status) ? status : WAITING_STATUS;
+    }
+
     public String[] getBuildOutput(String projectName, int firstLine) {
         try {
-            return (String[]) jmxConnection.invoke(getObjectName(projectName), JMXCOMMAND_BUILD_OUTPUT,
-                    new Object[]{new Integer(firstLine)}, new String[]{Integer.class.getName()});
-        } catch (Exception e) {
-            return new String[]{e.toString()};
+            return (String[]) getJMXConnection().invoke(getObjectName(projectName),
+                    JMXCOMMAND_BUILD_OUTPUT, new Object[] {new Integer(firstLine)},
+                    new String[] {Integer.class.getName()});
+        } catch (JMException e) {
+            jmxFactory.closeConnector();
+            return new String[] {e.toString()};
+        } catch (IOException e) {
+            jmxFactory.closeConnector();
+            return new String[] {e.toString()};
         }
     }
 
-    public int getHttpPortForMBeanConsole() {
-        if (httpPort == -1) {
-            httpPort = getPortOfFirstHttpAdapter();
-        }
-        return httpPort;
-    }
-
-    private int getPortOfFirstHttpAdapter() {
-        try {
-            Set httpAdpaters = jmxConnection.queryNames(new ObjectName("Adapter:name=HttpAdaptor,*"), null);
-            if (httpAdpaters.isEmpty()) {
-                return -1;
-            }
-            ObjectName httpAdapter = (ObjectName) httpAdpaters.iterator().next();
-            return ((Integer) jmxConnection.getAttribute(httpAdapter, "Port")).intValue();
-        } catch (Exception e) {
-            LOGGER.warn("Failed to connect to CruiseControl build loop via JMX.", e);
-            return -1;
-        }
+    private MBeanServerConnection getJMXConnection() {
+        return jmxFactory.getJMXConnection();
     }
 }

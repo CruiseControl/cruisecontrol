@@ -1,0 +1,17 @@
+     <div id="${buildSummary.build.projectName}_bar" class="${buildSummary.getCssClassNameForDashboard()} bar round_corner">
+         <a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
+    </div>
+    <div id="tooltip_${buildSummary.build.projectName}" class='tooltip tooltip_${buildSummary.getCssClassName()}'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_${buildSummary.build.projectName}_name">${buildSummary.build.projectName}</span></div>
+                    <div><span id="tooltip_${buildSummary.build.projectName}_status">Status: ${buildSummary.build.status}</span></div>
+                    #set($build_date="Date: ${buildSummary.getDateStringInHumanBeingReadingStyle()}")
+                    #if("Inactive" == ${buildSummary.build.status})
+                        #set($build_date="")
+                    #end                    
+                    <div><span id="tooltip_${buildSummary.build.projectName}_date">$build_date</span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('${buildSummary.build.projectName}_bar', 'tooltip_${buildSummary.build.projectName}')</script>

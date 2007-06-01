@@ -162,6 +162,8 @@ TransparentMenu.prototype = {
       if (this.options.afterElement != null) {
         var position = Position.cumulativeOffset($(this.options.afterElement));
         dy =  position[1];
+        // temporary solution to make transparent message appear over the correct element
+        dy -=140;
       }
       // Else to body, add yScroll to have it visible from anywhere
       else

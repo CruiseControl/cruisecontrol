@@ -44,12 +44,12 @@ public class BuildDetailTest extends BaseFunctionalTest {
     private File downloadedFile;
 
     protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlAsFile().getPath());
+        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getPath());
         downloadedFile = DataUtils.createTempFile("downloadedArtifact", "txt");
     }
 
     public void testShouldShowDownloadableArtifacts() throws Exception {
-        tester.beginAt("detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
+        tester.beginAt("/build/detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
         tester.assertTextPresent("Artifacts");
         tester.assertLinkPresentWithText("artifact1.txt");
         tester.assertLinkPresentWithText("artifact2.txt");
@@ -59,7 +59,7 @@ public class BuildDetailTest extends BaseFunctionalTest {
     }
 
     public void testShouldDownloadArtifacts() throws Exception {
-        tester.beginAt("detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
+        tester.beginAt("/build/detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
         tester.assertTextPresent("Merged Check Style");
 
         tester.clickLinkWithText("artifact1.txt");
@@ -70,24 +70,29 @@ public class BuildDetailTest extends BaseFunctionalTest {
     }
 
     public void testShouldNotShowArtifactsForFailedBuild() {
-        tester.beginAt("detail/project1/" + DataUtils.FAILING_BUILD_XML);
+        tester.beginAt("/build/detail/project1/" + DataUtils.FAILING_BUILD_XML);
         tester.assertTextNotPresent("Artifacts");
         tester.assertTextPresent("Merged Check Style");
         tester.assertTextPresent("Line has trailing spaces.");
     }
 
     public void testShouldNotShowArtifactsIfNoPublishersInConfigFile() throws Exception {
-        tester.beginAt("detail/projectWithoutPublishers/log20060704155755Lbuild.490.xml");
+        tester.beginAt("/build/detail/projectWithoutPublishers/log20060704155755Lbuild.490.xml");
         tester.assertLinkNotPresentWithText("artifact.txt");
     }
 
     public void testShouldNotShowArtifactsForProjectsWithoutConfiguration() throws Exception {
-        tester.beginAt("detail/projectWithoutConfiguration/log20060704155710Lbuild.489.xml");
+        tester.beginAt("/build/detail/projectWithoutConfiguration/log20060704155710Lbuild.489.xml");
         tester.assertLinkNotPresentWithText("artifact.txt");
     }
 
+    public void testShouldBeAbleToOpenProjectNameWithSpace() throws Exception {
+        tester.beginAt("/build/detail/project%20space");
+        tester.assertTextPresent("project space");
+    }
+
     public void testShouldShowDurationFromLastSuccessfulBuild() throws Exception {
-        tester.beginAt("detail/projectWithoutConfiguration/log20060704160010.xml");
+        tester.beginAt("/build/detail/projectWithoutConfiguration/log20060704160010.xml");
         tester.assertTextPresent("Last successful build");
         tester.assertTextPresent("minutes");
         tester.assertTextPresent("ago");

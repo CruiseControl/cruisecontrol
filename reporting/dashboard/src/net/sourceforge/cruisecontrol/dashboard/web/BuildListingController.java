@@ -39,14 +39,16 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-public class BuildListingController extends MultiActionController {
+public class BuildListingController extends BaseMultiActionController {
     private final BuildSummariesService buildSummariesService;
 
     public BuildListingController(BuildSummariesService buildSummariesService) {
@@ -55,12 +57,12 @@ public class BuildListingController extends MultiActionController {
     }
 
     public ModelAndView all(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return process(getProjectName(request), "projectDetail", buildSummariesService
+        return process(getProjectName(request), "page_all_builds", buildSummariesService
                 .getAll(getProjectName(request)));
     }
 
     public ModelAndView passed(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return process(getProjectName(request), "successfulBuilds", buildSummariesService
+        return process(getProjectName(request), "page_all_successful_builds", buildSummariesService
                 .getAllSucceed(getProjectName(request)));
     }
 
@@ -73,7 +75,7 @@ public class BuildListingController extends MultiActionController {
 
     private String getProjectName(HttpServletRequest request) {
         String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = url[url.length - 1];
+        String projectName = decode(url[url.length - 1]);
         return projectName;
     }
 }

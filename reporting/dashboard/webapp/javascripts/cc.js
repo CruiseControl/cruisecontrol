@@ -36,13 +36,13 @@
  ********************************************************************************/
  
 // We use prototype stuff here, for example $() to replace document.getElementById()
-var active_build_status = ['passed', 'failed', 'building', 'long_failed', 'long_passed']
+var active_build_status = ['passed', 'failed', 'building', 'inactive', 'build_profile_inactive', 'failed_level_0', 'failed_level_1', 'failed_level_2', 'failed_level_3', 'failed_level_4', 'failed_level_5', 'failed_level_6', 'failed_level_7', 'failed_level_8', 'passed_level_0', 'passed_level_1', 'passed_level_2', 'passed_level_3', 'passed_level_4', 'passed_level_5', 'passed_level_6', 'passed_level_7', 'passed_level_8']
 function ajax_force_build(parameter, project_name, e) {
     var url = 'forcebuild.ajax';
     var pars = parameter + '=' + project_name;
     var profile_id = project_name  + '_profile';
 	new TransparentMenu('trans_message',{afterElement: profile_id, displayMode:'now', hideDelay:3, hideMode:'timeout', top:2, left:null})
-    new Ajax.Request(url, { method: 'get', parameters: pars });
+    new Ajax.Request(url, { method: 'GET', parameters: pars });
     disable_bubble(e);
 }
 var displayed_toolkit
@@ -67,11 +67,24 @@ function disable_bubble(e) {
 	if (e.stopPropagation) e.stopPropagation();
 }
 
+function ajax_refresh_active_build_commit_message(modifications) {
+    if(modifications.length == 0) {
+        $('modification_keys').innerHTML = "<h2>Build forced, No new code is committed into repository</h2>"
+        return
+    }
+    var modifications_string = ""
+    for(var i=0; i<modifications.length; i++){
+        modifications_string += ("<li class='modification'><span class='user'>" + modifications[i].user + "</span><br/><span class='comment'>" + modifications[i].comment + "</span></li>")
+    }
+    $('modification_keys').innerHTML = modifications_string
+}
+
 function ajax_periodical_refresh_dashboard_executer() {
     var executer = new PeriodicalExecuter(function() {
 	        executer.stop();
-	        var ajaxRequest = new Ajax.Request('getProjectBuildStatus.ajax', {
+	        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
 	            asynchronous:1,
+	            method: 'GET',
 	            onComplete: function() {
 	                executer.registerCallback();
 	            },
@@ -90,8 +103,9 @@ function active_build_finished(){
 function ajax_periodical_refresh_active_build_executer(project_name) {
     var executer = new PeriodicalExecuter(function() {
         executer.stop();
-        var ajaxRequest = new Ajax.Request('getProjectBuildStatus.ajax', {
+        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
             asynchronous:1,
+            method: 'GET',
             onComplete: function() {
 		        if(active_build_finished()){
 		            return;
@@ -112,7 +126,7 @@ function ajax_periodical_refresh_active_build_executer_oncomplete(json, project_
         if (building_info.project_name == project_name) {
             var building_status = building_info.building_status.toLowerCase();
             if (building_status == 'passed' || building_status == 'failed' ) {
-                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("detail/" + project_name + "/" + building_info.latest_build_log_file_name) + "'>see details</a>)"
+                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("build/detail/" + project_name + "/" + building_info.latest_build_log_file_name) + "'>see details</a>)"
                 $$('.build_detail_summary')[0].ancestors()[0].className = building_info.css_class_name
             }
             $$(".build_status").each(function(e) {
@@ -127,8 +141,10 @@ function ajax_periodical_refresh_active_build_output_executer(project_name) {
     var start = 0;
     var executer = new PeriodicalExecuter(function() {
         executer.stop();
-        var ajaxRequest = new Ajax.Request('getProjectBuildOutput.ajax?project=' + project_name + '&start=' + start, {
+        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildOutput.ajax'), {
             asynchronous:1,
+            method: 'GET',
+            parameters: 'project=' + project_name + '&start=' + start,
             onComplete: function() {
 		        if(active_build_finished()){
 		            return;
@@ -152,6 +168,7 @@ function ajax_periodical_refresh_dashboard_update_project_box(json) {
 	if (json.building_info.building_status.toLowerCase() == 'bootstrapping') return;
 	if (json.building_info.building_status.toLowerCase() == 'modificationset') return;
 	if (json.building_info.building_status.toLowerCase() == 'inactive') return;
+	ajax_periodical_refresh_dashboard_update_inactive_partial_links(json)
 	ajax_periodical_refresh_dashboard_update_project_build_detail(json)
 	ajax_periodical_refresh_dashboard_update_project_bar(json)
 	ajax_periodical_refresh_dashboard_update_tooltip(json)
@@ -170,6 +187,16 @@ function ajax_periodical_refresh_dashboard_update_project_build_detail(json) {
     $(project_build_detail).href = get_link_by_building_status(json)
 }
 
+function ajax_periodical_refresh_dashboard_update_inactive_partial_links(json) {
+	var profile_id = json.building_info.project_name + '_profile'
+	if(!$(profile_id).hasClassName("inactive")) return
+
+    $(json.building_info.project_name + '_forcebuild').onclick = function(event) {ajax_force_build("projectName", json.building_info.project_name, event)}
+    $(json.building_info.project_name + '_config_panel').onclick = function(event) {display_toolkit('toolkit_' + json.building_info.project_name, event)}
+    $(json.building_info.project_name + '_all_builds').href = context_path('project/list/all/' + json.building_info.project_name)
+    $(json.building_info.project_name + '_all_successful_builds').href = context_path('project/list/passed/' + json.building_info.project_name)
+}
+
 function clean_active_css_class_on_element(element) {
 	$A(active_build_status).each(function(status) {
 	    Element.removeClassName($(element), status);
@@ -181,7 +208,7 @@ function ajax_periodical_refresh_dashboard_update_project_bar(json) {
 	var buildStatus = json.building_info.building_status
     var bar = $(projectName + "_bar")
     clean_active_css_class_on_element(bar)
-   	Element.addClassName(bar, json.building_info.css_class_name)
+   	Element.addClassName(bar, json.building_info.css_class_name_for_dashboard)
     reround(bar)
     var bar_link_id = projectName + "_bar_link"
     $(bar_link_id).href = get_link_by_building_status(json)
@@ -212,7 +239,7 @@ function ajax_periodical_refresh_statistics_summary_infos(statistics_infos) {
 
 function eval_timer_object(project_name, build_status, build_duration, elapsed_time) {
 	var project_timer_var = project_name + '_timer';
-	project_timer_var = project_timer_var.replace(" ", '_');
+	project_timer_var = project_timer_var.replace(/ /gi, "_");
 	var timer = null;
 	try {
 		timer = eval(project_timer_var);
@@ -236,6 +263,8 @@ function eval_timer_object(project_name, build_status, build_duration, elapsed_t
 
 function ajax_periodical_refresh_dashboard_executer_oncomplete(json) {
     if (!json) return
+    if (!json.length) return 
+    if (json.length == 0) return 
 	var statistics = $H({passed:0,failed:0,building:0,bootstrapping:0,modificationset:0})
     for (var i = 0; i < json.length; i++) {
         ajax_periodical_refresh_dashboard_update_project_box(json[i]);
@@ -268,8 +297,8 @@ function calculate_projects_statistics(statistics) {
 		total += pair.value;
 	});
 	statistics['total'] = total;
-    var rate_str = (total == 0 ? '0%' : (((statistics['passed'] / (total - statistics['inactive'])) * 100).toFixed(0) + '%'))
-	statistics['rate'] = rate_str;
+    var rate = ((statistics['passed'] / (total - statistics['inactive'])) * 100).toFixed(0)
+	statistics['rate'] = isNaN(rate) ? "0%" : rate+"%";
 	return statistics; 
 }
 
@@ -279,9 +308,9 @@ function get_link_by_building_status(json) {
     if (!json.building_info) return;
     if (!json.building_info.building_status) return;
     if (json.building_info.building_status == 'Building') {
-        return 'project/live/' + json.building_info.project_name
+        return 'build/detail/live/' + json.building_info.project_name
     } else {
-        return 'detail/' + json.building_info.project_name
+        return 'build/detail/' + json.building_info.project_name
     }
 
 }
@@ -297,9 +326,10 @@ function checkAndAddProject() {
     disableAddProjectButtons(true);
     var vcIcon = $('url_icon');
     vcIcon.src = context_path("images/wait.gif");
-    new Ajax.Request('addProjectFromVersionControl.ajax', {
+    new Ajax.Request(context_path('addProjectFromVersionControl.ajax'), {
         parameters: "url=" + url + "&projectName=" + projectName + "&vcsType=" + $('vcsType').value + "&moduleName=" + $('moduleName').value,
         asynchronous:1,
+        method: 'GET',
         onComplete: function(request, json) {
             ajax_update_icons_and_invoke_callback_function(json);
         }
@@ -334,16 +364,22 @@ function toggle_tab(name) {
 			Element.hide(node);
 	});
    	Element.toggle(tab);    	
-	var header = $('tabHeader' + name);
-	nodes = $A($$("#tabs li"));
-	nodes.each(function(node){
-		Element.removeClassName(node, 'currenttab');
-	});
-	Element.addClassName(header, 'currenttab');
-	swith_layout_in_tab_view(name);
+	switch_current_tab_in_tab_view(name);
+	switch_layout_in_tab_view(name);
 }
 
-function swith_layout_in_tab_view(name) {
+function switch_current_tab_in_tab_view(name) {
+	Element.removeClassName($('dashboard'), 'currenttab');
+	Element.removeClassName($('builds'), 'currenttab');
+	if (name == 1) {
+		 var header = $('dashboard')
+	} else {
+		 var header = $('builds')
+	}
+	Element.addClassName(header, 'currenttab');
+}
+
+function switch_layout_in_tab_view(name) {
 	if (name == 2) {
 		Element.removeClassName($('project_summary_panel'),'yui-u');
 		Element.addClassName($('project_summary_panel'),'yui-g');

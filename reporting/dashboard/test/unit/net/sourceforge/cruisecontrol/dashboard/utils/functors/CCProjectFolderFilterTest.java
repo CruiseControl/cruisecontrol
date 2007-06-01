@@ -38,24 +38,24 @@ package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.File;
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemFixture;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 
 public class CCProjectFolderFilterTest extends TestCase {
     public void testShouldRejectEmptyDirectory() {
-        File project = FilesystemFixture.createDirectory("project");
+        File project = FilesystemUtils.createDirectory("project");
         assertFalse(new CCProjectFolderFilter().accept(project));
     }
 
     public void testShouldAcceptDirectoryContainsAtLeastOneCXmlFile() throws Exception {
-        File project = FilesystemFixture.createDirectory("project");
-        FilesystemFixture.createFile("log12345.xml", project);
-        FilesystemFixture.createFile("readme.txt", project);
+        File project = FilesystemUtils.createDirectory("project");
+        FilesystemUtils.createFile("log12345.xml", project);
+        FilesystemUtils.createFile("readme.txt", project);
         assertTrue(new CCProjectFolderFilter().accept(project));
     }
 
     public void testShouldRejectDirectoryContainsNonCCLogFile() throws Exception {
-        File project = FilesystemFixture.createDirectory("project2");
-        FilesystemFixture.createFile("readme.txt", project);
+        File project = FilesystemUtils.createDirectory("project2");
+        FilesystemUtils.createFile("readme.txt", project);
         assertFalse(new CCProjectFolderFilter().accept(project));
     }
 }
