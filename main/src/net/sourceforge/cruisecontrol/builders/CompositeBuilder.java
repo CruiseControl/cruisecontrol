@@ -47,9 +47,16 @@ public class CompositeBuilder extends Builder {
         Iterator attributes = buildResult.getAttributes().iterator();
         while (attributes.hasNext()) {
             Attribute attribute = (Attribute) attributes.next();
+            if (attribute.getName().equalsIgnoreCase("error")) {
+                attributes.remove();
+                attribute.detach();
+                compositeBuildResult.setAttribute(attribute);
+                return true;
+            }
             attributes.remove();
             attribute.detach();
             compositeBuildResult.setAttribute(attribute);
+
         }
         // searching for errors (if we found one ore more, we will stop)
         Iterator messageElements = buildResult.getChildren("message").iterator();

@@ -42,8 +42,12 @@ ClearCase
 ----------------------
 * Change validation so that branch is not a required attribute.
 
-CruiseControlConfig
+CompositeBuilder
+----------------------
+* Changed to stop as soon as encounters first error, thereby reducing the log size for failed builds. Patch by Mark Kefauver.
 
+CruiseControlConfig
+----------------------
 * <include.projects> now handles nested <include.projects>
 
 EmbeddedJettyServer
