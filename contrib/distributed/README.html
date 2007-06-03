@@ -44,7 +44,7 @@
             <li class="top"><a href="../../docs/index.html">home</a></li>
             <li><h2>documentation</h2></li>
             <li><a href="../../main/docs/configxml.html">config ref</a></li>
-            <li><p id="menubottom">Release: 2.6.2</p></li>
+            <li><p id="menubottom">Release: 2.7</p></li>
         </ul>
     </div>
     <div class="content">
@@ -77,7 +77,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                     <li>In the <i>dist/agent/conf</i> directory there is a file entitled <i>agent.properties</i>. Only one property needs to be set in this file for most users: <code>cruise.build.dir</code> should be set to the directory the build agent should consider its build directory. It will be treated as a temporary directory, though some caching may occur.<p></li>
                     <li>In the <i>conf</i> directory you'll find the <i>cruise.properties</i> file. In it <code>cruise.run.dir</code> should be set to the root directory for the master copy of the code and build results. That is, if you follow the canonical CC configuration, this should be the parent directory of your <i>checkout</i>, <i>logs</i>, and <i>output</i> directories. The <i>logs</i> and <i>output</i> directories will be automatically populated by the results sent back from the build agents.<p></li>
                     <li>Pre-populate your <i>checkout</i> directory with the projects you want to do distributed builds on, just as you would in a non-distributed Cruise Control scenario. Note that each agent must have all projects pre-populated unless you have configured specific builds to go to specific agents (more below). This is a limitation of the current architecture that would be nice to fix, possibly via distributed versions of Bootstrapper and/or Project plugins.<p></li>
-                    <li><u><a name="registerDistributedPlugin">Register the Distributed Plugin</a></u> - You must "register" the Distributed plugin in your config.xml as shown below. (If you forget to do this, while starting CC, you will see an error about no plugin registered for "distributed"). NOTE: The <i>module</i> attribute has been deprecated, so you should remove it from any <code>&lt;distributed&gt;</code> tags in your project configs.
+                    <li><u><a name="registerDistributedPlugin">Register the Distributed Plugin</a></u> - You must "register" the Distributed plugin in your config.xml as shown below. (If you forget to do this, while starting CC, you will see an error about no plugin registered for "distributed"). NOTE: The <i>module</i> attribute has been removed, so you must remove it from any <code>&lt;distributed&gt;</code> tags in your project configs.
                                                 <p>
 <pre>&lt;plugin name="distributed" classname="net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder"/&gt;</pre>
                     <p></li>
@@ -313,6 +313,8 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
         </ol>
 
         <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
+        <h4>v2.7</h4>
+        The <code>module</code> attribute has been removed, so you must remove it from your config.xml.
         <h4>v2.6.2</h4>
         CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. Also, the <code>module</code> attribute is no longer used by the DistributedMasterBuilder. The Project Name is used instead (since the 'projectname' property is now passed into all Builder.build() calls). The <code>module</code> attribute is deprecated and will be removed in a future release, so you should remove it from your config.xml.
         <p>

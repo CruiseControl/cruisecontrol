@@ -88,10 +88,6 @@ public class DistributedMasterBuilder extends Builder {
     private String overrideTarget;
     private File rootDir;
 
-    /** @deprecated 'module' attribute is no longer used. */
-    static final String MSG_DEPRECATED_ATTRIB_MODULE = "The 'module' attribute is deprecated and is no longer used."
-            + "\n ************* Please remove the 'module' attribute from <distributed> tags in your config.xml.";
-
     static final String MSG_MISSING_PROJECT_NAME = "Missing required property: " + PropertiesHelper.PROJECT_NAME
             + " in projectProperties";
 
@@ -341,17 +337,6 @@ public class DistributedMasterBuilder extends Builder {
         }
 
         return agent;
-    }
-
-    /**
-     * This method is no longer used, as "module" has been replaced by the "projectname" passed into
-     * {@link #build(java.util.Map) build(Map projectProperties)}.
-     * @param module the projectname being built, obsolete, and will now be auto detected as the project name.
-     * @deprecated The project name is now read from projectProperties passed into
-     *  {@link #build(java.util.Map) build(Map projectProperties)}.
-     */
-    public void setModule(final String module) {
-        LOG.warn(MSG_DEPRECATED_ATTRIB_MODULE);
     }
 
     public void setEntries(final String entries) {

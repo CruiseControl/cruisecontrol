@@ -69,6 +69,10 @@ mainAsWar
 ----------------------
 * Stop the non-daemon threads (BuildQueue and JMX Adapters) when the servlet is destroyed to allow a clean exit by the servlet container.
 
+distributed
+----------------------
+* Remove deprecated "module" attribute.
+
 
 CruiseControl Release Notes - 2.6.2
 
