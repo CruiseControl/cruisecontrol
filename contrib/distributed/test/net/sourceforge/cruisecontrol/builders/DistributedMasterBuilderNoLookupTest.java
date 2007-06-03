@@ -91,9 +91,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder nestedBuilder = new MockBuilder();
         masterBuilder.add(nestedBuilder);
 
-        // @todo Remove this when deprecated "module" attribute is deleted
-        masterBuilder.setModule("deprecatedModule");
-
         try {
             masterBuilder.build(new HashMap());
             fail("Missing projectname property should have failed.");

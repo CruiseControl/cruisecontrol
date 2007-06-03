@@ -182,14 +182,6 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
 
     /**
      * @return the project being built now, or null if no project is being built.
-     * @deprecated replaced by {@link #getProjectName()}.
-     */
-    //@todo remove after 2.6.2
-    public synchronized String getModule() {
-        return getProjectName();
-    }
-    /**
-     * @return the project being built now, or null if no project is being built.
      */
     public synchronized String getProjectName() {
         return projectName;

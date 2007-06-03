@@ -67,14 +67,6 @@ public interface BuildAgentService extends Remote {
     /**
      * @return the project being built now, or null if no project is being built.
      * @throws RemoteException if the remote call fails
-     * @deprecated replaced by {@link #getProjectName()}.
-     */
-    //@todo remove after 2.6.2
-    public String getModule() throws RemoteException;
-
-    /**
-     * @return the project being built now, or null if no project is being built.
-     * @throws RemoteException if the remote call fails
      */
     public String getProjectName() throws RemoteException;
 
