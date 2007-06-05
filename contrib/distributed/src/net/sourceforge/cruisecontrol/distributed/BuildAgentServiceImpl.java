@@ -57,6 +57,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
+import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
@@ -729,6 +730,12 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         sb.append(isPendingKill);
         sb.append(";\tPending Kill Since: ");
         sb.append(pendingKillSince);
+
+        sb.append("\n\tVersion: ");
+        sb.append(CCDistVersion.getVersion());
+        sb.append(" (Compiled: ");
+        sb.append(CCDistVersion.getVersionBuildDate());
+        sb.append(")");
 
         return sb.toString();
     }
