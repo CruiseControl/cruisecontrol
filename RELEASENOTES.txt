@@ -65,13 +65,14 @@ JMX
 contrib
 ======================
 
-mainAsWar
-----------------------
-* Stop the non-daemon threads (BuildQueue and JMX Adapters) when the servlet is destroyed to allow a clean exit by the servlet container.
-
 distributed
 ----------------------
 * Remove deprecated "module" attribute.
+* Add Agent Impl Version/Compile Date to BuildAgentServiceImpl.asString().
+
+mainAsWar
+----------------------
+* Stop the non-daemon threads (BuildQueue and JMX Adapters) when the servlet is destroyed to allow a clean exit by the servlet container.
 
 
 CruiseControl Release Notes - 2.6.2

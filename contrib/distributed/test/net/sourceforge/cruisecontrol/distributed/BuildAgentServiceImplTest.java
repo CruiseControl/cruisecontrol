@@ -17,6 +17,7 @@ import org.jdom.Element;
 import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -41,6 +42,10 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static final String TEST_PROJECT_FAIL = "testproject-fail";
     private static final String TEST_PROJECT_SUCCESS = "testproject-success";
     private static final int KILL_DELAY = 1000;
+
+    private static final String EXPECTED_SUFFIX_AS_STRING_VER
+            = "\n\tVersion: " + CCDistVersion.getVersion()
+            + " (Compiled: " + CCDistVersion.getVersionBuildDate() + ")";
 
     protected void setUp() throws Exception {
         DIR_LOGS.delete();
@@ -129,10 +134,13 @@ public class BuildAgentServiceImplTest extends TestCase {
         String agentAsString = agentImpl.asString();
         assertTrue("Wrong value: " + agentAsString,
                 agentAsString.startsWith("Machine Name: "));
-        assertTrue("Wrong value: " + agentAsString,
-                agentAsString.endsWith("Busy: false;\tSince: null;\tProject: null\n\t"
+
+        String expectedSuffix = "Busy: false;\tSince: null;\tProject: null\n\t"
                 + "Pending Restart: false;\tPending Restart Since: null\n\t"
-                + "Pending Kill: false;\tPending Kill Since: null"));
+                + "Pending Kill: false;\tPending Kill Since: null"
+                + EXPECTED_SUFFIX_AS_STRING_VER;
+        assertTrue("Wrong value: \n" + agentAsString + "\n expected suffix: \n" + expectedSuffix,
+                agentAsString.endsWith(expectedSuffix));
 
         
         final Map distributedAgentProps = new HashMap();
@@ -168,10 +176,14 @@ public class BuildAgentServiceImplTest extends TestCase {
                 agentAsString.startsWith("Machine Name: "));
         assertTrue("Wrong value: " + agentAsString,
                 agentAsString.indexOf("Busy: true;\tSince: ") > -1);
-        assertTrue("Wrong value: " + agentAsString,
-                agentAsString.endsWith(";\tProject: " + testProjectName
+
+        expectedSuffix = ";\tProject: " + testProjectName
                 + "\n\tPending Restart: false;\tPending Restart Since: null\n\t"
-                + "Pending Kill: false;\tPending Kill Since: null"));
+                + "Pending Kill: false;\tPending Kill Since: null"
+                + EXPECTED_SUFFIX_AS_STRING_VER;
+
+        assertTrue("Wrong value: \n" + agentAsString + "\n expected suffix: \n" + expectedSuffix,
+                agentAsString.endsWith(expectedSuffix));
     }
     
     public void testAsString() throws Exception {
@@ -183,8 +195,9 @@ public class BuildAgentServiceImplTest extends TestCase {
                 agentAsString.startsWith("Machine Name: "));
         assertTrue("Wrong value: " + agentAsString,
                 agentAsString.endsWith("Busy: false;\tSince: null;\tProject: null\n\t"
-                + "Pending Restart: false;\tPending Restart Since: null\n\t"
-                + "Pending Kill: false;\tPending Kill Since: null"));
+                        + "Pending Restart: false;\tPending Restart Since: null\n\t"
+                        + "Pending Kill: false;\tPending Kill Since: null"
+                        + EXPECTED_SUFFIX_AS_STRING_VER));
 
 
         final Map distributedAgentProps = new HashMap();
@@ -209,7 +222,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertTrue("Wrong value: " + agentAsString,
                 agentAsString.endsWith(";\tProject: " + testProjectName
                         + "\n\tPending Restart: false;\tPending Restart Since: null\n\t"
-                + "Pending Kill: false;\tPending Kill Since: null"));
+                        + "Pending Kill: false;\tPending Kill Since: null"
+                        + EXPECTED_SUFFIX_AS_STRING_VER));
 
         agentImpl.kill(true);
         agentAsString = agentImpl.asString();
