@@ -61,6 +61,9 @@ JMX
 * Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
 * Added the ability to retrieve statuses of all projects.  
 
+PlasticSCM & PlasticSCMBootstrapper
+----------------------
+* New sourcecontrol and bootstrapper for Plastic SCM. Contributed by Ruben de Alba.
 
 contrib
 ======================

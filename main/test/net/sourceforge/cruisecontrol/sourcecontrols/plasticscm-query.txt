@@ -1,0 +1,2 @@
+#@&@#plastictestdir/src/HelloWorld.java#@&@#testing01#@&@#23.05.2007.15.41.30
+#@&@#plastictestdir/build.xml#@&@#testing01#@&@#23.05.2007.15.41.40
