@@ -156,6 +156,8 @@
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
+<a href="#plasticscm">&lt;plasticscm&gt;</a>
+<a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a>
 <a href="#plugin">&lt;plugin&gt;</a>
 <a href="#plugin">&lt;plugin&gt;</a>
 <a href="#project">&lt;project&gt;</a>
@@ -245,6 +247,7 @@
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
          <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
+         <a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper/&gt;</a>
          <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper/&gt;</a>
          <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
          <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
@@ -271,6 +274,7 @@
          <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency/&gt;</a>
          <a href="#mks">&lt;mks/&gt;</a>
          <a href="#p4">&lt;p4/&gt;</a>
+         <a href="#plasticscm">&lt;plasticscm/&gt;</a>
          <a href="#pvcs">&lt;pvcs/&gt;</a>
          <a href="#snapshotcm">&lt;snapshotcm/&gt;</a>
          <a href="#starteam">&lt;starteam/&gt;</a>
@@ -1313,6 +1317,11 @@ password=P@ssW0rd!
                 <td>Bootstraps resources from Perforce</td>
             </tr>
             <tr>
+                <td><a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Plastic SCM</td>
+            </tr>    
+            <tr>
                 <td><a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from SnapshotCM</td>
@@ -2014,6 +2023,76 @@ password=P@ssW0rd!
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;plasticscmbootstrapper&gt;</pre>
+        </div>
+
+        <p>Automatically updates the workspace before the build begins.
+         The selected workspace must already exist on the local filesystem.</p>
+
+
+        <h3>Attributes</h3>
+
+        <table class="documentation" ID="Table1">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>wkspath</td>
+                <td>Yes</td>
+                <td>Valid Plastic SCM workspace path. </td>
+            </tr>
+            <tr>
+                <td>branch</td>
+                <td>No</td>
+                <td>The branch from which to get the source. If none has been specified, it updates the workspace according to its configuration.<td>
+            </tr>
+            <tr>
+                <td>repository</td>
+                <td>No</td>
+                <td>The repository from which to get the source. If none has been specified, it updates the workspace according to its configuration.</td>
+            </tr>
+            <tr>
+                <td>pathtoupdate</td>
+                <td>No</td>
+                <td>A path under the workspace path which will be updated. If none is specied, it updates all the workspace.</td>
+            </tr>
+            <tr>
+                <td>forced</td>
+                <td>No (defaults to "false")</td>
+                <td>Do the update with the "--forced" option</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <h3>Examples</h3>
+        <ol>
+            <li>Update the workspace (using the option forced) in the path in c:\work\cruise\plasticwks setting the branch "br:/main" as working branch.
+            <pre>
+&lt;bootstrappers&gt;
+    &lt;plasticscmbootstrapper wkspath="c:\work\cruise\plasticwks"
+		            branch="br:/main"
+		            forced="yes" /&gt;
+&lt;bootstrappers&gt;</pre>
+            </li>
+        </ol>
+
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></h2>
 
         <div class="hierarchy">
@@ -2475,6 +2554,11 @@ password=P@ssW0rd!
                 <td><a href="#p4">&lt;p4&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Perforce repository.</td>
+            </tr>
+            <tr>
+                <td><a href="#plasticscm">&lt;plasticscm&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Plastic SCM branch.</td>
             </tr>
             <tr>
                 <td><a href="#pvcs">&lt;pvcs&gt;</a></td>
@@ -3776,6 +3860,62 @@ password=P@ssW0rd!
              </tr>
             </tbody>
         </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="plasticscm">&lt;plasticscm&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;plasticscm&gt;</pre>
+        </div>
+
+        <p>Checks for changes in a Plastic SCM repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>wkspath</td>
+                <td>Yes</td>
+                <td>Valid Plastic SCM workspace path. </td>
+            </tr>
+            <tr>
+                <td>branch</td>
+                <td>Yes</td>
+                <td>The branch in which changes will be looked for.</td>
+            </tr>
+            <tr>
+                <td>repository</td>
+                <td>No</td>
+                <td>The repository in which changes will be looked for.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+        <ol>
+            <li>Used to check for changes in the branch br:/main.
+            <pre>
+&lt;modificationset&gt;
+    &lt;plasticscm wkpath="c:\work\cruise\plasticwks"
+                branch="br:/main" /&gt;
+&lt;modificationset/&gt;
+            </pre>
+            </li>
+         </ol>
         </div>
 
         <div class="elementdocumentation">
