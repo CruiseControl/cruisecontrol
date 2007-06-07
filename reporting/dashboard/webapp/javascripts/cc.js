@@ -35,49 +35,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
  
-// We use prototype stuff here, for example $() to replace document.getElementById()
+/**
+ * We use prototype stuff here, for example $() to replace document.getElementById()
+ */
+ 
+ 
+
+
+/**
+ * BEGIN: using ajax call to update dashboard.
+ */
 var active_build_status = ['passed', 'failed', 'building', 'inactive', 'build_profile_inactive', 'failed_level_0', 'failed_level_1', 'failed_level_2', 'failed_level_3', 'failed_level_4', 'failed_level_5', 'failed_level_6', 'failed_level_7', 'failed_level_8', 'passed_level_0', 'passed_level_1', 'passed_level_2', 'passed_level_3', 'passed_level_4', 'passed_level_5', 'passed_level_6', 'passed_level_7', 'passed_level_8']
-function ajax_force_build(parameter, project_name, e) {
-    var url = 'forcebuild.ajax';
-    var pars = parameter + '=' + project_name;
-    var profile_id = project_name  + '_profile';
-	new TransparentMenu('trans_message',{afterElement: profile_id, displayMode:'now', hideDelay:3, hideMode:'timeout', top:2, left:null})
-    new Ajax.Request(url, { method: 'GET', parameters: pars });
-    disable_bubble(e);
-}
-var displayed_toolkit
-
-function display_toolkit(id, e) {
-    disable_bubble(e);
-	if (displayed_toolkit) {
-		$(displayed_toolkit).hide();
-	}
-	$(id).show();
-	displayed_toolkit = $(id);
-}
-
-function close_toolkit(element, e) {
-	$(element).hide()
-}
-
-
-function disable_bubble(e) {
-	if (!e) var e = window.event;
-	e.cancelBubble = true;
-	if (e.stopPropagation) e.stopPropagation();
-}
-
-function ajax_refresh_active_build_commit_message(modifications) {
-    if(modifications.length == 0) {
-        $('modification_keys').innerHTML = "<h2>Build forced, No new code is committed into repository</h2>"
-        return
-    }
-    var modifications_string = ""
-    for(var i=0; i<modifications.length; i++){
-        modifications_string += ("<li class='modification'><span class='user'>" + modifications[i].user + "</span><br/><span class='comment'>" + modifications[i].comment + "</span></li>")
-    }
-    $('modification_keys').innerHTML = modifications_string
-}
 
 function ajax_periodical_refresh_dashboard_executer() {
     var executer = new PeriodicalExecuter(function() {
@@ -88,7 +56,9 @@ function ajax_periodical_refresh_dashboard_executer() {
 	            onComplete: function() {
 	                executer.registerCallback();
 	            },
-	            onSuccess: function(transport, json) {
+	            onSuccess: function(transport) {
+	            	var json = transport.responseText
+				    json = json ? eval('(' + json + ')') : null
 	                ajax_periodical_refresh_dashboard_executer_oncomplete(json)
 	            }
 	        }
@@ -96,72 +66,53 @@ function ajax_periodical_refresh_dashboard_executer() {
     }, 5);
 }
 
-function active_build_finished(){
-    return $$('.build_detail_summary')[0].ancestors()[0].className != "building";
-}
-
-function ajax_periodical_refresh_active_build_executer(project_name) {
-    var executer = new PeriodicalExecuter(function() {
-        executer.stop();
-        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
-            asynchronous:1,
-            method: 'GET',
-            onComplete: function() {
-		        if(active_build_finished()){
-		            return;
-		        }
-                executer.registerCallback();
-            },
-            onSuccess: function(transport, json) {
-                ajax_periodical_refresh_active_build_executer_oncomplete(json, project_name)
-            }
-        });
-    }, 5);
-}
-
-function ajax_periodical_refresh_active_build_executer_oncomplete(json, project_name) {
+function ajax_periodical_refresh_dashboard_executer_oncomplete(json) {
     if (!json) return
+    update_projects_status(json)
+    update_statistics_status(json)
+    update_cc_status(json)
+}
+
+function update_projects_status(json) {
+    if (!json.length) return 
     for (var i = 0; i < json.length; i++) {
-        var building_info = json[i].building_info;
-        if (building_info.project_name == project_name) {
-            var building_status = building_info.building_status.toLowerCase();
-            if (building_status == 'passed' || building_status == 'failed' ) {
-                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("build/detail/" + project_name + "/" + building_info.latest_build_log_file_name) + "'>see details</a>)"
-                $$('.build_detail_summary')[0].ancestors()[0].className = building_info.css_class_name
-            }
-            $$(".build_status").each(function(e) {
-                e.innerHTML = building_status;
-            });
-            eval_timer_object(project_name, building_status, evaluate_time_to_seconds(building_info.build_duration), building_info.build_time_elapsed);
-        }
+        ajax_periodical_refresh_dashboard_update_project_box(json[i]);
     }
 }
 
-function ajax_periodical_refresh_active_build_output_executer(project_name) {
-    var start = 0;
-    var executer = new PeriodicalExecuter(function() {
-        executer.stop();
-        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildOutput.ajax'), {
-            asynchronous:1,
-            method: 'GET',
-            parameters: 'project=' + project_name + '&start=' + start,
-            onComplete: function() {
-		        if(active_build_finished()){
-		            return;
-		        }
-                executer.registerCallback();
-            },
-            onSuccess: function(transport, next_start_as_json) {
-                start = next_start_as_json[0]
-                ajax_periodical_refresh_active_build_output_executer_oncomplete(transport.responseText)
-            }
-        });
-    }, 2);
+function update_statistics_status(json) {
+    if (!json.length) return 
+    if (json.length == 0) return 
+	var statistics = $H({passed:0,failed:0,building:0,bootstrapping:0,modificationset:0})
+    for (var i = 0; i < json.length; i++) {
+    	category_projects_info_by_status(json[i], statistics);
+    }
+    set_inactive_projects_amount(statistics)
+    calculate_projects_statistics(statistics)
+  	ajax_periodical_refresh_statistics_summary_infos(statistics);
 }
 
-function ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output) {
-    if (!build_output) return
-    $('buildoutput_span').innerHTML += build_output
+function update_cc_status(json) {
+    if (json.error){
+        $('cruisecontrol_status').show();
+        $A($$('.building')).each(function(building_project){
+           	var project_name = $(building_project).id.replace("_profile", "")
+            eval_timer_object(project_name, "anystatusbutbuilding", 0, 0)
+        })
+        $A($$('.force_build_link')).each(function(element){
+            $(element).onclick = null
+        })
+    } else if($('cruisecontrol_status').visible()) {
+        $('cruisecontrol_status').hide();
+        if (!json.length) return 
+        if (json.length == 0) return 
+        for (var i = 0; i < json.length; i++) {
+            $(json[i].building_info.project_name + '_forcebuild').onclick = function(event) {
+            	var project_name = this.id.replace("_forcebuild","")
+            	ajax_force_build("projectName", project_name, event)
+            }
+        }
+    }
 }
 
 function ajax_periodical_refresh_dashboard_update_project_box(json) {
@@ -229,50 +180,11 @@ function ajax_periodical_refresh_dashboard_update_tooltip(json){
 	}
 }
 
-
 function ajax_periodical_refresh_statistics_summary_infos(statistics_infos) {
 	var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive'])
 	infos.each(function(info) {
 		$('statistics_' + info).innerHTML = statistics_infos[info];
 	});
-}
-
-function eval_timer_object(project_name, build_status, build_duration, elapsed_time) {
-	var project_timer_var = project_name + '_timer';
-	project_timer_var = project_timer_var.replace(/ /gi, "_");
-	var timer = null;
-	try {
-		timer = eval(project_timer_var);
-	} catch(err) {
-		var expression =  project_timer_var + ' = new Timer("' + project_name + '")'
-		timer = eval(expression);
-	}
-	if (!timer) return timer;
-	var is_building = (build_status.toLowerCase() == 'building')
-	if (is_building && timer.is_stopped()) {
-		timer.set_elapsed_time(elapsed_time);
-		timer.last_build_duration(build_duration);
-		timer.start();
-	}
-	if (!is_building){
-		timer.stop();
-	}
-	return timer;
-}
-
-
-function ajax_periodical_refresh_dashboard_executer_oncomplete(json) {
-    if (!json) return
-    if (!json.length) return 
-    if (json.length == 0) return 
-	var statistics = $H({passed:0,failed:0,building:0,bootstrapping:0,modificationset:0})
-    for (var i = 0; i < json.length; i++) {
-        ajax_periodical_refresh_dashboard_update_project_box(json[i]);
-    	category_projects_info_by_status(json[i], statistics);
-    }
-    set_inactive_projects_amount(statistics)
-    calculate_projects_statistics(statistics)
-  	ajax_periodical_refresh_statistics_summary_infos(statistics);
 }
 
 function set_inactive_projects_amount(statistics) {
@@ -302,6 +214,21 @@ function calculate_projects_statistics(statistics) {
 	return statistics; 
 }
 
+var displayed_toolkit
+
+function display_toolkit(id, e) {
+    disable_bubble(e);
+	if (displayed_toolkit) {
+		$(displayed_toolkit).hide();
+	}
+	$(id).show();
+	displayed_toolkit = $(id);
+}
+
+function close_toolkit(element, e) {
+	$(element).hide()
+}
+
 
 function get_link_by_building_status(json) {
     if (!json)  return;
@@ -314,12 +241,107 @@ function get_link_by_building_status(json) {
     }
 
 }
+/**
+ * END: using ajax call to update dashboard.
+ */
 
 
-function disableAddProjectButtons(disabled) {
-    $('addButton').disabled = disabled;
+
+
+/**
+ * BEGIN: using ajax call to update ActiveBuild Page.
+ */
+function ajax_periodical_refresh_active_build_executer(project_name) {
+    var executer = new PeriodicalExecuter(function() {
+        executer.stop();
+        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
+            asynchronous:1,
+            method: 'GET',
+            onComplete: function() {
+		        if(active_build_finished()){
+		            return;
+		        }
+                executer.registerCallback();
+            },
+            onSuccess: function(transport) {
+				var json = transport.responseText
+				json = json ? eval('(' + json + ')') : null
+                ajax_periodical_refresh_active_build_executer_oncomplete(json, project_name)
+            }
+        });
+    }, 5);
 }
 
+function ajax_periodical_refresh_active_build_executer_oncomplete(json, project_name) {
+    if (!json) return
+    for (var i = 0; i < json.length; i++) {
+        var building_info = json[i].building_info;
+        if (building_info.project_name == project_name) {
+            var building_status = building_info.building_status.toLowerCase();
+            if (building_status == 'passed' || building_status == 'failed' ) {
+                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("build/detail/" + project_name + "/" + building_info.latest_build_log_file_name) + "'>see details</a>)"
+                $$('.build_detail_summary')[0].ancestors()[0].className = building_info.css_class_name
+            }
+            $$(".build_status").each(function(elem) {
+                elem.innerHTML = building_status;
+            });
+            eval_timer_object(project_name, building_status, evaluate_time_to_seconds(building_info.build_duration), building_info.build_time_elapsed);
+        }
+    }
+}
+
+function ajax_periodical_refresh_active_build_output_executer(project_name) {
+    var start = 0;
+    var executer = new PeriodicalExecuter(function() {
+        executer.stop();
+        var ajaxRequest = new Ajax.Request(context_path('getProjectBuildOutput.ajax'), {
+            asynchronous:1,
+            method: 'GET',
+            parameters: 'project=' + project_name + '&start=' + start,
+            onComplete: function() {
+		        if(active_build_finished()){
+		            return;
+		        }
+                executer.registerCallback();
+            },
+            onSuccess: function(transport, next_start_as_json) {
+                start = next_start_as_json[0]
+                ajax_periodical_refresh_active_build_output_executer_oncomplete(transport.responseText)
+            }
+        });
+    }, 2);
+}
+
+function ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output) {
+    if (!build_output) return
+    $('buildoutput_span').innerHTML += build_output
+}
+
+function ajax_refresh_active_build_commit_message(modifications) {
+    if(modifications.length == 0) {
+        $('modification_keys').innerHTML = "<h2>Build forced, No new code is committed into repository</h2>"
+        return
+    }
+    var modifications_string = ""
+    for(var i=0; i<modifications.length; i++){
+        modifications_string += ("<li class='modification'><span class='user'>" + modifications[i].user + "</span><br/><span class='comment'>" + modifications[i].comment + "</span></li>")
+    }
+    $('modification_keys').innerHTML = modifications_string
+}
+
+function active_build_finished(){
+    return $$('.build_detail_summary')[0].ancestors()[0].className != "building";
+}
+/**
+ * END: using ajax call to update ActiveBuild Page.
+ */
+
+
+
+
+/**
+ * BEGIN: add project.
+ */
 function checkAndAddProject() {
     var url = $('url').value;
     var projectName = $('projectName').value;
@@ -330,7 +352,9 @@ function checkAndAddProject() {
         parameters: "url=" + url + "&projectName=" + projectName + "&vcsType=" + $('vcsType').value + "&moduleName=" + $('moduleName').value,
         asynchronous:1,
         method: 'GET',
-        onComplete: function(request, json) {
+        onComplete: function(transport) {
+	     	var json = transport.responseText
+		    json = json ? eval('(' + json + ')') : null
             ajax_update_icons_and_invoke_callback_function(json);
         }
     });
@@ -357,6 +381,18 @@ function ajax_update_icons_and_invoke_callback_function(json) {
     disableAddProjectButtons(false);
 }
 
+function disableAddProjectButtons(disabled) {
+    $('addButton').disabled = disabled;
+}
+/**
+ * END: add project.
+ */
+
+
+
+/**
+ * BEGIN: toggle tab
+ */
 function toggle_tab(name) {
 	var tab = $('tabContent'+name);
 	var nodes = $A($$("#tabscontent .tabContent"));
@@ -423,7 +459,31 @@ function get_corresponding_content_element(li_element) {
 		return $(id_for_div.toLowerCase())
 	}
 }
+/**
+ * END: toggle tab
+ */
 
+
+
+/**
+ * BEGIN: force build
+ */
+function ajax_force_build(parameter, project_name, e) {
+    var url = 'forcebuild.ajax';
+    var pars = parameter + '=' + project_name;
+    var profile_id = project_name  + '_profile';
+	new TransparentMenu('trans_message',{afterElement: profile_id, displayMode:'now', hideDelay:3, hideMode:'timeout', top:2, left:null})
+    new Ajax.Request(url, { method: 'GET', parameters: pars });
+    disable_bubble(e);
+}
+/**
+ * END: force build
+ */
+
+
+/**
+ * BEGIN: register onclick callback
+ */
 function register_onclick_on_clickable_element() {
 	var all_clickable_element = $A($$('.clickable'))
 	all_clickable_element.each(function(element) {
@@ -441,5 +501,7 @@ function click_on_link(link) {
 Event.observe(window, 'load', function() {
 	register_onclick_on_clickable_element();
 })
-
+/**
+ * END: register onclick callback
+ */
 

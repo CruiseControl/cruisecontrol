@@ -79,7 +79,7 @@ public class CvsTest extends MockObjectTestCase {
     public void testShouldGetCorrectCommandlineForCheckConnection() throws Throwable {
         String url = ":pserver@some.cvs.rep:/rep/path";
         Cvs cvs = new Cvs(url, "module", null);
-        String actual = PrivateAccessor.invoke(cvs, "getTestConnectionCommandline", null, null).toString();
+        String actual = PrivateAccessor.invoke(cvs, "getCheckConnectionCommandLine", null, null).toString();
         String expected = "cvs -z3 -d " + url + " rlog";
         assertEquals(expected, actual);
     }
@@ -87,12 +87,12 @@ public class CvsTest extends MockObjectTestCase {
     public void testShouldReturnSuccessContextIfConnectionValid() throws Exception {
         String url = ":pserver@some.cvs.rep:/rep/path";
         Cvs cvs = new Cvs(url, "module", new MockRuntime("whatever", false));
-        Assert.assertEquals(cvs.checkConnection().status(), ConnectionResult.STATUS_SUCCESS);
+        Assert.assertTrue(cvs.checkConnection().isValid());
     }
 
     public void testShouldReturnFailedConextIfConnectionInvalid() throws Exception {
         String url = ":pserver@some.cvs.rep:/rep/path";
         Cvs cvs = new Cvs(url, "module", new MockRuntime("whatever", true));
-        assertEquals(cvs.checkConnection().status(), ConnectionResult.STATUS_FAILURE);
+        assertFalse(cvs.checkConnection().isValid());
     }
 }

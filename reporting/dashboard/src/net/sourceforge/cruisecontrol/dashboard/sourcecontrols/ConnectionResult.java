@@ -36,26 +36,22 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 
-import java.util.HashMap;
-import java.util.Map;
+public class ConnectionResult {
+    private boolean valid;
 
-public abstract class ConnectionResult {
-    public static final String STATUS_SUCCESS = "success";
+    private String message;
 
-    public static final String STATUS_FAILURE = "failure";
+    public ConnectionResult(boolean valid, String message) {
+        this.valid = valid;
+        this.message = message;
+    }
 
-    public abstract String status();
+    public String getMessage() {
+        return message;
+    }
 
-    public abstract String getField();
-
-    public abstract String getMessage();
-
-    public Map getJsonValueMap() {
-        Map map = new HashMap();
-        map.put("ok", status());
-        map.put("field", getField());
-        map.put("response", getMessage().replaceAll("[\\r\\f]", ""));
-        return map;
+    public boolean isValid() {
+        return valid;
     }
 
 }

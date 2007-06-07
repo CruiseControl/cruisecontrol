@@ -146,7 +146,7 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
     }
 
     private void fakeJMXReturnBuildingAsStatus() throws Exception {
-        jmxStub.fourceBuild("connectfour");
+        jmxStub.forceBuild("connectfour");
         jmxStub.getBuildStatus("connectfour");
         jmxStub.getBuildStatus("connectfour");
     }

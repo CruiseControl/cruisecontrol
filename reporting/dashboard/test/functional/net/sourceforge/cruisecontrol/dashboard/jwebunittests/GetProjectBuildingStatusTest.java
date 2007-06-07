@@ -50,7 +50,7 @@ public class GetProjectBuildingStatusTest extends BaseFunctionalTest {
         assertFalse(StringUtils.contains(json, ": \"Bootstrapping\""));
         tester.beginAt("/forcebuild.ajax?projectName=project1");
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");
-        assertTrue(StringUtils.contains(json, ": \"Bootstrapping\""));
+        assertTrue(json, StringUtils.contains(json, ": \"Bootstrapping\""));
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");
         assertTrue(StringUtils.contains(json, ": \"ModificationSet\""));
         json = getJSONWithAjaxInvocation("getProjectBuildStatus.ajax");

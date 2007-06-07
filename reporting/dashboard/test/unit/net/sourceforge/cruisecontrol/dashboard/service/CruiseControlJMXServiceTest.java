@@ -61,7 +61,9 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
                 mock(JMXFactory.class, new Class[] {EnvironmentService.class,
                         JMXConnectorFactory.class}, new Object[] {new EnvironmentService(),
                         new JMXConnectorFactory()});
-        jmxService = new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy());
+        jmxService =
+                new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy(),
+                        new EnvironmentService());
 
     }
 
@@ -82,7 +84,7 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(beanServerConnectionStatusStub));
         String statusBefore = jmxService.getBuildStatus(PROJECT_NAME);
-        jmxService.fourceBuild(PROJECT_NAME);
+        jmxService.forceBuild(PROJECT_NAME);
         String statusAfter = jmxService.getBuildStatus(PROJECT_NAME);
         assertFalse(statusBefore.equals(statusAfter));
     }
@@ -144,13 +146,22 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
         assertEquals("now building since 20070420174744", projectsStatus.get("project1"));
     }
 
-    public void testShouldReturnEmptyMaoWhenInvokeJMXWithAttributeAllProjectsStatus()
-            throws Exception {
+    public void testShouldThrowExceptionWhenJMXCallThrowException() throws Exception {
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(new MBeanServerErrorConnectionStub()));
         mockJMXFactory.expects(once()).method("closeConnector");
-        Map projectsStatus = jmxService.getAllProjectsStatus();
-        assertNotNull(projectsStatus);
-        assertEquals(0, projectsStatus.size());
+        assertTrue(jmxService.getAllProjectsStatus().isEmpty());
     }
+
+    public void testShouldThrowExceptionWhenForceBuildIsDisabled() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "false");
+        mockJMXFactory.expects(never()).method("getJMXConnection");
+        try {
+            jmxService.forceBuild(PROJECT_NAME);
+            fail();
+        } catch (Exception e) {
+            // expected exception
+        }
+    }
+
 }

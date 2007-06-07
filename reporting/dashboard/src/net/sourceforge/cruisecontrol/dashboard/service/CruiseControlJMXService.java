@@ -79,8 +79,11 @@ public class CruiseControlJMXService {
 
     private JMXFactory jmxFactory;
 
-    public CruiseControlJMXService(JMXFactory jmxFactory) {
+    private final EnvironmentService environmentService;
+
+    public CruiseControlJMXService(JMXFactory jmxFactory, EnvironmentService environmentService) {
         this.jmxFactory = jmxFactory;
+        this.environmentService = environmentService;
     }
 
     public String getBuildStatus(String projectName) {
@@ -102,8 +105,11 @@ public class CruiseControlJMXService {
         return ObjectName.getInstance("CruiseControl Project:name=" + projectName);
     }
 
-    public void fourceBuild(String projectName) {
+    public void forceBuild(String projectName) throws Exception {
         try {
+            if (!environmentService.isForceBuildEnabled()) {
+                throw new Exception("Force build is disabled");
+            }
             getJMXConnection().invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
         } catch (JMException e) {
             jmxFactory.closeConnector();
@@ -174,5 +180,9 @@ public class CruiseControlJMXService {
 
     private MBeanServerConnection getJMXConnection() {
         return jmxFactory.getJMXConnection();
+    }
+
+    public boolean isCruiseAlive() {
+        return getJMXConnection() != null;
     }
 }

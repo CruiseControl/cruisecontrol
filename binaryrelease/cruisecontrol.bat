@@ -65,7 +65,7 @@ set LIBDIR=%CCDIR%lib
 
 set LAUNCHER=%LIBDIR%\cruisecontrol-launcher.jar
 
-set EXEC="%JAVA_PATH%" %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -jar "%LAUNCHER%" %* -jmxport 8000 -webport 8080 -rmiport 1099
+set EXEC=%JAVA_PATH% %CC_OPTS% -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -jar "%LAUNCHER%" %* -jmxport 8000 -webport 8080 -rmiport 1099
 echo %EXEC%
 %EXEC%
 

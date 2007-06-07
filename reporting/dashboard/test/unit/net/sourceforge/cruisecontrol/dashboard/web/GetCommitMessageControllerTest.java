@@ -40,6 +40,7 @@ import java.util.Arrays;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,7 +55,8 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
     private MockHttpServletResponse response = new MockHttpServletResponse();
 
     private Mock jmxServiceMock =
-            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class}, new Object[] {null});
+            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class,
+                    EnvironmentService.class}, new Object[] {null, new EnvironmentService()});
 
     private GetCommitMessageController controller =
             new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy());
@@ -66,7 +68,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
 
         controller.handleRequest(request, response);
 
-        String json = (String) response.getHeader("X-JSON");
+        String json = (String) response.getContentAsString();
         assertTrue(json.startsWith("["));
         assertTrue(json.endsWith("]"));
     }
@@ -78,7 +80,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
 
         controller.handleRequest(request, response);
 
-        String json = (String) response.getHeader("X-JSON");
+        String json = (String) response.getContentAsString();
         assertEquals("[]", json);
     }
 
@@ -91,7 +93,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
 
         controller.handleRequest(request, response);
 
-        String json = (String) response.getHeader("X-JSON");
+        String json = (String) response.getContentAsString();
         assertTrue(StringUtils.contains(json, "{"));
         assertTrue(StringUtils.contains(json, "\"user\":\"joe\""));
         assertTrue(StringUtils.contains(json, "\"comment\":\"update build\""));

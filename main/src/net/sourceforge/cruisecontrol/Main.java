@@ -186,10 +186,10 @@ public final class Main implements CruiseControlMain {
         System.out.println("Options when using embedded Jetty");
         System.out.println("  -webport [number]       port for the Reporting website; default 8080, delete");
         System.out.println("                          this propery will make cruisecontrol start without reporting");
-        System.out.println("  -webapppath directory   location of the exploded WAR file; ");
-        System.out.println("                          default ./webapps/cruisecontrol");
-        System.out.println("  -dashboard directory   location of the exploded WAR file for new webapp; ");
-        System.out.println("                          default ./webapps/dashboard");
+        System.out.println("  -webapppath directory   location of the exploded WAR file for the legacy reporting");
+        System.out.println("                          application. default ./webapps/cruisecontrol");
+        System.out.println("  -dashboard directory    location of the exploded WAR file for the dashboard");
+        System.out.println("                          application. default ./webapps/dashboard");
         System.out.println("");
     }
 

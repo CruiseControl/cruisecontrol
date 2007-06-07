@@ -1,7 +1,11 @@
 <div class="relative_box">
     <div id="${buildSummary.build.projectName}_profile" class="${buildSummary.getCssClassName()} build_profile build_profile_${buildSummary.getCssClassName()}">
         <div class="control_panel">
-            <a id="${buildSummary.build.projectName}_forcebuild" onclick='$onforcebuild'><img src="$req.getContextPath()/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	#if ($forceBuildEnabled)
+	            <a id="${buildSummary.build.projectName}_forcebuild" onclick='$onforcebuild' class="force_build_link"><img src="$req.getContextPath()/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	#else
+	            <a id="${buildSummary.build.projectName}_forcebuild" class="force_build_link"><img src="$req.getContextPath()/images/icon-force-build-grey.gif" alt="Force build (disabled)" title="Force build" width="20" height="20" /></a>
+        	#end
             <a id="${buildSummary.build.projectName}_config_panel" onclick='$onConfigPanel'><img src="$req.getContextPath()/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
         </div>
            <div class="description">

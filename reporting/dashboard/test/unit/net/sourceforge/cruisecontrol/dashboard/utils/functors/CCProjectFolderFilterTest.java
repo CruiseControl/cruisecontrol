@@ -48,7 +48,7 @@ public class CCProjectFolderFilterTest extends TestCase {
 
     public void testShouldAcceptDirectoryContainsAtLeastOneCXmlFile() throws Exception {
         File project = FilesystemUtils.createDirectory("project");
-        FilesystemUtils.createFile("log12345.xml", project);
+        FilesystemUtils.createFile("log12340505121212.xml", project);
         FilesystemUtils.createFile("readme.txt", project);
         assertTrue(new CCProjectFolderFilter().accept(project));
     }

@@ -109,7 +109,7 @@ public class ConfigXmlFileService {
                 && cruiseConfigFile.getName().endsWith(".xml");
     }
 
-    public net.sourceforge.cruisecontrol.dashboard.Projects getProjects(File cruiseConfigFile) {
+    public Projects getProjects(File cruiseConfigFile) {
         if (cruiseConfigFile == null) {
             return null;
         } else {

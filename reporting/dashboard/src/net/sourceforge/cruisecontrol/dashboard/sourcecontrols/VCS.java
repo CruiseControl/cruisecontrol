@@ -40,7 +40,7 @@ package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 public interface VCS {
     String BUILD_FILE_NAME = "build.xml";
 
-    public ConnectionResultContext checkConnection();
+    public ConnectionResult checkConnection();
 
     public void checkout(String path);
 

@@ -28,6 +28,7 @@
 	<li><a class="expandmenu" href="../main/docs/index.html">build loop</a></li>
 	<li><a class="expandmenu" href="../reporting/jsp/docs/index.html">results jsp</a></li>
 	<li><p id="menuselected">dashboard</p></li>
+	<li><a href="widgets.html">widgets</a></li>
 	<li><a class="expandmenu" href="gettingstarted.html">getting started</a></li>
 	<li><a href="../main/docs/configxml.html">config ref</a></li>
 	<li><a href="faq.html">faq</a></li>
@@ -87,6 +88,99 @@ views on your project builds. For more details go to <a href="widgets.html">Crui
 <h2>Administration Page</h2>
 <p><img src="dashboard/admin.jpg" alt="admin" /></p>
 <p>In this page you can enter the configuration file path and edit the configuration file.  You can also remove project builds via this page by manually deleting the project builds.</p>
+<h2>Installation guide</h2>
+<p>Users are free to use system properties or context parameters in web.xml to configure the dashboard application. </p>
+<h3>System property</h3>
+<p>Administrators can pass system properties through cruisecontronl.sh/cruisecontrol.bat or the startup script of the web container.</p>
+<table>
+<thead>
+    <tr>
+	<td>Property</td>
+	<td>Value</td>
+	<td>Default Value</td>
+	<td>Description</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+	<td>cc.config.file</td>
+	<td>String</td>
+	<td>N/A</td>
+	<td>path to CRUISE_HOME/config.xml</td>
+    </tr>
+    <tr>
+	<td>cc.config.editable</td>
+	<td>true/false</td>
+	<td>true</td>
+	<td>whether users can edit config.xml from gui</td>
+    </tr>
+    <tr>
+	<td>cc.jmxport</td>
+	<td>int</td>
+	<td>8000</td>
+	<td>port of the JMX HttpAdapter</td>
+    </tr>
+    <tr>
+	<td>cc.rmiport</td>
+	<td>int</td>
+	<td>1099</td>
+	<td>RMI port of the JMX Controller</td>
+    </tr>
+    <tr>
+	<td>cc.config.forcebuild</td>
+	<td>enabled/disabled</td>
+	<td>enabled</td>
+	<td>whether users can force a build from gui</td>
+    </tr>
+</tbody>
+</table>
+
+
+<h3>Context parameter</h3>
+<p>Administrators can manually edit the web.xml to configure the dashboard application.</p>
+<table>
+<thead>
+    <tr>
+	<td>Property</td>
+	<td>Value</td>
+	<td>Default Value</td>
+	<td>Description</td>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+	<td>cruisecontrol.config.file</td>
+	<td>String</td>
+	<td>N/A</td>
+	<td>path to CRUISE_HOME/config.xml</td>
+    </tr>
+    <tr>
+	<td>cruisecontrol.config.editable</td>
+	<td>true/false</td>
+	<td>true</td>
+	<td>whether users can edit config.xml from gui</td>
+    </tr>
+    <tr>
+	<td>cruisecontrol.jmxport</td>
+	<td>int</td>
+	<td>8000</td>
+	<td>port of the JMX HttpAdapter</td>
+    </tr>
+    <tr>
+	<td>cruisecontrol.rmiport</td>
+	<td>int</td>
+	<td>1099</td>
+	<td>RMI port of the JMX Controller</td>
+    </tr>
+    <tr>
+	<td>cruisecontrol.config.forcebuild</td>
+	<td>enabled/disabled</td>
+	<td>enabled</td>
+	<td>whether users can force a build from gui</td>
+    </tr>
+</tbody>
+</table>
+
 </div>
 </div>
 </body>

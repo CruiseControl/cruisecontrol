@@ -41,6 +41,6 @@ import java.io.FilenameFilter;
 
 class CCLogFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
-        return name.endsWith(".xml");
+        return name.startsWith("log") && name.endsWith(".xml") && name.length() > 20;
     }
 }

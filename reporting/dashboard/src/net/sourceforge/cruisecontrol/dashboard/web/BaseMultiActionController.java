@@ -37,9 +37,6 @@
 
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.validation.BindingResult;
@@ -60,13 +57,5 @@ public class BaseMultiActionController extends MultiActionController {
             }
         }
         return binder.getBindingResult();
-    }
-
-    public String decode(String url) {
-        try {
-            return URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return url;
-        }
     }
 }

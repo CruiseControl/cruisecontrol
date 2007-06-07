@@ -11,9 +11,22 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
     private Mock mockContext;
 
     protected void setUp() throws Exception {
+        clearSystemProperties();
         service = new EnvironmentService();
         mockContext = mock(ServletContext.class);
         service.setServletContext((ServletContext) mockContext.proxy());
+    }
+
+    protected void tearDown() throws Exception {
+        clearSystemProperties();
+    }
+
+    private void clearSystemProperties() {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_JMX_PORT, "");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_RMI_PORT, "");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_RMI_PORT, "");
     }
 
     public void testShouldReturnTrueIfNotCruiseConfigSetup() throws Exception {
@@ -57,10 +70,38 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
         assertEquals(1099, service.getRmiPort());
     }
 
-    protected void tearDown() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "");
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_JMX_PORT, "");
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_RMI_PORT, "");
+    public void testShouldReturnFalseIfForceBuildSetToDisableInContextParam() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
+        mockContext.expects(once()).method("getInitParameter").with(
+                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(
+                returnValue("disabled"));
+        assertEquals(false, service.isForceBuildEnabled());
+    }
+
+    public void testShouldReturnTrueIfForceBuildSetToEnableInContextParam() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
+        mockContext.expects(once()).method("getInitParameter").with(
+                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(
+                returnValue("enabled"));
+        assertEquals(true, service.isForceBuildEnabled());
+    }
+    
+    public void testShouldReturnFalseIfForceBuildSetToDisableInSystemPropery() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "disabled");
+        mockContext.expects(never()).method("getInitParameter");
+        assertEquals(false, service.isForceBuildEnabled());
+    }
+
+    public void testShouldReturnTrueIfForceBuildSetToenableInSystemPropery() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "enabled");
+        mockContext.expects(never()).method("getInitParameter");
+        assertEquals(true, service.isForceBuildEnabled());
+    }
+    
+    public void testShouldReturnTrueAsDefault() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
+        mockContext.expects(once()).method("getInitParameter").with(
+                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(returnValue(""));
+        assertEquals(true, service.isForceBuildEnabled());
     }
 }

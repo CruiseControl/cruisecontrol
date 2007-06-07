@@ -27,6 +27,11 @@ public class EnvironmentService implements ServletContextAware {
 
     public static final String CONTEXT_CC_CONFIG_RMI_PORT = "cruisecontrol.rmiport";
 
+    public static final String PROPS_CC_CONFIG_FORCEBUILD_ENABLED = "cc.config.forcebuild";
+
+    public static final String CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED =
+            "cruisecontrol.config.forcebuild";
+
     private static final Logger LOGGER = Logger.getLogger(EnvironmentService.class);
 
     private ServletContext servletContext;
@@ -37,15 +42,16 @@ public class EnvironmentService implements ServletContextAware {
             return propValues;
         } else if (servletContext != null) {
             String initParameter = servletContext.getInitParameter(context);
-            LOGGER.info(initParameter + " is loading from the init parameter " + context);
+            LOGGER.debug("Using value '" + initParameter + "' for init parameter " + context);
             return StringUtils.defaultString(initParameter);
         } else {
-            return "";
+            return null;
         }
     }
 
     public File getConfigXml() {
-        return new File(getConfigProperty(PROPS_CC_CONFIG_FILE, CONTEXT_CC_CONFIG_FILE));
+        String filename = getConfigProperty(PROPS_CC_CONFIG_FILE, CONTEXT_CC_CONFIG_FILE);
+        return filename != null ? new File(filename) : null;
     }
 
     public boolean isConfigFileEditable() {
@@ -60,18 +66,29 @@ public class EnvironmentService implements ServletContextAware {
     public int getJmxPort() {
         String jmxPort = getConfigProperty(PROPS_CC_CONFIG_JMX_PORT, CONTEXT_CC_CONFIG_JMX_PORT);
         int port = NumberUtils.toInt(StringUtils.defaultIfEmpty(jmxPort, "8000"));
-        LOGGER.info(port + " is using in dashboard as jmx port");
+        LOGGER.debug("Using " + port + " as jmx port in dashboard");
         return port;
     }
 
     public int getRmiPort() {
         String rmiPort = getConfigProperty(PROPS_CC_CONFIG_RMI_PORT, CONTEXT_CC_CONFIG_RMI_PORT);
         int port = NumberUtils.toInt(StringUtils.defaultIfEmpty(rmiPort, "1099"));
-        LOGGER.info(port + " is using in dashboard as rmi port");
+        LOGGER.debug("Using " + port + " as rmi port in dashboard");
         return port;
     }
 
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
+    }
+
+    public boolean isForceBuildEnabled() {
+        String isEnabled =
+                getConfigProperty(PROPS_CC_CONFIG_FORCEBUILD_ENABLED,
+                        CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED);
+        if (StringUtils.isEmpty(isEnabled)) {
+            return true;
+        } else {
+            return isEnabled.equals("enabled");
+        }
     }
 }

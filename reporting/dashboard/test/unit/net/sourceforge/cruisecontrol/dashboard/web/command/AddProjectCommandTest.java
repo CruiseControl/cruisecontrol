@@ -34,31 +34,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.dashboard.web;
+package net.sourceforge.cruisecontrol.dashboard.web.command;
 
-import javax.servlet.http.HttpServletRequest;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.web.command.ForceBuildCommand;
-import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
-import org.springframework.validation.BindException;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.SimpleFormController;
+import java.util.Map;
 
-public class ForceBuildController extends SimpleFormController {
-    private CruiseControlJMXService service;
+import junit.framework.TestCase;
 
-    public ForceBuildController(CruiseControlJMXService service) {
-        this.service = service;
-        this.setCommandClass(ForceBuildCommand.class);
-    }
-
-    protected boolean isFormSubmission(HttpServletRequest request) {
-        return true;
-    }
-
-    protected ModelAndView onSubmit(Object object, BindException arg1) throws Exception {
-        ForceBuildCommand command = (ForceBuildCommand) object;
-        service.forceBuild(command.getProjectName());
-        return new ModelAndView(new JsonView());
+public class AddProjectCommandTest extends TestCase {
+    public void testShouldContainMessage() throws Exception {
+        AddProjectCommand invalidConnection = new AddProjectCommand();
+        Map map = invalidConnection.toJsonMap(false, "url", "svn: . is not working directory.");
+        assertEquals("failure", ((Map) map.get("result")).get("ok"));
+        assertEquals("url", ((Map) map.get("result")).get("field"));
+        assertEquals("svn: . is not working directory.", ((Map) map.get("result")).get("response"));
     }
 }

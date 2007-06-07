@@ -52,7 +52,7 @@ public class JsonViewTest extends TestCase {
         Map map = new HashMap();
         map.put("key", "\r\t\n");
         view.renderMergedOutputModel(map, new MockHttpServletRequest(), response);
-        assertEquals("{ \"key\" : \"\" }", response.getHeader("X-JSON"));
+        assertEquals("{ \"key\" : \"\" }", response.getContentAsString());
     }
 
     public void testShouldRenderEmptyEmptyMap() throws Exception {

@@ -49,6 +49,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ForceBuildCommand;
 
 import org.springframework.web.servlet.ModelAndView;
@@ -65,16 +66,20 @@ public class LatestBuildsListingController implements Controller {
 
     private Map cachedDataMap;
 
+    private final EnvironmentService environmentService;
+
     public LatestBuildsListingController(BuildSummariesService buildSummaryService,
-            BuildSummaryUIService buildSummaryUIService) {
+            BuildSummaryUIService buildSummaryUIService, EnvironmentService environmentService) {
         this.buildSummariesService = buildSummaryService;
         this.buildSummaryUIService = buildSummaryUIService;
+        this.environmentService = environmentService;
     }
 
     public synchronized ModelAndView handleRequest(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
         long now = new Date().getTime();
         if (lastScanTime == 0 || (now - lastScanTime) > CACHE_MILLISECONDS) {
+            boolean isForceBuildEnabled = environmentService.isForceBuildEnabled();            
             lastScanTime = now;
             cachedDataMap = new HashMap();
             List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
@@ -83,6 +88,10 @@ public class LatestBuildsListingController implements Controller {
             cachedDataMap.put("command", new ForceBuildCommand());
             cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
                     allProjectsBuildSummaries));
+            cachedDataMap.put("forceBuildEnabled", Boolean.valueOf(isForceBuildEnabled));
+            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
+                    allProjectsBuildSummaries));
+            
         }
         return new ModelAndView("page_latest_builds", cachedDataMap);
     }

@@ -47,6 +47,8 @@ import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -72,7 +74,7 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         setUpMock();
         controller =
                 new LatestBuildsListingController(buildSummaryService, new BuildSummaryUIService(
-                        buildSummaryService));
+                        buildSummaryService), new EnvironmentService());
     }
 
     private void setUpMock() throws Exception {
@@ -101,6 +103,13 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         assertEquals(new Integer(2), projectStatistics.inactive());
     }
 
+    public void testShouldPutIsForceBuildEnabledIntoModel() throws Exception {
+        ModelAndView mov =
+                controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+        Map model = mov.getModel();
+        assertEquals(Boolean.TRUE, model.get("forceBuildEnabled"));
+    }
+    
     public void testShouldUseCachedLatestBuildSummaries() throws Exception {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
         mockBuildSummaryService =
@@ -116,6 +125,7 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
     }
 
+    
     private List returnedValue() {
         List list = new ArrayList();
         BuildSummary build1 =

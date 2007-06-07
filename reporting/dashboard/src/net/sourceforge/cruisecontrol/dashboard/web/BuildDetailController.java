@@ -51,9 +51,9 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 public class BuildDetailController extends BaseMultiActionController {
@@ -79,24 +79,25 @@ public class BuildDetailController extends BaseMultiActionController {
     }
 
     public ModelAndView latest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = decode(url[url.length - 1]);
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
+        String projectName = DashboardUtils.decode(url[url.length - 1]);
         Build latest = this.buildSummarySerivce.getLatest(projectName);
         Build build = this.buildService.getBuild(projectName, latest.getBuildLogFilename());
         return buildDetail(request, projectName, build);
     }
 
     public ModelAndView history(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = decode(url[url.length - 2]);
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
+        String projectName = DashboardUtils.decode(url[url.length - 2]);
         String logfileName = url[url.length - 1];
         return buildDetail(request, projectName, buildService.getBuild(projectName, logfileName));
     }
 
     public ModelAndView live(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = decode(url[url.length - 1]);
-        String buildStatusStr = (String) jmxService.getAllProjectsStatus().get(projectName);
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
+        String projectName = DashboardUtils.decode(url[url.length - 1]);
+        String buildStatusStr;
+        buildStatusStr = (String) jmxService.getAllProjectsStatus().get(projectName);
         ProjectBuildStatus buildStatus = ProjectBuildStatus.getProjectBuildStatus(buildStatusStr);
         if (!buildStatus.isBuilding()) {
             return latest(request, response);

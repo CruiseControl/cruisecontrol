@@ -45,7 +45,6 @@ import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.VersionControlFactory;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResult;
-import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResultContext;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
@@ -111,7 +110,7 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
 
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
-        assertEquals(ConnectionResult.STATUS_SUCCESS, result.get("ok"));
+        assertEquals("success", result.get("ok"));
     }
 
     public void testCheckOutShouldBeInvoked() throws Exception {
@@ -129,7 +128,7 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
 
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
-        assertEquals(ConnectionResult.STATUS_FAILURE, result.get("ok"));
+        assertEquals("failure", result.get("ok"));
     }
 
     public void testShouldContainsBuildXmlNotFoundWhenBuildDotXmlIsMissing() throws Exception {
@@ -197,8 +196,8 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
             return true;
         }
 
-        public ConnectionResultContext checkConnection() {
-            return new ConnectionResultContext("");
+        public ConnectionResult checkConnection() {
+            return new ConnectionResult(true, "");
         }
 
         public void checkout(String path) {
@@ -223,8 +222,8 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
 
     class ConnectionFailedVcs extends HappyVcs {
 
-        public ConnectionResultContext checkConnection() {
-            return new ConnectionResultContext("error");
+        public ConnectionResult checkConnection() {
+            return new ConnectionResult(false, "error");
         }
 
         public String getTagName() {

@@ -94,3 +94,14 @@
 .admin.transparent_notice {
   margin: 0px 0px 0px 0px;
 }
+
+.cc_status.transparent_message {
+  font-size: 1.3em;
+  font-weight: bold;
+  text-align: left;
+  padding-left: 50px;
+  min-height : 2.6em;
+  line-height: 2.6em;
+  background : gold url( ../images/icon-failure-medium.gif ) 16px center no-repeat ;
+  position:static;
+}

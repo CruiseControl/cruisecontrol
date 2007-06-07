@@ -39,14 +39,18 @@
     new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
         asynchronous: 1,
         method:'GET',
-        onSuccess: function(transport, json) {
+        onSuccess: function(transport) {
+			var json = transport.responseText
+			json = json ? eval('(' + json + ')') : null
             ajax_periodical_refresh_active_build_executer_oncomplete(json, '$build.build.projectName')
         }
     });
     new Ajax.Request(context_path('getCommitMessage.ajax?project=$build.build.projectName'), {
         asynchronous: 1,
         method:'GET',
-        onSuccess: function(transport, json) {
+        onSuccess: function(transport) {
+			var json = transport.responseText
+			json = json ? eval('(' + json + ')') : null
             ajax_refresh_active_build_commit_message(json)
         }
     });

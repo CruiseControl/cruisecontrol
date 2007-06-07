@@ -38,11 +38,14 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
 import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
@@ -57,8 +60,9 @@ public class PanopticodeController implements Controller {
         this.configuration = configuration;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         String projectName = url[url.length - 2];
         String category = url[url.length - 1];
         File svgFile = getPanopticodeOutput(projectName, category);

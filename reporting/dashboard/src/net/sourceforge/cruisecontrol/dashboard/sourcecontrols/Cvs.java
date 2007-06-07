@@ -39,10 +39,10 @@ package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 
-public class Cvs implements VCS {
+import org.apache.commons.lang.StringUtils;
+
+public class Cvs extends AbstractVersionControlSystem {
     private static final String CVS = "cvs";
 
     private CruiseRuntime runtime;
@@ -63,40 +63,13 @@ public class Cvs implements VCS {
         return StringUtils.contains(adapter.checkoutMessage(), BUILD_FILE_NAME);
     }
 
-    public ConnectionResultContext checkConnection() {
-        String error;
-        try {
-            Pipe pipe = new Pipe(getTestConnectionCommandline());
-            pipe.waitFor();
-            error = pipe.error();
-        } catch (Exception e) {
-            error = ExceptionUtils.getRootCauseMessage(e);
-        }
-        return new ConnectionResultContext(error);
-    }
-
-    public void checkout(final String path) {
-        Thread checkout = new Thread() {
-            public void run() {
-                new Pipe(getCheckoutCommandLine(path));
-            }
-        };
-        checkout.start();
-    }
-
-    private Commandline getCheckoutCommandLine(String destinationPath) {
+    protected Commandline getCheckoutCommandLine(String destinationPath) {
         Commandline command = createCvsCmdLineForUrl();
         command.createArgument("co");
         command.createArgument("-P");
         command.createArgument("-d");
         command.createArgument(destinationPath);
         command.createArgument(module);
-        return command;
-    }
-
-    private Commandline getTestConnectionCommandline() {
-        Commandline command = createCvsCmdLineForUrl();
-        command.createArgument("rlog");
         return command;
     }
 
@@ -122,5 +95,11 @@ public class Cvs implements VCS {
 
     public String getRepository() {
         return CVS;
+    }
+
+    protected Commandline getCheckConnectionCommandLine() {
+        Commandline command = createCvsCmdLineForUrl();
+        command.createArgument("rlog");
+        return command;
     }
 }

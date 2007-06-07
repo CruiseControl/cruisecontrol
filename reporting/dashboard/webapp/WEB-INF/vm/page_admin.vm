@@ -18,7 +18,7 @@
                     <div class="admin_holder">
                           <div class="info filepath">
                               #if(!${command.configFileLocation})
-                                  <p>Please tell CruiseControl where your configuration file is. If you like, you can set the system property "cc.config" to this location and you won't be asked again.</p>
+                                  <p>Please tell CruiseControl where your configuration file is. If you like, you can set the system property "cc.config.file" to this location and you won't be asked again.</p>
                               #end
                               <form id="specifyConfigLocation" name="specifyConfigLocation" action="$req.getContextPath()/admin/config/setup" method="post">
                                   <div class="messages" id='location_message'>$!location_flash_message</div>

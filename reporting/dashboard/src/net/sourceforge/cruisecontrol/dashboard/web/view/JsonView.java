@@ -36,11 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.view;
 
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.view.AbstractView;
 
@@ -51,7 +54,9 @@ public class JsonView extends AbstractView {
     protected void renderMergedOutputModel(Map map, HttpServletRequest httpServletRequest,
                                            HttpServletResponse httpServletResponse) throws Exception {
         String json = StringUtils.replaceChars(renderJson(map), "\r\t\n", "");
-        httpServletResponse.addHeader("X-JSON", json);
+        PrintWriter writer = httpServletResponse.getWriter();
+        writer.write(json);
+        writer.close();
     }
 
     protected String renderJson(Map map) {

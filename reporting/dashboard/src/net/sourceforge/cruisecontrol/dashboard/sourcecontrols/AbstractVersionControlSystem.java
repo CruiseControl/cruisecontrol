@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -36,14 +34,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-    
-    <bean id="jmxFactory" class="net.sourceforge.cruisecontrol.dashboard.service.JMXFactory">
-		<constructor-arg ref="envService"/>
-		<constructor-arg ref="jmxConnectorFactory"/>
-	</bean>
-    <bean id="jmxConnectorFactory" class="net.sourceforge.cruisecontrol.dashboard.service.JMXConnectorFactory"/>
-</beans>
+package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
+import net.sourceforge.cruisecontrol.util.Commandline;
+
+public abstract class AbstractVersionControlSystem implements VCS {
+
+    public boolean checkBuildFile() {
+        return false;
+    }
+
+    public ConnectionResult checkConnection() {
+        String error;
+        try {
+            Pipe pipe = new Pipe(getCheckConnectionCommandLine());
+            pipe.waitFor();
+            error = pipe.error();
+        } catch (Exception e) {
+            error = ExceptionUtils.getRootCauseMessage(e);
+        }
+        return new ConnectionResult(StringUtils.isEmpty(error), error);
+    }
+
+    public void checkout(final String path) {
+        Thread checkout = new Thread() {
+            public void run() {
+                new Pipe(getCheckoutCommandLine(path));
+            }
+        };
+        checkout.start();
+    }
+
+    protected abstract Commandline getCheckoutCommandLine(String path);
+
+    protected abstract Commandline getCheckConnectionCommandLine();
+}
