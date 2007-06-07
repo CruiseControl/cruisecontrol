@@ -44,8 +44,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 public class BuildListingController extends BaseMultiActionController {
@@ -53,15 +53,17 @@ public class BuildListingController extends BaseMultiActionController {
 
     public BuildListingController(BuildSummariesService buildSummariesService) {
         this.buildSummariesService = buildSummariesService;
-        this.setSupportedMethods(new String[]{"GET"});
+        this.setSupportedMethods(new String[] {"GET"});
     }
 
-    public ModelAndView all(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView all(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         return process(getProjectName(request), "page_all_builds", buildSummariesService
                 .getAll(getProjectName(request)));
     }
 
-    public ModelAndView passed(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView passed(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         return process(getProjectName(request), "page_all_successful_builds", buildSummariesService
                 .getAllSucceed(getProjectName(request)));
     }
@@ -74,8 +76,8 @@ public class BuildListingController extends BaseMultiActionController {
     }
 
     private String getProjectName(HttpServletRequest request) {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = decode(url[url.length - 1]);
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
+        String projectName = DashboardUtils.decode(url[url.length - 1]);
         return projectName;
     }
 }

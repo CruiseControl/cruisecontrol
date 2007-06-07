@@ -79,18 +79,24 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invok
 	this.set_inactive_projects_amount=function() {
 		is_set_inactive_called = true;
 	}
+	var is_update_cc_status_called = false;
+	this.update_cc_status=function(){
+	    is_update_cc_status_called = true;
+	}
 	assertFalse(is_update_project_box_called)
 	assertFalse(is_refresh_called);
 	assertFalse(is_caculate_called)
 	assertFalse(is_refresh_called)
 	assertFalse(is_included_inactive)
 	assertFalse(is_set_inactive_called)
+	assertFalse(is_update_cc_status_called)
 	ajax_periodical_refresh_dashboard_executer_oncomplete(json)
 	assertTrue(is_update_project_box_called);
 	assertTrue(is_refresh_called);
 	assertTrue(is_caculate_called)
 	assertTrue(is_refresh_called)
 	assertTrue(is_set_inactive_called)
+	assertTrue(is_update_cc_status_called)
 	assertFalse(is_included_inactive)
 }
 
@@ -126,6 +132,7 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_i
 </head>
 <body>
 <div class="projects_summary">
+<div id="cruisecontrol_status"></div>
 	<div class="title">Projects Summary</div>
 	<div><img src="images/accept.png"/><span id="statistics_passed" class="info">0</span><span class="entry">project(s) build successfully</span></div>
 	<div><img src="images/arrow_rotate_clockwise.png"/><span id="statistics_building" class="info">0</span><span class="entry"> project(s) in building</span></div>

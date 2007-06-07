@@ -25,34 +25,12 @@ public class JMXFactory {
 
     private static final Logger LOGGER = Logger.getLogger(JMXFactory.class);
 
-    public JMXFactory(EnvironmentService envService, JMXConnectorFactory jmxFactory)
-            throws Exception {
+    public JMXFactory(EnvironmentService envService, JMXConnectorFactory jmxFactory) throws Exception {
         this.jmxConnectorFactory = jmxFactory;
         this.environment.put("java.naming.factory.initial",
                 "com.sun.jndi.rmi.registry.RegistryContextFactory");
-        this.environment.put("java.naming.provider.url", "rmi://localhost:"
-                + envService.getRmiPort());
+        this.environment.put("java.naming.provider.url", "rmi://localhost:" + envService.getRmiPort());
         this.serviceUrl = new JMXServiceURL("service:jmx:rmi://localhost/jndi/jrmp");
-    }
-
-    JMXServiceURL getServiceURL() {
-        return serviceUrl;
-    }
-
-    JMXConnector getJMXConnector() {
-        return jmxConnector;
-    }
-
-    public void closeConnector() {
-        if (jmxConnector != null) {
-            try {
-                jmxConnector.close();
-            } catch (IOException e) {
-                LOGGER.warn("Failed to call close on connector, reconnect next time anyway", e);
-            } finally {
-                jmxConnector = null;
-            }
-        }
     }
 
     public MBeanServerConnection getJMXConnection() {
@@ -62,11 +40,30 @@ public class JMXFactory {
                 mbeanConnection = jmxConnector.getMBeanServerConnection();
             }
         } catch (Exception e) {
-            LOGGER.warn(
-                    "Failed to get MBeanServerConnection, will close connector and set it to null",
-                    e);
+            LOGGER.warn("Failed to get MBeanServerConnection, will close connector and set it to null", e);
             closeConnector();
         }
         return mbeanConnection;
+    }
+
+    public void closeConnector() {
+        if (jmxConnector != null) {
+            try {
+                jmxConnector.close();
+            } catch (IOException e) {
+                LOGGER.warn("Failed to call close on connector, reconnect next time anyway", e);
+            } finally {
+                mbeanConnection = null;
+                jmxConnector = null;
+            }
+        }
+    }
+
+    JMXConnector getJMXConnector() {
+        return jmxConnector;
+    }
+
+    JMXServiceURL getServiceURL() {
+        return serviceUrl;
     }
 }

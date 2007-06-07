@@ -44,6 +44,8 @@ import com.perforce.api.Utils;
 import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 public class Perforce implements VCS {
@@ -77,7 +79,7 @@ public class Perforce implements VCS {
         return false;
     }
 
-    public ConnectionResultContext checkConnection() {
+    public ConnectionResult checkConnection() {
         String error;
         try {
             Pipe pipe = new Pipe(getCheckConnectionCommandLine());
@@ -86,7 +88,7 @@ public class Perforce implements VCS {
         } catch (Exception e) {
             error = ExceptionUtils.getRootCauseMessage(e);
         }
-        return new ConnectionResultContext(error);
+        return new ConnectionResult(StringUtils.isEmpty(error), error);
     }
 
     public void checkout(final String path) {

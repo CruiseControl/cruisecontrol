@@ -96,10 +96,11 @@
 		<constructor-arg ref="configuration" />
 		<constructor-arg ref="envService" />
 	</bean>
-	<bean id="addProjectController" class="net.sourceforge.cruisecontrol.dashboard.web.AddProjectController" />
+	<bean id="addProjectController" class="net.sourceforge.cruisecontrol.dashboard.web.AddProjectController"/>
 	<bean id="latestBuildsListingController" class="net.sourceforge.cruisecontrol.dashboard.web.LatestBuildsListingController">
 		<constructor-arg ref="buildSummariesService" />
 		<constructor-arg ref="buildSummaryUIService" />
+		<constructor-arg ref="envService"/>
 	</bean>
 	<bean id="buildListingController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildListingController">
 		<constructor-arg ref="buildSummariesService" />

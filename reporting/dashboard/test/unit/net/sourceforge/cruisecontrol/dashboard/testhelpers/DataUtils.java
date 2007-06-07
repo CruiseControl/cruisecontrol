@@ -46,12 +46,18 @@ import org.apache.commons.io.FileUtils;
 
 public final class DataUtils {
     public static final String TEST_DATA_DIR = "test/data/";
+
     public static final String CONFIG_XML = "config.xml";
+
     public static final String FAILING_LOG = "cruisecontrollog_internalerror.log";
+
     public static final String FAILING_BUILD_XML = "log20051209122104.xml";
+
     public static final String PASSING_BUILD_LBUILD_0_XML = "log20051209122103Lbuild.489.xml";
+
     public static final String TESTSUITE_IN_BUILD_LBUILD =
-                "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
+            "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
+
     public static final String LOGFILE_OF_PROJECT2 = "log20060703155722.xml";
 
     private DataUtils() {
@@ -64,7 +70,6 @@ public final class DataUtils {
     public static File getConfigXmlAsFile() throws Exception {
         return getData(CONFIG_XML);
     }
-
 
     public static File getConfigXmlOfWebApp() throws Exception {
         File ccRoot = getConfigXmlAsFile().getParentFile();
@@ -92,6 +97,10 @@ public final class DataUtils {
 
     public static File getProject1ArtifactDirAsFile() throws Exception {
         return getData("artifacts/project1");
+    }
+
+    public static File getProjectSpaceArtifactDirAsFile() throws Exception {
+        return getData("artifacts/project space");
     }
 
     public static File getProjectLogDirAsFile() throws Exception {
@@ -136,7 +145,8 @@ public final class DataUtils {
 
     public static File createDefaultCCConfigFile() throws IOException {
         File configurationFile = createTempFile("config", ".xml");
-        writeContentToFile(configurationFile, "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
+        writeContentToFile(configurationFile,
+                "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
         return configurationFile;
     }
 

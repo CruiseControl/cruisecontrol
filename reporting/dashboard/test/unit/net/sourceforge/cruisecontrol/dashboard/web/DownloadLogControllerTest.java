@@ -69,11 +69,20 @@ public class DownloadLogControllerTest extends SpringBasedControllerTests {
 
     public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-
         assertEquals("downloadXmlView", mov.getViewName());
         String logfilePath =
                 configuration.getCruiseLogfileLocation() + File.separator + "project1"
                         + File.separator + LOG_FILE;
+        assertEquals(new File(logfilePath), mov.getModel().get("targetFile"));
+    }
+
+    public void testShouldRenderDownloadViewIfPathContainsWhiteSpace() throws Exception {
+        getRequest().setMethod("GET");
+        getRequest().setRequestURI("/download/log/project%20space/log20051209122104Lbuild.467.xml");
+        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
+        String logfilePath =
+                configuration.getCruiseLogfileLocation() + File.separator + "project space"
+                        + File.separator + "log20051209122104Lbuild.467.xml";
         assertEquals(new File(logfilePath), mov.getModel().get("targetFile"));
     }
 

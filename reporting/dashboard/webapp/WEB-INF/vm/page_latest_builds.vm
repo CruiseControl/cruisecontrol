@@ -22,8 +22,8 @@ Tooltip.hideEvent = "mouseout";
   <div id="bd">
         <div class="yui-ge build_summary_page" id="tabscontent">
 
-               <!-- tab content 1 -->
-                <div id="tabContent1" class="yui-u first tabContent" $dashboard>
+            <!-- tab content 1 -->
+            <div id="tabContent1" class="yui-u first tabContent" $dashboard>
                         <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
                         <div id="statusbar" class="projects build_status_bar_container">
                                 #foreach( $buildSummary in $buildSummaries )
@@ -64,9 +64,9 @@ Tooltip.hideEvent = "mouseout";
             </div>
             <!-- end project summary -->
 
-
             <!-- tab content 2 -->
             <div id="tabContent2"  class="yui-g tabContent" $builds>
+                    <div id="cruisecontrol_status" class="cc_status transparent_message transparent_notice" style="display:none">CruiseControl is currently unavailable. You will not be able to force a project build.</div>
                     <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
                     <div class="projects_profile build_status_bar_container" >
                             #if ($buildSummaries.size() > 0)

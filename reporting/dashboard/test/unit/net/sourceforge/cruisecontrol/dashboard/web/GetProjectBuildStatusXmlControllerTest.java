@@ -48,6 +48,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
@@ -77,13 +78,14 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
                 mock(BuildSummariesService.class, new Class[] {Configuration.class,
                         BuildSummaryService.class}, new Object[] {null, null});
         buildSummariesService = (BuildSummariesService) mockBuildSummaryService.proxy();
-        CruiseControlJMXService cruisecontrolJMXService = new CruiseControlJMXService(null) {
-            public Map getAllProjectsStatus() {
-                Map map = new HashMap();
-                map.put("project1", "now building since");
-                return map;
-            }
-        };
+        CruiseControlJMXService cruisecontrolJMXService =
+                new CruiseControlJMXService(null, new EnvironmentService()) {
+                    public Map getAllProjectsStatus() {
+                        Map map = new HashMap();
+                        map.put("project1", "now building since");
+                        return map;
+                    }
+                };
         controller =
                 new GetProjectBuildStatusXmlController(buildSummariesService,
                         cruisecontrolJMXService, new BuildSummaryUIService(buildSummariesService));

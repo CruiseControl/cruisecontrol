@@ -36,12 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import java.io.IOException;
 import java.io.File;
-import java.net.URL;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequestSettings;
-import com.gargoylesoftware.htmlunit.WebResponse;
+import java.io.IOException;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.jwebunit.junit.WebTester;
@@ -73,10 +70,8 @@ public abstract class BaseFunctionalTest extends TestCase {
         //status when getAllProjectStatus invoked, so wait for 6 second and ping
         //server to make the jmx stub change status.
         Thread.sleep(6000);
-        final WebClient webClient = new WebClient();
-        WebRequestSettings settings = new WebRequestSettings(new URL(BASE_URL + path));
-        WebResponse response = webClient.getWebConnection().getResponse(settings);
-        return response.getResponseHeaderValue("X-JSON");
+        tester.beginAt(BASE_URL + path);
+        return tester.getPageSource();
     }
 
     public void setConfigFileAndSubmitForm(String configFilePath) throws IOException {

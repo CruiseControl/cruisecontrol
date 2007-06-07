@@ -40,9 +40,9 @@ package net.sourceforge.cruisecontrol.dashboard.web.binder;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.DownLoadArtifactsCommand;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.ServletRequestDataBinder;
 
 public class DownloadArtifactsBinder extends ServletRequestDataBinder {
@@ -57,7 +57,7 @@ public class DownloadArtifactsBinder extends ServletRequestDataBinder {
     }
 
     public void bind(ServletRequest request) {
-        String[] url = StringUtils.split(((HttpServletRequest) request).getRequestURI(), '/');
+        String[] url = DashboardUtils.urlToParams(((HttpServletRequest) request).getRequestURI());
         String projectName = url[url.length - INDEX_PROJECT_NAME];
         String build = url[url.length - INDEX_BUILD];
         String fileToBeDownloaded = url[url.length - ARTIFACTS];

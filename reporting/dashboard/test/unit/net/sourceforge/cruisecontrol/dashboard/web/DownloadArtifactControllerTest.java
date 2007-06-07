@@ -63,15 +63,29 @@ public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
 
     private void prepareRequest(String artifacts) {
         getRequest().setMethod("GET");
-        getRequest().setRequestURI("/download/artifacts/project1/log20051209122103Lbuild.489.xml/" + artifacts);
+        getRequest().setRequestURI(
+                "/download/artifacts/project1/log20051209122103Lbuild.489.xml/" + artifacts);
     }
 
     public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
         prepareRequest("artifact1.txt");
         ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
         assertEquals("downloadBinView", mov.getViewName());
-        File targetFile = new File(DataUtils.getProject1ArtifactDirAsFile(),
-                "20051209122103" + File.separator + "artifact1.txt");
+        File targetFile =
+                new File(DataUtils.getProject1ArtifactDirAsFile(), "20051209122103"
+                        + File.separator + "artifact1.txt");
+        assertEquals(targetFile.getAbsoluteFile(), mov.getModel().get("targetFile"));
+    }
+
+    public void testShouldBeAbleToDownloadArtifactsWithSpaceInPath() throws Exception {
+        getRequest().setMethod("GET");
+        getRequest().setRequestURI(
+                "/download/artifacts/project%20space/"
+                        + "log20051209122104Lbuild.467.xml/artifact%20with%20space.txt");
+        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
+        File targetFile =
+                new File(DataUtils.getProjectSpaceArtifactDirAsFile(), "20051209122104"
+                        + File.separator + "artifact with space.txt");
         assertEquals(targetFile.getAbsoluteFile(), mov.getModel().get("targetFile"));
     }
 

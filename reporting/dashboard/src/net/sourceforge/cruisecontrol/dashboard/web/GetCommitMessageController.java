@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +62,9 @@ public class GetCommitMessageController implements Controller {
             throws Exception {
         String projectName = request.getParameter("project");
         List commitMessages = jmxService.getCommitMessages(projectName);
-        response.addHeader("X-JSON", "[" + toJsonHeader(commitMessages) + "]");
+        PrintWriter writer = response.getWriter();
+        writer.write("[" + toJsonHeader(commitMessages) + "]");
+        writer.close();
         return null;
     }
 

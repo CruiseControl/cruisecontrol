@@ -53,6 +53,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
+import org.apache.commons.collections.ListUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -84,10 +85,14 @@ public class GetProjectBuildStatusController implements Controller {
             lastScanTime = now;
             cachedBuildInfo = new HashMap();
             try {
-                List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
-                updateWithLiveStatus(projectsBuildSummaries);
-                List buildSummaryCommands = uiService.transform(projectsBuildSummaries);
-                cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
+                if (cruiseControlJMXService.isCruiseAlive()) {
+                    List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
+                    projectsBuildSummaries = updateWithLiveStatus(projectsBuildSummaries);
+                    List buildSummaryCommands = uiService.transform(projectsBuildSummaries);
+                    cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
+                } else {
+                    cachedBuildInfo.put("error", "cruisecontrol unavailable");
+                }
             } catch (Exception e) {
                 cachedBuildInfo.put("error", e.getMessage());
             }
@@ -95,15 +100,19 @@ public class GetProjectBuildStatusController implements Controller {
         return new ModelAndView(new JsonView(), new HashMap(cachedBuildInfo));
     }
 
-    private void updateWithLiveStatus(List projectsBuildSummaries) {
-        Map buildStatuses = cruiseControlJMXService.getAllProjectsStatus();
+    private List updateWithLiveStatus(List projectsBuildSummaries) {
+        Map buildLiveStatuses = cruiseControlJMXService.getAllProjectsStatus();
+        if (buildLiveStatuses.isEmpty()) {
+            return ListUtils.EMPTY_LIST;
+        }
         for (int i = 0; i < projectsBuildSummaries.size(); i++) {
             Build buildSummary = (Build) projectsBuildSummaries.get(i);
-            if (!buildStatuses.containsKey(buildSummary.getProjectName())) {
+            if (!buildLiveStatuses.containsKey(buildSummary.getProjectName())) {
                 continue;
             }
-            buildSummary.updateStatus((String) buildStatuses.get(buildSummary.getProjectName()));
+            buildSummary.updateStatus((String) buildLiveStatuses.get(buildSummary.getProjectName()));
         }
+        return projectsBuildSummaries;
     }
 
     private List createBuildInfos(List commands) {

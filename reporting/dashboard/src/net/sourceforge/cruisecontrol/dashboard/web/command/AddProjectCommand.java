@@ -34,13 +34,60 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.dashboard.web;
+package net.sourceforge.cruisecontrol.dashboard.web.command;
 
-import junit.framework.TestCase;
+import java.util.HashMap;
+import java.util.Map;
 
-public class BaseMultiActionControllerTest extends TestCase {
-    public void testShouldBeAbleToDecodeURL() {
-        BaseMultiActionController controller = new BaseMultiActionController();
-        assertEquals("project name with space", controller.decode("project%20name%20with%20space"));
+public class AddProjectCommand {
+    private String url = "";
+
+    private String projectName = "";
+
+    private String vcsType = "";
+
+    private String moduleName = "";
+
+    public String getModuleName() {
+        return moduleName;
     }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getVcsType() {
+        return vcsType;
+    }
+
+    public void setVcsType(String vcsType) {
+        this.vcsType = vcsType;
+    }
+
+    public Map toJsonMap(boolean succeeded, String field, String message) {
+        Map resultMap = new HashMap();
+        resultMap.put("ok", succeeded ? "success" : "failure");
+        resultMap.put("field", field);
+        resultMap.put("response", message.replaceAll("[\\r\\f]", ""));
+        Map jsonMap = new HashMap();
+        jsonMap.put("result", resultMap);
+        return jsonMap;
+    }
+
 }

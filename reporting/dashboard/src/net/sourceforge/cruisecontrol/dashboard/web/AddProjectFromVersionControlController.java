@@ -37,31 +37,38 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 import net.sourceforge.cruisecontrol.dashboard.exception.NonSupportedVersionControlException;
 import net.sourceforge.cruisecontrol.dashboard.exception.ProjectAlreadyExistException;
 import net.sourceforge.cruisecontrol.dashboard.service.VersionControlFactory;
-import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResultContext;
+import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResult;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Cvs;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Perforce;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
+import net.sourceforge.cruisecontrol.dashboard.web.command.AddProjectCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
 public class AddProjectFromVersionControlController implements Controller {
-    private static final String INVALID_VERSION_CONTROL_SYSTEM = "You have to specify a valid version control system";
+    private static final String INVALID_VERSION_CONTROL_SYSTEM =
+            "You have to specify a valid version control system";
 
     private VersionControlFactory vcsFactory;
 
-    private static final String BUILD_FILE_NOT_FOUND = "You may need to edit cruisecontrol configuration file at "
-            + "the Administration page to specify the build.xml.";
+    private static final String BUILD_FILE_NOT_FOUND =
+            "You may need to edit cruisecontrol configuration file at "
+                    + "the Administration page to specify the build.xml.";
 
-    public static final String ERROR_WHILE_PARSING_CRUISE_CONFIG_FILE = "Error while parsing Cruise config file.";
+    public static final String ERROR_WHILE_PARSING_CRUISE_CONFIG_FILE =
+            "Error while parsing Cruise config file.";
 
     private static final String PROJECT_ALREADY_EXISTS = " already exists, please choose another name.";
 
@@ -72,43 +79,45 @@ public class AddProjectFromVersionControlController implements Controller {
         this.configuration = configuration;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-            throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse) throws Exception {
         String url = httpServletRequest.getParameter("url");
         String projectName = httpServletRequest.getParameter("projectName");
         String vcsType = httpServletRequest.getParameter("vcsType");
         String moduleName = httpServletRequest.getParameter("moduleName");
         if (StringUtils.isBlank(projectName)) {
-            return getViewWithMessage("Project name can not be blank", "projectName");
+            return getViewWithMessage(false, "projectName", "Project name can not be blank");
         }
         if (configuration.hasProject(projectName)) {
-            return getViewWithMessage(projectName + PROJECT_ALREADY_EXISTS, "projectName");
+            return getViewWithMessage(false, "projectName", projectName + PROJECT_ALREADY_EXISTS);
         }
         VCS vcs;
         try {
             vcs = vcsFactory.getVCSInstance(projectName, url, moduleName, vcsType);
         } catch (NonSupportedVersionControlException e) {
-            return getViewWithMessage(INVALID_VERSION_CONTROL_SYSTEM, "vcsType");
+            return getViewWithMessage(false, "vcsType", INVALID_VERSION_CONTROL_SYSTEM);
         }
         if ((vcs instanceof Cvs) && StringUtils.isBlank(moduleName)) {
-            return getViewWithMessage("You must provide a module name for cvs project", "moduleName");
+            return getViewWithMessage(false, "moduleName", "You must provide a module name for cvs project");
         }
         if ((vcs instanceof Perforce) && StringUtils.isBlank(moduleName)) {
-            return getViewWithMessage("You must provide the depot path for perforce project", "moduleName");
+            return getViewWithMessage(false, "moduleName",
+                    "You must provide the depot path for perforce project");
         }
-        if (!vcs.checkConnection().isValidConnection()) {
-            return new ModelAndView(new JsonView(), vcs.checkConnection().getResultMap());
+        ConnectionResult connectionResult = vcs.checkConnection();
+        if (!connectionResult.isValid()) {
+            return getViewWithMessage(false, "url", connectionResult.getMessage());
         }
         return addProject(vcs, projectName);
     }
 
-    private ModelAndView getViewWithMessage(String message, String field) {
-        ConnectionResultContext connectionResultContext = new ConnectionResultContext(message, field);
-        return new ModelAndView(new JsonView(), connectionResultContext.getResultMap());
+    private ModelAndView getViewWithMessage(boolean valid, String field, String message) {
+        AddProjectCommand command = new AddProjectCommand();
+        return new ModelAndView(new JsonView(), command.toJsonMap(StringUtils.isEmpty(field), field, message));
     }
 
-    private ModelAndView addProject(VCS vcs, String projectName)
-            throws ConfigurationException, ProjectAlreadyExistException {
+    private ModelAndView addProject(VCS vcs, String projectName) throws ConfigurationException,
+            ProjectAlreadyExistException {
         String flashMessage = "";
         if (!vcs.checkBuildFile()) {
             flashMessage = BUILD_FILE_NOT_FOUND;
@@ -117,21 +126,22 @@ public class AddProjectFromVersionControlController implements Controller {
             vcs.checkout(getProjectSourceFolder(projectName));
             configuration.addProject(projectName, vcs);
             String message = getMessage(projectName, flashMessage);
-            return getViewWithMessage(message, "");
+            return getViewWithMessage(true, "", message);
         } catch (ProjectAlreadyExistException e) {
-            return getViewWithMessage(projectName + PROJECT_ALREADY_EXISTS, "projectName");
+            return getViewWithMessage(false, "projectName", projectName + PROJECT_ALREADY_EXISTS);
         }
     }
 
     private String getProjectSourceFolder(String projectName) {
-        return configuration.getCruiseConfigDirLocation() + File.separator + "projects" + File.separator + projectName;
+        return configuration.getCruiseConfigDirLocation() + File.separator + "projects" + File.separator
+                + projectName;
     }
 
     private String getMessage(String projectName, String flashMessage) {
-        String message = "Download launched in " + configuration.getCruiseConfigDirLocation() + "/projects/"
-                + projectName + ". " + flashMessage;
-        message = StringUtils.replace(message, File.separator, "/");
-        return message;
+        String message =
+                "Download launched in " + configuration.getCruiseConfigDirLocation() + "/projects/"
+                        + projectName + ". " + flashMessage;
+        return StringUtils.replace(message, File.separator, "/");
     }
 
 }

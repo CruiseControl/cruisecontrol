@@ -40,8 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 public class MBeanConsoleController extends BaseMultiActionController {
@@ -62,9 +62,10 @@ public class MBeanConsoleController extends BaseMultiActionController {
         return mov;
     }
 
-    public ModelAndView mbean(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String[] url = StringUtils.split(request.getRequestURI(), '/');
-        String projectName = decode(url[url.length - 1]);
+    public ModelAndView mbean(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        String[] url = DashboardUtils.urlToParams(request.getRequestURI());
+        String projectName = DashboardUtils.decode(url[url.length - 1]);
         ModelAndView mov = renderMbeanConsole(request);
         mov.getModel().put("projectName", projectName);
         mov.getModel().put("context", MBEAN_ROOT + projectName);

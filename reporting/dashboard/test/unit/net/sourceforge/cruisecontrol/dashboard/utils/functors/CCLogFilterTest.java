@@ -39,11 +39,24 @@ package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 import junit.framework.TestCase;
 
 public class CCLogFilterTest extends TestCase {
-    public void testCCLogShouldEndwithXml() {
-        assertTrue(new CCLogFilter().accept(null, "log.xml"));
+    public void testShouldAcceptFailedLogFile() {
+        assertTrue(new CCLogFilter().accept(null, "log19990505080808.xml"));
     }
 
-    public void testShouldNotAcceptFileIfDoesnotEndwithXml() {
+    public void testShouldAcceptPassedLogFile() {
+        assertTrue(new CCLogFilter().accept(null, "log19990505080808Lbuild.123.xml"));
+    }
+
+    public void testShouldNotAcceptFileIfDoesnotEndswithXml() {
         assertFalse(new CCLogFilter().accept(null, "file.notxml"));
+    }
+
+    public void testShouldNotAcceptFileIfDoesnotStartwithLog() {
+        assertFalse(new CCLogFilter().accept(null, "filelog.xml"));
+    }
+
+    public void testShouldNotAcceptFileIfLengthShorterThan21() {
+        assertFalse(new CCLogFilter().accept(null, "log1234.xml"));
+        assertFalse(new CCLogFilter().accept(null, "log.xml"));
     }
 }

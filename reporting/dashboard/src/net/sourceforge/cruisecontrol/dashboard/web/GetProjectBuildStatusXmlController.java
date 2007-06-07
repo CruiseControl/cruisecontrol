@@ -39,11 +39,14 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
@@ -56,21 +59,20 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
     private final BuildSummaryUIService uiService;
 
     public GetProjectBuildStatusXmlController(BuildSummariesService buildSummarySerivce,
-                                              CruiseControlJMXService cruiseControlJMXService,
-                                              BuildSummaryUIService uiService) {
+            CruiseControlJMXService cruiseControlJMXService, BuildSummaryUIService uiService) {
         super();
         this.buildSummariesService = buildSummarySerivce;
         this.cruiseControlJMXService = cruiseControlJMXService;
         this.uiService = uiService;
-        this.setSupportedMethods(new String[]{"GET"});
+        this.setSupportedMethods(new String[] {"GET"});
     }
 
     public ModelAndView cctray(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         PrintWriter writer = resp.getWriter();
         writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         writer.println("<Projects>");
-        writer.println(uiService.toXml(buildSummariesService.getLatestOfProjects(),
-                cruiseControlJMXService.getAllProjectsStatus(), getBaseURL(req), "cctray"));
+        writer.println(uiService.toXml(buildSummariesService.getLatestOfProjects(), cruiseControlJMXService
+                .getAllProjectsStatus(), getBaseURL(req), "cctray"));
         writer.println("</Projects>");
         return null;
     }

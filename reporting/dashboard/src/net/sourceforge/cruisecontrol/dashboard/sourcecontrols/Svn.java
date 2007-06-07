@@ -39,24 +39,22 @@ package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 
-public class Svn implements VCS {
+import org.apache.commons.lang.StringUtils;
+
+public class Svn extends AbstractVersionControlSystem {
     private static final String SVN = "svn";
 
     private final String url;
 
     private final CruiseRuntime runtime;
 
-    private String error;
-
     public Svn(String url, CruiseRuntime runtime) {
         this.url = url;
         this.runtime = runtime;
     }
 
-    private Commandline getCheckoutCommandLine(String path) {
+    protected Commandline getCheckoutCommandLine(String path) {
         Commandline command = new Commandline(null, runtime);
         command.setExecutable(SVN);
         command.createArgument("co");
@@ -64,35 +62,6 @@ public class Svn implements VCS {
         command.createArgument(url);
         command.createArgument(path);
         return command;
-    }
-
-    private Commandline testConnectionCommandLine() {
-        Commandline command = new Commandline(null, runtime);
-        command.setExecutable(SVN);
-        command.createArgument("info");
-        command.createArgument("--non-interactive");
-        command.createArgument(url);
-        return command;
-    }
-
-    public ConnectionResultContext checkConnection() {
-        try {
-            Pipe pipe = new Pipe(testConnectionCommandLine());
-            pipe.waitFor();
-            error = pipe.error();
-        } catch (Exception e) {
-            error = ExceptionUtils.getRootCauseMessage(e);
-        }
-        return new ConnectionResultContext(error);
-    }
-
-    public void checkout(final String path) {
-        Thread checkout = new Thread() {
-            public void run() {
-                new Pipe(getCheckoutCommandLine(path));
-            }
-        };
-        checkout.start();
     }
 
     private CheckoutAdapter list() {
@@ -119,5 +88,14 @@ public class Svn implements VCS {
 
     public String getRepository() {
         return SVN;
+    }
+
+    protected Commandline getCheckConnectionCommandLine() {
+        Commandline command = new Commandline(null, runtime);
+        command.setExecutable(SVN);
+        command.createArgument("info");
+        command.createArgument("--non-interactive");
+        command.createArgument(url);
+        return command;
     }
 }

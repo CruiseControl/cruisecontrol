@@ -1,0 +1,110 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript">
+function setUp() {
+    $('cruisecontrol_status').show()
+}
+
+function test_should_show_cc_status_if_json_contains_error() {
+	var json = {error:"some error"}
+	update_cc_status(json)
+	assertTrue($('cruisecontrol_status').visible())
+}
+
+function test_should_hide_cc_status_if_json_dose_NOT_contains_error() {
+	var json = {building_info:"anything"}
+	update_cc_status(json)
+	assertFalse($('cruisecontrol_status').visible())
+}
+
+function test_should_disable_all_force_build_if_json_contains_error() {
+	var json = {error:"some error"}
+	update_cc_status(json)
+	$A($$('.force_build_link')).each(function(element) {
+		assertNull( $(element).onclick )
+	});
+}
+
+function test_should_enable_all_force_build_if_json_dose_NOT_contains_error() {
+	var json = [
+	    {building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
+	    {building_info : { project_name : "project2", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
+	]
+	update_cc_status(json)
+	$A($$('.force_build_link')).each(function(element) {
+		assertTrue( $(element).onclick.toString().indexOf('ajax_force_build') > -1 )
+	});
+}
+
+function test_should_NOT_update_links_if_already_updated() {
+	var json = [
+	    {building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
+	    {building_info : { project_name : "project2", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
+	]
+	update_cc_status(json)
+	$A($$('.force_build_link')).each(function(element) {
+		assertTrue( $(element).onclick.toString().indexOf('ajax_force_build') > -1 )
+		$(element).onclick = "new_value"
+	});
+	
+	update_cc_status(json)
+	$A($$('.force_build_link')).each(function(element) {
+		assertTrue( $(element).onclick.toString().indexOf('new_value') > -1 )
+	});
+}
+</script>
+</head>
+<body>
+<div id="cruisecontrol_status"></div>
+<a id="project1_forcebuild" class="force_build_link" onclick="ajax_force_build"></a>
+<a id="project2_forcebuild" class="force_build_link" onclick="ajax_force_build"></a>
+</body>
+</html>

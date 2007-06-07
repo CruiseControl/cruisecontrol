@@ -47,7 +47,7 @@ public class SvnTest extends MockObjectTestCase {
     public void testShouldGetCorrectCommandLine() throws Throwable {
         String url = "http://thoughtworks.com/svn/";
         Svn svn = new Svn(url, null);
-        String actual = PrivateAccessor.invoke(svn, "testConnectionCommandLine", null, null).toString();
+        String actual = PrivateAccessor.invoke(svn, "getCheckConnectionCommandLine", null, null).toString();
         String expected = "svn info --non-interactive " + url;
         assertEquals(expected, actual);
     }
@@ -65,14 +65,15 @@ public class SvnTest extends MockObjectTestCase {
     public void testShouldReturnPositiveWhenRepositoryAccessible() throws IOException, InterruptedException {
         String url = "https://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol";
         Svn svn = new Svn(url, new MockRuntime("", true));
-        Assert.assertEquals(svn.checkConnection().status(), ConnectionResult.STATUS_SUCCESS);
+        Assert.assertTrue(svn.checkConnection().isValid());
     }
 
     public void testShouldReturnNegativeAndResponseWhenErrorOccurred() throws Exception {
         String errorMessage = "error emssage";
         Svn svn = new Svn("http://foo", new MockRuntime(errorMessage, true));
-        assertEquals(svn.checkConnection().status(), ConnectionResult.STATUS_FAILURE);
-        assertEquals(errorMessage + '\n', PrivateAccessor.getField(svn, "error"));
+        ConnectionResult checkResult = svn.checkConnection();
+        assertFalse(checkResult.isValid());
+        assertEquals(errorMessage + '\n', checkResult.getMessage());
     }
 
     public void testShouldReturnTrueIfBuildFileExists() throws Exception {

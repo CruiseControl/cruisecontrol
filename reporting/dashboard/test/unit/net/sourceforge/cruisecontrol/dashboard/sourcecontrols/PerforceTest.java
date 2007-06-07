@@ -65,13 +65,13 @@ public class PerforceTest extends MockObjectTestCase {
         String port = "somewhere:1666";
         String depotPath = "//depot/path";
         Perforce p4 = new Perforce("irrelevant", port, depotPath, new MockRuntime("", true));
-        Assert.assertEquals(p4.checkConnection().status(), ConnectionResult.STATUS_SUCCESS);
+        Assert.assertTrue(p4.checkConnection().isValid());
     }
 
     public void testShouldReturnFailureWhenRepositoryNotAccessible() throws Exception {
         String port = "nonExisting:1666";
         String depotPath = "//depot/path";
         Perforce p4 = new Perforce("irrelevant", port, depotPath, new MockRuntime("server not exist", true));
-        assertEquals(p4.checkConnection().status(), ConnectionResult.STATUS_FAILURE);
+        Assert.assertFalse(p4.checkConnection().isValid());
     }
 }

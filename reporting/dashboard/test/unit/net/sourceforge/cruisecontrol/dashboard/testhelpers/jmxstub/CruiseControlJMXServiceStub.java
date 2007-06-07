@@ -43,13 +43,14 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.joda.time.DateTime;
 
 public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
     public CruiseControlJMXServiceStub() {
-        super(null);
+        super(null, new EnvironmentService());
     }
 
     private static final int DEFAULT_HTTP_PORT = 8000;
@@ -119,6 +120,10 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
             public Object get(Object key) {
                 return getBuildStatus((String) key);
             }
+
+            public boolean isEmpty() {
+                return false;
+            }
         };
     }
 
@@ -139,7 +144,7 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
         }
     }
 
-    public void fourceBuild(String projectName) {
+    public void forceBuild(String projectName) {
         projectStatues.put(projectName, BOOTSTRAPPING);
     }
 
@@ -149,5 +154,9 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
 
     public int getHttpPortForMBeanConsole() {
         return DEFAULT_HTTP_PORT;
+    }
+
+    public boolean isCruiseAlive() {
+        return true;
     }
 }

@@ -85,7 +85,7 @@
         </publishers>
     </project>
     <project name="projectWithoutPublishers"/>
-    <project name="project name">
+    <project name="project space">
         <listeners>
             <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
         </listeners>
@@ -98,5 +98,11 @@
         <schedule>
             <ant buildfile="projects/${project.name}/build.xml"/>
         </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+            <logdir>.</logdir>
+        </publishers>
     </project>
 </cruisecontrol>

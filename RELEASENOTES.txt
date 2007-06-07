@@ -25,14 +25,22 @@ dashboard
 * Fixed bug with remaining time calculation.
 * Fixed bug where forcing a build wouldn't update the project statistics.
 * Swapped the All Builds and All Successful Builds icons so that the wording and placement would make them more intuitive.
+* Indicates when the Cruise server is down, such that force build will take no action.
+* Ignoring non-cruise xml files in the log directories.
+* Added ability to disable the force build button.
 
 documentation
 ======================
 * Update the look and feel of the documentation to be less intrusive and more contemporary in design. Added in newly trademarked CruiseControl logo.
-
+* Added documentation about the new dashboard "widgets".
+* Created installation guide for the dashboard.
 
 build loop
 ======================
+
+build.bat
+----------------------
+* Fixed bug with double, double-quoting the java path.
 
 build.xml
 ----------------------
@@ -54,12 +62,15 @@ EmbeddedJettyServer
 ----------------------
 * Added jmxport and rmiport parameters to the embedded jetty server that are passed to the dashboard.
 
-
 JMX
 ----------------------
 * Added the ability to retrieve commit messages for a project's "current" modification set.
 * Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
 * Added the ability to retrieve statuses of all projects.  
+
+Main.java
+----------------------
+* Improved wording for dashboard webapp path and reporting web app path.
 
 PlasticSCM & PlasticSCMBootstrapper
 ----------------------

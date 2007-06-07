@@ -53,7 +53,7 @@ public class CruiseControlJMXServiceStubTest extends TestCase {
     }
 
     public void testForceBuildShouldTriggerBuildingProcessForNew() throws Exception {
-        controlJMXServiceStub.fourceBuild("new_project");
+        controlJMXServiceStub.forceBuild("new_project");
         assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
                 .getBuildStatus("new_project"));
         assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub
@@ -67,7 +67,7 @@ public class CruiseControlJMXServiceStubTest extends TestCase {
     }
 
     public void testTwoDifferentProjectShouldNotInfluenceEachOther() throws Exception {
-        controlJMXServiceStub.fourceBuild("new_project_1");
+        controlJMXServiceStub.forceBuild("new_project_1");
         assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
                 .getBuildStatus("new_project_1"));
         assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub
@@ -79,7 +79,7 @@ public class CruiseControlJMXServiceStubTest extends TestCase {
     public void testAllProjectStatusShouldBeChangedWhenUserTriggerTheBuild() throws Exception {
         String status = (String) controlJMXServiceStub.getAllProjectsStatus().get("new_project_2");
         assertEquals(CruiseControlJMXServiceStub.WAITING, status);
-        controlJMXServiceStub.fourceBuild("new_project_2");
+        controlJMXServiceStub.forceBuild("new_project_2");
         assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
                 .getAllProjectsStatus().get("new_project_2"));
         assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub

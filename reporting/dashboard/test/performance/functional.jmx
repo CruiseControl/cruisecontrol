@@ -14,12 +14,12 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="loop" elementType="Argument">
             <stringProp name="Argument.metadata">=</stringProp>
-            <stringProp name="Argument.value">40</stringProp>
+            <stringProp name="Argument.value">100</stringProp>
             <stringProp name="Argument.name">loop</stringProp>
           </elementProp>
           <elementProp name="user" elementType="Argument">
             <stringProp name="Argument.metadata">=</stringProp>
-            <stringProp name="Argument.value">50</stringProp>
+            <stringProp name="Argument.value">10</stringProp>
             <stringProp name="Argument.name">user</stringProp>
           </elementProp>
         </collectionProp>
@@ -27,12 +27,12 @@
       <hashTree/>
       <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
         <stringProp name="HTTPSampler.path"></stringProp>
-        <stringProp name="HTTPSampler.domain">10.9.2.70</stringProp>
+        <stringProp name="HTTPSampler.domain">10.9.1.71</stringProp>
         <stringProp name="HTTPSampler.protocol"></stringProp>
+        <stringProp name="HTTPSampler.port">8080</stringProp>
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
-        <stringProp name="HTTPSampler.port">8080</stringProp>
       </ConfigTestElement>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="dashboard" enabled="true">
@@ -51,7 +51,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Dashboard" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/dashboard</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -147,8 +147,8 @@
         <stringProp name="ThreadGroup.ramp_time">0</stringProp>
       </ThreadGroup>
       <hashTree>
-        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/cruisereport/getProjectBuildStatus.ajax" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/getProjectBuildStatus.ajax</stringProp>
+        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/dashboard/getProjectBuildStatus.ajax" enabled="true">
+          <stringProp name="HTTPSampler.path">/dashboard/getProjectBuildStatus.ajax</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -294,7 +294,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/cruisereport/dashboard" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/dashboard</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -344,7 +344,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="/cruisereport/getProjectBuildStatus.ajax" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/getProjectBuildStatus.ajax</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/getProjectBuildStatus.ajax</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -470,297 +470,6 @@
         </ResultCollector>
         <hashTree/>
       </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Small Project Detail" enabled="true">
-        <longProp name="ThreadGroup.start_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.num_threads">${user}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <stringProp name="LoopController.loops">${loop}</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-        </elementProp>
-        <longProp name="ThreadGroup.end_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-      </ThreadGroup>
-      <hashTree>
-        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Build Detail Small" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/detail/demo_1/log20070511095647Lbuild.26.xml</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Argument List" enabled="true">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-          <stringProp name="HTTPSampler.mimetype"></stringProp>
-          <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
-          <stringProp name="HTTPSampler.monitor">false</stringProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-        </HTTPSampler>
-        <hashTree>
-          <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="true">
-            <objProp>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>false</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-              </value>
-              <name>saveConfig</name>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-          </ResultCollector>
-          <hashTree/>
-        </hashTree>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
-          <objProp>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-            </value>
-            <name>saveConfig</name>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-        </ResultCollector>
-        <hashTree/>
-      </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Small Project All" enabled="true">
-        <longProp name="ThreadGroup.start_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.num_threads">${user}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <stringProp name="LoopController.loops">${loop}</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-        </elementProp>
-        <longProp name="ThreadGroup.end_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-      </ThreadGroup>
-      <hashTree>
-        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="All Build - small" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/list/all/demo_1</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Argument List" enabled="true">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-          <stringProp name="HTTPSampler.mimetype"></stringProp>
-          <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
-          <stringProp name="HTTPSampler.monitor">false</stringProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-        </HTTPSampler>
-        <hashTree>
-          <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="true">
-            <objProp>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>false</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-              </value>
-              <name>saveConfig</name>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-          </ResultCollector>
-          <hashTree/>
-        </hashTree>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
-          <objProp>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-            </value>
-            <name>saveConfig</name>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-        </ResultCollector>
-        <hashTree/>
-      </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="SmallProject success" enabled="true">
-        <longProp name="ThreadGroup.start_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.num_threads">${user}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <stringProp name="LoopController.loops">${loop}</stringProp>
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-        </elementProp>
-        <longProp name="ThreadGroup.end_time">1178891450000</longProp>
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
-      </ThreadGroup>
-      <hashTree>
-        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="All Success - small" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/list/passed/demo_1</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.port"></stringProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="Argument List" enabled="true">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
-          <stringProp name="HTTPSampler.mimetype"></stringProp>
-          <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
-          <stringProp name="HTTPSampler.monitor">false</stringProp>
-          <stringProp name="HTTPSampler.domain"></stringProp>
-          <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-        </HTTPSampler>
-        <hashTree>
-          <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="true">
-            <objProp>
-              <value class="SampleSaveConfiguration">
-                <time>true</time>
-                <latency>true</latency>
-                <timestamp>true</timestamp>
-                <success>true</success>
-                <label>true</label>
-                <code>true</code>
-                <message>true</message>
-                <threadName>true</threadName>
-                <dataType>true</dataType>
-                <encoding>false</encoding>
-                <assertions>true</assertions>
-                <subresults>true</subresults>
-                <responseData>false</responseData>
-                <samplerData>false</samplerData>
-                <xml>false</xml>
-                <fieldNames>false</fieldNames>
-                <responseHeaders>false</responseHeaders>
-                <requestHeaders>false</requestHeaders>
-                <responseDataOnError>false</responseDataOnError>
-                <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-                <assertionsResultsToSave>0</assertionsResultsToSave>
-              </value>
-              <name>saveConfig</name>
-            </objProp>
-            <stringProp name="filename"></stringProp>
-            <boolProp name="ResultCollector.error_logging">false</boolProp>
-          </ResultCollector>
-          <hashTree/>
-        </hashTree>
-        <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
-          <objProp>
-            <value class="SampleSaveConfiguration">
-              <time>true</time>
-              <latency>true</latency>
-              <timestamp>true</timestamp>
-              <success>true</success>
-              <label>true</label>
-              <code>true</code>
-              <message>true</message>
-              <threadName>true</threadName>
-              <dataType>true</dataType>
-              <encoding>false</encoding>
-              <assertions>true</assertions>
-              <subresults>true</subresults>
-              <responseData>false</responseData>
-              <samplerData>false</samplerData>
-              <xml>false</xml>
-              <fieldNames>false</fieldNames>
-              <responseHeaders>false</responseHeaders>
-              <requestHeaders>false</requestHeaders>
-              <responseDataOnError>false</responseDataOnError>
-              <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
-              <assertionsResultsToSave>0</assertionsResultsToSave>
-            </value>
-            <name>saveConfig</name>
-          </objProp>
-          <stringProp name="filename"></stringProp>
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
-        </ResultCollector>
-        <hashTree/>
-      </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Big Project Detail" enabled="true">
         <longProp name="ThreadGroup.start_time">1178891450000</longProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
@@ -777,7 +486,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Build Detail - BIG" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/detail/CruiseControlOSS/log20070511095704Lbuild.64.xml</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/build/detail/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -874,7 +583,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="All build -BIG" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/list/all/CruiseControlOSS</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/project/list/all/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -971,7 +680,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="HTTP Request" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/project/live/CruiseControlOSS</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/build/detail/live/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
@@ -1068,7 +777,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="HTTP Request" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/project/live/getProjectBuildOutput.ajax?project=CruiseControlOSS&amp;start=0</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/getProjectBuildOutput.ajax?project=dashboard&amp;start=0</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
@@ -1165,7 +874,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="active page" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/project/live/CruiseControlOSS</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/build/detail/live/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -1244,7 +953,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="getProjectBuildStatus.ajax" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/project/live/getProjectBuildStatus.ajax</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/project/live/getProjectBuildStatus.ajax</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -1343,7 +1052,7 @@
           <hashTree/>
         </hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="getProjectBuildOutput.ajax" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/project/live/getProjectBuildOutput.ajax?project=CruiseControlOSS&amp;start=0</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/getProjectBuildOutput.ajax?project=dashboard&amp;start=0</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -1489,7 +1198,7 @@
       </ThreadGroup>
       <hashTree>
         <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="All Success - BIG" enabled="true">
-          <stringProp name="HTTPSampler.path">/cruisereport/list/passed/CruiseControlOSS</stringProp>
+          <stringProp name="HTTPSampler.path">/dashboard/project/list/passed/dashboard</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
