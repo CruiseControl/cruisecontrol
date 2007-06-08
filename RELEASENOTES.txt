@@ -58,6 +58,10 @@ CruiseControlConfig
 ----------------------
 * <include.projects> now handles nested <include.projects>
 
+ConcurrentVersionsSystem
+----------------------
+* Fixed a bug with date formatting when cvs returns dates in YYYY/MM/DD HH:mm:ss format. Patch, and pairing support, by Chris Read.
+
 EmbeddedJettyServer
 ----------------------
 * Added jmxport and rmiport parameters to the embedded jetty server that are passed to the dashboard.

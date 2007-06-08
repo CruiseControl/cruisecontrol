@@ -216,6 +216,31 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertEquals(mod3, modifications.get(4));
     }
 
+    public void testParseStreamSlashDateFormat() throws IOException, ParseException {
+        ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.12.9"));
+        Hashtable emailAliases = new Hashtable();
+        emailAliases.put("bar", "bar@mailinator.com");
+        cvs.setMailAliases(emailAliases);
+
+        BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-12-9slashdate.txt"));
+        List modifications = cvs.parseStream(input);
+        input.close();
+        Collections.sort(modifications);
+
+        assertEquals("Should have returned 1 modification.", 1, modifications.size());
+
+        Modification mod1 = new Modification("cvs");
+        Modification.ModifiedFile mod1file = mod1.createModifiedFile("makefile", null);
+        mod1file.action = "modified";
+        mod1.revision = "1.1";
+        mod1.modifiedTime = CVSDateUtil.parseCVSDate("2006-11-30 20:57:14 GMT");
+        mod1.userName = "bar";
+        mod1.comment = "compiles...doubt it works";
+        mod1.emailAddress = "bar@mailinator.com";
+
+        assertEquals(mod1, modifications.get(0));
+    }
+
     public void testParseStreamNewFormat() throws IOException, ParseException {
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.12.9"));
         Hashtable emailAliases = new Hashtable();

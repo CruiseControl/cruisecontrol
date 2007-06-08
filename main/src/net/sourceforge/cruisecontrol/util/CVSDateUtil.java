@@ -16,6 +16,9 @@ public final class CVSDateUtil {
     // of the formatter so that it knows it's in GMT.
     private static final String CVS_DATE_PATTERN = "yyyy-MM-dd HH:mm:ss 'GMT'";
 
+    //CVS version 1.12.13 uses slashes instead of hyphens in the date format.
+    private static final String NEW_CVS_DATE_PATTERN = "yyyy/MM/dd HH:mm:ss 'GMT'";
+
     // This cannot be exposed as TimeZones are mutable
     private static final TimeZone UTC = TimeZone.getTimeZone("Etc/UTC");
 
@@ -43,9 +46,19 @@ public final class CVSDateUtil {
      * @return a date in the default timezone
      */
     public static Date parseCVSDate(String text) throws ParseException {
-        DateFormat format = new SimpleDateFormat(CVS_DATE_PATTERN);
-        format.setTimeZone(UTC);
-        return format.parse(text);
+        Date returnDate;
+        DateFormat format;
+        try {
+            format = new SimpleDateFormat(CVS_DATE_PATTERN);
+            format.setTimeZone(UTC);
+            returnDate = format.parse(text);
+        } catch (ParseException e) {
+            format = new SimpleDateFormat(NEW_CVS_DATE_PATTERN);
+            format.setTimeZone(UTC);
+            returnDate = format.parse(text);
+        }
+        return returnDate;
+
     }
 
 }
