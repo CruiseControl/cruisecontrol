@@ -1,0 +1,16 @@
+
+RCS file: /cvs/foo/makefile,v
+Working file: makefile
+head: 1.1
+branch:
+locks: strict
+access list:
+symbolic names:
+keyword substitution: kv
+total revisions: 1;		 selected revisions: 1
+description:
+----------------------------
+revision 1.1
+date: 2006/11/30 20:57:14;  author: bar;  state: Exp;
+compiles...doubt it works
+=============================================================================

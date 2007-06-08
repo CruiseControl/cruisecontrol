@@ -715,12 +715,13 @@ public class ConcurrentVersionsSystem implements SourceControl {
             String dateStamp = tokens.nextToken();
             String timeStamp = tokens.nextToken();
 
-            // skips the +0000 part of new format
-            if (newCVSVersion) {
+            // New format sometimes has a +0000 in it. This skips it if we don't see
+            // the start of the author: section
+            String isThisTimeOffset = tokens.nextToken();
+            if (!isThisTimeOffset.equals("author:")) {            
                 tokens.nextToken();
             }
             // The next token should be the author keyword, then the author name.
-            tokens.nextToken();
             String authorName = tokens.nextToken();
 
             // The next token should be the state keyword, then the state name.
