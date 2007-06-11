@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -34,38 +36,28 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-
-package net.sourceforge.cruisecontrol.dashboard.web.binder;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-
-import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
-import net.sourceforge.cruisecontrol.dashboard.web.command.DownLoadArtifactsCommand;
-
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.ServletRequestDataBinder;
-
-public class DownloadArtifactsBinder extends ServletRequestDataBinder {
-    private static final int INDEX_BUILD = 2;
-
-    private static final int INDEX_PROJECT_NAME = 1;
-
-    public DownloadArtifactsBinder(Object target) {
-        super(target);
-    }
-
-    public void bind(ServletRequest request) {
-        String[] url = DashboardUtils.urlToParams(((HttpServletRequest) request).getRequestURI());
-        int baseIndex = ArrayUtils.indexOf(url, "artifacts");
-        String projectName = url[baseIndex + INDEX_PROJECT_NAME];
-        String build = url[baseIndex + INDEX_BUILD];
-        String[] urlPath =
-                (String[]) ArrayUtils.subarray(url, baseIndex + INDEX_BUILD + 1, url.length);
-        DownLoadArtifactsCommand command = (DownLoadArtifactsCommand) this.getTarget();
-        command.setProjectName(projectName);
-        command.setBuild(build);
-        command.setFileToBeDownloaded(StringUtils.join(urlPath, "/"));
-    }
-}
+-->
+<cruisecontrol>
+    <project name="project1">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset quietperiod="30">
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule interval="300">
+            <ant anthome="apache-ant-1.6.5" buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <log>
+            <merge dir="projects/${project.name}/target/test-results"/>
+        </log>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/project1" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+</cruisecontrol>

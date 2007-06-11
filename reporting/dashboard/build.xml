@@ -210,6 +210,9 @@
 				<include name="cruisecontrol.jar" />
 			</lib>
 			<lib refid="product.lib" />
+			<lib dir="lib/buildtime">
+				<include name="jdom-1.0.jar" />
+			</lib>	
 			<lib dir="lib">
 				<include name="licenses/*" />
 			</lib>

@@ -228,7 +228,7 @@ public final class PluginRegistry implements Serializable {
      * @return instantiate the Class representing the plugin class name.
      * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    Class instanciatePluginClass(String pluginClassname, String pluginName) throws CruiseControlException {
+    public Class instanciatePluginClass(String pluginClassname, String pluginName) throws CruiseControlException {
         try {
             return Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {

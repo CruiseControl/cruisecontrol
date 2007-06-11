@@ -41,12 +41,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import net.sourceforge.cruisecontrol.dashboard.Projects;
-import net.sourceforge.cruisecontrol.dashboard.saxhandler.ConfigurationHandler;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardXMLManager;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -115,11 +112,9 @@ public class ConfigXmlFileService {
         } else {
             Projects projects = null;
             try {
-                projects = new Projects(cruiseConfigFile);
-                ConfigurationHandler handler = new ConfigurationHandler(projects);
-                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-                saxParser.parse(cruiseConfigFile, handler);
-                return projects;
+                DashboardXMLManager manager = new DashboardXMLManager(cruiseConfigFile);
+                return new Projects(cruiseConfigFile.getParentFile(), manager
+                        .getCruiseControlConfig());
             } catch (Exception e) {
                 return projects;
             }

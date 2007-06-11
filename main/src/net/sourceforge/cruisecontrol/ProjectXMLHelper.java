@@ -105,7 +105,7 @@ public class ProjectXMLHelper implements ProjectHelper {
      *   if a property cannot be resolved,
      *   if the plugin configuration fails
      */
-    Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
+    public Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
         final Class pluginClass = projectPlugins.getPluginClass(pluginName);
         if (pluginClass == null) {
             return null;
@@ -248,7 +248,7 @@ public class ProjectXMLHelper implements ProjectHelper {
      * @return The parsed string
      * @throws CruiseControlException if a property cannot be resolved
      */
-    static String parsePropertiesInString(Map props, String string,
+    public static String parsePropertiesInString(Map props, String string,
                                           boolean failIfMissing) throws CruiseControlException {
         if (string != null) {
             int startIndex = string.indexOf("${");

@@ -37,11 +37,11 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+import java.util.Set;
+
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Projects {
@@ -49,49 +49,35 @@ public class Projects {
 
     private File base;
 
-    private Map logs;
+    private Set projectNames;
 
-    private Map artifacts;
+    private File baseArtifacts;
 
-    public Projects(File cruiseConfigFile) {
-        base = new File(cruiseConfigFile.getParent());
-        baseLogs = new File(base, "logs");
-        logs = new HashMap();
-        artifacts = new HashMap();
-    }
-
-    public void addLogsRoot(String projectName) {
-        logs.put(projectName, new File(baseLogs, projectName));
-    }
-
-    public void addArtifactsRoot(String projectName, String dest) {
-        String realDest = StringUtils.replace(dest, "${project.name}", projectName);
-        artifacts.put(projectName, new File(base, realDest));
+    public Projects(File basedir, DashboardConfig cruiseControlConfig) {
+        base = basedir;
+        baseLogs = new File(basedir, "logs");
+        baseArtifacts = new File(base, "artifacts");
+        projectNames = cruiseControlConfig.getProjectNames();
     }
 
     public boolean hasProject(String projectName) {
-        return logs.containsKey(projectName);
+        return projectNames.contains(projectName);
     }
 
     public File getArtifactRoot(String projectName) {
-        return (File) artifacts.get(projectName);
+        File artifacts = new File(baseArtifacts, projectName);
+        return artifacts.exists() ? artifacts : null;
     }
 
     public File getLogRoot(String projectName) {
-        File logRoot = (File) logs.get(projectName);
-        if (logRoot == null) {
-            return new File(baseLogs, projectName);
-        } else {
-            return logRoot;
-        }
+        return new File(baseLogs, projectName);
     }
 
     public File[] getProjectNames() {
-        Collection collection = logs.values();
-        File[] projects = new File[collection.size()];
+        File[] projects = new File[projectNames.size()];
         int i = 0;
-        for (Iterator iter = collection.iterator(); iter.hasNext();) {
-            projects[i++] = (File) iter.next();
+        for (Iterator iter = projectNames.iterator(); iter.hasNext();) {
+            projects[i++] = getLogRoot((String) iter.next());
         }
         return projects;
     }
