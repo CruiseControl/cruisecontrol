@@ -36,15 +36,34 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import java.io.File;
-import junit.framework.TestCase;
+import java.util.HashSet;
 
-public class ProjectsTest extends TestCase {
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
+
+import org.jdom.Element;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+
+public class ProjectsTest extends MockObjectTestCase {
+
+    private Projects projects;
+
+    protected void setUp() throws Exception {
+        Mock mock =
+                mock(DashboardConfig.class, new Class[] {Element.class}, new Object[] {new Element(
+                        "project1")});
+        mock.expects(once()).method("getProjectNames").will(returnValue(new HashSet()));
+        projects =
+                new Projects(DataUtils.getConfigXmlAsFile().getParentFile(), (DashboardConfig) mock
+                        .proxy());
+    }
 
     public void testShouldReplaceMacroInArtifactRoot() throws Exception {
-        Projects projects = new Projects(new File("cc/cc.xml"));
-        projects.addArtifactsRoot("project1", "${project.name}");
-
         assertEquals("project1", projects.getArtifactRoot("project1").getName());
+    }
+
+    public void testShouldReturnNullWhenTheDirectoryDoesnotExist() throws Exception {
+        assertNull(projects.getArtifactRoot("projectx"));
     }
 }

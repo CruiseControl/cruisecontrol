@@ -179,7 +179,8 @@ public class BuildDetail implements Comparable, Build {
                 Iterator iter = getArtifacts().iterator();
                 while (iter.hasNext()) {
                     String artifactPath = (String) iter.next();
-                    artifactNames.add(StringUtils.remove(artifactPath, artifactsRootDir + File.separator));
+                    String fileName = StringUtils.remove(artifactPath, artifactsRootDir + File.separator);
+                    artifactNames.add(StringUtils.replaceChars(fileName, File.separator, "/"));
                 }
             } catch (Exception e) {
                 logger.error(e);

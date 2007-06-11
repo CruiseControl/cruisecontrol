@@ -28,6 +28,10 @@ dashboard
 * Indicates when the Cruise server is down, such that force build will take no action.
 * Ignoring non-cruise xml files in the log directories.
 * Added ability to disable the force build button.
+* fix the bug that rc2 does not support the pre-config project
+* fix the bug that rc2 does not support the included project
+* fix the bug that rc2 does not support the white space in the project name
+* fix the bug that rc2 does not support that log directory cannot contain log.xml
 
 documentation
 ======================

@@ -116,21 +116,34 @@ public class ConfigXmlFileServiceTest extends TestCase {
         File artifacts = new File(DataUtils.getConfigXmlAsFile().getParentFile(), "artifacts");
         assertEquals(new File(artifacts, "project1"), projects.getArtifactRoot("project1"));
         assertEquals(new File(artifacts, "project2"), projects.getArtifactRoot("project2"));
-        assertNull(projects.getArtifactRoot("projectWithoutPublishers"));
         assertNull(projects.getArtifactRoot("project name"));
-        assertEquals(4, projects.getProjectNames().length);
+        assertEquals(7, projects.getProjectNames().length);
+    }
+
+    public void testShouldPutPluginProjectIntoProjectsHashMap() throws Exception {
+        Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
+        assertTrue(projects.hasProject("cclive"));
+        assertTrue(projects.hasProject("cc-live-2"));
+        assertNull(projects.getArtifactRoot("cclive"));
+        assertNull(projects.getArtifactRoot("cc-live-2"));
+    }
+
+    public void testShouldSupportMultiPlugin() throws Exception {
+        Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
+        assertTrue(projects.hasProject("dashboardlive"));
+        assertNull(projects.getArtifactRoot("dashboardlive"));
     }
 
     public void testShouldBeAbleToAddNewProjectToCurrentConfigXml() throws Exception {
         File configDirectory = FilesystemUtils.createDirectory("cruisecontrol");
         FileUtils.copyFileToDirectory(DataUtils.getConfigXmlAsFile(), configDirectory);
         File config = new File(configDirectory, "config.xml");
+        long initLength = config.length();
         service.addProject(config, "CruiseControlOSS", new Svn(null, null));
         String currentFile = FileUtils.readFileToString(config, null);
+        long currentLenth = config.length();
         assertTrue(StringUtils.contains(currentFile, "CruiseControlOSS"));
-        assertTrue(StringUtils.contains(currentFile, "project1"));
-        assertTrue(StringUtils.contains(currentFile, "project2"));
-        assertTrue(StringUtils.contains(currentFile, "projectWithoutPublishers"));
+        assertTrue(currentLenth > initLength);
     }
 
     public void testShouldAddBootstrapperAndRepositoryBaseOnVCS() throws Exception {

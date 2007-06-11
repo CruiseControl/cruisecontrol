@@ -38,29 +38,69 @@
  ********************************************************************************/
 -->
 <cruisecontrol>
-    <project name="project1">
-        <listeners>
-            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
-        </listeners>
-        <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
-        </bootstrappers>
-        <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/${project.name}"/>
-        </modificationset>
-        <schedule interval="300">
-            <ant anthome="apache-ant-1.6.5" buildfile="projects/${project.name}/build.xml"/>
-        </schedule>
-        <log>
-            <merge dir="projects/${project.name}/target/test-results"/>
-        </log>
-        <publishers>
-            <onsuccess>
-                <artifactspublisher dest="artifacts/project1" file="projects/${project.name}/target/${project.name}.jar"/>
-            </onsuccess>
-            <logdir>.</logdir>
-        </publishers>
-    </project>
+    <plugin name="ccproject" classname="net.sourceforge.cruisecontrol.ProjectConfig">
+    	<listeners>
+	      <currentbuildstatuslistener file="logs/${ project.name}/status.txt" />
+    	</listeners>
+	    <bootstrappers>
+    	  <svnbootstrapper localWorkingCopy="projects/cruisecontrol" />
+	    </bootstrappers>
+    	<modificationset quietperiod="90"> 
+	      <svn localWorkingCopy="projects/cruisecontrol" />
+    	</modificationset>
+	    <log>
+    	  <merge dir="projects/cruisecontrol/main/target/test-results" />
+	      <merge dir="projects/cruisecontrol/reporting/jsp/target/test-results" /> 
+    	  <delete every="3" unit="MONTH" />
+	    </log>
+	</plugin>
+    <plugin name="dashboardplugin" classname="net.sourceforge.cruisecontrol.ProjectConfig">
+    	<listeners>
+	      <currentbuildstatuslistener file="logs/${ project.name}/status.txt" />
+    	</listeners>
+	    <bootstrappers>
+    	  <svnbootstrapper localWorkingCopy="projects/cruisecontrol" />
+	    </bootstrappers>
+    	<modificationset quietperiod="90"> 
+	      <svn localWorkingCopy="projects/cruisecontrol" />
+    	</modificationset>
+	    <log>
+    	  <merge dir="projects/cruisecontrol/main/target/test-results" />
+	      <merge dir="projects/cruisecontrol/reporting/jsp/target/test-results" /> 
+    	  <delete every="3" unit="MONTH" />
+	    </log>
+	</plugin>
+	<ccproject name="cclive">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </ccproject>
+	<ccproject name="cc-live-2">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </ccproject>
+	<dashboardplugin name="dashboardlive">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </dashboardplugin>    
+   	<include.projects file="config_partial.xml"/>
     <project name="project2">
         <listeners>
             <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
@@ -81,7 +121,6 @@
             <onsuccess>
                 <artifactspublisher dest="artifacts/project2" file="projects/${project.name}/target/${project.name}.jar"/>
             </onsuccess>
-            <logdir>project2</logdir>
         </publishers>
     </project>
     <project name="projectWithoutPublishers"/>
@@ -102,7 +141,6 @@
             <onsuccess>
                 <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
             </onsuccess>
-            <logdir>.</logdir>
         </publishers>
     </project>
 </cruisecontrol>
