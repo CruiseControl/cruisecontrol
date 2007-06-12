@@ -39,6 +39,7 @@ documentation
 * Added documentation about the new dashboard "widgets".
 * Created installation guide for the dashboard.
 * Update URL docs for subversion access to use new SF URL (old URLs to be decommissioned on June 28 by SF).
+  See: https://sourceforge.net/docs/E09#notice for instructions on how to switch your local working copy to the new URL.
 
 build loop
 ======================
