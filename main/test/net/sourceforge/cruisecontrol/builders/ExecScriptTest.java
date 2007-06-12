@@ -78,7 +78,7 @@ public class ExecScriptTest extends TestCase {
         String testExecCmd = "/bin/sh";
         String testExecArg1 = "svn";
         String testExecArg2 = "checkout";
-        String testExecArg3 = "https://svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol";
+        String testExecArg3 = "https://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol";
         String testExecArgs = testExecArg1 + space + testExecArg2 + space + quote + testExecArg3 + quote;
 
         testExecCmd = testExecCmd.replace('/', File.separatorChar); // os-specific
