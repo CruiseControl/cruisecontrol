@@ -2,10 +2,13 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - 2.7-dev
+CruiseControl Release Notes - 2.7
 
 dashboard
 ======================
+NOTE: The dashboard has known issues when using it on CruiseControl installations other than the binary
+distribution (or the windows installer). There will be a subsequent 2.7.1 release that fixes these issues.
+NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Initial checkin of new CruiseControl dashboard.
 * Tidied the failed and building pages, so that the text is aligned accordingly and does not leak out of the colored box.
 * Performance enhancements to the active build page.
