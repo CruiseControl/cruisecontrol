@@ -21,4 +21,7 @@ The config.version is pulled from the CC build.properties file,
 but you can override it if you really really need to. By default 
 it will try to build both the .deb and .rpm packages.
 
-This has been tested on Ubuntu 6.06 and Fedora Core 5
+This has been tested on Ubuntu 6.06 and Fedora Core 5.
+
+The rpm target requires the "rpmbuild" program (yum install rpm-build).
+The "symlink" optional ant task is also required (yum install ant-nodeps).

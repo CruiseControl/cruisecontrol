@@ -61,6 +61,7 @@
         <echo message="Using version number: ${config.version}"/>
         <echo message="You can over-ride this by specifying -Dconfig.version when invoking Ant"/>
         <mkdir dir="${build.dir}"/>
+        <mkdir dir="${basedir}/RPMS"/>
     </target>
 
     <target name="install" depends="build" description="deploy to the build dir">
@@ -156,6 +157,10 @@
         </concat>
         <delete dir="${build.dir}/DEBIAN"/>
         <exec executable="rpmbuild" failonerror="true">
+            <arg value="--buildroot"/>
+            <arg value="${build.dir}"/>
+            <arg value="--define"/>
+            <arg value="_rpmdir ${basedir}/RPMS"/>
             <arg value="-bb"/>
             <arg value="--target"/>
             <arg value="noarch"/>
