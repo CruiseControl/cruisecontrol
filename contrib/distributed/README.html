@@ -230,6 +230,15 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 
             <li>
                 <h4>Doing distributed builds</h4>
+                <b>Linux Note:</b> Many Linux distros list the hostname in <i>/etc/hosts</i> for the "127.0.0.1" address the same line as "localhost.localdomain" and "localhost". This interferes with the operation of Jini. You may need to edit the <i>/etc/hosts</i> file as shown below to list the actual hostname and ip address:
+<pre>
+    # This is NOT jini friendly.
+    #127.0.0.1 localhost.localdomain localhost ubuntudan
+    
+    127.0.0.1 localhost.localdomain localhost
+    # actual host ip address and host name
+    10.6.18.51 ubuntudan    
+</pre>
                 <ol type="A">
                     <li>Start the Lookup Service by navigating to the <i>contrib/distributed/dist/lookup</i> directory and running <code>ant</code>. The default target should start the registrar and class server. (***NOTE: This location has changed since prior releases. It used to be in: <i>contrib/distributed/dist/master</i>, so be sure to update the path of any custom LUS shortcuts/scripts. See <a href="#upgradeNotes">Upgrade Notes</a> if you are upgrading from prior releases.) <p></li>
                     <li>Start the agent by navigating to the <i>contrib/distributed/dist/agent</i> directory and running <code>ant</code>. The default target should start the build agent and register it with the Lookup Service. Note: while there is no reason you couldn't have an agent running in your build master, additional agents will require you to copy the <i>cc-agent.zip</i> to each machine, unzipping and configuring for each of them (another option is to use the webstart BuildAgent features - see <a href="#advancedConfigWebStartAgents">Advanced Configuration</a> for details).<p></li>
