@@ -230,7 +230,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 
             <li>
                 <h4>Doing distributed builds</h4>
-                <b>Linux Note:</b> Many Linux distros list the hostname in <i>/etc/hosts</i> for the "127.0.0.1" address the same line as "localhost.localdomain" and "localhost". This interferes with the operation of Jini. You may need to edit the <i>/etc/hosts</i> file as shown below to list the actual hostname and ip address:
+                <b>Linux Note:</b> Many Linux distros include the hostname in <i>/etc/hosts</i> for the "127.0.0.1" address on the same line as "localhost.localdomain" and "localhost". This interferes with the operation of Jini (an Agent finds the Lookup Service, but the MasterBuilder or Agent Utility can not find the Agent). You may need to edit the <i>/etc/hosts</i> file as shown below to list the actual hostname and ip address:
 <pre>
     # This is NOT jini friendly.
     #127.0.0.1 localhost.localdomain localhost ubuntudan
