@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.File;
 import java.io.FileFilter;
+
 import org.apache.commons.lang.ArrayUtils;
 
 public class CCProjectFolderFilter implements FileFilter {

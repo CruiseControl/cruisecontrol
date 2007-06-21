@@ -1,9 +1,9 @@
 package net.sourceforge.cruisecontrol.dashboard.web.binder;
 
-import org.springframework.mock.web.MockHttpServletRequest;
-
-import net.sourceforge.cruisecontrol.dashboard.web.command.DownLoadArtifactsCommand;
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.dashboard.web.command.DownLoadArtifactsCommand;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 public class DownloadArtifactsBinderTest extends TestCase {
     public void testShouldParseURLAndInitFields() throws Exception {

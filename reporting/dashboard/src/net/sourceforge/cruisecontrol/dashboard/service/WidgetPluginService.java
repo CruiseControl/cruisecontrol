@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
@@ -60,8 +61,7 @@ public class WidgetPluginService {
 
     private List lines() {
         try {
-            String configdir = new File(configuration.getCruiseConfigLocation()).getParent();
-            return FileUtils.readLines(new File(configdir, "widgets.cfg"));
+            return FileUtils.readLines(new File(configuration.getCCHome(), "widgets.cfg"));
         } catch (Exception e) {
             return new ArrayList();
         }
@@ -87,12 +87,12 @@ public class WidgetPluginService {
         Class clazz = Class.forName(className);
         Widget digesterService = (Widget) clazz.newInstance();
         mergeParameters(build, parameters);
-        build.addPluginOutput(digesterService.getDisplayName(), digesterService.getOutput(parameters));
+        build.addPluginOutput(digesterService.getDisplayName(), digesterService
+                .getOutput(parameters));
     }
 
     private void mergeParameters(BuildDetail build, Map parameters) {
-        parameters.put(Widget.PARAM_CC_ROOT, new File(configuration.getCruiseConfigLocation())
-                .getParentFile());
+        parameters.put(Widget.PARAM_CC_ROOT, configuration.getCCHome());
         parameters.put(Widget.PARAM_PJT_NAME, build.getProjectName());
         parameters.put(Widget.PARAM_PJT_LOG_ROOT, build.getLogFolder());
         parameters.put(Widget.PARAM_BUILD_LOG_FILE, build.getLogFile());

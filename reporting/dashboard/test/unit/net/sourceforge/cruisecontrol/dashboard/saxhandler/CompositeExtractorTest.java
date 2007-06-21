@@ -39,11 +39,13 @@ package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.sourceforge.cruisecontrol.dashboard.exception.ShouldStopParsingException;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.xml.sax.Attributes;

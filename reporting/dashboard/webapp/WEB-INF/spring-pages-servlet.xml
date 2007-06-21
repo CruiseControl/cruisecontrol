@@ -61,7 +61,6 @@
 				<prop key="/download/**">downloadController</prop>
 				<prop key="/detail/**">buildDetailController</prop>
 				<!--project category-->
-				<prop key="/plugin/panopticode/**">panopticodeController</prop>
 				<prop key="/list/**">buildListingController</prop>
 				<!--admin category-->
 				<prop key="/mx4j/**">mbeanConsoleController</prop>
@@ -159,9 +158,6 @@
 			    </value>
 		  </property>
 	</bean>
-	<bean id="panopticodeController" class="net.sourceforge.cruisecontrol.dashboard.web.PanopticodeController">
-		<constructor-arg ref="configuration" />
-	</bean>
     <!-- Views and resolvers -->
     <bean id="velocityConfig"
           class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
@@ -181,9 +177,9 @@
           class="org.springframework.web.servlet.view.BeanNameViewResolver">
 		<property name="order" value="1" />
 	</bean>
-	<bean id="downloadXmlView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DownloadView" />
-	<bean id="downloadBinView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DownloadView">
-		<property name="contentType" value="application/octstream" />
-	</bean>
+	<bean id="fileView" class="net.sourceforge.cruisecontrol.dashboard.web.view.FileView"/>
 
+	<bean id="directoryView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DirectoryView">
+		<constructor-arg ref="templateRenderService"/>
+	</bean>
 </beans>

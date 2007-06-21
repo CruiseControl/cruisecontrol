@@ -39,7 +39,9 @@ package net.sourceforge.cruisecontrol.dashboard;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 

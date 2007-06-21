@@ -36,62 +36,59 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.File;
-
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
-import org.apache.commons.io.FileUtils;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-public class UpdateConfigXmlContentControllerTest extends TestCase {
+public class UpdateConfigXmlContentControllerTest extends MockObjectTestCase {
     private MockHttpServletRequest request;
 
     private MockHttpServletResponse response;
 
-    private final String configFileContent = "<cruisecontrol><project name=\"project2\"/></cruisecontrol>\n";
+    private final String configFileContent =
+            "<cruisecontrol><project name=\"project2\"/></cruisecontrol>\n";
 
     private Configuration configuration;
 
-    private File configFile;
+    private Mock configurationMock;
+
+    private UpdateConfigXmlContentController controller;
 
     protected void setUp() throws Exception {
-        configuration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        configFile = DataUtils.createDefaultCCConfigFile();
-        configuration.setCruiseConfigLocation(configFile.getPath());
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        configuration = (Configuration) configurationMock.proxy();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("POST");
+        controller =
+                new UpdateConfigXmlContentController(configuration, new EnvironmentService(
+                        new SystemService()));
+
     }
 
     public void testShouldShowFormViewWithSuccessMessageAfterUpdatingConfig() throws Exception {
         request.addParameter("configFileContent", configFileContent);
-        assertFalse(configFileContent.equals(FileUtils.readFileToString(configFile, null)));
-        UpdateConfigXmlContentController controller =
-                new UpdateConfigXmlContentController(configuration, new EnvironmentService());
+        configurationMock.expects(once()).method("updateConfigFile");
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("redirect:/admin/config", mov.getViewName());
-        Assert.assertEquals(UpdateConfigXmlContentController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY, mov
-                .getModel().get("edit_flash_message"));
-        assertTrue(configFileContent.equals(FileUtils.readFileToString(configFile, null)));
+        Assert.assertEquals(
+                UpdateConfigXmlContentController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY, mov
+                        .getModel().get("edit_flash_message"));
     }
 
     public void testShouldShowFormViewWithErrorMessageIfConfigFileIsNotValidXML() throws Exception {
         request.addParameter("configFileContent", "some thing wrong");
-        assertFalse("some thing wrong".equals(FileUtils.readFileToString(configFile, null)));
-        UpdateConfigXmlContentController controller =
-                new UpdateConfigXmlContentController(configuration, new EnvironmentService());
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("page_admin", mov.getViewName());
-        // TODO
-        // assertEquals(AdminController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY,
-        // mov.getModel().get("message"));
-        assertFalse("some thing wrong".equals(FileUtils.readFileToString(configFile, null)));
     }
 }

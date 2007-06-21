@@ -1,5 +1,9 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
+import java.io.File;
+
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
+
 import junit.framework.TestCase;
 
 public class DashboardUtilsTest extends TestCase {
@@ -30,5 +34,23 @@ public class DashboardUtilsTest extends TestCase {
     public void testShouldReturnEmptyIfParamOnlyContainsBackSlash() {
         String[] params = DashboardUtils.urlToParams("/");
         assertEquals(0, params.length);
+    }
+
+    public void testShouldReturnFileType() {
+        assertEquals("file", DashboardUtils.getFileType(new File("abc")));
+    }
+
+    public void testShouldReturnDirectoryType() {
+        File dir = FilesystemUtils.createDirectory("whatever");
+        assertEquals("directory", DashboardUtils.getFileType(dir));
+    }
+
+    public void testShouldThrowExceptionWhenFileIsNull() {
+        try {
+            DashboardUtils.getFileType(null);
+            fail("Runtime Exception exptected");
+        } catch (RuntimeException e) {
+
+        }
     }
 }

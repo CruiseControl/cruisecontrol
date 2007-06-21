@@ -19,7 +19,9 @@ public class JMXFactoryTest extends MockObjectTestCase {
     private Mock jmxConnector;
 
     protected void setUp() throws Exception {
-        envMock = mock(EnvironmentService.class);
+        envMock =
+                mock(EnvironmentService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
         jmxConnectorFactoryMock = mock(JMXConnectorFactory.class);
         envMock.expects(once()).method("getRmiPort").will(returnValue(1099));
         defaultFactory =

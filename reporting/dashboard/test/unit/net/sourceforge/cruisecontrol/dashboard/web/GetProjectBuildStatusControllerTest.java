@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
 import org.apache.commons.lang.StringUtils;
@@ -98,7 +99,7 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         buildSummaryService = (BuildSummariesService) buildSummaryServiceMock.proxy();
         jmxServiceMock =
                 mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                        new Object[] {null, new EnvironmentService()});
+                        new Object[] {null, new EnvironmentService(new SystemService())});
         jmxServiceMock.expects(once()).method("isCruiseAlive").will(returnValue(true));
         jmxServiceMock.expects(once()).method("getAllProjectsStatus").withNoArguments().will(
                 returnValue(returnedMap()));
@@ -204,7 +205,7 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
                                 null});
         jmxServiceMock =
             mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                    new Object[] {null, new EnvironmentService()});
+                    new Object[] {null, new EnvironmentService(new SystemService())});
         jmxServiceMock.expects(once()).method("isCruiseAlive").will(returnValue(true));
         failingServiceMock.expects(once()).method("getLatestOfProjects").will(
                 throwException(new RuntimeException("xyz")));

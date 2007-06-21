@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestSuite;
@@ -47,12 +47,12 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver;
@@ -63,20 +63,19 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
 
     private Configuration configuration;
 
-    private File tmpFile;
-
     private PropertiesMethodNameResolver projectDetailResolver;
 
     protected void onControllerSetup() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_HOME, "test/data");
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
+                DataUtils.getArtifactsDirAsFile().getAbsolutePath());
         super.onControllerSetup();
         configuration = (Configuration) this.applicationContext.getBean("configuration");
         configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
     }
-
+    
     protected void onTearDown() throws Exception {
-        if (tmpFile != null) {
-            FileUtils.forceDelete(tmpFile);
-        }
+        System.setProperty(EnvironmentService.PROPS_CC_HOME, "");
     }
 
     public void setBuildDetailController(BuildDetailController controller) {
@@ -127,10 +126,11 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         assertEquals("page_build_detail", mav.getViewName());
         BuildCommand buildCommand = (BuildCommand) mav.getModel().get("build");
         BuildDetail build = getBuildDetail(buildCommand);
-        String artifacts = build.getArtifacts().toString();
-        assertEquals(3, build.getArtifacts().size());
+        String artifacts = build.getArtifactFiles().toString();
+        assertEquals(3, build.getArtifactFiles().size());
         assertTrue(StringUtils.contains(artifacts, "artifact1.txt"));
-        assertTrue(StringUtils.contains(artifacts, "artifact2.txt"));
+        assertFalse(StringUtils.contains(artifacts, "artifact2.txt"));
+        assertTrue(StringUtils.contains(artifacts, "subdir"));
         assertTrue(StringUtils.contains(artifacts, "coverage.xml"));
     }
 

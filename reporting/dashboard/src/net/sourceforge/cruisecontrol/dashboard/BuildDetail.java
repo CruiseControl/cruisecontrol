@@ -43,21 +43,20 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
+
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public class BuildDetail implements Comparable, Build {
 
-    private static Logger logger = Logger.getLogger(BuildDetail.class);
-
     private DateTime date;
+
     private String timeStamp;
+
     private Map pluginOutpus = new LinkedHashMap();
-    private List artifacts;
-    private List artifactNames;
+
     private Map props;
 
     public BuildDetail(Map props) {
@@ -164,29 +163,18 @@ public class BuildDetail implements Comparable, Build {
         return new File(folder, getTimeStamp());
     }
 
-    public List getArtifacts() {
-        if (artifacts == null) {
-            artifacts = getArtifactsPaths(getArtifactFolder().listFiles());
+    public List getArtifactFiles() {
+        List result = new ArrayList();
+        File[] files = getArtifactFolder().listFiles();
+        if (files == null) {
+            return result;
         }
-        return artifacts;
-    }
-
-    public List getArtifactNames() {
-        if (artifactNames == null) {
-            artifactNames = new ArrayList();
-            try {
-                String artifactsRootDir = getArtifactFolder().getPath();
-                Iterator iter = getArtifacts().iterator();
-                while (iter.hasNext()) {
-                    String artifactPath = (String) iter.next();
-                    String fileName = StringUtils.remove(artifactPath, artifactsRootDir + File.separator);
-                    artifactNames.add(StringUtils.replaceChars(fileName, File.separator, "/"));
-                }
-            } catch (Exception e) {
-                logger.error(e);
+        for (int i = 0; i < files.length; i++) {
+            if (!files[i].isHidden()) {
+                result.add(files[i]);
             }
         }
-        return this.artifactNames;
+        return result;
     }
 
     public Map getPluginOutputs() {
@@ -195,26 +183,6 @@ public class BuildDetail implements Comparable, Build {
 
     public void addPluginOutput(String category, Object output) {
         pluginOutpus.put(category, output);
-    }
-
-    private static List getArtifactsPaths(File[] artifactDirs) {
-        List result = new ArrayList();
-        if (artifactDirs == null) {
-            return result;
-        }
-        for (int i = 0; i < artifactDirs.length; i++) {
-            File file = artifactDirs[i];
-            String filePath = file.getName();
-            if (filePath.indexOf(".") == 0) {
-                continue;
-            }
-            if (file.isDirectory()) {
-                result.addAll(getArtifactsPaths(file.listFiles()));
-            } else {
-                result.add(file.getPath());
-            }
-        }
-        return result;
     }
 
     public DateTime getBuildDate() {

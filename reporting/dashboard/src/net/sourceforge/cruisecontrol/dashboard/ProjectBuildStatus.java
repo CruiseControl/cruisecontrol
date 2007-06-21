@@ -38,7 +38,9 @@ package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 

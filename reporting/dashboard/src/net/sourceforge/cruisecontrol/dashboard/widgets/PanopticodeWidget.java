@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.widgets;
 
+import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,9 +44,11 @@ import org.apache.commons.lang.StringUtils;
 public class PanopticodeWidget implements Widget {
     private static final String VIEW_TEMPLATE =
             "<div id='panopticode_summary'>" + "<h2>Code Coverage</h2>"
-                    + "<iframe src='$webroot/project/plugin/panopticode/$project/coverage' "
-                    + "width='100%' height='768px'>" + "</iframe>" + "<h2>Code Complexity</h2>"
-                    + "<iframe src='$webroot/project/plugin/panopticode/$project/complexity' "
+                    + "<iframe src='$contextPath/build/download/artifacts/$project/$build/"
+                    + "interactive-coverage-treemap.svg' " + "width='100%' height='768px'>"
+                    + "</iframe>" + "<h2>Code Complexity</h2>"
+                    + "<iframe src='$contextPath/build/download/artifacts/$project/$build/"
+                    + "interactive-complexity-treemap.svg' "
                     + "width='100%' height='768px'></iframe>" + "</div>";
 
     public String getDisplayName() {
@@ -53,8 +56,12 @@ public class PanopticodeWidget implements Widget {
     }
 
     public Object getOutput(Map parameters) {
-        return StringUtils.replace(StringUtils.replace(VIEW_TEMPLATE, "$project", (String) parameters
-                .get(Widget.PARAM_PJT_NAME)), "$webroot", (String) parameters
+        String output =
+                StringUtils.replace(VIEW_TEMPLATE, "$project", (String) parameters
+                        .get(Widget.PARAM_PJT_NAME));
+        File buildFile = (File) parameters.get(Widget.PARAM_BUILD_LOG_FILE);
+        output = StringUtils.replace(output, "$build", buildFile.getName());
+        return StringUtils.replace(output, "$contextPath", (String) parameters
                 .get(Widget.PARAM_WEB_CONTEXT_PATH));
     }
 }

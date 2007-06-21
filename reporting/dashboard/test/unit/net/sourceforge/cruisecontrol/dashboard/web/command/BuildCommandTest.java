@@ -42,12 +42,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import junit.framework.TestCase;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 
-public class BuildCommandTest extends TestCase {
+import org.jmock.cglib.MockObjectTestCase;
+
+public class BuildCommandTest extends MockObjectTestCase {
     public void testBuildCommandShouldTakeBuildAsContructor() {
         Map props = new HashMap();
         props.put("projectname", "project 1");
@@ -77,7 +79,8 @@ public class BuildCommandTest extends TestCase {
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
         BuildCommand command = new BuildCommand(build);
-        BuildSummary buildSummary = new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
+        BuildSummary buildSummary =
+                new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
         command.updateFailedCSS(buildSummary);
         assertEquals("failed", command.getCssClassName());
         assertEquals("failed_level_0", command.getCssClassNameForDashboard());
@@ -101,7 +104,8 @@ public class BuildCommandTest extends TestCase {
         assertEquals("passed", buildCommand.getCssClassName());
     }
 
-    public void testCassNameShouldBeLevel8WhenTheLatestSuccessfulBuildIs24HoursAgo() throws Exception {
+    public void testCassNameShouldBeLevel8WhenTheLatestSuccessfulBuildIs24HoursAgo()
+            throws Exception {
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505Lbuild.9.xml"));
         BuildDetail build = new BuildDetail(props);

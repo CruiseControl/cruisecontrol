@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import java.util.HashSet;
+import java.io.File;
 
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
@@ -49,21 +49,57 @@ public class ProjectsTest extends MockObjectTestCase {
 
     private Projects projects;
 
+    private File baseDir;
+
+    private DashboardConfig cconfig;
+
+    private Mock dashboardConfig;
+
+    private File logDir;
+
+    private File artifactsDir;
+
+    private File projectsDir;
+
     protected void setUp() throws Exception {
-        Mock mock =
+        dashboardConfig =
                 mock(DashboardConfig.class, new Class[] {Element.class}, new Object[] {new Element(
                         "project1")});
-        mock.expects(once()).method("getProjectNames").will(returnValue(new HashSet()));
-        projects =
-                new Projects(DataUtils.getConfigXmlAsFile().getParentFile(), (DashboardConfig) mock
-                        .proxy());
+        baseDir = DataUtils.getConfigXmlAsFile().getParentFile();
+        cconfig = (DashboardConfig) dashboardConfig.proxy();
+        logDir = DataUtils.getLogDirAsFile();
+        artifactsDir = DataUtils.getArtifactsDirAsFile();
+        projectsDir = DataUtils.getProjectDirAsFile();
+        projects = new Projects(projectsDir, logDir, artifactsDir, cconfig);
     }
 
-    public void testShouldReplaceMacroInArtifactRoot() throws Exception {
-        assertEquals("project1", projects.getArtifactRoot("project1").getName());
+    public void testShouldReturnLogsWhenLogDirIsEmpty() {
+        assertEquals(new File(logDir, "project1"), projects.getLogRoot("project1"));
     }
 
-    public void testShouldReturnNullWhenTheDirectoryDoesnotExist() throws Exception {
-        assertNull(projects.getArtifactRoot("projectx"));
+    public void testShouldReturnSourceFolder() {
+        assertEquals(new File(projectsDir, "project1"), projects.getSourceCodeRoot("project1"));
+    }
+
+    public void testShouldThrowExceptionIfLogFileDoesnotExist() {
+        try {
+            projects = new Projects(baseDir, new File("IDontExist"), artifactsDir, cconfig);
+            fail("Exception expected");
+        } catch (Exception e) {
+            // pass
+        }
+    }
+
+    public void testShouldThrowExceptionIfArtifactsFileIsNotDefined() {
+        try {
+            projects = new Projects(baseDir, logDir, null, cconfig);
+            fail("Exception expected");
+        } catch (Exception e) {
+            // pass
+        }
+    }
+
+    public void testShouldReturnArtifactsWhenArtifactsIsEmpty() throws Exception {
+        assertEquals(new File(artifactsDir, "project1"), projects.getArtifactRoot("project1"));
     }
 }

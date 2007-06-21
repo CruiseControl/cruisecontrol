@@ -5,7 +5,7 @@
  * Chicago, IL 60601 USA
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without
+ * Redistribution and use in source and binary forms, withconfiguration or without
  * modification, are permitted provided that the following conditions
  * are met:
  *
@@ -69,7 +69,7 @@ public class DownloadLogCommand implements DownLoadFile {
     }
 
     public File getDownLoadFile() {
-        return new File(configuration.getCruiseLogfileLocation() + File.separator + projectName
-                + File.separator + logFile);
+        File logRoot = configuration.getLogRoot(projectName);
+        return new File(logRoot, logFile);
     }
 }

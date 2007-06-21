@@ -36,8 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
+import java.io.File;
 import java.io.IOException;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
+import org.apache.commons.io.FileUtils;
 
 public class SpecifyConfigLocationTest extends BaseFunctionalTest {
     private static final String PAGE_TITLE = "CruiseControl configuration file admin";
@@ -49,8 +53,9 @@ public class SpecifyConfigLocationTest extends BaseFunctionalTest {
     }
 
     public void testShouldBeAbleToSecifyConfigurationFileLocationSuccessfully() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.createTempFile("config", ".xml").toString());
-
+        File configxml = DataUtils.createTempFile("config", ".xml");
+        FileUtils.writeStringToFile(configxml, "<cruisecontrol/>");
+        setConfigFileAndSubmitForm(configxml.getAbsolutePath());
         tester.assertTitleEquals(PAGE_TITLE);
         tester.assertTextPresent("Configuration file has been set successfully");
     }

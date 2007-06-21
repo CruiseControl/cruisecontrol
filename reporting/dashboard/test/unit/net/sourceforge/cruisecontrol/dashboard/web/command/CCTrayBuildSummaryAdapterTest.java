@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+
 import org.apache.commons.lang.StringUtils;
 
 public class CCTrayBuildSummaryAdapterTest extends TestCase {

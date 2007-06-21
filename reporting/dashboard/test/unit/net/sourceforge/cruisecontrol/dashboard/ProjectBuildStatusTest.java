@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.joda.time.DateTime;
 
 public class ProjectBuildStatusTest extends TestCase {

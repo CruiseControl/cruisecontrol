@@ -37,8 +37,10 @@
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
 import java.io.File;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -68,9 +70,8 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
     private File justFailed;
 
     protected void doSetUp() throws Exception {
-        File root = DataUtils.getConfigXmlOfWebApp().getParentFile();
-        File logs = new File(root, "logs");
-        File projectWithoutPublishers = new File(logs, "projectWithoutPublishers");
+        File projectWithoutPublishers =
+                new File(DataUtils.getLogRootOfWebapp(), "projectWithoutPublishers");
         DateTime now = new DateTime();
         failedLevel8 =
                 new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(2))

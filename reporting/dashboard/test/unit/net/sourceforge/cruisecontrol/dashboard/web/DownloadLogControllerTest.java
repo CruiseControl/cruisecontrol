@@ -38,77 +38,76 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
 
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-public class DownloadLogControllerTest extends SpringBasedControllerTests {
+public class DownloadLogControllerTest extends MockObjectTestCase {
     private DownloadController controller;
-
-    private Configuration configuration;
 
     private static final String LOG_FILE = "log20051209122103Lbuild.489.xml";
 
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
+    private MockHttpServletRequest request;
+
+    private MockHttpServletResponse response;
+
+    private Mock configurationMock;
+
+    protected void setUp() throws Exception {
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        request.setMethod("GET");
+        request.setRequestURI("/download/log/project1/" + LOG_FILE);
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        controller = new DownloadController((Configuration) configurationMock.proxy());
     }
 
-    public void setDownloadController(DownloadController controller) {
-        this.controller = controller;
+    private MockHttpServletRequest getRequest() {
+        return request;
     }
 
-    protected void onControllerSetup() throws Exception {
-        super.onControllerSetup();
-        String logDirPath = DataUtils.getProjectLogDirAsFile().getAbsolutePath();
-        configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
-        configuration.setCruiseLogfileLocation(logDirPath);
-        getRequest().setMethod("GET");
-        getRequest().setRequestURI("/download/log/project1/" + LOG_FILE);
+    private HttpServletResponse getResponse() {
+        return response;
     }
 
-    public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("downloadXmlView", mov.getViewName());
-        String logfilePath =
-                configuration.getCruiseLogfileLocation() + File.separator + "project1"
-                        + File.separator + LOG_FILE;
-        assertEquals(new File(logfilePath), mov.getModel().get("targetFile"));
+    public void testShouldRenderFileViewIfTargetFileExistsAndCanBeRead() throws Exception {
+        File projectLogRoot = DataUtils.getProjectLogDirAsFile("project1");
+        configurationMock.expects(once()).method("getLogRoot").with(eq("project1")).will(
+                returnValue(projectLogRoot));
+        configurationMock.expects(once()).method("getLogRoot").with(eq("project1")).will(
+                returnValue(projectLogRoot));
+        ModelAndView mov = this.controller.log(getRequest(), getResponse());
+        assertEquals("fileView", mov.getViewName());
+        assertEquals(new File(projectLogRoot, LOG_FILE), mov.getModel().get("targetFile"));
     }
 
     public void testShouldRenderDownloadViewIfPathContainsWhiteSpace() throws Exception {
-        getRequest().setMethod("GET");
+        File projectLogRoot = DataUtils.getProjectLogDirAsFile("project space");
         getRequest().setRequestURI("/download/log/project%20space/log20051209122104Lbuild.467.xml");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        String logfilePath =
-                configuration.getCruiseLogfileLocation() + File.separator + "project space"
-                        + File.separator + "log20051209122104Lbuild.467.xml";
-        assertEquals(new File(logfilePath), mov.getModel().get("targetFile"));
+        configurationMock.expects(once()).method("getLogRoot").with(eq("project space")).will(
+                returnValue(projectLogRoot));
+        configurationMock.expects(once()).method("getLogRoot").with(eq("project space")).will(
+                returnValue(projectLogRoot));
+        ModelAndView mov = this.controller.log(getRequest(), getResponse());
+        File logfile = new File(projectLogRoot, "log20051209122104Lbuild.467.xml");
+        assertEquals(logfile, mov.getModel().get("targetFile"));
     }
 
     public void testShouldRenderErrorPageIfFileNotExist() throws Exception {
         getRequest().setRequestURI("/download/log/project1/IDontExist");
-
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-
-        assertEquals("page_error", mov.getViewName());
-        assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
-    }
-
-    public void testShouldRenderErrorPageIfGivenFileIsDirectory() throws Exception {
-        getRequest().setRequestURI("/download/log/project1/archives");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-
-        assertEquals("page_error", mov.getViewName());
-        assertEquals("File can not be read.", mov.getModel().get("errorMessage"));
-    }
-
-    public void testShouldRenderErrorPageIfGivenFileIsNotUnderLogDir() throws Exception {
-        String otherFolder = DataUtils.createTempDirectory("otherFolder").getAbsolutePath();
-        this.configuration.setCruiseLogfileLocation(otherFolder);
-        String filePath = ".." + File.separator + ".." + File.separator + LOG_FILE;
-        getRequest().setRequestURI("/download/log/project1/" + filePath);
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
+        configurationMock.expects(once()).method("getLogRoot").with(eq("project1")).will(
+                returnValue(new File("IDontExist")));
+        ModelAndView mov = this.controller.log(getRequest(), getResponse());
         assertEquals("page_error", mov.getViewName());
         assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
     }

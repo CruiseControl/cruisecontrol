@@ -45,12 +45,14 @@ public class PanopticodeTest extends BaseFunctionalTest {
     }
 
     public void testShouldReturnSvgfileForProjectWithPanopticode() throws Exception {
-        tester.beginAt("project/plugin/panopticode/project1/coverage");
+        tester.beginAt("build/download/artifacts/project space"
+                + "/log20051209122104Lbuild.467.xml/interactive-complexity-treemap.svg");
         tester.assertTextPresent("<svg");
     }
 
     public void testShouldShowMessageForProjectWithoutPanopticode() throws Exception {
-        tester.beginAt("project/plugin/panopticode/project2/coverage");
-        tester.assertTextPresent("No panopticode output found for project2");
+        tester.beginAt("build/download/artifacts/project1"
+                + "/log20051209122104.xml/interactive-complexity-treemap.svg");
+        tester.assertTextPresent("File does not exist");
     }
 }

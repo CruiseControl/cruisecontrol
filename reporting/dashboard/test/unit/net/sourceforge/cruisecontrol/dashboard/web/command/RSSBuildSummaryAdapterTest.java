@@ -40,6 +40,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.lang.StringUtils;
 
 public class RSSBuildSummaryAdapterTest extends TestCase {

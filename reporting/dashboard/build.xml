@@ -245,6 +245,15 @@
 			<classpath refid="test.classpath" />
 		</java>
 	</target>
+	
+	<target name="-start.jetty.server.with.sys">
+		<java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer" fork="true">
+			<sysproperty key="cc.home" value="${basedir}/test/data"/>
+			<sysproperty key="cc.artifacts" value="${basedir}/test/data/arbitrary_artifacts/artifacts"/>
+			<sysproperty key="cc.config.file" value="${basedir}/test/data/config.xml"/>
+			<classpath refid="test.classpath" />
+		</java>
+	</target>
 
 	<target name="-emma.instr">
 		<mkdir dir="${emma.dir}" />
@@ -326,7 +335,7 @@
 	<target name="--run.unit.tests" depends="--compile, -compile-tests, -properties.development, -unit-tests" />
 	<target name="--run.functional.tests" depends="--prepare.functional.tests, -functional-tests" />
 	<target name="--stat" depends="-emma.clean, --compile, -compile-tests,-properties.development, -emma.instr, -unit-tests, -emma.reporting, -emma.check" />
-	<target name="--start-jetty-server" depends="--package.development, -start-jetty-server" />
+	<target name="--start-jetty-server" depends="--package.development, -start.jetty.server.with.sys" />
 	<target name="--run.all.tests" depends="--check.license, --run.unit.tests, --run.functional.tests, -checkstyle-main" />
 	<target name="--package.production" depends="-clean, --compile, -properties.production, -war.production" />
 	<target name="--package.development" depends="-clean, --compile, -compile-tests, -properties.development, -war.development" />

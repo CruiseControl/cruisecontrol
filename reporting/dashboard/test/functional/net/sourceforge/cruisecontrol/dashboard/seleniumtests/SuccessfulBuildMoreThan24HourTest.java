@@ -37,8 +37,10 @@
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
 import java.io.File;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -72,56 +74,64 @@ public class SuccessfulBuildMoreThan24HourTest extends SeleniumTestCase {
     private File justSucceeded;
 
     protected void doSetUp() throws Exception {
-        File root = DataUtils.getConfigXmlOfWebApp().getAbsoluteFile().getParentFile();
-        File logs = new File(root, "logs");
-        File projectWithoutPublishers = new File(logs, "projectWithoutPublishers");
+        File projectWithoutPublishers =
+                new File(DataUtils.getLogRootOfWebapp(), "projectWithoutPublishers");
         DateTime now = new DateTime();
         succeed4daysAgo =
-                new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(4))
-                        + "Lbuild.510.xml");
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(4)) + "Lbuild.510.xml");
         failed3DaysAgo =
-                new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(3))
-                        + ".xml");
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(3)) + ".xml");
         succeed2dayAgo =
-                new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(2))
-                        + "Lbuild.511.xml");
+                new File(projectWithoutPublishers, "log"
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(2)) + "Lbuild.511.xml");
         passedLevel7 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(7 * 180 + 12)) + "Lbuild.513.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(7 * 180 + 12))
+                        + "Lbuild.513.xml");
         passedLevel6 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(6 * 180 + 12)) + "Lbuild.514.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(6 * 180 + 12))
+                        + "Lbuild.514.xml");
         passedLevel5 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(5 * 180 + 12)) + "Lbuild.515.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(5 * 180 + 12))
+                        + "Lbuild.515.xml");
         passedLevel4 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(4 * 180 + 12)) + "Lbuild.516.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(4 * 180 + 12))
+                        + "Lbuild.516.xml");
         passedLevel3 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(3 * 180 + 12)) + "Lbuild.516.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(3 * 180 + 12))
+                        + "Lbuild.516.xml");
         passedLevel2 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(2 * 180 + 12)) + "Lbuild.518.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(2 * 180 + 12))
+                        + "Lbuild.518.xml");
         passedLevel1 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(1 * 180 + 12)) + "Lbuild.519.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(1 * 180 + 12))
+                        + "Lbuild.519.xml");
         passedLevel0 =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 12)) + "Lbuild.520.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 12))
+                        + "Lbuild.520.xml");
         justFailed =
                 new File(projectWithoutPublishers, "log"
                         + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 8)) + ".xml");
         justSucceeded =
                 new File(projectWithoutPublishers, "log"
-                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 5)) + "Lbuild.521.xml");
+                        + CCDateFormatter.yyyyMMddHHmmss(now.minusMinutes(0 * 180 + 5))
+                        + "Lbuild.521.xml");
     }
 
     protected void doTearDown() throws Exception {
         File[] files =
-                new File[] {succeed4daysAgo, succeed2dayAgo, passedLevel0, failed3DaysAgo, passedLevel7,
-                        passedLevel6, passedLevel5, passedLevel4, passedLevel3, passedLevel2, passedLevel1,
-                        justFailed, justSucceeded};
+                new File[] {succeed4daysAgo, succeed2dayAgo, passedLevel0, failed3DaysAgo,
+                        passedLevel7, passedLevel6, passedLevel5, passedLevel4, passedLevel3,
+                        passedLevel2, passedLevel1, justFailed, justSucceeded};
         for (int i = 0; i < files.length; i++) {
             try {
                 FileUtils.forceDelete(files[i]);
@@ -149,7 +159,8 @@ public class SuccessfulBuildMoreThan24HourTest extends SeleniumTestCase {
     }
 
     private void assertClassName(File file, String className) throws Exception {
-        String exptectedBar = "id=\"projectWithoutPublishers_bar\" class=\"bar round_corner " + className;
+        String exptectedBar =
+                "id=\"projectWithoutPublishers_bar\" class=\"bar round_corner " + className;
         file.createNewFile();
         Thread.sleep(7000);
         String htmlSource = selenium.getHtmlSource();

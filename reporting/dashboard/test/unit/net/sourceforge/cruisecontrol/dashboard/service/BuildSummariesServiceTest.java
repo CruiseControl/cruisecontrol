@@ -63,7 +63,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
         projectDirectory = FilesystemUtils.createDirectory(projectName);
         createLogFiles(projectDirectory);
         configurationMock = mock(Configuration.class, new Class[]{ConfigXmlFileService.class},
-                new Object[]{new ConfigXmlFileService(new EnvironmentService())});
+                new Object[]{new ConfigXmlFileService(new EnvironmentService(new SystemService()))});
         Configuration configuration = (Configuration) configurationMock.proxy();
         buildSummariesSevice = new BuildSummariesService(configuration, new BuildSummaryService());
     }

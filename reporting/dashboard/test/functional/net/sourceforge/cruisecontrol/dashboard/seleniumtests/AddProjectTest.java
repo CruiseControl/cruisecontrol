@@ -83,9 +83,7 @@ public class AddProjectTest extends SeleniumTestCase {
     }
 
     private void createLogFile() throws Exception {
-        File root = DataUtils.getConfigXmlOfWebApp().getParentFile();
-        File logs = new File(root, "logs");
-        addProjectTestProject = new File(logs, "addProjectTestProject");
+        addProjectTestProject = new File(DataUtils.getLogRootOfWebapp(), "addProjectTestProject");
         addProjectTestProject.mkdir();
         File log = new File(addProjectTestProject, "log20051209122103.xml");
         log.createNewFile();
@@ -93,10 +91,10 @@ public class AddProjectTest extends SeleniumTestCase {
 
     protected void doTearDown() throws Exception {
         FileUtils.deleteDirectory(addProjectTestProject);
-        FileUtils.writeStringToFile(DataUtils.getConfigXmlOfWebApp(), originalText);
+        FileUtils.writeStringToFile(DataUtils.getConfigXmlInArbitraryCCHome(), originalText);
     }
 
     protected void doSetUp() throws Exception {
-        originalText = FileUtils.readFileToString(DataUtils.getConfigXmlOfWebApp(), null);
+        originalText = FileUtils.readFileToString(DataUtils.getConfigXmlInArbitraryCCHome(), null);
     }
 }

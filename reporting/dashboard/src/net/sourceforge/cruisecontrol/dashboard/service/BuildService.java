@@ -39,8 +39,10 @@ package net.sourceforge.cruisecontrol.dashboard.service;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
@@ -93,8 +95,8 @@ public class BuildService {
     }
 
     public File getBuildFile(String projectName, String buildLogFileName) {
-        return new File(configuration.getCruiseLogfileLocation() + File.separator + projectName
-                + File.separator + buildLogFileName);
+        File logRoot = configuration.getLogRoot(projectName);
+        return new File(logRoot, buildLogFileName);
     }
 
     public BuildDetail createBuildFromFile(File logFile) {
@@ -102,8 +104,7 @@ public class BuildService {
             Map properties = new HashMap();
             parseLogFile(logFile, properties);
             properties.put("logfile", logFile);
-            properties.put("artifactfolder", getArtifactsRootDir((String) properties
-                    .get("projectname")));
+            properties.put("artifactfolder", getArtifactsRootDir((String) properties.get("projectname")));
             return new BuildDetail(properties);
         } catch (Exception e) {
             LOGGER.error("Can not parse the log file: " + logFile.getAbsolutePath(), e);
@@ -114,16 +115,15 @@ public class BuildService {
     private void parseLogFile(File buildLogFile, Map props) throws Exception {
         // TODO injection
         SAXBasedExtractor[] handlers;
-        if (BuildSummariesFilters.succeedFilter().accept(buildLogFile.getParentFile(),
-                buildLogFile.getName())) {
+        if (BuildSummariesFilters.succeedFilter()
+                .accept(buildLogFile.getParentFile(), buildLogFile.getName())) {
             handlers =
                     new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
-                            new BasicInfoExtractor()};
+                            new BasicInfoExtractor(), new TestSuiteExtractor()};
         } else {
             handlers =
                     new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
-                            new BasicInfoExtractor(), new StackTraceExtractor(),
-                            new TestSuiteExtractor()};
+                            new BasicInfoExtractor(), new StackTraceExtractor(), new TestSuiteExtractor()};
         }
         SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
         CompositeExtractor compositeExtractor = new CompositeExtractor(handlers);

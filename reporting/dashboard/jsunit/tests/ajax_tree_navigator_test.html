@@ -45,40 +45,40 @@
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
 <script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
 <script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
 <script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
 <script language="JavaScript" type="text/javascript">
-
-
-function test_register_onclick_on_clickable_element() {
-	Event.observe=function (element, event_type, handler) {
-		assertEquals('project1_profile', element.id);
-		assertEquals('click', event_type);
+function setUp() {
+}
+function test_ajax_refresh_active_build_commit_message_should_update_modification_keys() {
+	var expectedId = "dashboard_download_project1_log123.xml_abc"
+	Ajax.Request.prototype.request = function() {
+        this.onStateChange();
 	}
-	register_onclick_on_clickable_element();	
+	Ajax.Request.prototype.onStateChange = function() {
+		this.options['onSuccess']("", "")
+	}
+	assertFalse($(expectedId).visible())
+	assertTrue('need class name directory', $('directory').hasClassName('directory'))
+	ajax_tree_navigator($('link'), "dashboard/download/project1/log123.xml/abc")
+	assertTrue('div should be visible', $(expectedId).visible())
+	assertTrue('class name should be opened_directory', $('directory').hasClassName('opened_directory'))
+	ajax_tree_navigator($('link'), "dashboard/download/project1/log123.xml/abc")
+	assertFalse($(expectedId).visible())
+	assertTrue($('directory').hasClassName('directory'))
 }
 
 </script>
 </head>
 <body>
-<div id="project1_profile" class="failed build_summary_container clickable">
-	<div class="control_panel">
-	    <a id="project1_forcebuild" onclick='$onforcebuild'><img src="images/lightning.png" alt="Force build" title="Force build"/></a>
-	    <a><img src="images/wrench.png" alt="Configure project" title="Configure project" /></a>
-	    <a><img src="images/bin.png" alt="Remove Project" title="Remove Project" /></a>
-	</div>
-   	<div class="description">
-   		<a id="project1_build_detail" href="project.html" class="project_name clickable_target">project1</a>
-   		<span id="project1_build_date" class="no_decoration">$build_date_text</span>
-	   	<a href="$success_build_href"><img src="images/flag_green.png" alt="Past successful builds" title="Previous successful builds"/></a><a href="$all_build_href" title="All Builds of Project project1"><img src="images/bricks.png"/></a>
-   	</div>
-   	<div class="timer">
-	   	<span id="project1_time_elapsed_lable"></span>
-		<span id="project1_time_elapsed"></span>
-		<span id="project1_time_remaining_lable"></span>
-		<span id="project1_time_remaining"></span>
-   	</div>
+<div>
+<ul>
+<li><span id="directory" class="directory"><a id="link" onclick=ajax_tree_navigator("url")>$fileName</a></span></li>
+<div id="dashboard_download_project1_log123.xml_abc" style="display:none"></div>
+<ul>
 </div>
 </body>
 </html>

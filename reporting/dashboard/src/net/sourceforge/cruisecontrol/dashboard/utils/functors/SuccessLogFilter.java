@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.File;
 import java.io.FilenameFilter;
+
 import org.apache.commons.lang.StringUtils;
 
 class SuccessLogFilter implements FilenameFilter {

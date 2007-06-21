@@ -40,12 +40,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.command.CCTrayBuildSummaryAdapter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.RSSBuildSummaryAdapter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.XmlAdapter;
+
 import org.joda.time.DateTime;
 
 public class BuildSummaryUIService {

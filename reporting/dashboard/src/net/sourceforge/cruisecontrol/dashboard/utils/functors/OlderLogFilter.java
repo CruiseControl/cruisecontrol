@@ -38,7 +38,9 @@ package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.File;
 import java.io.FilenameFilter;
+
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.joda.time.DateTime;
 
 class OlderLogFilter implements FilenameFilter {

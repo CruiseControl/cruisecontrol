@@ -40,40 +40,74 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
+import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Projects {
-    private File baseLogs;
+    private File logRoot;
 
-    private File base;
+    private DashboardConfig cruiseControlConfig;
 
-    private Set projectNames;
+    private File artifacts;
 
-    private File baseArtifacts;
+    private File projectsRoot;
 
-    public Projects(File basedir, DashboardConfig cruiseControlConfig) {
-        base = basedir;
-        baseLogs = new File(basedir, "logs");
-        baseArtifacts = new File(base, "artifacts");
-        projectNames = cruiseControlConfig.getProjectNames();
+    public Projects(File projectsRoot, File logRoot, File artifacts,
+            DashboardConfig cruiseControlConfig) throws ConfigurationException {
+        setLogRoot(logRoot);
+        setArtifactsRoot(artifacts);
+        setProjectsRoot(projectsRoot);
+        this.cruiseControlConfig = cruiseControlConfig;
+    }
+
+    private void setProjectsRoot(File projectsRoot) throws ConfigurationException {
+        if (projectsRoot == null) {
+            throw new ConfigurationException("Failed to find the projects root in " + projectsRoot);
+        } else {
+            this.projectsRoot = projectsRoot;
+        }
+    }
+
+    private void setArtifactsRoot(File artifacts) throws ConfigurationException {
+        if (artifacts == null) {
+            throw new ConfigurationException("Failed to find the artifacts root in " + artifacts);
+        } else {
+            this.artifacts = artifacts;
+        }
+    }
+
+    private void setLogRoot(File logRoot) throws ConfigurationException {
+        if (logRoot == null || !logRoot.exists()) {
+            throw new ConfigurationException("Failed to find the log root in " + logRoot);
+        } else {
+            this.logRoot = logRoot;
+        }
     }
 
     public boolean hasProject(String projectName) {
-        return projectNames.contains(projectName);
+        return cruiseControlConfig.getProjectNames().contains(projectName);
     }
 
     public File getArtifactRoot(String projectName) {
-        File artifacts = new File(baseArtifacts, projectName);
-        return artifacts.exists() ? artifacts : null;
+        return new File(artifacts, projectName);
     }
 
     public File getLogRoot(String projectName) {
-        return new File(baseLogs, projectName);
+        return new File(logRoot, projectName);
+    }
+
+    public File getSourceCodeRoot(String projectName) {
+        return new File(projectsRoot, projectName);
+    }
+
+    public File getLogRoot() {
+        return logRoot;
     }
 
     public File[] getProjectNames() {
+        Set projectNames = cruiseControlConfig.getProjectNames();
         File[] projects = new File[projectNames.size()];
         int i = 0;
         for (Iterator iter = projectNames.iterator(); iter.hasNext();) {

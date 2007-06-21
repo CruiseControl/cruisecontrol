@@ -36,6 +36,7 @@
     
         #set($tests_extra_attrs="style='display:none'")
         #parse("build_detail/build_detail_partial_tests.vm")
-        #parse('build_detail/build_detail_partial_widgets_content.vm')
+
+		#parse('build_detail/build_detail_partial_widgets_content.vm')
     </div>
 </div>

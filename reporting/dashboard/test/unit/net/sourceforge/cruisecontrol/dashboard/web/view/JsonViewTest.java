@@ -38,9 +38,12 @@ package net.sourceforge.cruisecontrol.dashboard.web.view;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.TestCase;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -62,14 +65,12 @@ public class JsonViewTest extends TestCase {
     }
 
     public void testShouldRenderAllKeyValuePairsFromMap() throws Exception {
-        Map map = new HashMap();
+        Map map = new LinkedHashMap();
         map.put("key1", "value1");
         map.put("key2", "value2");
         JsonView view = new JsonView();
 
         String output = view.renderJson(map);
-
-        // This is a bit dodgy because the order of keys is not really guaranteed
         assertEquals("{ \"key1\" : \"value1\", \"key2\" : \"value2\" }", output);
     }
 

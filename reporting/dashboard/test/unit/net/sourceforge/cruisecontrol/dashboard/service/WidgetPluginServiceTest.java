@@ -40,24 +40,27 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 import org.apache.commons.lang.StringUtils;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 
-public class WidgetPluginServiceTest extends TestCase {
+public class WidgetPluginServiceTest extends MockObjectTestCase {
 
     private WidgetPluginService service;
 
     private BuildDetail buildDetail;
 
+    private Mock configurationMock;
+
     protected void setUp() throws Exception {
-        Configuration configuration =
-                new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
-        service = new WidgetPluginService(configuration);
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        service = new WidgetPluginService((Configuration) configurationMock.proxy());
         Map props = new HashMap();
         props.put("projectname", "project1");
         props.put("logfile", new File(DataUtils.getConfigXmlAsFile().getParent()
@@ -70,23 +73,21 @@ public class WidgetPluginServiceTest extends TestCase {
     }
 
     public void testShouldBeAbleToReturnEmptyListWhenCfgIsNotDefined() throws Exception {
-        String wrongLocation = DataUtils.getPassingBuildLbuildAsFile().getAbsolutePath();
-        Configuration configuration =
-                new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        configuration.setCruiseConfigLocation(wrongLocation);
-        service = new WidgetPluginService(configuration);
+        invokeGetCCHome(1, "");
         service.mergePluginOutput(buildDetail, new HashMap());
         assertEquals(0, buildDetail.getPluginOutputs().size());
     }
 
     public void testShouldIngoreNotExistClassAndConintueInitiailizeTheResult() throws Exception {
+        invokeGetCCHome(4, "test/data");
         service.mergePluginOutput(buildDetail, new HashMap());
-        assertEquals(2, buildDetail.getPluginOutputs().size());
+        assertEquals(3, buildDetail.getPluginOutputs().size());
     }
 
     public void testShouldBeAbleToReturnInitializedServiceWhenCfgIsDefined() throws Exception {
+        invokeGetCCHome(4, "test/data");
         service.mergePluginOutput(buildDetail, new HashMap());
-        assertEquals(2, buildDetail.getPluginOutputs().size());
+        assertEquals(3, buildDetail.getPluginOutputs().size());
         assertTrue(buildDetail.getPluginOutputs().containsKey("Merged Check Style"));
         String content = (String) buildDetail.getPluginOutputs().get("Merged Check Style");
         assertTrue(StringUtils.contains(content, "Line has trailing spaces."));
@@ -97,6 +98,13 @@ public class WidgetPluginServiceTest extends TestCase {
             service.assemblePlugin(buildDetail, new HashMap(), "#this is a comment");
         } catch (Exception e) {
             fail();
+        }
+    }
+
+    private void invokeGetCCHome(int times, String path) {
+        for (int i = 0; i < times; i++) {
+            configurationMock.expects(once()).method("getCCHome").will(
+                    returnValue(new File(path)));
         }
     }
 }

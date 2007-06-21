@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.FilenameFilter;
+
 import org.joda.time.DateTime;
 
 public final class BuildSummariesFilters {

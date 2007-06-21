@@ -47,16 +47,28 @@
 
     <!--
     <context-param>
+      <param-name>cruisecontrol.config.file</param-name>
+      <param-value>absolute path here</param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.artifacts</param-name>
+      <param-value>absolute path here</param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.projects</param-name>
+      <param-value>absolute path here</param-value>
+    </context-param>
+    <context-param>
+      <param-name>cruisecontrol.logdir</param-name>
+      <param-value>absolute path here</param-value>
+    </context-param>
+    <context-param>
       <param-name>cruisecontrol.jmxport</param-name>
       <param-value>8000</param-value>
     </context-param>
     <context-param>
       <param-name>cruisecontrol.rmiport</param-name>
       <param-value>1099</param-value>
-    </context-param>
-    <context-param>
-      <param-name>cruisecontrol.config.file</param-name>
-      <param-value></param-value>
     </context-param>
     <context-param>
       <param-name>cruisecontrol.config.editable</param-name>

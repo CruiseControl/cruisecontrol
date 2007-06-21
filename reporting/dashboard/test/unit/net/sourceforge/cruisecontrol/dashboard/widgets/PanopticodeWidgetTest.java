@@ -36,27 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.widgets;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
 import junit.framework.TestCase;
+
+import org.apache.commons.lang.StringUtils;
 
 public class PanopticodeWidgetTest extends TestCase {
     public void testFrameSrcShouldContainWebContextPath() throws Exception {
         PanopticodeWidget panopitocide = new PanopticodeWidget();
         Map properties = new HashMap();
-        properties.put(Widget.PARAM_WEB_CONTEXT_PATH, "web_root_of_dashboard");
+        properties.put(Widget.PARAM_WEB_CONTEXT_PATH, "dashboard");
+        properties.put(Widget.PARAM_BUILD_LOG_FILE, new File("log200705030201.xml"));
+        properties.put(Widget.PARAM_PJT_NAME, "project1");
         String output = (String) panopitocide.getOutput(properties);
-        assertTrue(StringUtils.contains(output, "web_root_of_dashboard"));
-    }
+        assertTrue(output, StringUtils.contains(output,
+                "dashboard/build/download/artifacts/project1/log200705030201.xml/interactive-coverage-treemap.svg"));
+        assertTrue(output, StringUtils.contains(output,
+                "dashboard/build/download/artifacts/project1/log200705030201.xml/interactive-complexity-treemap.svg"));
 
-    public void testFrameSrcShouldContainProjectName() throws Exception {
-        PanopticodeWidget panopitocide = new PanopticodeWidget();
-        Map properties = new HashMap();
-        properties.put(Widget.PARAM_PJT_NAME, "my_cc_project");
-        String output = (String) panopitocide.getOutput(properties);
-        assertTrue(StringUtils.contains(output, "my_cc_project"));
     }
 }

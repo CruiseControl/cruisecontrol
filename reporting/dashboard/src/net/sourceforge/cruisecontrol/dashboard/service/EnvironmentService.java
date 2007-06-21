@@ -4,6 +4,8 @@ import java.io.File;
 
 import javax.servlet.ServletContext;
 
+import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
+
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -11,6 +13,8 @@ import org.apache.log4j.Logger;
 import org.springframework.web.context.ServletContextAware;
 
 public class EnvironmentService implements ServletContextAware {
+    public static final String PROPS_CC_HOME = "cc.home";
+
     public static final String PROPS_CC_CONFIG_FILE = "cc.config.file";
 
     public static final String PROPS_CC_CONFIG_EDITABLE = "cc.config.editable";
@@ -18,6 +22,14 @@ public class EnvironmentService implements ServletContextAware {
     public static final String PROPS_CC_CONFIG_JMX_PORT = "cc.jmxport";
 
     public static final String PROPS_CC_CONFIG_RMI_PORT = "cc.rmiport";
+
+    public static final String PROPS_CC_CONFIG_FORCEBUILD_ENABLED = "cc.config.forcebuild";
+
+    public static final String PROPS_CC_CONFIG_LOG_DIR = "cc.logdir";
+
+    public static final String PROPS_CC_CONFIG_ARTIFACTS_DIR = "cc.artifacts";
+
+    public static final String PROPS_CC_CONFIG_PROJECTS_DIR = "cc.projects";
 
     public static final String CONTEXT_CC_CONFIG_FILE = "cruisecontrol.config.file";
 
@@ -27,17 +39,31 @@ public class EnvironmentService implements ServletContextAware {
 
     public static final String CONTEXT_CC_CONFIG_RMI_PORT = "cruisecontrol.rmiport";
 
-    public static final String PROPS_CC_CONFIG_FORCEBUILD_ENABLED = "cc.config.forcebuild";
-
     public static final String CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED =
             "cruisecontrol.config.forcebuild";
 
+    public static final String CONTEXT_CC_CONFIG_LOG_DIR = "cruisecontrol.logdir";
+
     private static final Logger LOGGER = Logger.getLogger(EnvironmentService.class);
+
+    public static final String CONTEXT_CC_CONFIG_ARTIFACTS_DIR = "cruisecontrol.artifacts";
+
+    public static final String CONTEXT_CC_CONFIG_PROJECTS_DIR = "cruisecontrol.projects";
 
     private ServletContext servletContext;
 
+    private final SystemService systemService;
+
+    public EnvironmentService(SystemService systemService) {
+        this.systemService = systemService;
+    }
+
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
     private String getConfigProperty(String props, String context) {
-        String propValues = StringUtils.defaultString(System.getProperty(props));
+        String propValues = StringUtils.defaultString(systemService.getProperty(props));
         if (StringUtils.isNotEmpty(propValues)) {
             return propValues;
         } else if (servletContext != null) {
@@ -77,10 +103,6 @@ public class EnvironmentService implements ServletContextAware {
         return port;
     }
 
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
     public boolean isForceBuildEnabled() {
         String isEnabled =
                 getConfigProperty(PROPS_CC_CONFIG_FORCEBUILD_ENABLED,
@@ -90,5 +112,36 @@ public class EnvironmentService implements ServletContextAware {
         } else {
             return isEnabled.equals("enabled");
         }
+    }
+
+    public File getLogDir() throws ConfigurationException {
+        return getCCHomeSubDir(PROPS_CC_CONFIG_LOG_DIR, CONTEXT_CC_CONFIG_LOG_DIR, "logs");
+    }
+
+    public File getArtifactsDir() throws ConfigurationException {
+        return getCCHomeSubDir(PROPS_CC_CONFIG_ARTIFACTS_DIR, CONTEXT_CC_CONFIG_ARTIFACTS_DIR,
+                "artifacts");
+    }
+
+    private File getCCHomeSubDir(String prop, String initParam, String defaultStr)
+            throws ConfigurationException {
+        String subDir = getConfigProperty(prop, initParam);
+        subDir = StringUtils.isEmpty(subDir) ? defaultStr : subDir;
+        if (systemService.isAbsolutePath(subDir)) {
+            return new File(subDir);
+        } else {
+            String ccHome = StringUtils.defaultString(systemService.getProperty(PROPS_CC_HOME));
+            if (StringUtils.isEmpty(ccHome)) {
+                throw new ConfigurationException("Failed to locate " + defaultStr + " dir "
+                        + subDir);
+            } else {
+                return new File(new File(ccHome), subDir);
+            }
+        }
+    }
+
+    public File getProjectsDir() throws ConfigurationException {
+        return getCCHomeSubDir(PROPS_CC_CONFIG_PROJECTS_DIR, CONTEXT_CC_CONFIG_PROJECTS_DIR,
+                "projects");
     }
 }

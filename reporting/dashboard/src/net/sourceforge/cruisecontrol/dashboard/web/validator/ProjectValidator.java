@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web.validator;
 
 import net.sourceforge.cruisecontrol.dashboard.web.command.ProjectCommand;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;

@@ -58,6 +58,7 @@ public abstract class BaseFunctionalTest extends TestCase {
         tester = new WebTester();
         tester.setScriptingEnabled(false);
         tester.getTestContext().setBaseUrl(BASE_URL);
+        DataUtils.cloneCCHome();
         onSetUp();
     }
 

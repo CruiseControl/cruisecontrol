@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
@@ -48,6 +49,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -74,7 +76,7 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         setUpMock();
         controller =
                 new LatestBuildsListingController(buildSummaryService, new BuildSummaryUIService(
-                        buildSummaryService), new EnvironmentService());
+                        buildSummaryService), new EnvironmentService(new SystemService()));
     }
 
     private void setUpMock() throws Exception {

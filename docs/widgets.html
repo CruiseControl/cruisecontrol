@@ -56,7 +56,7 @@
 #simply type the name of widget class
 net.sourceforge.cruisecontrol.dashboard.service.PanopticodeWidget
 </pre>
-<p>Make sure that you have set up Panopticode in your build tool e.g. Ant, so that it can generate the Panopticode result in the folder: $CRUISE_HOME/projects/{project name}/target/reports/svg/ .</p>
+<p>Make sure that you configure CruiseControl properly that it can copy the svg files into desired location as artifact: $ARTIFACTS_ROOT/{project name}/{build}/interactive-complexity-treemap.svg and $ARTIFACTS_ROOT/{project name}/{build}/interactive-coverage-treemap.svg</p>
 
 <h2>Using Widgets</h2>
 <p>From the build detail page you can see an additional tab named Panopticode Summary. If the project build has Panopticode output, charts will be shown as below.</p>

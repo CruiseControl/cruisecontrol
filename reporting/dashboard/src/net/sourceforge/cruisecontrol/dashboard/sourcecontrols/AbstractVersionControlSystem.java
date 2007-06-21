@@ -36,11 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
 import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
 import net.sourceforge.cruisecontrol.util.Commandline;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 public abstract class AbstractVersionControlSystem implements VCS {
 

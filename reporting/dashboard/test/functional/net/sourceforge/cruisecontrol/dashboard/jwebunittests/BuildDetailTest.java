@@ -36,37 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import java.io.File;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import org.apache.commons.lang.StringUtils;
 
 public class BuildDetailTest extends BaseFunctionalTest {
-    private File downloadedFile;
 
     protected void onSetUp() throws Exception {
         setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getPath());
-        downloadedFile = DataUtils.createTempFile("downloadedArtifact", "txt");
-    }
-
-    public void testShouldShowDownloadableArtifacts() throws Exception {
-        tester.beginAt("/build/detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
-        tester.assertTextPresent("Artifacts");
-        tester.assertLinkPresentWithText("artifact1.txt");
-        tester.assertLinkPresentWithText("artifact2.txt");
-        tester.assertTextNotPresent("Targets");
-        tester.assertTextNotPresent("Test Suites");
-
-    }
-
-    public void testShouldDownloadArtifacts() throws Exception {
-        tester.beginAt("/build/detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
-        tester.assertTextPresent("Merged Check Style");
-
-        tester.clickLinkWithText("artifact1.txt");
-        tester.saveAs(downloadedFile);
-
-        String content = DataUtils.readFileContent(downloadedFile);
-        assertTrue(StringUtils.contains(content, "artifact content"));
     }
 
     public void testShouldNotShowArtifactsForFailedBuild() {
