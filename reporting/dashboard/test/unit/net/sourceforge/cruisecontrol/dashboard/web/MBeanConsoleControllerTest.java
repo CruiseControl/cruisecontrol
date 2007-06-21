@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -53,7 +54,8 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
     private MockHttpServletResponse response;
 
     protected void setUp() throws Exception {
-        Mock mockEnvironmentService = mock(EnvironmentService.class);
+        Mock mockEnvironmentService = mock(EnvironmentService.class, new Class[] {SystemService.class},
+                new Object[] {new SystemService()});
         controller =
                 new MBeanConsoleController((EnvironmentService) mockEnvironmentService.proxy());
         request = new MockHttpServletRequest();

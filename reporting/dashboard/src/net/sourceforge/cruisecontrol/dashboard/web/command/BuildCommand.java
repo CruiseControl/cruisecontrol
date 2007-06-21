@@ -69,7 +69,8 @@ public class BuildCommand {
     }
 
     public Long getElapsedTimeBuilding(DateTime date) {
-        return new Long((date.getMillis() - build.getBuildingSince().getMillis()) / MILLI_SECOND_TO_SECOND);
+        return new Long((date.getMillis() - build.getBuildingSince().getMillis())
+                / MILLI_SECOND_TO_SECOND);
     }
 
     public void updateFailedCSS(Build last) {
@@ -105,8 +106,8 @@ public class BuildCommand {
         jsonParams.put("latest_build_date", getDateStringInHumanBeingReadingStyle());
         if ("building".equalsIgnoreCase(build.getStatus())) {
             jsonParams.put("build_duration", build.getDuration());
-            jsonParams.put("latest_build_date", CCDateFormatter.getDateStringInHumanBeingReadingStyle(build
-                    .getBuildingSince()));
+            jsonParams.put("latest_build_date", CCDateFormatter
+                    .getDateStringInHumanBeingReadingStyle(build.getBuildingSince()));
             jsonParams.put("build_time_elapsed", getElapsedTimeBuilding(new DateTime()));
         }
         return jsonParams;

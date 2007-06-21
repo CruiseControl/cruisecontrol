@@ -1,11 +1,17 @@
 <div class="artifacts" id="artifacts" $artifacts_extra_attrs>
     <h2>Artifacts</h2>
     <ul class="files">
-        #if( $build.build.artifactNames.size() == 0)
+        #if( $build.build.artifactFiles.size() == 0)
             <p>No artifacts found.</p>
         #end
-        #foreach ($artifactName in $build.build.artifactNames)
-            <li><span class="artifact"><a href="$req.getContextPath()/build/download/artifacts/$build.build.getProjectName()/$logfile/$artifactName">$artifactName</a></span></li>
+        #foreach ($artifactFile in $build.build.artifactFiles)
+			#set($url="$req.getContextPath()/build/download/artifacts/$build.build.getProjectName()/$logfile/$artifactFile.name")
+	        #if($artifactFile.isFile())			
+	            <li><span class="artifact"><a href="$url">$artifactFile.name</a></span></li>
+	        #else
+	            <li><span class="directory"><a onclick=ajax_tree_navigator(this,"$url")>$artifactFile.name</a></span></li>
+	            <div id="$url.replaceAll('/', '_')" style="display:none"></div>
+	        #end
         #end
     </ul>
 </div>

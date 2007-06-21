@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
 import java.text.SimpleDateFormat;
+
 import junit.framework.TestCase;
 import junitx.util.PrivateAccessor;
 

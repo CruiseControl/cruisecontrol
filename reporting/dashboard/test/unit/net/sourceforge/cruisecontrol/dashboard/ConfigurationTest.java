@@ -41,7 +41,7 @@ import java.io.File;
 import net.sourceforge.cruisecontrol.dashboard.exception.ProjectAlreadyExistException;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -50,11 +50,24 @@ public class ConfigurationTest extends MockObjectTestCase {
 
     private Configuration defaultConfiguration;
 
+    private Mock mockConfigXmlFileService;
+
+    private Mock mockProjects;
+
+    private Projects projects;
+
     protected void setUp() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, DataUtils.getConfigXmlAsFile()
-                .getAbsolutePath());
-        ConfigXmlFileService service = new ConfigXmlFileService(new EnvironmentService());
-        defaultConfiguration = new Configuration(service);
+        mockConfigXmlFileService =
+                mock(ConfigXmlFileService.class, new Class[] {EnvironmentService.class},
+                        new Object[] {null});
+        mockProjects =
+                mock(Projects.class, new Class[] {File.class, File.class, File.class,
+                        DashboardConfig.class}, new Object[] {new File(""), new File("."),
+                        new File(""), null});
+        projects = (Projects) mockProjects.proxy();
+        defaultConfiguration =
+                new Configuration((ConfigXmlFileService) mockConfigXmlFileService.proxy());
+
     }
 
     protected void tearDown() throws Exception {
@@ -62,70 +75,71 @@ public class ConfigurationTest extends MockObjectTestCase {
     }
 
     public void testShouldInitializeTheProjectsWhenInitializingConfiguration() throws Exception {
-        File file = defaultConfiguration.getArtifactRoot("project1");
-        assertTrue(file.exists());
-        assertTrue(defaultConfiguration.getLogRoot("project1").exists());
+        File expectedArtifactsFile = new File("artifacts/project1");
+        File expectedLogsFile = new File("logs/project1");
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile");
+        mockConfigXmlFileService.expects(once()).method("getProjects").will(returnValue(projects));
+        defaultConfiguration.afterPropertiesSet();
+        mockProjects.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(expectedArtifactsFile));
+        mockProjects.expects(once()).method("getLogRoot").with(eq("project1")).will(
+                returnValue(expectedLogsFile));
+        assertEquals(expectedArtifactsFile, defaultConfiguration.getArtifactRoot("project1"));
+        assertEquals(expectedLogsFile, defaultConfiguration.getLogRoot("project1"));
     }
 
     public void testShouldNotInitalizeProjectsWhenConfigXmlIsNull() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
-        ConfigXmlFileService service = new ConfigXmlFileService(new EnvironmentService());
-        Configuration configuration = new Configuration(service);
-        assertNull(configuration.getArtifactRoot("project1"));
-        assertNull(configuration.getLogRoot("project1"));
-        assertFalse(configuration.hasProject("project1"));
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile").will(returnValue(null));
+        mockConfigXmlFileService.expects(once()).method("getProjects").will(returnValue(null));
+        defaultConfiguration.afterPropertiesSet();
+
+        assertNull(defaultConfiguration.getArtifactRoot("project1"));
+        assertNull(defaultConfiguration.getLogRoot("project1"));
+        assertFalse(defaultConfiguration.hasProject("project1"));
     }
 
-    public void testShouldThrownProjectAlreadyExistExceptionWhenProjectExist() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, DataUtils.getConfigXmlAsFile()
-                .getAbsolutePath());
-        ConfigXmlFileService service = new ConfigXmlFileService(new EnvironmentService());
-        Configuration configuration = new Configuration(service);
+    public void testShouldThrowProjectAlreadyExistExceptionWhenProjectExist() throws Exception {
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile");
+        mockConfigXmlFileService.expects(once()).method("getProjects").will(returnValue(projects));
+        defaultConfiguration.afterPropertiesSet();
+        mockProjects.expects(once()).method("hasProject").with(eq("project1")).will(
+                returnValue(true));
         try {
-            configuration.addProject("project1", null);
+            defaultConfiguration.addProject("project1", null);
             fail("Exception exptected");
         } catch (ProjectAlreadyExistException e) {
             // PASS
         }
     }
 
-    public void testShouldUpdateProjectsAfterUpdateContent2() throws ProjectAlreadyExistException {
-        Mock configXmlFileServiceMock = getFileServiceMock();
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        configXmlFileServiceMock.expects(once()).method("addProject");
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        Configuration configuration =
-                new Configuration((ConfigXmlFileService) configXmlFileServiceMock.proxy());
-        configuration.addProject("prject1", null);
+    public void testShouldUpdateProjectsAfterUpdateContent2() throws Exception {
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile");
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.afterPropertiesSet();
+        mockConfigXmlFileService.expects(once()).method("addProject");
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.addProject("prject1", null);
     }
 
     public void testShouldUpdateProjectsAfterAddProjects2() throws Exception {
-        Mock configXmlFileServiceMock = getFileServiceMock();
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        configXmlFileServiceMock.expects(once()).method("writeContentToConfigXml");
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        Configuration configuration =
-                new Configuration((ConfigXmlFileService) configXmlFileServiceMock.proxy());
-        configuration.updateConfigFile("content");
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile").will(
+                returnValue(new File("")));
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.afterPropertiesSet();
+
+        mockConfigXmlFileService.expects(once()).method("writeContentToConfigXml");
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.updateConfigFile("content");
     }
 
     public void testShouldUpdateProjectsAfterChangeLocation2() throws Exception {
-        Mock configXmlFileServiceMock = getFileServiceMock();
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        configXmlFileServiceMock.expects(once()).method("isConfigFileValid")
-                .will(returnValue(true));
-        configXmlFileServiceMock.expects(once()).method("getProjects");
-        Configuration configuration =
-                new Configuration((ConfigXmlFileService) configXmlFileServiceMock.proxy());
-        configuration.setCruiseConfigLocation("content");
-    }
-
-    private Mock getFileServiceMock() {
-        Mock configXmlFileServiceMock =
-                mock(ConfigXmlFileService.class, new Class[] {EnvironmentService.class},
-                        new Object[] {null});
-        configXmlFileServiceMock.expects(once()).method("getConfigXmlFile").will(
+        mockConfigXmlFileService.expects(once()).method("getConfigXmlFile").will(
                 returnValue(new File("")));
-        return configXmlFileServiceMock;
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.afterPropertiesSet();
+        mockConfigXmlFileService.expects(once()).method("isConfigFileValid")
+                .will(returnValue(true));
+        mockConfigXmlFileService.expects(once()).method("getProjects");
+        defaultConfiguration.setCruiseConfigLocation("content");
     }
 }

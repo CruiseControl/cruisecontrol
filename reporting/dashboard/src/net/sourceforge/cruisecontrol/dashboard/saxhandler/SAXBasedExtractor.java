@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 
 import java.util.Map;
+
 import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class SAXBasedExtractor extends DefaultHandler {

@@ -36,73 +36,74 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.File;
-
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 import org.apache.commons.lang.StringUtils;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-public class UpdateConfigXmlLocationControllerTest extends TestCase {
-
-    private String newConfigFilePath;
-
-    private File configFile;
-
-    private Configuration configuration;
-
+public class UpdateConfigXmlLocationControllerTest extends MockObjectTestCase {
     private MockHttpServletRequest request;
 
     private MockHttpServletResponse response;
 
-    protected void setUp() throws Exception {
-        configuration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        configFile = DataUtils.createDefaultCCConfigFile();
-        configuration.setCruiseConfigLocation(configFile.getPath());
-        newConfigFilePath = DataUtils.createTempFile("config", ".xml").toString();
-        request = new MockHttpServletRequest();
-        request.setMethod("POST");
-        response = new MockHttpServletResponse();
-    }
+    private Configuration configuration;
 
-    protected void tearDown() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "");
+    private Mock configurationMock;
+
+    private UpdateConfigXmlLocationController controller;
+
+    private Mock envMock;
+
+    protected void setUp() throws Exception {
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        envMock =
+                mock(EnvironmentService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
+        configuration = (Configuration) configurationMock.proxy();
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        request.setMethod("POST");
+        controller =
+                new UpdateConfigXmlLocationController(configuration, (EnvironmentService) envMock
+                        .proxy());
+
     }
 
     public void testShouldShowFormViewWithSuccessMessageAfterSetLocation() throws Exception {
-        request.setParameter("configFileLocation", newConfigFilePath);
-        UpdateConfigXmlLocationController controller =
-                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
-        assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
+        request
+                .setParameter("configFileLocation", DataUtils.getConfigXmlAsFile()
+                        .getAbsolutePath());
+        envMock.expects(once()).method("isConfigFileEditable").will(returnValue(true));
+        configurationMock.expects(once()).method("setCruiseConfigLocation");
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("redirect:/admin/config", mov.getViewName());
         assertTrue(StringUtils.contains((String) mov.getModel().get("location_flash_message"),
                 "Configuration file has been set successfully."));
-        assertEquals(newConfigFilePath, configuration.getCruiseConfigLocation());
     }
 
     public void testShouldNotUpdateConfigXmlIfConfigXmlEditableIsFalse() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "false");
-        request.setParameter("configFileLocation", newConfigFilePath);
-        UpdateConfigXmlLocationController controller =
-                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
+        request
+                .setParameter("configFileLocation", DataUtils.getConfigXmlAsFile()
+                        .getAbsolutePath());
+        envMock.expects(once()).method("isConfigFileEditable").will(returnValue(false));
+        configurationMock.expects(never()).method("setCruiseConfigLocation");
         controller.handleRequest(request, response);
-        assertFalse(newConfigFilePath.equals(configuration.getCruiseConfigLocation()));
     }
 
     public void testShouldShowFormViewWithErrorMessageIfConfigFilePathIsBlank() throws Exception {
         request.setParameter("configFileLocation", "");
-        UpdateConfigXmlLocationController controller =
-                new UpdateConfigXmlLocationController(configuration, new EnvironmentService());
-        assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
+        envMock.expects(once()).method("isConfigFileEditable").will(returnValue(true));
         ModelAndView view = controller.handleRequest(request, response);
         assertEquals("page_admin", view.getViewName());
-        assertEquals(configFile.getAbsolutePath(), configuration.getCruiseConfigLocation());
     }
 }

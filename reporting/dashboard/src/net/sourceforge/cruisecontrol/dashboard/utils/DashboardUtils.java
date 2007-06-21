@@ -1,9 +1,11 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 public final class DashboardUtils {
     private DashboardUtils() {
@@ -24,5 +26,10 @@ public final class DashboardUtils {
             decodedParams[i] = decode(params[i]);
         }
         return decodedParams;
+    }
+
+    public static String getFileType(File file) {
+        Assert.notNull(file);
+        return file.isDirectory() ? "directory" : "file";
     }
 }

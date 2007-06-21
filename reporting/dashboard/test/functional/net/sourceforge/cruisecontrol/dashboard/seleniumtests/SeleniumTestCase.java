@@ -36,10 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
-import com.thoughtworks.selenium.DefaultSelenium;
-import com.thoughtworks.selenium.Selenium;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
+import com.thoughtworks.selenium.DefaultSelenium;
+import com.thoughtworks.selenium.Selenium;
 
 public abstract class SeleniumTestCase extends TestCase {
 
@@ -49,6 +50,7 @@ public abstract class SeleniumTestCase extends TestCase {
         selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:9090");
         selenium.start();
         setConfigFileLocation();
+        DataUtils.cloneCCHome();
         doSetUp();
     }
 
@@ -57,7 +59,8 @@ public abstract class SeleniumTestCase extends TestCase {
 
     private void setConfigFileLocation() throws Exception {
         selenium.open("/dashboard/admin/config");
-        selenium.type("configFileLocation", DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
+        selenium.type("configFileLocation", DataUtils.getConfigXmlInArbitraryCCHome()
+                .getAbsolutePath());
         selenium.submit("specifyConfigLocation");
         selenium.waitForPageToLoad("5000");
     }
@@ -67,7 +70,11 @@ public abstract class SeleniumTestCase extends TestCase {
         doTearDown();
     }
 
-    protected void doTearDown() throws Exception {
+    protected void clickLinkWithTextAndWait(String text, int milliseconds) throws Exception {
+        selenium.click("//a[text()='" + text + "']");
+        Thread.sleep(milliseconds);
     }
 
+    protected void doTearDown() throws Exception {
+    }
 }

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
 import java.io.IOException;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.Commandline;
 

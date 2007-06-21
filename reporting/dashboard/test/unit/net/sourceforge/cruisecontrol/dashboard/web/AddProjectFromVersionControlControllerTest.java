@@ -42,34 +42,51 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.exception.NonSupportedVersionControlException;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.VersionControlFactory;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.ConnectionResult;
+import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Cvs;
+import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Perforce;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
 
 import org.apache.commons.lang.StringUtils;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class AddProjectFromVersionControlControllerTest extends SpringBasedControllerTests {
+public class AddProjectFromVersionControlControllerTest extends MockObjectTestCase {
 
     private AddProjectFromVersionControlController controller;
 
-    private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
+    private Configuration configuration;
+
+    private Mock configurationMock;
 
     private File configurationFile;
 
-    private net.sourceforge.cruisecontrol.dashboard.Configuration mockupConfiguration;
+    private MockHttpServletResponse response;
 
-    protected void onControllerSetup() throws Exception {
-        configurationFile = DataUtils.createTempFile("config", ".xml");
-        DataUtils.writeContentToFile(configurationFile,
-                "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
-        mockupConfiguration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        mockupConfiguration.setCruiseConfigLocation(configurationFile.getAbsolutePath());
+    private MockHttpServletRequest request;
+
+    private Mock versionControlFactoryMock;
+
+    protected void setUp() throws Exception {
+        response = new MockHttpServletResponse();
+        request = new MockHttpServletRequest();
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        configuration = (Configuration) configurationMock.proxy();
+        versionControlFactoryMock =
+                mock(VersionControlFactory.class, new Class[] {CruiseRuntime.class},
+                        new Object[] {null});
+        controller =
+                new AddProjectFromVersionControlController(
+                        (VersionControlFactory) versionControlFactoryMock.proxy(), configuration);
     }
 
     protected void onTearDown() throws Exception {
@@ -77,28 +94,34 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
     }
 
     public void testShouldPromptErrorMessageIfVersionControlTypeNotValid() throws Exception {
-        prepareControllerAndRequestParameter("valid", "project name", "invalid");
+        prepareRequestParameter("valid", "project name", "invalid");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                throwException(new NonSupportedVersionControlException("")));
 
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("You have to specify a valid version control system", result.get("response"));
     }
 
-    public void testShouldPromptErrorMessageWhenProjectNameIsEmtpty() throws Exception {
-        prepareControllerAndRequestParameter("valid", "", "svn");
+    private MockHttpServletResponse getResponse() {
+        return response;
+    }
 
+    private MockHttpServletRequest getRequest() {
+        return request;
+    }
+
+    public void testShouldPromptErrorMessageWhenProjectNameIsEmtpty() throws Exception {
+        prepareRequestParameter("valid", "", "svn");
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("Project name can not be blank", result.get("response"));
     }
 
     public void testShouldPromptErrorMessageWhenProjectAlreadyExist() throws Exception {
-        controller =
-                new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
-                        mockupConfiguration);
-        getRequest().setMethod("POST");
-        getRequest().addParameter("url", "valid");
-        getRequest().addParameter("projectName", "project1");
+        prepareRequestParameter("valid", "project1", "svn");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(true));
 
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
@@ -106,15 +129,25 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
     }
 
     public void testShouldReturnValidConnectionJsonViewIfSVNAddressIsValid() throws Exception {
-        prepareControllerAndRequestParameter("valid", "whatever", "svn");
+        prepareRequestParameter("valid", "whatever", "svn");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        configurationMock.expects(once()).method("getSourceCodeRoot").with(eq("whatever"));
+        configurationMock.expects(once()).method("addProject");
+        configurationMock.expects(once()).method("getSourceCodeRoot").with(eq("whatever"));
 
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new HappyVcs()));
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("success", result.get("ok"));
     }
 
     public void testCheckOutShouldBeInvoked() throws Exception {
-        prepareControllerAndRequestParameter("valid", "whatever", "checkoutThrowException");
+        prepareRequestParameter("valid", "whatever", "svn");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        configurationMock.expects(once()).method("getSourceCodeRoot").with(eq("whatever"));
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new CheckoutThrowExceptionVcs()));
         try {
             controller.handleRequest(getRequest(), getResponse());
             fail();
@@ -124,41 +157,50 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
     }
 
     public void testShouldReturnInvalidConnectionJsonViewIfSVNAddressIsInvalid() throws Exception {
-        prepareControllerAndRequestParameter("whatever", "whatever", "connectionFailed");
-
+        prepareRequestParameter("whatever", "whatever", "connectionFailed");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new ConnectionFailedVcs()));
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("failure", result.get("ok"));
     }
 
     public void testShouldContainsBuildXmlNotFoundWhenBuildDotXmlIsMissing() throws Exception {
-        prepareControllerAndRequestParameter("whatever", "whatever", "buildFileNotExist");
+        prepareRequestParameter("whatever", "whatever", "buildFileNotExist");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        configurationMock.expects(once()).method("getSourceCodeRoot").with(eq("whatever"));
+        configurationMock.expects(once()).method("addProject");
+        configurationMock.expects(once()).method("getSourceCodeRoot").with(eq("whatever"));
 
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new BuildFileNotExistVcs()));
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertTrue(StringUtils.contains((String) result.get("response"), "build.xml"));
     }
 
     public void testShouldShowErrorMessageIfModuleNameMissingForCvsProject() throws Exception {
-        prepareControllerAndRequestParameter("valid", "project name", "cvs");
-
+        prepareRequestParameter("valid", "project name", "cvs");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new Cvs("", "", null)));
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("You must provide a module name for cvs project", result.get("response"));
     }
 
     public void testShouldShowErrorMessageIfModuleNameMissingForPerforceProject() throws Exception {
-        prepareControllerAndRequestParameter("valid", "project name", "perforce");
-
+        prepareRequestParameter("valid", "project name", "perforce");
+        configurationMock.expects(once()).method("hasProject").will(returnValue(false));
+        versionControlFactoryMock.expects(once()).method("getVCSInstance").will(
+                returnValue(new Perforce(null, null, null, null)));
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
         assertEquals("You must provide the depot path for perforce project", result.get("response"));
     }
 
-    private void prepareControllerAndRequestParameter(String url, String projectName, String vcsType) {
-        controller =
-                new AddProjectFromVersionControlController(new VersionControlFactoryStub(null),
-                        mockupConfiguration);
+    private void prepareRequestParameter(String url, String projectName, String vcsType) {
         getRequest().setMethod("POST");
         getRequest().addParameter("url", url);
         getRequest().addParameter("projectName", projectName);
@@ -241,14 +283,6 @@ public class AddProjectFromVersionControlControllerTest extends SpringBasedContr
             return "whatever";
         }
 
-    }
-
-    public net.sourceforge.cruisecontrol.dashboard.Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
     }
 
     class CheckoutThrowExceptionVcs extends HappyVcs {

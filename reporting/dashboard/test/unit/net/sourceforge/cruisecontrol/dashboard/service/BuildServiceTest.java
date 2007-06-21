@@ -64,7 +64,7 @@ public class BuildServiceTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         mockConfiguration =
                 mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {new ConfigXmlFileService(new EnvironmentService())});
+                        new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService()))});
         configurationMock = (Configuration) mockConfiguration.proxy();
         mockConfiguration.expects(once()).method("getArtifactRoot").will(
                 returnValue(DataUtils.getProject1ArtifactDirAsFile()));

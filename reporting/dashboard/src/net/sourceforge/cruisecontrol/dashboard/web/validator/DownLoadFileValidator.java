@@ -25,9 +25,5 @@ public class DownLoadFileValidator implements Validator {
             errors.reject(DOWNLOAD_FILE, "File does not exist.");
             return;
         }
-        if (!expectedFile.isFile()) {
-            errors.reject(DOWNLOAD_FILE, "File can not be read.");
-
-        }
     }
 }

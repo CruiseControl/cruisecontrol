@@ -37,70 +37,85 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-public class DownloadArtifactControllerTest extends SpringBasedControllerTests {
+public class DownloadArtifactControllerTest extends MockObjectTestCase {
     private DownloadController controller;
 
-    private Configuration configuration;
+    private MockHttpServletRequest request;
 
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
+    private MockHttpServletResponse response;
 
-    public void setDownloadController(DownloadController controller) {
-        this.controller = controller;
-    }
+    private Mock configurationMock;
 
-    protected void onControllerSetup() throws Exception {
-        super.onControllerSetup();
-        configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
-        String logDirPath = DataUtils.getProjectLogDirAsFile().getAbsolutePath();
-        configuration.setCruiseLogfileLocation(logDirPath);
+    private File artifactsRoot;
+
+    protected void setUp() throws Exception {
+        request = new MockHttpServletRequest();
+        response = new MockHttpServletResponse();
+        request.setMethod("GET");
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        controller = new DownloadController((Configuration) configurationMock.proxy());
+        artifactsRoot = DataUtils.getProject1ArtifactDirAsFile();
     }
 
     private void prepareRequest(String artifacts) {
-        getRequest().setMethod("GET");
         getRequest().setRequestURI(
                 "/download/artifacts/project1/log20051209122103Lbuild.489.xml/" + artifacts);
     }
 
-    public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
-        prepareRequest("artifact1.txt");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("downloadBinView", mov.getViewName());
-        File targetFile =
-                new File(DataUtils.getProject1ArtifactDirAsFile(), "20051209122103"
-                        + File.separator + "artifact1.txt");
-        assertEquals(targetFile.getAbsoluteFile(), mov.getModel().get("targetFile"));
+    private MockHttpServletRequest getRequest() {
+        return request;
     }
 
-    public void testShouldBeAbleToDownloadArtifactsWithSpaceInPath() throws Exception {
-        getRequest().setMethod("GET");
-        getRequest().setRequestURI(
-                "/download/artifacts/project%20space/"
-                        + "log20051209122104Lbuild.467.xml/artifact%20with%20space.txt");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
+    private HttpServletResponse getResponse() {
+        return response;
+    }
+
+    public void testShouldRenderDownloadViewIfTargetFileExistsAndCanBeRead() throws Exception {
+        prepareRequest("artifact1.txt");
+        configurationMock.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(artifactsRoot));
+        configurationMock.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(artifactsRoot));
+        ModelAndView mov = this.controller.artifacts(getRequest(), getResponse());
+        assertEquals("fileView", mov.getViewName());
         File targetFile =
-                new File(DataUtils.getProjectSpaceArtifactDirAsFile(), "20051209122104"
-                        + File.separator + "artifact with space.txt");
-        assertEquals(targetFile.getAbsoluteFile(), mov.getModel().get("targetFile"));
+                new File(artifactsRoot, "20051209122103" + File.separator + "artifact1.txt");
+        assertEquals(targetFile.getAbsolutePath(), ((File) mov.getModel().get("targetFile"))
+                .getAbsolutePath());
+    }
+
+    public void testShouldRenderDownloadViewIfDirectoryExists() throws Exception {
+        prepareRequest("subdir");
+        configurationMock.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(artifactsRoot));
+        configurationMock.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(artifactsRoot));
+        ModelAndView mov = this.controller.artifacts(getRequest(), getResponse());
+        assertEquals("directoryView", mov.getViewName());
     }
 
     public void testShouldRenderErrorPageIfFileNotExist() throws Exception {
         prepareRequest("IDontExist");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
+        configurationMock.expects(once()).method("getArtifactRoot").with(eq("project1")).will(
+                returnValue(artifactsRoot));
+        ModelAndView mov = this.controller.artifacts(getRequest(), getResponse());
         assertEquals("page_error", mov.getViewName());
         assertEquals("File does not exist.", mov.getModel().get("errorMessage"));
-    }
-
-    public void testShouldRenderErrorPageIfGivenFileIsDirectory() throws Exception {
-        prepareRequest("subdir");
-        ModelAndView mov = this.controller.handleRequest(getRequest(), getResponse());
-        assertEquals("page_error", mov.getViewName());
-        assertEquals("File can not be read.", mov.getModel().get("errorMessage"));
     }
 
 }

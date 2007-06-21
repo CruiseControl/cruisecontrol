@@ -43,11 +43,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
+
 import org.apache.commons.io.FileUtils;
 
-public class BuildTest extends TestCase {
+public class BuildDetailTest extends TestCase {
 
     private BuildDetail build;
 
@@ -151,7 +153,7 @@ public class BuildTest extends TestCase {
         props.put("artifactfolder", artifactsRoot);
         BuildDetail detail = new BuildDetail(props);
 
-        assertEquals(3, detail.getArtifacts().size());
+        assertEquals(3, detail.getArtifactFiles().size());
     }
 
     public void testShouldGetArtifactsInSubDirectories() throws Exception {
@@ -165,32 +167,26 @@ public class BuildTest extends TestCase {
         File subDir = new File(artifactsDir, "subdir");
 
         FileUtils.forceMkdir(subDir);
-        FilesystemUtils.createFile("chnakd.ear", subDir);
+        FilesystemUtils.createFile("p3.ear", subDir);
+        FilesystemUtils.createFile("p4.ear", subDir);
         Map props = new HashMap();
         props.put("logfile", new File("log20001212050505.xml"));
         props.put("artifactfolder", artifactsRoot);
         BuildDetail detail = new BuildDetail(props);
-
-        assertEquals(4, detail.getArtifacts().size());
+        List artifactNames = toFileNameList(detail.getArtifactFiles());
+        assertEquals(4, artifactNames.size());
+        assertTrue(artifactNames.contains("p2.war"));
+        assertTrue(artifactNames.contains("p2.jar"));
+        assertTrue(artifactNames.contains("p2.ear"));
+        assertTrue(artifactNames.contains("subdir"));
     }
 
-    public void testShouldIgnoreFilesWithDotPrefix() throws Exception {
-        String projectName = "p3";
-        String timeStamp = "20001212050505";
-        File artifactsRoot = FilesystemUtils.createDirectory(projectName);
-        File artifactsDir = FilesystemUtils.createDirectory(timeStamp, projectName);
-        FilesystemUtils.createFile("p3.jar", artifactsDir);
-        FilesystemUtils.createFile("p3.war", artifactsDir);
-        FilesystemUtils.createFile("p3.ear", artifactsDir);
-
-        File startWithDot = FilesystemUtils.createFile(".start.with.file", artifactsDir);
-        assertTrue(startWithDot.exists());
-
-        Map props = new HashMap();
-        props.put("logfile", new File("log20001212050505.xml"));
-        props.put("artifactfolder", artifactsRoot);
-        BuildDetail detail = new BuildDetail(props);
-
-        assertEquals(3, detail.getArtifacts().size());
+    public List toFileNameList(List files) {
+        List fileNames = new ArrayList();
+        for (Iterator iter = files.iterator(); iter.hasNext();) {
+            File file = (File) iter.next();
+            fileNames.add(file.getName());
+        }
+        return fileNames;
     }
 }

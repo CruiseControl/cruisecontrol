@@ -37,9 +37,12 @@
 package net.sourceforge.cruisecontrol.dashboard.web.validator;
 
 import java.io.ByteArrayInputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
+
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 

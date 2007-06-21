@@ -36,59 +36,58 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.File;
-
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
 
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-public class AdminControllerTest extends TestCase {
-    private Configuration editConfiguration;
-
-    private final String configFileContent =
-            "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n";
-
-    private File configFile;
-
+public class AdminControllerTest extends MockObjectTestCase {
     private MockHttpServletRequest request;
 
     private MockHttpServletResponse response;
 
+    private Mock configurationMock;
+
+    private Configuration configuration;
+
+    private AdminController controller;
+
     protected void setUp() throws Exception {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        configFile = DataUtils.createDefaultCCConfigFile();
-        editConfiguration = new Configuration(new ConfigXmlFileService(new EnvironmentService()));
-        editConfiguration.setCruiseConfigLocation(configFile.getPath());
+        configurationMock =
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
+                        new Object[] {null});
+        configuration = (Configuration) configurationMock.proxy();
+        controller =
+                new AdminController(configuration, new EnvironmentService(new SystemService()));
     }
 
     public void testViewNameShouldBeAdminWhenGetIt() throws Exception {
-        AdminController controller =
-                new AdminController(editConfiguration, new EnvironmentService());
+        configurationMock.expects(once()).method("getCruiseConfigLocation");
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("page_admin", mov.getViewName());
     }
 
     public void testShouldShowExistingConfigFileLocationAndContentIfItHasBeenSet() throws Exception {
-        AdminController controller =
-                new AdminController(editConfiguration, new EnvironmentService());
+        String expectedPath = "test/data/config.xml";
+        configurationMock.expects(once()).method("getCruiseConfigLocation").will(
+                returnValue(expectedPath));
         ModelAndView mov = controller.handleRequest(request, response);
         ConfigurationCommand command = (ConfigurationCommand) mov.getModel().get("command");
-        assertEquals(configFile.getAbsolutePath(), command.getConfigFileLocation());
-        assertEquals(configFileContent, ((ConfigurationCommand) mov.getModel().get("command"))
-                .getConfigFileContent());
+        assertEquals(expectedPath, command.getConfigFileLocation());
+
     }
 
     public void testShouldPutIsConfigurationEditableInputModel() throws Exception {
-        AdminController controller =
-                new AdminController(editConfiguration, new EnvironmentService());
+        configurationMock.expects(once()).method("getCruiseConfigLocation");
         ModelAndView mov = controller.handleRequest(request, response);
         assertNotNull(mov.getModel().get("isConfigFileEditable"));
     }

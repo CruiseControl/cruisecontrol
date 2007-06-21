@@ -40,7 +40,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.servlet.ServletContext;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -69,6 +71,8 @@ public class TemplateRenderService implements ServletContextAware, InitializingB
 
     public void loadTemplates() throws IOException {
         loadTemplate("project_xml.template");
+        loadTemplate("directory.template");
+        loadTemplate("file.template");
     }
 
     private void loadTemplate(String name) throws IOException {

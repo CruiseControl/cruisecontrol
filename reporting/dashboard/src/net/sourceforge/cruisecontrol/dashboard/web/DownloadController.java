@@ -36,10 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.binder.DownLoadLogBinder;
 import net.sourceforge.cruisecontrol.dashboard.web.binder.DownloadArtifactsBinder;
 import net.sourceforge.cruisecontrol.dashboard.web.command.DownLoadArtifactsCommand;
@@ -72,15 +75,15 @@ public class DownloadController extends BaseMultiActionController {
 
     public ModelAndView artifacts(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        return download(request, new DownLoadArtifactsCommand(configuration), "downloadBinView");
+        return download(request, new DownLoadArtifactsCommand(configuration));
     }
 
     public ModelAndView log(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
-        return download(request, new DownloadLogCommand(configuration), "downloadXmlView");
+        return download(request, new DownloadLogCommand(configuration));
     }
 
-    private ModelAndView download(HttpServletRequest request, DownLoadFile command, String viewName)
+    private ModelAndView download(HttpServletRequest request, DownLoadFile command)
             throws Exception {
         BindingResult bindingResult = bindObject(request, command);
         if (bindingResult.hasErrors()) {
@@ -88,8 +91,9 @@ public class DownloadController extends BaseMultiActionController {
             mov.getModel().put("errorMessage", bindingResult.getGlobalError().getDefaultMessage());
             return mov;
         } else {
-            ModelAndView mov = new ModelAndView(viewName);
-            mov.getModel().put("targetFile", command.getDownLoadFile());
+            File downLoadFile = command.getDownLoadFile();
+            ModelAndView mov = new ModelAndView(DashboardUtils.getFileType(downLoadFile) + "View");
+            mov.getModel().put("targetFile", downLoadFile);
             return mov;
         }
     }

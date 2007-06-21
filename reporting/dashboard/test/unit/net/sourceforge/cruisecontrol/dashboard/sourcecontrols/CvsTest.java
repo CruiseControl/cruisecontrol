@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 import junit.framework.Assert;
 import junitx.util.PrivateAccessor;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.MockRuntime;
+
 import org.jmock.cglib.MockObjectTestCase;
 
 public class CvsTest extends MockObjectTestCase {

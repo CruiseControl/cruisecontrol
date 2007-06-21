@@ -251,7 +251,19 @@ div.build_detail_container_content {
 
 .artifacts .artifact {
     padding-left: 22px;
-    background-image: url( "../images/brick.png" );
+    background-image: url( "../images/file.png" );
+    background-repeat: no-repeat;
+}
+
+.directory {
+    padding-left: 22px;
+    background-image: url( "../images/directory.png" );
+    background-repeat: no-repeat;
+}
+
+.opened_directory {
+    padding-left: 22px;
+    background-image: url( "../images/opened_directory.png" );
     background-repeat: no-repeat;
 }
 

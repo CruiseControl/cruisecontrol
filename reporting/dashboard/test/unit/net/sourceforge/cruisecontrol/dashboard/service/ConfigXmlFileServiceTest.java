@@ -54,17 +54,23 @@ public class ConfigXmlFileServiceTest extends TestCase {
 
     private File configFile;
 
+    private EnvironmentService environmentService;
+
     public void setUp() throws Exception {
+        System.setProperty(EnvironmentService.PROPS_CC_HOME, "test/data");
         tempDirForSetup = DataUtils.createTempDirectory("temp");
         TemplateRenderService renderService = new TemplateRenderService();
         renderService.loadTemplates();
-        service = new ConfigXmlFileService(new EnvironmentService(), renderService);
+        environmentService = new EnvironmentService(new SystemService());
+        service = new ConfigXmlFileService(environmentService, renderService);
         File configDirectory = FilesystemUtils.createDirectory("tempDir");
         configFile = FilesystemUtils.createFile("config.xml", configDirectory);
     }
 
     public void tearDown() throws Exception {
         FileUtils.deleteDirectory(tempDirForSetup);
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "");
+        System.setProperty(EnvironmentService.PROPS_CC_HOME, "");
     }
 
     public void testShouldBeAbleToReadConfigXml() throws Exception {
@@ -107,16 +113,15 @@ public class ConfigXmlFileServiceTest extends TestCase {
 
     public void testShouldBeAbleGetAllProjectsInfoFromConfigXmlFile() throws Exception {
         Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
-        File baseRoot = new File(DataUtils.getConfigXmlAsFile().getParentFile(), "logs");
+        File baseRoot = environmentService.getLogDir();
         assertEquals(new File(baseRoot, "project1"), projects.getLogRoot("project1"));
         assertEquals(new File(baseRoot, "project2"), projects.getLogRoot("project2"));
         assertEquals(new File(baseRoot, "projectWithoutPublishers"), projects
                 .getLogRoot("projectWithoutPublishers"));
         assertEquals(new File(baseRoot, "project name"), projects.getLogRoot("project name"));
-        File artifacts = new File(DataUtils.getConfigXmlAsFile().getParentFile(), "artifacts");
+        File artifacts = environmentService.getArtifactsDir();
         assertEquals(new File(artifacts, "project1"), projects.getArtifactRoot("project1"));
         assertEquals(new File(artifacts, "project2"), projects.getArtifactRoot("project2"));
-        assertNull(projects.getArtifactRoot("project name"));
         assertEquals(7, projects.getProjectNames().length);
     }
 
@@ -124,14 +129,18 @@ public class ConfigXmlFileServiceTest extends TestCase {
         Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
         assertTrue(projects.hasProject("cclive"));
         assertTrue(projects.hasProject("cc-live-2"));
-        assertNull(projects.getArtifactRoot("cclive"));
-        assertNull(projects.getArtifactRoot("cc-live-2"));
+    }
+
+    public void testShouldAssembleProjectsWithSpecifiedLogroot() throws Exception {
+        File logfolder = FilesystemUtils.createDirectory("temp").getAbsoluteFile();
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, logfolder.getAbsolutePath());
+        Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
+        assertEquals(new File(logfolder, "projecta"), projects.getLogRoot("projecta"));
     }
 
     public void testShouldSupportMultiPlugin() throws Exception {
         Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
         assertTrue(projects.hasProject("dashboardlive"));
-        assertNull(projects.getArtifactRoot("dashboardlive"));
     }
 
     public void testShouldBeAbleToAddNewProjectToCurrentConfigXml() throws Exception {

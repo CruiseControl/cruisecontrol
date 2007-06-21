@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
@@ -59,7 +60,7 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         serviceMock =
                 mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class,
-                        EnvironmentService.class}, new Object[] {null, new EnvironmentService()});
+                        EnvironmentService.class}, new Object[] {null, new EnvironmentService(new SystemService())});
         controller =
                 new GetProjectBuildOutputController((CruiseControlJMXService) serviceMock.proxy());
         request = new MockHttpServletRequest();

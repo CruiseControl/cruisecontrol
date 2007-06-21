@@ -66,6 +66,28 @@ function ajax_periodical_refresh_dashboard_executer() {
     }, 5);
 }
 
+
+function ajax_tree_navigator(element, url) {
+    var id = url.replace(/\//gi, "_");
+	var spanElem = $(element).ancestors()[0];
+	if ($(id).visible()) {
+		spanElem.removeClassName("opened_directory");
+		spanElem.addClassName("directory");
+		$(id).hide();
+	} else {
+        new Ajax.Request(url, {
+            asynchronous:0,
+            method: 'GET',
+            onSuccess: function(transport) {
+				spanElem.removeClassName("directory");
+				spanElem.addClassName("opened_directory");
+				$(id).innerHTML = transport.responseText;
+				$(id).show();
+            }
+        });
+	}
+}
+
 function ajax_periodical_refresh_dashboard_executer_oncomplete(json) {
     if (!json) return
     update_projects_status(json)
@@ -479,29 +501,3 @@ function ajax_force_build(parameter, project_name, e) {
 /**
  * END: force build
  */
-
-
-/**
- * BEGIN: register onclick callback
- */
-function register_onclick_on_clickable_element() {
-	var all_clickable_element = $A($$('.clickable'))
-	all_clickable_element.each(function(element) {
-		var target_link = $(element).getElementsByClassName('clickable_target');
-		Event.observe(element, 'click', function(e){click_on_link(target_link[0])});
-	});
-}
-
-function click_on_link(link) {
-	if (!link) return;
-	if (!link.href) return;
-	window.location = link.href;
-}
-
-Event.observe(window, 'load', function() {
-	register_onclick_on_clickable_element();
-})
-/**
- * END: register onclick callback
- */
-

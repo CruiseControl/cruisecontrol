@@ -11,6 +11,15 @@ packager
 ----------------------
 * Fix build root and rpm destination for rpm target. Patch by Joseph Benavidez.
 
+dashboard
+======================
+NOTE: The dashboard has known display issues in Internet Explorer 6.
+* Allowed artifacts to be kept in an arbitrary locations.
+* Allowed config.xml to be kept in an arbitrary location
+* Can render html/xml/txt in the browser.
+* Can display the unit test output for passed builds.
+* Enhanced the dashboard to display artifacts directories as tree structure.
+
 
 CruiseControl Release Notes - 2.7
 

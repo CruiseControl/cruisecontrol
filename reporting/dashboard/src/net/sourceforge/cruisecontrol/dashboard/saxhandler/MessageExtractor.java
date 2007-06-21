@@ -1,8 +1,10 @@
 package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 
 import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildMessage;
 import net.sourceforge.cruisecontrol.dashboard.MessageLevel;
+
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

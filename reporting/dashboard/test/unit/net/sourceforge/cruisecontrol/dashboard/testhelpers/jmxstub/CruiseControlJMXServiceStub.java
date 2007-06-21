@@ -44,13 +44,14 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.joda.time.DateTime;
 
 public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
     public CruiseControlJMXServiceStub() {
-        super(null, new EnvironmentService());
+        super(null, new EnvironmentService(new SystemService()));
     }
 
     private static final int DEFAULT_HTTP_PORT = 8000;

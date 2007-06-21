@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web.validator;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
+
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;

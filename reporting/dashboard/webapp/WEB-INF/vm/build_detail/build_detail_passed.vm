@@ -1,7 +1,3 @@
-<script>
-    var tab_ids = ['artifacts', 'modifications', 'log']
-</script>
-
 <div class="$build.getCssClassName()">
     <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
     <div class="build_detail_summary">
@@ -23,6 +19,7 @@
             <li class="current_tab" onclick='build_detail_toggle_tab_content(this)'><a><span>Artifacts</span></a></li>
             <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
             <li onclick='build_detail_toggle_tab_content(this)'><a><span>Build Log</span></a></li>
+            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Tests</span></a></li>
             #parse('build_detail/build_detail_partial_widgets_tab.vm')
         </ul>
     </div>
@@ -38,6 +35,9 @@
         #set($log_extra_attrs="style='display:none'")
         #parse("build_detail/build_detail_partial_log.vm")
 
-          #parse('build_detail/build_detail_partial_widgets_content.vm')
+        #set($tests_extra_attrs="style='display:none'")
+        #parse("build_detail/build_detail_partial_tests.vm")
+
+		#parse('build_detail/build_detail_partial_widgets_content.vm')
     </div>
 </div>

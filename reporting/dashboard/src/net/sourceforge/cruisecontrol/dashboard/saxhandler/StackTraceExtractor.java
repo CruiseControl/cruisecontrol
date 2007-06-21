@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 
 import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

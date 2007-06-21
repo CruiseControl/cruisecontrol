@@ -42,6 +42,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+
 import org.apache.commons.io.FileUtils;
 
 public final class DataUtils {
@@ -72,15 +73,41 @@ public final class DataUtils {
     }
 
     public static File getConfigXmlOfWebApp() throws Exception {
+        File ccroot = new File(FilesystemUtils.getTestRootDir(), "tmpCCRoot");
+        File data = new File(ccroot, "data");
+        return new File(data, "config.xml");
+    }
+
+    public static void cloneCCHome() throws Exception {
         File ccRoot = getConfigXmlAsFile().getParentFile();
         File tmpCCRoot = FilesystemUtils.createDirectory("tmpCCRoot");
         FileUtils.copyDirectoryToDirectory(ccRoot, tmpCCRoot);
-        File copiedCCRoot = new File(tmpCCRoot, ccRoot.getName());
-        return new File(copiedCCRoot, "config.xml");
     }
 
-    public static File getLogDirAsFile() throws Exception {
-        return getProjectDirAsFile().getParentFile();
+    public static File getLogRootOfWebapp() throws Exception {
+        return getSubFolderOfWebApp("logs");
+    }
+
+    private static File getSubFolderOfWebApp(String subFolder) {
+        File ccroot = new File(FilesystemUtils.getTestRootDir(), "tmpCCRoot");
+        File data = new File(ccroot, "data");
+        return new File(data, subFolder);
+    }
+
+    public static File getArtifactRootOfWebapp() {
+        return getSubFolderOfWebApp("arbitrary_artifacts/artifacts");
+    }
+
+    public static File getProjectsRootOfWebapp() {
+        return getSubFolderOfWebApp("projects");
+    }
+
+    public static final File getConfigXmlInArbitraryCCHome() throws Exception {
+        File ccRoot = getData("arbitrary_cc_home");
+        File arbitraryCCHome = FilesystemUtils.createDirectory("arbitraryCCHome");
+        FileUtils.copyDirectoryToDirectory(ccRoot, arbitraryCCHome);
+        File copiedCCRoot = new File(arbitraryCCHome, ccRoot.getName());
+        return new File(copiedCCRoot, "config.xml");
     }
 
     public static File getPassingBuildLbuildAsFile() throws Exception {
@@ -95,18 +122,31 @@ public final class DataUtils {
         return getData("misc/" + "log20070511103055.xml");
     }
 
+    public static File getMiscConfigFile() throws Exception {
+        return getData("misc/" + "config.xml");
+    }
+
     public static File getProject1ArtifactDirAsFile() throws Exception {
-        return getData("artifacts/project1");
+        return getData("arbitrary_artifacts/artifacts/project1");
     }
 
     public static File getProjectSpaceArtifactDirAsFile() throws Exception {
-        return getData("artifacts/project space");
+        return getData("arbitrary_artifacts/artifacts/project space");
     }
 
-    public static File getProjectLogDirAsFile() throws Exception {
+    public static File getLogDirAsFile() throws Exception {
         return getData("logs");
     }
-
+    
+    public static File getArtifactsDirAsFile() throws Exception {
+        return getData("arbitrary_artifacts/artifacts");
+    }
+    
+    public static File getProjectLogDirAsFile(String project) throws Exception {
+        return new File(getData("logs"), project);
+    }
+    
+    
     public static File getProject2BuildAsFile() throws Exception {
         return getData("logs/project2/" + LOGFILE_OF_PROJECT2);
     }
@@ -166,4 +206,5 @@ public final class DataUtils {
         }
         return sb.toString();
     }
+
 }

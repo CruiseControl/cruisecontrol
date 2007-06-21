@@ -82,7 +82,11 @@
 
 	<bean id="buildSummaryService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService"/>
 
-	<bean id="envService" class="net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService"/>
+	<bean id="envService" class="net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService">
+        <constructor-arg ref="systemService"/>
+	</bean>
+
+	<bean id="systemService" class="net.sourceforge.cruisecontrol.dashboard.service.SystemService"/>
 
 	<bean id="configXmlFileService" class="net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService">
         <constructor-arg ref="envService"/>

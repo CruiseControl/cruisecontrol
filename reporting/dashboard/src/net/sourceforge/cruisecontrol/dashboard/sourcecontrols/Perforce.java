@@ -37,16 +37,18 @@
 package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 
 import java.io.File;
-import com.perforce.api.Client;
-import com.perforce.api.CommitException;
-import com.perforce.api.Env;
-import com.perforce.api.Utils;
+
 import net.sourceforge.cruisecontrol.dashboard.utils.Pipe;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
+import com.perforce.api.Client;
+import com.perforce.api.CommitException;
+import com.perforce.api.Env;
+import com.perforce.api.Utils;
 
 public class Perforce implements VCS {
     private static final String PERFORCE = "p4";

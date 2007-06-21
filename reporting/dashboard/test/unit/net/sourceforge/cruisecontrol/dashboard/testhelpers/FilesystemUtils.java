@@ -60,7 +60,7 @@ public final class FilesystemUtils {
         return directory;
     }
 
-    private static File getTestRootDir() {
+    public static File getTestRootDir() {
         File root = new File(ROOT);
         if (!root.exists() && !root.mkdir()) {
             throw new RuntimeException("Failed to create directory for test data [" + root.getAbsolutePath() + "]");

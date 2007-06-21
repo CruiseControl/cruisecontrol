@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.dashboard.Projects;
+import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardXMLManager;
 
@@ -106,18 +108,14 @@ public class ConfigXmlFileService {
                 && cruiseConfigFile.getName().endsWith(".xml");
     }
 
-    public Projects getProjects(File cruiseConfigFile) {
+    public Projects getProjects(File cruiseConfigFile) throws CruiseControlException,
+            ConfigurationException {
         if (cruiseConfigFile == null) {
             return null;
         } else {
-            Projects projects = null;
-            try {
-                DashboardXMLManager manager = new DashboardXMLManager(cruiseConfigFile);
-                return new Projects(cruiseConfigFile.getParentFile(), manager
-                        .getCruiseControlConfig());
-            } catch (Exception e) {
-                return projects;
-            }
+            DashboardXMLManager manager = new DashboardXMLManager(cruiseConfigFile);
+            return new Projects(envService.getProjectsDir(), envService.getLogDir(), envService
+                    .getArtifactsDir(), manager.getCruiseControlConfig());
         }
     }
 

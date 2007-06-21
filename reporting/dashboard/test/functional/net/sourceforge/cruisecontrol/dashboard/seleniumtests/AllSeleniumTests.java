@@ -37,12 +37,15 @@
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
 import java.io.File;
+
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import junitx.util.DirectorySuiteBuilder;
 import junitx.util.SimpleTestFilter;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public final class AllSeleniumTests {
 
@@ -52,25 +55,33 @@ public final class AllSeleniumTests {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
-            public void run(TestResult arg0) {
-                try {
-                    SERVER.start();
-                    super.run(arg0);
-                } catch (Exception e) {
-                } finally {
-                    try {
-                        SERVER.stop();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        TestSuite suite =
+                new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
+                    public void run(TestResult arg0) {
+                        try {
+                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR,
+                                    DataUtils.getLogRootOfWebapp().getAbsolutePath());
+                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
+                                    DataUtils.getArtifactRootOfWebapp().getAbsolutePath());
+                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR,
+                                    DataUtils.getProjectsRootOfWebapp().getAbsolutePath());
+                            SERVER.start();
+                            super.run(arg0);
+                        } catch (Exception e) {
+                        } finally {
+                            try {
+                                SERVER.stop();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                }
-            }
-        };
+                };
         DirectorySuiteBuilder builder = new DirectorySuiteBuilder();
         builder.setFilter(new SimpleTestFilter() {
             public boolean include(String arg0) {
-                return (arg0.indexOf(File.separator + "seleniumtests" + File.separator) > 0) && arg0.endsWith("Test.class");
+                return (arg0.indexOf(File.separator + "seleniumtests" + File.separator) > 0)
+                        && arg0.endsWith("Test.class");
             }
         });
         Test allTests = null;

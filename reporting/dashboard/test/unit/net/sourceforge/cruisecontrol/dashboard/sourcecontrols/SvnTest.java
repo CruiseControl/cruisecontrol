@@ -37,9 +37,11 @@
 package net.sourceforge.cruisecontrol.dashboard.sourcecontrols;
 
 import java.io.IOException;
+
 import junit.framework.Assert;
 import junitx.util.PrivateAccessor;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.MockRuntime;
+
 import org.jmock.cglib.MockObjectTestCase;
 
 public class SvnTest extends MockObjectTestCase {

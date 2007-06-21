@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Modification {

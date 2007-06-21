@@ -47,9 +47,9 @@
 
         function coreSuite() {
             var result = new top.jsUnitTestSuite();
+            result.addTestPage("tests/ajax_tree_navigator_test.html");
             result.addTestPage("tests/display_toolkit_test.html");
             result.addTestPage("tests/build_detail_toggle_tab_content_test.html");
-            result.addTestPage("tests/register_onclick_on_clickable_element_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_inactive_partial_links_test.htm");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_executer_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_output_executer_oncomplete_test.html");

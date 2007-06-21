@@ -38,14 +38,14 @@ package net.sourceforge.cruisecontrol.dashboard.utils;
 
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
-
 import net.sourceforge.cruisecontrol.dashboard.exception.ExecutionException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CompositeConsumer;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+
+import org.apache.log4j.Logger;
 
 public class Pipe {
     private final Process process;

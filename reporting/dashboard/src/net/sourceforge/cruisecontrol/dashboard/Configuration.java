@@ -39,25 +39,29 @@ package net.sourceforge.cruisecontrol.dashboard;
 import java.io.File;
 import java.io.IOException;
 
+import org.springframework.beans.factory.InitializingBean;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 import net.sourceforge.cruisecontrol.dashboard.exception.ProjectAlreadyExistException;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.CCProjectFolderFilter;
 
-import org.apache.commons.lang.StringUtils;
-
-public class Configuration {
+public class Configuration implements InitializingBean {
 
     private ConfigXmlFileService service;
 
     private File configFile;
 
-    private String logFileLocation;
-
     private Projects projects;
 
-    public Configuration(ConfigXmlFileService service) {
+    public Configuration(ConfigXmlFileService service) throws CruiseControlException,
+            ConfigurationException {
         this.service = service;
+    }
+
+    public void afterPropertiesSet() throws Exception {
         configFile = service.getConfigXmlFile(null);
         projects = service.getProjects(configFile);
     }
@@ -66,17 +70,16 @@ public class Configuration {
         return configFile == null ? null : configFile.getAbsolutePath();
     }
 
-    public String getCruiseConfigDirLocation() {
-        return service.getConfigXmlFile(configFile).getAbsoluteFile().getParent();
+    public void setCruiseConfigLocation(String cruiseConfigLocation) throws CruiseControlException,
+            ConfigurationException {
+        if (service.isConfigFileValid(new File(cruiseConfigLocation))) {
+            this.configFile = new File(cruiseConfigLocation);
+            projects = service.getProjects(configFile);
+        }
     }
 
-    public String getCruiseLogfileLocation() {
-        if (StringUtils.isEmpty(logFileLocation)) {
-            return service.getConfigXmlFile(configFile).getAbsoluteFile().getParent()
-                    + File.separator + "logs";
-        } else {
-            return logFileLocation;
-        }
+    public File getCCHome() {
+        return projects == null ? null : projects.getLogRoot().getParentFile();
     }
 
     public File getArtifactRoot(String projectName) {
@@ -87,31 +90,22 @@ public class Configuration {
         return projects == null ? null : projects.getLogRoot(projectName);
     }
 
+    public File getSourceCodeRoot(String projectName) {
+        return projects == null ? null : projects.getSourceCodeRoot(projectName);
+    }
+
     public boolean hasProject(String projectName) {
         return projects != null && projects.hasProject(projectName);
     }
 
-    public void updateConfigFile(String content) {
-        try {
-            service.writeContentToConfigXml(configFile.getAbsolutePath(), content);
-            projects = service.getProjects(configFile);
-        } catch (IOException e) {
-            throw new RuntimeException("failed to update config xml", e);
-        }
+    public void updateConfigFile(String content) throws CruiseControlException,
+            ConfigurationException, IOException {
+        service.writeContentToConfigXml(configFile.getAbsolutePath(), content);
+        projects = service.getProjects(configFile);
     }
 
-    public void setCruiseConfigLocation(String cruiseConfigLocation) {
-        if (service.isConfigFileValid(new File(cruiseConfigLocation))) {
-            this.configFile = new File(cruiseConfigLocation);
-            projects = service.getProjects(configFile);
-        }
-    }
-
-    public void setCruiseLogfileLocation(String newCruiseLogLocation) {
-        logFileLocation = newCruiseLogLocation;
-    }
-
-    public void addProject(String projectName, VCS vcs) throws ProjectAlreadyExistException {
+    public void addProject(String projectName, VCS vcs) throws ProjectAlreadyExistException,
+            CruiseControlException, ConfigurationException {
         if (hasProject(projectName)) {
             throw new ProjectAlreadyExistException("Project " + projectName + "already exists.");
         }
@@ -124,7 +118,8 @@ public class Configuration {
     }
 
     public File[] getProjectDirectoriesFromFileSystem() {
-        File root = new File(getCruiseLogfileLocation());
+        File root = projects.getLogRoot();
         return root.listFiles(new CCProjectFolderFilter());
     }
+
 }

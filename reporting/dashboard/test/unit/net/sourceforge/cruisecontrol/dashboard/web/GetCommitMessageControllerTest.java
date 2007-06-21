@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
@@ -56,7 +57,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
 
     private Mock jmxServiceMock =
             mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class,
-                    EnvironmentService.class}, new Object[] {null, new EnvironmentService()});
+                    EnvironmentService.class}, new Object[] {null, new EnvironmentService(new SystemService())});
 
     private GetCommitMessageController controller =
             new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy());

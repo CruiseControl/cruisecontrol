@@ -40,7 +40,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+
 import net.sourceforge.cruisecontrol.util.CruiseRuntime;
+
 import org.apache.commons.lang.StringUtils;
 
 public class MockRuntime extends CruiseRuntime {

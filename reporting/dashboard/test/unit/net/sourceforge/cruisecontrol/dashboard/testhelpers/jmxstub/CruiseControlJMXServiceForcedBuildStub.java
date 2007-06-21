@@ -43,10 +43,11 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 public class CruiseControlJMXServiceForcedBuildStub extends CruiseControlJMXService {
     public CruiseControlJMXServiceForcedBuildStub() {
-        super(null, new EnvironmentService());
+        super(null, new EnvironmentService(new SystemService()));
     }
 
     public String getBuildStatus(String projectName) {

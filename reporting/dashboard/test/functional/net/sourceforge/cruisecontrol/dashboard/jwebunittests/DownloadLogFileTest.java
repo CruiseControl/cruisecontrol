@@ -37,6 +37,9 @@
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import java.io.File;
+
+import org.apache.commons.lang.StringUtils;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public class DownloadLogFileTest extends BaseFunctionalTest {
@@ -48,10 +51,14 @@ public class DownloadLogFileTest extends BaseFunctionalTest {
     }
 
     public void testShouldBeAbleToDownloadLogFile() throws Exception {
-        tester.beginAt("/build/download/log/project1/" + DataUtils.getPassingBuildLbuildAsFile().getName());
+        tester.beginAt("/build/download/log/project1/"
+                + DataUtils.getPassingBuildLbuildAsFile().getName());
         tester.saveAs(downloadedFile);
         String content = DataUtils.readFileContent(downloadedFile);
         assertTrue(content.indexOf("<email>Chris.Read@somewhere.com</email>") > 0);
+        String serveurResponse = tester.getServeurResponse();
+        assertTrue("context type should be xml", StringUtils.contains(serveurResponse,
+                "application/xml"));
     }
 
     public void testShouldShowErrorMessageIfFileNotExist() {
@@ -60,9 +67,4 @@ public class DownloadLogFileTest extends BaseFunctionalTest {
         tester.assertTextPresent("File does not exist");
     }
 
-    public void testShouldShowErrorMessageIfGivenFileIsADirectory() {
-        tester.beginAt("/build/download/log/project1/archives");
-        tester.assertTitleEquals("Error");
-        tester.assertTextPresent("File can not be read");
-    }
 }

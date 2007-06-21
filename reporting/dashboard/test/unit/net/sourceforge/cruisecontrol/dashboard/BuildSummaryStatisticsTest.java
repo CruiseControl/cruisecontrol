@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import junit.framework.TestCase;
 
 public class BuildSummaryStatisticsTest extends TestCase {

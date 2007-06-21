@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class ProjectCommand {

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.utils.functors;
 
 import java.io.File;
+
 import junit.framework.TestCase;
 
 public class LatestFileFilterTest extends TestCase {

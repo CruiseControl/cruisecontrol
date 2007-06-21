@@ -59,14 +59,22 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         mockJMXFactory =
                 mock(JMXFactory.class, new Class[] {EnvironmentService.class,
-                        JMXConnectorFactory.class}, new Object[] {new EnvironmentService(),
+                        JMXConnectorFactory.class}, new Object[] {new EnvironmentService(new SystemService()),
                         new JMXConnectorFactory()});
         jmxService =
                 new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy(),
-                        new EnvironmentService());
-
+                        new EnvironmentService(new SystemService()));
+        cleanProperty();
     }
 
+    private void cleanProperty() {
+        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
+    }
+
+    protected void tearDown() throws Exception {
+        cleanProperty();
+    }
+    
     public void testShouldGetStatusByProjectName() throws Exception {
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(new MBeanServerConnectionStatusStub()));

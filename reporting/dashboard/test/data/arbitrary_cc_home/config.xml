@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+-->
+<cruisecontrol>
+    <plugin name="ccproject" classname="net.sourceforge.cruisecontrol.ProjectConfig">
+    	<listeners>
+	      <currentbuildstatuslistener file="logs/${ project.name}/status.txt" />
+    	</listeners>
+	    <bootstrappers>
+    	  <svnbootstrapper localWorkingCopy="projects/cruisecontrol" />
+	    </bootstrappers>
+    	<modificationset quietperiod="90"> 
+	      <svn localWorkingCopy="projects/cruisecontrol" />
+    	</modificationset>
+	    <log>
+    	  <merge dir="projects/cruisecontrol/main/target/test-results" />
+	      <merge dir="projects/cruisecontrol/reporting/jsp/target/test-results" /> 
+    	  <delete every="3" unit="MONTH" />
+	    </log>
+	</plugin>
+    <plugin name="dashboardplugin" classname="net.sourceforge.cruisecontrol.ProjectConfig">
+    	<listeners>
+	      <currentbuildstatuslistener file="logs/${ project.name}/status.txt" />
+    	</listeners>
+	    <bootstrappers>
+    	  <svnbootstrapper localWorkingCopy="projects/cruisecontrol" />
+	    </bootstrappers>
+    	<modificationset quietperiod="90"> 
+	      <svn localWorkingCopy="projects/cruisecontrol" />
+    	</modificationset>
+	    <log>
+    	  <merge dir="projects/cruisecontrol/main/target/test-results" />
+	      <merge dir="projects/cruisecontrol/reporting/jsp/target/test-results" /> 
+    	  <delete every="3" unit="MONTH" />
+	    </log>
+	</plugin>
+	<ccproject name="cclive">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </ccproject>
+	<ccproject name="cc-live-2">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </ccproject>
+	<dashboardplugin name="dashboardlive">
+	    <schedule interval="30">
+	      <ant timeout="900" antscript="../ant- with-jdk1.4.sh" buildfile="projects/cruisecontrol/build.xml" />
+	    </schedule>
+	    <publishers>
+	      <onsuccess>
+	        <antpublisher anthome="apache-ant-1.6.5" buildfile="deploy.xml" />
+	      </onsuccess>
+	    </publishers>
+    </dashboardplugin>    
+   	<include.projects file="config_partial.xml"/>
+    <project name="project2">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset quietperiod="30">
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule interval="300">
+            <ant anthome="apache-ant-1.6.5" buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <log>
+            <merge dir="projects/${project.name}/target/test-results"/>
+        </log>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/project2" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+    <project name="projectWithoutPublishers"/>
+    <project name="project space">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+</cruisecontrol>
