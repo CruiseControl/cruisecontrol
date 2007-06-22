@@ -436,6 +436,23 @@ public class ScheduleTest extends TestCase {
         }
     }
 
+    public void testCannotSetZeroOrLessInterval() {
+        schedule = new Schedule();
+        assertSetIntervalThrowsException(0);
+        assertSetIntervalThrowsException(-1);
+        assertSetIntervalThrowsException(-100);
+        assertSetIntervalThrowsException(Long.MIN_VALUE);
+    }
+
+    private void assertSetIntervalThrowsException(long testValue) {
+        try {
+            schedule.setInterval(testValue);
+            fail("Expected an exception");
+        } catch (IllegalArgumentException expected) {
+            //Good
+        }
+    }
+
     public void testValidateShouldFailIfAllTimedBuildersInPauses() throws CruiseControlException {
         schedule = new Schedule();
 

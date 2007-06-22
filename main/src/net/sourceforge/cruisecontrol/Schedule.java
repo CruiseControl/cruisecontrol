@@ -420,8 +420,8 @@ public class Schedule implements Serializable {
     }
 
     public void setInterval(long intervalBetweenModificationChecks) {
-        if (intervalBetweenModificationChecks < 0) {
-            throw new IllegalArgumentException("interval can't be less than zero");
+        if (intervalBetweenModificationChecks <= 0) {
+            throw new IllegalArgumentException("interval must be greater than zero");
         }
         interval = intervalBetweenModificationChecks * ONE_SECOND;
     }
