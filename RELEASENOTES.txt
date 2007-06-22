@@ -44,6 +44,10 @@ TimeBuild
 ----------------------
 * Fixed problem when you set time build to 23:55 and the first modifcationcheck occur at 0:01 you won't get an modification (CC-650). Patch by Lars Gehrken. 
 
+SVN
+----------------------
+* Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
+
 UCM
 ----------------------
 * Fixed ClearCase/UCM mode when rmver event found in history (CC-660). Patch by Paul Heaberlin.
