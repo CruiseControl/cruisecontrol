@@ -4667,7 +4667,7 @@ password=P@ssW0rd!
 
         <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
 
-        <p>When CruiseControl runs your build script (Ant or Maven), it passes
+        <p>When CruiseControl runs your build script (e.g. Ant, Maven), it passes
         some information in the form of system properties to the script. These
         can be accessed in your script like any other property, using the syntax
         ${propertyname}.</p>
@@ -4716,6 +4716,10 @@ password=P@ssW0rd!
                 <td>lastbuildsuccessful</td>
                 <td>indicates if the last build was successful; either "true"
                 or "false"</td>
+            </tr>
+            <tr>
+                <td>buildforced</td>
+                <td>indicates if the build was forced; either "true" or "false"</td>
             </tr>
             </tbody>
         </table>
