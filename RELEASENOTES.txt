@@ -36,6 +36,10 @@ Schedule
 ----------------------
 * Added trap for zero or less interval and updated docs to indicate that they are not legitimate values (CC-652). Suggested by Jeff Jensen.
 
+TimeBuild
+----------------------
+* Fixed problem when you set time build to 23:55 and the first modifcationcheck occur at 0:01 you won't get an modification (CC-650). Patch by Lars Gehrken. 
+
 UCM
 ----------------------
 * Fixed ClearCase/UCM mode when rmver event found in history (CC-660). Patch by Paul Heaberlin.
