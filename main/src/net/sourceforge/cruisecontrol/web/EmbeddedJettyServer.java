@@ -138,6 +138,11 @@ public class EmbeddedJettyServer {
             jettyServer.addWebApplication("/", webappPath);
             if (newWebappPath != null) {
                 jettyServer.addWebApplication("/dashboard", newWebappPath);
+                
+                String ccConfigWebpath = newWebappPath + "/../cc-config";
+                if (new File(ccConfigWebpath).exists()) {
+                    jettyServer.addWebApplication("/cc-config", ccConfigWebpath);
+                }
             }
         } catch (IOException e) {
             String msg = "Exception adding cruisecontrol webapp to embedded Jetty server: " + e.getMessage();
