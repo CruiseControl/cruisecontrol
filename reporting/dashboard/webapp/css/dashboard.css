@@ -190,8 +190,16 @@ div#tabContent2.tabContent {
 	background : url( ../images/cctrayicon_small.gif ) 10px center no-repeat;
 }
 
+#project_summary_panel.yui-g .tools_bar_holder #cc-config.entry a {
+	background : url( ../images/cc-configicon_small.gif ) 10px center no-repeat;
+}
+
 #project_summary_panel.yui-u .tools_bar_holder #cctray.entry a {
 	background : url( ../images/cctrayicon_small.gif ) left center no-repeat;
+}
+
+#project_summary_panel.yui-u .tools_bar_holder #cc-config.entry a {
+	background : url( ../images/cc-configicon_small.gif ) left center no-repeat;
 }
 
 #project_summary_panel.yui-g div.entry_set span.info {

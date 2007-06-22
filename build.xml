@@ -123,7 +123,7 @@
         </zip>
     </target>
 
-    <target name="bin-zip" depends="build, website" description="Create binary zip">
+    <target name="bin-zip" depends="build, website, prep-cc-config" description="Create binary zip">
         <defaultexcludes remove="**/.svn"/>
         <defaultexcludes remove="**/.svn/**"/>
 
@@ -165,8 +165,20 @@
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
+            <zipfileset src="target/cc-config/dist/cc-configuration.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config"/>   
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
+    </target>
+
+    <target name="prep-cc-config">
+        <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_V1.7_build2.zip" dest="target/cc-config.zip" verbose="on" usetimestamp="true"/>
+        <unzip src="target/cc-config.zip" dest="target/cc-config" />
+        <ant antfile="build.xml" target="setup" dir="target/cc-config">
+            <property name="main.dir" value="../../main" />
+        </ant>
+        <ant antfile="build.xml" target="build.webstart.dist" dir="target/cc-config">
+            <property name="main.dir" value="../../main" />
+        </ant>
     </target>
 
     <target name="check-win-installer">

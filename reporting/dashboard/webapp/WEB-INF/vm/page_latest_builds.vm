@@ -56,6 +56,7 @@ Tooltip.hideEvent = "mouseout";
                                <div id="add_project" class="entry"><a href="$req.getContextPath()/admin/action/add" title="Add new project">Add a project</a></div>
                                <div id="rss_feed_for_all" class="entry"><a href="$req.getContextPath()/rss.xml" title="RSS Feed">RSS Feed</a></div>
                                <div id="cctray" class="entry"><a href="$req.getContextPath()/cctray.xml" title="CCTray">for CCTray</a></div>
+                               <div id="cc-config" class="entry"><a href="/cc-config/cruisecontrol-gui.jnlp" title="CC-Config">for CC-Config</a></div>
                                <div id="configure_panel" class="entry"><a href="$req.getContextPath()/admin/mx4j" title="JMX Console">JMX Console</a></div>
                             <div class="clear"> &nbsp; </div>
                            </div>
