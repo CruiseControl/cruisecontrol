@@ -296,6 +296,9 @@ public class Launcher {
         if (ccHome == null || !ccHome.exists()) {
             throw new LaunchException(MSG_BAD_CCHOME);
         }
+        if (ccHomeProperty == null) {            
+            System.setProperty(CCHOME_PROPERTY, ccHome.toString());
+        }
         return ccHome;
     }
 

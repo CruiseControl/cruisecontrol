@@ -165,25 +165,26 @@ public class MainTest extends TestCase {
             webappDir.deleteOnExit();
             webinfDir.deleteOnExit();
 
-            assertEquals(webappDir.getAbsolutePath(), Main.parseWebappPath(correctArgs));
+            Main theMainClass = new Main();
+            assertEquals(webappDir.getAbsolutePath(), theMainClass.parseWebappPath(correctArgs));
 
             final String msg = "'webapppath' argument must specify an "
                     + "existing directory but was ./webapps/cruisecontrol";
             try {
-                Main.parseWebappPath(missingValue);
+                theMainClass.parseWebappPath(missingValue);
                 fail();
             } catch (IllegalArgumentException expected) {
                 assertEquals(msg, expected.getMessage());
             }
             try {
-                Main.parseWebappPath(missingParam);
+                theMainClass.parseWebappPath(missingParam);
                 fail();
             } catch (IllegalArgumentException expected) {
                 assertEquals(msg, expected.getMessage());
             }
 
             try {
-                Main.parseWebappPath(invalidArgs);
+                theMainClass.parseWebappPath(invalidArgs);
                 fail();
             } catch (IllegalArgumentException expected) {
             }
