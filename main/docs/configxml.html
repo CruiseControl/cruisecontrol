@@ -4610,7 +4610,8 @@ password=P@ssW0rd!
                 <td>Interval period in seconds. Default value is 300 (five
                 minutes). Maximum value is 31536000 (one year), but for the
                 builders that ship with CruiseControl the maximum practical
-                value is 604800 (one week). Ignored if schedule only has time
+                value is 604800 (one week). Minimum value is 1. Zero and
+                negative values are not allowed. Ignored if schedule only has time
                 based builders.</td>
             </tr>
             </tbody>

@@ -28,6 +28,10 @@ Project
 ----------------------
 * Added a property named "buildforced" that will get passed to builders for conditional control (CC-653). Patch by Dave Kilroy.
 
+Schedule
+----------------------
+* Added trap for zero or less interval and updated docs to indicate that they are not legitimate values (CC-652). Suggested by Jeff Jensen.
+
 UCM
 ----------------------
 * Fixed ClearCase/UCM mode when rmver event found in history (CC-660). Patch by Paul Heaberlin.
