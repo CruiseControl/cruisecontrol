@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 public class PropertiesMapper extends EmailAddressMapper {
 
@@ -62,16 +63,13 @@ public class PropertiesMapper extends EmailAddressMapper {
     }
 
     public void validate() throws CruiseControlException {
-        if (file == null) {
-            throw new CruiseControlException("'file' not specified in configuration file.");
-        }
+        ValidationHelper.assertIsSet(file, "file", getClass());
+        ValidationHelper.assertFalse(file.equals(""), "empty string is not a valid value of file for "
+                + getClass().getName());
         File f = new File(file);
-        if (!f.exists()) {
-            throw new CruiseControlException("File not found: " + file);
-        }
-        if (!f.canRead()) {
-            throw new CruiseControlException("Can not read file " + file);
-        }
+        ValidationHelper.assertExists(f, "file", getClass());
+        ValidationHelper.assertIsReadable(f, "file", getClass());
+        // this check could also be moved to ValidationHelper
         if (!f.isFile()) {
             throw new CruiseControlException(file + " is not a file");
         }

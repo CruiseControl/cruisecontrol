@@ -32,6 +32,10 @@ Project
 ----------------------
 * Added a property named "buildforced" that will get passed to builders for conditional control (CC-653). Patch by Dave Kilroy.
 
+PropertiesMapper
+----------------------
+* Refactored validation for cleanliness and removing duplication with ValidationHelper (CC-642). Patch by Gisbert Amm.
+
 Schedule
 ----------------------
 * Added trap for zero or less interval and updated docs to indicate that they are not legitimate values (CC-652). Suggested by Jeff Jensen.
