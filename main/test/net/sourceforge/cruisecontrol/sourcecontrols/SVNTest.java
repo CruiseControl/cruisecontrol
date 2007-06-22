@@ -45,12 +45,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.TimeZone;
+import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.Map;
+
 
 /**
  * @see    <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
@@ -67,8 +69,6 @@ public class SVNTest extends TestCase {
 
     protected void tearDown() throws Exception {
         TimeZone.setDefault(originalTimeZone);
-        svn = null;
-        originalTimeZone = null;
     }
 
     public void testValidate() throws IOException {
@@ -522,7 +522,9 @@ public class SVNTest extends TestCase {
                 "/trunk/playground/bbb",
                 "added"));
         svn.fillPropertiesIfNeeded(hasModifications);
-        assertEquals("true", svn.getProperties().get("hasChanges?"));
+        Map properties = svn.getProperties();
+        assertEquals("true", properties.get("hasChanges?"));
+        assertEquals("663", properties.get("svnrevision"));
     }
 
     public void testSetPropertyIgnoresPriorState() throws ParseException {

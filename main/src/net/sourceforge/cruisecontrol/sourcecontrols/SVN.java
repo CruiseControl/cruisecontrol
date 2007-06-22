@@ -36,13 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,21 +67,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamLogger;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 
 /**
  * This class implements the SourceControl methods for a Subversion repository.
@@ -92,7 +90,7 @@ public class SVN implements SourceControl {
     /** Date format returned by Subversion in XML output */
     private static final String SVN_DATE_FORMAT_OUT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /** Configuration parameters */
     private String repositoryLocation;
@@ -117,9 +115,10 @@ public class SVN implements SourceControl {
      * Sets whether externals used by the project should also be checked
      * for modifications.
      *
+     * @param value true/false
      */
     public void setCheckExternals(boolean value) {
-        this.checkExternals = value;
+        checkExternals = value;
     }
 
     /**
@@ -145,6 +144,7 @@ public class SVN implements SourceControl {
 
     /**
      * Sets the username for authentication.
+     * @param userName svn user
      */
     public void setUsername(String userName) {
         this.userName = userName;
@@ -152,6 +152,7 @@ public class SVN implements SourceControl {
 
     /**
      * Sets the password for authentication.
+     * @param password svn password
      */
     public void setPassword(String password) {
         this.password = password;
@@ -203,8 +204,8 @@ public class SVN implements SourceControl {
 
         List modifications = new ArrayList();
         Commandline command;
-        String path = new String();
-        String svnURL = new String();
+        String path;
+        String svnURL;
         HashMap commandsAndPaths = new HashMap();
         try {
             // always check the root
@@ -253,6 +254,8 @@ public class SVN implements SourceControl {
      * For example:
      *
      * 'svn propget -R svn:externals repositoryLocation'
+     * @return new command line object
+     * @throws net.sourceforge.cruisecontrol.CruiseControlException if working directory is invalid
      */
     Commandline buildPropgetCommand() throws CruiseControlException {
         Commandline command = new Commandline();
@@ -282,6 +285,11 @@ public class SVN implements SourceControl {
      * For example:
      *
      * 'svn log --non-interactive --xml -v -r "{lastbuildTime}":"{checkTime}" repositoryLocation'
+     * @return history command
+     * @param lastBuild date
+     * @param checkTime checkTime
+     * @param isWindows os
+     * @throws net.sourceforge.cruisecontrol.CruiseControlException exception
      */
     Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows)
         throws CruiseControlException {
@@ -335,8 +343,8 @@ public class SVN implements SourceControl {
         return f.format(lastBuild);
     }
 
-    private HashMap execPropgetCommand(Commandline command)
-        throws InterruptedException, IOException, ParseException, JDOMException {
+    private static HashMap execPropgetCommand(Commandline command)
+        throws InterruptedException, IOException {
 
         Process p = command.execute();
 
@@ -347,7 +355,7 @@ public class SVN implements SourceControl {
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(svnStream, "UTF8"));
 
-        String line = null;
+        String line;
         String currentDir = null;
 
         while ((line = reader.readLine()) != null) {
@@ -374,7 +382,7 @@ public class SVN implements SourceControl {
         return directories;
     }
 
-    private List execHistoryCommand(Commandline command, Date lastBuild,
+    private static List execHistoryCommand(Commandline command, Date lastBuild,
                                     String externalPath)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
@@ -391,15 +399,15 @@ public class SVN implements SourceControl {
         return modifications;
     }
 
-    private Thread logErrorStream(Process p) {
+    private static Thread logErrorStream(Process p) {
         Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
         stderr.start();
         return stderr;
     }
 
-    private List parseStream(InputStream svnStream, Date lastBuild,
+    private static List parseStream(InputStream svnStream, Date lastBuild,
                              String externalPath)
-        throws JDOMException, IOException, ParseException, UnsupportedEncodingException {
+        throws JDOMException, IOException, ParseException {
 
         InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
         return SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
@@ -408,14 +416,17 @@ public class SVN implements SourceControl {
     void fillPropertiesIfNeeded(List modifications) {
         if (!modifications.isEmpty()) {
             properties.modificationFound();
+            int maxRevision = 0;
             for (int i = 0; i < modifications.size(); i++) {
                 Modification modification = (Modification) modifications.get(i);
+                maxRevision = Math.max(maxRevision, Integer.parseInt(modification.revision));
                 Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
                 if (file.action.equals("deleted")) {
                     properties.deletionFound();
                     break;
                 }
             }
+            properties.put("svnrevision", "" + maxRevision);
         }
     }
 
@@ -543,6 +554,9 @@ public class SVN implements SourceControl {
          * omit modifications that are older than the last build date.
          *
          * @see <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
+         * @return subset of modifications
+         * @param modifications source
+         * @param lastBuild last build date
          */
         static List filterModifications(Modification[] modifications, Date lastBuild) {
             List filtered = new ArrayList();
