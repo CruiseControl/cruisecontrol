@@ -711,6 +711,7 @@ public class Project implements Serializable, Runnable {
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
         buildProperties.put("lastbuildsuccessful", String.valueOf(isLastBuildSuccessful()));
+        buildProperties.put("buildforced", String.valueOf(getBuildForced()));
         if (projectConfig.getModificationSet() != null) {
             buildProperties.putAll(projectConfig.getModificationSet().getProperties());
         }

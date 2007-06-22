@@ -212,7 +212,7 @@ public class ProjectTest extends TestCase {
         //look for sourcecontrol properties
         java.util.Map props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
-        assertEquals("Build property count.", 9, props.size());
+        assertEquals("Build property count.", 10, props.size());
         assertTrue("projectname not found.", props.containsKey("projectname"));
         assertEquals("wrong projectname.", "myproject", props.get("projectname"));
         assertTrue("filemodified not found.", props.containsKey("filemodified"));
