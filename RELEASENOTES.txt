@@ -28,6 +28,10 @@ Main
 ----------------------
 * Put the ccname command line parameter back, after being inadvertently removed (CC-651). Patch by Lars Gehrken.
 
+MavenMapper
+----------------------
+* MavenMapper extracts the email address for a certain committing user as configured in Mavens project.xml or pom.xml (M1 or M2) (CC-618). Contributed by Gisbert Amm.
+
 Project
 ----------------------
 * Added a property named "buildforced" that will get passed to builders for conditional control (CC-653). Patch by Dave Kilroy.
