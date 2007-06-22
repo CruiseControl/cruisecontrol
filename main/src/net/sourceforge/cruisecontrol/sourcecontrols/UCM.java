@@ -146,7 +146,7 @@ public class UCM implements SourceControl {
     public void setViewPath(String viewPath) {
         this.viewPath = viewPath;
     }
-    
+
     /**
      * get whether the view contains multiple vobs
      *
@@ -163,7 +163,7 @@ public class UCM implements SourceControl {
      */
     public void setMultiVob(boolean multiVob) {
         this.multiVob = multiVob;
-    }    
+    }
 
     /**
      * Set the name of the pvob to use for queries.
@@ -306,8 +306,8 @@ public class UCM implements SourceControl {
 
                 while (((line = br.readLine()) != null) && (!br.equals(""))) {
                     String[] details = getDetails(line);
-                    if (details[0].equals("mkbranch")) {
-                        // if type is create branch then skip
+                    if (details[0].equals("mkbranch") || details[0].equals("rmbranch") || details[0].equals("rmver")) {
+                        // if type is create/remove branch then skip
                     } else {
                         String activityName = details[1];
                         String activityDate = details[2];
