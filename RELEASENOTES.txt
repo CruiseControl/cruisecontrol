@@ -24,6 +24,10 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
+Main
+----------------------
+* Put the ccname command line parameter back, after being inadvertently removed (CC-651). Patch by Lars Gehrken.
+
 Project
 ----------------------
 * Added a property named "buildforced" that will get passed to builders for conditional control (CC-653). Patch by Dave Kilroy.

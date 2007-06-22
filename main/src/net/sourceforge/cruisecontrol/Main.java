@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.Properties;
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
+import net.sourceforge.cruisecontrol.launch.Launcher;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import net.sourceforge.cruisecontrol.web.EmbeddedJettyServer;
@@ -57,15 +58,19 @@ public final class Main implements CruiseControlMain {
 
     private static final Logger LOG = Logger.getLogger(Main.class);
 
+     
+    /** the default name for the instance. */
+    private static final String DEFAULT_NAME = "";
+    
     /**
      * the default webapp directory.
      */
-    private static final String DEFAULT_WEBAPP_PATH = "./webapps/cruisecontrol";
+    private static final String DEFAULT_WEBAPP_PATH = "/webapps/cruisecontrol";
 
     /**
      * the default dashboard (new webapp) directory.
      */
-    private static final String DEFAULT_DASHBOARD_PATH = "./webapps/dashboard";
+    private static final String DEFAULT_DASHBOARD_PATH = "/webapps/dashboard";
 
     /**
      * the default port for the embedded Jetty.
@@ -115,6 +120,7 @@ public final class Main implements CruiseControlMain {
             if (shouldStartEmbeddedServer(args)) {
                 startEmbeddedServer(args);
             }
+            parseCCName(args);
             controller.resume();
         } catch (CruiseControlException e) {
             LOG.fatal(e.getMessage());
@@ -190,8 +196,23 @@ public final class Main implements CruiseControlMain {
         System.out.println("                          application. default ./webapps/cruisecontrol");
         System.out.println("  -dashboard directory    location of the exploded WAR file for the dashboard");
         System.out.println("                          application. default ./webapps/dashboard");
+        System.out.println("  -ccname name            A logical name which will be displayed in the");
+        System.out.println("                          Reporting Application's status page.");
         System.out.println("");
     }
+
+    /**
+     * Parse cc Name from arguments.
+     *
+     * @param args command line arguments.
+     * @return the name of this instance if specified on the command line, otherwise DEFAULT_NAME.
+     */
+    static String parseCCName(String[] args) {
+        String theCCName = MainArgs.parseArgument(args, "ccname", DEFAULT_NAME, DEFAULT_NAME);
+        System.setProperty("ccname", theCCName);
+        return theCCName;
+    }
+
 
     /**
      * Parse webport from arguments.
@@ -209,12 +230,30 @@ public final class Main implements CruiseControlMain {
      * @param args command line arguments.
      * @return the webappdir if specified in the command line arguments, otherwise returns DEFAULT_WEBAPP_DIR.
      */
-    static String parseWebappPath(String[] args) {
-        String webappPath = MainArgs.parseArgument(args, "webapppath", DEFAULT_WEBAPP_PATH, DEFAULT_WEBAPP_PATH);
+    String parseWebappPath(String[] args) {
+        String webappPath = MainArgs.parseArgument(args, "webapppath", getDefaultWebAppPath(), getDefaultWebAppPath());
         if (webappPath != null) {
             validateWebAppPath(webappPath, "webapppath");
         }
         return webappPath;
+    }
+
+    /**
+     * Creates the default webapppath by combining cchome and DEFAULT_WEBAPP_PATH
+     *
+     * @return the full default path
+     */
+    private String getDefaultWebAppPath() {
+        return System.getProperty(Launcher.CCHOME_PROPERTY, ".") + DEFAULT_WEBAPP_PATH;
+    }
+
+    /**
+     * Creates the default webapppath by combining cchome and DEFAULT_WEBAPP_PATH
+     *
+     * @return the full default path
+     */
+    private static String getDefaultDashboardPath() {
+        return System.getProperty(Launcher.CCHOME_PROPERTY, ".") + DEFAULT_DASHBOARD_PATH;
     }
 
     /**
@@ -225,7 +264,7 @@ public final class Main implements CruiseControlMain {
      */
     static String parseDashboardPath(String[] args) {
         String dashboardPath = MainArgs
-                .parseArgument(args, "dashboard", DEFAULT_DASHBOARD_PATH, DEFAULT_DASHBOARD_PATH);
+                .parseArgument(args, "dashboard", getDefaultDashboardPath(), getDefaultDashboardPath());
         if (dashboardPath != null) {
             validateWebAppPath(dashboardPath, "dashboard");
         }
