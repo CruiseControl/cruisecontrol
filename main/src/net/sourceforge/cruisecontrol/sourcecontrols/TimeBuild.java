@@ -111,7 +111,7 @@ public class TimeBuild extends FakeUserSourceControl {
                 modifications.add(getMod(now));
             }
         } else {
-            if (nowTime > time) {
+            if (nowTime > time | lastBuildTime < time) {
                 modifications.add(getMod(now));
             }
         }

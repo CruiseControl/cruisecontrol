@@ -92,9 +92,12 @@ public class TimeBuildTest extends TestCase {
     }
 
     public void testTimeBuildWorksAcrossDays() {
+        Calendar calender1500Previousday = Calendar.getInstance();
+        calender1500Previousday.set(2002, Calendar.DECEMBER, 22, 15, 00, 00);
+
         Calendar calender2000Previousday = Calendar.getInstance();
         calender2000Previousday.set(2002, Calendar.DECEMBER, 22, 20, 00, 00);
-
+        
         Calendar calender1400 = Calendar.getInstance();
         calender1400.set(2002, Calendar.DECEMBER, 23, 14, 00, 00);
 
@@ -132,6 +135,13 @@ public class TimeBuildTest extends TestCase {
         // No "modifications" from 16:01 to 16:03
         modifications = timeBuild.getModifications(calender1601.getTime(), calender1603.getTime());
         assertEquals(0, modifications.size());
+        
+        Date lastBuildThreePMYesterday = calender1500Previousday.getTime();
+        
+        // Should have one "modification" at 14:00 which is the TimedBuild
+        modifications = timeBuild.getModifications(lastBuildThreePMYesterday, calender1400.getTime());
+        assertEquals(1, modifications.size());
+        
     }
 
     private void assertHasSingleModificationThatMatchesNameAndTime(List modifications, String userName,
