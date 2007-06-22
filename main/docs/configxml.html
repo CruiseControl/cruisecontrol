@@ -7483,6 +7483,31 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 </td>
             </tr>
             <tr>
+                <td><a name="mavenmapper"><code>&lt;mavenmapper&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Map source control user names to their respective email address as
+                configured in Maven's POM (suitable for Maven 1 and 2). Used for the mapping 
+                is the <code>&lt;id&gt;</code> element of the <code>&lt;developer&gt;</code> entry.  
+                <code>&lt;mavenmapper&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>projectfile</td>
+                            <td>Yes</td>
+                            <td>Full path to Maven's <code>project.xml</code> (Maven 1) or <code>pom.xml</code> (Maven 2) file.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
                 <td><a name="ldapmapper"><code>&lt;ldapmapper&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>map source control user names to either valid email names
