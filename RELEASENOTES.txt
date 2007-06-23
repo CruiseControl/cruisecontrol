@@ -11,6 +11,10 @@ packager
 ----------------------
 * Fix build root and rpm destination for rpm target. Patch by Joseph Benavidez.
 
+Documentation
+======================
+* Added docs for the Darcs scm plugin (CC-626).
+
 dashboard
 ======================
 NOTE: The dashboard has known display issues in Internet Explorer 6.
@@ -31,6 +35,10 @@ ConcurrentVersionsSystem
 CVSBootstrapper
 ----------------------
 * Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
+
+default-plugins
+----------------------
+* Added darcs to the default plugins (CC-626).
 
 Main
 ----------------------
