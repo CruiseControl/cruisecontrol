@@ -123,6 +123,7 @@
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
+<a href="#darcs">&lt;darcs&gt;</a>
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#email">&lt;email&gt;</a>
@@ -267,6 +268,7 @@
             <a href="#compound">&lt;triggers/&gt;</a>
          &lt;/compound&gt;
          <a href="#cvs">&lt;cvs/&gt;</a>
+         <a href="#darcs">&lt;darcs/&gt;</a>
          <a href="#filesystem">&lt;filesystem/&gt;</a>
          <a href="#forceonly">&lt;forceonly/&gt;</a>
          <a href="#harvest">&lt;harvest/&gt;</a>
@@ -2534,6 +2536,11 @@ password=P@ssW0rd!
                 <td>Checks for changes in a CVS repository.</td>
             </tr>
             <tr>
+                <td><a href="#darcs">&lt;darcs&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Darcs repository.</td>
+            </tr>
+            <tr>
                 <td><a href="#filesystem">&lt;filesystem&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a file system.</td>
@@ -3422,6 +3429,57 @@ password=P@ssW0rd!
                     parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
                     low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
             </tr>    
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="darcs">&lt;darcs&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;darcs&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within a <a href="http://darcs.net" class="external">Darcs</a>
+            repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>workingdir</td>
+                <td rowspan="2">Either workingdir or repository location.</td>
+                <td>Relative or absolute path to the workingdir. Directory must exist.</td>
+            </tr>
+            <tr>
+                <td>repositorylocation</td>
+                <td>Specifies the location of the Darcs repository.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
             </tbody>
         </table>
         </div>
