@@ -143,4 +143,16 @@ public final class ValidationHelper {
                     + plugin.getName() + "] is not readable.");
         }
     }
+
+    public static void assertIntegerInRange(String candidate, int start, int end, String message)
+            throws CruiseControlException {
+        try {
+            int asInt = Integer.parseInt(candidate);
+            if (asInt < start || asInt > end) {
+                fail(message);
+            }
+        } catch (NumberFormatException e) {
+            fail(message);
+        }
+    }
 }

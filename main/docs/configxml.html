@@ -1898,6 +1898,13 @@ password=P@ssW0rd!
                 <td>If set to true the update command will include the -A option
                 which will reset any sticky tags, dates, or -k options.</td>
             </tr>
+            <tr>
+                <td>compression</td>
+                <td>No</td>
+                <td>Sets the compression level used for the call to cvs, corresponding to the "-z" command line
+                    parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
+                    low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -3408,6 +3415,13 @@ password=P@ssW0rd!
                     attribute to true can help to reduce CruiseControl log file size, especially when using branches.
                     Defaults to false.</td>
             </tr>
+            <tr>
+                <td>compression</td>
+                <td>No</td>
+                <td>Sets the compression level used for the call to cvs, corresponding to the "-z" command line
+                    parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
+                    low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
+            </tr>    
             </tbody>
         </table>
         </div>

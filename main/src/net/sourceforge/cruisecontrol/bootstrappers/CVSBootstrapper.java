@@ -69,6 +69,7 @@ public class CVSBootstrapper implements Bootstrapper {
     private String cvsroot;
     private boolean resetStickyTags = false;
     private boolean overwriteChanges = false;
+    private String compression;
 
     public void setCvsroot(String cvsroot) {
         this.cvsroot = cvsroot;
@@ -115,6 +116,11 @@ public class CVSBootstrapper implements Bootstrapper {
                         "'localWorkingCopy' must be an existing directory, not a file. Was <"
                         + localWorkingCopy + ">");
         }
+
+        if (compression != null) {
+            ValidationHelper.assertIntegerInRange(compression, 0, 9,
+                    "'compression' must be an integer between 0 and 9, inclusive.");
+        }
     }
 
     protected Commandline buildUpdateCommand() throws CruiseControlException {
@@ -125,6 +131,10 @@ public class CVSBootstrapper implements Bootstrapper {
         }
 
         commandLine.setExecutable("cvs");
+
+        if (compression != null) {
+            commandLine.createArgument("-z" + compression);    
+        }
 
         if (cvsroot != null) {
             commandLine.createArguments("-d", cvsroot);
@@ -155,4 +165,14 @@ public class CVSBootstrapper implements Bootstrapper {
       overwriteChanges = overwrite;
     }
 
+    /**
+     * Sets the compression level used for the call to cvs, corresponding to the "-z" command line parameter. When not
+     * set, the command line parameter is NOT included.
+     * 
+     * @param level Valid levels are 1 (high speed, low compression) to 9 (low speed, high compression), or 0
+     * to disable compression.
+     */
+    public void setCompression(String level) {
+        compression = level;
+    }
 }

@@ -98,6 +98,46 @@ public class CVSBootstrapperTest extends TestCase {
         }
     }
 
+    public void testCompressionValidation() {
+        bootStrapper.setCvsroot("someroot");
+
+        assertCompressionLevelInvalid("A");
+        assertCompressionLevelInvalid("-1");
+        assertCompressionLevelInvalid("1.1");
+        assertCompressionLevelInvalid("10");
+        assertCompressionLevelInvalid("");
+        assertCompressionLevelInvalid("   ");
+        assertCompressionLevelInvalid("\n\n\t\r");
+        assertCompressionLevelValid("1");
+        assertCompressionLevelValid("2");
+        assertCompressionLevelValid("3");
+        assertCompressionLevelValid("4");
+        assertCompressionLevelValid("5");
+        assertCompressionLevelValid("6");
+        assertCompressionLevelValid("7");
+        assertCompressionLevelValid("8");
+        assertCompressionLevelValid("9");
+        assertCompressionLevelValid(null);
+    }
+
+    private void assertCompressionLevelValid(String candidate) {
+        bootStrapper.setCompression(candidate);
+        try {
+            bootStrapper.validate();
+        } catch (CruiseControlException e) {
+            fail("validate() should NOT throw exception on '" + candidate + "' compression value.");
+        }
+    }
+
+    private void assertCompressionLevelInvalid(String candidate) {
+        bootStrapper.setCompression(candidate);
+        try {
+            bootStrapper.validate();
+            fail("validate() should throw exception on '" + candidate + "' compression value.");
+        } catch (CruiseControlException e) {
+        }
+    }
+
     public void testBuildUpdateCommand() throws CruiseControlException {
         String tempDir = System.getProperty("java.io.tmpdir");
 
@@ -122,6 +162,10 @@ public class CVSBootstrapperTest extends TestCase {
 
         bootStrapper.setOverwriteChanges(true);
         assertEquals("cvs -d somecvsroot update -dPAC somefile",
+                bootStrapper.buildUpdateCommand().toString());
+
+        bootStrapper.setCompression("9");
+        assertEquals("cvs -z9 -d somecvsroot update -dPAC somefile",
                 bootStrapper.buildUpdateCommand().toString());
     }
 
