@@ -89,6 +89,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     static final Version DEFAULT_CVS_SERVER_VERSION = new Version(OFFICIAL_CVS_NAME, "1.11");
     public static final String LOG_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss z";
     private boolean reallyQuiet;
+    private String compression;
 
     /**
      * Represents the version of a CVS client or server
@@ -295,6 +296,17 @@ public class ConcurrentVersionsSystem implements SourceControl {
         this.reallyQuiet = reallyQuiet;
     }
 
+    /**
+     * Sets the compression level used for the call to cvs, corresponding to the "-z" command line parameter. When not
+     * set, the command line parameter is NOT included.
+     *
+     * @param level Valid levels are 1 (high speed, low compression) to 9 (low speed, high compression), or 0
+     * to disable compression.
+     */
+    public void setCompression(String level) {
+        compression = level;
+    }
+    
     protected Version getCvsServerVersion() {
         if (cvsServerVersion == null) {
 
@@ -434,6 +446,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 "if 'localWorkingCopy' is specified then cvsroot and module are not allowed on CVS");
         ValidationHelper.assertFalse(local != null && !new File(local).exists(), "Local working copy \"" + local
                 + "\" does not exist!");
+
+        if (compression != null) {
+            ValidationHelper.assertIntegerInRange(compression, 0, 9,
+                    "'compression' must be an integer between 0 and 9, inclusive.");
+        }
     }
 
     /**
@@ -537,6 +554,9 @@ public class ConcurrentVersionsSystem implements SourceControl {
         Commandline commandLine = getCommandline();
         commandLine.setExecutable("cvs");
 
+        if (compression != null) {
+            commandLine.createArgument("-z" + compression);
+        }
         if (cvsroot != null) {
             commandLine.createArguments("-d", cvsroot);
         }

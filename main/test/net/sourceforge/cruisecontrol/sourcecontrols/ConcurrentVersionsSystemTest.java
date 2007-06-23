@@ -553,6 +553,26 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertCommandsEqual(expectedCommand, actualCommand);
     }
 
+    public void testHistoryCommandWithCompression() throws CruiseControlException {
+        Date lastBuildTime = new Date();
+
+        ConcurrentVersionsSystem element = new ConcurrentVersionsSystem();
+        element.setLocalWorkingCopy(".");
+        element.setCompression("9");
+
+        String[] expectedCommand = new String[] {
+                "cvs",
+                "-z9",
+                "-q",
+                "log",
+                "-N",
+                "-d" + ConcurrentVersionsSystem.formatCVSDate(lastBuildTime) + "<"
+                        + ConcurrentVersionsSystem.formatCVSDate(lastBuildTime), "-b" };
+
+        String[] actualCommand = element.buildHistoryCommand(lastBuildTime, lastBuildTime).getCommandline();
+        assertCommandsEqual(expectedCommand, actualCommand);
+    }
+
     public void testHistoryCommandNullCVSROOT() throws CruiseControlException {
         Date lastBuildTime = new Date();
 
@@ -721,6 +741,49 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertTrue(cvs.useHead());
         cvs.setTag("tagName");
         assertFalse(cvs.useHead());
+    }
+
+    public void testCompressionValidation() {
+        ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem();
+        cvs.setCvsRoot("bar");
+        cvs.setModule("foo");
+
+        assertCompressionLevelInvalid("A", cvs);
+        assertCompressionLevelInvalid("-1", cvs);
+        assertCompressionLevelInvalid("1.1", cvs);
+        assertCompressionLevelInvalid("10", cvs);
+        assertCompressionLevelInvalid("", cvs);
+        assertCompressionLevelInvalid("   ", cvs);
+        assertCompressionLevelInvalid("\n\n\t\r", cvs);
+        assertCompressionLevelValid("1", cvs);
+        assertCompressionLevelValid("2", cvs);
+        assertCompressionLevelValid("3", cvs);
+        assertCompressionLevelValid("4", cvs);
+        assertCompressionLevelValid("5", cvs);
+        assertCompressionLevelValid("6", cvs);
+        assertCompressionLevelValid("7", cvs);
+        assertCompressionLevelValid("8", cvs);
+        assertCompressionLevelValid("9", cvs);
+        assertCompressionLevelValid(null, cvs);
+    }
+
+    private void assertCompressionLevelValid(String candidate, ConcurrentVersionsSystem cvs) {
+        cvs.setCompression(candidate);
+        try {
+            cvs.validate();
+        } catch (CruiseControlException e) {
+            e.printStackTrace();
+            fail("validate() should NOT throw exception on '" + candidate + "' compression value.");
+        }
+    }
+
+    private void assertCompressionLevelInvalid(String candidate, ConcurrentVersionsSystem cvs) {
+        cvs.setCompression(candidate);
+        try {
+            cvs.validate();
+            fail("validate() should throw exception on '" + candidate + "' compression value.");
+        } catch (CruiseControlException e) {
+        }
     }
 
     private InputStream loadTestLog(String name) {

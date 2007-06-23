@@ -24,6 +24,14 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
+ConcurrentVersionsSystem
+----------------------
+* Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
+
+CVSBootstrapper
+----------------------
+* Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
+
 Main
 ----------------------
 * Put the ccname command line parameter back, after being inadvertently removed (CC-651). Patch by Lars Gehrken.
