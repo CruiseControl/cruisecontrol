@@ -61,7 +61,7 @@ import org.apache.log4j.Logger;
 /**
  *  This class implements the SourceControl class for a Plastic SCM repository.
  *
- *  @author <a href="mailto:rdealba@codicesoftware.com">Rubén de Alba</a>
+ *  @author <a href="mailto:rdealba@codicesoftware.com">Ruben de Alba</a>
  */
 public class PlasticSCM implements SourceControl {
 
@@ -145,7 +145,7 @@ public class PlasticSCM implements SourceControl {
      *
      */
     public List getModifications(Date lastBuild, Date now) {    
-        List modifications = new ArrayList();
+        List modifications;
         try {
             Commandline commandLine = buildFindCommand(lastBuild, now);
             Process p = commandLine.execute(); 

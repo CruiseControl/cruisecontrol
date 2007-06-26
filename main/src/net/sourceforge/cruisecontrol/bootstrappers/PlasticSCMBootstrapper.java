@@ -49,7 +49,7 @@ import org.apache.log4j.Logger;
  * Simply updates the current workspace. Accepts specify branch/repository for
  * the update operation. Do the update forced is an option (false by default).
  *
- * @author <a href="mailto:rdealba@codicesoftware.com">Rubén de Alba</a>
+ * @author <a href="mailto:rdealba@codicesoftware.com">Ruben de Alba</a>
  */
 public class PlasticSCMBootstrapper implements Bootstrapper {
 
