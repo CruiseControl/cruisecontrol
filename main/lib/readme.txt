@@ -51,6 +51,9 @@ http://xml.apache.org/xalan-j/
 Xerces2 Java Parser
 http://xml.apache.org/xerces2-j/
 
+Saxon XSLT and XQuery Processor
+http://saxon.sourceforge.net/
+
 
 jarfile			ver		license		full license (in licenses-dir)
 ------------------------------------------------------------------------------------------
@@ -78,3 +81,5 @@ smack.jar		1.3.0		ASL v1.1	apache-license-1.1.txt
 x10.jar			1.0.1		LGPL v2.1	lgpl-license.txt
 xalan.jar		2.7.0		ASL v2.0	apache-license-2.0.txt
 xerces.jar		2.8.0		ASL v2.0	apache-license-2.0.txt
+saxon8.jar		8.7.3		MPL v1.0	mpl-1.0.txt
+saxon8-dom.jar		8.7.3		MPL v1.0	mpl-1.0.txt
