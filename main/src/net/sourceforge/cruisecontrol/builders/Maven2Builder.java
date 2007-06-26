@@ -157,7 +157,7 @@ public class Maven2Builder extends Builder {
                 "the pom file could not be found : " + filePomFile.getAbsolutePath()
                         + "; Check the 'pomfile' attribute: " + pomFile);
 
-        File workingDir = filePomFile.getParentFile();
+        File workingDir = filePomFile.getAbsoluteFile().getParentFile();
         LOG.debug("Working dir is : " + workingDir.toString());
 
         long startTime = System.currentTimeMillis();
