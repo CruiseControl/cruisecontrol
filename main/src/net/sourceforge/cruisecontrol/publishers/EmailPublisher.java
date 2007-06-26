@@ -213,12 +213,11 @@ public abstract class EmailPublisher implements Publisher {
 
     /**
      * Creates the list of email addresses to receive the email message. Uses configured emailmappers to map user names
-     * to email addresses. After all mappings are done, mapped users are checked for existence of the domain part (i.e
-     * 
-     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended Any
-     *                addresses set in the <code>addAlwaysAddress</code> method will always receive the email if it is
-     *                sent. Any address set in the <code>addFailureAddress</code> method will receive the message if
-     *                the build has failed.
+     * to email addresses. After all mappings are done, mapped users are checked for existence of the domain part
+     * (i.e @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended Any
+     * addresses set in the <code>addAlwaysAddress</code> method will always receive the email if it is sent. Any
+     * address set in the <code>addFailureAddress</code> method will receive the message if the build has failed.
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return comma delimited <code>String</code> of email addresses to receive the email message.
@@ -233,12 +232,11 @@ public abstract class EmailPublisher implements Publisher {
      * Creates the <code>Set</code> of email addresses to receive the email message.
      * <p>
      * Uses configured emailmappers to map user names to email addresses. After all mappings are done, mapped users are
-     * checked for existence of the domain part (i.e
-     * 
-     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended Any
-     *                addresses set in the <code>addAlwaysAddress</code> method will always receive the email if it is
-     *                sent. Any address set in the <code>addFailureAddress</code> method will receive the message if
-     *                the build has failed.
+     * checked for existence of the domain part (i.e @mydomain.com) in the mapped email address. If it doesn't exist,
+     * default (if configured) is appended Any addresses set in the <code>addAlwaysAddress</code> method will always
+     * receive the email if it is sent. Any address set in the <code>addFailureAddress</code> method will receive the
+     * message if the build has failed.
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return A <code>Set</code> of email addresses to receive the email message.
@@ -720,9 +718,9 @@ public abstract class EmailPublisher implements Publisher {
      * <code>String</code>.
      * <p>
      * Uses configured emailmappers to map user names to email addresses. After all mappings are done, mapped users are
-     * checked for existence of the domain part (i.e
-     * 
-     * @mydomain.com) in the mapped email address. If it doesn't exist, default (if configured) is appended.
+     * checked for existence of the domain part (i.e @mydomain.com) in the mapped email address. If it doesn't exist,
+     * default (if configured) is appended.
+     *
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return comma delimited <code>String</code> of email addresses to receive the email message.

@@ -101,7 +101,6 @@ public class RakeScript implements Script, StreamConsumer {
      /**
      * set the "header" for this part of the build log.
      * @param buildLogElement the element of the build log
-     * @return updated element
      */
     public void setBuildLogHeader(Element buildLogElement) {
         this.buildLogElement = buildLogElement;
@@ -149,7 +148,7 @@ public class RakeScript implements Script, StreamConsumer {
      /**
       * Ugly parsing of Rake output into some Elements.
       * Gets called from StreamPumper.
-      * @param the line of output to parse
+      * @param line the line of output to parse
       */
     public synchronized void consumeLine(String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {

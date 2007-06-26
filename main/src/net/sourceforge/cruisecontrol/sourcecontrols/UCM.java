@@ -159,7 +159,7 @@ public class UCM implements SourceControl {
     /**
      * set whether the view contains multiple vobs
      *
-     * @param contributors boolean indicating whether the view contains multiple vobs
+     * @param multiVob boolean indicating whether the view contains multiple vobs
      */
     public void setMultiVob(boolean multiVob) {
         this.multiVob = multiVob;
@@ -545,7 +545,8 @@ public class UCM implements SourceControl {
 
     /**
      * Parses the given input stream to construct the modifications list. The stream is expected to be the result of
-     * listing the history of a UCM stream. Rebases are then detected by delegating to {@link #parseEntry}.
+     * listing the history of a UCM stream. Rebases are then detected by delegating to
+     * {@link #parseRebaseEntry(String)}.
      * Package-private to make it available to the unit test.
      *
      * @param input
