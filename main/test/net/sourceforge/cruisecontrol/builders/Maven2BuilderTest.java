@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 public class Maven2BuilderTest extends TestCase {
 
@@ -278,7 +279,7 @@ public class Maven2BuilderTest extends TestCase {
                 // some fake goal is still needed to start working (no '|' here!)
                 mb.setGoal("fakegoal");
                 // this should "succeed"
-                Element logElement = mb.build(new Hashtable());
+                Element logElement = mb.build(getUnitTestBuildProperties());
                 assertNotNull(statusType, logElement);
                 goalTags = logElement.getChildren("mavengoal");
                 assertNotNull(statusType, goalTags);
@@ -325,9 +326,20 @@ public class Maven2BuilderTest extends TestCase {
             if (testScript != null) {
                 //PJ: May 08, 2005: The following statement is breaking the build on the cclive box.
                 //(new File(testScriptName)).delete();
-                return;
             }
         }
+    }
+
+    private static Map getUnitTestBuildProperties() {
+        final Map buildProperties = new Hashtable();
+        buildProperties.put("cclastbuildtimestamp", "20070614095818");
+        buildProperties.put("cclastgoodbuildtimestamp", "20070607114812");
+        buildProperties.put("label", "build.11");
+        buildProperties.put("lastbuildsuccessful", "false");
+        buildProperties.put("cvstimestamp", "2007-06-14 07:59:22 GMT"); // should have spaces
+        buildProperties.put("projectname", "java_32.A01");
+        buildProperties.put("cctimestamp", "20070614095922");
+        return buildProperties;
     }
 
     /**
