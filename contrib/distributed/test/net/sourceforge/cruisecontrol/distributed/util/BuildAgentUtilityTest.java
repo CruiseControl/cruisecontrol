@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
 import java.awt.Window;
 
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
@@ -47,7 +48,19 @@ public class BuildAgentUtilityTest extends TestCase {
     protected void tearDown() throws Exception {
         // clear all agent util prefs
         mockUI.getPrefsBase().removeNode();
-        mockUI.getPrefsBase().flush();
+
+        // @todo Revmove this if/when java 6 prefs impl is fixed on Unix (and annotate which jre contains the fix)
+        // see Sun Bug ID: 6568540 - (prefs) Preferences not saved in Webstart app, even after synch()
+        try {
+            mockUI.getPrefsBase().flush();
+        } catch (BackingStoreException e) {
+            if ((e.getCause() instanceof IllegalArgumentException)
+                    && Double.parseDouble(System.getProperty("java.specification.version")) == 1.6) {
+                LOG.error("Warning: Unit Test Exception ignored due to known Java 6 bug (Sun Bug ID: 6568540)");
+            } else {
+                throw e;
+            }
+        }
     }
 
 
