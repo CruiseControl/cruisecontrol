@@ -2,7 +2,7 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - 2.7.1-dev
+CruiseControl Release Notes - 2.7.1-RC1
 
 contrib
 ======================
@@ -14,6 +14,7 @@ packager
 Documentation
 ======================
 * Added docs for the Darcs scm plugin (CC-626).
+* Fixed issue with logo appearing incorrectly placed in IE6. Patch by Jerome Lacoste.
 
 dashboard
 ======================

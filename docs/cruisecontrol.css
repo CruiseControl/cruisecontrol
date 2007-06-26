@@ -23,11 +23,12 @@ body {
     font-size: x-small;
     font-weight: bold;
 }
+
 .logo {
-    float: left;
     padding-top: 10px;
     padding-left: 30px;
 }
+
 a img {
     border: 0;
 }
