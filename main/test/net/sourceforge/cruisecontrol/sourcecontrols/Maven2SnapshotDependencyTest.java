@@ -40,12 +40,9 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-//import java.util.Date;
-//import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-//import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * Unit Tests of maven2 snapshot dependency sourcecontrol.
@@ -174,7 +171,7 @@ public class Maven2SnapshotDependencyTest extends TestCase {
     }
 
 
-/*  NOTE: Add a single slash to the front of this line to try running these tests.
+/* @todo NOTE: Add a single slash to the front of this line to try running these tests.
 
 
     //this test is not jre 1.3 compatible because it invokes the MavenEmbedder.
@@ -196,33 +193,43 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         //        new File(TEST_REPOSITORY + "/ccdeptest/cc-maven-test/1.0-SNAPSHOT/cc-maven-test-1.0-SNAPSHOT.jar"),
         //        artifactInfos[0].getLocalRepoFile());
 
-        assertTrue("Unexpected filename [" + artifactInfos[0].getLocalRepoFile().getAbsolutePath() + "]",
-                artifactInfos[0].getLocalRepoFile().getAbsolutePath().endsWith(
-                        File.separatorChar + "ccdeptest"
+        assertArtifactInfosContains(artifactInfos,
+                File.separatorChar + "ccdeptest"
                         + File.separatorChar + "cc-maven-test"
                         + File.separatorChar + "1.0-SNAPSHOT"
-                        + File.separatorChar + "cc-maven-test-1.0-SNAPSHOT.jar"
-                ));
+                        + File.separatorChar + "cc-maven-test-1.0-SNAPSHOT.jar",
+                Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY);
 
-        assertEquals("Unexpected artifact type", Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY,
-                artifactInfos[0].getArtifactType());
-
-
-         //@todo Fix when maven embedder honors alignWithUserInstallation
+        //@todo Fix when maven embedder honors alignWithUserInstallation
         //assertEquals("Unexpected filename",
         //        new File(TEST_REPOSITORY + "/ccdeptest/maven/1.0-SNAPSHOT/maven-1.0-SNAPSHOT-source.jar"),
         //        artifactInfos[1].getLocalRepoFile());
 
-        assertTrue("Unexpected filename [" + artifactInfos[1].getLocalRepoFile().getAbsolutePath() + "]",
-                artifactInfos[1].getLocalRepoFile().getAbsolutePath().endsWith(
-                        File.separatorChar + "ccdeptest"
+        assertArtifactInfosContains(artifactInfos,
+                File.separatorChar + "ccdeptest"
                         + File.separatorChar + "maven"
                         + File.separatorChar + "1.0-SNAPSHOT"
-                        + File.separatorChar + "maven-1.0-SNAPSHOT-source.jar"
-                ));
+                        + File.separatorChar + "maven-1.0-SNAPSHOT-source.jar",
+                Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY);
+    }
 
-        assertEquals("Unexpected artifact type", Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY,
-                artifactInfos[1].getArtifactType());
+    // Fails if the given modset does not contain a mod with the given comment.
+    // @param artifactInfos artifactInfo objects to search through
+    // @param expectedFilenameSuffix the filename we expected to find in the given artifactInfos.
+    // @param expectedArtifactType the artifact type expected for tge matched filenamesuffix
+    private void assertArtifactInfosContains(final Maven2SnapshotDependency.ArtifactInfo[] artifactInfos,
+                                             final String expectedFilenameSuffix, final String expectedArtifactType) {
+        for (int i = 0; i < artifactInfos.length; i++) {
+            if (artifactInfos[i].getLocalRepoFile().getAbsolutePath().endsWith(expectedFilenameSuffix)
+                    && artifactInfos[0].getArtifactType().equals(expectedArtifactType)) {
+
+                // found a matching filename AND artifactType
+                return;
+            }
+        }
+        fail("Missing expected artifactInfo with filename suffix: " + expectedFilenameSuffix
+                + "; AND artifact type: " + expectedArtifactType
+                + " \n in artifactInfos: " + java.util.Arrays.asList(artifactInfos).toString());
     }
 
 
@@ -235,19 +242,32 @@ public class Maven2SnapshotDependencyTest extends TestCase {
         //@todo Fix when maven embedder honors alignWithUserInstallation
         // dep.setLocalRepository(TEST_REPOSITORY);
 
-        Date epoch = new Date(0);
-        Date now = new Date();
-        List modifications = dep.getModifications(epoch, now);
+        java.util.Date epoch = new java.util.Date(0);
+        java.util.Date now = new java.util.Date();
+        java.util.List modifications = dep.getModifications(epoch, now);
         assertEquals("Modification list is not the correct size. " + modifications.toString(),
                 2, modifications.size());
 
-        Modification mod = (Modification) modifications.get(0);
-        assertEquals("Wrong Modification: " + mod, Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY
-                        + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "cc-maven-test", mod.comment);
+        assertModsetContainsModWithComment(modifications, Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY
+                        + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "cc-maven-test");
 
-        mod = (Modification) modifications.get(1);
-        assertEquals("Wrong Modification: " + mod, Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY
-                        + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "maven", mod.comment);
+        assertModsetContainsModWithComment(modifications, Maven2SnapshotDependency.ArtifactInfo.ART_TYPE_DEPENDENCY
+                        + Maven2SnapshotDependency.COMMENT_MISSING_IN_LOCALREPO + "maven");
+    }
+
+
+    // Fails if the given modset does not contain a mod with the given comment.
+    // @param modset a list of modifications to search through
+    // @param expectedModComment the comment we expected to find in a modification in the given modificationset.
+    private void assertModsetContainsModWithComment(final java.util.List modset, final String expectedModComment) {
+        for (int i = 0; i < modset.size(); i++) {
+            if (expectedModComment.equals(((net.sourceforge.cruisecontrol.Modification) modset.get(i)).comment)) {
+                // found a matching comment
+                return;
+            }
+        }
+        fail("Missing expected modification comment: " + expectedModComment
+                + " in modificationset: " + modset.toString());
     }
 //*/
 
