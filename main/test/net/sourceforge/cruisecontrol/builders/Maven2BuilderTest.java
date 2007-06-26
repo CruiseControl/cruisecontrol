@@ -326,6 +326,7 @@ public class Maven2BuilderTest extends TestCase {
             if (testScript != null) {
                 //PJ: May 08, 2005: The following statement is breaking the build on the cclive box.
                 //(new File(testScriptName)).delete();
+                return;
             }
         }
     }
