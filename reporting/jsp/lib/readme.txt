@@ -36,6 +36,9 @@ http://xml.apache.org/xalan-j/
 Xerces2 Java Parser
 http://xml.apache.org/xerces2-j/
 
+Saxon XSLT and XQuery Processor
+http://saxon.sourceforge.net/
+
 
 jarfile			ver	license		full license (in main/lib/licenses)
 -----------------------------------------------------------------------------------
@@ -56,3 +59,4 @@ junit.jar		same as main/lib
 servlet.jar		???
 xalan.jar		same as main/lib
 xerces.jar		same as main/lib
+saxon8.jar		same as main/lib
