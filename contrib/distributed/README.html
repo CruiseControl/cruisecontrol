@@ -36,7 +36,7 @@
         Hosted By:<br/>
         <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
     </div>
-    <div class="logo"><img alt="CruiseControl" src="banner.png"/></div>
+    <div class="logo"><img alt="CruiseControl" src="../../docs/banner.png"/></div>
 </div>
 <div class="container">&nbsp;
     <div id="menu">
@@ -44,7 +44,7 @@
             <li class="top"><a href="../../docs/index.html">home</a></li>
             <li><h2>documentation</h2></li>
             <li><a href="../../main/docs/configxml.html">config ref</a></li>
-            <li><p id="menubottom">Release: 2.7</p></li>
+            <li><p id="menubottom">Release: 2.7.1</p></li>
         </ul>
     </div>
     <div class="content">
@@ -294,7 +294,8 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
  ...
 &lt;/distributed&gt;</pre>
 
-                         Deploy and launch all your agents, <b>without</b> modifying entries in <i>user-defined.properties</i>. You can now add a new 'Entry Override' (ie: <code>sound=hardwaremixable</code>) to only those agents running on the correct hardware. Do this via the Build Agent UI or the Build Agent Utility. This new Agent entry will persist across Agent restarts. (Be aware there is a bug in the Preferences API implementation in JRE 6.0 on non-Windows OS's that prevents these settings from persisting. TODO: add Sun FileSystemPrefs BugID here - similar to BugID: 6396599)<p></li>
+                     Deploy and launch all your agents, <b>without</b> modifying entries in <i>user-defined.properties</i>. You can now add a new 'Entry Override' (ie: <code>sound=hardwaremixable</code>) to only those agents running on the correct hardware. Do this via the Build Agent UI or the Build Agent Utility. This new Agent entry will persist across Agent restarts.
+                     <p><b>NOTE: </b>Be aware there is a bug in the Preferences API implementation in JRE 6.0 on non-Windows OS's that prevents these settings from persisting. See Sun Bug ID: 6568540 "(prefs) Preferences not saved in Webstart app, even after synch()" - you might want to vote for it.<p></li>
                 </ol>
             </li>
         </ol>
