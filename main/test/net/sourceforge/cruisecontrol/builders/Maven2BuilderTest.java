@@ -392,6 +392,7 @@ public class Maven2BuilderTest extends TestCase {
 
         if (Util.isWindows()) {
             System.out.println("Skipping testBuildTimeout(), no DOS 'sleep' command");
+            return;
         }
 
         Maven2Builder mb = new Maven2Builder();
