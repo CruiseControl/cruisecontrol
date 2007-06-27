@@ -114,7 +114,8 @@ public class ListenerTestPlugin implements Listener {
     */
 
     public Object createStringWrapper() {
-        return stringWrapper = new StringWrapper();
+        stringWrapper = new StringWrapper();
+        return stringWrapper;
     }
 
     public void add(ListenerTestNestedPlugin nestedPlugin) {

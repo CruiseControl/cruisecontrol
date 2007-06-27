@@ -4,7 +4,7 @@
     "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
 
 <module name="Checker">
-    <module name="Translation"/>   
+    <module name="Translation"/>
     <module name="TreeWalker">
         <property name="tabWidth" value="4"/>
 
@@ -71,7 +71,13 @@
         <module name="MissingSwitchDefault"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
-        
+        <!--Return from within a finally block. Will cause any exception that might be thrown in the try block to be discarded.-->
+        <module name="DescendantToken">
+            <property name="tokens" value="LITERAL_FINALLY"/>
+            <property name="limitedTokens" value="LITERAL_RETURN"/>
+            <property name="maximumNumber" value="0"/>
+        </module>
+
         <!-- Design checks -->
         <module name="VisibilityModifier">
             <property name="publicMemberPattern" value="^[a-zA-Z0-9]*$"/>
@@ -84,4 +90,10 @@
         <module name="UpperEll"/>
         <module name="ArrayTypeStyle"/>        
     </module>
+
+    <!-- SuppressionFilter added only to avoid different behavior after checkstyle upgrade to v4.3 -->
+    <module name="SuppressionFilter">
+        <property name="file" value="${basedir}/checkstyleSuppressions.xml"/>
+    </module>
+    
 </module>

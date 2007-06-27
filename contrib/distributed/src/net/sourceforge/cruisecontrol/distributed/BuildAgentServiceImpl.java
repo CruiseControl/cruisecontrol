@@ -267,7 +267,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         /**
          * Implement in order to run the desired Action
          */
-        public abstract void execAction() ;
+        public abstract void execAction();
     }
 
 

@@ -383,6 +383,7 @@
             <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
             <fileset dir="${src}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
             <fileset dir="${test}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
+            <property key="basedir" value="${dir.main}"/>
         </checkstyle>
     </target>
 
