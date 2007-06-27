@@ -50,7 +50,7 @@ batik-svggen.jar	1.5.1?	ASL v1.1	apache-license-1.1.txt (from 1.5.1)
 batik-util.jar		1.5.1?	ASL v1.1	apache-license-1.1.txt (from 1.5.1)
 cewolf			0.9.8?  LGPL v2.1	lgpl-license.txt
 			(Built-By: jfredrick)
-checkstyle-all-3.1.jar	same as main/lib
+checkstyle-all-4.3.jar	same as main/lib
 commons-logging.jar 	1.0.3?	ASL v1.1	apache-license-1.1.txt (from 1.0.4)
 	(also in checkstyle-all)
 jcommon-0.8.0.jar	0.0.8	LGPL v2.1       lgpl-license.txt

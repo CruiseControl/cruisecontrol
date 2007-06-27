@@ -126,7 +126,9 @@ public class XMLLogHelper {
     public boolean isBuildNecessary() {
         if (log.getChild("build") != null && log.getChild("build").getAttributeValue("error") != null) {
 
-        return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary"); }
+            return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
+        }
+
         return true;
     }
 
@@ -193,8 +195,9 @@ public class XMLLogHelper {
     private String findProperty(Iterator props, String expected) throws CruiseControlException {
         while (props.hasNext()) {
             Element property = (Element) props.next();
-            if (property.getAttributeValue("name").equals(expected)) { return property
-                    .getAttributeValue("value"); }
+            if (property.getAttributeValue("name").equals(expected)) {
+                return property.getAttributeValue("value");
+            }
         }
         throw new CruiseControlException("Property: " + expected + " not found.");
     }

@@ -63,7 +63,7 @@
 
     <property name="checkstyle.fail.on.violation" value="true" />
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
-    <property name="checkstyle.jar" value="${lib}/checkstyle-all-3.1.jar" />
+    <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.3.jar" />
 
     <!-- ****************************************************
     Define the project classpath references.  Any jar found

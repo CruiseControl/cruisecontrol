@@ -54,7 +54,7 @@
     <property name="test.results" value="${target}/test-results"/>
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
-    <property name="checkstyle.jar" value="${main.lib}/checkstyle-all-3.1.jar"/>
+    <property name="checkstyle.jar" value="${main.lib}/checkstyle-all-4.3.jar"/>
 
     <target name="clean">
         <delete dir="${target}"/>
@@ -82,6 +82,7 @@
             <fileset dir="${src}" includes="**/*.java"/>
             <fileset dir="${test}" includes="**/*.java"/>
             <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
+            <property key="basedir" value="${main.dir}"/>
         </checkstyle>
     </target>
 

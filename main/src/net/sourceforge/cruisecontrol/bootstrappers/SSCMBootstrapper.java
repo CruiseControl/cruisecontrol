@@ -83,11 +83,26 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
    public void setServerLogin(String str)         { strparamServerLogin.setData(str); }
    public void setIncludeRemovedFiles(boolean f) { strparamIncludeRemovedFiles.setData(f ? "" : "-"); }
    public void setOverwrite(boolean f)           { strparamOverwrite.setData(f ? "replace" : "skip"); }
-   public void setRecursive(boolean f)           { if (f) { fparamRecursive.setData(null); } }
-   public void setForceFetch(boolean f)          { if (f) { fparamForceFetch.setData(null); } }
-   public void setMakeWritable(boolean f)        { if (f) { fparamMakeWritable.setData(null); } }
 
-   private SSCM.SSCMCLIStringParam strparamBranch = new SSCM.SSCMCLIStringParam("branch", "-b", false);
+    public void setRecursive(boolean f) {
+        if (f) {
+            fparamRecursive.setData(null);
+        }
+    }
+
+    public void setForceFetch(boolean f) {
+        if (f) {
+            fparamForceFetch.setData(null);
+        }
+    }
+
+    public void setMakeWritable(boolean f) {
+        if (f) {
+            fparamMakeWritable.setData(null);
+        }
+    }
+
+    private SSCM.SSCMCLIStringParam strparamBranch = new SSCM.SSCMCLIStringParam("branch", "-b", false);
    private SSCM.SSCMCLIStringParam strparamRepository = new SSCM.SSCMCLIStringParam("repository", "-p", false);
    private SSCM.SSCMCLIStringParam strparamLabel = new SSCM.SSCMCLIStringParam("label", "-l", false);
    private SSCM.SSCMCLIStringParam strparamServerConnect = new SSCM.SSCMCLIStringParam("serverconnect", "-z", false);
