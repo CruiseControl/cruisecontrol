@@ -102,7 +102,7 @@ public final class DataUtils {
         return getSubFolderOfWebApp("projects");
     }
 
-    public static final File getConfigXmlInArbitraryCCHome() throws Exception {
+    public static File getConfigXmlInArbitraryCCHome() throws Exception {
         File ccRoot = getData("arbitrary_cc_home");
         File arbitraryCCHome = FilesystemUtils.createDirectory("arbitraryCCHome");
         FileUtils.copyDirectoryToDirectory(ccRoot, arbitraryCCHome);
@@ -163,6 +163,8 @@ public final class DataUtils {
 
     public static File createTempDirectory(String path) throws IOException {
         File file = File.createTempFile("tmp", "tmp");
+        file.deleteOnExit();
+        
         File dir = new File(file.getParent() + File.separator + path);
         dir.deleteOnExit();
         dir.mkdir();
