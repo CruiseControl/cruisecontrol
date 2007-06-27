@@ -38,8 +38,7 @@ package net.sourceforge.cruisecontrol.builders;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.jdom.Element;
 
@@ -53,31 +52,35 @@ public class Maven2BuilderTest extends TestCase {
 
     private static final String MOCK_SUCCESS = "successful build";
     private static final String MOCK_BUILD_FAILURE = "failed build";
-    private static final String MOCK_DOWNLOAD_FAILURE = "download failure";
+    private static final String MOCK_BUILD_ERROR = "download failure";
+    private static final String MOCK_FATAL_ERROR = "fatal error";
+    private static final String MOCK_SCRIPT_TIMEOUT = "build timeout";
 
     private static final String MSG_PREFIX_HOME_SCRIPT_BOTH_SET = "'mvnhome' and 'mvnscript' cannot both be set.";
 
 
-    private static File createTestMvnScriptFile() throws IOException, CruiseControlException {
+    private File createTestMvnScriptFile() throws IOException, CruiseControlException {
         File testScript = File.createTempFile("Maven2BuilderTest.testValidate", "_testmaven.bat");
         testScript.deleteOnExit();
-        makeTestFile(testScript, "@echo This is a fake maven.bat\n", true);
+        MavenBuilderTest.makeTestFile(testScript, "@echo This is a fake maven.bat\n", true, filesToDelete);
         return testScript;
     }
 
-    private static File createTestMvnProjectFile() throws IOException, CruiseControlException {
+    private File createTestMvnProjectFile() throws IOException, CruiseControlException {
         File testProject = File.createTempFile("Maven2BuilderTest.testValidate", "_testproject.xml");
         testProject.deleteOnExit();
-        makeTestFile(testProject,
-            "<project><!-- This is a fake Maven project file --></project>\n", true);
+        MavenBuilderTest.makeTestFile(testProject,
+            "<project><!-- This is a fake Maven project file --></project>\n", true, filesToDelete);
         return testProject;
     }
 
-    private static Maven2Builder createValidM2Builder() throws IOException, CruiseControlException {
+    private Maven2Builder createValidM2Builder() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
         // these files must also exist for Maven2Builder to be happy.
         final File testScript = createTestMvnScriptFile();
+        filesToDelete.add(testScript);
         final File testProject = createTestMvnProjectFile();
+        filesToDelete.add(testProject);
 
         mb.setMultiple(1);
         mb.setMvnHome(testScript.getParentFile().getAbsolutePath());
@@ -86,6 +89,11 @@ public class Maven2BuilderTest extends TestCase {
         return mb;
     }
 
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
+
+    protected void tearDown() {
+        filesToDelete.delete();
+    }
 
     public void testFindMaven2Script() throws Exception {
         final Maven2Builder mb = new Maven2Builder();
@@ -152,10 +160,6 @@ public class Maven2BuilderTest extends TestCase {
         }            
     }
 
-    /**
-     * void validate()
-     * @throws Exception if anything breaks
-     */
     public void testValidate() throws Exception {
         Maven2Builder mb = new Maven2Builder();
         try {
@@ -214,9 +218,14 @@ public class Maven2BuilderTest extends TestCase {
         internalTestBuild(MOCK_BUILD_FAILURE, mb);
     }
 
-    public void testBuild_DownloadFailure() throws IOException, CruiseControlException {
+    public void testBuild_Error() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
-        internalTestBuild(MOCK_DOWNLOAD_FAILURE, mb);
+        internalTestBuild(MOCK_BUILD_ERROR, mb);
+    }
+
+    public void testBuild_FatalError() throws IOException, CruiseControlException {
+        Maven2Builder mb = new Maven2Builder();
+        internalTestBuild(MOCK_FATAL_ERROR, mb);
     }
 
     /**
@@ -227,108 +236,106 @@ public class Maven2BuilderTest extends TestCase {
      * @throws IOException if something breaks
      * @throws CruiseControlException if something breaks
      */
-    private void internalTestBuild(String statusType, Maven2Builder mb) throws IOException, CruiseControlException {
+    private void internalTestBuild(final String statusType, final Maven2Builder mb)
+            throws IOException, CruiseControlException {
 
-        File testScript = null;
-        boolean buildSuccessful = statusType.equals(MOCK_SUCCESS);
-        String statusText = getStatusText(statusType);
-        try {
-            // Prepare mock files.
-            final String tempFilePrefix = "Maven2BuilderTest.internalTestBuild";
+        setupMockBuild(statusType, mb);
 
-            if (Util.isWindows()) {
-                testScript = File.createTempFile(tempFilePrefix, "_testmaven.bat");
-                testScript.deleteOnExit();
-                makeTestFile(
-                    testScript,
-                    "@rem This is a fake maven.bat\n"
-                        + "@echo java:compile:\n"
-                        + "@echo Bla-bla-compile\n"
-                        + "@echo test:test:\n"
-                        + "@echo "
-                        + statusText
-                        + "\n",
-                    true);
-            } else {
-                testScript = File.createTempFile(tempFilePrefix, "_testmaven.sh");
-                testScript.deleteOnExit();
-                makeTestFile(
-                    testScript,
-                    "#!/bin/sh\n"
-                        + "\n"
-                        + "# This is a fake maven.sh\n"
-                        + "echo java:compile:\n"
-                        + "echo Bla-bla-compile\n"
-                        + "echo test:test:\n"
-                        + "echo "
-                        + statusText
-                        + "\n",
-                    false);
-            }
-            mb.setMvnScript(testScript.getAbsolutePath());
+        // some fake goal is still needed to start working (no '|' here!)
+        mb.setGoal("fakegoal");
+        // this should "succeed"
+        Element logElement = mb.build(getUnitTestBuildProperties());
 
-            // pom must exist before call to build()
-            final File testPom = File.createTempFile(tempFilePrefix, "don-t-care-pom.xml", new File("."));
-            testPom.deleteOnExit();
-            mb.setPomFile(testPom.getName());
+        assertNotNull(statusType, logElement);
+        List goalTags = logElement.getChildren("mavengoal");
+        assertNotNull(statusType, goalTags);
+        assertEquals(statusType, 2, goalTags.size());
+        Element we = (Element) goalTags.get(0);
+        assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
+        we = (Element) goalTags.get(1);
+        assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
+        assertBuildState(statusType, logElement);
 
-            try {
-                Element we;
-                List goalTags;
-
-                // some fake goal is still needed to start working (no '|' here!)
-                mb.setGoal("fakegoal");
-                // this should "succeed"
-                Element logElement = mb.build(getUnitTestBuildProperties());
-                assertNotNull(statusType, logElement);
-                goalTags = logElement.getChildren("mavengoal");
-                assertNotNull(statusType, goalTags);
-                assertEquals(statusType, 2, goalTags.size());
-                we = (Element) goalTags.get(0);
-                assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
-                we = (Element) goalTags.get(1);
-                assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
-                if (!buildSuccessful) {
-                    assertNotNull("error attribute not found when " + statusType, logElement.getAttribute("error"));
-                } else {
-                    assertNull(statusType, logElement.getAttribute("error"));
-                }
-
-                // this time let's test multiple runs
-                mb.setGoal("fakegoal|otherfakegoal");
-                // this should "double succeed"
-                logElement = mb.build(new Hashtable());
-                assertNotNull(statusType, logElement);
-                goalTags = logElement.getChildren("mavengoal");
-                assertNotNull(statusType, goalTags);
-                we = (Element) goalTags.get(0);
-                assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
-                we = (Element) goalTags.get(1);
-                assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
-                if (!buildSuccessful) {
-                    assertNotNull(statusType, logElement.getAttribute("error"));
-                    // if we mocked a failure, the second run should never happen
-                    assertEquals(statusType, 2, goalTags.size());
-                } else {
-                    assertNull(statusType, logElement.getAttribute("error"));
-                    assertEquals(statusType, 4, goalTags.size());
-                    we = (Element) goalTags.get(2);
-                    assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
-                    we = (Element) goalTags.get(3);
-                    assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
-                }
-
-            } catch (CruiseControlException e) {
-                e.printStackTrace();
-                fail("Maven2Builder should not throw exceptions when build()-ing.");
-            }
-        } finally {
-            if (testScript != null) {
-                //PJ: May 08, 2005: The following statement is breaking the build on the cclive box.
-                //(new File(testScriptName)).delete();
-                return;
-            }
+        // this time let's test multiple runs
+        mb.setGoal("fakegoal|otherfakegoal");
+        // this should "double succeed"
+        logElement = mb.build(new Hashtable());
+        assertNotNull(statusType, logElement);
+        goalTags = logElement.getChildren("mavengoal");
+        assertNotNull(statusType, goalTags);
+        we = (Element) goalTags.get(0);
+        assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
+        we = (Element) goalTags.get(1);
+        assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
+        assertBuildState(statusType, logElement);
+        if (!isExpectedSuccess(statusType)) {
+            // if we mocked a failure, the second run should never happen
+            assertEquals(statusType, 2, goalTags.size());
+        } else {
+            assertEquals(statusType, 4, goalTags.size());
+            we = (Element) goalTags.get(2);
+            assertEquals(statusType, "java:compile", we.getAttribute("name").getValue());
+            we = (Element) goalTags.get(3);
+            assertEquals(statusType, "test:test", we.getAttribute("name").getValue());
         }
+    }
+
+    private void setupMockBuild(String statusType, Maven2Builder mb) throws IOException, CruiseControlException {
+        final String statusText = getStatusText(statusType);
+        // Prepare mock files.
+        final String tempFilePrefix = "Maven2BuilderTest.internalTestBuild";
+        final File testScript;
+        if (Util.isWindows()) {
+            testScript = File.createTempFile(tempFilePrefix, "_testmaven.bat");
+            testScript.deleteOnExit();
+            MavenBuilderTest.makeTestFile(
+                testScript,
+                "@rem This is a fake maven.bat\n"
+                    + "@echo [INFO] [java:compile]\n"
+                    + "@echo [INFO] Bla-bla-compile\n"
+                    + "@echo [INFO] [test:test]\n"
+                    + "@echo "
+                    + statusText
+                    + "\n",
+                true, filesToDelete);
+        } else {
+            testScript = File.createTempFile(tempFilePrefix, "_testmaven.sh");
+            testScript.deleteOnExit();
+            MavenBuilderTest.makeTestFile(
+                testScript,
+                "#!/bin/sh\n"
+                    + "\n"
+                    + "# This is a fake maven.sh\n"
+                    + "echo [INFO] [java:compile]\n"
+                    + "echo [INFO] Bla-bla-compile\n"
+                    + "echo [INFO] [test:test]\n"
+                    + "echo "
+                    + statusText
+                    + "\n",
+                false, filesToDelete);
+        }
+        mb.setMvnScript(testScript.getAbsolutePath());
+
+        // pom must exist before call to build()
+        final File testPom = File.createTempFile(tempFilePrefix, "don-t-care-pom.xml", new File("."));
+        filesToDelete.add(testPom);
+        testPom.deleteOnExit();
+        mb.setPomFile(testPom.getName());
+    }
+
+    private boolean isExpectedSuccess(final String statusType) {
+        return statusType.equals(MOCK_SUCCESS);
+    }
+
+    private void assertBuildState(final String statusType, final Element logElement) {
+        if (!isExpectedSuccess(statusType)) {
+            assertNotNull("error attribute not found when " + statusType, logElement.getAttribute("error"));
+            assertNull(statusType, logElement.getAttribute("success"));
+        } else {
+            assertNull(statusType, logElement.getAttribute("error"));
+            assertNotNull(statusType, logElement.getAttribute("success"));
+        }
+        assertNotNull(statusType + " missing 'time' attribute", logElement.getAttribute("time"));
     }
 
     private static Map getUnitTestBuildProperties() {
@@ -379,58 +386,51 @@ public class Maven2BuilderTest extends TestCase {
         assertEquals("Second cplx run produces bad goal", "test", (String) gsList.get(1));
     }
 
-    /**
-     * Make a test file with specified content.
-     * @param testFile the file to create
-     * @param content the data to put into the created file
-     * @param onWindows true if running on Windows OS
-     * @throws CruiseControlException if anything breaks
-     */
-    private static void makeTestFile(File testFile, String content, boolean onWindows)
-            throws CruiseControlException {
+    private static final int TIMEOUT_SLEEP = 2;
 
-        IO.write(testFile, content);
-        if (!onWindows) {
-            Commandline cmdline = new Commandline();
-            cmdline.setExecutable("chmod");
-            cmdline.createArgument("755");
-            cmdline.createArgument(testFile.getAbsolutePath());
-            try {
-                Process p = cmdline.execute();
-                p.waitFor();
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail("exception changing permissions on test file " + testFile.getAbsolutePath());
-            }
-        }
-    }
     public void testBuildTimeout() throws Exception {
 
-        Maven2Builder builder = new Maven2Builder();
-        builder.setTimeout(5);
-        long startTime = System.currentTimeMillis();
+        if (Util.isWindows()) {
+            System.out.println("Skipping testBuildTimeout(), no DOS 'sleep' command");
+        }
 
-        internalTestBuild(MOCK_BUILD_FAILURE, builder);
+        Maven2Builder mb = new Maven2Builder();
+        mb.setTimeout(TIMEOUT_SLEEP);
+        final long startTime = System.currentTimeMillis();
+        //Element logElement = internalTestBuild(MOCK_SCRIPT_TIMEOUT, mb);
+        setupMockBuild(MOCK_SCRIPT_TIMEOUT, mb);
 
-        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
-       // assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+        mb.setGoal("fakegoal");
+        // this should "succeed"
+        Element logElement = mb.build(getUnitTestBuildProperties());
 
+        final long endTime = System.currentTimeMillis();
 
+        assertNotNull("Build should have timed out.", logElement.getAttributeValue("error"));
+        assertTrue(logElement.getAttributeValue("error").indexOf("timeout") >= 0);
+        assertTrue((endTime - startTime) < 9 * 1000L);
     }
 
     /**
      * Text for build status
      *
      * @param statusCode The exit status to be tested
-     * @return the expected log text for the given build status
+     * @return the expected script output text for the given build status
      */
     private String getStatusText(String statusCode) {
         if (statusCode.equals(MOCK_SUCCESS)) {
-            return "BUILD SUCCESSFUL";
+            return "[INFO] BUILD SUCCESSFUL";
         } else if (statusCode.equals(MOCK_BUILD_FAILURE)) {
-            return "BUILD FAILED";
-        } else if (statusCode.equals(MOCK_DOWNLOAD_FAILURE)) {
-            return "The build cannot continue because of the following unsatisfied dependency";
+            return "[ERROR] BUILD FAILURE";
+        } else if (statusCode.equals(MOCK_BUILD_ERROR)) {
+            return  "[ERROR] BUILD ERROR";
+        } else if (statusCode.equals(MOCK_FATAL_ERROR)) {
+            return  "[ERROR] FATAL ERROR";
+        } else if (statusCode.equals(MOCK_SCRIPT_TIMEOUT)) {
+            int sleepTime = TIMEOUT_SLEEP * 2;
+            return  "[INFO] BUILD SUCCESSFUL"
+                    + "\n" + (Util.isWindows() ? "@" : "") + "echo sleeping " + sleepTime + "..."
+                    + "\nsleep " + sleepTime;
         }
         throw new IllegalArgumentException("please use one of the constants");
     }
