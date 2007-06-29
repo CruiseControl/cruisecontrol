@@ -94,7 +94,7 @@ public class ProcessesTest extends TestCase {
         }
     }
 
-    private static class CloseAwareInputStream extends InputStream {
+    private static final class CloseAwareInputStream extends InputStream {
         private final int millisTillEndOfStream;
         private long starttime;
         private boolean closed;
