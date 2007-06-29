@@ -53,11 +53,19 @@ public class ProcessesTest extends TestCase {
 
     public void testShouldStartStreamPumperForErrorStream() throws IOException {
         Processes.setRuntime(new MockExecutor());
-        Commandline c = new Commandline() {
-        };
+        Commandline c = new Commandline();
+        c.setExecutable("UnitTestDummyExcectuable");
         int preCount = Thread.activeCount();
         assertNotNull(Processes.execute(c));
-        assertTrue("A StreamPumper Thread wasn't started", Thread.activeCount() > preCount);
+        // allow some time for thread to spin up. can be longer in java 5
+        int waitCount = 0;
+        int postCount = Thread.activeCount();
+        while ((preCount < postCount) && (waitCount < 20)) {
+            waitCount++;
+            Thread.yield();
+            postCount = Thread.activeCount();
+        }
+        assertTrue("A StreamPumper Thread wasn't started", postCount > preCount);
     }
 
     public void testShouldCloseStreamsWhenExecutingFully() throws IOException, InterruptedException {
@@ -70,8 +78,8 @@ public class ProcessesTest extends TestCase {
     }
 
     private static class CloseableProcess extends MockProcess {
-        private CloseAwareInputStream error = new CloseAwareInputStream();
-        private CloseAwareInputStream input = new CloseAwareInputStream();
+        private CloseAwareInputStream error = new CloseAwareInputStream(4 * 1000);
+        private CloseAwareInputStream input = new CloseAwareInputStream(4 * 1000);
         private CloseAwareOutputStream output = new CloseAwareOutputStream();
 
         public CloseableProcess() {
@@ -87,7 +95,13 @@ public class ProcessesTest extends TestCase {
     }
 
     private static class CloseAwareInputStream extends InputStream {
+        private final int millisTillEndOfStream;
+        private long starttime;
         private boolean closed;
+
+        private CloseAwareInputStream(final int millisTillEndOfStream) {
+            this.millisTillEndOfStream = millisTillEndOfStream;
+        }
 
         public void close() throws IOException {
             closed = true;
@@ -98,7 +112,15 @@ public class ProcessesTest extends TestCase {
         }
 
         public int read() throws IOException {
-            return 0;
+            if (starttime == 0) {
+                starttime = System.currentTimeMillis();
+            }
+
+            if ((System.currentTimeMillis() - starttime) < millisTillEndOfStream) {
+                Thread.yield();
+                return 0;
+            }
+            return -1;
         }
     }
 
