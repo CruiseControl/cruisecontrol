@@ -61,7 +61,7 @@ public final class Processes {
     public static Process execute(Commandline c) throws IOException {
         Process p = runtime.exec(c);
         StreamPumper errorPumper = StreamLogger.getWarnPumper(LOG, p);
-        new Thread(errorPumper).start();
+        new Thread(errorPumper, "ProcessThread_" + c.getExecutable()).start();
         return p;
     }
 
