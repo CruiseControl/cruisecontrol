@@ -136,10 +136,11 @@ public class ScriptRunner  {
             killer.interrupt();
             stderr.join();
             stdout.join();
-            IO.close(p);
         } catch (InterruptedException e) {
             LOG.info("Was interrupted while waiting for script to finish."
                     + " CruiseControl will continue, assuming that it completed");
+        } finally {
+            IO.close(p);            
         }
 
         script.setExitCode(exitCode);
