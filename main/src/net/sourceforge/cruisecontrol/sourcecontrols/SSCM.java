@@ -174,6 +174,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
             try {
                 Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
+                process.getOutputStream().close();
                 Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
                 stderr.start();
 

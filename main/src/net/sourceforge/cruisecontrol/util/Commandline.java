@@ -577,7 +577,7 @@ public class Commandline implements Cloneable {
      * Executes the command.
      */
     public Process execute() throws IOException {
-        Process process;
+        final Process process;
 
         final String msgCommandInfo = "Executing: [" + getExecutable() + "] with parameters: ["
                 + toString(getCommandline(), false, "], [") + "]";
@@ -600,6 +600,8 @@ public class Commandline implements Cloneable {
                 process = runtime.exec(toStringNoQuoting(), null, workingDir);
             }
         }
+
+        process.getOutputStream().close();
 
         return process;
     }

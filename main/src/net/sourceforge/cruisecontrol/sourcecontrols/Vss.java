@@ -180,6 +180,7 @@ public class Vss implements SourceControl {
         try {
             LOG.info("Getting modifications for " + vssPath);
             p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), VSSHelper.loadVSSEnvironment(serverPath));
+            p.getOutputStream().close();
             Thread stderr = logErrorStream(p.getErrorStream());
 
             p.waitFor();

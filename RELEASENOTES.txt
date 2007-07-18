@@ -33,6 +33,10 @@ build.sh/release.sh scripts
 ----------------------
 * Set JAVA_HOME properly on MacOSX (CC-681). Patch by Ingo Richter
 
+CommandLine and Process exec handling
+----------------------
+* Close process.outputStream to avoid deadlocks. (CC-527) Reported by Jason R. Hull
+
 ConcurrentVersionsSystem
 ----------------------
 * Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.

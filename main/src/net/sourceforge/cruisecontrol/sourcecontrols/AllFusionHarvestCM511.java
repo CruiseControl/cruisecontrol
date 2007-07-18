@@ -392,6 +392,7 @@ public class AllFusionHarvestCM511 implements SourceControl {
             }
 
             p = Runtime.getRuntime().exec(cmd);
+            p.getOutputStream().close();
 
             //Log any errors.
             Thread stderr = logErrorStream(p);

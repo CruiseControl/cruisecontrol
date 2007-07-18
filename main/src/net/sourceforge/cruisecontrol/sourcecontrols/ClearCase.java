@@ -243,6 +243,8 @@ public class ClearCase implements SourceControl {
         List modifications = null;
         try {
             Process p = Runtime.getRuntime().exec(command, null, root);
+            p.getOutputStream().close();
+
             Thread stderr = logErrorStream(p);
 
             InputStream input = p.getInputStream();

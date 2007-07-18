@@ -61,6 +61,15 @@ public class CommandLineTest extends TestCase {
                 DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " ", cl2.toString());
     }
 
+    public void testOutputStreamShouldBeClosed() throws IOException {
+        MockRuntime mockRuntime = new MockRuntime();
+        Commandline command = new Commandline("doesnt matter", mockRuntime);
+        Process p = command.execute();
+        assertTrue(p.getOutputStream() instanceof ProcessesTest.CloseAwareOutputStream);
+        ProcessesTest.CloseAwareOutputStream outStream = (ProcessesTest.CloseAwareOutputStream) p.getOutputStream();
+        assertTrue("Process output stream should have been closed.", outStream.isClosed());
+    }
+
     public void testShouldInvokeProvidedRuntime() throws IOException {
         MockRuntime mockRuntime = new MockRuntime();
         Commandline command = new Commandline("doesnt matter", mockRuntime);
@@ -73,12 +82,12 @@ public class CommandLineTest extends TestCase {
 
         public Process exec(String[] commandline) throws IOException {
             wasCalled = true;
-            return new MockProcess();
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
         }
 
         public Process exec(String[] commandline, String[] o, File workingDir) throws IOException {
             wasCalled = true;
-            return new MockProcess();
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
         }
 
         public boolean wasCalled() {

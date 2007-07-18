@@ -107,6 +107,10 @@ public class MockProcess extends Process {
     public MockProcess() {
     }
 
+    public MockProcess(final OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Process#destroy()
      */
