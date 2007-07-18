@@ -124,7 +124,7 @@ public class ProcessesTest extends TestCase {
         }
     }
 
-    private static class CloseAwareOutputStream extends OutputStream {
+    static class CloseAwareOutputStream extends OutputStream {
 
         private boolean closed;
 

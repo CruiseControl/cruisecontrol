@@ -147,6 +147,7 @@ public class OSEnvironment {
         // Get our environment
         try {
             Process p = Runtime.getRuntime().exec(command);
+            p.getOutputStream().close();
 
             // Capture the output of the command
             BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(p.getInputStream()));

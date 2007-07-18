@@ -157,6 +157,7 @@ public class SnapshotCM implements SourceControl {
             LOG.info("Running command: " + command);
             try {
                 Process p = Runtime.getRuntime().exec(command);
+                p.getOutputStream().close();
 
                 Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p));
                 stderr.start();

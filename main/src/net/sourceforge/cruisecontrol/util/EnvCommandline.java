@@ -174,6 +174,8 @@ public class EnvCommandline extends Commandline {
             process = Runtime.getRuntime().exec(getCommandline(), env.toArray(), workingDir);
         }
 
+        process.getOutputStream().close();
+
         return process;
     }
 }
