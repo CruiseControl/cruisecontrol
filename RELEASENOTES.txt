@@ -29,6 +29,10 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
+build.sh/release.sh scripts
+----------------------
+* Set JAVA_HOME properly on MacOSX (CC-681). Patch by Ingo Richter
+
 ConcurrentVersionsSystem
 ----------------------
 * Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.

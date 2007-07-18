@@ -45,6 +45,17 @@
 LIBDIR=main/lib
 
 #--------------------------------------------
+# set JAVA_HOME on Mac OSX
+#--------------------------------------------
+case "`uname`" in
+  Darwin*)
+    if [ -z "$JAVA_HOME" ] ; then
+      JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
+    fi
+    ;;
+esac
+
+#--------------------------------------------
 # No need to edit anything past here
 #--------------------------------------------
 

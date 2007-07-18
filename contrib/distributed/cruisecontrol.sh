@@ -43,6 +43,17 @@
 # Uncomment the following line if you have OutOfMemoryError errors
 # CC_OPTS="-Xms128m -Xmx256m"
 
+#--------------------------------------------
+# set JAVA_HOME on Mac OSX
+#--------------------------------------------
+case "`uname`" in
+  Darwin*)
+    if [ -z "$JAVA_HOME" ] ; then
+      JAVA_HOME=/System/Library/Frameworks/JavaVM.framework/Home
+    fi
+    ;;
+esac
+
 # Inspired by Ant's wrapper script
 if [ -z "$CCDIR" ] ; then
   # resolve links - $0 may be a softlink
