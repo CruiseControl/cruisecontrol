@@ -65,7 +65,9 @@ public class ProcessesTest extends TestCase {
             Thread.yield();
             postCount = Thread.activeCount();
         }
-        assertTrue("A StreamPumper Thread wasn't started", postCount > preCount);
+        assertTrue("A StreamPumper Thread wasn't started. postCount: " + postCount 
+                + "; preCount: " + preCount,
+                postCount > preCount);
     }
 
     public void testShouldCloseStreamsWhenExecutingFully() throws IOException, InterruptedException {
