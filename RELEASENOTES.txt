@@ -15,6 +15,7 @@ Documentation
 ======================
 * Added docs for the Darcs scm plugin (CC-626).
 * Fixed issue with logo appearing incorrectly placed in IE6. Patch by Jerome Lacoste.
+* Add missing step in X10 publisher instructions. Patch by Bill Wohler.
 
 dashboard
 ======================
