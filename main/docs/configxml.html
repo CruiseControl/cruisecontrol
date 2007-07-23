@@ -8425,7 +8425,10 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <code>commapi/jar/comm.jar</code> and
             <code>commapi/docs/javax.comm.properties</code> into the
             CruiseControl lib directory, overwriting the
-            existing <code>comm.jar</code> file.</li>
+            existing <code>comm.jar</code> file.Then
+            extract <code>commapi/lib/libLinuxSerialParallel.so</code>
+            and point <code>LD_LIBRARY_PATH</code> to it, like so:
+            <pre><code>export LD_LIBRARY_PATH=$HOME/commapi/lib${LD_LIBRARY_PATH+:$LD_LIBRARY_PATH}</code></pre></li>
             <li>Add the x10 publisher to CruiseControl's config.xml.
             For example, on Windows:
             <pre><code>&lt;x10 houseCode="A" deviceCode="3" port="COM1" /&gt;</code></pre>
