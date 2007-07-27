@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import junit.framework.Assert;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
@@ -72,7 +73,7 @@ public class UpdateConfigXmlContentControllerTest extends MockObjectTestCase {
         request.setMethod("POST");
         controller =
                 new UpdateConfigXmlContentController(configuration, new EnvironmentService(
-                        new SystemService()));
+                        new SystemService(), new DashboardConfigService[]{}));
 
     }
 

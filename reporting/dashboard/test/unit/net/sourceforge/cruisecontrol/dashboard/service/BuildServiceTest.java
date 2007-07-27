@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.ModifiedFile;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
@@ -64,7 +65,8 @@ public class BuildServiceTest extends MockObjectTestCase {
     protected void setUp() throws Exception {
         mockConfiguration =
                 mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService()))});
+                        new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService(),
+                                new DashboardConfigService[] {}))});
         configurationMock = (Configuration) mockConfiguration.proxy();
         mockConfiguration.expects(once()).method("getArtifactRoot").will(
                 returnValue(DataUtils.getProject1ArtifactDirAsFile()));
@@ -94,14 +96,14 @@ public class BuildServiceTest extends MockObjectTestCase {
         assertEquals(true, erroredTest.didError());
         assertEquals("org/objectweb/asm/CodeVisitor", erroredTest.getMessage());
         assertEquals("java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor\n"
-                + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)", erroredTest
-                .getMessageBody());
+                + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)",
+                erroredTest.getMessageBody());
     }
 
     public void testCanReadStackTrace() throws Exception {
         BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getFailedBuildLbuildAsFile());
-
-        assertEquals("This is my stacktrace", build.getStackTrace());
+        assertTrue(StringUtils.contains(build.getStackTrace(), "This is my error message"));
+        assertTrue(StringUtils.contains(build.getStackTrace(), "This is my stacktrace"));
     }
 
     public void testCanReadFailureFromTest() throws Exception {
@@ -129,15 +131,15 @@ public class BuildServiceTest extends MockObjectTestCase {
         ModificationSet modificationSet = build.getModificationSet();
 
         Collection modifications = modificationSet.getModifications();
-        assertEquals(1, modifications.size());
+        assertEquals(2, modifications.size());
         Modification modification = (Modification) modifications.iterator().next();
 
         assertEquals("cvs", modification.getType());
-        assertEquals("project name changed to cache", modification.getComment());
+        assertEquals("story123 project name changed to cache", modification.getComment());
         assertEquals("readcb", modification.getUser());
 
         List files = modification.getModifiedFiles();
-        assertEquals(2, files.size());
+        assertEquals(1, files.size());
 
         ModifiedFile firstFile = (ModifiedFile) files.get(0);
 
@@ -161,8 +163,8 @@ public class BuildServiceTest extends MockObjectTestCase {
         BuildTestSuite firstTestSuite = (BuildTestSuite) suites.get(0);
         assertEquals(1, firstTestSuite.getNumberOfErrors());
         assertEquals(1, firstTestSuite.getNumberOfFailures());
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", firstTestSuite
-                .getName());
+        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
+                firstTestSuite.getName());
         assertEquals(10, firstTestSuite.getNumberOfTests());
         assertEquals(0.109, firstTestSuite.getDurationInSeconds(), 0.001);
     }

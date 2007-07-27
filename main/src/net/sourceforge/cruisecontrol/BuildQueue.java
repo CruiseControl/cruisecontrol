@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.sourceforge.cruisecontrol.util.threadpool.TaskAlreadyAddedException;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
 
 import org.apache.log4j.Logger;
@@ -59,7 +60,9 @@ public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
     private final LinkedList queue = new LinkedList();
+
     private boolean waiting = false;
+
     private Thread buildQueueThread;
 
     private List listeners = new ArrayList();
@@ -73,7 +76,7 @@ public class BuildQueue implements Runnable {
         notifyListeners();
         synchronized (queue) {
             queue.add(project);
-            queue.notify();
+            queue.notifyAll();
         }
     }
 
@@ -95,26 +98,20 @@ public class BuildQueue implements Runnable {
         return "BUILD_REQUESTED[ " + (position + 1) + " / " + length + " ]";
     }
 
-    void serviceQueue() {
-        while (!queue.isEmpty()) {
-            ProjectInterface nextProject;
-            synchronized (queue) {
-                if (queue.isEmpty()) {
-                    break;
-                }
-                nextProject = (ProjectInterface) queue.remove(0);
-            }
-            if (nextProject != null) {
-                LOG.info("now adding to the thread queue: " + nextProject.getName());
-                ProjectWrapper pw = new ProjectWrapper(nextProject);
-                // let's not add the task more than once
-                String name = nextProject.getName();
-                if (ThreadQueue.isActive(name)) {
-                  // it's already there... don't re-add it.
-                  // later, we'll need to add it to a queued up list
-                  // so we don't 'forget' about the new build request
-                } else {
-                  ThreadQueue.addTask(pw);
+    private void serviceQueue() {
+        synchronized (queue) {
+            while (!queue.isEmpty()) {
+                ProjectInterface nextProject = (ProjectInterface) queue.remove(0);
+                if (nextProject != null) {
+                    LOG.info("now adding to the thread queue: " + nextProject.getName());
+                    ProjectWrapper pw = new ProjectWrapper(nextProject);
+                    try {
+                        ThreadQueue.addTask(pw);
+                    } catch (TaskAlreadyAddedException e) {
+                        // it's already there... don't re-add it.
+                        // later, we'll need to add it to a queued up list
+                        // so we don't 'forget' about the new build request
+                    }
                 }
             }
         }
@@ -125,7 +122,7 @@ public class BuildQueue implements Runnable {
             LOG.info("BuildQueue started");
             while (true) {
                 synchronized (queue) {
-                    if (queue.isEmpty()) {
+                    while (queue.isEmpty()) {
                         waiting = true;
                         queue.wait();
                     }
@@ -134,8 +131,7 @@ public class BuildQueue implements Runnable {
                 serviceQueue();
             }
         } catch (InterruptedException e) {
-            String message = "BuildQueue.run() interrupted. Stopping?";
-            LOG.debug(message, e);
+            LOG.debug("BuildQueue.run() interrupted. Stopping?", e);
         } catch (Throwable e) {
             LOG.error("BuildQueue.run()", e);
         } finally {
@@ -165,7 +161,7 @@ public class BuildQueue implements Runnable {
             buildQueueThread.interrupt();
         }
         synchronized (queue) {
-            queue.notify();
+            queue.notifyAll();
         }
     }
 
@@ -178,19 +174,22 @@ public class BuildQueue implements Runnable {
     }
 
     public void addListener(Listener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
     private void notifyListeners() {
-        Iterator toNotify = listeners.iterator();
-        while (toNotify.hasNext()) {
-            try {
-                ((Listener) toNotify.next()).buildRequested();
-            } catch (Exception e) {
-                LOG.error("exception notifying listener before project queued", e);
+        synchronized (listeners) {
+            Iterator toNotify = listeners.iterator();
+            while (toNotify.hasNext()) {
+                try {
+                    ((Listener) toNotify.next()).buildRequested();
+                } catch (Exception e) {
+                    LOG.error("exception notifying listener before project queued", e);
+                }
             }
         }
-
     }
 
     public static interface Listener extends EventListener {

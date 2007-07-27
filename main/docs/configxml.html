@@ -113,6 +113,7 @@
 <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
 <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher&gt;</a>
 <a href="#compound">&lt;compound&gt;</a>
+<a href="#compoundpublisher">&lt;compoundpublisher&gt;</a>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
 <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
 <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
@@ -310,6 +311,7 @@
          <a href="#clearcasebaselinepublisher">&lt;clearcasebaselinepublisher/&gt;</a>
          <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher/&gt;</a>
          <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher/&gt;</a>
+         <a href="#compoundpublisher">&lt;compoundpublisher/&gt;</a>
          <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
          <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
          <a href="#email">&lt;email/&gt;</a>
@@ -1052,6 +1054,74 @@ database=/ccmdb/product2
 user=buildmgr
 role=build_mgr
 password=P@ssW0rd!
+            </pre>
+            </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="compoundpublisher">&lt;compoundpublisher&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;compoundpublisher&gt;</pre>
+        </div>
+
+        <p>Provides the means to execute another publisher (or set of publishers).
+           This is accomplished by simply adding any desired publishers as child
+           elements.</p>
+
+        <p>All child elements must meet the following criteria:</p>
+
+        <ol>
+            <li>
+                They must be registered as publishers. If you are adding a publisher
+                which ships with CruiseControl, this will be done for you automatically.
+                If you are adding a custom publisher, you must remember to register it with
+                CruiseControl using a
+                <a href="#plugin">&lt;plugin&gt;</a> element within your config file.
+            </li>
+            <li>
+                They must validate successfully regardless of whether or not
+                the build was successful.
+            </li>
+        </ol>
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Any defined publisher</td>
+                <td>1 .. *</td>
+                <td>You may use any defined publisher as a child element.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>After a build, use the x10 publisher to light up a lamp,
+                and call an Ant script to do some cleanup.
+            <pre>
+&lt;compoundpublisher&gt;
+    &lt;x10 houseCode="A" deviceCode="3"/&gt;
+    &lt;antpublisher antscript="/opt/apache-ant-1.6.1/bin/ant"
+                  target="cleanupafterfailure"&gt;
+    &lt;/antpublisher&gt;
+&lt;/compoundpublisher&gt;
             </pre>
             </li>
         </ol>
@@ -4312,8 +4382,28 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        </div>
 
+        <h3>Properties Passed to the Builders</h3>
+
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties passed to builders</a>, &lt;svn&gt; sets the
+        following properties:</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>svnrevision</td>
+                <td>The repository revision number</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
         <h3>Properties Passed to the Builders</h3>
 
         <p>In addition to the standard CruiseControl <a href="#buildproperties">
@@ -6198,6 +6288,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td><a href="#cmsynergytaskpublisher"><code>&lt;cmsynergytaskpublisher&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Copies all new CM Synergy tasks into a shared folder.</td>
+            </tr>
+            <tr>
+                <td><a href="#compoundpublisher"><code>&lt;compoundpublisher&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Executes all publishers specified as child elements.</td>
             </tr>
             <tr>
                 <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>

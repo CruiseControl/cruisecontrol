@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
@@ -59,10 +60,10 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         serviceMock =
-                mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class,
-                        EnvironmentService.class}, new Object[] {null, new EnvironmentService(new SystemService())});
-        controller =
-                new GetProjectBuildOutputController((CruiseControlJMXService) serviceMock.proxy());
+                mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
+                        new Object[] {null,
+                                new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
+        controller = new GetProjectBuildOutputController((CruiseControlJMXService) serviceMock.proxy());
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
     }
@@ -71,8 +72,8 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
 
         final String[] output = new String[] {"Build succeeded.\n"};
 
-        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"),
-                eq(new Integer(2))).will(returnValue(output));
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(2))).will(
+                returnValue(output));
 
         request.setParameter("project", "project1");
         request.setParameter("start", "2");
@@ -83,16 +84,16 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
     }
 
     public void testShouldStartAtBeginningWhenNoStartParameterIsGiven() throws Exception {
-        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"),
-                eq(new Integer(0))).will(returnValue(new String[] {"Doesn't matter"}));
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(0))).will(
+                returnValue(new String[] {"Doesn't matter"}));
 
         request.setParameter("project", "project1");
         controller.handleRequest(request, response);
     }
 
     public void testShouldReturnNextStartLine() throws Exception {
-        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"),
-                eq(new Integer(500))).will(returnValue(new String[] {"1", "2", "3"}));
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
+                returnValue(new String[] {"1", "2", "3"}));
 
         request.setParameter("project", "project1");
         request.setParameter("start", "500");
@@ -103,8 +104,8 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
     }
 
     public void testNextLineShouldEqualsStartLineWhenNoOutputReturns() throws Exception {
-        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"),
-                eq(new Integer(500))).will(returnValue(new String[] {}));
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
+                returnValue(new String[] {}));
 
         request.setParameter("project", "project1");
         request.setParameter("start", "500");
@@ -115,8 +116,7 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnNextStartLineEvenSkipSomeLines() throws Exception {
-        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"),
-                eq(new Integer(500))).will(
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
                 returnValue(new String[] {"Skipped 2 lines", "1", "2", "3"}));
 
         request.setParameter("project", "project1");

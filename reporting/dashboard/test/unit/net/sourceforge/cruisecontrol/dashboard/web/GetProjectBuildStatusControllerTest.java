@@ -49,6 +49,8 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
@@ -99,14 +101,19 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         buildSummaryService = (BuildSummariesService) buildSummaryServiceMock.proxy();
         jmxServiceMock =
                 mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                        new Object[] {null, new EnvironmentService(new SystemService())});
+                        new Object[] {null,
+                                new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
         jmxServiceMock.expects(once()).method("isCruiseAlive").will(returnValue(true));
         jmxServiceMock.expects(once()).method("getAllProjectsStatus").withNoArguments().will(
                 returnValue(returnedMap()));
+        Mock mockConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
+        mockConfigService.expects(atLeastOnce()).method("getStoryTrackers").will(returnValue(new HashMap()));
         controller =
                 new GetProjectBuildStatusController(buildSummaryService,
                         (CruiseControlJMXService) jmxServiceMock.proxy(), new BuildSummaryUIService(
-                                buildSummaryService));
+                                buildSummaryService, (DashboardXmlConfigService) mockConfigService.proxy()));
     }
 
     public void testShouldReturnViewIncludeMultipleProjects() throws Exception {
@@ -118,7 +125,7 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         ModelAndView mov = controller.handleRequest(request, response);
         mov.getView().render(mov.getModelMap(), request, response);
         String output = response.getContentAsString();
-        assertTrue(StringUtils.contains(output, "project1"));
+        assertTrue(output, StringUtils.contains(output, "project1"));
         assertTrue(StringUtils.contains(output, "project2"));
         assertTrue(StringUtils.contains(output, "["));
         assertTrue(StringUtils.contains(output, "]"));
@@ -204,8 +211,9 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
                         new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
                                 null});
         jmxServiceMock =
-            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                    new Object[] {null, new EnvironmentService(new SystemService())});
+                mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
+                        new Object[] {null,
+                                new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
         jmxServiceMock.expects(once()).method("isCruiseAlive").will(returnValue(true));
         failingServiceMock.expects(once()).method("getLatestOfProjects").will(
                 throwException(new RuntimeException("xyz")));

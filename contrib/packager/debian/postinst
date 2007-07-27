@@ -3,12 +3,11 @@ set -e
 
 # Create the user and group if the don't exist
 grep -q "^cruise:" /etc/group || groupadd cruise
-grep -q "^cruise:" /etc/passwd || useradd -d /var/spool/cruisecontrol -g cruise cruise
+grep -q "^cruise:" /etc/passwd || useradd -d /var/spool/cruisecontrol -g cruise -s /bin/bash cruise
 
 # Set the perms for cruise stuff
 chown -R cruise:cruise /var/cache/cruisecontrol
 chown -R cruise:cruise /var/spool/cruisecontrol
-chown -R cruise:cruise /var/log/cruisecontrol
 chown -R cruise:cruise /etc/cruisecontrol
 chown cruise:cruise /etc/default/cruisecontrol
 chown cruise:cruise /var/run/cruisecontrol.pid
@@ -17,6 +16,21 @@ chown cruise:cruise /var/run/cruisecontrol.pid
 chown -R root:root /usr/share/cruisecontrol
 chown -R root:root /usr/share/doc/cruisecontrol
 chown root:root /etc/init.d/cruisecontrol
-chown root:root /etc/logrotate.d/cruisecontrol
 chown root:root /usr/bin/cruisecontrol
+
+# Tell people about alternatives
+echo "CruiseControl will NOT work with gcj"
+echo "To switch your default JVM to Sun"
+echo ""
+
+if [ -f /etc/debian_version ]; then
+    echo "Run the command: update-java-alternatives -s java-1.5.0-sun"
+elif [ -f /etc/redhat-release ]; then
+    echo ""
+    # TODO Put notes in on how to switch redhat java
+    #echo "alternatives --install /usr/bin/java java /usr/java/jdk1.5.0_12/bin/java 15012 --slave /usr/bin/keytool keytool /usr/java/jdk1.5.0_12/bin/keytool --slave /usr/bin/rmiregistry rmiregistry /usr/java/jdk1.5.0_12/bin/rmiregistry --slave /usr/lib/jvm-exports/jre jre_exports /usr/java/jdk1.5.0_12/jre/lib --slave /usr/lib/jvm/jre jre /usr/java/jdk1.5.0_12/jre"
+    #echo "alternatives --install /usr/bin/javac javac /usr/java/jdk1.5.0_12/bin/javac 15012 --slave /usr/bin/javadoc javadoc /usr/java/jdk1.5.0_12/bin/javadoc --slave /usr/bin/javah javah /usr/java/jdk1.5.0_12/bin/javah --slave /usr/bin/jar jar /usr/java/jdk1.5.0_12/bin/jar --slave /usr/bin/jarsigner jarsigner /usr/java/jdk1.5.0_12/bin/jarsigner --slave /usr/bin/rmic rmic /usr/java/jdk1.5.0_12/bin/rmic"
+fi
+
+
 

@@ -78,13 +78,27 @@
 
 	<bean id="buildSummaryUIService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService">
 		<constructor-arg ref="buildSummariesService"/>
+		<constructor-arg ref="dashboardXmlConfigService"/>
 	</bean>
 
 	<bean id="buildSummaryService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService"/>
 
 	<bean id="envService" class="net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService">
         <constructor-arg ref="systemService"/>
+        <constructor-arg>
+        	<list>
+        		<bean class="net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService">
+        				<constructor-arg ref="systemService"/>
+        		</bean>
+        		<ref bean="dashboardXmlConfigService"/>
+        		<bean class="net.sourceforge.cruisecontrol.dashboard.service.ServletContextConfigService"></bean>
+        		<bean class="net.sourceforge.cruisecontrol.dashboard.service.DefaultDashboardConfigService"></bean>
+        	</list>
+        </constructor-arg>
 	</bean>
+	<bean id="dashboardXmlConfigService" class="net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService">
+        		        <constructor-arg ref="systemService"/>
+    </bean>
 
 	<bean id="systemService" class="net.sourceforge.cruisecontrol.dashboard.service.SystemService"/>
 

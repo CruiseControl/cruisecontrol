@@ -4,6 +4,8 @@ Section: devel
 Priority: optional
 Architecture: all
 Essential: no
-Maintainer: Chris Read <cread@thoughtworks.com>
+Maintainer: Buildix <buildix@thoughtworks.com>
+Depends: sun-java5-jdk, subversion 
+Provides: cruisecontrol
 Description: @SUMMARY@
  @DESCRIPTION@

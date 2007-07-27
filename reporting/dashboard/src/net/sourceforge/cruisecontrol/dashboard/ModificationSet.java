@@ -37,17 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.joda.time.DateTime;
-
-
 public class ModificationSet {
-    private Map store = new HashMap();
+    private Map store = new LinkedHashMap();
 
     public void add(String type, String user, String comment, String revision, ModificationAction action,
-                    String filename, DateTime dateOfMod) {
+            String filename) {
         ModificationKey key = new ModificationKey(comment, user);
         Modification modification = null;
         if (!store.containsKey(key)) {

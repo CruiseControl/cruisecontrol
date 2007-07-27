@@ -14,7 +14,7 @@ function evaluate_time_to_seconds(time) {
 
 function eval_timer_object(project_name, build_status, build_duration, elapsed_time) {
 	var project_timer_var = project_name + '_timer';
-	project_timer_var = project_timer_var.replace(/ /gi, "_");
+	project_timer_var = project_timer_var.replace(/[ -]/gi, "_");
 	var timer = null;
 	try {
 		timer = eval(project_timer_var);
@@ -44,3 +44,14 @@ function disable_bubble(e) {
 	e.cancelBubble = true;
 	if (e.stopPropagation) e.stopPropagation();
 }
+
+Element.prototype.cleanTextNode = function() {
+    var node = this.firstChild;
+    while (node) {
+      var nextNode = node.nextSibling;
+      if (node.nodeType == 3)
+        this.removeChild(node);
+        node = nextNode;
+    }
+}
+

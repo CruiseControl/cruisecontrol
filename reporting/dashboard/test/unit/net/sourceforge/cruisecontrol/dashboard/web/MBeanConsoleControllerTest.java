@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
@@ -54,10 +55,11 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
     private MockHttpServletResponse response;
 
     protected void setUp() throws Exception {
-        Mock mockEnvironmentService = mock(EnvironmentService.class, new Class[] {SystemService.class},
-                new Object[] {new SystemService()});
-        controller =
-                new MBeanConsoleController((EnvironmentService) mockEnvironmentService.proxy());
+        Mock mockEnvironmentService =
+                mock(EnvironmentService.class, new Class[] {SystemService.class,
+                        DashboardConfigService[].class}, new Object[] {new SystemService(),
+                        new DashboardConfigService[] {}});
+        controller = new MBeanConsoleController((EnvironmentService) mockEnvironmentService.proxy());
         request = new MockHttpServletRequest();
         request.setMethod("GET");
         response = new MockHttpServletResponse();
@@ -87,8 +89,7 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
     public void testShouldReturnContextPathForSpecificProject() throws Exception {
         prepareRequest("project1");
         ModelAndView mov = controller.mbean(request, response);
-        assertEquals("mbean?objectname=CruiseControl Project:name=project1", mov.getModel().get(
-                "context"));
+        assertEquals("mbean?objectname=CruiseControl Project:name=project1", mov.getModel().get("context"));
     }
 
     public void testShouldNotEscapeForProjectName() throws Exception {

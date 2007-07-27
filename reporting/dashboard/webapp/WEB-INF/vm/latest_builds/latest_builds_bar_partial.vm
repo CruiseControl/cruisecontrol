@@ -1,4 +1,4 @@
-     <div id="${buildSummary.build.projectName}_bar" class="${buildSummary.getCssClassNameForDashboard()} bar round_corner">
+     <div id="${buildSummary.build.projectName}_bar" class="bar round_corner ${buildSummary.getCssClassNameForDashboard()}">
          <a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
     </div>
     <div id="tooltip_${buildSummary.build.projectName}" class='tooltip tooltip_${buildSummary.getCssClassName()}'>

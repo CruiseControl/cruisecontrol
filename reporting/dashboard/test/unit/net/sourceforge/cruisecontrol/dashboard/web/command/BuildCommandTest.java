@@ -55,7 +55,7 @@ public class BuildCommandTest extends MockObjectTestCase {
         props.put("projectname", "project 1");
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand command = new BuildCommand(build);
+        BuildCommand command = new BuildCommand(build, null);
         assertEquals("project 1", command.getBuild().getProjectName());
         assertFalse(command.getBuild().hasPassed());
     }
@@ -64,7 +64,7 @@ public class BuildCommandTest extends MockObjectTestCase {
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand command = new BuildCommand(build);
+        BuildCommand command = new BuildCommand(build, null);
         BuildSummary buildSummary =
                 new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
         command.updateFailedCSS(buildSummary);
@@ -78,9 +78,8 @@ public class BuildCommandTest extends MockObjectTestCase {
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand command = new BuildCommand(build);
-        BuildSummary buildSummary =
-                new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
+        BuildCommand command = new BuildCommand(build, null);
+        BuildSummary buildSummary = new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
         command.updateFailedCSS(buildSummary);
         assertEquals("failed", command.getCssClassName());
         assertEquals("failed_level_0", command.getCssClassNameForDashboard());
@@ -90,7 +89,7 @@ public class BuildCommandTest extends MockObjectTestCase {
         Map props = new HashMap();
         props.put("logfile", new File("log20051209122103.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand command = new BuildCommand(build);
+        BuildCommand command = new BuildCommand(build, null);
         command.updateFailedCSS(null);
         assertEquals("failed", command.getCssClassName());
         assertEquals("failed_level_8", command.getCssClassNameForDashboard());
@@ -100,16 +99,15 @@ public class BuildCommandTest extends MockObjectTestCase {
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505Lbuild.9.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand buildCommand = new BuildCommand(build);
+        BuildCommand buildCommand = new BuildCommand(build, null);
         assertEquals("passed", buildCommand.getCssClassName());
     }
 
-    public void testCassNameShouldBeLevel8WhenTheLatestSuccessfulBuildIs24HoursAgo()
-            throws Exception {
+    public void testCassNameShouldBeLevel8WhenTheLatestSuccessfulBuildIs24HoursAgo() throws Exception {
         Map props = new HashMap();
         props.put("logfile", new File("log19991212050505Lbuild.9.xml"));
         BuildDetail build = new BuildDetail(props);
-        BuildCommand buildCommand = new BuildCommand(build);
+        BuildCommand buildCommand = new BuildCommand(build, null);
         BuildSummary buildSummary =
                 new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
         buildCommand.updatePassedCss(buildSummary);

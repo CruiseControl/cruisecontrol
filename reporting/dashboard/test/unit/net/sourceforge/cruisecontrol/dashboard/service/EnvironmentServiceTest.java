@@ -2,8 +2,6 @@ package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.io.File;
 
-import javax.servlet.ServletContext;
-
 import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 
 import org.jmock.Mock;
@@ -12,116 +10,102 @@ import org.jmock.cglib.MockObjectTestCase;
 public class EnvironmentServiceTest extends MockObjectTestCase {
     private EnvironmentService service;
 
-    private Mock mockContext;
-
     private Mock mockSystemService;
+
+    private Mock mockSystemPropertyConfigService;
+
+    private Mock mockDashboardConfigService;
+
+    private Mock mockServletContextConfigService;
+
+    private Mock mockDefaultConfigService;
 
     protected void setUp() throws Exception {
         mockSystemService = mock(SystemService.class);
-        service = new EnvironmentService((SystemService) mockSystemService.proxy());
-        mockContext = mock(ServletContext.class);
-        service.setServletContext((ServletContext) mockContext.proxy());
+        mockSystemPropertyConfigService =
+                mock(SystemPropertyConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {(SystemService) mockSystemService.proxy()});
+        mockDashboardConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {(SystemService) mockSystemService.proxy()});
+        mockServletContextConfigService = mock(ServletContextConfigService.class);
+        mockDefaultConfigService = mock(DefaultDashboardConfigService.class);
+        service =
+                new EnvironmentService((SystemService) mockSystemService.proxy(),
+                        new DashboardConfigService[] {
+                                (DashboardConfigService) mockSystemPropertyConfigService.proxy(),
+                                (DashboardConfigService) mockDashboardConfigService.proxy(),
+                                (DashboardConfigService) mockServletContextConfigService.proxy(),
+                                (DashboardConfigService) mockDefaultConfigService.proxy()});
     }
 
-    public void testShouldReturnTrueIfNotCruiseConfigSetup() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_EDITABLE, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_EDITABLE)).will(returnValue(""));
+    public void testShouldReturnTrueIfNoConfigEditableSetup() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("isConfigFileEditable").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("isConfigFileEditable").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("isConfigFileEditable").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("isConfigFileEditable").will(returnValue("true"));
         assertEquals(true, service.isConfigFileEditable());
     }
 
-    public void testShouldReturnJMXPortFromContextParam() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_JMX_PORT, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_JMX_PORT)).will(returnValue("9001"));
-        assertEquals(9001, service.getJmxPort());
-    }
-
+    //JMX
     public void testShouldReturnJMXPortFromSystemProperties() throws Exception {
-        mockContext.expects(never()).method("getInitParameter");
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_JMX_PORT, "9000");
+        mockSystemPropertyConfigService.expects(once()).method("getJMXPort").will(returnValue("9000"));
         assertEquals(9000, service.getJmxPort());
     }
 
-    public void testShouldReturnJMXPort8000AsTheDefaultPort() throws Exception {
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_JMX_PORT)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_JMX_PORT, "");
+    public void testShouldreturnJMXPortFromDashboardConfig() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getJMXPort").will(returnValue("9001"));
+        assertEquals(9001, service.getJmxPort());
+    }
+
+    public void testShouldReturnJMXPortFromContextParam() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getJMXPort").will(returnValue("9002"));
+        assertEquals(9002, service.getJmxPort());
+    }
+
+    public void testShouldReturnJMXPort8000AsDefault() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getJMXPort").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("getJMXPort").will(returnValue("8000"));
         assertEquals(8000, service.getJmxPort());
     }
 
+    //RMI
     public void testShouldReturnRMIPortFromSystemProperties() throws Exception {
-        mockContext.expects(never()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_RMI_PORT)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_RMI_PORT, "2000");
+        mockSystemPropertyConfigService.expects(once()).method("getRMIPort").will(returnValue("2000"));
         assertEquals(2000, service.getRmiPort());
     }
 
-    public void testShouldReturnRMIPort1099AsTheDefaultPort() throws Exception {
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_RMI_PORT)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_RMI_PORT, "");
-        assertEquals(1099, service.getRmiPort());
-    }
-
-    public void testShouldReturnFalseIfForceBuildSetToDisableInContextParam() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(
-                returnValue("disabled"));
+    //force build enabled
+    public void testShouldReturnFalseIfForceBuildSetToDisableInDashboardConfig() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("isForceBuildEnabled")
+                .will(returnValue("disabled"));
         assertEquals(false, service.isForceBuildEnabled());
     }
 
-    public void testShouldReturnTrueIfForceBuildSetToEnableInContextParam() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(
-                returnValue("enabled"));
-        assertEquals(true, service.isForceBuildEnabled());
-    }
-
-    public void testShouldReturnFalseIfForceBuildSetToDisableInSystemPropery() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "disabled");
-        mockContext.expects(never()).method("getInitParameter");
-        assertEquals(false, service.isForceBuildEnabled());
-    }
-
-    public void testShouldReturnTrueIfForceBuildSetToEnableInSystemPropery() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "enabled");
-        mockContext.expects(never()).method("getInitParameter");
-        assertEquals(true, service.isForceBuildEnabled());
-    }
-
-    public void testShouldReturnTrueAsDefault() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED)).will(returnValue(""));
-        assertEquals(true, service.isForceBuildEnabled());
-    }
-
-    public void testShouldReturnLogsIfLogDirIsSetupInSystemPropery() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "/home/user/logs");
-        mockContext.expects(never()).method("getInitParameter");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        assertEquals(new File("/home/user/logs"), service.getLogDir());
-    }
-
+    //Log dir
     public void testShouldReturnLogsFolderFromInitParameters() throws Exception {
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_LOG_DIR)).will(
+        mockSystemPropertyConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getLogsDir").will(
                 returnValue("/home/user/logs"));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "");
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
         assertEquals(new File("/home/user/logs"), service.getLogDir());
     }
 
     public void testShouldThrowExceptionWhenNoLogDirIsDefined() throws Exception {
         try {
-            mockContext.expects(once()).method("getInitParameter").with(
-                    eq(EnvironmentService.CONTEXT_CC_CONFIG_LOG_DIR)).will(returnValue(""));
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
+            mockSystemPropertyConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getLogsDir").will(returnValue("logs"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getLogDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -129,31 +113,24 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
         }
     }
 
-    public void testShouldReturnLogDirWithCCHOMEWhenLogDirIsRelativePathAndCCHomeIsSetuped()
-            throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "logs");
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
-        mockContext.expects(never()).method("getInitParameter");
+    public void testShouldReturnLogDirWithCCHOMEWhenLogDirIsRelativePathAndCCHomeIsSetuped() throws Exception {
+        mockSystemPropertyConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("getLogsDir").will(returnValue("logs"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        assertEquals(new File("/home/khu/logs"), service.getLogDir());
-    }
-
-    public void testShouldReturnLogDirWithCCHOMEWhenLogDirIsNotSetupedAndCCHomeIsSetuped()
-            throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_LOG_DIR)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+        mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue("/home/khu/"));
         assertEquals(new File("/home/khu/logs"), service.getLogDir());
     }
 
     public void testShouldThrowExceptionWhenLogDirIsRelativeAndNoCCHomeSpecified() throws Exception {
         try {
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "logs");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
-            mockContext.expects(never()).method("getInitParameter");
+            mockSystemPropertyConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getLogsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getLogsDir").will(returnValue("logs"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getLogDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -162,41 +139,21 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnAbsoluteLogDirAndIgnoreCCHome() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "/home/khu/logs");
+        mockSystemPropertyConfigService.expects(once()).method("getLogsDir").will(
+                returnValue("/home/khu/logs"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        mockContext.expects(never()).method("getInitParameter");
         assertEquals(new File("/home/khu/logs"), service.getLogDir());
     }
 
-    private void setUpSystemProperty(String key, String value) {
-        mockSystemService.expects(once()).method("getProperty").with(eq(key)).will(
-                returnValue(value));
-    }
-
-    public void testShouldReturnArtifactsIfArtifactDirIsSetupInSystemPropery() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
-                "/home/user/artifacts");
-        mockContext.expects(never()).method("getInitParameter");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        assertEquals(new File("/home/user/artifacts"), service.getArtifactsDir());
-    }
-
-    public void testShouldReturnArtifactsFolderFromInitParameters() throws Exception {
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_ARTIFACTS_DIR)).will(
-                returnValue("/home/user/artifacts"));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        assertEquals(new File("/home/user/artifacts"), service.getArtifactsDir());
-    }
-
-    public void testShouldThrowExceptionIfNoArtifactsDefined() throws Exception {
+    //artifacts
+    public void testShouldThrowExceptionWhenNoArtifactsDirIsDefined() throws Exception {
         try {
-            mockContext.expects(once()).method("getInitParameter").with(
-                    eq(EnvironmentService.CONTEXT_CC_CONFIG_ARTIFACTS_DIR)).will(returnValue(""));
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
+            mockSystemPropertyConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getArtifactsDir").will(returnValue("artifacts"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getArtifactsDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -204,32 +161,25 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
         }
     }
 
-    public void testShouldReturnArtifactsDirWithCCHOMEWhenArtifactsDirIsRelativePathAndCCHomeIsSetuped()
+    public void testShouldReturnLogDirWithCCHOMEWhenArtifactsDirIsRelativePathAndCCHomeIsSetuped()
             throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "artifacts");
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
+        mockSystemPropertyConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("getArtifactsDir").will(returnValue("artifacts"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        mockContext.expects(never()).method("getInitParameter");
+        mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue("/home/khu/"));
         assertEquals(new File("/home/khu/artifacts"), service.getArtifactsDir());
     }
 
-    public void testShouldReturnArtifactsDirWithCCHOMEWhenArtifactsDirIsNotSetupedAndCCHomeIsSetuped()
-            throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_ARTIFACTS_DIR)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        assertEquals(new File("/home/khu/artifacts"), service.getArtifactsDir());
-    }
-
-    public void testShouldThrowExceptionWhenArtifactsDirIsRelativeAndNoCCHomeSpecified()
-            throws Exception {
+    public void testShouldThrowExceptionWhenArtifactsDirIsRelativeAndNoCCHomeSpecified() throws Exception {
         try {
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "artifacts");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
-            mockContext.expects(never()).method("getInitParameter");
+            mockSystemPropertyConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getArtifactsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getArtifactsDir").will(returnValue("artifacts"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getArtifactsDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -238,36 +188,21 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnAbsoluteArtifactsDirAndIgnoreCCHome() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR, "/home/khu/artifacts");
-        mockContext.expects(never()).method("getInitParameter");
+        mockSystemPropertyConfigService.expects(once()).method("getArtifactsDir").will(
+                returnValue("/home/khu/artifacts"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
         assertEquals(new File("/home/khu/artifacts"), service.getArtifactsDir());
     }
 
-    public void testShouldReturnProjectsIfProjectsDirIsSetupInSystemPropery() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR,
-                "/home/user/projects");
-        mockContext.expects(never()).method("getInitParameter");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        assertEquals(new File("/home/user/projects"), service.getProjectsDir());
-    }
-
-    public void testShouldReturnProjectsFolderFromInitParameters() throws Exception {
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_PROJECTS_DIR)).will(
-                returnValue("/home/user/projects"));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        assertEquals(new File("/home/user/projects"), service.getProjectsDir());
-    }
-
-    public void testShouldThrowExceptionIfNoProjectsDefined() throws Exception {
+    //projects
+    public void testShouldThrowExceptionWhenNoProjectsDirIsDefined() throws Exception {
         try {
-            mockContext.expects(once()).method("getInitParameter").with(
-                    eq(EnvironmentService.CONTEXT_CC_CONFIG_PROJECTS_DIR)).will(returnValue(""));
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
+            mockSystemPropertyConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getProjectsDir").will(returnValue("projects"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getProjectsDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -275,32 +210,25 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
         }
     }
 
-    public void testShouldReturnProjectsDirWithCCHOMEWhenProjectsDirIsRelativePathAndCCHomeIsSetuped()
+    public void testShouldReturnLogDirWithCCHOMEWhenProjectsDirIsRelativePathAndCCHomeIsSetuped()
             throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "projects");
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
+        mockSystemPropertyConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("getProjectsDir").will(returnValue("projects"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        mockContext.expects(never()).method("getInitParameter");
+        mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue("/home/khu/"));
         assertEquals(new File("/home/khu/projects"), service.getProjectsDir());
     }
 
-    public void testShouldReturnProjectsDirWithCCHOMEWhenProjectsDirIsNotSetupedAndCCHomeIsSetuped()
-            throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "");
-        mockContext.expects(once()).method("getInitParameter").with(
-                eq(EnvironmentService.CONTEXT_CC_CONFIG_PROJECTS_DIR)).will(returnValue(""));
-        setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "/home/khu/");
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        assertEquals(new File("/home/khu/projects"), service.getProjectsDir());
-    }
-
-    public void testShouldThrowExceptionWhenProjectsDirIsRelativeAndNoCCHomeSpecified()
-            throws Exception {
+    public void testShouldThrowExceptionWhenProjectsDirIsRelativeAndNoCCHomeSpecified() throws Exception {
         try {
-            setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "projects");
-            setUpSystemProperty(EnvironmentService.PROPS_CC_HOME, "");
-            mockContext.expects(never()).method("getInitParameter");
+            mockSystemPropertyConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockDashboardConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockServletContextConfigService.expects(once()).method("getProjectsDir").will(returnValue(""));
+            mockDefaultConfigService.expects(once()).method("getProjectsDir").will(returnValue("projects"));
             mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
+            mockSystemPropertyConfigService.expects(once()).method("getCCHome").will(returnValue(""));
             service.getProjectsDir();
             fail("Exception expected");
         } catch (ConfigurationException e) {
@@ -309,8 +237,8 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnAbsoluteProjectsDirAndIgnoreCCHome() throws Exception {
-        setUpSystemProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR, "/home/khu/projects");
-        mockContext.expects(never()).method("getInitParameter");
+        mockSystemPropertyConfigService.expects(once()).method("getProjectsDir").will(
+                returnValue("/home/khu/projects"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
         assertEquals(new File("/home/khu/projects"), service.getProjectsDir());
     }

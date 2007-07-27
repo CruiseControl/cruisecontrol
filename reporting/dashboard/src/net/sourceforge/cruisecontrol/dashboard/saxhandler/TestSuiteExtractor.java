@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.BuildTestSuite;
 
+import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -60,10 +61,10 @@ public class TestSuiteExtractor extends SAXBasedExtractor {
 
     private BuildTestSuite createSingleTestSuite(Attributes attributes) {
         String name = attributes.getValue("name");
-        float duration = Float.parseFloat(attributes.getValue("time"));
-        int tests = Integer.parseInt(attributes.getValue("tests"));
-        int failures = Integer.parseInt(attributes.getValue("failures"));
-        int errors = Integer.parseInt(attributes.getValue("errors"));
+        float duration = Float.parseFloat(StringUtils.defaultString(attributes.getValue("time"), "0.0"));
+        int tests = Integer.parseInt(StringUtils.defaultString(attributes.getValue("tests"), "0"));
+        int failures = Integer.parseInt(StringUtils.defaultString(attributes.getValue("failures"), "0"));
+        int errors = Integer.parseInt(StringUtils.defaultString(attributes.getValue("errors"), "0"));
         return new BuildTestSuite(duration, tests, failures, name, errors);
     }
 

@@ -1,5 +1,6 @@
 package net.sourceforge.cruisecontrol.dashboard.service;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.util.FileUtils;
 
 public class SystemService {
@@ -8,6 +9,6 @@ public class SystemService {
     }
 
     public boolean isAbsolutePath(String artifactsDir) {
-        return FileUtils.isAbsolutePath(artifactsDir);
+        return FileUtils.isAbsolutePath(StringUtils.defaultString(artifactsDir));
     }
 }

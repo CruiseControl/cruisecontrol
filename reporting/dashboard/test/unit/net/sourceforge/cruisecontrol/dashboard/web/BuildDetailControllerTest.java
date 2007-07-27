@@ -47,7 +47,9 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
@@ -58,6 +60,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver;
 
 public class BuildDetailControllerTest extends SpringBasedControllerTests {
+    private DashboardXmlConfigService dashboardXmlConfigService;
 
     private BuildDetailController controller;
 
@@ -66,16 +69,16 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
     private PropertiesMethodNameResolver projectDetailResolver;
 
     protected void onControllerSetup() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_HOME, "test/data");
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
-                DataUtils.getArtifactsDirAsFile().getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_HOME, "test/data");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR, DataUtils
+                .getArtifactsDirAsFile().getAbsolutePath());
         super.onControllerSetup();
         configuration = (Configuration) this.applicationContext.getBean("configuration");
         configuration.setCruiseConfigLocation(DataUtils.getConfigXmlAsFile().getAbsolutePath());
     }
-    
+
     protected void onTearDown() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_HOME, "");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_HOME, "");
     }
 
     public void setBuildDetailController(BuildDetailController controller) {
@@ -163,7 +166,8 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
                     public void mergePluginOutput(BuildDetail build, Map parameters) {
                         build.addPluginOutput("checkstyle", "some thing got wrong");
                     }
-                }, new BuildSummaryUIService(service), null);
+                }, new BuildSummaryUIService(service, new DashboardXmlConfigService(new SystemService())),
+                        null);
         newController.setMethodNameResolver(projectDetailResolver);
         ModelAndView mav = newController.handleRequest(getRequest(), getResponse());
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
@@ -180,7 +184,8 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
                     public void mergePluginOutput(BuildDetail build, Map parameters) {
                         build.addPluginOutput("checkstyle", parameters.get(Widget.PARAM_WEB_CONTEXT_PATH));
                     }
-                }, new BuildSummaryUIService(service), null);
+                }, new BuildSummaryUIService(service, new DashboardXmlConfigService(new SystemService())),
+                        null);
         newController.setMethodNameResolver(projectDetailResolver);
         ModelAndView mav = newController.handleRequest(getRequest(), getResponse());
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));

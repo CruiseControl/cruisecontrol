@@ -52,12 +52,16 @@
 function test_should_return_hash_contains_statistics_infos() {
 	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
 	ajax_periodical_refresh_statistics_summary_infos(hash);
-	assertEquals('1', $('statistics_passed').innerHTML);
-	assertEquals('2', $('statistics_failed').innerHTML);
-	assertEquals('1', $('statistics_building').innerHTML);
-	assertEquals('0', $('statistics_inactive').innerHTML);
-	assertEquals('4', $('statistics_total').innerHTML);
-	assertEquals('25.0%', $('statistics_rate').innerHTML);
+	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
+	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
+	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
+}
+
+function getFirstWord(var sentence) {
+	return sentence.substring(0, sentence.indexOf(' ') - 1);
 }
 
 function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
@@ -68,14 +72,15 @@ function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
 </script>
 </head>
 <body>
+
 <div class="projects_summary">
-	<div class="title">Projects Summary</div>
-	<div><img src="images/accept.png"/><span id="statistics_passed" class="info">0</span><span class="entry">project(s) build successfully</span></div>
-	<div><img src="images/arrow_rotate_clockwise.png"/><span id="statistics_building" class="info">0</span><span class="entry"> project(s) in building</span></div>
-	<div><img src="images/cross.png"/><span id="statistics_failed" class="info">0</span><span class="entry"> build failed</span></div>
-	<div><img src="images/cog.png"/><span id="statistics_inactive" class="info">-1</span><span class="entry"> build inactive</span></div>
-	<div><img src="images/money_dollar.png"/><span id="statistics_total" class="info">0</span><span class="entry"> projects in total</span></div>
-	<div><span class="rate">Successful rate : </span><span id="statistics_rate" class="info">25%</span></div>
+					   <div class="entry_set">
+                        <div class="info total" id="statistics_total">$projectStatistics.total() project build(s)</div>
+                        <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
+                        <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
+                        <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
+                        <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
+                        <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
 </div>
 
 </body>

@@ -36,32 +36,35 @@ Tooltip.hideEvent = "mouseout";
 
             <!-- project summary -->
             <div id="project_summary_panel" class="project_summary_panel $project_summary_layout">
-               <div class="projects_summary_holder">
-                <div class="title"><span>Summary</span></div>
-                         <div class="projects_summary">
-                            <div class="entry_set">
-                                <span class="info total"><span id="statistics_total">$projectStatistics.total()</span> project build(s)</span>
-                                <span class="info passed"><span id="statistics_passed">$projectStatistics.passed()</span> project build(s) succeeded</span>
-                                <span class="info failed"><span id="statistics_failed">$projectStatistics.failed()</span> project build(s) failed</span>
-                                <span class="info building"><span id="statistics_building">$projectStatistics.building()</span> project(s) building</span>
-                                <span class="info inactive"><span id="statistics_inactive">$projectStatistics.inactive()</span> project(s) inactive</span>
-                            <div class="summary">Projects passing : <span class="info summary" id="statistics_rate">$projectStatistics.rate()</span></div>
-                            </div>
-                     <div class="clear"> &nbsp; </div>
-                  </div>
-                </div>
-                <div class="tools_bar_holder">
-                            <div class="title actions_bar"><span>Tools</span></div>
-                            <div class="projects_summary actions_bar">
-                               <div id="add_project" class="entry"><a href="$req.getContextPath()/admin/action/add" title="Add new project">Add a project</a></div>
-                               <div id="rss_feed_for_all" class="entry"><a href="$req.getContextPath()/rss.xml" title="RSS Feed">RSS Feed</a></div>
-                               <div id="cctray" class="entry"><a href="$req.getContextPath()/cctray.xml" title="CCTray">for CCTray</a></div>
-                               <div id="cc-config" class="entry"><a href="/cc-config/cruisecontrol-gui.jnlp" title="CC-Config">for CC-Config</a></div>
-                               <div id="configure_panel" class="entry"><a href="$req.getContextPath()/admin/mx4j" title="JMX Console">JMX Console</a></div>
-                            <div class="clear"> &nbsp; </div>
-                           </div>
-                  </div>
-                  <div class="clear"> &nbsp; </div>
+            	<!--to fix the IE multiclass bug-->
+            	<div class="iehack">
+               		<div class="projects_summary_holder">
+	                	 <div class="title"><span>Summary</span></div>
+	                     <div class="projects_summary">
+						   <div class="entry_set">
+	                        <div class="info total" id="statistics_total">$projectStatistics.total() project build(s)</div>
+	                        <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
+	                        <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
+	                        <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
+	                        <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
+	                        <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
+	                       </div>
+	                     </div>
+	                     <div class="clear"> &nbsp; </div>
+	                </div>
+	                <div class="tools_bar_holder">
+	                            <div class="title actions_bar"><span>Tools</span></div>
+	                            <div class="projects_summary actions_bar">
+	                               <div id="add_project" class="entry"><a href="$req.getContextPath()/admin/action/add" title="Add new project">Add a project</a></div>
+	                               <div id="rss_feed_for_all" class="entry"><a href="$req.getContextPath()/rss.xml" title="RSS Feed">RSS Feed</a></div>
+	                               <div id="cctray" class="entry"><a href="$req.getContextPath()/cctray.xml" title="CCTray">for CCTray</a></div>
+	                               <div id="cc-config" class="entry"><a href="/cc-config/cruisecontrol-gui.jnlp" title="CC-Config">for CC-Config</a></div>
+	                               <div id="configure_panel" class="entry"><a href="$req.getContextPath()/admin/mx4j" title="JMX Console">JMX Console</a></div>
+	                            <div class="clear"> &nbsp; </div>
+	                           </div>
+	                </div>
+	                <div class="clear"> &nbsp; </div>
+	           </div>
             </div>
             <!-- end project summary -->
 

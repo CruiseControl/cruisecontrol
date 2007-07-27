@@ -36,12 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.web;
 
-import java.io.IOException;
-import java.io.File;
-
 import org.apache.log4j.Logger;
 import org.mortbay.http.SocketListener;
+import org.mortbay.http.ajp.AJP13Listener;
 import org.mortbay.jetty.Server;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Provides functionality to run an embedded Jetty Server from within the CruiseControl instance. The embedded Jetty
@@ -49,23 +50,35 @@ import org.mortbay.jetty.Server;
  */
 public class EmbeddedJettyServer {
 
-    /** the logger instance for this class. */
+    /**
+     * the logger instance for this class.
+     */
     public static final Logger LOG = Logger.getLogger(EmbeddedJettyServer.class);
 
-    /** the port that the embedded Jetty server will listen on. */
+    /**
+     * the port that the embedded Jetty server will listen on.
+     */
     private int webPort;
 
-    /** the path to the CruiseControl webapp served by the embedded server. */
+    /**
+     * the path to the CruiseControl webapp served by the embedded server.
+     */
     private String webappPath;
 
-    /** the path to the CruiseControl new web dashboard served by the embedded server. */
+    /**
+     * the path to the CruiseControl new web dashboard served by the embedded server.
+     */
     private String newWebappPath;
     private String configFileName;
 
-    /** the embedded Jetty server. */
+    /**
+     * the embedded Jetty server.
+     */
     private Server jettyServer;
 
-    /** the current state of the embedded Jetty server. */
+    /**
+     * the current state of the embedded Jetty server.
+     */
     private boolean isRunning;
 
     private int jmxPort;
@@ -75,11 +88,8 @@ public class EmbeddedJettyServer {
     /**
      * Creates a new embeded Jetty server with the given listen port and the given webapp path.
      *
-     * @param webPort
-     *            the port the embedded Jetty server will listen on.
-     * @param webappPath
-     *            the path to the CruiseControl web application served by the embedded server.
-     *
+     * @param webPort    the port the embedded Jetty server will listen on.
+     * @param webappPath the path to the CruiseControl web application served by the embedded server.
      * @deprecated Use constructor that also sets up new dashboard
      */
     public EmbeddedJettyServer(int webPort, String webappPath) {
@@ -90,16 +100,13 @@ public class EmbeddedJettyServer {
     /**
      * Creates a new embeded Jetty server with the given listen port and the given webapp path.
      *
-     * @param webPort
-     *            the port the embedded Jetty server will listen on.
-     * @param webappPath
- *            the path to the CruiseControl web application served by the embedded server.
+     * @param webPort        the port the embedded Jetty server will listen on.
+     * @param webappPath     the path to the CruiseControl web application served by the embedded server.
      * @param newWebappPath
-     * @param configFileName
-     *         the name of the config file
+     * @param configFileName the name of the config file
      */
     public EmbeddedJettyServer(int webPort, String webappPath, String newWebappPath,
-            String configFileName, int jmxPort, int rmiPort) {
+                               String configFileName, int jmxPort, int rmiPort) {
         this.webPort = webPort;
         this.webappPath = webappPath;
         this.newWebappPath = newWebappPath;
@@ -119,7 +126,7 @@ public class EmbeddedJettyServer {
         System.setProperty("cc.rmiport", String.valueOf(rmiPort));
         System.setProperty("cc.jmxport", String.valueOf(jmxPort));
     }
-    
+
     /**
      * Starts the embedded Jetty server.
      */
@@ -133,6 +140,14 @@ public class EmbeddedJettyServer {
         SocketListener listener = new SocketListener();
         listener.setPort(webPort);
         jettyServer.addListener(listener);
+
+        int ajp13port = Integer.parseInt(System.getProperty("cc.ajp13port", "-1"));
+        if (ajp13port != -1) {
+            AJP13Listener ajp13Listener = new AJP13Listener();
+            ajp13Listener.setPort(ajp13port);
+            jettyServer.addListener(ajp13Listener);
+        }
+        
         try {
             jettyServer.addWebApplication("/cruisecontrol", webappPath);
             jettyServer.addWebApplication("/", webappPath);

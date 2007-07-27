@@ -1,5 +1,8 @@
-    <link href="$req.getContextPath()/css/main.css" rel="stylesheet" type="text/css"/>
-    <link href="$req.getContextPath()/css/niftyCorners.css" rel="stylesheet" type="text/css" />
+    <link href="$req.getContextPath()/css/main.css" rel="stylesheet" type="text/css"></link>
+	<!--[if lte IE 6]>
+    	<link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link>
+	<![endif]-->
+    <link href="$req.getContextPath()/css/niftyCorners.css" rel="stylesheet" type="text/css"></link>
     <script>
         contextPath = "$req.getContextPath()"
     </script>

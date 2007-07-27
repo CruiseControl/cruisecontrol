@@ -40,6 +40,7 @@ import java.util.Arrays;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
@@ -56,8 +57,9 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
     private MockHttpServletResponse response = new MockHttpServletResponse();
 
     private Mock jmxServiceMock =
-            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class,
-                    EnvironmentService.class}, new Object[] {null, new EnvironmentService(new SystemService())});
+            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
+                    new Object[] {null,
+                            new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
 
     private GetCommitMessageController controller =
             new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy());

@@ -43,7 +43,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.joda.time.DateTime;
 
 public class ModificationSetTest extends TestCase {
 
@@ -54,25 +53,22 @@ public class ModificationSetTest extends TestCase {
         String secondUser = "Norman";
 
         String initialCheckinComment = "Initial Checkin";
-        set.add("cvs", firstUser, initialCheckinComment, "1.2", ModificationAction.ADD, "somefile.xml", new DateTime());
-        set.add("cvs", firstUser, initialCheckinComment, "1.3", ModificationAction.MODIFIED, "anotherfile.xml",
-                new DateTime());
-        set.add("cvs", secondUser, initialCheckinComment, "1.4", ModificationAction.ADD, "anotherfile.xml",
-                new DateTime());
+        set.add("cvs", firstUser, initialCheckinComment, "1.2", ModificationAction.ADD, "somefile.xml");
+        set.add("cvs", firstUser, initialCheckinComment, "1.3", ModificationAction.MODIFIED, "anotherfile.xml");
+        set.add("cvs", secondUser, initialCheckinComment, "1.4", ModificationAction.ADD, "anotherfile.xml");
 
         Collection modifications = set.getModifications();
 
         assertEquals(2, modifications.size());
 
         Iterator iterator = modifications.iterator();
-        iterator.next();
-        Modification secondChangeSet = (Modification) iterator.next();
-        assertEquals(ToStringBuilder.reflectionToString(secondChangeSet), secondChangeSet.toString());
+        Modification firstChangeSet = (Modification) iterator.next();
+        assertEquals(ToStringBuilder.reflectionToString(firstChangeSet), firstChangeSet.toString());
 
-        assertEquals("cvs", secondChangeSet.getType());
-        assertEquals(initialCheckinComment, secondChangeSet.getComment());
+        assertEquals("cvs", firstChangeSet.getType());
+        assertEquals(initialCheckinComment, firstChangeSet.getComment());
 
-        List files = secondChangeSet.getModifiedFiles();
+        List files = firstChangeSet.getModifiedFiles();
         assertEquals(2, files.size());
 
         ModifiedFile firstFile = (ModifiedFile) files.get(0);
@@ -86,5 +82,4 @@ public class ModificationSetTest extends TestCase {
         assertEquals("1.3", secondFile.getRevision());
         assertEquals(ModificationAction.MODIFIED, secondFile.getAction());
     }
-
 }

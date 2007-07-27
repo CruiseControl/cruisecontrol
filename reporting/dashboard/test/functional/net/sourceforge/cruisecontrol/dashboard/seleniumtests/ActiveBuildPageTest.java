@@ -40,6 +40,7 @@ public class ActiveBuildPageTest extends SeleniumTestCase {
 
     public void testShouldShowElapsedTimeOnActiveBuildPage() throws Exception {
         selenium.open("/dashboard/dashboard");
+        selenium.waitForPageToLoad("5000");
         selenium.click("//li[@id='builds']/a");
         selenium.click("project1_forcebuild");
         assertTrue(selenium.isTextPresent("Your build is scheduled"));
@@ -58,6 +59,20 @@ public class ActiveBuildPageTest extends SeleniumTestCase {
         assertTrue(selenium.getLocation().indexOf("build/detail/live/project1") > -1);
     }
 
+    public void testShouldShowElapsedTimeOnMultipleActiveBuildPage() throws Exception {
+        selenium.open("/dashboard/dashboard");
+        selenium.waitForPageToLoad("5000");
+        selenium.click("//li[@id='builds']/a");
+        selenium.click("project1_forcebuild");
+        selenium.click("project2_forcebuild");
+        selenium.click("cclive_forcebuild");
+        assertTrue(selenium.isTextPresent("Your build is scheduled"));
+        Thread.sleep(17000);
+        assertTrue(selenium.isTextPresent("3 project(s) building"));
+        assertTrue(selenium.isTextPresent("40%"));
+        Thread.sleep(20000);
+    }
+
     public void testShouldDisplayDefaultMessageWhenNoCommitMessage() throws Exception {
         selenium.open("/dashboard/dashboard");
         selenium.click("//li[@id='builds']/a");
@@ -66,6 +81,6 @@ public class ActiveBuildPageTest extends SeleniumTestCase {
         selenium.click("projectWithoutPublishers_build_detail");
         Thread.sleep(3000);
         assertTrue(selenium.isTextPresent("Build forced, No new code is committed into repository"));
-        Thread.sleep(15000);
+        Thread.sleep(40000);
     }
 }

@@ -43,6 +43,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.command.CCTrayBuildSummaryAdapter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.RSSBuildSummaryAdapter;
@@ -53,14 +54,20 @@ import org.joda.time.DateTime;
 public class BuildSummaryUIService {
     private final BuildSummariesService buildSummariesService;
 
-    public BuildSummaryUIService(BuildSummariesService buildSummariesService) {
+    private final DashboardXmlConfigService xmlConfigService;
+
+    public BuildSummaryUIService(BuildSummariesService buildSummariesService,
+            DashboardXmlConfigService xmlConfigService) {
         this.buildSummariesService = buildSummariesService;
+        this.xmlConfigService = xmlConfigService;
     }
 
     public List toCommands(List buildSummaries) {
         List commands = new ArrayList();
         for (int i = 0; i < buildSummaries.size(); i++) {
-            commands.add(new BuildCommand(((Build) buildSummaries.get(i))));
+            Build build = (Build) buildSummaries.get(i);
+            commands.add(new BuildCommand(build, (StoryTracker) xmlConfigService.getStoryTrackers().get(
+                    build.getProjectName())));
         }
         return commands;
     }
@@ -74,7 +81,9 @@ public class BuildSummaryUIService {
     }
 
     public BuildCommand transform(Build build) {
-        BuildCommand command = new BuildCommand(build);
+        BuildCommand command =
+                new BuildCommand(build, (StoryTracker) xmlConfigService.getStoryTrackers().get(
+                        build.getProjectName()));
         String status = command.getBuild().getStatus();
         String projectName = command.getBuild().getProjectName();
         if (ProjectBuildStatus.FAILED.getStatus().equals(status)) {

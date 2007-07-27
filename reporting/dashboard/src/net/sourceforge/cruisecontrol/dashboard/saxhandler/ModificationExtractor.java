@@ -4,7 +4,6 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationAction;
 import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
-import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
@@ -19,8 +18,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
 
     private String comment = "";
 
-    private String time = "";
-
     private String revision = "";
 
     private String filename = "";
@@ -33,8 +30,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
 
     private boolean readingComment;
 
-    private boolean readingTime;
-
     private boolean readingRivision;
 
     private boolean readingFileName;
@@ -45,8 +40,7 @@ public class ModificationExtractor extends SAXBasedExtractor {
         endElementsInModification(qName);
         if ("modification".equals(qName)) {
             modificationsSet.add(type, user, comment, revision, ModificationAction
-                    .fromDisplayName(action), filename, CCDateFormatter.format(time,
-                    "MM/dd/yyyy HH:mm:ss"));
+                    .fromDisplayName(action), filename);
             readingModification = false;
             reset();
         }
@@ -59,7 +53,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
         type = "";
         user = "";
         comment = "";
-        time = "";
         revision = "";
         filename = "";
         action = "";
@@ -75,7 +68,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
         }
         setUser(text);
         setComment(text);
-        setTime(text);
         setRevision(text);
         setFile(text);
     }
@@ -89,12 +81,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
     private void setRevision(String text) {
         if (readingRivision) {
             revision += text;
-        }
-    }
-
-    private void setTime(String text) {
-        if (readingTime) {
-            time += text;
         }
     }
 
@@ -128,19 +114,12 @@ public class ModificationExtractor extends SAXBasedExtractor {
         }
         startUser(qName);
         startComment(qName);
-        startTime(qName);
     }
 
     private void startFile(String qName, Attributes attributes) {
         if ("file".equals(qName)) {
             readingFile = true;
             action = attributes.getValue("action");
-        }
-    }
-
-    private void startTime(String qName) {
-        if ("date".equals(qName)) {
-            readingTime = true;
         }
     }
 
@@ -177,13 +156,6 @@ public class ModificationExtractor extends SAXBasedExtractor {
             endFileElement(qName);
             endUser(qName);
             endComment(qName);
-            endDate(qName);
-        }
-    }
-
-    private void endDate(String qName) {
-        if ("date".equals(qName)) {
-            readingTime = false;
         }
     }
 

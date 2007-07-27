@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
@@ -67,8 +68,8 @@ public class UpdateConfigXmlLocationControllerTest extends MockObjectTestCase {
                 mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
                         new Object[] {null});
         envMock =
-                mock(EnvironmentService.class, new Class[] {SystemService.class},
-                        new Object[] {new SystemService()});
+                mock(EnvironmentService.class, new Class[] {SystemService.class, DashboardConfigService[].class},
+                        new Object[] {new SystemService(), new DashboardConfigService[]{}});
         configuration = (Configuration) configurationMock.proxy();
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();

@@ -44,11 +44,13 @@ public class BuildDetailTest extends BaseFunctionalTest {
         setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getPath());
     }
 
-    public void testShouldNotShowArtifactsForFailedBuild() {
+    public void testShouldShowArtifactsForFailedBuild() {
         tester.beginAt("/build/detail/project1/" + DataUtils.FAILING_BUILD_XML);
-        tester.assertTextNotPresent("Artifacts");
+        tester.assertTextPresent("Artifacts");
         tester.assertTextPresent("Merged Check Style");
         tester.assertTextPresent("Line has trailing spaces.");
+        tester.assertLinkPresentWithExactText("#123 project name changed to cache");
+        
     }
 
     public void testShouldNotShowArtifactsIfNoPublishersInConfigFile() throws Exception {

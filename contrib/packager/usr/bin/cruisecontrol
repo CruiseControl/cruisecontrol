@@ -1,13 +1,4 @@
 #!/bin/bash
 
-if [ -f /var/run/cruisecontrol.pid ]; then
-	OLD_PID=`cat /var/run/cruisecontrol.pid`
-fi
-
-ps -p ${OLD_PID:-2147483647} >/dev/null
-
-if [ $? -ne 0 ]; then
-		/usr/share/cruisecontrol/bin/cruisecontrol.sh $@ &
-		echo $! >/var/run/cruisecontrol.pid
-fi
+/usr/share/cruisecontrol/bin/cruisecontrol.sh $@
 

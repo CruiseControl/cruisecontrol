@@ -43,6 +43,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
@@ -51,7 +52,7 @@ import org.joda.time.DateTime;
 
 public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
     public CruiseControlJMXServiceStub() {
-        super(null, new EnvironmentService(new SystemService()));
+        super(null, new EnvironmentService(new SystemService(), new DashboardConfigService[] {}));
     }
 
     private static final int DEFAULT_HTTP_PORT = 8000;
@@ -103,6 +104,7 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
         }
         if (BUILDING.equals(status)) {
             if (--waitingLoop == 0) {
+                waitingLoop = WAITING_LOOP;
                 return WAITING;
             }
             return BUILDING;
