@@ -36,10 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
+import net.sourceforge.cruisecontrol.dashboard.Modification;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.joda.time.DateTime;
@@ -54,8 +59,11 @@ public class BuildCommand {
 
     private static final int STATUS_STANDING_SECTION = 24 * 60 * 60 * 1000 / 8;
 
-    public BuildCommand(Build build) {
+    private final StoryTracker storyTracker;
+
+    public BuildCommand(Build build, StoryTracker storyTracker) {
         this.build = build;
+        this.storyTracker = storyTracker;
         jsonParams.put("css_class_name", build.getStatus().toLowerCase());
         jsonParams.put("css_class_name_for_dashboard", build.getStatus().toLowerCase());
     }
@@ -64,13 +72,24 @@ public class BuildCommand {
         return this.build;
     }
 
+    public Collection getModifications() {
+        Collection modifications = build.getModificationSet().getModifications();
+        Collection modificationCmds = new ArrayList();
+        for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
+            Modification modification = (Modification) iterator.next();
+            modificationCmds.add(new ModificationCommand(modification, storyTracker));
+        }
+        return modificationCmds;
+
+    }
+
     public String getDateStringInHumanBeingReadingStyle() {
         return CCDateFormatter.getDateStringInHumanBeingReadingStyle(build.getBuildDate());
     }
 
+    
     public Long getElapsedTimeBuilding(DateTime date) {
-        return new Long((date.getMillis() - build.getBuildingSince().getMillis())
-                / MILLI_SECOND_TO_SECOND);
+        return new Long((date.getMillis() - build.getBuildingSince().getMillis()) / MILLI_SECOND_TO_SECOND);
     }
 
     public void updateFailedCSS(Build last) {
@@ -106,8 +125,8 @@ public class BuildCommand {
         jsonParams.put("latest_build_date", getDateStringInHumanBeingReadingStyle());
         if ("building".equalsIgnoreCase(build.getStatus())) {
             jsonParams.put("build_duration", build.getDuration());
-            jsonParams.put("latest_build_date", CCDateFormatter
-                    .getDateStringInHumanBeingReadingStyle(build.getBuildingSince()));
+            jsonParams.put("latest_build_date", CCDateFormatter.getDateStringInHumanBeingReadingStyle(build
+                    .getBuildingSince()));
             jsonParams.put("build_time_elapsed", getElapsedTimeBuilding(new DateTime()));
         }
         return jsonParams;

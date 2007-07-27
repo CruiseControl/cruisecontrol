@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,8 @@ import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
@@ -68,6 +71,8 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
 
     private Mock mockBuildSummaryService;
 
+    private Mock mockDashboardXmlConfigService;
+
     protected void setUp() throws Exception {
         ealiestFailed =
                 new BuildSummary("", "2005-12-07 12:21.03", "build1", ProjectBuildStatus.FAILED, "log1");
@@ -76,7 +81,9 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         setUpMock();
         controller =
                 new LatestBuildsListingController(buildSummaryService, new BuildSummaryUIService(
-                        buildSummaryService), new EnvironmentService(new SystemService()));
+                        buildSummaryService, (DashboardXmlConfigService) mockDashboardXmlConfigService
+                                .proxy()), new EnvironmentService(new SystemService(),
+                        new DashboardConfigService[] {}));
     }
 
     private void setUpMock() throws Exception {
@@ -84,6 +91,9 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
                 mock(BuildSummariesService.class,
                         new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
                                 new BuildSummaryService()});
+        mockDashboardXmlConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
         mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments().will(
                 returnValue(returnedValue()));
         mockBuildSummaryService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
@@ -91,6 +101,8 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         mockBuildSummaryService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
                 .will(returnValue(lastSucceed));
         buildSummaryService = (BuildSummariesService) mockBuildSummaryService.proxy();
+        mockDashboardXmlConfigService.expects(atLeastOnce()).method("getStoryTrackers").will(
+                returnValue(new HashMap()));
     }
 
     public void testShouldBeAbleToListAllTheProjectInDirectory() throws Exception {
@@ -111,7 +123,7 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         Map model = mov.getModel();
         assertEquals(Boolean.TRUE, model.get("forceBuildEnabled"));
     }
-    
+
     public void testShouldUseCachedLatestBuildSummaries() throws Exception {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
         mockBuildSummaryService =
@@ -127,7 +139,6 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
     }
 
-    
     private List returnedValue() {
         List list = new ArrayList();
         BuildSummary build1 =

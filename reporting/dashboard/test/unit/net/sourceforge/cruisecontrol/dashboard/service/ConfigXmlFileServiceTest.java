@@ -57,11 +57,14 @@ public class ConfigXmlFileServiceTest extends TestCase {
     private EnvironmentService environmentService;
 
     public void setUp() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_HOME, "test/data");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_HOME, "test/data");
         tempDirForSetup = DataUtils.createTempDirectory("temp");
         TemplateRenderService renderService = new TemplateRenderService();
         renderService.loadTemplates();
-        environmentService = new EnvironmentService(new SystemService());
+        environmentService =
+                new EnvironmentService(new SystemService(), new DashboardConfigService[] {
+                        new SystemPropertyConfigService(new SystemService()),
+                        new DefaultDashboardConfigService()});
         service = new ConfigXmlFileService(environmentService, renderService);
         File configDirectory = FilesystemUtils.createDirectory("tempDir");
         configFile = FilesystemUtils.createFile("config.xml", configDirectory);
@@ -69,8 +72,8 @@ public class ConfigXmlFileServiceTest extends TestCase {
 
     public void tearDown() throws Exception {
         FileUtils.deleteDirectory(tempDirForSetup);
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, "");
-        System.setProperty(EnvironmentService.PROPS_CC_HOME, "");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR, "");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_HOME, "");
     }
 
     public void testShouldBeAbleToReadConfigXml() throws Exception {
@@ -91,23 +94,22 @@ public class ConfigXmlFileServiceTest extends TestCase {
     }
 
     public void testShouldReturnNullWhenInvalidConfigurationDirectoryIsSpecifiedThoughProp() {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "invalid");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, "invalid");
         assertNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldBeNotNullWhenValidConfigurationDirectoryIsSpecifiedThoughProp() {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, configFile.getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, configFile.getAbsolutePath());
         assertNotNull(service.getConfigXmlFile(new File("")));
     }
 
     public void testShouldReturnNullThatTheTemporaryDirectoryWithoutConfigFileIsAnInvalidLocation() {
         FilesystemUtils.createDirectory("tempDir");
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, "");
         assertNull(service.getConfigXmlFile(new File("")));
     }
 
-    public void testShouldSayThatTheTemporaryDirectoryWithConfigFileIsAValidLocation()
-            throws Exception {
+    public void testShouldSayThatTheTemporaryDirectoryWithConfigFileIsAValidLocation() throws Exception {
         assertNotNull(service.getConfigXmlFile(configFile));
     }
 
@@ -133,7 +135,7 @@ public class ConfigXmlFileServiceTest extends TestCase {
 
     public void testShouldAssembleProjectsWithSpecifiedLogroot() throws Exception {
         File logfolder = FilesystemUtils.createDirectory("temp").getAbsoluteFile();
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR, logfolder.getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR, logfolder.getAbsolutePath());
         Projects projects = service.getProjects(DataUtils.getConfigXmlAsFile());
         assertEquals(new File(logfolder, "projecta"), projects.getLogRoot("projecta"));
     }

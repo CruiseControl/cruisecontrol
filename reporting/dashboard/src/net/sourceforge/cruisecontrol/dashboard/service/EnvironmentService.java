@@ -1,112 +1,64 @@
 package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.io.File;
-
-import javax.servlet.ServletContext;
+import java.lang.reflect.Method;
 
 import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
-import org.springframework.web.context.ServletContextAware;
 
-public class EnvironmentService implements ServletContextAware {
-    public static final String PROPS_CC_HOME = "cc.home";
-
-    public static final String PROPS_CC_CONFIG_FILE = "cc.config.file";
-
-    public static final String PROPS_CC_CONFIG_EDITABLE = "cc.config.editable";
-
-    public static final String PROPS_CC_CONFIG_JMX_PORT = "cc.jmxport";
-
-    public static final String PROPS_CC_CONFIG_RMI_PORT = "cc.rmiport";
-
-    public static final String PROPS_CC_CONFIG_FORCEBUILD_ENABLED = "cc.config.forcebuild";
-
-    public static final String PROPS_CC_CONFIG_LOG_DIR = "cc.logdir";
-
-    public static final String PROPS_CC_CONFIG_ARTIFACTS_DIR = "cc.artifacts";
-
-    public static final String PROPS_CC_CONFIG_PROJECTS_DIR = "cc.projects";
-
-    public static final String CONTEXT_CC_CONFIG_FILE = "cruisecontrol.config.file";
-
-    public static final String CONTEXT_CC_CONFIG_EDITABLE = "cruisecontrol.config.editable";
-
-    public static final String CONTEXT_CC_CONFIG_JMX_PORT = "cruisecontrol.jmxport";
-
-    public static final String CONTEXT_CC_CONFIG_RMI_PORT = "cruisecontrol.rmiport";
-
-    public static final String CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED =
-            "cruisecontrol.config.forcebuild";
-
-    public static final String CONTEXT_CC_CONFIG_LOG_DIR = "cruisecontrol.logdir";
-
+public class EnvironmentService {
     private static final Logger LOGGER = Logger.getLogger(EnvironmentService.class);
 
-    public static final String CONTEXT_CC_CONFIG_ARTIFACTS_DIR = "cruisecontrol.artifacts";
+    private DashboardConfigService[] services;
 
-    public static final String CONTEXT_CC_CONFIG_PROJECTS_DIR = "cruisecontrol.projects";
+    private SystemService systemService;
 
-    private ServletContext servletContext;
-
-    private final SystemService systemService;
-
-    public EnvironmentService(SystemService systemService) {
+    public EnvironmentService(SystemService systemService, DashboardConfigService[] serviceArrays) {
         this.systemService = systemService;
+        this.services = serviceArrays;
     }
 
-    public void setServletContext(ServletContext servletContext) {
-        this.servletContext = servletContext;
-    }
-
-    private String getConfigProperty(String props, String context) {
-        String propValues = StringUtils.defaultString(systemService.getProperty(props));
-        if (StringUtils.isNotEmpty(propValues)) {
-            return propValues;
-        } else if (servletContext != null) {
-            String initParameter = servletContext.getInitParameter(context);
-            LOGGER.debug("Using value '" + initParameter + "' for init parameter " + context);
-            return StringUtils.defaultString(initParameter);
-        } else {
-            return null;
+    private String getConfigProperty(String methodName) {
+        for (int i = 0; i < services.length; i++) {
+            try {
+                Method method = DashboardConfigService.class.getMethod(methodName, null);
+                DashboardConfigService service = services[i];
+                String propValues;
+                propValues = StringUtils.defaultString(ObjectUtils.toString(method.invoke(service, null)));
+                if (StringUtils.isNotEmpty(propValues)) {
+                    return propValues;
+                }
+            } catch (Exception e) {
+                continue;
+            }
         }
+        return null;
     }
 
     public File getConfigXml() {
-        String filename = getConfigProperty(PROPS_CC_CONFIG_FILE, CONTEXT_CC_CONFIG_FILE);
+        String filename = getConfigProperty("getConfigXml");
         return filename != null ? new File(filename) : null;
     }
 
     public boolean isConfigFileEditable() {
-        String isEditable = getConfigProperty(PROPS_CC_CONFIG_EDITABLE, CONTEXT_CC_CONFIG_EDITABLE);
-        if (StringUtils.isEmpty(isEditable)) {
-            return true;
-        } else {
-            return BooleanUtils.toBoolean(isEditable);
-        }
+        return BooleanUtils.toBoolean(getConfigProperty("isConfigFileEditable"));
     }
 
     public int getJmxPort() {
-        String jmxPort = getConfigProperty(PROPS_CC_CONFIG_JMX_PORT, CONTEXT_CC_CONFIG_JMX_PORT);
-        int port = NumberUtils.toInt(StringUtils.defaultIfEmpty(jmxPort, "8000"));
-        LOGGER.debug("Using " + port + " as jmx port in dashboard");
-        return port;
+        return NumberUtils.toInt(getConfigProperty("getJMXPort"));
     }
 
     public int getRmiPort() {
-        String rmiPort = getConfigProperty(PROPS_CC_CONFIG_RMI_PORT, CONTEXT_CC_CONFIG_RMI_PORT);
-        int port = NumberUtils.toInt(StringUtils.defaultIfEmpty(rmiPort, "1099"));
-        LOGGER.debug("Using " + port + " as rmi port in dashboard");
-        return port;
+        return NumberUtils.toInt(getConfigProperty("getRMIPort"));
     }
 
     public boolean isForceBuildEnabled() {
-        String isEnabled =
-                getConfigProperty(PROPS_CC_CONFIG_FORCEBUILD_ENABLED,
-                        CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED);
+        String isEnabled = getConfigProperty("isForceBuildEnabled");
         if (StringUtils.isEmpty(isEnabled)) {
             return true;
         } else {
@@ -115,33 +67,29 @@ public class EnvironmentService implements ServletContextAware {
     }
 
     public File getLogDir() throws ConfigurationException {
-        return getCCHomeSubDir(PROPS_CC_CONFIG_LOG_DIR, CONTEXT_CC_CONFIG_LOG_DIR, "logs");
+        return getCCHomeSubDir("getLogsDir");
     }
 
     public File getArtifactsDir() throws ConfigurationException {
-        return getCCHomeSubDir(PROPS_CC_CONFIG_ARTIFACTS_DIR, CONTEXT_CC_CONFIG_ARTIFACTS_DIR,
-                "artifacts");
-    }
-
-    private File getCCHomeSubDir(String prop, String initParam, String defaultStr)
-            throws ConfigurationException {
-        String subDir = getConfigProperty(prop, initParam);
-        subDir = StringUtils.isEmpty(subDir) ? defaultStr : subDir;
-        if (systemService.isAbsolutePath(subDir)) {
-            return new File(subDir);
-        } else {
-            String ccHome = StringUtils.defaultString(systemService.getProperty(PROPS_CC_HOME));
-            if (StringUtils.isEmpty(ccHome)) {
-                throw new ConfigurationException("Failed to locate " + defaultStr + " dir "
-                        + subDir);
-            } else {
-                return new File(new File(ccHome), subDir);
-            }
-        }
+        return getCCHomeSubDir("getArtifactsDir");
     }
 
     public File getProjectsDir() throws ConfigurationException {
-        return getCCHomeSubDir(PROPS_CC_CONFIG_PROJECTS_DIR, CONTEXT_CC_CONFIG_PROJECTS_DIR,
-                "projects");
+        return getCCHomeSubDir("getProjectsDir");
+    }
+
+    private File getCCHomeSubDir(String methodName) throws ConfigurationException {
+        String subDir = getConfigProperty(methodName);
+        if (systemService.isAbsolutePath(subDir)) {
+            return new File(subDir);
+        } else {
+            String cchome = getConfigProperty("getCCHome");
+            if (StringUtils.isEmpty(cchome)) {
+                throw new ConfigurationException("Failed to invoke " + methodName + "to find " + subDir
+                        + " (Have you forgotten to set cc.home?)");
+            } else {
+                return new File(new File(StringUtils.defaultString(cchome)), subDir);
+            }
+        }
     }
 }

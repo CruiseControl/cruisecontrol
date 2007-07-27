@@ -360,3 +360,6 @@
 	<target name="dist" depends="--dist" description="build and package war" />
 	<target name="product" depends="--product" description="build and package war without testing" />
 </project>
+
+
+

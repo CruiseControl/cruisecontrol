@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 
 import org.springframework.web.servlet.ModelAndView;
@@ -51,21 +52,24 @@ import org.springframework.web.servlet.ModelAndView;
 public class BuildListingController extends BaseMultiActionController {
     private final BuildSummariesService buildSummariesService;
 
-    public BuildListingController(BuildSummariesService buildSummariesService) {
+    private final BuildSummaryUIService buildSummaryUIService;
+
+    public BuildListingController(BuildSummariesService buildSummariesService,
+            BuildSummaryUIService buildSummaryUIService) {
         this.buildSummariesService = buildSummariesService;
+        this.buildSummaryUIService = buildSummaryUIService;
         this.setSupportedMethods(new String[] {"GET"});
     }
 
-    public ModelAndView all(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        return process(getProjectName(request), "page_all_builds", buildSummariesService
-                .getAll(getProjectName(request)));
+    public ModelAndView all(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        List all = buildSummariesService.getAll(getProjectName(request));
+        return process(getProjectName(request), "page_all_builds", buildSummaryUIService.toCommands(all));
     }
 
-    public ModelAndView passed(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        return process(getProjectName(request), "page_all_successful_builds", buildSummariesService
-                .getAllSucceed(getProjectName(request)));
+    public ModelAndView passed(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        List allSucceed = buildSummariesService.getAllSucceed(getProjectName(request));
+        return process(getProjectName(request), "page_all_successful_builds", buildSummaryUIService
+                .toCommands(allSucceed));
     }
 
     private ModelAndView process(String projectName, String viewname, List list) {

@@ -50,6 +50,8 @@ public final class DataUtils {
 
     public static final String CONFIG_XML = "config.xml";
 
+    public static final String DASHBOARD_XML = "dashboard-config.xml";
+
     public static final String FAILING_LOG = "cruisecontrollog_internalerror.log";
 
     public static final String FAILING_BUILD_XML = "log20051209122104.xml";
@@ -73,9 +75,17 @@ public final class DataUtils {
     }
 
     public static File getConfigXmlOfWebApp() throws Exception {
+        return getFileOfWebApp("config.xml");
+    }
+
+    public static File getDashboardConfigXmlOfWebApp() throws Exception {
+        return getFileOfWebApp("dashboard-config.xml");
+    }
+
+    private static File getFileOfWebApp(String file) {
         File ccroot = new File(FilesystemUtils.getTestRootDir(), "tmpCCRoot");
         File data = new File(ccroot, "data");
-        return new File(data, "config.xml");
+        return new File(data, file);
     }
 
     public static void cloneCCHome() throws Exception {
@@ -137,16 +147,15 @@ public final class DataUtils {
     public static File getLogDirAsFile() throws Exception {
         return getData("logs");
     }
-    
+
     public static File getArtifactsDirAsFile() throws Exception {
         return getData("arbitrary_artifacts/artifacts");
     }
-    
+
     public static File getProjectLogDirAsFile(String project) throws Exception {
         return new File(getData("logs"), project);
     }
-    
-    
+
     public static File getProject2BuildAsFile() throws Exception {
         return getData("logs/project2/" + LOGFILE_OF_PROJECT2);
     }
@@ -164,7 +173,7 @@ public final class DataUtils {
     public static File createTempDirectory(String path) throws IOException {
         File file = File.createTempFile("tmp", "tmp");
         file.deleteOnExit();
-        
+
         File dir = new File(file.getParent() + File.separator + path);
         dir.deleteOnExit();
         dir.mkdir();
@@ -187,8 +196,7 @@ public final class DataUtils {
 
     public static File createDefaultCCConfigFile() throws IOException {
         File configurationFile = createTempFile("config", ".xml");
-        writeContentToFile(configurationFile,
-                "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
+        writeContentToFile(configurationFile, "<cruisecontrol><project name=\"project1\"/></cruisecontrol>\n");
         return configurationFile;
     }
 
@@ -207,6 +215,10 @@ public final class DataUtils {
             }
         }
         return sb.toString();
+    }
+
+    public static File getDashboardConfig() throws Exception {
+        return getData(DASHBOARD_XML);
     }
 
 }

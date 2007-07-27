@@ -43,7 +43,7 @@ import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import junitx.util.DirectorySuiteBuilder;
 import junitx.util.SimpleTestFilter;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
@@ -59,12 +59,13 @@ public final class AllSeleniumTests {
                 new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
                     public void run(TestResult arg0) {
                         try {
-                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_LOG_DIR,
+                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR,
                                     DataUtils.getLogRootOfWebapp().getAbsolutePath());
-                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
+                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
                                     DataUtils.getArtifactRootOfWebapp().getAbsolutePath());
-                            System.setProperty(EnvironmentService.PROPS_CC_CONFIG_PROJECTS_DIR,
+                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR,
                                     DataUtils.getProjectsRootOfWebapp().getAbsolutePath());
+                            DataUtils.cloneCCHome();
                             SERVER.start();
                             super.run(arg0);
                         } catch (Exception e) {

@@ -68,6 +68,7 @@ public class ThreadQueue extends Thread {
      * The list of WorkerThreads that are waiting to run (currently idle)
      */
     private final List idleTasks = Collections.synchronizedList(new LinkedList());
+
     /**
      * The list of WorkerThreads that are running now (currently busy)
      */
@@ -106,10 +107,10 @@ public class ThreadQueue extends Thread {
     private static boolean terminate = false;
 
     /*
-       fetch tasks to be executed from the idle list,
-       put them on the busy list, and
-       execute them
-    */
+     fetch tasks to be executed from the idle list,
+     put them on the busy list, and
+     execute them
+     */
     public void run() {
         while (true) {
             if (ThreadQueue.terminate) {
@@ -180,11 +181,19 @@ public class ThreadQueue extends Thread {
     public static void addTask(WorkerThread task) {
         LOG.debug("Preparing to add worker task " + task.getName());
 
-        if (isActive(task.getName())) {
-            throw new RuntimeException("Duplicate task name!");
-        }
         synchronized (getThreadQueue().busyTasks) {
-            getThreadQueue().idleTasks.add(task);
+            synchronized (getThreadQueue().idleTasks) {
+
+                // don't trust that 100 ms main loop managed to clean up very
+                // recently finished tasks
+                getThreadQueue().cleanCompletedTasks();
+
+                if (isActive(task.getName())) {
+                    throw new TaskAlreadyAddedException("Duplicate task name!");
+                }
+
+                getThreadQueue().idleTasks.add(task);
+            }
         }
     }
 
@@ -235,8 +244,7 @@ public class ThreadQueue extends Thread {
     public static boolean isActive(String taskName) {
         synchronized (getThreadQueue().busyTasks) {
             // it's either busy or idle
-            return !((getBusyTask(taskName) == null)
-                    && (getIdleTask(taskName) == null));
+            return !((getBusyTask(taskName) == null) && (getIdleTask(taskName) == null));
         }
     }
 

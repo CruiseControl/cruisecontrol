@@ -36,6 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.testhelpers;
 
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
+
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
 
@@ -50,7 +53,10 @@ public final class Localhost {
         localhost.server.start();
     }
 
-    private Localhost() {
+    private Localhost() throws Exception {
+        System.setProperty(DashboardXmlConfigService.PROPS_CC_DASHBOARD_CONFIG, DataUtils
+                .getDashboardConfigXmlOfWebApp().getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "enabled");
         server = new Server(PORT);
         server.addHandler(new WebAppContext("webapp", "/"));
     }

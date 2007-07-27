@@ -24,18 +24,26 @@ public class DownloadArtifactsFileTest extends BaseFunctionalTest {
         tester.assertTextPresent("Test Suites");
     }
 
-    public void testShouldDownloadArtifactsFrom() throws Exception {
+    public void testShouldDownloadArtifactsFromPassedBuild() throws Exception {
         tester.beginAt("/build/detail/project1/" + DataUtils.PASSING_BUILD_LBUILD_0_XML);
         tester.assertTextPresent("Merged Check Style");
-        downloadAndAssert("artifact1.txt", "artifact content");
+        downloadAndAssert("artifact1.txt", "artifact content", "text/plain");
     }
 
-    private void downloadAndAssert(String text, String contentToAssert) throws Exception {
+    public void testShouldDownloadArtifactsFromFailedBuild() throws Exception {
+        tester.beginAt("/build/detail/project1/" + DataUtils.FAILING_BUILD_XML);
+        tester.assertTextPresent("Merged Check Style");
+        downloadAndAssert("coverage2214.xml", "<report>", "application/xml");
+        tester.beginAt("/build/detail/project1/" + DataUtils.FAILING_BUILD_XML);
+        downloadAndAssert("artifact2214.txt", "artifact2214.txt content", "text/plain");
+    }
+    
+    private void downloadAndAssert(String text, String contentToAssert, String contentType) throws Exception {
         tester.clickLinkWithText(text);
         String serveurResponse = tester.getServeurResponse();
-        assertTrue(StringUtils.contains(serveurResponse, "text/plain"));
+        assertTrue(serveurResponse, StringUtils.contains(serveurResponse, contentType));
         tester.saveAs(downloadedFile);
         String content = DataUtils.readFileContent(downloadedFile);
-        assertTrue(StringUtils.contains(content, contentToAssert));
+        assertTrue(content, StringUtils.contains(content, contentToAssert));
     }
 }

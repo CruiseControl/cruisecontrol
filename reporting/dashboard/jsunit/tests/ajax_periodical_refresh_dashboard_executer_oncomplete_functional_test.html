@@ -1,0 +1,1307 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript" src="../ccjs/Tooltip.js"></script>
+<script language="JavaScript" type="text/javascript">
+var data = '[ { "building_info" : { "css_class_name" : "passed", "project_name" : "cache", "building_status" : "Passed" , "latest_build_date" : "5 Jul 2007 10:54 GMT +01:00", "latest_build_log_file_name" : "log20070705105402Lbuild-128 .xml", "css_class_name_for_dashboard" : "passed_level_7" } }, { "building_info" : { "css_class_name"  : "passed", "project_name" : "cache-interface", "building_status" : "Passed", "latest_build_date" :  "5 Jul 2007 10:57 GMT +01:00", "latest_build_log_file_name" : "log20070705105703Lbuild-467.xml", "css_class_name_for_dashboard"  : "passed_level_8" } }, { "building_info" : { "css_class_name" : "building", "project_name" : "cache-reconcile" , "building_status" : "Building", "latest_build_date" : "5 Jul 2007 10:56 GMT +01:00", "latest_build_log_file_name"  : "log20070705105615.xml", "css_class_name_for_dashboard" : "building" } }, { "building_info" : { "css_class_name" : "failed", "project_name" : "cachemgr", "building_status" : "Failed", "latest_build_date"  : "6 Jul 2007 10:41 GMT +01:00", "latest_build_log_file_name" : "log20070706104119.xml", "css_class_name_for_dashboard"  : "failed_level_7" } }, { "building_info" : { "css_class_name" : "passed", "project_name" : "caf-testing" , "building_status" : "Passed", "latest_build_date" : "5 Jul 2007 14:33 GMT +01:00", "latest_build_log_file_name"  : "log20070705143354Lbuild-99.xml", "css_class_name_for_dashboard" : "passed_level_8" } }, { "building_info"  : { "css_class_name" : "passed", "project_name" : "end-to-end-testing", "building_status" : "Passed" , "latest_build_date" : "6 Jul 2007 10:36 GMT +01:00", "latest_build_log_file_name" : "log20070706103622Lbuild-6 .xml", "css_class_name_for_dashboard" : "passed_level_7" } }, { "building_info" : { "css_class_name"  : "passed", "project_name" : "evtpub", "building_status" : "Passed", "latest_build_date" : "29 Jun 2007  15:12 GMT +01:00", "latest_build_log_file_name" : "log20070629151233Lbuild-108.xml", "css_class_name_for_dashboard"  : "passed_level_8" } }, { "building_info" : { "build_duration" : "21 minutes 45 seconds", "css_class_name"  : "building", "project_name" : "gds-linux-ci", "building_status" : "Building", "build_time_elapsed"  : "290", "latest_build_date" : "6 Jul 2007 10:39 GMT +01:00", "latest_build_log_file_name" : "log20070706093711Lgds-linux-ci-501 .xml", "css_class_name_for_dashboard" : "building" } }, { "building_info" : { "css_class_name" : "failed" , "project_name" : "gds-linux-nightly", "building_status" : "Failed", "latest_build_date" : "5 Jul 2007  23:00 GMT +01:00", "latest_build_log_file_name" : "log20070705230045.xml", "css_class_name_for_dashboard"  : "failed_level_3" } }, { "building_info" : { "css_class_name" : "passed", "project_name" : "support-utils" , "building_status" : "Passed", "latest_build_date" : "5 Jul 2007 11:00 GMT +01:00", "latest_build_log_file_name"  : "log20070705110005Lbuild-156.xml", "css_class_name_for_dashboard" : "passed_level_8" } }, { "building_info"  : { "css_class_name" : "passed", "project_name" : "uat-testing", "building_status" : "Passed", "latest_build_date"  : "5 Jul 2007 11:01 GMT +01:00", "latest_build_log_file_name" : "log20070705110138Lbuild-52.xml", "css_class_name_for_dashboard"  : "passed_level_8" } } ]'
+var contextPath = 'dashboard'
+var json = eval("(" + data + ")");
+
+function test_should_update_classname_when_building(){
+    ajax_periodical_refresh_dashboard_executer_oncomplete(json);
+	//profile
+	assertTrue("cache_profile", $('cache_profile').hasClassName("passed"));
+	assertTrue('cache-interface_profile', $('cache-interface_profile').hasClassName("passed"));
+	assertTrue('cache-reconcile_profile', $('cache-reconcile_profile').hasClassName("building"));
+	assertTrue('cachemgr_profile', $('cachemgr_profile').hasClassName("failed"));
+	assertTrue('caf-testing_profile', $('caf-testing_profile').hasClassName("passed"));	
+	assertTrue('end-to-end-testing_profile', $('end-to-end-testing_profile').hasClassName("passed"));	
+	assertTrue('evtpub_profile', $('evtpub_profile').hasClassName("passed"));	
+	assertTrue('gds-linux-ci_profile', $('gds-linux-ci_profile').hasClassName("building"));	
+	assertTrue('gds-linux-nightly_profile', $('gds-linux-nightly_profile').hasClassName("failed"));	
+	assertTrue('support-utils_profile', $('support-utils_profile').hasClassName("passed"));
+	assertTrue('uat-testing_profile', $('uat-testing_profile').hasClassName("passed"));
+	//box
+	assertTrue("cache_bar", $('cache_bar').hasClassName("passed_level_7"));
+	assertTrue('cache-interface_bar', $('cache-interface_bar').hasClassName("passed_level_8"));
+	assertTrue('cache-reconcile_bar', $('cache-reconcile_bar').hasClassName("building"));
+	assertTrue('cachemgr_bar', $('cachemgr_bar').hasClassName("failed_level_7"));
+	assertTrue('caf-testing_bar', $('caf-testing_bar').hasClassName("passed_level_8"));	
+	assertTrue('end-to-end-testing_bar', $('end-to-end-testing_bar').hasClassName("passed_level_7"));	
+	assertTrue('evtpub_bar', $('evtpub_bar').hasClassName("passed_level_8"));	
+	assertTrue('gds-linux-ci_bar', $('gds-linux-ci_bar').hasClassName("building"));	
+	assertTrue('gds-linux-nightly_bar', $('gds-linux-nightly_bar').hasClassName("failed_level_3"));	
+	assertTrue('support-utils_bar', $('support-utils_bar').hasClassName("passed_level_8"));
+	assertTrue('uat-testing_bar', $('uat-testing_bar').hasClassName("passed_level_8"));
+	//summary
+	assertEquals('6',  getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('7',  getFirstWord($('statistics_passed').innerHTML));
+	assertEquals('2',  getFirstWord($('statistics_failed').innerHTML));
+	assertEquals('2',  getFirstWord($('statistics_building').innerHTML));
+	assertEquals('17',  getFirstWord($('statistics_total').innerHTML));
+	assertEquals('64%',  getFirstWord($('statistics_rate').innerHTML));
+}
+
+function getFirstWord(var sentence) {
+	return sentence.substring(0, sentence.indexOf(' ') - 1);
+}
+</script>
+</head>
+<body>
+<body>
+<div id="doc3" class="yui-t7">
+<div id="header">
+<div id="menu">
+<div id="pageTitle">
+    Server : xp620-gli
+
+</div>
+<a href="javascript:test_should_update_classname_when_building()">for debug</a>
+<div id="logo">
+   <img src="/dashboard/images/logo.png" alt="Cruise Control" width="195" height="42" />
+</div>
+    <ul>
+        <li id="dashboard" class=""><a href="javascript:void(0)" onclick="toggle_tab(1)">
+        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+        <span>Dashboard</span></a></li>
+
+        <li id="builds" class="currenttab"><a href="javascript:void(0)" onclick="toggle_tab(2)">
+        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+        <span>Builds</span></a></li>
+        <li id="administation" class="" style="float:right">
+            <a href="/dashboard/admin/config" >
+            <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+
+                <span>Administration</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<div id="menu_bottom"></div>
+</div>
+<div id="content">
+
+  <div id="bd">
+        <div class="yui-ge build_summary_page" id="tabscontent">
+
+            <!-- tab content 1 -->
+            <div id="tabContent1" class="yui-u first tabContent" style="display:none">
+                        <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+                        <div id="statusbar" class="projects build_status_bar_container">
+                                                                         <div id="cache_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="cache_bar_link"></a>
+    </div>
+
+    <div id="tooltip_cache" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_cache_name">cache</span></div>
+                    <div><span id="tooltip_cache_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_cache_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('cache_bar', 'tooltip_cache')</script>
+                                                                         <div id="cache-interface_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="cache-interface_bar_link"></a>
+    </div>
+    <div id="tooltip_cache-interface" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_cache-interface_name">cache-interface</span></div>
+                    <div><span id="tooltip_cache-interface_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_cache-interface_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('cache-interface_bar', 'tooltip_cache-interface')</script>
+
+                                                                         <div id="cache-reconcile_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="cache-reconcile_bar_link"></a>
+    </div>
+    <div id="tooltip_cache-reconcile" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_cache-reconcile_name">cache-reconcile</span></div>
+                    <div><span id="tooltip_cache-reconcile_status">Status: Inactive</span></div>
+
+                                                                                <div><span id="tooltip_cache-reconcile_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('cache-reconcile_bar', 'tooltip_cache-reconcile')</script>
+                                                                         <div id="cachemgr_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="cachemgr_bar_link"></a>
+
+    </div>
+    <div id="tooltip_cachemgr" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_cachemgr_name">cachemgr</span></div>
+                    <div><span id="tooltip_cachemgr_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_cachemgr_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('cachemgr_bar', 'tooltip_cachemgr')</script>
+                                                                         <div id="caf-testing_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="caf-testing_bar_link"></a>
+    </div>
+    <div id="tooltip_caf-testing" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_caf-testing_name">caf-testing</span></div>
+                    <div><span id="tooltip_caf-testing_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_caf-testing_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('caf-testing_bar', 'tooltip_caf-testing')</script>
+
+                                                                         <div id="cclive_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="cclive_bar_link"></a>
+    </div>
+    <div id="tooltip_cclive" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_cclive_name">cclive</span></div>
+                    <div><span id="tooltip_cclive_status">Status: Inactive</span></div>
+
+                                                                                <div><span id="tooltip_cclive_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('cclive_bar', 'tooltip_cclive')</script>
+                                                                         <div id="end-to-end-testing_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="end-to-end-testing_bar_link"></a>
+
+    </div>
+    <div id="tooltip_end-to-end-testing" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_end-to-end-testing_name">end-to-end-testing</span></div>
+                    <div><span id="tooltip_end-to-end-testing_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_end-to-end-testing_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('end-to-end-testing_bar', 'tooltip_end-to-end-testing')</script>
+                                                                         <div id="evtpub_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="evtpub_bar_link"></a>
+    </div>
+    <div id="tooltip_evtpub" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_evtpub_name">evtpub</span></div>
+                    <div><span id="tooltip_evtpub_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_evtpub_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('evtpub_bar', 'tooltip_evtpub')</script>
+
+                                                                         <div id="gds-linux-ci_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="gds-linux-ci_bar_link"></a>
+    </div>
+    <div id="tooltip_gds-linux-ci" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_gds-linux-ci_name">gds-linux-ci</span></div>
+                    <div><span id="tooltip_gds-linux-ci_status">Status: Inactive</span></div>
+
+                                                                                <div><span id="tooltip_gds-linux-ci_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('gds-linux-ci_bar', 'tooltip_gds-linux-ci')</script>
+                                                                         <div id="gds-linux-nightly_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="gds-linux-nightly_bar_link"></a>
+
+    </div>
+    <div id="tooltip_gds-linux-nightly" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_gds-linux-nightly_name">gds-linux-nightly</span></div>
+                    <div><span id="tooltip_gds-linux-nightly_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_gds-linux-nightly_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('gds-linux-nightly_bar', 'tooltip_gds-linux-nightly')</script>
+                                                                         <div id="project space_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="project space_bar_link"></a>
+    </div>
+    <div id="tooltip_project space" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_project space_name">project space</span></div>
+                    <div><span id="tooltip_project space_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_project space_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('project space_bar', 'tooltip_project space')</script>
+
+                                                                         <div id="project1_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="project1_bar_link"></a>
+    </div>
+    <div id="tooltip_project1" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_project1_name">project1</span></div>
+                    <div><span id="tooltip_project1_status">Status: Inactive</span></div>
+
+                                                                                <div><span id="tooltip_project1_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('project1_bar', 'tooltip_project1')</script>
+                                                                         <div id="project2_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="project2_bar_link"></a>
+
+    </div>
+    <div id="tooltip_project2" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_project2_name">project2</span></div>
+                    <div><span id="tooltip_project2_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_project2_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('project2_bar', 'tooltip_project2')</script>
+                                                                         <div id="projectWithoutConfiguration_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="projectWithoutConfiguration_bar_link"></a>
+    </div>
+    <div id="tooltip_projectWithoutConfiguration" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_projectWithoutConfiguration_name">projectWithoutConfiguration</span></div>
+                    <div><span id="tooltip_projectWithoutConfiguration_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_projectWithoutConfiguration_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('projectWithoutConfiguration_bar', 'tooltip_projectWithoutConfiguration')</script>
+
+                                                                         <div id="projectWithoutPublishers_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="projectWithoutPublishers_bar_link"></a>
+    </div>
+    <div id="tooltip_projectWithoutPublishers" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_projectWithoutPublishers_name">projectWithoutPublishers</span></div>
+                    <div><span id="tooltip_projectWithoutPublishers_status">Status: Inactive</span></div>
+
+                                                                                <div><span id="tooltip_projectWithoutPublishers_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('projectWithoutPublishers_bar', 'tooltip_projectWithoutPublishers')</script>
+                                                                         <div id="support-utils_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="support-utils_bar_link"></a>
+
+    </div>
+    <div id="tooltip_support-utils" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+                    <div class="title"><span id="tooltip_support-utils_name">support-utils</span></div>
+                    <div><span id="tooltip_support-utils_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_support-utils_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+    </div>
+    <script>new Tooltip('support-utils_bar', 'tooltip_support-utils')</script>
+                                                                         <div id="uat-testing_bar" class="bar round_corner inactive">
+         <a href="javascript:void(0)" id="uat-testing_bar_link"></a>
+    </div>
+    <div id="tooltip_uat-testing" class='tooltip tooltip_inactive'>
+            <div class="tooltip_header"></div>
+            <div class="tooltip_content">
+
+                    <div class="title"><span id="tooltip_uat-testing_name">uat-testing</span></div>
+                    <div><span id="tooltip_uat-testing_status">Status: Inactive</span></div>
+                                                                                <div><span id="tooltip_uat-testing_date"></span></div>
+            </div> 
+            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+    </div>
+    <script>new Tooltip('uat-testing_bar', 'tooltip_uat-testing')</script>
+
+                                                        </div>
+                        <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+            </div>
+            <!-- end tab content 1 -->
+
+            <!-- project summary -->
+            <div id="project_summary_panel" class="project_summary_panel yui-g">
+               <div class="projects_summary_holder">
+
+                <div class="title"><span>Summary</span></div>
+                         <div class="projects_summary">
+                            <div class="entry_set">
+		                        <div class="info total" id="statistics_total">$projectStatistics.total() project build(s)</div>
+		                        <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
+		                        <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
+		                        <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
+		                        <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
+		                        <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
+                            <div class="summary">Projects passing : <span class="info summary" id="statistics_rate">0%</span></div>
+
+                            </div>
+                     <div class="clear"> &nbsp; </div>
+                  </div>
+                </div>
+                <div class="tools_bar_holder">
+                            <div class="title actions_bar"><span>Tools</span></div>
+                            <div class="projects_summary actions_bar">
+
+                               <div id="add_project" class="entry"><a href="/dashboard/admin/action/add" title="Add new project">Add a project</a></div>
+                               <div id="rss_feed_for_all" class="entry"><a href="/dashboard/rss.xml" title="RSS Feed">RSS Feed</a></div>
+                               <div id="cctray" class="entry"><a href="/dashboard/cctray.xml" title="CCTray">for CCTray</a></div>
+                               <div id="configure_panel" class="entry"><a href="/dashboard/admin/mx4j" title="JMX Console">JMX Console</a></div>
+                            <div class="clear"> &nbsp; </div>
+                           </div>
+
+                  </div>
+                  <div class="clear"> &nbsp; </div>
+            </div>
+            <!-- end project summary -->
+
+            <!-- tab content 2 -->
+            <div id="tabContent2"  class="yui-g tabContent" style="display:block">
+                    <div id="cruisecontrol_status" class="cc_status transparent_message transparent_notice" style="display:none">CruiseControl is currently unavailable. You will not be able to force a project build.</div>
+
+                    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+                    <div class="projects_profile build_status_bar_container" >
+                                                                                                <div id="cache_profile_box">
+                                        
+<div class="relative_box">
+    <div id="cache_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="cache_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+
+        	            <a id="cache_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="cache_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">cache</span>
+                <span id="cache_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+
+               <a id="cache_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="cache_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="cache_time_elapsed_lable"></span>
+
+            <span id="cache_time_elapsed"></span>
+            <span id="cache_time_remaining_lable"></span>
+            <span id="cache_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_cache" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">cache</span>
+
+                <span class="close" onclick="close_toolkit('toolkit_cache', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=cache" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+
+                <a href="/dashboard/admin/mx4j/cache" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="cache-interface_profile_box">
+                                        
+<div class="relative_box">
+    <div id="cache-interface_profile" class="inactive build_profile build_profile_inactive">
+
+        <div class="control_panel">
+        		            <a id="cache-interface_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="cache-interface_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="cache-interface_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">cache-interface</span>
+                <span id="cache-interface_build_date" class="no_decoration"> : Waiting for first build...</span>
+
+               </a>
+               <a id="cache-interface_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="cache-interface_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+
+            <span id="cache-interface_time_elapsed_lable"></span>
+            <span id="cache-interface_time_elapsed"></span>
+            <span id="cache-interface_time_remaining_lable"></span>
+            <span id="cache-interface_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_cache-interface" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+
+                <span class="title">cache-interface</span>
+                <span class="close" onclick="close_toolkit('toolkit_cache-interface', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=cache-interface" class="toolkit_rss">RSS</a>
+
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/cache-interface" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="cache-reconcile_profile_box">
+
+                                        
+<div class="relative_box">
+    <div id="cache-reconcile_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="cache-reconcile_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="cache-reconcile_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="cache-reconcile_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">cache-reconcile</span>
+
+                <span id="cache-reconcile_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="cache-reconcile_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="cache-reconcile_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+
+           </div>
+           <div class="timer">
+            <span id="cache-reconcile_time_elapsed_lable"></span>
+            <span id="cache-reconcile_time_elapsed"></span>
+            <span id="cache-reconcile_time_remaining_lable"></span>
+            <span id="cache-reconcile_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_cache-reconcile" style="display:none;">
+
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">cache-reconcile</span>
+                <span class="close" onclick="close_toolkit('toolkit_cache-reconcile', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+
+                <a href="/dashboard/rss.xml?projectName=cache-reconcile" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/cache-reconcile" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                    </div>
+                                                                    <div id="cachemgr_profile_box">
+                                        
+<div class="relative_box">
+    <div id="cachemgr_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="cachemgr_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="cachemgr_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+
+               <a id="cachemgr_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">cachemgr</span>
+                <span id="cachemgr_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="cachemgr_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+
+               <a id="cachemgr_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="cachemgr_time_elapsed_lable"></span>
+            <span id="cachemgr_time_elapsed"></span>
+            <span id="cachemgr_time_remaining_lable"></span>
+            <span id="cachemgr_time_remaining"></span>
+
+           </div>
+    </div>
+    <div id="toolkit_cachemgr" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">cachemgr</span>
+                <span class="close" onclick="close_toolkit('toolkit_cachemgr', event)">X</span>
+                <span class="clear"></span>
+
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=cachemgr" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/cachemgr" class="toolkit_jmx">JMX Console</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="caf-testing_profile_box">
+                                        
+<div class="relative_box">
+    <div id="caf-testing_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="caf-testing_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+
+        	            <a id="caf-testing_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="caf-testing_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">caf-testing</span>
+                <span id="caf-testing_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+
+               <a id="caf-testing_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="caf-testing_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="caf-testing_time_elapsed_lable"></span>
+
+            <span id="caf-testing_time_elapsed"></span>
+            <span id="caf-testing_time_remaining_lable"></span>
+            <span id="caf-testing_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_caf-testing" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">caf-testing</span>
+
+                <span class="close" onclick="close_toolkit('toolkit_caf-testing', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=caf-testing" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+
+                <a href="/dashboard/admin/mx4j/caf-testing" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="cclive_profile_box">
+                                        
+<div class="relative_box">
+    <div id="cclive_profile" class="inactive build_profile build_profile_inactive">
+
+        <div class="control_panel">
+        		            <a id="cclive_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="cclive_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="cclive_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">cclive</span>
+                <span id="cclive_build_date" class="no_decoration"> : Waiting for first build...</span>
+
+               </a>
+               <a id="cclive_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="cclive_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+
+            <span id="cclive_time_elapsed_lable"></span>
+            <span id="cclive_time_elapsed"></span>
+            <span id="cclive_time_remaining_lable"></span>
+            <span id="cclive_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_cclive" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+
+                <span class="title">cclive</span>
+                <span class="close" onclick="close_toolkit('toolkit_cclive', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=cclive" class="toolkit_rss">RSS</a>
+
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/cclive" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="end-to-end-testing_profile_box">
+
+                                        
+<div class="relative_box">
+    <div id="end-to-end-testing_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="end-to-end-testing_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="end-to-end-testing_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="end-to-end-testing_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">end-to-end-testing</span>
+
+                <span id="end-to-end-testing_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="end-to-end-testing_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="end-to-end-testing_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+
+           </div>
+           <div class="timer">
+            <span id="end-to-end-testing_time_elapsed_lable"></span>
+            <span id="end-to-end-testing_time_elapsed"></span>
+            <span id="end-to-end-testing_time_remaining_lable"></span>
+            <span id="end-to-end-testing_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_end-to-end-testing" style="display:none;">
+
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">end-to-end-testing</span>
+                <span class="close" onclick="close_toolkit('toolkit_end-to-end-testing', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+
+                <a href="/dashboard/rss.xml?projectName=end-to-end-testing" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/end-to-end-testing" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                    </div>
+                                                                    <div id="evtpub_profile_box">
+                                        
+<div class="relative_box">
+    <div id="evtpub_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="evtpub_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="evtpub_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+
+               <a id="evtpub_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">evtpub</span>
+                <span id="evtpub_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="evtpub_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+
+               <a id="evtpub_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="evtpub_time_elapsed_lable"></span>
+            <span id="evtpub_time_elapsed"></span>
+            <span id="evtpub_time_remaining_lable"></span>
+            <span id="evtpub_time_remaining"></span>
+
+           </div>
+    </div>
+    <div id="toolkit_evtpub" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">evtpub</span>
+                <span class="close" onclick="close_toolkit('toolkit_evtpub', event)">X</span>
+                <span class="clear"></span>
+
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=evtpub" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/evtpub" class="toolkit_jmx">JMX Console</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="gds-linux-ci_profile_box">
+                                        
+<div class="relative_box">
+    <div id="gds-linux-ci_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="gds-linux-ci_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+
+        	            <a id="gds-linux-ci_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="gds-linux-ci_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">gds-linux-ci</span>
+                <span id="gds-linux-ci_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+
+               <a id="gds-linux-ci_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="gds-linux-ci_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="gds-linux-ci_time_elapsed_lable"></span>
+
+            <span id="gds-linux-ci_time_elapsed"></span>
+            <span id="gds-linux-ci_time_remaining_lable"></span>
+            <span id="gds-linux-ci_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_gds-linux-ci" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">gds-linux-ci</span>
+
+                <span class="close" onclick="close_toolkit('toolkit_gds-linux-ci', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=gds-linux-ci" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+
+                <a href="/dashboard/admin/mx4j/gds-linux-ci" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="gds-linux-nightly_profile_box">
+                                        
+<div class="relative_box">
+    <div id="gds-linux-nightly_profile" class="inactive build_profile build_profile_inactive">
+
+        <div class="control_panel">
+        		            <a id="gds-linux-nightly_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="gds-linux-nightly_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="gds-linux-nightly_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">gds-linux-nightly</span>
+                <span id="gds-linux-nightly_build_date" class="no_decoration"> : Waiting for first build...</span>
+
+               </a>
+               <a id="gds-linux-nightly_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="gds-linux-nightly_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+
+            <span id="gds-linux-nightly_time_elapsed_lable"></span>
+            <span id="gds-linux-nightly_time_elapsed"></span>
+            <span id="gds-linux-nightly_time_remaining_lable"></span>
+            <span id="gds-linux-nightly_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_gds-linux-nightly" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+
+                <span class="title">gds-linux-nightly</span>
+                <span class="close" onclick="close_toolkit('toolkit_gds-linux-nightly', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=gds-linux-nightly" class="toolkit_rss">RSS</a>
+
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/gds-linux-nightly" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="project space_profile_box">
+
+                                        
+<div class="relative_box">
+    <div id="project space_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="project space_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="project space_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="project space_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">project space</span>
+
+                <span id="project space_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="project space_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="project space_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+
+           </div>
+           <div class="timer">
+            <span id="project space_time_elapsed_lable"></span>
+            <span id="project space_time_elapsed"></span>
+            <span id="project space_time_remaining_lable"></span>
+            <span id="project space_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_project space" style="display:none;">
+
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">project space</span>
+                <span class="close" onclick="close_toolkit('toolkit_project space', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+
+                <a href="/dashboard/rss.xml?projectName=project space" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/project space" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                    </div>
+                                                                    <div id="project1_profile_box">
+                                        
+<div class="relative_box">
+    <div id="project1_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="project1_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="project1_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+
+               <a id="project1_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">project1</span>
+                <span id="project1_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="project1_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+
+               <a id="project1_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="project1_time_elapsed_lable"></span>
+            <span id="project1_time_elapsed"></span>
+            <span id="project1_time_remaining_lable"></span>
+            <span id="project1_time_remaining"></span>
+
+           </div>
+    </div>
+    <div id="toolkit_project1" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">project1</span>
+                <span class="close" onclick="close_toolkit('toolkit_project1', event)">X</span>
+                <span class="clear"></span>
+
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=project1" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/project1" class="toolkit_jmx">JMX Console</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="project2_profile_box">
+                                        
+<div class="relative_box">
+    <div id="project2_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="project2_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+
+        	            <a id="project2_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="project2_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">project2</span>
+                <span id="project2_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+
+               <a id="project2_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="project2_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="project2_time_elapsed_lable"></span>
+
+            <span id="project2_time_elapsed"></span>
+            <span id="project2_time_remaining_lable"></span>
+            <span id="project2_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_project2" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">project2</span>
+
+                <span class="close" onclick="close_toolkit('toolkit_project2', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=project2" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+
+                <a href="/dashboard/admin/mx4j/project2" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="projectWithoutConfiguration_profile_box">
+                                        
+<div class="relative_box">
+    <div id="projectWithoutConfiguration_profile" class="inactive build_profile build_profile_inactive">
+
+        <div class="control_panel">
+        		            <a id="projectWithoutConfiguration_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="projectWithoutConfiguration_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="projectWithoutConfiguration_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">projectWithoutConfiguration</span>
+                <span id="projectWithoutConfiguration_build_date" class="no_decoration"> : Waiting for first build...</span>
+
+               </a>
+               <a id="projectWithoutConfiguration_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="projectWithoutConfiguration_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+
+            <span id="projectWithoutConfiguration_time_elapsed_lable"></span>
+            <span id="projectWithoutConfiguration_time_elapsed"></span>
+            <span id="projectWithoutConfiguration_time_remaining_lable"></span>
+            <span id="projectWithoutConfiguration_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_projectWithoutConfiguration" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+
+                <span class="title">projectWithoutConfiguration</span>
+                <span class="close" onclick="close_toolkit('toolkit_projectWithoutConfiguration', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=projectWithoutConfiguration" class="toolkit_rss">RSS</a>
+
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/projectWithoutConfiguration" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="projectWithoutPublishers_profile_box">
+
+                                        
+<div class="relative_box">
+    <div id="projectWithoutPublishers_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="projectWithoutPublishers_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="projectWithoutPublishers_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="projectWithoutPublishers_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">projectWithoutPublishers</span>
+
+                <span id="projectWithoutPublishers_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="projectWithoutPublishers_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="projectWithoutPublishers_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+
+           </div>
+           <div class="timer">
+            <span id="projectWithoutPublishers_time_elapsed_lable"></span>
+            <span id="projectWithoutPublishers_time_elapsed"></span>
+            <span id="projectWithoutPublishers_time_remaining_lable"></span>
+            <span id="projectWithoutPublishers_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_projectWithoutPublishers" style="display:none;">
+
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">projectWithoutPublishers</span>
+                <span class="close" onclick="close_toolkit('toolkit_projectWithoutPublishers', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+
+                <a href="/dashboard/rss.xml?projectName=projectWithoutPublishers" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/projectWithoutPublishers" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                    </div>
+                                                                    <div id="support-utils_profile_box">
+                                        
+<div class="relative_box">
+    <div id="support-utils_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="support-utils_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+        	            <a id="support-utils_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+
+               <a id="support-utils_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">support-utils</span>
+                <span id="support-utils_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+               <a id="support-utils_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+
+               <a id="support-utils_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="support-utils_time_elapsed_lable"></span>
+            <span id="support-utils_time_elapsed"></span>
+            <span id="support-utils_time_remaining_lable"></span>
+            <span id="support-utils_time_remaining"></span>
+
+           </div>
+    </div>
+    <div id="toolkit_support-utils" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">support-utils</span>
+                <span class="close" onclick="close_toolkit('toolkit_support-utils', event)">X</span>
+                <span class="clear"></span>
+
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=support-utils" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+                <a href="/dashboard/admin/mx4j/support-utils" class="toolkit_jmx">JMX Console</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                    <div id="uat-testing_profile_box">
+                                        
+<div class="relative_box">
+    <div id="uat-testing_profile" class="inactive build_profile build_profile_inactive">
+        <div class="control_panel">
+        		            <a id="uat-testing_forcebuild" onclick='' class="force_build_link"><img src="/dashboard/images/icon-force-build.gif" alt="Force build" title="Force build" width="20" height="20" /></a>
+
+        	            <a id="uat-testing_config_panel" onclick=''><img src="/dashboard/images/icon-configure-dropdown.gif" alt="Configure project" title="Configure project" width="35" height="20" /></a>
+        </div>
+           <div class="description">
+               <a id="uat-testing_build_detail" href="javascript:void(0)" class="clickable_target">
+                <span class="project_name">uat-testing</span>
+                <span id="uat-testing_build_date" class="no_decoration"> : Waiting for first build...</span>
+               </a>
+
+               <a id="uat-testing_all_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-view-all-builds.gif"  alt="All builds" title="All builds"/>
+               </a>
+               <a id="uat-testing_all_successful_builds" href="javascript:void(0)">
+                   <img src="/dashboard/images/icon-all-successful-builds.gif" alt="All successful builds" title="All successful builds"/>
+               </a>
+           </div>
+           <div class="timer">
+            <span id="uat-testing_time_elapsed_lable"></span>
+
+            <span id="uat-testing_time_elapsed"></span>
+            <span id="uat-testing_time_remaining_lable"></span>
+            <span id="uat-testing_time_remaining"></span>
+           </div>
+    </div>
+    <div id="toolkit_uat-testing" style="display:none;">
+        <div class="toolkit_panel">
+            <div class="toolkit_entry">
+                <span class="title">uat-testing</span>
+
+                <span class="close" onclick="close_toolkit('toolkit_uat-testing', event)">X</span>
+                <span class="clear"></span>
+            </div>
+            <div class="clear"></div>
+               <div class="toolkit_entry">
+                <a href="/dashboard/rss.xml?projectName=uat-testing" class="toolkit_rss">RSS</a>
+            </div>
+            <div class="toolkit_entry">
+
+                <a href="/dashboard/admin/mx4j/uat-testing" class="toolkit_jmx">JMX Console</a>
+            </div>
+        </div>
+    </div>
+</div>
+                                    </div>
+                                                                                </div>
+                    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+
+            </div>
+            <!-- end tab content 2 -->
+
+    </div>
+    <!-- end tabs content -->
+    <div id="trans_message"class="transparent_message transparent_notice" style="display:none">Your build is scheduled</div>
+
+</div>
+<!-- end bd -->
+
+
+</div>
+
+</body>
+</html>

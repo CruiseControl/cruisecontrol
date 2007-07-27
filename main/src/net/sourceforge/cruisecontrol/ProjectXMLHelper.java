@@ -105,7 +105,7 @@ public class ProjectXMLHelper implements ProjectHelper {
      *   if a property cannot be resolved,
      *   if the plugin configuration fails
      */
-    public Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
+    private Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
         final Class pluginClass = projectPlugins.getPluginClass(pluginName);
         if (pluginClass == null) {
             return null;

@@ -20,6 +20,7 @@
             <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
             <li onclick='build_detail_toggle_tab_content(this)'><a><span>Build Log</span></a></li>
             <li onclick='build_detail_toggle_tab_content(this)'><a><span>Tests</span></a></li>
+            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Artifacts</span></a></li>
             #parse('build_detail/build_detail_partial_widgets_tab.vm')
         </ul>
     </div>
@@ -36,6 +37,9 @@
     
         #set($tests_extra_attrs="style='display:none'")
         #parse("build_detail/build_detail_partial_tests.vm")
+
+        #set($artifacts_extra_attrs="style='display:none'")
+        #parse("build_detail/build_detail_partial_artifacts.vm")
 
 		#parse('build_detail/build_detail_partial_widgets_content.vm')
     </div>

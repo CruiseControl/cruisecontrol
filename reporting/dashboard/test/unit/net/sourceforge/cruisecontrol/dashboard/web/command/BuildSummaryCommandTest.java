@@ -52,14 +52,14 @@ import org.apache.commons.lang.StringUtils;
 public class BuildSummaryCommandTest extends TestCase {
     public void testShouldBeAbleToDelegateTheInvocationToBuildSummary() throws Exception {
         Build summary = new BuildSummary("project1", "", "", ProjectBuildStatus.PASSED, "");
-        BuildCommand command = new BuildCommand(summary);
+        BuildCommand command = new BuildCommand(summary, null);
         assertEquals("project1", command.getBuild().getProjectName());
     }
 
     public void testCalculatesElapsedBuildTime() throws Exception {
         Build buildSummary = new BuildSummary("", "", "", ProjectBuildStatus.PASSED, "");
         buildSummary.updateStatus("now building since 20070420170000");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         Long elapsedSeconds =
                 command.getElapsedTimeBuilding(CCDateFormatter.format("2007-04-20 18:00:00",
                         "yyyy-MM-dd HH:mm:ss"));
@@ -69,7 +69,7 @@ public class BuildSummaryCommandTest extends TestCase {
     public void testShouldClassNameAsDrakRedWhenBuildIsFailed24HoursAgo() {
         Build buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.FAILED, "");
         Build lastSuccessful = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         command.updateFailedCSS(lastSuccessful);
         assertEquals("failed", command.toJsonHash().get("css_class_name"));
         assertEquals("failed_level_8", command.toJsonHash().get("css_class_name_for_dashboard"));
@@ -80,7 +80,7 @@ public class BuildSummaryCommandTest extends TestCase {
         Build currentBuildSummary = new BuildSummary("", dateStr, "", ProjectBuildStatus.FAILED, "");
         Build lastSuccessfualBuild = new BuildSummary("", dateStr, "", ProjectBuildStatus.PASSED, "");
 
-        BuildCommand command = new BuildCommand(currentBuildSummary);
+        BuildCommand command = new BuildCommand(currentBuildSummary, null);
         Map json = command.toJsonHash();
         command.updateFailedCSS(lastSuccessfualBuild);
         assertEquals("failed", json.get("css_class_name"));
@@ -89,7 +89,7 @@ public class BuildSummaryCommandTest extends TestCase {
 
     public void testShouldNotReturnDarkRedWhenBuildIsPassed() {
         Build buildSummary = new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         BuildSummary lastSuccessful =
                 new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
         command.updatePassedCss(lastSuccessful);
@@ -100,7 +100,7 @@ public class BuildSummaryCommandTest extends TestCase {
 
     public void testShouldNotReturnCurrentStatusWhenLastSuccessfulBuildIsEmpty() {
         Build buildSummary = new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.FAILED, "");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         command.updateFailedCSS(null);
         Map json = command.toJsonHash();
         assertEquals("failed", json.get("css_class_name"));
@@ -110,7 +110,7 @@ public class BuildSummaryCommandTest extends TestCase {
     public void testShouldReturnBuildSinceForActiveBuild() throws Exception {
         Build buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.FAILED, "");
         buildSummary.updateStatus("now building since 19990420170000");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         Map json = command.toJsonHash();
         assertTrue(json.containsKey("latest_build_date"));
         assertTrue(StringUtils.contains((String) json.get("latest_build_date"), "1999"));
@@ -120,7 +120,7 @@ public class BuildSummaryCommandTest extends TestCase {
 
     public void testShouldReturnLowerCaseOfStatusWhenInvokeDetaultCss() throws Exception {
         Build buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.INACTIVE, "");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         Map json = command.toJsonHash();
         assertTrue(json.containsKey("latest_build_date"));
         command.updateDefaultCss();
@@ -130,7 +130,7 @@ public class BuildSummaryCommandTest extends TestCase {
     public void testShouldNotReturnBuildSinceForNonActiveBuild() throws Exception {
         Build buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.FAILED, "");
         buildSummary.updateStatus("");
-        BuildCommand command = new BuildCommand(buildSummary);
+        BuildCommand command = new BuildCommand(buildSummary, null);
         Map json = command.toJsonHash();
         assertTrue(json.containsKey("latest_build_date"));
         assertTrue(StringUtils.contains((String) json.get("latest_build_date"), "2005"));

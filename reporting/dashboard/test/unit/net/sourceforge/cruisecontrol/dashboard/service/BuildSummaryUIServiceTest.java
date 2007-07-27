@@ -37,11 +37,15 @@
 package net.sourceforge.cruisecontrol.dashboard.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import junitx.util.PrivateAccessor;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 
@@ -64,18 +68,60 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
 
     private BuildSummaryUIService service;
 
+    private Mock mockConfigService;
+
     protected void setUp() throws Exception {
         mockService =
                 mock(BuildSummariesService.class,
                         new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
                                 null});
         buildSummariesService = (BuildSummariesService) mockService.proxy();
-        service = new BuildSummaryUIService(buildSummariesService);
+        mockConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
+        service =
+                new BuildSummaryUIService(buildSummariesService,
+                        (DashboardXmlConfigService) mockConfigService.proxy());
+    }
+
+    public void testShouldBeAbleToPutStoryTrackerIntoBuildSummaryInToCommand() throws Exception {
+        BuildSummary buildSummary =
+                new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
+        List summaries = new ArrayList();
+        summaries.add(buildSummary);
+        Map expectedMap = new HashMap();
+        StoryTracker expectedStoryTracker = new StoryTracker("", "", "");
+        expectedMap.put(buildSummary.getProjectName(), expectedStoryTracker);
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(expectedMap));
+        List commands = service.toCommands(summaries);
+        BuildCommand buildCommand = (BuildCommand) commands.get(0);
+        assertNotNull(PrivateAccessor.getField(buildCommand, "storyTracker"));
+        assertEquals(expectedStoryTracker, PrivateAccessor.getField(buildCommand, "storyTracker"));
+    }
+
+    public void testShouldBeAbleToPutStoryTrackerIntoBuildSummary() throws Exception {
+        BuildSummary earilestFailed =
+                new BuildSummary("", THREE_DAYS_AGO, "", ProjectBuildStatus.FAILED, "log.xml");
+        Map expectedMap = new HashMap();
+        StoryTracker expectedStoryTracker = new StoryTracker("", "", "");
+        expectedMap.put(earilestFailed.getProjectName(), expectedStoryTracker);
+        mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
+                returnValue(earilestFailed));
+        mockService.expects(never()).method("getLastSucceed").withAnyArguments();
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(expectedMap));
+        BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
+        List summaries = new ArrayList();
+        summaries.add(current);
+        List transformed = service.transform(summaries);
+        BuildCommand buildCommand = (BuildCommand) transformed.get(0);
+        assertNotNull(PrivateAccessor.getField(buildCommand, "storyTracker"));
+        assertEquals(expectedStoryTracker, PrivateAccessor.getField(buildCommand, "storyTracker"));
     }
 
     public void testShouldBeAbleIngoreInactiveCaseAndReturnCommand() {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary buildSummary =
                 new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.INACTIVE, "log.xml");
         List summaries = new ArrayList();
@@ -92,6 +138,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
     public void testShouldBeAbleIngoreBuildingCaseAndReturnCommand() {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary buildSummary =
                 new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.BUILDING, "log.xml");
         List summaries = new ArrayList();
@@ -111,6 +158,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earilestFailed));
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
@@ -127,6 +175,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         mockService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earilestFailed));
         mockService.expects(never()).method("getLastSucceed").withAnyArguments();
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
@@ -141,6 +190,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments().will(
                 returnValue(earilestSuccess));
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
@@ -157,6 +207,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
         mockService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments().will(
                 returnValue(earilestSuccess));
+        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);

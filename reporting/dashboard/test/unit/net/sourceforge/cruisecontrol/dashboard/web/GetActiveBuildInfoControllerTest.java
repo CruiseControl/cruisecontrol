@@ -51,6 +51,8 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
 
@@ -92,9 +94,15 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
                 .withAnyArguments().will(returnValue("1 days 3 hours"));
         jmxStub = new CruiseControlJMXServiceStub();
         mockBuildService = mock(BuildService.class, new Class[] {Configuration.class}, new Object[] {null});
+
+        Mock mockConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
+        mockConfigService.expects(atLeastOnce()).method("getStoryTrackers").will(returnValue(new HashMap()));
         controller =
                 new BuildDetailController((BuildService) mockBuildService.proxy(), buildSummariesService,
-                        new WidgetPluginService(null), new BuildSummaryUIService(buildSummariesService),
+                        new WidgetPluginService(null), new BuildSummaryUIService(buildSummariesService,
+                                (DashboardXmlConfigService) mockConfigService.proxy()),
                         jmxStub);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();

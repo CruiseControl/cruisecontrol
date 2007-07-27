@@ -153,6 +153,7 @@ function ajax_periodical_refresh_dashboard_update_project_build_detail(json) {
     var profile_id = json.building_info.project_name + '_profile'
     clean_active_css_class_on_element(profile_id)
    	Element.addClassName($(profile_id), json.building_info.css_class_name)
+   	Element.addClassName($(profile_id), 'build_profile_' + json.building_info.css_class_name)
 
     var project_build_date = json.building_info.project_name + '_build_date';
     $(project_build_date).innerHTML = " at " + json.building_info.latest_build_date;
@@ -173,6 +174,7 @@ function ajax_periodical_refresh_dashboard_update_inactive_partial_links(json) {
 function clean_active_css_class_on_element(element) {
 	$A(active_build_status).each(function(status) {
 	    Element.removeClassName($(element), status);
+	    Element.removeClassName($(element), 'build_profile_' + status);
     })
 }
 
@@ -205,7 +207,8 @@ function ajax_periodical_refresh_dashboard_update_tooltip(json){
 function ajax_periodical_refresh_statistics_summary_infos(statistics_infos) {
 	var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive'])
 	infos.each(function(info) {
-		$('statistics_' + info).innerHTML = statistics_infos[info];
+	    var statistic = $('statistics_' + info).innerHTML;
+		$('statistics_' + info).innerHTML = statistics_infos[info] + statistic.substring(statistic.indexOf(' '));
 	});
 }
 
@@ -220,7 +223,7 @@ function category_projects_info_by_status(json, statistics) {
 	var status = json.building_info.building_status.toLowerCase();
 	if (status == 'inactive') return;
 	if (status == 'modificationset' || status == 'bootstrapping') {
-		status = building;
+		status = 'building';
 	}
 	statistics[status] +=  1;
 }

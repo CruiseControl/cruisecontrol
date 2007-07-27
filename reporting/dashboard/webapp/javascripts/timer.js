@@ -19,21 +19,19 @@ Timer.prototype = {
 	},
 	update:function() {
 	    this.elapse();
-		var element_elapsed_lable = $(this.project_name + '_time_elapsed_lable')
-		if(element_elapsed_lable) {
-		    element_elapsed_lable.innerHTML = 'Elapsed ';
-		}
-		var element_elapsed = $(this.project_name + '_time_elapsed')
-		if(element_elapsed) {
-		    element_elapsed.innerHTML = this.report_elapsed();
-		}
-		var element_elapsed_lable = $(this.project_name + '_time_remaining_lable')
-		if(element_elapsed_lable) {
-		    element_elapsed_lable.innerHTML = ' remaining ';
-		}
-		var element_remaining = $(this.project_name + '_time_remaining')
-		if(element_remaining) {
-		    element_remaining.innerHTML = this.report_remaining();
+		this.update_element_content(this.project_name + '_time_elapsed_lable', 'Elapsed ');
+		this.update_element_content(this.project_name + '_time_elapsed', this.report_elapsed());
+		this.update_element_content(this.project_name + '_time_remaining_lable', ' remaining ');
+		this.update_element_content(this.project_name + '_time_remaining', this.report_remaining());
+	},
+	update_element_content:function(id, text) {
+		var element = $(id)
+		if(element) {
+			if (text != '') {
+				element.innerHTML = text;
+			} else {
+				element.cleanTextNode();
+			}
 		}
 	},
 	start:function() {
@@ -44,22 +42,10 @@ Timer.prototype = {
 		this.stopped = true;
 	    this.elapsed_time=0;
 	    this.executer.stop();
-	    var element = $(this.project_name + '_time_elapsed')
-		if (element) {
-		    element.innerHTML = '';
-		}
-		element = $(this.project_name + '_time_remaining')
-		if (element) {
-		    element.innerHTML = '';
-		}
-		element = $(this.project_name + '_time_elapsed_lable')
-		if (element) {
-		    element.innerHTML = '';
-		}
-		element = $(this.project_name + '_time_remaining_lable')
-		if (element) {
-		    element.innerHTML = '';
-		}
+	    this.update_element_content(this.project_name + '_time_elapsed', '')
+	    this.update_element_content(this.project_name + '_time_remaining', '')
+	    this.update_element_content(this.project_name + '_time_elapsed_lable', '')
+	    this.update_element_content(this.project_name + '_time_remaining_lable', '')	    
 	},
 	is_stopped:function() {
 		return this.stopped;	

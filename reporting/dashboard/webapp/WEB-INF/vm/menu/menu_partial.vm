@@ -1,26 +1,27 @@
 <div id="header">
-<div id="menu">
-<div id="pageTitle">
-    Server : $serverName
-</div>
-<div id="logo">
-   <img src="$req.getContextPath()/images/logo.png" alt="Cruise Control" width="195" height="42" />
-</div>
-    <ul>
-        <li id="dashboard" class="$!tabheader1_class"><a href="$dashboard_href" onclick="$dashboard_onclick">
-        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
-        <span>Dashboard</span></a></li>
-        <li id="builds" class="$!tabheader2_class"><a href="$builds_href" onclick="$builds_onclick">
-        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
-        <span>Builds</span></a></li>
-        <li id="administation" class="$!tabheader3_class" style="float:right">
-            <a href="$req.getContextPath()/admin/config" >
-            <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
-                <span>Administration</span>
-            </a>
-        </li>
-    </ul>
-</div>
-<div id="menu_bottom"></div>
+	<div id="menu">
+		<div id="pageTitle">
+		    Server : $serverName
+		</div>
+		<div id="logo">
+		   <img src="$req.getContextPath()/images/logo.gif" alt="Cruise Control" width="195" height="42"/>
+		</div>
+	    <ul>
+	        <li id="dashboard" class="$!tabheader1_class"><a href="$dashboard_href" onclick="$dashboard_onclick">
+	        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+	        <span>Dashboard</span></a></li>
+	        <li id="builds" class="$!tabheader2_class"><a href="$builds_href" onclick="$builds_onclick">
+	        <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+	        <span>Builds</span></a></li>
+	        <li id="administation" class="$!tabheader3_class" style="float:right">
+	            <a href="$req.getContextPath()/admin/config" >
+	            <b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
+	                <span>Administration</span>
+	            </a>
+	        </li>
+	    </ul>
+	</div>
+	<div id="menu_bottom">
+	</div>
 </div>
 <div id="content">

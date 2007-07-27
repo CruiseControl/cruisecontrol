@@ -6,13 +6,17 @@
 CRUISE_USER="cruise"
 
 # Port used for the JMX Http Console
-CRUISE_PORT=8000
+CRUISE_JMX_PORT=8000
+
+# Port used for RMI
+CRUISE_RMI_PORT=1099
+
+# Port used for HTTP
+CRUISE_WEB_PORT=8080
 
 # The home directory of the Java development kit (JDK).
-#JAVA_HOME="/usr/local/j2sdk1.3.1"
-#JAVA_HOME="/usr/local/j2sdk1.4.0"
-#JAVA_HOME="/usr/java/jdk1.5.0_06"
+#JAVA_HOME="/usr/lib/jvm/java-1.5.0-sun"
 
 # Arguments to pass to the CruiseControl script
-#CRUISE_OPTS="-Xmx512m"
+CRUISE_OPTS="-Xmx512m -Dcc.config.file=/etc/cruisecontrol/cruisecontrol.xml -Dcc.artifacts=/var/spool/cruisecontrol/artifacts -Dcc.projects=/var/spool/cruisecontrol/checkout -Dcc.logdir=/var/spool/cruisecontrol/logs"
 

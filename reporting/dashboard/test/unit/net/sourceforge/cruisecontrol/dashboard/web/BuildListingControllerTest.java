@@ -43,6 +43,8 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -59,19 +61,29 @@ public class BuildListingControllerTest extends MockObjectTestCase {
 
     private Mock mockBuildSummaries;
 
+    private Mock mockBuildSummaryUIService;
+
     protected void setUp() throws Exception {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("GET");
         request.setRequestURI("/list/passed/project1");
-        mockBuildSummaries = mock(BuildSummariesService.class,
-                new Class[]{Configuration.class, BuildSummaryService.class}, new Object[]{null, null});
+        mockBuildSummaries =
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                null});
         BuildSummariesService serivce = (BuildSummariesService) mockBuildSummaries.proxy();
-        controller = new BuildListingController(serivce);
+        mockBuildSummaryUIService =
+                mock(BuildSummaryUIService.class, new Class[] {BuildSummariesService.class,
+                        DashboardXmlConfigService.class}, new Object[] {null, null});
+        controller =
+                new BuildListingController(serivce, (BuildSummaryUIService) mockBuildSummaryUIService.proxy());
     }
 
     public void testShouldReturnAllSucceedBuilds() throws Exception {
-        mockBuildSummaries.expects(once()).method("getAll").with(eq("project1")).will(returnValue(new ArrayList()));
+        mockBuildSummaries.expects(once()).method("getAll").with(eq("project1")).will(
+                returnValue(new ArrayList()));
+        mockBuildSummaryUIService.expects(once()).method("toCommands").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.all(request, response);
         Map dataModel = mv.getModel();
         assertEquals(0, ((List) dataModel.get("buildSummaries")).size());
@@ -79,8 +91,9 @@ public class BuildListingControllerTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnAllBuilds() throws Exception {
-        mockBuildSummaries.expects(once()).method("getAllSucceed").with(eq("project1"))
-                .will(returnValue(new ArrayList()));
+        mockBuildSummaries.expects(once()).method("getAllSucceed").with(eq("project1")).will(
+                returnValue(new ArrayList()));
+        mockBuildSummaryUIService.expects(once()).method("toCommands").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.passed(request, response);
         Map dataModel = mv.getModel();
         assertEquals(0, ((List) dataModel.get("buildSummaries")).size());

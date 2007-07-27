@@ -1,0 +1,20 @@
+html .yui-g .projects_summary {
+	height: 1%;
+}
+
+#menu ul {
+	height: 1%;
+}
+
+#menu li {
+	width:15em;
+}
+
+.build_status_bar_container {
+	height:450px;
+}
+
+.build_profile {
+	padding: 10px 3px 3px 42px;
+    height:1%;
+}

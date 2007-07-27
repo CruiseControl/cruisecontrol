@@ -103,6 +103,7 @@
 	</bean>
 	<bean id="buildListingController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildListingController">
 		<constructor-arg ref="buildSummariesService" />
+		<constructor-arg ref="buildSummaryUIService" />
 	    <property name="methodNameResolver" ref="buildListingResolver"/>
 	</bean>
 	<bean id="buildListingResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">

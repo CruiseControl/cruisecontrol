@@ -13,10 +13,13 @@ public class StackTraceExtractor extends SAXBasedExtractor {
     private boolean readingStatckTrace;
 
     private String stackTrace = "";
+    
+    private String error = "";
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         if ("build".equals(qName)) {
             readingBuild = true;
+            error = StringUtils.defaultString(attributes.getValue("error"));
         }
         if ("stacktrace".equals(qName)) {
             readingStatckTrace = true;
@@ -43,6 +46,6 @@ public class StackTraceExtractor extends SAXBasedExtractor {
     }
 
     public void report(Map resultSet) {
-        resultSet.put("stacktrace", stackTrace);
+        resultSet.put("stacktrace", error + "\n" + stackTrace);
     }
 }

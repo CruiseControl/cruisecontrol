@@ -2,6 +2,22 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.7.1-RC2
+
+dashboard
+======================
+NOTE: The dashboard has known display issues in Internet Explorer 6.
+* Allowed artifacts to be shown and downloaded in case of a failed build
+* Allowed project name to contain hyphen (-)
+* Allowed integration with project management tools
+* Allowed using dashboard-config.xml to configure the dashboard
+* Deprecated the way to configure the dashboard via web.xml
+* Applied the patch of CC-436 which committed by Szczepan Faber
+* Fixed CC-656 : Compound Publisher
+* Fixed CC-665 : error details are missing in the dashboard
+* Fixed CC-670 : Dashboard can't parse logfiles with testsuite elements without time attribute
+* Fixed CC-671 : Dashboard can't parse logfiles with non-default date formats
+
 CruiseControl Release Notes - 2.7.1-RC1
 
 contrib
@@ -10,6 +26,13 @@ contrib
 packager
 ----------------------
 * Fix build root and rpm destination for rpm target. Patch by Joseph Benavidez.
+* Init script improvments based on patch by Nicolas Ternisien
+* Upgrading a package will no longer overwrite users config
+* Packages now depend on Java and subversion
+* Package now includes dashboard and cc-config
+* Now includes working connectfour sample
+* Stops CruiseControl on uninstall
+* Now only builds CruiseControl if needed
 
 Documentation
 ======================

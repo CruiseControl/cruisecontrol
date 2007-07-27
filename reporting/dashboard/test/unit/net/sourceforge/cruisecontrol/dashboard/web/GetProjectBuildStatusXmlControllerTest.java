@@ -48,6 +48,8 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
@@ -69,27 +71,36 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
 
     private Mock mockBuildSummaryService;
 
+    private Mock mockDashboardXmlConfigService;
+
     private BuildSummary oneBuild;
 
     protected void setUp() throws Exception {
         oneBuild =
-                new BuildSummary("project1", "2005-12-09 12:21.03", "build1",
-                        ProjectBuildStatus.PASSED, "log1");
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
+                        "log1");
         mockBuildSummaryService =
-                mock(BuildSummariesService.class, new Class[] {Configuration.class,
-                        BuildSummaryService.class}, new Object[] {null, null});
+                mock(BuildSummariesService.class,
+                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
+                                null});
         buildSummariesService = (BuildSummariesService) mockBuildSummaryService.proxy();
         CruiseControlJMXService cruisecontrolJMXService =
-                new CruiseControlJMXService(null, new EnvironmentService(new SystemService())) {
+                new CruiseControlJMXService(null, new EnvironmentService(new SystemService(),
+                        new DashboardConfigService[] {})) {
                     public Map getAllProjectsStatus() {
                         Map map = new HashMap();
                         map.put("project1", "now building since");
                         return map;
                     }
                 };
+        mockDashboardXmlConfigService =
+                mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                        new Object[] {new SystemService()});
+
         controller =
-                new GetProjectBuildStatusXmlController(buildSummariesService,
-                        cruisecontrolJMXService, new BuildSummaryUIService(buildSummariesService));
+                new GetProjectBuildStatusXmlController(buildSummariesService, cruisecontrolJMXService,
+                        new BuildSummaryUIService(buildSummariesService,
+                                (DashboardXmlConfigService) mockDashboardXmlConfigService.proxy()));
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("GET");
@@ -98,16 +109,16 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
     private List returnedValue() {
         List list = new ArrayList();
         BuildSummary build2 =
-                new BuildSummary("project2", "2005-12-09 12:21.03", "build2",
-                        ProjectBuildStatus.INACTIVE, "log2");
+                new BuildSummary("project2", "2005-12-09 12:21.03", "build2", ProjectBuildStatus.INACTIVE,
+                        "log2");
         list.add(oneBuild);
         list.add(build2);
         return list;
     }
 
     public void testShouldReturnAllFieldsInCCTrayFormat() throws Exception {
-        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments()
-                .will(returnValue(returnedValue()));
+        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments().will(
+                returnValue(returnedValue()));
         request.setRequestURI("/dashboard/cctray.xml");
         controller.handleRequest(request, response);
         String xml = response.getContentAsString();
@@ -116,8 +127,8 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
     }
 
     public void testShouldReturnAllFieldsInRssFormat() throws Exception {
-        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments()
-                .will(returnValue(returnedValue()));
+        mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments().will(
+                returnValue(returnedValue()));
         request.setRequestURI("/dashboard/rss.xml");
         controller.handleRequest(request, response);
         String xml = response.getContentAsString();

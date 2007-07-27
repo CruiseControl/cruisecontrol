@@ -1,9 +1,14 @@
 <project name="cruisecontrol.packager" default="package" basedir=".">
 
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="target.dir" value="${basedir}/target"/>
+    <property name="deb.dir" value="${basedir}/target/debs"/>
+    <property name="rpm.dir" value="${basedir}/target/RPMS"/>
+
     <property name="config.webapp" value="cruisecontrol.war"/>
     <property name="config.name" value="cruisecontrol"/>
     <property name="config.summary" value="A continuous integration build loop"/>
-    <property name="config.spec.src" value="${basedir}/cruisecontrol.spec"/>
+    <property name="config.spec.src" value="${target.dir}/cruisecontrol.spec"/>
     <property name="config.desc" value="Cruisecontrol allows automated hands-off building of software in a continuous integration environment."/>
     <property name="config.webapps.dir" value="/usr/share/tomcat/webapps"/>
     <property name="config.runtime.user" value="cruise"/>
@@ -11,30 +16,44 @@
 
     <property name="cruisecontrol" value="../.."/>
     <property name="cruisecontrol.main" value="${cruisecontrol}/main"/>
+    <property name="cruisecontrol.binaryrelease" value="${cruisecontrol}/binaryrelease"/>
     <property name="cruisecontrol.reporting" value="${cruisecontrol}/reporting/jsp"/>
     <property name="cruisecontrol.reporting.webapp" value="${cruisecontrol.reporting}/dist/${config.webapp}"/>
-
-    <property name="build.dir" value="${basedir}/build"/>
+    <property name="cruisecontrol.dashboard" value="${cruisecontrol}/reporting/dashboard"/>
+    <property name="cruisecontrol.dashboard.webapp" value="${cruisecontrol.dashboard}/dist/dashboard.war"/>
+    <property name="cruisecontrol.cc-config.webapp" value="${cruisecontrol}/target/cc-config/dist/cc-configuration.war"/>
 
     <property name="install.docs" value="${build.dir}/usr/share/doc/${config.name}"/>
     <property name="install.share" value="${build.dir}/usr/share/${config.name}"/>
     <property name="install.bin" value="${install.share}/bin"/>
     <property name="install.dist" value="${install.share}/dist"/>
     <property name="install.lib" value="${install.share}/lib"/>
-    <property name="install.webapps" value="${install.share}/webapps/cruisecontrol"/>
+    <property name="install.webapps" value="${install.share}/webapps"/>
     <property name="install.etc" value="${build.dir}/etc"/>
 
     <property name="reporting.override.file" value="override.properties"/>
 
     <property prefix="reporting" file="${reporting.override.file}"/>
 
-    <property prefix="cc.build" file="${basedir}/../../build.properties"/>
+    <loadproperties srcFile="${basedir}/../../build.properties">
+        <filterchain>
+            <prefixlines prefix="cc.build."/>
+            <tokenfilter>
+                <replaceregex pattern="-dev" replace="" flags="gi"/>
+            </tokenfilter>
+        </filterchain>
+    </loadproperties>
+
     <property name="config.version" value="${cc.build.cc.version}"/>
+    <property name="config.release" value="1"/>
 
     <property prefix="package" file="package.properties"/>
 
     <available file="/usr/bin/rpmbuild" property="rpmbuild.available"/>
     <available file="/usr/bin/dpkg" property="dpkg.available"/>
+
+    <loadfile property="post.install" srcFile="${basedir}/debian/postinst"/>
+    <loadfile property="pre.uninstall" srcFile="${basedir}/debian/prerm"/>
 
     <filterset id="packageInfoFilterSet">
         <filter token="VERSION" value="${config.version}"/>
@@ -42,36 +61,69 @@
         <filter token="SUMMARY" value="${package.summary}"/>
         <filter token="DESCRIPTION" value="${package.description}"/>
         <filter token="ROOT" value="${build.dir}"/>
+        <filter token="POST" value="${post.install}"/>
+        <filter token="PRE" value="${pre.uninstall}"/>
     </filterset>    
 
     <target name="clean" description="deletes old builds">
         <delete failOnError="true" includeEmptyDirs="true" dir="${build.dir}"/>
-        <delete file="cruisecontrol-${config.version}-${config.release}.noarch.rpm"/>
-        <delete file="cruisecontrol_${config.version}-${config.release}.deb"/>
-        <delete file="cruisecontrol.spec"/>
-        <ant dir="${cruisecontrol.main}" target="clean" inheritAll="false"/>
-        <ant dir="${cruisecontrol.reporting}" target="clean" inheritAll="false">
-            <property name="basedir" value="${cruisecontrol.reporting}"/>
-            <property name="checkstyle.fail.on.violation" value="false"/>
-        </ant>
+        <delete failOnError="true" includeEmptyDirs="true" dir="${target.dir}"/>
     </target>
 
     <target name="-init" description="makes required dirs, etc." depends="clean">
+        <condition property="on.unix">
+            <os family="unix"/>
+        </condition>
+        <fail message="As this creates Unix packages, it only works on unix systems" unless="on.unix"/>
         <fail message="please specify config.release property on the command line" unless="config.release"/>
-        <echo message="Using version number: ${config.version}"/>
+        <echo message="Building version number: ${config.version}"/>
         <echo message="You can over-ride this by specifying -Dconfig.version when invoking Ant"/>
+        <echo message="Building release number: ${config.release}"/>
+        <echo message="You can over-ride this by specifying -Dconfig.release when invoking Ant"/>
+
+        <!-- Give people time to see the above message... -->
+        <sleep seconds="2"/>
+
         <mkdir dir="${build.dir}"/>
-        <mkdir dir="${basedir}/RPMS"/>
+        <mkdir dir="${rpm.dir}"/>
+        <mkdir dir="${deb.dir}"/>
+
+        <!-- Check if we need to build Cruise first... -->
+        <condition property="build.cruise">
+            <not>
+                <and>
+                    <available file="${cruisecontrol.reporting.webapp}"/>
+                    <available file="${cruisecontrol.dashboard.webapp}"/>
+                    <available file="${cruisecontrol.cc-config.webapp}"/>
+                </and>
+            </not>
+        </condition>
     </target>
 
-    <target name="install" depends="build" description="deploy to the build dir">
+    <target name="build" description="Builds CruiseControl" if="build.cruise" depends="-init">
+        <ant dir="${cruisecontrol}" target="bin-zip" inheritAll="false">
+            <property name="basedir" value="${cruisecontrol}"/>
+        </ant>
+    </target>
+
+    <target name="install" 
+        description="Create CruiseControl skeleton in the build dir" 
+        depends="install.cc, install.sample.project"/>
+
+    <target name="install.cc" depends="clean, build">
+        <defaultexcludes default="true"/> 
+
         <mkdir dir="${install.share}"/>
         <mkdir dir="${install.docs}"/>
         <copy todir="${install.dist}">
             <fileset dir="${cruisecontrol.main}/dist"/>
         </copy>
         <copy todir="${install.lib}">
-            <fileset dir="${cruisecontrol.main}/lib"/>
+            <fileset dir="${cruisecontrol.main}/lib" includes="*.jar" excludes="inmemorysfee*.jar, checkstyle*, **/.svn"/>
+            <fileset dir="${cruisecontrol.main}/lib/ant" includes="ant.jar, ant-launcher.jar, ant-junit.jar"/>
+        </copy>
+        <copy todir="${install.lib}">
+            <fileset dir="${cruisecontrol.binaryrelease}/lib"/>
         </copy>
         <copy todir="${install.docs}">
             <fileset dir="${cruisecontrol}/docs"/>
@@ -84,94 +136,86 @@
         </copy>
         <copy todir="${install.bin}">
             <fileset file="${cruisecontrol.main}/bin/cruisecontrol.sh"/>
-            <fileset file="usr/bin/cruisecontrol"/>
         </copy>
         <copy todir="${install.share}" file="${cruisecontrol}/license.txt"/>
-        <copy todir="${install.dist}" file="${cruisecontrol.reporting.webapp}"/>
-
-        <unzip src="${cruisecontrol.reporting.webapp}" dest="${install.webapps}"/>
+        <copy todir="${build.dir}/var/spool/cruisecontrol" file="${cruisecontrol.main}/log4j.properties"/>
 
         <copy todir="${install.etc}">
-            <fileset dir="${basedir}/etc" defaultexcludes="yes"/>
+            <fileset dir="${basedir}/etc"/>
         </copy>
 
         <mkdir dir="${build.dir}/usr/bin"/>
         <exec executable="chmod" failonerror="true">
             <arg value="a+x"/>
-            <arg value="${build.dir}/usr/share/cruisecontrol/bin/cruisecontrol"/>
             <arg value="${build.dir}/usr/share/cruisecontrol/bin/cruisecontrol.sh"/>
             <arg value="${build.dir}/etc/init.d/cruisecontrol"/>
         </exec>
-        <symlink link="${build.dir}/usr/bin/cruisecontrol" resource="../share/cruisecontrol/bin/cruisecontrol"/>
+        <symlink link="${build.dir}/usr/bin/cruisecontrol" resource="/usr/share/cruisecontrol/bin/cruisecontrol.sh"/>
 
         <mkdir dir="${build.dir}/${reporting.user.log.dir}"/>
         <mkdir dir="${build.dir}/${reporting.cruise.build.artifacts.dir}"/>
         <mkdir dir="${build.dir}/${reporting.cruise.checkout.dir}"/>
 
         <mkdir dir="${build.dir}/var/cache/cruisecontrol"/>
-        <mkdir dir="${build.dir}/var/log/cruisecontrol"/>
         <mkdir dir="${build.dir}/var/run"/>
-        <touch file="${build.dir}/var/run/cruisecontrol.pid"/>
+        <touch file="${build.dir}/var/spool/cruisecontrol/cc.pid"/>
+        <symlink link="${build.dir}/var/run/cruisecontrol.pid" resource="/var/spool/cruisecontrol/cc.pid"/>
+
+        <unzip src="${cruisecontrol.reporting.webapp}" dest="${install.webapps}/cruisecontrol"/>
+        <unzip src="${cruisecontrol.dashboard.webapp}" dest="${install.webapps}/dashboard"/>
+        <unzip src="${cruisecontrol.cc-config.webapp}" dest="${install.webapps}/cc-config"/>
     </target>
 
-    <target name="build" description="dummy build target" depends="build.main, build.report"/>
+    <target name="install.sample.project" depends="install.cc">
+        <!-- Make sure we have the SSL certificate for sample project -->
+        <copy todir="${build.dir}/var/spool/cruisecontrol/.subversion">
+            <fileset dir="${basedir}/.subversion"/>
+        </copy>
 
-    <target name="build.main" description="builds cruisecontrol main ">
-        <ant dir="${cruisecontrol.main}" target="jar" inheritAll="false"/>
-    </target>
-
-    <target name="build.report" description="builds the cruisecontrol reporting app">
-        <copy file="${reporting.override.file}" toDir="${cruisecontrol.reporting}"/>
-        <ant dir="${cruisecontrol.reporting}" target="war" inheritAll="false">
-            <property name="basedir" value="${cruisecontrol.reporting}"/>
-            <property name="checkstyle.fail.on.violation" value="false"/>
-        </ant>
+        <!-- Make sure we have the sample connectfour project checked out -->
+        <echo message="Checking out sample connectfour project..."/>
+        <exec executable="svn" dir="${build.dir}/${reporting.cruise.checkout.dir}" failonerror="true">
+            <arg line="co https://cruisecontrol.svn.sf.net/svnroot/cruisecontrol/trunk/connectfour"/>
+        </exec>
     </target>
 
     <target name="deb" depends="pre-package" if="dpkg.available">
         <mkdir dir="${build.dir}/DEBIAN"/>
-        <copy file="debian/control" todir="${build.dir}/DEBIAN">
+        <copy todir="${build.dir}/DEBIAN">
+            <fileset dir="${basedir}/debian"/>
             <filterset refid="packageInfoFilterSet"/>
         </copy>
-        <exec executable="cp" failonerror="true">
-            <arg value="debian/postinst"/>
-            <arg value="${build.dir}/DEBIAN"/>
-        </exec>
         <exec executable="chmod" failonerror="true">
             <arg value="a+x"/>
             <arg value="${build.dir}/DEBIAN/postinst"/>
+            <arg value="${build.dir}/DEBIAN/prerm"/>
         </exec>
         <exec executable="dpkg" failonerror="true">
             <arg value="-b"/>
             <arg value="build"/>
-            <arg value="cruisecontrol_${config.version}-${config.release}.deb"/>
+            <arg value="${deb.dir}/cruisecontrol_${config.version}-${config.release}.deb"/>
         </exec>
     </target>
 
     <target name="rpm" depends="pre-package" if="rpmbuild.available">
-        <copy file="redhat/cruisecontrol.spec" todir=".">
+        <copy file="redhat/cruisecontrol.spec" todir="${rpm.dir}">
             <filterset refid="packageInfoFilterSet"/>
         </copy>
-        <concat destfile="cruisecontrol.spec" append="true">
-            <filelist dir="debian" files="postinst"/>
-        </concat>
         <delete dir="${build.dir}/DEBIAN"/>
         <exec executable="rpmbuild" failonerror="true">
             <arg value="--buildroot"/>
             <arg value="${build.dir}"/>
             <arg value="--define"/>
-            <arg value="_rpmdir ${basedir}/RPMS"/>
+            <arg value="_rpmdir ${rpm.dir}"/>
             <arg value="-bb"/>
             <arg value="--target"/>
             <arg value="noarch"/>
-            <arg value="cruisecontrol.spec"/>
+            <arg value="${rpm.dir}/cruisecontrol.spec"/>
         </exec>
     </target>
 
-    <target name="pre-package" description="Prep directory for packaging" depends="-init,install,build">
-    </target>
+    <target name="pre-package" description="Prep directory for packaging" depends="-init,install,build"/>
 
-    <target name="package" depends="deb,rpm">
-    </target>
+    <target name="package" depends="deb,rpm"/>
 
 </project>

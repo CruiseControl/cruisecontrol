@@ -94,10 +94,10 @@ div#tabContent2.tabContent {
 
 .build_status_bar_container {
 	margin : 0 auto;
-	height : auto;
 	min-height : 300px;
 	overflow : auto;
 	background : #f1f0ec;
+	
 }
 
 .yui-u #statusbar.build_status_bar_container {
@@ -123,9 +123,11 @@ div#tabContent2.tabContent {
 	background : #cfcec9;
 }
 
+
 #project_summary_panel.yui-u div.title {
 	font-weight : bold;
 	line-height : 200%;
+	margin : 2em, 0, 0, 0;
 	background : url( ../images/summary_panel_title_background.gif ) right top no-repeat;
 }
 
@@ -202,54 +204,59 @@ div#tabContent2.tabContent {
 	background : url( ../images/cc-configicon_small.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g div.entry_set span.info {
+#project_summary_panel.yui-g div.entry_set div.info {
 	background : none;
 	font-weight : normal;
 	padding : 10px 10px 10px 30px;
 	display : block;
-	float : left;
 	width : 31%;
 }
 
-#project_summary_panel.yui-u div.entry_set span.info {
+#project_summary_panel.yui-u div.entry_set div.info {
 	background : none;
 	display : block;
 	font-weight : normal;
-	padding : 10px 10px 10px 30px;	
+	padding : 10px 10px 10px 30px;
 }
 
-#project_summary_panel div.entry_set span.info.total {
+#project_summary_panel.yui-u div.entry_set #statistics_total {
 	padding-left : 0;
 }
 
-#project_summary_panel.yui-g div.entry_set span.info.total {
-	position : absolute;
+#project_summary_panel.yui-g div.entry_set #statistics_total {
 	width : 19%;
+	float : left;
 }
 
-
-#project_summary_panel div.entry_set span.info.passed {
+#project_summary_panel div.entry_set #statistics_passed {
 	background : url( ../images/icon-success-medium.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g div.entry_set span.info.passed {
-	margin-left : 20%;
+#project_summary_panel.yui-g div.entry_set #statistics_passed {
+	float : right;
 }
 
-#project_summary_panel div.entry_set span.info.failed {
+#project_summary_panel.yui-g div.entry_set #statistics_failed {
+	float : right;
+}
+
+#project_summary_panel div.entry_set #statistics_failed {
 	background : url( ../images/icon-failure-medium.gif ) left center no-repeat;
 }
 
-#project_summary_panel div.entry_set span.info.building {
+#project_summary_panel div.entry_set #statistics_building {
 	background : url( ../images/icon-building-medium.gif ) left center no-repeat;
 }
 
-#project_summary_panel.yui-g div.entry_set span.info.building {
-	clear : left;
-	margin-left : 20%;
+#project_summary_panel.yui-g div.entry_set #statistics_building {
+	float : right;
 }
 
-#project_summary_panel div.entry_set span.info.inactive {
+#project_summary_panel.yui-g div.entry_set #statistics_inactive {
+	float : right;
+}
+
+#project_summary_panel div.entry_set #statistics_inactive {
 	background : url( ../images/icon-inactive-medium.gif ) left center no-repeat;
 }
 
@@ -279,7 +286,8 @@ div#tabContent2.tabContent {
 	margin-left : 57%;
 	padding-left : 32px;
 	padding-top : 1.8em;
-	margin-bottom : 1.8em;	
+	padding-bottom : 1.8em;
+	font-weight : bold;
 }
 
 #project_summary_panel.yui-g div.entry_set div.summary span#statistics_rate.summary, #project_summary_panel.yui-u div.entry_set div.summary span#statistics_rate.summary {
@@ -298,14 +306,14 @@ div#tabContent2.tabContent {
 	font-size : 1em;
 }
 
-.yui-u.project_summary_panel {
+.project_summary_panel.yui-u .iehack{
 	padding : 10px 10px 200px 10px;
 	margin-top : -14px;
 	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) top left repeat-x;
 	
 }
 
-.yui-g.project_summary_panel .entry_set {
+.project_summary_panel.yui-g .entry_set {
 	padding-left : 1em;
 }
 
@@ -319,50 +327,23 @@ div.entry img {
 	margin-right : 5px;
 }
 
-.yui-u.project_summary_panel .entry {
+.project_summary_panel.yui-u .entry {
 	line-height : 200%;
 	padding-left : 3em;
 	background : none;
 	margin-bottom : 10px;
 }
 
-.yui-u.project_summary_panel .entry.total {
+
+.project_summary_panel.yui-u .summary {
 	padding-left : 0;
 }
 
-.yui-u.project_summary_panel .entry.passed {
-	background-image : url( ../images/icon-success-medium.gif );
-	background-position : 5px center;
-	background-repeat : no-repeat;
-}
-
-.yui-u.project_summary_panel .entry.failed {
-	background-image : url( ../images/icon-failure-medium.gif );
-	background-position : 5px center;
-	background-repeat : no-repeat;
-}
-
-.yui-u.project_summary_panel .entry.building {
-	background-image : url( ../images/icon-building-medium.gif );
-	background-position : 5px center;
-	background-repeat : no-repeat;
-}
-
-.yui-u.project_summary_panel .entry.inactive {
-	background-image : url( ../images/icon-inactive-medium.gif );
-	background-position : 5px center;
-	background-repeat : no-repeat;
-}
-
-.yui-u.project_summary_panel .summary {
-	padding-left : 0;
-}
-
-.yui-g.project_summary_panel  .button {
+.project_summary_panel.yui-g  .button {
 	margin-top : -24px;
 }
 
-.yui-g.project_summary_panel {
+.project_summary_panel.yui-g {
 	margin-right : 10px;
 	margin-top : 14px;
 }

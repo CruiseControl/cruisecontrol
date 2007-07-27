@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
@@ -63,11 +64,11 @@ public class AdminControllerTest extends MockObjectTestCase {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         configurationMock =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {null});
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class}, new Object[] {null});
         configuration = (Configuration) configurationMock.proxy();
         controller =
-                new AdminController(configuration, new EnvironmentService(new SystemService()));
+                new AdminController(configuration, new EnvironmentService(new SystemService(),
+                        new DashboardConfigService[] {}));
     }
 
     public void testViewNameShouldBeAdminWhenGetIt() throws Exception {
@@ -78,8 +79,7 @@ public class AdminControllerTest extends MockObjectTestCase {
 
     public void testShouldShowExistingConfigFileLocationAndContentIfItHasBeenSet() throws Exception {
         String expectedPath = "test/data/config.xml";
-        configurationMock.expects(once()).method("getCruiseConfigLocation").will(
-                returnValue(expectedPath));
+        configurationMock.expects(once()).method("getCruiseConfigLocation").will(returnValue(expectedPath));
         ModelAndView mov = controller.handleRequest(request, response);
         ConfigurationCommand command = (ConfigurationCommand) mov.getModel().get("command");
         assertEquals(expectedPath, command.getConfigFileLocation());

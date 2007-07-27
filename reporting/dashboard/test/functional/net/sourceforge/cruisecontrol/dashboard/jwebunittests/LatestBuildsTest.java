@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import java.net.InetAddress;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public class LatestBuildsTest extends BaseFunctionalTest {
@@ -51,15 +52,17 @@ public class LatestBuildsTest extends BaseFunctionalTest {
         tester.assertTextPresent("project2");
         tester.assertTextPresent("2 project build(s) succeed");
         tester.assertTextPresent("0 project(s) building");
-        tester.assertTextPresent("2 project build(s) failed");
+        tester.assertTextPresent("3 project build(s) failed");
         tester.assertTextPresent("Server : " + InetAddress.getLocalHost().getHostName());
     }
 
     public void testShouldUseDifferentClassNameForProjectSummary() throws Exception {
         tester.beginAt("/dashboard?s=1");
-        tester.assertElementPresentByXPath("//div[@id='project_summary_panel'][contains(@class, 'yui-g')]");
+        tester
+                .assertElementPresentByXPath("//div[@id='project_summary_panel'][contains(@class, 'yui-g')]");
         tester.beginAt("/dashboard");
-        tester.assertElementPresentByXPath("//div[@id='project_summary_panel'][contains(@class, 'yui-u')]");
+        tester
+                .assertElementPresentByXPath("//div[@id='project_summary_panel'][contains(@class, 'yui-u')]");
     }
 
     public void testShouldNavigateToBuildDetailPageWhenClickTheBar() throws Exception {

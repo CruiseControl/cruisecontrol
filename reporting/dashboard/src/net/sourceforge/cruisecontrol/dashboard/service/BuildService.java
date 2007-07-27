@@ -45,6 +45,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
+import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.exception.ShouldStopParsingException;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.BasicInfoExtractor;
@@ -65,7 +66,7 @@ public class BuildService {
 
     private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
 
-    public BuildService(net.sourceforge.cruisecontrol.dashboard.Configuration configuration) {
+    public BuildService(Configuration configuration) {
         this.configuration = configuration;
     }
 

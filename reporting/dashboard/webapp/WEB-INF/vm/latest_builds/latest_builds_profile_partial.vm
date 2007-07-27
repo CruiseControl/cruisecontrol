@@ -1,4 +1,4 @@
-<div class="relative_box">
+
     <div id="${buildSummary.build.projectName}_profile" class="${buildSummary.getCssClassName()} build_profile build_profile_${buildSummary.getCssClassName()}">
         <div class="control_panel">
         	#if ($forceBuildEnabled)
@@ -27,20 +27,19 @@
             <span id="${buildSummary.build.projectName}_time_remaining"></span>
            </div>
     </div>
-    <div id="toolkit_${buildSummary.build.projectName}" style="display:none;">
-        <div class="toolkit_panel">
-            <div class="toolkit_entry">
-                <span class="title">${buildSummary.build.projectName}</span>
-                <span class="close" onclick="close_toolkit('toolkit_${buildSummary.build.projectName}', event)">X</span>
-                <span class="clear"></span>
-            </div>
-            <div class="clear"></div>
-               <div class="toolkit_entry">
-                <a href="$req.getContextPath()/rss.xml?projectName=${buildSummary.build.projectName}" class="toolkit_rss">RSS</a>
-            </div>
-            <div class="toolkit_entry">
-                <a href="$req.getContextPath()/admin/mx4j/${buildSummary.build.projectName}" class="toolkit_jmx">JMX Console</a>
-            </div>
-        </div>
-    </div>
-</div>
+	<div class="relative_box">
+	    <div id="toolkit_${buildSummary.build.projectName}" class="toolkit_panel" style="display:none;">
+	        <div class="toolkit_entry">
+	            <span class="title">${buildSummary.build.projectName}</span>
+	            <span class="close" onclick="close_toolkit('toolkit_${buildSummary.build.projectName}', event)">X</span>
+	            <span class="clear"></span>
+	        </div>
+	        <div class="clear"></div>
+	           <div class="toolkit_entry">
+	            <a href="$req.getContextPath()/rss.xml?projectName=${buildSummary.build.projectName}" class="toolkit_rss">RSS</a>
+	        </div>
+	        <div class="toolkit_entry">
+	            <a href="$req.getContextPath()/admin/mx4j/${buildSummary.build.projectName}" class="toolkit_jmx">JMX Console</a>
+	        </div>
+	    </div>
+	</div>

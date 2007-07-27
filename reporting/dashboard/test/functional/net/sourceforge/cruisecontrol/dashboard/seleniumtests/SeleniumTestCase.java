@@ -49,8 +49,8 @@ public abstract class SeleniumTestCase extends TestCase {
     public final void setUp() throws Exception {
         selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:9090");
         selenium.start();
-        setConfigFileLocation();
         DataUtils.cloneCCHome();
+        setConfigFileLocation();
         doSetUp();
     }
 
@@ -66,13 +66,18 @@ public abstract class SeleniumTestCase extends TestCase {
     }
 
     public final void tearDown() throws Exception {
-        selenium.stop();
         doTearDown();
+        selenium.stop();
     }
 
     protected void clickLinkWithTextAndWait(String text, int milliseconds) throws Exception {
         selenium.click("//a[text()='" + text + "']");
         Thread.sleep(milliseconds);
+    }
+    
+    protected void clickLinkWithIdAndWait(String text) throws Exception {
+        selenium.click(text);
+        selenium.waitForPageToLoad("5000");
     }
 
     protected void doTearDown() throws Exception {

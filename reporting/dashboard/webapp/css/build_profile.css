@@ -84,19 +84,19 @@
 
 /* Set text colours for four types of build */
 
-.build_profile.passed a.clickable_target, .build_profile.passed span.no_decoration {
+.build_profile.passed.build_profile_passed a.clickable_target, .build_profile.passed.build_profile_passed span.no_decoration {
 	color : #030;
 }
 
-.build_profile.failed a.clickable_target, .build_profile.failed span.no_decoration {
+.build_profile.failed.build_profile_failed a.clickable_target, .build_profile.failed.build_profile_failed span.no_decoration {
 	color : #300;	
 }
 
-.build_profile.inactive a.clickable_target, .build_profile.inactive span.no_decoration {
+.build_profile.inactive.build_profile_inactive a.clickable_target, .build_profile.build_profile_inactive.inactive span.no_decoration {
 	color : #666;
 }
 
-.build_profile.building a.clickable_target, .build_profile.building span.no_decoration {
+.build_profile.building.build_profile_building a.clickable_target, .build_profile.building.build_profile_building span.no_decoration {
 	color : #C30;
 }
 
@@ -106,23 +106,23 @@ div.timer span {
 
 /* Apply icons to bars as background images */
 
-.build_profile.passed {
+.build_profile.passed.build_profile_passed {
     background-image: url( "../images/icon-success-medium.gif" );
 }
 
-.build_profile.failed {
+.build_profile.failed.build_profile_failed {
     background-image: url( "../images/icon-failure-medium.gif" );
 }
 
-.build_profile.long_failed {
+.build_profile.long_failed.build_profile_long_failed {
     background-image: url( "../images/icon-failure-medium-prolonged.gif" );
 }
 
-.build_profile.building {
+.build_profile.building.build_profile_building {
     background-image: url( "../images/icon-building-medium.gif" );
 }
 
-.build_profile.inactive {
+.build_profile.inactive.build_profile_inactive {
     background-image: url( "../images/icon-inactive-medium.gif" );
 }
 
@@ -157,11 +157,12 @@ div.timer span {
 	position:absolute;
 	border:1px solid #79ABC6;
 	padding-left:4px;
-	top:30px;
+	top:0px;
+	margin-top:-10px;
 	right:15px;
 	height:150px;
 	width:250px;
-	z-index:3;
+	z-index:99;
 }
 
 /* Add icons for RSS and JMX without having the link underline on them too */

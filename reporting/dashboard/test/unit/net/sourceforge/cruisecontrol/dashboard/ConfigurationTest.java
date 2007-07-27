@@ -41,6 +41,7 @@ import java.io.File;
 import net.sourceforge.cruisecontrol.dashboard.exception.ProjectAlreadyExistException;
 import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
 
 import org.jmock.Mock;
@@ -71,7 +72,7 @@ public class ConfigurationTest extends MockObjectTestCase {
     }
 
     protected void tearDown() throws Exception {
-        System.setProperty(EnvironmentService.PROPS_CC_CONFIG_FILE, "");
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, "");
     }
 
     public void testShouldInitializeTheProjectsWhenInitializingConfiguration() throws Exception {

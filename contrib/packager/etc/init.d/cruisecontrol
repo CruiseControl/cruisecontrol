@@ -18,54 +18,79 @@
 
 # source function library
 if [ -f /lib/lsb/init-functions ]; then 
-	. /lib/lsb/init-functions
+    . /lib/lsb/init-functions
 fi
 
 if [ -f /etc/default/cruisecontrol ]; then
-	. /etc/default/cruisecontrol
+    . /etc/default/cruisecontrol
 fi
 
-start() {
-	CMD="JAVA_HOME=${JAVA_HOME:-/usr} PATH=${JAVA_HOME:-/usr}/bin:$PATH CC_OPTS=${CRUISE_OPTS:-} /usr/bin/cruisecontrol -configfile /etc/cruisecontrol/cruisecontrol.xml -jmxport ${CRUISE_PORT:-8000} >/var/log/cruisecontrol/cruisecontrol.out 2>&1" 
+CRUISE_PID=/var/run/cruisecontrol.pid
+CRUISE_SPOOL=/var/spool/cruisecontrol
 
-	if [ "`whoami`" == "${CRUISE_USER:-cruise}" ]; then
-		eval ${CMD}
-	elif [ "`whoami`" == "root" ]; then
-		su - ${CRUISE_USER:-cruise} -c "${CMD}"
-	else
-		echo "You are not root or ${CRUISE_USER:-cruise}, not starting"
-	fi
+start() {
+    CMD="JAVA_HOME=${JAVA_HOME:-/usr} PATH=${JAVA_HOME:-/usr}/bin:$PATH CC_OPTS=\"${CRUISE_OPTS:-}\" /usr/bin/cruisecontrol -configfile /etc/cruisecontrol/cruisecontrol.xml -jmxport ${CRUISE_JMX_PORT:-8000} -rmiport ${CRUISE_RMI_PORT:-1099} -webport ${CRUISE_WEB_PORT:-8080} -webapppath /usr/share/cruisecontrol/webapps/cruisecontrol -dashboard /usr/share/cruisecontrol/webapps/dashboard >/dev/null &"
+
+    pgrep -f cruisecontrol-launcher.jar >/dev/null
+    PROCESS_EXIST=$?
+
+    if [ $PROCESS_EXIST -ne 0 ]; then
+        if [ "`whoami`" == "${CRUISE_USER:-cruise}" ]; then
+            echo -n "Starting Cruise Control..."
+            eval ${CMD}
+        elif [ "`whoami`" == "root" ]; then
+            echo -n "Starting Cruise Control..."
+            su - ${CRUISE_USER:-cruise} -c "${CMD}"
+            echo "started."
+        else
+            echo "You are not root or ${CRUISE_USER:-cruise}, not starting"
+        fi
+
+    else
+        echo "Cruise Control already started."
+        exit
+    fi
 }
 
 stop() {
-	if [ -f /var/run/cruisecontrol.pid ]; then
-		PID=`cat /var/run/cruisecontrol.pid`
-	fi
+    if [ -f /var/run/cruisecontrol.pid ]; then
+        PID=`cat $CRUISE_PID`
+    fi
 
-	if [ ! -z $PID ]; then
-		kill $PID
-	fi
+    PID_EXISTS=-1
+    if [ ! -z $PID ]; then
+        ps -p $PID >/dev/null
+        PID_EXISTS=$?
+    fi
+
+    if [ $PID_EXISTS -eq 0 ] ; then
+        echo "Stopping Cruise Control (process $PID)..."
+        kill $PID
+    else
+        echo "Cruise Control not running..."
+    fi
 }
 
 case "$1" in
-	start)
-		start
-		;;
-	stop)
-		stop
-		;;
-	restart)
-		stop
-		start
-		;;
-	force-reload)
-		;;
-	status)
-		
-		;;
-	*)
-		echo "Usage: $0 [start|stop|restart|force-reload|status]"
-		exit 1
+    start)
+    start
+    ;;
+    stop)
+    stop
+    ;;
+    restart)
+    stop
+    sleep 5
+    start
+    ;;
+    force-reload)
+    ;;
+    status)
+
+    ;;
+    *)
+    echo "Usage: $0 [start|stop|restart|force-reload|status]"
+    exit 1
 esac
 
 exit 0
