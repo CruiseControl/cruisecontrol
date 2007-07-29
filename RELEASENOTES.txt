@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.7.1-RC2
 
+cc-config
+======================
+* Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7final cc-config jar. Patch by Brian Egge.
+
 dashboard
 ======================
 NOTE: The dashboard has known display issues in Internet Explorer 6.
@@ -17,6 +21,7 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Fixed CC-665 : error details are missing in the dashboard
 * Fixed CC-670 : Dashboard can't parse logfiles with testsuite elements without time attribute
 * Fixed CC-671 : Dashboard can't parse logfiles with non-default date formats
+
 
 CruiseControl Release Notes - 2.7.1-RC1
 
