@@ -176,7 +176,7 @@
         <ant antfile="build.xml" target="setup" dir="target/cc-config" inheritAll="false">
             <property name="main.dir" value="../../main" />
         </ant>
-        <ant antfile="build.xml" target="build.webstart.dist" dir="target/cc-config">
+        <ant antfile="build.xml" target="build.webstart.dist" dir="target/cc-config" inheritAll="false">
             <property name="main.dir" value="../../main" />
         </ant>
     </target>
