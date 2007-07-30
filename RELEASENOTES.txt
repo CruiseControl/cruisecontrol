@@ -10,6 +10,7 @@ build loop
 SVN
 ----------------------
 * Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
+* Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
 
 cc-config
 ======================
