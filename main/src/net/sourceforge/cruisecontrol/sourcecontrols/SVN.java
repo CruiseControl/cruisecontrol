@@ -423,7 +423,6 @@ public class SVN implements SourceControl {
                 Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
                 if (file.action.equals("deleted")) {
                     properties.deletionFound();
-                    break;
                 }
             }
             properties.put("svnrevision", "" + maxRevision);

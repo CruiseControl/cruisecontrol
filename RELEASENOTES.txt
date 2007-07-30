@@ -4,6 +4,13 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.7.1-RC2
 
+build loop
+======================
+
+SVN
+----------------------
+* Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
+
 cc-config
 ======================
 * Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7final cc-config jar. Patch by Brian Egge.
