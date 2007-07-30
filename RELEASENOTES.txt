@@ -7,10 +7,11 @@ CruiseControl Release Notes - 2.7.1-RC2
 build loop
 ======================
 
-SVN
+SVN/SVNBootstrapper
 ----------------------
 * Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
 * Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
+* Fixed CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
 
 cc-config
 ======================
