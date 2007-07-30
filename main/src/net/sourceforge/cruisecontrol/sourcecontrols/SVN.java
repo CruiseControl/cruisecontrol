@@ -346,40 +346,43 @@ public class SVN implements SourceControl {
     private static HashMap execPropgetCommand(Commandline command)
         throws InterruptedException, IOException {
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
         logErrorStream(p);
-        InputStream svnStream = p.getInputStream();
+        final InputStream svnStream = p.getInputStream();
 
-        HashMap directories = new HashMap(); 
-        BufferedReader reader = new BufferedReader(
+        final HashMap directories = new HashMap();
+        final BufferedReader reader = new BufferedReader(
             new InputStreamReader(svnStream, "UTF8"));
+        try {
+            String line;
+            String currentDir = null;
 
-        String line;
-        String currentDir = null;
+            while ((line = reader.readLine()) != null) {
+                String[] split = line.split(" - ");
+                // the directory containing the externals
+                if (split.length > 1) {
+                    currentDir = split[0];
+                    directories.put(currentDir, new ArrayList());
+                    line = split[1];
+                }
+                split = line.split(" ");
+                if (!split[0].equals("")) {
+                    ArrayList externals = (ArrayList) directories.get(currentDir);
+                    // split contains: [externalPath, externalSvnURL]
+                    externals.add(split);
+                }
+            }
 
-        while ((line = reader.readLine()) != null) {
-            String[] split = line.split(" - ");
-            // the directory containing the externals
-            if (split.length > 1) {
-                currentDir = split[0];
-                directories.put(currentDir, new ArrayList());
-                line = split[1];
-            }
-            split = line.split(" ");
-            if (!split[0].equals("")) {
-                ArrayList externals = (ArrayList) directories.get(currentDir);
-                // split contains: [externalPath, externalSvnURL]
-                externals.add(split);
-            }
+            p.waitFor();
+            p.getInputStream().close();
+            p.getOutputStream().close();
+            p.getErrorStream().close();
+
+            return directories;
+        } finally {
+            reader.close();
         }
-
-        p.waitFor();
-        p.getInputStream().close();
-        p.getOutputStream().close();
-        p.getErrorStream().close();
-
-        return directories;
     }
 
     private static List execHistoryCommand(Commandline command, Date lastBuild,
@@ -409,8 +412,12 @@ public class SVN implements SourceControl {
                              String externalPath)
         throws JDOMException, IOException, ParseException {
 
-        InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
-        return SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
+        final InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
+        try {
+            return SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
+        } finally {
+            reader.close();
+        }
     }
 
     void fillPropertiesIfNeeded(List modifications) {
