@@ -517,6 +517,14 @@ public class SVNTest extends TestCase {
                 SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
                 "lee",
                 "bli",
+                "333",
+                "",
+                "/trunk/playground/bbb",
+                "deleted"));
+        hasModifications.add(createModification(
+                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
+                "lee",
+                "bli",
                 "663",
                 "",
                 "/trunk/playground/bbb",
