@@ -62,7 +62,7 @@ public class SVNBootstrapper implements Bootstrapper {
     private String password;
 
     /**
-     * Sets the file to update from the Subversion repository.
+     * @param fileName the file to update from the Subversion repository.
      */
     public void setFile(String fileName) {
         this.fileName = fileName;
@@ -80,14 +80,14 @@ public class SVNBootstrapper implements Bootstrapper {
     }
 
     /**
-     * Sets the username for authentication.
+     * @param userName the username for authentication.
      */
     public void setUsername(String userName) {
         this.userName = userName;
     }
 
     /**
-     * Sets the password for authentication.
+     * @param password the password for authentication.
      */
     public void setPassword(String password) {
         this.password = password;
@@ -109,7 +109,8 @@ public class SVNBootstrapper implements Bootstrapper {
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
             ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
-                "'localWorkingCopy' must be an existing " + "directory.");
+                "'localWorkingCopy' must be an existing directory. Was"
+                + workingDir.getAbsolutePath());
         }
     }
 
@@ -132,6 +133,8 @@ public class SVNBootstrapper implements Bootstrapper {
      * For example:
      *
      * 'svn update --non-interactive filename'
+     * @return the command line for the svn update command
+     * @throws CruiseControlException if the working directory is not valid.
      */
     Commandline buildUpdateCommand() throws CruiseControlException {
         Commandline command = new Commandline();
