@@ -184,6 +184,8 @@
 <a href="#svn">&lt;svn&gt;</a>
 <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
 <a href="#compound">&lt;targets&gt;</a>
+<a href="#tfs">&lt;tfs&gt;</a>
+<a href="#tfsbootstrapper">&lt;tfsbootstrapper&gt;</a>
 <a href="#timebuild">&lt;timebuild&gt;</a>
 <a href="#threads">&lt;threads&gt;</a>
 <a href="#compound">&lt;triggers&gt;</a>
@@ -255,6 +257,7 @@
          <a href="#starteambootstrapper">&lt;starteambootstrapper/&gt;</a>
          <a href="#surroundbootstrapper">&lt;surroundbootstrapper/&gt;</a>
          <a href="#svnbootstrapper">&lt;svnbootstrapper/&gt;</a>
+         <a href="#tfsbootstrapper">&lt;tfsbootstrapper/&gt;</a>
          <a href="#vssbootstrapper">&lt;vssbootstrapper/&gt;</a>
       &lt;/bootstrappers&gt;
       <a href="#modificationset">&lt;modificationset&gt;</a>
@@ -284,6 +287,7 @@
          <a href="#starteam">&lt;starteam/&gt;</a>
          <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
+         <a href="#tfs">&lt;tfs/&gt;</a>
          <a href="#timebuild">&lt;timebuild&gt;</a>
          <a href="#ucm">&lt;ucm&gt;</a>
          <a href="#veto">&lt;veto/&gt;</a>
@@ -825,7 +829,7 @@
             </tr>
             </tbody>
         </table>
-        </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1166,7 +1170,7 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -1413,6 +1417,11 @@ password=P@ssW0rd!
                 <td><a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Subversion</td>
+            </tr>
+            <tr>
+                <td><a href="#tfsbootstrapper">&lt;tfsbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Microsoft Visual Studio Team Foundation Server</td>
             </tr>
             <tr>
                 <td><a href="#vssbootstrapper">&lt;vssbootstrapper&gt;</a></td>
@@ -2421,6 +2430,149 @@ password=P@ssW0rd!
         </table>
         </div>
 
+	  <div class="elementdocumentation">
+				<a class="toplink" href="#top">top</a>
+				<h2><a name="tfsbootstrapper">&lt;tfsbootstrapper&gt;</a></h2>
+		
+				<div class="hierarchy">
+					<pre>
+		<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+		  <a href="#project">&lt;project&gt;</a>
+			<a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+			  &lt;tfsbootstrapper&gt;</pre>
+				</div>
+		
+			  <p>Gets a single path from Visual Studio Team Foundation Server before the build begins.</p>
+
+        <p>Gets are performed by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part 
+		of the Team Explorer client installation on Windows platforms. For 
+		information on obtaining the Microsoft Team Explorer client, visit
+		<a href="http://www.codeplex.com/CodePlex/Wiki/View.aspx?title=Obtaining%20the%20Team%20Explorer%20Client&amp;referringTitle=Source%20control%20clients">
+		CodePlex wiki</a>. 
+		<a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including 
+		GNU/Linux, Mac, MP-UX and Solaris platforms as well as Windows.&nbsp; To download the
+		<a href="http://www.teamprise.com/">Teamprise</a> command line client, visit the
+		<a href="http://www.teamprise.com/download/index.html">Teamprise download site</a> 
+		(fully functional evaluation licenses
+		<a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp; 
+		Note that the Teamprise client requires activation when using it with a 
+		purchased license, for instructions on how to activate from the command 
+		line consult the <a href="http://kb.teamprise.com/article/view/40">
+		Teamprise Knowledgebase</a>. </p>
+
+        <p>Gets are performed by executing a command similar to the following</p>
+        <pre>tf get //build/path/to.get 
+           -recursive -force -noprompt
+           -login:DOMAIN\name,password</pre>
+
+        <p>For further details regarding the tf get command, consult the
+		<a href="http://msdn2.microsoft.com/en-us/library/fx7sdeyf(VS.80).aspx">
+		MSDN documentation</a>.</p>
+        
+        <p>Setting the path to a folder and setting the recursive option to true will get all
+        the files in that folder and subfolders.  This is useful if you want to leave the SCM 
+        up to CruiseControl.  Allowing the bootstrapper to perform a get latest does make
+        for a simplified build.xml, but it allows a window where a file can be checked in
+        after this get but before the modification check.</p>
+        
+        <p>For this to work, you must have an existing TFS workspace created for the user on the build server
+        and a working folder mapping created.  For example, in the case where the project location is 
+        <code>/cruisecontrol/projects/myproject</code> and the files are stored in TFS at 
+        <code>$/MyTeamProject/trunk</code> you would have first needed to execute 
+        the following commands on the machine running cruisecontrol
+        
+        <pre>tf workspace /server:http://tfsserver:8080 /login:user@DOMAIN,password /new buildWorkspace<br/>
+tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace:buildWorkspace /map $/MyTeamProject/trunk //cruisecontrol/projects/myproject
+        </pre>
+        
+        If you would like gets to be performed using a TFS Version Control Proxy and you are using the Microsoft tf.exe 
+        command line then you should set the environment variable TFSPROXY (for example <code>set TFSPROXY=http://tfsproxy:8081</code>.
+        If you are using the Teamprise command line client, then you may pass "-proxy:http://tfsproxy:8081" in the options attribute.
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>itemSpec</td>
+                <td>Yes</td>
+                <td>The path to perform a get for.  This may be a local or server path as defined by the Item Specification.
+                For more information on valid item specification see <a href="http://msdn2.microsoft.com/en-us/library/56f7w6be(VS.80).aspx#sectionToggle3">http://msdn2.microsoft.com/en-us/library/56f7w6be(VS.80).aspx#sectionToggle3</a></td>
+            </tr>
+            <tr>
+
+                <td>username</td>
+                <td>no</td>
+                <td>The username to use when connection to Team Foundation 
+				Server.&nbsp; This user must have read permissions to the 
+				version control repository for the projectPath.&nbsp; When using 
+				the Microsoft client, if no username is passed then the user 
+				that the CruiseControl process is running as will be used.&nbsp; 
+				Note that is a username is provided then a password must be 
+				provided in order for the credentials to be used.<br />
+				<br />
+				The username should be passed in the form <code>DOMAIN\username</code>.&nbsp; 
+				From unix systems the name can be passed in the <code>username@DOMAIN</code> 
+				format if preferred as that removes confusion over escaping of 
+				the <code>\</code> character which should not be required.<br/>
+				<br/>
+				It is possible for the command line client to determine the credentials automatically
+				if they were allowed to be cached during the creation of the workspace and working folder
+				mapping - however the credentials of the local process will usually override those
+				in the case of the Microsoft command line client.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>no</td>
+                <td>The password to use with the username when authenticating 
+				with the server.</td>
+            </tr>
+            <tr>
+                <td>tfPath</td>
+                <td>No (defaults to &quot;tf&quot;)</td>
+
+                <td>Specify the full path to the tf command being used.&nbsp; If 
+				not supplied then the plug-in will try to locate a command 
+				called &quot;tf&quot; in the cruise control system path.&nbsp; By default, 
+				the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code>
+				</td>
+            </tr>
+            <tr>
+                <td>recursive</td>
+                <td>no (defaults to false)</td>
+                <td>Flag to indicate if a recursive get should be performed.</td>
+            </tr>
+            <tr>
+                <td>force</td>
+                <td>no (defaults to false)</td>
+                <td>Flag to indicate of the tf get command should be performed using the /force
+				    switch.  By default, TFS will only download files that the server thinks have
+				    changed since the last time you told it you were modifying or geting files
+				    into your local TFS workspace.  It will also not overwrite locally writable
+				    files.  Setting the force option will make TFS always download the files and
+				    overwrite any that happen to be locally writable - however this has the expense
+				    of significantly increasing the network traffic and increasing the time to perform
+				    the bootstrap process.
+			  </td>
+            </tr>
+            <tr>
+                <td>options</td>
+                <td>no</td>
+                <td>An optional string that may be passed as part of the command 
+				line.&nbsp; The contents of the options tag are passed as an 
+				argument to the tf get command.</td>
+            </tr>            
+            </tbody>
+        </table>
+	  </div>
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="vssbootstrapper">&lt;vssbootstrapper&gt;</a></h2>
@@ -2663,6 +2815,11 @@ password=P@ssW0rd!
                 <td><a href="#svn">&lt;svn&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a Subversion repository.</td>
+            </tr>
+             <tr>
+                <td><a href="#tfs">&lt;tfs&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Microsoft Visual Studio Team Foundation Server repository.</td>
             </tr>
             <tr>
                 <td><a href="#timebuild">&lt;timebuild&gt;</a></td>
@@ -4404,7 +4561,119 @@ password=P@ssW0rd!
             </tbody>
         </table>
         </div>
-        <div class="elementdocumentation">
+
+<div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="tfs">&lt;tfs&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;svn&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within a Microsoft Visual Studio Team Foundation Server (TFS) repository.</p>
+        <p>Changes are detected by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part 
+          of the Team Explorer client installation on Windows platforms. For 
+          information on obtaining the Microsoft Team Explorer client, visit <a href="http://www.codeplex.com/CodePlex/Wiki/View.aspx?title=Obtaining%20the%20Team%20Explorer%20Client&amp;referringTitle=Source%20control%20clients"> CodePlex wiki</a>. <a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including 
+          GNU/Linux, Mac, MP-UX and Solaris platforms as well as Windows.&nbsp; To download the <a href="http://www.teamprise.com/">Teamprise</a> command line client, visit the <a href="http://www.teamprise.com/download/index.html">Teamprise download site</a> (fully functional evaluation licenses <a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp; 
+          Note that the Teamprise client requires activation when using it with a 
+          purchased license, for instructions on how to activate from the command 
+          line consult the <a href="http://kb.teamprise.com/article/view/40"> Teamprise Knowledgebase</a>. </p>
+        <p>Changes in TFS are detected by running a command similar to the following:</p>
+        <pre>tf history $/TeamProjectName/path 
+           -version:D2006-12-01T01:01:01Z~D2006-12-13T20:00:00Z 
+           -recursive -format:detailed -noprompt
+           -server:http://tfsserver:8080 
+           -login:DOMAIN\name,password</pre>
+        <p>For further details regarding the tf history command, consult the <a href="http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx"> MSDN documentation</a>.</p>
+        <p>It is worth noting that this implementation of integration with TFS 
+          works with both the Microsoft tf.exe and the Teamprise tf command line 
+          client using the same command strings.&nbsp; There are some small 
+          differences in the output of the two commands, however this is taken 
+          into account in the parsing logic contained within this integration.</p>
+        <h3>Attributes</h3>
+        <table class="documentation">
+          <thead>
+            <tr>
+              <th>Attribute</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>tfPath</td>
+              <td>No (defaults to &quot;tf&quot;)</td>
+              <td>Specify the full path to the tf command being used.&nbsp; If 
+                not supplied then the plug-in will try to locate a command 
+                called &quot;tf&quot; in the cruise control system path.&nbsp; By default, 
+                the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code> </td>
+            </tr>
+            <tr>
+              <td>server</td>
+              <td>yes</td>
+              <td>URL to access the Team Foundation Server including port, for 
+                example <code><a href="http://tfserver:8080">http://tfserver:8080</a></code></td>
+            </tr>
+            <tr>
+              <td><p>projectPath</p></td>
+              <td>yes</td>
+              <td>Path i<span class="style1">n the TFS repository that is 
+                recursively checked for modifications.&nbsp; Any changes under 
+                that path will trigger a build.</span></td>
+            </tr>
+            <tr>
+              <td>username</td>
+              <td>no</td>
+              <td>The username to use when connection to Team Foundation 
+                Server.&nbsp; This user must have read permissions to the 
+                version control repository for the projectPath.&nbsp; When using 
+                the Microsoft client, if no username is passed then the user 
+                that the CruiseControl process is running as will be used.&nbsp; 
+                Note that is a username is provided then a password must be 
+                provided in order for the credentials to be used.<br />
+                        <br />
+                The username should be passed in the form <code>DOMAIN\username</code>.&nbsp; 
+                From unix systems the name can be passed in the <code>username@DOMAIN</code> format if preferred as that removes confusion over escaping of 
+                the <code>\</code> character which should not be required.</td>
+            </tr>
+            <tr>
+              <td>password</td>
+              <td>no</td>
+              <td>The password to use with the username when authenticating 
+                with the server.</td>
+            </tr>
+            <tr>
+              <td>options</td>
+              <td>no</td>
+              <td>An optional string that may be passed as part of the command 
+                line.&nbsp; The contents of the options tag are passed as an 
+                argument to the tf history command.</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Properties Passed to the Builders</h3>
+        <p>In addition to the standard CruiseControl <a href="#buildproperties"> properties passed to builders</a>, &lt;svn&gt; sets the
+          following properties:</p>
+        <table class="documentation">
+          <thead>
+            <tr>
+              <th>Property Name</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>tfschangeset</td>
+              <td>The maximum changeset number in the modifications detected</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+<div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="timebuild">&lt;timebuild&gt;</a></h2>
 
@@ -4451,7 +4720,7 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -4724,7 +4993,7 @@ password=P@ssW0rd!
                 <td>Set this property if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
             </tr>
-            </tbody>
+          </tbody>
         </table>
         </div>
 
@@ -5915,7 +6184,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 &lt;schedule&gt;</pre>
             </li>
         </ol>
-        </div>
+      </div>
         
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -6987,7 +7256,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
          </table>
-         </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -7113,7 +7382,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
        &lt;description xpathexpression="/cruisecontrol/info/property[@name='builddate']/@value"/&gt;
        &lt;status value="final"/&gt;
 &lt;/sfeedocman&gt;</pre>
-         </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -7196,7 +7465,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
     password="mypassword"
     releaseid="rel2509"
     uploadname="myapp-current.jar"/&gt;</pre>
-         </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -7316,7 +7585,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         &lt;field name="TotalNumberOfUnitTests" xpathExpression="sum(cruisecontrol/testsuite/@tests)" /&gt;
 &lt;/sfeetracker&gt;</pre>
 
-         </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -9111,7 +9380,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
          </table>
-         </div>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -9290,6 +9559,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </table>
     </div>
     </div>
-    </div>
+</div>
 </body>
 </html>
