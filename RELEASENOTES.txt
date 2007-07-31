@@ -13,6 +13,10 @@ SVN/SVNBootstrapper
 * Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
 * Fixed CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
 
+TFS/TFSBootstrapper
+----------------------
+* CC-666 : TFS Support - new sourcecontrol and bootstrapper plugins. Patch by Martin Woodward.
+
 cc-config
 ======================
 * Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7final cc-config jar. Patch by Brian Egge.
