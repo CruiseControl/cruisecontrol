@@ -378,7 +378,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                     getAgentPropertiesFilename());
 
             if (progressRemote != null) {
-                progressRemote.setValueRemote("Validating remote builder");
+                progressRemote.setValueRemote("validating remote builder");
                 fireAgentStatusChanged(); // update UI
             }
             try {
@@ -419,7 +419,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             }
 
             if (progressRemote != null) {
-                progressRemote.setValueRemote("Running remote builder");
+                progressRemote.setValueRemote("running remote builder");
                 fireAgentStatusChanged(); // update UI
             }
             final Element buildResults;
@@ -437,7 +437,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             }
 
             if (progressRemote != null) {
-                progressRemote.setValueRemote("Preparing results");
+                progressRemote.setValueRemote("preparing results");
                 fireAgentStatusChanged(); // update UI
             }
             prepareLogsAndArtifacts();
