@@ -63,14 +63,20 @@ public class ProjectXMLHelper implements ProjectHelper {
     private Map projectProperties;
     private PluginRegistry projectPlugins;
 
+    private final CruiseControlController controller;
+
     public ProjectXMLHelper() {
-        this.projectProperties = new HashMap();
-        this.projectPlugins = PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry());
+        this(new HashMap(), PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry()), null);
     }
 
     public ProjectXMLHelper(Map projectProperties, PluginRegistry projectPlugins) {
+        this(projectProperties, projectPlugins, null);
+    }
+    
+    public ProjectXMLHelper(Map projectProperties, PluginRegistry projectPlugins, CruiseControlController controller) {
         this.projectProperties = projectProperties;
         this.projectPlugins = projectPlugins;
+        this.controller = controller;
     }
 
     /**
@@ -79,7 +85,7 @@ public class ProjectXMLHelper implements ProjectHelper {
     public Object configurePlugin(Element pluginElement, boolean skipChildElements)
             throws CruiseControlException {
         String name = pluginElement.getName();
-        PluginXMLHelper pluginHelper = new PluginXMLHelper(this);
+        PluginXMLHelper pluginHelper = new PluginXMLHelper(this, controller);
         String pluginName = pluginElement.getName();
 
         LOG.debug("configuring plugin " + pluginElement.getName() + " skip " + skipChildElements);

@@ -42,7 +42,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
     }
 
     public void testShouldLoadIncludedProjects() throws Exception {
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);
         assertEquals(2, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
         assertIsFooProject(config.getProject("in.include"));
@@ -61,7 +61,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         elements[1] = includeElement;
         resolver = new IncludeXmlResolver(elements);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);        
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);        
         assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
         assertIsFooProject(config.getProject("in.first.include"));
@@ -80,7 +80,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         barElement.setAttribute("name", "bar");
         includeElement.addContent(barElement);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);
         assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("bar"));
     }

@@ -91,7 +91,7 @@ public class CruiseControlController {
 
         if (!configFile.equals(this.configFile)) {
             this.configFile = configFile;
-            configManager = new XMLConfigManager(configFile);
+            configManager = new XMLConfigManager(configFile, this);
         }
 
         loadConfig();

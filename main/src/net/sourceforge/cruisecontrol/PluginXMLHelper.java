@@ -57,9 +57,15 @@ import java.util.Set;
 public class PluginXMLHelper {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
     private ProjectHelper projectHelper;
+    private final CruiseControlController controller;
 
     public PluginXMLHelper(ProjectHelper plugins) {
+        this(plugins, null);
+    }
+
+    public PluginXMLHelper(ProjectHelper plugins, CruiseControlController controller) {
         projectHelper = plugins;
+        this.controller = controller;
     }
 
     /**
@@ -99,6 +105,9 @@ public class PluginXMLHelper {
         Object pluginInstance;
         try {
             pluginInstance = pluginClass.getConstructor(null).newInstance(null);
+            if (pluginInstance instanceof ControllerAware) {
+                ((ControllerAware) pluginInstance).setController(controller);
+            }
         } catch (Exception e) {
             LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: "

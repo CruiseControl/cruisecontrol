@@ -166,7 +166,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         InputStream in = new ByteArrayInputStream(contents.getBytes());
         Element config = Util.loadRootElement(in);
 
-        new CruiseControlConfig(config);
+        new CruiseControlConfig(config, controller);
     }
 
     public void setConfigFileName(String fileName) throws InvalidAttributeValueException {
