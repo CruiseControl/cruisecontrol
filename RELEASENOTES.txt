@@ -2,47 +2,11 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - 2.7.1-RC2
-
-build loop
-======================
-
-Builder Progress messages
-----------------------
-* CC-686 : add a Progress signaling api to allow plugins to notify the system of their progress as they execute (at first, only Builders).
-Adds an optional "showProgess" tag to <schedule> and the builders: <composite>, <maven>, <maven2>, and CCDist <distributed>. 
-Progess messages are shown on the reporting/jsp project pages, below the project state text.
-
-SVN/SVNBootstrapper
-----------------------
-* Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
-* Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
-* Fixed CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
-
-TFS/TFSBootstrapper
-----------------------
-* CC-666 : TFS Support - new sourcecontrol and bootstrapper plugins. Patch by Martin Woodward.
+CruiseControl Release Notes - 2.7.1
 
 cc-config
 ======================
 * Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7final cc-config jar. Patch by Brian Egge.
-
-dashboard
-======================
-NOTE: The dashboard has known display issues in Internet Explorer 6.
-* Allowed artifacts to be shown and downloaded in case of a failed build
-* Allowed project name to contain hyphen (-)
-* Allowed integration with project management tools
-* Allowed using dashboard-config.xml to configure the dashboard
-* Deprecated the way to configure the dashboard via web.xml
-* Applied the patch of CC-436 which committed by Szczepan Faber
-* Fixed CC-656 : Compound Publisher
-* Fixed CC-665 : error details are missing in the dashboard
-* Fixed CC-670 : Dashboard can't parse logfiles with testsuite elements without time attribute
-* Fixed CC-671 : Dashboard can't parse logfiles with non-default date formats
-
-
-CruiseControl Release Notes - 2.7.1-RC1
 
 contrib
 ======================
@@ -73,9 +37,25 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Can display the unit test output for passed builds.
 * Enhanced the dashboard to display artifacts directories as tree structure.
 * Added a the cc-config (http://cc-config.sourceforge.net/) application so that it can be included in the dashboard (CC-658). Patch by Allan Wick. 
+* Allowed artifacts to be shown and downloaded in case of a failed build
+* Allowed project name to contain hyphen (-)
+* Allowed integration with project management tools
+* Allowed using dashboard-config.xml to configure the dashboard
+* Deprecated the way to configure the dashboard via web.xml
+* Applied the patch of CC-436 which committed by Szczepan Faber
+* Fixed CC-656 : Compound Publisher
+* Fixed CC-665 : error details are missing in the dashboard
+* Fixed CC-670 : Dashboard can't parse logfiles with testsuite elements without time attribute
+* Fixed CC-671 : Dashboard can't parse logfiles with non-default date formats
 
 build loop
 ======================
+
+Builder Progress messages
+----------------------
+* CC-686 : add a Progress signaling api to allow plugins to notify the system of their progress as they execute (at first, only Builders).
+Adds an optional "showProgess" tag to <schedule> and the builders: <composite>, <maven>, <maven2>, and CCDist <distributed>.
+Progess messages are shown on the reporting/jsp project pages, below the project state text.
 
 build.sh/release.sh scripts
 ----------------------
@@ -117,13 +97,20 @@ Schedule
 ----------------------
 * Added trap for zero or less interval and updated docs to indicate that they are not legitimate values (CC-652). Suggested by Jeff Jensen.
 
+SVN/SVNBootstrapper
+----------------------
+* Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
+* Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
+* Fixed CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
+* Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
+
+TFS/TFSBootstrapper
+----------------------
+* CC-666 : TFS Support - new sourcecontrol and bootstrapper plugins. Patch by Martin Woodward.
+
 TimeBuild
 ----------------------
-* Fixed problem when you set time build to 23:55 and the first modifcationcheck occur at 0:01 you won't get an modification (CC-650). Patch by Lars Gehrken. 
-
-SVN
-----------------------
-* Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
+* Fixed problem when you set time build to 23:55 and the first modifcationcheck occur at 0:01 you won't get an modification (CC-650). Patch by Lars Gehrken.
 
 UCM
 ----------------------
