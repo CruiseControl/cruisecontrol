@@ -8,6 +8,7 @@ import junit.extensions.TestSetup;
 import java.util.Properties;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
 import java.io.EOFException;
@@ -32,6 +33,10 @@ import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.MockProject;
+import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceID;
 import net.jini.core.discovery.LookupLocator;
@@ -120,13 +125,13 @@ public class DistributedMasterBuilderTest extends TestCase {
 
 
     /**
-     * @param logger the the logger to write Jini process messages to
      * @return the Process in which Jini Lookup _service is running, for use in killing it.
      * @throws Exception if we can't start jini lookup service
      */
-    public static ProcessInfoPump startJini(final Logger logger) throws Exception {
+    public static ProcessInfoPump startJini() throws Exception {
         final long begin = System.currentTimeMillis();
 
+        final Logger logger = LOG;
         final Level level = Level.INFO;
 
         // make sure local lookup service is not already running
@@ -387,7 +392,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         }
 
         protected void setUp() throws Exception {
-            jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+            jiniProcessPump = DistributedMasterBuilderTest.startJini();
         }
 
         protected void tearDown() throws Exception {
@@ -406,7 +411,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     // @todo Add one slash in front of "/*" below to run individual tests in an IDE
     /*
     protected void setUp() throws Exception {
-        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+        jiniProcessPump = DistributedMasterBuilderTest.startJini();
     }
     protected void tearDown() throws Exception {
         DistributedMasterBuilderTest.killJini(jiniProcessPump);
@@ -414,7 +419,41 @@ public class DistributedMasterBuilderTest extends TestCase {
     //*/
 
 
-    
+    public void testRemoteProgress() throws Exception {
+        // register agent
+        final BuildAgent agentAvailable = createBuildAgent();
+        try {
+            final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
+
+            final MockBuilder mockBuilder = new MockBuilder();
+            masterBuilder.add(mockBuilder);
+            masterBuilder.validate();
+            
+            final Map projectProperties = new HashMap();
+            projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
+
+            final MockProject mockProject = new MockProject();
+            final Progress progress = mockProject.getProgress();
+
+            final ProjectConfig projectConfig = new ProjectConfig();
+            projectConfig.add(new DefaultLabelIncrementer());
+            mockProject.setProjectConfig(projectConfig);
+
+            masterBuilder.build(projectProperties, progress);
+
+            final BuildAgentService agentService = masterBuilder.pickAgent(null, null);
+            assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentService);
+            assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
+                    agentService.isBusy());
+
+            assertTrue("Wrong progress value: " + progress.getValue(),
+                    progress.getValue().indexOf(" retrieving results from ") == 8);
+        } finally {
+            // terminate JoinManager in BuildAgent
+            agentAvailable.terminate();
+        }
+    }
+
     public void testPickAgent2Agents() throws Exception {
         // register agent
         final BuildAgent agentAvailable = createBuildAgent();
@@ -426,23 +465,23 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agents
-            final BuildAgentService agentFoundFirst = masterBuilder.pickAgent(null);
+            final BuildAgentService agentFoundFirst = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find first agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
 
-            final BuildAgentService agentFoundSecond = masterBuilder.pickAgent(null);
+            final BuildAgentService agentFoundSecond = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find second agent", agentFoundSecond);
             assertTrue(agentFoundFirst.isBusy());
             assertTrue(agentFoundSecond.isBusy());
 
-            assertNull("Shouldn't find third agent", masterBuilder.pickAgent(null));
+            assertNull("Shouldn't find third agent", masterBuilder.pickAgent(null, null));
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
 
-            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -464,13 +503,13 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
 
             // set Agent to Not busy, then make sure it can be found again.
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
-            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -489,20 +528,20 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
-            final BuildAgentService agent = masterBuilder.pickAgent(null);
+            final BuildAgentService agent = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agent);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agent.isBusy());
 
             // try to find agent, shouldn't find any available
-            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
+            assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
 
             // set Agent to Not busy, then make sure it can be found again.
 
             // only needed so clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agent)); 
             agent.clearOutputFiles();
-            final BuildAgentService agentRefound = masterBuilder.pickAgent(null);
+            final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
@@ -516,7 +555,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
-        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
     }
 
 

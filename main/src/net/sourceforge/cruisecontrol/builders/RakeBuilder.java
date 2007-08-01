@@ -42,6 +42,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -81,7 +82,7 @@ public class RakeBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -99,8 +100,7 @@ public class RakeBuilder extends Builder {
         long startTime = System.currentTimeMillis();
 
         File workDir = workingDir != null ? new File(workingDir) : null;
-        boolean scriptCompleted = false;
-        scriptCompleted = new ScriptRunner().runScript(workDir, script, timeout);
+        final boolean scriptCompleted = new ScriptRunner().runScript(workDir, script, timeout);
         long endTime = System.currentTimeMillis();
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
@@ -116,11 +116,13 @@ public class RakeBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String buildTarget) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+            throws CruiseControlException {
+        
         String origTarget = target;
         try {
             target = buildTarget;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             target = origTarget;
         }

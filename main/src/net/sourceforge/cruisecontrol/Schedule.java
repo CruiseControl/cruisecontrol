@@ -73,9 +73,11 @@ public class Schedule implements Serializable {
     static final long MAX_INTERVAL_SECONDS = 60 * 60 * 24 * 365;
     static final long MAX_INTERVAL_MILLISECONDS = MAX_INTERVAL_SECONDS * 1000;
 
-    private List builders = new ArrayList();
-    private List pauseBuilders = new ArrayList();
+    private final List builders = new ArrayList();
+    private final List pauseBuilders = new ArrayList();
     private long interval = 300 * ONE_SECOND;
+
+    private boolean showProgress = true;
 
     /** date formatting for time statements */
     private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
@@ -136,7 +138,7 @@ public class Schedule implements Serializable {
 
     /**
      * Select the correct <code>Builder</code> and start a build.
-     * 
+     *
      * @param buildNumber
      *            The sequential build number.
      * @param lastBuild
@@ -147,16 +149,20 @@ public class Schedule implements Serializable {
      *            Properties that would need to be passed in to the actual build tool.
      * @param buildTarget
      *            the build target to use instead of the configured one (pass in null if no override is needed)
+     * @param progress
+     *            the progress callback object.
      * @return JDOM Element representation of build log.
+     * @throws CruiseControlException if something fails
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget)
+    public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget,
+                         Progress progress)
             throws CruiseControlException {
         Builder builder = selectBuilder(buildNumber, lastBuild, now);
         if (buildTarget != null) {
             LOG.info("Overriding build target with \"" + buildTarget + "\"");
-            return builder.buildWithTarget(properties, buildTarget);
+            return builder.buildWithTarget(properties, buildTarget, (getShowProgress() ? progress : null));
         }
-        return builder.build(properties);
+        return builder.build(properties, (getShowProgress() ? progress : null));
     }
 
     /**
@@ -169,6 +175,7 @@ public class Schedule implements Serializable {
      * @param now
      *            The current time.
      * @return The <code>Builder</code> that should be run.
+     * @throws CruiseControlException if something fails
      */
     protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
         Builder builder = findBuilder(buildNumber, lastBuild, now);
@@ -428,6 +435,13 @@ public class Schedule implements Serializable {
 
     public long getInterval() {
         return interval;
+    }
+
+    public void setShowProgress(final boolean showProgress) {
+        this.showProgress = showProgress;
+    }
+    public boolean getShowProgress() {
+        return showProgress;
     }
 
     public void validate() throws CruiseControlException {

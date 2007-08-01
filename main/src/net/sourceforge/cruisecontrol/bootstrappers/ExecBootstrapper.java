@@ -70,7 +70,7 @@ public class ExecBootstrapper implements Bootstrapper {
 
         final Map properties = new HashMap();
         // Run ExecuteBuilder
-        final Element result = delegate.build(properties);
+        final Element result = delegate.build(properties, null);
         if (result == null) {
             LOG.error("ExecBootstrapper failed.\n\n");
             throw new CruiseControlException("ExecBootstrapper failed with null result");

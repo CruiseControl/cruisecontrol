@@ -45,18 +45,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
+import net.jini.jeri.BasicJeriExporter;
+import net.jini.jeri.BasicILFactory;
+import net.jini.jeri.tcp.TcpServerEndpoint;
+import net.jini.export.Exporter;
+import net.jini.config.Configuration;
+import net.jini.config.ConfigurationProvider;
+import net.jini.config.ConfigurationException;
 import net.sourceforge.cruisecontrol.Builder;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
+import net.sourceforge.cruisecontrol.distributed.core.ProgressRemoteImpl;
+import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -74,6 +85,7 @@ public class DistributedMasterBuilder extends Builder {
     private static final long DEFAULT_CACHE_MISS_WAIT = 30000;
     private boolean isFailFast;
 
+    private String entriesRaw;
     private Entry[] entries = new Entry[] {};
 
     private String agentLogDir;
@@ -167,24 +179,26 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
         final String oldOverideTarget = overrideTarget;
         overrideTarget = target;
         try {
-            return build(properties);
+            return build(properties, progress);
         } finally {
             overrideTarget = oldOverideTarget;
         }
     }
 
-    public Element build(final Map projectProperties) throws CruiseControlException {
+    public Element build(final Map projectProperties, final Progress progressIn) throws CruiseControlException {
         try {
             final String projectName = (String) projectProperties.get(PropertiesHelper.PROJECT_NAME);
             if (null == projectName) {
                 throw new CruiseControlException(MSG_MISSING_PROJECT_NAME);
             }
-            
-            final BuildAgentService agent = pickAgent(projectName);
+
+            final Progress progress = getShowProgress() ? progressIn : null;
+
+            final BuildAgentService agent = pickAgent(projectName, progress);
             // agent is now marked as claimed
 
             String agentMachine = "unknown";
@@ -210,9 +224,69 @@ public class DistributedMasterBuilder extends Builder {
 
                 LOG.debug("Project Props: " + projectProperties.toString());
 
-                LOG.info("Starting remote build on agent: " + agent.getMachineName() + " of project: " + projectName);
+                final String msgAgentMachine = "building on agent: " + agentMachine;
+                LOG.info(msgAgentMachine + ", project: " + projectName);
+                final ProgressRemote progressRemote;
+                // A strong reference to ProgressRemoteImpl is required to keep internal RMI refs valid.
+                // For details, see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4114579
+                final ProgressRemoteImpl progressRemoteImpl;
+                final Exporter exporter;
+                if (progress != null) {
+                    progress.setValue(msgAgentMachine);
 
-                buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps);
+                    // wrap progress object to prefix progress messages with Agent machine name
+                    // and allow remote calls.
+                    progressRemoteImpl = new ProgressRemoteImpl(progress, agentMachine);
+
+                    // NOTE: Basic exported fails on nets where DNS is broken, so use config to allow override.
+                    //exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                    //        new BasicILFactory(), false, true);
+                    try {
+                        // @todo use a new config file, ie: 'progressremote.config'. Update 'Bad DNS workaround' docs
+                        final String configFilename = "transient-reggie.config";
+                        final File configFile = FileUtil.getFileFromResource(configFilename);
+                        final Configuration config = ConfigurationProvider.getInstance(
+                                new String[] { configFile.getAbsolutePath() }, getClass().getClassLoader());
+
+                        final Exporter defaultExporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                                new BasicILFactory(), false, true);
+                        final String componentName = "com.sun.jini.reggie";
+                        exporter = (Exporter) config.getEntry(componentName, "serverExporter", Exporter.class,
+                                defaultExporter);
+                    } catch (ConfigurationException e) {
+                        throw new CruiseControlException("Error configuring ProgressRemote exporter", e);
+                    }
+
+                    progressRemote = (ProgressRemote) exporter.export(progressRemoteImpl);
+                } else {
+                    // A strong reference to ProgressRemoteImpl is required to keep internal RMI refs valid.
+                    // For details, see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4114579
+                    // So even though this assignment is not used, it MUST remain.
+                    progressRemoteImpl = null;
+                    progressRemote = null;
+                    exporter = null;
+                }
+
+                try {
+                    buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps,
+                            progressRemote);
+                } finally {
+                    if (exporter != null) {
+                        int count = 0;
+                        while (!exporter.unexport(false) && count < 10) {
+                            LOG.info("Failed to unexport ProgressRemote, retries: " + count);
+                            // wait a bit and try again
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                LOG.error("Interrupted while unexporting ProgressRemote");
+                            }
+                            count++;
+                        }
+                        // force unexport, even if remote calls are pending
+                        exporter.unexport(true);
+                    }
+                }
 
                 final File rootDirCanon;
                 try {
@@ -226,7 +300,7 @@ public class DistributedMasterBuilder extends Builder {
                     throw new CruiseControlException(message, e);
                 }
 
-                retrieveBuildArtifacts(agent, rootDirCanon, projectName);
+                retrieveBuildArtifacts(agent, rootDirCanon, projectName, progress, agentMachine);
 
             } catch (RemoteException e) {
                 final String message = "RemoteException from"
@@ -251,8 +325,13 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    private void retrieveBuildArtifacts(BuildAgentService agent, final File workDir, final String projectName)
+    private void retrieveBuildArtifacts(final BuildAgentService agent, final File workDir, final String projectName,
+                                        final Progress progress, final String agentMachine)
             throws RemoteException {
+
+        if (progress != null) {
+            progress.setValue("retrieving results from " + agentMachine);
+        }
 
         getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS,
                 resolveMasterDestDir(masterLogDir, workDir, PropertiesHelper.RESULT_TYPE_LOGS));
@@ -298,8 +377,21 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    BuildAgentService pickAgent(final String projectName) throws CruiseControlException {
+    BuildAgentService pickAgent(final String projectName, Progress progress) throws CruiseControlException {
         BuildAgentService agent = null;
+
+        if (progress != null) {
+            String msgProgress = "finding agent";
+            if (entriesRaw != null) {
+                msgProgress += " with entries: ";
+                StringTokenizer st = new StringTokenizer(entriesRaw, ",");
+                while (st.hasMoreTokens()) {
+                    msgProgress += ("\n" + st.nextToken());
+                }
+            }
+
+            progress.setValue(msgProgress);
+        }
 
         while (agent == null) {
             final ServiceItem serviceItem;
@@ -340,6 +432,7 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     public void setEntries(final String entries) {
+        entriesRaw = entries;
         this.entries = ReggieUtil.convertStringEntries(entries);
     }
 

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -70,15 +71,27 @@ public class CompositeBuilder extends Builder {
         return false; // if we made it this far, no errors were found
     }
 
-    public Element build(Map properties) throws CruiseControlException {
+    public Element build(final Map properties, final Progress progressIn) throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
+
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
         final Iterator iter = builders.iterator();
 
+        int i = 0;
+        final int totalBuilders = builders.size();
+
         startBuild();
         while (iter.hasNext() & !errorOcurred) {
+
+            if (progress != null) {
+                i++;
+                progress.setValue("composite build " + i + " of " + totalBuilders);
+            }
+
             final Builder builder = (Builder) iter.next();
-            final Element buildResult = builder.build(properties);
+            final Element buildResult = builder.build(properties, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult);
         }
         endBuild(compositeBuildResult);
@@ -86,16 +99,28 @@ public class CompositeBuilder extends Builder {
         return compositeBuildResult;
     }
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(final Map properties, final String target, final Progress progressIn)
+            throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
 
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
         final Iterator iter = builders.iterator();
 
+        int i = 0;
+        final int totalBuilders = builders.size();
+
         startBuild();
         while (iter.hasNext() & !errorOcurred) {
+
+            if (progress != null) {
+                i++;
+                progress.setValue("composite build " + i + " of " + totalBuilders);
+            }
+
             final Builder builder = (Builder) iter.next();
-            final Element buildResult = builder.buildWithTarget(properties, target);
+            final Element buildResult = builder.buildWithTarget(properties, target, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult);
         }
         endBuild(compositeBuildResult);

@@ -41,6 +41,7 @@ import java.io.File;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
@@ -88,7 +89,7 @@ public class ExecBuilder extends Builder {
     /**
      * execute the command and return the results as XML
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
 
         // time the command started
         long startTime = System.currentTimeMillis();
@@ -160,11 +161,11 @@ public class ExecBuilder extends Builder {
     } // build
 
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
         String origArgs = args;
         try {
             args = target;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             args = origArgs;
         }

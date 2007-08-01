@@ -11,6 +11,7 @@ import org.jdom.CDATA;
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
@@ -21,7 +22,7 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  * Contains all the details related to running a Maven based build.
  * @author Steria Benelux Sa/Nv - Provided without any warranty
  */
-public class Maven2Script implements Script, StreamConsumer {
+public final class Maven2Script implements Script, StreamConsumer {
 
     private static final String ERROR   = "error";
     private static final String SUCCESS = "success";
@@ -30,35 +31,34 @@ public class Maven2Script implements Script, StreamConsumer {
     private String goalset;
     private String mvn;
     private String pomFile;
-    private String settingsFile;
-    private String flags;
+    private final String settingsFile;
+    private final String flags;
     private final Element buildLogElement; //Log to store result of the execution for CC
     private Map buildProperties;
-    private String activateProfiles;
+    private final String activateProfiles;
     private List properties;
+    private final Progress progress;
 
     private int exitCode;
     private Element currentElement;
 
     /**
+     * @param maven2Builder the maven2builder executing this script
      * @param buildLogElement Log to store result of the execution for CC
-     * @param mvn path to the mvn script
-     * @param pomFile path to the pom file
      * @param goals the goalset to execute
-     * @param settingsFile path to the settings file (not required)
-     * @param activateProfiles comma-delimited list of profiles to activate. (not required)
-     * @param flags extra parameter to pass to mvn e.g.: -U (not required)
+     * @param progress used to update progress
      */
-    public Maven2Script(Element buildLogElement, String mvn, String pomFile, String goals,
-                        String settingsFile, String activateProfiles, String flags) {
+    public Maven2Script(final Maven2Builder maven2Builder, final Element buildLogElement, final String goals,
+                        final Progress progress) {
 
         this.buildLogElement = buildLogElement;
-        this.mvn = mvn;
-        this.pomFile = pomFile;
+        this.mvn = maven2Builder.getMvnScript();
+        this.pomFile = maven2Builder.getPomFile();
         this.goalset = goals;
-        this.settingsFile = settingsFile;
-        this.flags = flags;
-        this.activateProfiles = activateProfiles;
+        this.settingsFile = maven2Builder.getSettingsFile();
+        this.flags = maven2Builder.getFlags();
+        this.activateProfiles = maven2Builder.getActivateProfiles();
+        this.progress = progress;
     }
 
     /**
@@ -207,15 +207,18 @@ public class Maven2Script implements Script, StreamConsumer {
         }
     }
 
-    private Element makeNewCurrentElement(String cTask) {
+    private void makeNewCurrentElement(String cTask) {
         if (buildLogElement == null) {
-            return null;
+            return;
         }
         synchronized (buildLogElement) {
             flushCurrentElement();
             currentElement = new Element("mavengoal");
             currentElement.setAttribute("name", cTask);
-            return currentElement;
+
+            if (progress != null) {
+                progress.setValue(cTask);
+            }
         }
     }
 

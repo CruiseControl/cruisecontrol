@@ -52,11 +52,26 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private int multiple = 1;
     private boolean multipleSet = false;
     private String group = "default";
+    private boolean showProgress = true;
 
-    //should return log from build
-    public abstract Element build(Map properties) throws CruiseControlException;
-
-    public abstract Element buildWithTarget(Map properties, String target) throws CruiseControlException;
+    /**
+     * Execute a build.
+     * @param properties build properties
+     * @param progress callback to provide progress updates
+     * @return the log resulting from executing the build
+     * @throws CruiseControlException if something breaks
+     */
+    public abstract Element build(Map properties, Progress progress) throws CruiseControlException;
+    /**
+     * Execute a build with the given target.
+     * @param properties build properties
+     * @param target the build target to call, overrides target defined in config
+     * @param progress callback to provide progress updates
+     * @return the log resulting from executing the build
+     * @throws CruiseControlException if something breaks
+     */
+    public abstract Element buildWithTarget(Map properties, String target, Progress progress)
+            throws CruiseControlException;
 
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
@@ -71,7 +86,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     /**
      * can use ScheduleItem.NOT_SET to reset.
-     * @param timeString
+     * @param timeString new time integer
      */
     public void setTime(String timeString) {
         time = Integer.parseInt(timeString);
@@ -79,7 +94,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     /**
      * can use Builder.NOT_SET to reset.
-     * @param multiple
+     * @param multiple new multiple
      */
     public void setMultiple(int multiple) {
         multipleSet = multiple != NOT_SET;
@@ -102,8 +117,18 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         this.group = group;
     }
 
+
+    public void setShowProgress(final boolean showProgress) {
+        this.showProgress = showProgress;
+    }
+    public boolean getShowProgress() {
+        return showProgress;
+    }
+
     /**
-     *  is this the correct day to be running this builder?
+     * Is this the correct day to be running this builder?
+     * @param now the current date
+     * @return true if this this the correct day to be running this builder 
      */
     public boolean isValidDay(Date now) {
         if (getDay() < 0) {

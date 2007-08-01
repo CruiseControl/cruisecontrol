@@ -47,6 +47,7 @@ import org.jdom.CDATA;
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
@@ -68,6 +69,15 @@ public class MavenScript implements Script, StreamConsumer {
     /** Global log to produce, passed in from MavenBuilder */
     private Element buildLogElement;
     private Element currentElement = null;
+
+    private final Progress progress;
+
+    /**
+     * @param progress progress callback object, may be null.
+     */
+    public MavenScript(final Progress progress) {
+        this.progress = progress;
+    }
 
     /**
      *  construct the command that we're going to execute.
@@ -160,16 +170,19 @@ public class MavenScript implements Script, StreamConsumer {
         }
     }
 
-    private Element makeNewCurrentElement(String cTask) {
+    private void makeNewCurrentElement(String cTask) {
         if (buildLogElement == null) {
-            return null;
+            return;
         }
         synchronized (buildLogElement) {
             flushCurrentElement();
             currentElement = new Element("mavengoal");
             currentElement.setAttribute("name", cTask);
             currentElement.setAttribute("time", "? seconds");
-            return currentElement;
+        }
+
+        if (progress != null) {
+            progress.setValue(cTask);
         }
     }
 

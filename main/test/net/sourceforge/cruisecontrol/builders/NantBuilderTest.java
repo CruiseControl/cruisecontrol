@@ -58,7 +58,6 @@ public class NantBuilderTest extends TestCase {
 
     private final FilesToDelete filesToDelete = new FilesToDelete();
     private NantBuilder builder;
-    private File rootTempDir = null;
 
     static class InputBasedMockCommandLineBuilder {
         Commandline buildCommandline(final InputStream inputStream) {
@@ -105,8 +104,8 @@ public class NantBuilderTest extends TestCase {
 //        builder.setNantWorkingDir(new File(
 //                new URI(ClassLoader.getSystemResource("test.build").toString())).getParent());
 
-        File tempDir = new File(System.getProperty("java.io.tmpdir"));
-        rootTempDir = new File(tempDir, "testRoot");
+        final File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        final File rootTempDir = new File(tempDir, "testRoot");
         rootTempDir.mkdir();
         filesToDelete.add(rootTempDir);
     }
@@ -240,7 +239,7 @@ public class NantBuilderTest extends TestCase {
         mybuilder.setTempFile("notLog.xml");
         mybuilder.setTarget("init");
         HashMap buildProperties = new HashMap();
-        Element buildElement = mybuilder.build(buildProperties);
+        Element buildElement = mybuilder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
 
@@ -310,7 +309,7 @@ public class NantBuilderTest extends TestCase {
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
-        Element buildElement = mybuilder.build(buildProperties);
+        Element buildElement = mybuilder.build(buildProperties, null);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
@@ -319,7 +318,7 @@ public class NantBuilderTest extends TestCase {
         mybuilder.setUseDebug(false);
         mybuilder.setUseLogger(false);
         mybuilder.setTempFile("shouldNot.xml");
-        buildElement = mybuilder.build(buildProperties);
+        buildElement = mybuilder.build(buildProperties, null);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
     }
 

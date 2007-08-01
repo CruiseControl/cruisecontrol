@@ -56,13 +56,13 @@ public class AntBootstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(AntBootstrapper.class);
 
-    private AntBuilder delegate = new AntBuilder();
+    private final AntBuilder delegate = new AntBuilder();
 
     /**
      * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
      */
     public void bootstrap() throws CruiseControlException {
-        Element result = delegate.build(new HashMap());
+        Element result = delegate.build(new HashMap(), null);
         if (result == null) {
             throw new CruiseControlException("Build returned null.  Bootstrap failed.");
         } else {

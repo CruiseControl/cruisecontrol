@@ -136,11 +136,11 @@ class MockBadBuilder extends Builder {
 
     }
 
-    public Element build(Map properties) throws CruiseControlException {
+    public Element build(Map properties, Progress progress) throws CruiseControlException {
         return null;
     }
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
         return null;
     }
 

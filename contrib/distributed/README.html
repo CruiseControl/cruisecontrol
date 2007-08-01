@@ -136,6 +136,16 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                            <td>No</td>
                            <td>Another build artifacts directory on Master into which Agent artifacts will be moved. Typically included in <a href="../../main/docs/configxml.html#merge">log merge</a></td>
                         </tr>
+                        <tr>
+                            <td>showProgress</td>
+                            <td>No  (defaults to true)</td>
+                            <td>If true or omitted, the distributed builder will provide progress messages, as will the nested builder if it supports this
+                                feature (assuming the nested builder's own showProgress setting is not false).
+                                If false, no progress messages will be shown by the distributed builder or nested builder - regardless of the nested builder's
+                                showProgress setting. If any parent showProgress is false, then no progress will be shown, regardless
+                                of the distributed or nested builder settings.
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
 

@@ -63,7 +63,7 @@ public class AntPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(AntPublisher.class);
 
-    private AntBuilder delegate = new AntBuilder();
+    private final AntBuilder delegate = new AntBuilder();
 
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
@@ -75,7 +75,7 @@ public class AntPublisher implements Publisher {
         populatePropertesForAntBuilder(log, properties);
 
         // Run Ant
-        Element result = delegate.build(properties);
+        Element result = delegate.build(properties, null);
         if (result == null) {
             LOG.error("Publisher failed.\n\n");
         } else {

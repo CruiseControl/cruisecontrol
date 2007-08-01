@@ -21,6 +21,7 @@ import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 
 /**
  * @author: Dan Rollo
@@ -100,7 +101,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
 
         try {
-            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps));
+            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps, null));
             clearDefaultSuccessResultDirs();
             assertNull(mockBuilder.getTarget());
         } finally {
@@ -111,7 +112,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, TEST_PROJECT_SUCCESS);
         assertNull(mockBuilder.getTarget());
         try {
-            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps));
+            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps, null));
             clearDefaultSuccessResultDirs();
             assertEquals(TEST_PROJECT_SUCCESS, mockBuilder.getTarget());
         } finally {
@@ -151,7 +152,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
         try {
             // fails at nestedBuilder.validate() due to null nestedBuilder
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -164,7 +165,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         agentListener.resetAgentStatusChangeCount();
         try {
             // gets far enough to fire 2nd agent status change
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -208,7 +209,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Project name...
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -258,7 +259,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Project name...
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -711,7 +712,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         
         final MockBuilder mockBuilder = createMockBuilder(isValidateFailure);
 
-        return agent.doBuild(mockBuilder, projectProperties, distributedAgentProps);
+        return agent.doBuild(mockBuilder, projectProperties, distributedAgentProps, null);
     }
 
     
@@ -728,12 +729,12 @@ public class BuildAgentServiceImplTest extends TestCase {
                 }
             }
 
-            public Element build(Map properties) {
+            public Element build(Map properties, Progress progress) {
                 final String projectName = (String) properties.get(PropertiesHelper.PROJECT_NAME);
 
                 final boolean isBuildFailure = TEST_PROJECT_FAIL.equals(projectName);
 
-                final Element retVal = super.build(properties);
+                final Element retVal = super.build(properties, progress);
 
                 // create a files in the expected dirs
                 createExpectedBuildArtifact(new File("logs/" + projectName + "/TEST-bogustestclassSuccess.xml"));
@@ -861,7 +862,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static void callDoBuildWithNulls(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
     {
         try {
-            agentImpl.doBuild(null, null, null);
+            agentImpl.doBuild(null, null, null, null);
             fail("Should have failed to build");
         } catch (NullPointerException e) {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());

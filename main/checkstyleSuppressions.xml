@@ -20,7 +20,7 @@
 
     <suppress checks="InnerAssignment"
               files="FileUtil.java"
-              lines="79"/>
+              lines="82"/>
 
 
     <suppress checks="DescendantToken"

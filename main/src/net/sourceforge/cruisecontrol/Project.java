@@ -92,6 +92,7 @@ public class Project implements Serializable, Runnable {
     private transient BuildQueue queue;
     private transient List progressListeners;
     private transient List resultListeners;
+    private transient Progress progress;
 
     private int buildCounter = 0;
     private Date lastBuild = DateUtil.getMidnight();
@@ -119,6 +120,8 @@ public class Project implements Serializable, Runnable {
         waitMutex = new Object();
         progressListeners = new ArrayList();
         resultListeners = new ArrayList();
+
+        progress = new ProgressImpl(this);
     }
 
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
@@ -187,10 +190,12 @@ public class Project implements Serializable, Runnable {
                 return;
             }
 
+            // @todo Add Progress param to Bootstrapper API?
             bootstrap();
 
             String target = useAndResetBuildTargetIfBuildWasForced(buildWasForced);
 
+            // @todo Add Progress param to ModificationSet API?
             // getModifications will only return null if we don't need to build
             Element modifications = getModifications(buildWasForced);
 
@@ -218,7 +223,9 @@ public class Project implements Serializable, Runnable {
             buildLog.addContent(getProjectPropertiesElement(now));
 
             setState(ProjectState.BUILDING);
-            Element builderLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target);
+            Element builderLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target,
+                    progress);
+
             buildLog.addContent(builderLog.detach());
 
             boolean buildSuccessful = buildLog.wasBuildSuccessful();
@@ -253,6 +260,7 @@ public class Project implements Serializable, Runnable {
             //resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             serializeProject();
 
+            // @todo Add Progress param to Publisher API?
             publish(buildLog);
             buildLog.reset();
         } finally {
@@ -721,7 +729,7 @@ public class Project implements Serializable, Runnable {
     /**
      * Iterate over all of the registered <code>Publisher</code>s and call
      * their respective <code>publish</code> methods.
-     * @param buildLog 
+     * @param buildLog the content to publish
      * @throws CruiseControlException if an error occurs during publishing
      */
     protected void publish(Log buildLog) throws CruiseControlException {
@@ -928,4 +936,7 @@ public class Project implements Serializable, Runnable {
         return lastBuild;
     }
 
+    public Progress getProgress() {
+        return progress;
+    }
 }

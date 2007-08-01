@@ -42,10 +42,13 @@ import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 
 import java.util.Date;
+import java.util.List;
+import java.io.File;
 
 /**
  * Writes a text snippet in a file (typically in a location where the reporting module can read it), indicating
@@ -60,6 +63,8 @@ public class CurrentBuildStatusListener implements Listener {
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusListener.class);
     private String fileName;
 
+    static final String MSG_PREFIX_PROGRESS = "Progress: ";
+
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (event instanceof ProjectStateChangedEvent) {
             final ProjectStateChangedEvent stateChanged = (ProjectStateChangedEvent) event;
@@ -67,10 +72,39 @@ public class CurrentBuildStatusListener implements Listener {
             LOG.debug("updating status to " + newState.getName()  + " for project " + stateChanged.getProjectName());
             final String text = newState.getDescription() + " since\n";
             CurrentBuildFileWriter.writefile(text, new Date(), fileName);
+        } else if (event instanceof ProgressChangedEvent) {
+            final ProgressChangedEvent progressChanged = (ProgressChangedEvent) event;
+            final String msgProgress = progressChanged.getProgress().getValue();
+            LOG.debug("updating progress to " + msgProgress  + " for project " + progressChanged.getProjectName());
+            final String text = getStatusTextPrefix()
+                    + MSG_PREFIX_PROGRESS + msgProgress;
+            IO.write(fileName, text);
         } else {
             // ignore other ProjectEvents
             LOG.debug("ignoring event " + event.getClass().getName() + " for project " + event.getProjectName());
         }
+    }
+
+    private String getStatusTextPrefix() throws CruiseControlException {
+        String statusPrefix = "";
+
+        final File statusFile = new File(fileName);
+        if (!statusFile.exists()) {
+            return statusPrefix;
+        }
+        
+        final List lines = IO.readLines(statusFile);
+        // look for Progress Text Prefix (might not exist)
+        String line;
+        for (int i = 0; i < lines.size(); i++) {
+            line = (String) lines.get(i);
+            if (line.startsWith(MSG_PREFIX_PROGRESS)) {
+                break;
+            } else {
+                statusPrefix += line + "\n";                
+            }
+        }
+        return statusPrefix;
     }
 
     public void validate() throws CruiseControlException {

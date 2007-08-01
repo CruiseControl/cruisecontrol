@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -33,7 +34,7 @@ public class PhingBuilder extends Builder {
     private String phingScript = "phing";
     private String phingHome;
     private boolean useLogger;
-    private List properties = new ArrayList();
+    private final List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
@@ -78,7 +79,7 @@ public class PhingBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -126,11 +127,13 @@ public class PhingBuilder extends Builder {
         return buildLogElement;
     }
     
-    public Element buildWithTarget(Map properties, String buildTarget) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+            throws CruiseControlException {
+        
         String origTarget = target;
         try {
             target = buildTarget;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             target = origTarget;
         }
@@ -167,19 +170,25 @@ public class PhingBuilder extends Builder {
         }
 
         try {
-            File newPhingLogFile = new File(saveLogDir, tempFileName);
+            final File newPhingLogFile = new File(saveLogDir, tempFileName);
             newPhingLogFile.createNewFile();
 
-            FileInputStream in = new FileInputStream(logFile);
-            FileOutputStream out = new FileOutputStream(newPhingLogFile);
+            final FileInputStream in = new FileInputStream(logFile);
+            try {
+                final FileOutputStream out = new FileOutputStream(newPhingLogFile);
+                try {
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
 
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+                } finally {
+                    out.close();
+                }
+            } finally {
+                in.close();
             }
-            in.close();
-            out.close();
         } catch (IOException ioe) {
             LOG.error(ioe);
             LOG.error("Unable to create file: " + new File(saveLogDir, tempFileName));
@@ -221,6 +230,9 @@ public class PhingBuilder extends Builder {
     /**
      * If the phinghome attribute is set, then this method returns the correct shell script
      * to use for a specific environment.
+     * @param isWindows true if running under windows
+     * @return shell script to use for a specific environment.
+     * @throws CruiseControlException if the phinghome attribute is not set
      */
     protected String findPhingScript(boolean isWindows) throws CruiseControlException {
         if (phingHome == null) {
@@ -235,7 +247,7 @@ public class PhingBuilder extends Builder {
     }
 
     /**
-     * Set the name of the temporary file used to capture output.
+     * @param tempFileName the name of the temporary file used to capture output.
      */
     public void setTempFile(String tempFileName) {
         this.tempFileName = tempFileName;
@@ -262,6 +274,7 @@ public class PhingBuilder extends Builder {
 
     /**
      * Sets whether Phing will use the custom loggers.
+     * @param useLogger if true, use custom loggers
      */
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
