@@ -120,6 +120,10 @@ UCM
 ----------------------
 * Fixed ClearCase/UCM mode when rmver event found in history (CC-660). Patch by Paul Heaberlin.
 
+Veto
+----------------------
+* Improvement to provide detail in log as to what changes caused the veto (CC-676). Patch by Barrett Nuzum.
+
 
 CruiseControl Release Notes - 2.7
 
