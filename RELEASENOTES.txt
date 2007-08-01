@@ -85,6 +85,10 @@ MavenMapper
 ----------------------
 * MavenMapper extracts the email address for a certain committing user as configured in Mavens project.xml or pom.xml (M1 or M2) (CC-618). Contributed by Gisbert Amm.
 
+Plugins
+----------------------
+* Introduce a "ControllerAware" interface for plugins (CC-680). Patch by committer emeritus Robert Watkins.
+
 Project
 ----------------------
 * Added a property named "buildforced" that will get passed to builders for conditional control (CC-653). Patch by Dave Kilroy.

@@ -83,12 +83,24 @@ public class CruiseControlConfig {
 
     private XmlResolver xmlResolver;
 
+    private final CruiseControlController controller;
+
     public CruiseControlConfig(Element ccElement) throws CruiseControlException {
-        this(ccElement, (XmlResolver) null);
+        this(ccElement, null, null);
+    }
+
+    public CruiseControlConfig(Element ccElement, CruiseControlController controller) throws CruiseControlException {
+        this(ccElement, (XmlResolver) null, controller);
     }
 
     public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver) throws CruiseControlException {
+        this(ccElement, xmlResolver, null);
+    }
+    
+    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver, CruiseControlController controller) 
+            throws CruiseControlException {
         this.xmlResolver = xmlResolver;
+        this.controller = controller;
         parse(ccElement);
     }
 
@@ -117,6 +129,7 @@ public class CruiseControlConfig {
     }
 
     private CruiseControlConfig(Element includedElement, CruiseControlConfig parent) throws CruiseControlException {
+        this.controller = parent.controller;
         xmlResolver = parent.xmlResolver;
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap(parent.rootProperties);
@@ -262,7 +275,7 @@ public class CruiseControlConfig {
         projectElement.removeChildren("plugin");
 
         LOG.debug("**************** configuring project " + projectName + " *******************");
-        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
+        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, controller);
         ProjectInterface project;
         
         try {

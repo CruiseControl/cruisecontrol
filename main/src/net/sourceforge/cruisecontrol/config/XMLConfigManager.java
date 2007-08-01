@@ -44,6 +44,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
+import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -67,9 +68,15 @@ public class XMLConfigManager {
     private CruiseControlConfig config;
     private String hash;
     private Resolver resolver = new Resolver();
+    private final CruiseControlController controller;
 
-    public XMLConfigManager(File file) throws CruiseControlException {
+    public XMLConfigManager(File configurationFile) throws CruiseControlException {
+        this(configurationFile, null);
+    }
+
+    public XMLConfigManager(File file, CruiseControlController controller) throws CruiseControlException {
         configFile = file;
+        this.controller = controller;
         loadConfig(configFile);
         hash = calculateMD5(configFile);
     }
@@ -78,7 +85,7 @@ public class XMLConfigManager {
         LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadRootElement(file);
         resolver.resetResolvedFiles();
-        config = new CruiseControlConfig(element, resolver);
+        config = new CruiseControlConfig(element, resolver, controller);
     }
 
     public File getConfigFile() {
