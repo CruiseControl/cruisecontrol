@@ -244,7 +244,7 @@ public class Maven2BuilderTest extends TestCase {
         // some fake goal is still needed to start working (no '|' here!)
         mb.setGoal("fakegoal");
         // this should "succeed"
-        Element logElement = mb.build(getUnitTestBuildProperties());
+        Element logElement = mb.build(getUnitTestBuildProperties(), null);
 
         assertNotNull(statusType, logElement);
         List goalTags = logElement.getChildren("mavengoal");
@@ -259,7 +259,7 @@ public class Maven2BuilderTest extends TestCase {
         // this time let's test multiple runs
         mb.setGoal("fakegoal|otherfakegoal");
         // this should "double succeed"
-        logElement = mb.build(new Hashtable());
+        logElement = mb.build(new Hashtable(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
@@ -403,7 +403,7 @@ public class Maven2BuilderTest extends TestCase {
 
         mb.setGoal("fakegoal");
         // this should "succeed"
-        Element logElement = mb.build(getUnitTestBuildProperties());
+        Element logElement = mb.build(getUnitTestBuildProperties(), null);
 
         final long endTime = System.currentTimeMillis();
 

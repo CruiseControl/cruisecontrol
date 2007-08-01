@@ -43,6 +43,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.log4j.Logger;
 
@@ -111,4 +114,31 @@ public final class FileUtil {
         }
     }
 
+
+    /**
+     * Used to get a File reference to a resource. Assumes the resource will NOT be found in a jar,
+     * but instead found on disk.
+     * @param resourceName the name of the resource to find, ie, the file name
+     * @return a file pointing to the location on disk of the resource.
+     */
+    public static File getFileFromResource(final String resourceName) {
+        if (resourceName == null) {
+            throw new IllegalArgumentException("resourceName should not be null");
+        }
+
+        final URL configURL = FileUtil.class.getClassLoader().getResource(resourceName);
+        if (configURL == null) {
+            throw new RuntimeException("Could not find resource: " + resourceName);
+        }
+
+        final URI configURI;
+        try {
+             configURI = new URI(configURL.toExternalForm());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Error getting URI for resource: " + resourceName
+                    + ", URL: " + configURL.toExternalForm(), e);
+        }
+
+        return new File(configURI.getPath());
+    }
 }

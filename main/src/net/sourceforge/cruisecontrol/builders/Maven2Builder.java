@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -48,6 +49,9 @@ public class Maven2Builder extends Builder {
 
         this.settingsFile = settingsFile;
     }
+    String getSettingsFile() {
+        return settingsFile;
+    }
 
     /**
      * Set the comma-delimited list of profiles to activate.
@@ -56,6 +60,9 @@ public class Maven2Builder extends Builder {
     public void setActivateProfiles(String activateProfiles) {
 
         this.activateProfiles = activateProfiles;
+    }
+    String getActivateProfiles() {
+        return activateProfiles;
     }
 
     /**
@@ -78,6 +85,9 @@ public class Maven2Builder extends Builder {
     public void setMvnScript(final String mvnScipt) {
         this.mvnScript = mvnScipt;
     }
+    String getMvnScript() {
+        return mvnScript;
+    }
 
     /**
      * Set the pom file. This is also used to find the working directory.
@@ -88,6 +98,9 @@ public class Maven2Builder extends Builder {
         this.pomFile = pomFile;
 
         LOG.debug("pom file : " + this.pomFile);
+    }
+    String getPomFile() {
+        return pomFile;
     }
 
     public void setGoal(String goal) {
@@ -148,7 +161,9 @@ public class Maven2Builder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(final Map buildProperties, Progress progressIn) throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
 
         //This check is done here because the pom can be downloaded after CC is started
         // and before this plugin is run
@@ -169,8 +184,7 @@ public class Maven2Builder extends Builder {
 
             String goals = (String) goalSets.get(i);
 
-            final Maven2Script script = new Maven2Script(buildLogElement, mvnScript, pomFile, goals,
-                    settingsFile, activateProfiles, flags);
+            final Maven2Script script = new Maven2Script(this, buildLogElement, goals, progress);
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
 
@@ -202,11 +216,11 @@ public class Maven2Builder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
         String origGoal = goal;
         try {
             goal = target;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             goal = origGoal;
         }
@@ -241,6 +255,9 @@ public class Maven2Builder extends Builder {
     public void setFlags(String flags) {
 
         this.flags = flags;
+    }
+    String getFlags() {
+        return flags;
     }
 
 

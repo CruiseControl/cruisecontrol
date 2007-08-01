@@ -38,6 +38,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
@@ -59,7 +60,7 @@ public class NantBuilder extends Builder {
     private String target = "";
     private String tempFileName = "log.xml";
     private boolean useLogger;
-    private List properties = new ArrayList();
+    private final List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
@@ -84,7 +85,7 @@ public class NantBuilder extends Builder {
      * Build and return the results via xml. Debug status can be determined from
      * log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
 
         File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
         NantScript script = getNantScript();
@@ -123,11 +124,13 @@ public class NantBuilder extends Builder {
         return element;
     }
 
-    public Element buildWithTarget(Map properties, String buildTarget) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+            throws CruiseControlException {
+        
         String origTarget = target;
         try {
             target = buildTarget;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             target = origTarget;
         }
@@ -169,7 +172,7 @@ public class NantBuilder extends Builder {
     /**
      * Set the name of the temporary file used to capture output.
      *
-     * @param tempFileName
+     * @param tempFileName the name of the temporary file used to capture output.
      */
     public void setTempFile(String tempFileName) {
         this.tempFileName = tempFileName;
@@ -199,7 +202,7 @@ public class NantBuilder extends Builder {
     /**
      * Sets whether NAnt will use the custom loggers.
      *
-     * @param useLogger
+     * @param useLogger whether NAnt will use the custom loggers.
      */
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
@@ -211,19 +214,26 @@ public class NantBuilder extends Builder {
         }
 
         try {
-            File newNantLogFile = new File(saveLogDir, tempFileName);
+            final File newNantLogFile = new File(saveLogDir, tempFileName);
             newNantLogFile.createNewFile();
 
-            FileInputStream in = new FileInputStream(logFile);
-            FileOutputStream out = new FileOutputStream(newNantLogFile);
+            final FileInputStream in = new FileInputStream(logFile);
+            try {
+                final FileOutputStream out = new FileOutputStream(newNantLogFile);
+                try {
 
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
+                    byte[] buf = new byte[1024];
+                    int len;
+                    while ((len = in.read(buf)) > 0) {
+                        out.write(buf, 0, len);
+                    }
+
+                } finally {
+                    out.close();
+                }
+            } finally {
+                in.close();
             }
-            in.close();
-            out.close();
         } catch (IOException ioe) {
             LOG.error(ioe);
             LOG.error("Unable to create file: " + new File(saveLogDir, tempFileName));

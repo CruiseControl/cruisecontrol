@@ -50,7 +50,7 @@ public class MavenScriptTest extends TestCase {
 
     /**
      * String[] getCommandLineArgs(Map, boolean, boolean, boolean, String)
-     * @throws CruiseControlException
+     * @throws CruiseControlException if test fails
      */
     public void testGetCommandLineArgs() throws CruiseControlException {
         MavenScript script = getScript();
@@ -92,7 +92,7 @@ public class MavenScriptTest extends TestCase {
     }
 
     private MavenScript getScript() {
-      MavenScript script = new MavenScript();
+      MavenScript script = new MavenScript(null);
       // none should exist for this test
       script.setMavenScript("testmaven.sh");
       script.setProjectFile("testproject.xml");

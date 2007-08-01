@@ -44,6 +44,9 @@ public final class DateFormatFactory {
     public static final String DEFAULT_FORMAT = "MM/dd/yyyy HH:mm:ss";
     private static String format = DEFAULT_FORMAT;
 
+    public static final String DEFAULT_TIME_FORMAT = "HH:mm:ss";
+    private static String formatTime = DEFAULT_TIME_FORMAT;
+
     private DateFormatFactory() {
     }
 
@@ -59,4 +62,18 @@ public final class DateFormatFactory {
         format = aFormat;
     }
 
+    /**
+     * @return an initialized DateFormat for Time.
+     * @see SimpleDateFormat the concrete DateFormat class used
+     */
+    public static DateFormat getTimeFormat() {
+        return new SimpleDateFormat(formatTime);
+    }
+
+    public static void setTimeFormat(String aFormat) {
+        formatTime = aFormat;
+    }
+
 }
+
+

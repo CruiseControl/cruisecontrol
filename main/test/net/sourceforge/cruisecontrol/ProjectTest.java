@@ -587,10 +587,12 @@ public class ProjectTest extends TestCase {
     public void testSerialization() throws IOException {
         ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
         ObjectOutputStream objects = new ObjectOutputStream(outBytes);
-
-        objects.writeObject(new Project());
-        objects.flush();
-        objects.close();
+        try {
+            objects.writeObject(new Project());
+            objects.flush();
+        } finally {
+            objects.close();
+        }
 
         project.serializeProject();
     }
@@ -600,16 +602,21 @@ public class ProjectTest extends TestCase {
         filesToDelete.add(f);
         FileOutputStream outFile = new FileOutputStream(f);
         ObjectOutputStream objects = new ObjectOutputStream(outFile);
-
-        objects.writeObject(new Project());
-        objects.flush();
-        objects.close();
+        try {
+            objects.writeObject(new Project());
+            objects.flush();
+        } finally {
+            objects.close();
+        }
 
         FileInputStream inFile = new FileInputStream(f);
         ObjectInputStream inObjects = new ObjectInputStream(inFile);
-
-        Object p = inObjects.readObject();
-        inObjects.close();
+        Object p;
+        try {
+            p = inObjects.readObject();
+        } finally {
+            inObjects.close();
+        }
         assertNotNull("Read object must not be null", p);
         assertTrue("Object must be instanceof Project class", p instanceof Project);
         Project deserializedProject = (Project) p;
@@ -631,21 +638,32 @@ public class ProjectTest extends TestCase {
         filesToDelete.add(f);
         FileOutputStream outFile = new FileOutputStream(f);
         ObjectOutputStream objects = new ObjectOutputStream(outFile);
-
-        objects.writeObject(beforeSerialization);
-        objects.flush();
-        objects.close();
+        try {
+            objects.writeObject(beforeSerialization);
+            objects.flush();
+        } finally {
+            objects.close();
+        }
 
         FileInputStream inFile = new FileInputStream(f);
         ObjectInputStream inObjects = new ObjectInputStream(inFile);
-
-        Object p = inObjects.readObject();
-        inObjects.close();
+        Object p;
+        try {
+            p = inObjects.readObject();
+        } finally {
+            inObjects.close();
+        }
         TestProject deserializedProject = (TestProject) p;
         deserializedProject.resetCreateNewSchedulingThreadCalled();
         deserializedProject.setProjectConfig(projectConfig);
         deserializedProject.start();
         assertTrue("failed to create schedule thread", deserializedProject.wasCreateNewSchedulingThreadCalled());
+    }
+
+    public void testProgressDefault() throws Exception {
+        TestProject testProject = new TestProject();
+        assertNotNull(testProject.getProgress());
+        assertNotNull(testProject.getProgress().getValue());
     }
 
     public void testBuildForcedAfterSuccessfulBuild() throws Exception {
@@ -676,8 +694,12 @@ public class ProjectTest extends TestCase {
 
         final ObjectInputStream inObjects = new ObjectInputStream(new FileInputStream(
                 serializedProjectFile));
-        final Object p = inObjects.readObject();
-        inObjects.close();
+        final Object p;
+        try {
+            p = inObjects.readObject();
+        } finally {
+            inObjects.close();
+        }
         assertNotNull("Read object must not be null", p);
         assertTrue("Object must be instanceof Project class", p instanceof Project);
         final Project deserializedProject = (Project) p;
@@ -807,7 +829,7 @@ public class ProjectTest extends TestCase {
 
     public class MockBuilderChangesProjectConfig extends MockBuilder {
 
-        private ProjectConfig oldProjectConfig;
+        private final ProjectConfig oldProjectConfig;
 
         public MockBuilderChangesProjectConfig(ProjectConfig projectConfig) {
             oldProjectConfig = projectConfig;
@@ -816,7 +838,7 @@ public class ProjectTest extends TestCase {
         /*
          * This is to simulate what happens when the config file changes during a build.
          */
-        public Element build(Map properties) {
+        public Element build(Map properties, Progress progress) {
             ProjectConfig newProjectConfig = new ProjectConfig();
             newProjectConfig.add(new DefaultLabelIncrementer());
             Schedule schedule = new Schedule();
@@ -830,7 +852,7 @@ public class ProjectTest extends TestCase {
                 throw new RuntimeException(e);
             }
             
-            return super.build(properties);
+            return super.build(properties, progress);
         }
 
     }

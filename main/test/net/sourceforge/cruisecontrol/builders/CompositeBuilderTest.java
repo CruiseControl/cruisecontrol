@@ -170,7 +170,7 @@ public class CompositeBuilderTest extends TestCase {
         mock1.setBuildLogXML(buildLog1);
         mock2.setBuildLogXML(buildLog1);
 
-        final Element result = builder.build(buildProperties);
+        final Element result = builder.build(buildProperties, null);
         assertNotNull(result);
 
         assertTrue("builder1 didn't build", mock1.isBuildCalled());
@@ -194,7 +194,7 @@ public class CompositeBuilderTest extends TestCase {
         mock2.setBuildLogXML(buildLog1);
 
         final String mockTarget = "mockTarget";
-        final Element result = builder.buildWithTarget(buildProperties, mockTarget);
+        final Element result = builder.buildWithTarget(buildProperties, mockTarget, null);
         assertNotNull(result);
 
         assertTrue("builder1 didn't build", mock1.isBuildCalled());
@@ -224,7 +224,7 @@ public class CompositeBuilderTest extends TestCase {
         mock2.setBuildLogXML(buildLog2);
         mock3.setBuildLogXML(buildLog1);
 
-        builder.build(buildProperties);
+        builder.build(buildProperties, null);
         assertTrue("builder3 didn't build", mock3.isBuildCalled());
         assertEquals("builder3 should not have built with target", null, mock3.getTarget());
     }
@@ -251,7 +251,7 @@ public class CompositeBuilderTest extends TestCase {
         mock3.setBuildLogXML(buildLog1);
 
         final String mockTargetWError = "mockTargetWithError";
-        final Element result = builder.buildWithTarget(buildProperties, mockTargetWError);
+        final Element result = builder.buildWithTarget(buildProperties, mockTargetWError, null);
         assertNotNull(result);
 
         assertTrue("builder3 didn't build", mock3.isBuildCalled());

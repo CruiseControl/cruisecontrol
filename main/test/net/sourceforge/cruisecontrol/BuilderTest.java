@@ -51,13 +51,12 @@ import junit.framework.TestCase;
 public class BuilderTest extends TestCase {
 
     private Builder builder;
-    private Calendar nov22nd2001;
+    private final Calendar nov22nd2001;
 
     public BuilderTest(String name) {
         super(name);
         nov22nd2001 = Calendar.getInstance();
-        nov22nd2001.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
-
+        nov22nd2001.set(2001, Calendar.NOVEMBER, 22, 10, 1, 1);
     }
 
     protected void setUp() throws Exception {
@@ -105,11 +104,11 @@ public class BuilderTest extends TestCase {
     }
 
     class TestBuilder extends Builder {
-        public Element build(Map properties) throws CruiseControlException {
+        public Element build(Map properties, Progress progress) throws CruiseControlException {
             return null;
         }
 
-        public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+        public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
             return null;
         }
     }

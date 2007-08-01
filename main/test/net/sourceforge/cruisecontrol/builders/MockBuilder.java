@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.builders;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 
 import org.jdom.Element;
 
@@ -69,8 +70,11 @@ public class MockBuilder extends Builder {
         this.name = name;
     }
 
-    public Element build(Map properties) {
+    public Element build(Map properties, final Progress progress) {
         buildCalled = true;
+        if (progress != null) {
+            progress.setValue("Build called");
+        }
         return buildLog;
     }
 
@@ -78,10 +82,12 @@ public class MockBuilder extends Builder {
         this.buildLog = buildLog;
     }
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, final Progress progress)
+            throws CruiseControlException {
+        
         this.target = target;
         buildCalled = true;
-        return build(properties);
+        return build(properties, progress);
     }
 
     public boolean isBuildCalled() {

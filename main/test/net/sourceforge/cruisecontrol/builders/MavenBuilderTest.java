@@ -184,7 +184,7 @@ public class MavenBuilderTest extends TestCase {
         // some fake goal is still needed to start working (no '|' here!)
         mb.setGoal("fakegoal");
         // this should "succeed"
-        Element logElement = mb.build(new Hashtable());
+        Element logElement = mb.build(new Hashtable(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
@@ -202,7 +202,7 @@ public class MavenBuilderTest extends TestCase {
         // this time let's test multiple runs
         mb.setGoal("fakegoal|otherfakegoal");
         // this should "double succeed"
-        logElement = mb.build(new Hashtable());
+        logElement = mb.build(new Hashtable(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);

@@ -192,7 +192,7 @@ public class ExecBuilderTest extends TestCase {
                 eb.setErrorStr(MOCK_OUTPUT_FAILURE);
             }
             eb.validate();
-            logElement = eb.build(new Hashtable());
+            logElement = eb.build(new Hashtable(), null);
         } catch (CruiseControlException e) {
             e.printStackTrace();
             fail("ExecBuilder should not throw exceptions when build()-ing.");

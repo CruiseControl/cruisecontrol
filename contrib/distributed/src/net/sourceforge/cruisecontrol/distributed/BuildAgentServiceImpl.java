@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URL;
@@ -54,10 +53,12 @@ import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
+import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
@@ -71,7 +72,7 @@ import javax.jnlp.UnavailableServiceException;
 /**
  * Build Agent implementation.
  */
-public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
+public class BuildAgentServiceImpl implements BuildAgentService {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentServiceImpl.class);
 
@@ -105,6 +106,7 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     private Properties configProperties;
 
     private String projectName;
+    private ProgressRemote buildProgressRemote;
     private final Map distributedAgentProps = new HashMap();
 
     private File logDir;
@@ -316,7 +318,15 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
     }
 
     public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
-                           final Map distributedAgentProperties) throws RemoteException {
+                           final Map distributedAgentProperties)
+            throws RemoteException {
+
+        return doBuild(nestedBuilder, projectPropertiesMap, distributedAgentProperties, null);
+    }
+
+    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
+                           final Map distributedAgentProperties, final ProgressRemote progressRemote)
+            throws RemoteException {
 
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
@@ -342,6 +352,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
                 isDebugOverriden = true;
             }
 
+            buildProgressRemote = progressRemote;
+
             logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
             distributedAgentProps.putAll(distributedAgentProperties);
 
@@ -365,7 +377,10 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             configProperties = (Properties) PropertiesHelper.loadRequiredProperties(
                     getAgentPropertiesFilename());
 
-
+            if (progressRemote != null) {
+                progressRemote.setValueRemote("Validating remote builder");
+                fireAgentStatusChanged(); // update UI
+            }
             try {
                 nestedBuilder.validate();
             } catch (CruiseControlException e) {
@@ -378,18 +393,52 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             final String overrideTarget = (String) distributedAgentProps.get(
                     PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
 
+            // wrap progressRemote with a local progress
+            final Progress progressLocal;
+            if (progressRemote != null) {
+                progressLocal = new Progress() {
+                    public void setValue(String value) {
+                        try {
+                            progressRemote.setValueRemote(value);
+                            fireAgentStatusChanged(); // update UI
+                        } catch (RemoteException e) {
+                            throw new RuntimeException("Error setting progress", e);
+                        }
+                    }
+
+                    public String getValue() {
+                        try {
+                            return progressRemote.getValueRemote();
+                        } catch (RemoteException e) {
+                            throw new RuntimeException("Error getting progress", e);
+                        }
+                    }
+                };
+            } else {
+                progressLocal = null;
+            }
+
+            if (progressRemote != null) {
+                progressRemote.setValueRemote("Running remote builder");
+                fireAgentStatusChanged(); // update UI
+            }
             final Element buildResults;
             try {
                 if (overrideTarget == null) {
-                    buildResults = nestedBuilder.build(projectPropertiesMap);
+                    buildResults = nestedBuilder.build(projectPropertiesMap, progressLocal);
                 } else {
-                    buildResults = nestedBuilder.buildWithTarget(projectPropertiesMap, overrideTarget);
+                    buildResults = nestedBuilder.buildWithTarget(projectPropertiesMap, overrideTarget, progressLocal);
                 }
             } catch (CruiseControlException e) {
                 final String message = "Failed to complete build on agent";
                 logPrefixError(message, e);
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
+            }
+
+            if (progressRemote != null) {
+                progressRemote.setValueRemote("Preparing results");
+                fireAgentStatusChanged(); // update UI
             }
             prepareLogsAndArtifacts();
             return buildResults;
@@ -398,6 +447,8 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
             setBusy(false);
             throw e; // rethrow original exception
         } finally {
+            buildProgressRemote = null;
+
             // restore original log level if overriden
             if (isDebugOverriden) {
                 Logger.getRootLogger().setLevel(origLogLevel);
@@ -720,7 +771,16 @@ public class BuildAgentServiceImpl implements BuildAgentService, Serializable {
         sb.append(dateClaimed);
         sb.append(";\tProject: ");
         sb.append(projectName);
-
+        // include Progress if available
+        if (buildProgressRemote != null) {
+            sb.append("\n\tProgress: ");
+            try {
+                sb.append(buildProgressRemote.getValueRemote());
+            } catch (RemoteException e) {
+                LOG.info("Error reading remote progress", e);
+            }
+        }
+        
         sb.append("\n\tPending Restart: ");
         sb.append(isPendingRestart);
         sb.append(";\tPending Restart Since: ");

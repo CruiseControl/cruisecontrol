@@ -369,6 +369,8 @@
             <fileset dir="${test}" excludes="**/*.java"/>
             <fileset dir="conf" includes="insecure.policy"/>
             <fileset dir="conf" includes="cruise.properties"/>
+            <!--@todo use a new config file, like 'progressremote.config' and update 'Bad DNS' workaround docs -->            
+            <fileset dir="conf" includes="transient-reggie.config"/>
         </copy>
     </target>
 

@@ -44,6 +44,7 @@ import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
@@ -83,7 +84,9 @@ public class MavenBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties) throws CruiseControlException {
+    public Element build(Map buildProperties, Progress progressIn) throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
 
         File ckFile = new File(mavenScript);
         ValidationHelper.assertTrue(ckFile.exists(),
@@ -103,7 +106,7 @@ public class MavenBuilder extends Builder {
         List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {
             String goalset = (String) runs.get(runidx);
-            MavenScript script = new MavenScript();
+            MavenScript script = new MavenScript(progress);
             script.setGoalset(goalset);
             script.setBuildProperties(buildProperties);
             script.setMavenScript(mavenScript);
@@ -137,11 +140,11 @@ public class MavenBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String target) throws CruiseControlException {
+    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
         String origGoal = goal;
         try {
             goal = target;
-            return build(properties);
+            return build(properties, progress);
         } finally {
             goal = origGoal;
         }
@@ -150,8 +153,8 @@ public class MavenBuilder extends Builder {
     //***************************** Param setters ****************************
 
     /**
-     * The path to the Maven script
-     * (i.e. the maven.bat file, because I tested this only on w2k)
+     * @param mavenScript The path to the Maven script
+     * (i.e. the maven.bat file, because I tested this only on w2k).
      */
     public void setMavenScript(String mavenScript) {
         this.mavenScript = mavenScript;
@@ -165,13 +168,14 @@ public class MavenBuilder extends Builder {
      *    then 'site:generate' in _another_ invocation. Useful for updating from SCM
      *    with Maven goals, then doing the actual build with freshly loaded files.
      *    Notice the '|' as separator of sets.
+     * @param goal Maven goal to run
      */
     public void setGoal(String goal) {
         this.goal = goal;
     }
 
    /**
-     * project.xml to use
+     * @param projectFile project.xml to use
      */
     public void setProjectFile(String projectFile) {
         this.projectFile = projectFile;

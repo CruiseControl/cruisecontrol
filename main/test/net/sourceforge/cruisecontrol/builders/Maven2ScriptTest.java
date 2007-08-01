@@ -54,8 +54,9 @@ public class Maven2ScriptTest extends TestCase {
 
 
     public void testConsumeLine() throws Exception {
+        final Maven2Builder m2Builder = new Maven2Builder();
         final Element buildLogElement = new Element("testBuild");
-        final Maven2Script script = new Maven2Script(buildLogElement, null, null, null, null, null, null);
+        final Maven2Script script = new Maven2Script(m2Builder, buildLogElement, null, null);
 
         int contentIdx = 0;
         Element currElement;
@@ -200,7 +201,8 @@ public class Maven2ScriptTest extends TestCase {
     private static final String CMD_LABEL = "200.1.23";
 
     private Maven2Script getScript() {
-      Maven2Script script = new Maven2Script(null, null, null, null, null, null, null);
+      final Maven2Builder m2Builder = new Maven2Builder();
+      Maven2Script script = new Maven2Script(m2Builder, null, null, null);
       // none should exist for this test
       script.setMvnScript(CMD_MVN);
       script.setPomFile(CMD_POM);

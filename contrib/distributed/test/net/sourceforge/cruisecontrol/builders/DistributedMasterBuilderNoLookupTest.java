@@ -92,7 +92,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         masterBuilder.add(nestedBuilder);
 
         try {
-            masterBuilder.build(new HashMap());
+            masterBuilder.build(new HashMap(), null);
             fail("Missing projectname property should have failed.");
         } catch (CruiseControlException e) {
             assertEquals(DistributedMasterBuilder.MSG_MISSING_PROJECT_NAME, e.getMessage());
@@ -102,7 +102,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
         masterBuilder.setFailFast(); // to avoid pickAgent() retry loop
         try {
-            masterBuilder.build(projectProperties);
+            masterBuilder.build(projectProperties, null);
             fail("Null agent should have failed.");
         } catch (CruiseControlException e) {
             assertEquals("Distributed build runtime exception", e.getMessage());
@@ -118,7 +118,7 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         MulticastDiscoveryTest.setDiscovery(MulticastDiscoveryTest.getLocalDiscovery());
 
         DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
-        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null));
+        assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
     }
 
 }

@@ -5045,6 +5045,15 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 negative values are not allowed. Ignored if schedule only has time
                 based builders.</td>
             </tr>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, the scheduled builder will provide progress messages if the builder supports this
+                    feature and the builder's own showProgress setting is not false.
+                    If false, no progress messages will be shown - regardless of the scheduled builder's
+                    showProgress setting.
+                </td>
+            </tr>
             </tbody>
         </table>
 
@@ -5532,6 +5541,14 @@ endlocal</pre>
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, this builder will provide progress messages.
+                    If false, no progress messages will be shown. If any parent showProgress is false,
+                    then no progress will be shown, regardless of this builder's settings.
+                </td>
+            </tr>
             </tbody>
         </table>
         <h2><a name="maven2">&lt;maven2&gt;</a></h2>
@@ -5648,6 +5665,14 @@ endlocal</pre>
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, this builder will provide progress messages.
+                    If false, no progress messages will be shown. If any parent showProgress is false,
+                    then no progress will be shown, regardless of this builder's settings.
+                </td>
+            </tr>
             </tbody>
         </table>
 
@@ -5695,6 +5720,30 @@ endlocal</pre>
         <p>The CompositeBuilder executes a list of builders. This is necessary
         for builds in an empty directory (see keyword CRISP-builds in Pragmatic Project Automation
         from Mike Clark) </p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, the composite builder will provide progress messages, as will any child builders that support this
+                    feature (assuming the child builder's own showProgress setting is true).
+                    If false, no progress messages will be shown by the composite builder or child builders - regardless of child builder
+                    showProgress settings. If any parent showProgress is false, then no progress will be shown, regardless
+                    of the composite or child builder settings.
+                </td>
+            </tr>
+            </tbody>
+        </table>
 
         <h3>Child Elements</h3>
 

@@ -241,12 +241,12 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("init");
         builder.validate();
         HashMap buildProperties = new HashMap();
-        Element buildElement = builder.build(buildProperties);
+        Element buildElement = builder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
 
         builder.setTarget("init init");
-        buildElement = builder.build(buildProperties);
+        buildElement = builder.build(buildProperties, null);
         initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
     }
@@ -275,7 +275,7 @@ public class AntBuilderTest extends TestCase {
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
-        Element buildElement = builder.build(buildProperties);
+        Element buildElement = builder.build(buildProperties, null);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
@@ -284,7 +284,7 @@ public class AntBuilderTest extends TestCase {
         builder.setUseDebug(false);
         builder.setUseLogger(false);
         builder.setTempFile("shouldNot.xml");
-        buildElement = builder.build(buildProperties);
+        buildElement = builder.build(buildProperties, null);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
     }
 

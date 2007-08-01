@@ -286,7 +286,7 @@ public class InteractiveBuildUtility {
             DistributedMasterBuilder distributedBuildMaster = (DistributedMasterBuilder) pluginXMLHelper.configure(
                     distributedBuilderElement, DistributedMasterBuilder.class, false);
             XMLOutputter xmlOutputter = new XMLOutputter();
-            xmlOutputter.output(distributedBuildMaster.build(new Properties()), System.out);
+            xmlOutputter.output(distributedBuildMaster.build(new Properties(), null), System.out);
         } catch (CruiseControlException e) {
             String message = "Oops...";
             LOG.error(message, e);
