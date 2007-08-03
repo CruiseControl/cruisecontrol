@@ -69,6 +69,7 @@ public class AntScript implements Script {
     private String target = "";
     private String systemClassPath;
     private int exitCode;
+    private String propertyfile;
 
 
     /**
@@ -134,6 +135,10 @@ public class AntScript implements Script {
             cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
+        if (propertyfile != null) {
+            cmdLine.createArguments("-propertyfile", propertyfile);
+        }
+
         cmdLine.createArguments("-buildfile", buildFile);
 
         StringTokenizer targets = new StringTokenizer(target);
@@ -145,13 +150,16 @@ public class AntScript implements Script {
 
 
     /**
+     * @param path the classpath in which to search for the ant-launcher.jar
+     * @param isWindows true if running on Windows
      * @return the path to ant-launcher*.jar taken from the given path
+     * @throws CruiseControlException if path to ant-launcher.jar could not be found.
      */
     String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
-        String separator = isWindows ? ";" : ":";
-        StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
+        final String separator = isWindows ? ";" : ":";
+        final StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
         while (pathTokenizer.hasMoreTokens()) {
-            String pathElement = pathTokenizer.nextToken();
+            final String pathElement = pathTokenizer.nextToken();
             if (pathElement.indexOf("ant-launcher") != -1 && pathElement.endsWith(".jar")) {
                 return pathElement;
             }
@@ -264,5 +272,11 @@ public class AntScript implements Script {
      */
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
+    }
+    /**
+     * @param propertyFile The properties file to set.
+     */
+    public void setPropertyFile(String propertyFile) {
+        this.propertyfile = propertyFile;
     }
 }

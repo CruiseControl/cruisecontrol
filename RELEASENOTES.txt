@@ -51,6 +51,10 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
+AntBuilder/AntBootstrapper
+----------------------
+* CC-664 : Allow properties files for ant builder and ant bootstrapper. Add propertyfile attribute. Patch by Willem Verstraeten.
+
 Builder Progress messages
 ----------------------
 * CC-686 : add a Progress signaling api to allow plugins to notify the system of their progress as they execute (at first, only Builders).

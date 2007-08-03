@@ -5359,6 +5359,13 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 useful for performing build steps after an optional step
                 fails. Defaults to 'false'.</td>
             </tr>
+            <tr>
+                <td>propertyfile</td>
+                <td>No</td>
+                <td>Load all properties from file with -D properties
+                (like child <code><a href="#antbuilderchildprop">&lt;property&gt;</a></code> elements)
+                taking precedence. Useful when the propertyfile content can change for every build.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -5382,7 +5389,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</code></td>
             </tr>
             <tr>
-                <td>&lt;property&gt;</td>
+                <td><a name="antbuilderchildprop">&lt;property&gt;</a> </td>
                 <td>0 .. *</td>
                 <td>Used to define properties for the ant build. The element
                 has two required attributes: "name" and "value". These will

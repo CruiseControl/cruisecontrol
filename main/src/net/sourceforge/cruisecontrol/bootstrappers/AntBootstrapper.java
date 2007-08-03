@@ -128,6 +128,13 @@ public class AntBootstrapper implements Bootstrapper {
     }
 
     /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setPropertyfile(String)
+     */
+    public void setPropertyfile(String propertyfile) {
+        delegate.setPropertyfile(propertyfile);
+    }
+
+    /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseLogger(boolean)
      */
     public void setUseLogger(boolean useLogger) {
