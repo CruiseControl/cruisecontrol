@@ -85,6 +85,7 @@ public class AntBuilder extends Builder {
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
+    private String propertyfile;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -154,6 +155,7 @@ public class AntBuilder extends Builder {
         script.setUseQuiet(useQuiet);
         script.setKeepGoing(keepGoing);
         script.setSystemClassPath(getSystemClassPath());
+        script.setPropertyFile(propertyfile);
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
@@ -426,5 +428,11 @@ public class AntBuilder extends Builder {
      */
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+    /**
+     * @param propertyfile The propertyfile to set.
+     */
+    public void setPropertyfile(String propertyfile) {
+        this.propertyfile = propertyfile;
     }
 }

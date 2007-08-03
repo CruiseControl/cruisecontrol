@@ -528,5 +528,37 @@ public class AntScriptTest extends TestCase {
 
     }
 
+    public void testGetCommandLineArgs_PropertyFile() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-propertyfile",
+                "testPropertyFile.properties",    
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setPropertyFile("testPropertyFile.properties");
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+
+    }
 
 }
