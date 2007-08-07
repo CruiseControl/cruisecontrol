@@ -36,7 +36,7 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Can render html/xml/txt in the browser.
 * Can display the unit test output for passed builds.
 * Enhanced the dashboard to display artifacts directories as tree structure.
-* Added a the cc-config (http://cc-config.sourceforge.net/) application so that it can be included in the dashboard (CC-658). Patch by Allan Wick. 
+* Added the cc-config (http://cc-config.sourceforge.net/) application so that it can be included in the dashboard (CC-658). Patch by Allan Wick. 
 * Allowed artifacts to be shown and downloaded in case of a failed build
 * Allowed project name to contain hyphen (-)
 * Allowed integration with project management tools
@@ -54,6 +54,7 @@ build loop
 AntBuilder/AntBootstrapper
 ----------------------
 * CC-664 : Allow properties files for ant builder and ant bootstrapper. Add propertyfile attribute. Patch by Willem Verstraeten.
+* CC-542 : (PATCH) Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib and -logger args.
 
 Builder Progress messages
 ----------------------

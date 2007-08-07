@@ -104,6 +104,9 @@ public class AntScriptTest extends TestCase {
         script.setBuildProperties(properties);
         script.setArgs(new ArrayList());
         script.setProperties(new ArrayList());
+        script.setLibs(new ArrayList());
+        script.setListeners(new ArrayList());
+        script.setLoggers(new ArrayList());
         script.setBuildFile("buildfile");
         script.setTarget("target");
 
@@ -560,5 +563,116 @@ public class AntScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
 
     }
+
+    public void testGetCommandLineArgs_MultipleLibs() throws CruiseControlException {
+        String[] args =
+         {
+             "java.exe",
+             "-classpath",
+             script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+             "org.apache.tools.ant.launch.Launcher",
+             "-lib",
+             WINDOWS_PATH,
+             "-listener",
+             "com.canoo.Logger",
+             "-DXmlLogger.file=log.xml",
+             "-lib",
+             "c:\\somedir",
+             "-Dlabel=200.1.23",
+             "-buildfile",
+             "buildfile",
+             "target" };
+        script.setLoggerClassName("com.canoo.Logger");
+        script.setBuildProperties(properties);
+        AntBuilder.Lib lib = windowsBuilder.new Lib();
+        lib.setSearchPath("c:\\somedir");
+        List libs = new ArrayList();
+        libs.add(lib);
+        script.setLibs(libs);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+
+
+        TestUtil.assertArray(
+             "args",
+             args,
+             script.buildCommandline().getCommandline());    
+     }
+
+    public void testGetCommandLineArgs_MultipleListeners() throws CruiseControlException {
+        String[] args =
+         {
+             "java.exe",
+             "-classpath",
+             script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+             "org.apache.tools.ant.launch.Launcher",
+             "-lib",
+             WINDOWS_PATH,
+             "-listener",
+             "com.canoo.Logger",
+             "-DXmlLogger.file=log.xml",
+             "-listener",
+             "org.apache.tools.ant.listener.Log4jListener",
+             "-Dlabel=200.1.23",
+             "-buildfile",
+             "buildfile",
+             "target" };
+        script.setLoggerClassName("com.canoo.Logger");
+        script.setBuildProperties(properties);
+        AntBuilder.Listener listener = windowsBuilder.new Listener();
+        listener.setClassName("org.apache.tools.ant.listener.Log4jListener");
+        List listeners = new ArrayList();
+        listeners.add(listener);
+        script.setListeners(listeners);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+
+
+        TestUtil.assertArray(
+             "args",
+             args,
+             script.buildCommandline().getCommandline());
+     }
+
+    public void testGetCommandLineArgs_MultipleLoggers() throws CruiseControlException {
+        String[] args =
+         {
+             "java.exe",
+             "-classpath",
+             script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+             "org.apache.tools.ant.launch.Launcher",
+             "-lib",
+             WINDOWS_PATH,
+             "-listener",
+             "com.canoo.Logger",
+             "-DXmlLogger.file=log.xml",
+             "-logger",
+             "org.apache.tools.ant.TimestampedLogger",
+             "-Dlabel=200.1.23",
+             "-buildfile",
+             "buildfile",
+             "target" };
+        script.setLoggerClassName("com.canoo.Logger");
+        script.setBuildProperties(properties);
+        AntBuilder.Logger logger = windowsBuilder.new Logger();
+        logger.setClassName("org.apache.tools.ant.TimestampedLogger");
+        List loggers = new ArrayList();
+        loggers.add(logger);
+        script.setLoggers(loggers);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+
+
+        TestUtil.assertArray(
+             "args",
+             args,
+             script.buildCommandline().getCommandline());
+     }
 
 }
