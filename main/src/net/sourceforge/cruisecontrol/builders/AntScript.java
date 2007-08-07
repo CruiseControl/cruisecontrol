@@ -57,6 +57,9 @@ public class AntScript implements Script {
     private boolean isWindows;
     private String antScript;
     private List args;
+    private List libs;
+    private List listeners;
+    private List loggers;
     private String loggerClassName;
     private String tempFileName = "log.xml";
     private boolean useScript;
@@ -120,6 +123,18 @@ public class AntScript implements Script {
 
         if (keepGoing) {
             cmdLine.createArgument("-keep-going");
+        }
+
+        for (Iterator antLibsIterator = libs.iterator(); antLibsIterator.hasNext(); ) {
+            cmdLine.createArguments("-lib", ((AntBuilder.Lib) antLibsIterator.next()).getSearchPath());
+        }
+
+        for (Iterator antListenersIterator = listeners.iterator(); antListenersIterator.hasNext(); ) {
+            cmdLine.createArguments("-listener", ((AntBuilder.Listener) antListenersIterator.next()).getClassName());
+        }
+
+        for (Iterator antLoggersIterator = loggers.iterator(); antLoggersIterator.hasNext(); ) {
+            cmdLine.createArguments("-logger", ((AntBuilder.Logger) antLoggersIterator.next()).getClassName());
         }
 
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
@@ -254,6 +269,24 @@ public class AntScript implements Script {
      */
     public void setProperties(List properties) {
         this.properties = properties;
+    }
+    /**
+     * @param libs The set of library paths to use.
+     */
+    public void setLibs(List libs) {
+        this.libs = libs;
+    }
+    /**
+     * @param listeners The set of listener classes to use.
+     */
+    public void setListeners(List listeners) {
+        this.listeners = listeners;
+    }
+    /**
+     * @param loggers The set of logger classes to use.
+     */
+    public void setLoggers(List loggers) {
+        this.loggers = loggers;
     }
     /**
      * @param target The target to set.

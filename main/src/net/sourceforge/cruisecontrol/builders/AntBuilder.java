@@ -52,7 +52,6 @@ import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 import org.xml.sax.SAXException;
@@ -67,7 +66,8 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class AntBuilder extends Builder {
 
     protected static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
-    private static final Logger LOG = Logger.getLogger(AntBuilder.class);
+    // fully qualified to differentiate from AntBuilder.Logger inner class
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AntBuilder.class);
 
     private String antWorkingDir = null;
     private String buildFile = "build.xml";
@@ -77,6 +77,9 @@ public class AntBuilder extends Builder {
     private String antHome;
     private boolean useLogger;
     private final List args = new ArrayList();
+    private final List libs = new ArrayList();
+    private final List listeners = new ArrayList();
+    private final List loggers = new ArrayList();
     private final List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
@@ -142,6 +145,9 @@ public class AntBuilder extends Builder {
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
+        script.setLibs(libs);
+        script.setListeners(listeners);
+        script.setLoggers(loggers);
         script.setUseLogger(useLogger);
         script.setUseScript(antScript != null);
         script.setWindows(Util.isWindows());
@@ -173,6 +179,7 @@ public class AntBuilder extends Builder {
                 try {
                     buildLogElement.setText(Util.readFileToString(logFile));
                 } catch (IOException likely) {
+                    // ignored
                 }
             }
         } else {
@@ -343,6 +350,24 @@ public class AntBuilder extends Builder {
         return arg;
     }
 
+    public Object createLib() {
+        Lib lib = new Lib();
+        libs.add(lib);
+        return lib;
+    }
+
+    public Object createListener() {
+        Listener listener = new Listener();
+        listeners.add(listener);
+        return listener;
+    }
+
+    public Object createLoggerr() {
+        AntBuilder.Logger logger = new AntBuilder.Logger();
+        listeners.add(logger);
+        return logger;
+    }
+
     public Property createProperty() {
         Property property = new Property();
         properties.add(property);
@@ -423,6 +448,43 @@ public class AntBuilder extends Builder {
             return arg;
         }
     }
+    
+    public class Lib {
+        private String searchPath;
+
+        public void setSearchPath(String searchPath) {
+            this.searchPath = searchPath;
+        }
+
+        public String getSearchPath() {
+            return searchPath;
+        }
+    }
+    
+    public class Listener {
+        private String className;
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+    }
+
+    public class Logger {
+        private String className;
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+    }
+
     /**
      * @param timeout The timeout to set.
      */

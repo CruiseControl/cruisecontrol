@@ -149,6 +149,27 @@ public class AntBootstrapper implements Bootstrapper {
     }
 
     /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLib() 
+     */
+    public Object createLib() {
+        return delegate.createLib();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createListener()
+     */
+    public Object createListener() {
+        return delegate.createListener();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLoggerr()
+     */
+    public Object createLogger() {
+        return delegate.createLoggerr();
+    }
+
+    /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createProperty()
      */
     public Property createProperty() {
