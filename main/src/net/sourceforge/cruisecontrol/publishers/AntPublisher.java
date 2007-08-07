@@ -144,6 +144,13 @@ public class AntPublisher implements Publisher {
     }
 
     /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setPropertyfile(String)
+     */
+    public void setPropertyfile(String propertyfile) {
+        delegate.setPropertyfile(propertyfile);
+    }
+
+    /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseLogger(boolean)
      */
     public void setUseLogger(boolean useLogger) {
@@ -155,6 +162,27 @@ public class AntPublisher implements Publisher {
      */
     public Object createJVMArg() {
         return delegate.createJVMArg();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLib()
+     */
+    public Object createLib() {
+        return delegate.createLib();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createListener()
+     */
+    public Object createListener() {
+        return delegate.createListener();
+    }
+
+    /**
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLoggerr()
+     */
+    public Object createLogger() {
+        return delegate.createLoggerr();
     }
 
     /**
