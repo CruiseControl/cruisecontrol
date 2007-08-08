@@ -176,7 +176,7 @@
     </path>
 
 
-    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar" />
+    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar"/>
 
     <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
 
@@ -420,6 +420,12 @@
         <simian failOnDuplication="false">
             <fileset dir="${src}" includes="**/*.java" />
         </simian>
+    </target>
+
+    <target name="validate-html">
+        <xmlvalidate>
+            <fileset dir="${basedir}" includes="**/*.html" excludes="**/api/**"/>
+        </xmlvalidate>
     </target>
 
     
