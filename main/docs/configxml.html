@@ -2479,15 +2479,15 @@ password=P@ssW0rd!
         and a working folder mapping created.  For example, in the case where the project location is 
         <code>/cruisecontrol/projects/myproject</code> and the files are stored in TFS at 
         <code>$/MyTeamProject/trunk</code> you would have first needed to execute 
-        the following commands on the machine running cruisecontrol
+        the following commands on the machine running cruisecontrol</p>
         
         <pre>tf workspace /server:http://tfsserver:8080 /login:user@DOMAIN,password /new buildWorkspace<br/>
 tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace:buildWorkspace /map $/MyTeamProject/trunk //cruisecontrol/projects/myproject
         </pre>
         
-        If you would like gets to be performed using a TFS Version Control Proxy and you are using the Microsoft tf.exe 
+        <p>If you would like gets to be performed using a TFS Version Control Proxy and you are using the Microsoft tf.exe
         command line then you should set the environment variable TFSPROXY (for example <code>set TFSPROXY=http://tfsproxy:8081</code>.
-        If you are using the Teamprise command line client, then you may pass "-proxy:http://tfsproxy:8081" in the options attribute.
+        If you are using the Teamprise command line client, then you may pass "-proxy:http://tfsproxy:8081" in the options attribute.</p>
 
         <h3>Attributes</h3>
 
