@@ -163,10 +163,10 @@ public class AntBootstrapper implements Bootstrapper {
     }
 
     /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLoggerr()
+     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLogger()
      */
     public Object createLogger() {
-        return delegate.createLoggerr();
+        return delegate.createLogger();
     }
 
     /**

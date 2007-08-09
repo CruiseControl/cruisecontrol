@@ -42,7 +42,9 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
 /**
  * Ant script class.
@@ -51,7 +53,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
  * either a batch script or inprocess.
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
-public class AntScript implements Script {
+public class AntScript implements Script, StreamConsumer {
     private Map buildProperties;
 
     private boolean isWindows;
@@ -73,6 +75,8 @@ public class AntScript implements Script {
     private String systemClassPath;
     private int exitCode;
     private String propertyfile;
+    private String progressLoggerLib;
+    private Progress progress;
 
 
     /**
@@ -124,6 +128,17 @@ public class AntScript implements Script {
         if (keepGoing) {
             cmdLine.createArgument("-keep-going");
         }
+
+        if (progress != null) {
+            // add -logger for progress logger
+            cmdLine.createArguments("-logger", AntProgressLogger.class.getName());
+
+            // add -lib to progressLogger class
+            if (progressLoggerLib != null) {
+                cmdLine.createArguments("-lib", progressLoggerLib);
+            }
+        }
+
 
         for (Iterator antLibsIterator = libs.iterator(); antLibsIterator.hasNext(); ) {
             cmdLine.createArguments("-lib", ((AntBuilder.Lib) antLibsIterator.next()).getSearchPath());
@@ -181,6 +196,18 @@ public class AntScript implements Script {
         }
         throw new CruiseControlException("Couldn't find path to ant-launcher jar in this classpath: '" + path + "'");
     }
+
+    /**
+     * Analyze the output of ant command, used to detect errors progress messages.
+     */
+    public void consumeLine(final String line) {
+        if (progress != null && line != null
+                && line.startsWith(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG)) {
+
+            progress.setValue(line.substring(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG.length()));
+        }
+    }
+
 
     /**
      * @param buildProperties The buildProperties to set.
@@ -311,5 +338,18 @@ public class AntScript implements Script {
      */
     public void setPropertyFile(String propertyFile) {
         this.propertyfile = propertyFile;
+    }
+
+    /**
+     * @param progressLoggerLib The directory containing the {@link AntProgressLogger} class.
+     */
+    public void setProgressLoggerLib(final String progressLoggerLib) {
+        this.progressLoggerLib = progressLoggerLib;
+    }
+    /**
+     * @param progress The progress callback object to set.
+     */
+    public void setProgress(final Progress progress) {
+        this.progress = progress;
     }
 }

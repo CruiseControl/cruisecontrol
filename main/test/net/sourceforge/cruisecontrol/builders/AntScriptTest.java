@@ -42,6 +42,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class AntScriptTest extends TestCase {
@@ -531,6 +532,85 @@ public class AntScriptTest extends TestCase {
 
     }
 
+    static class MockProgress implements Progress {
+        private String value;
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    public void testGetCommandLineArgs_ProgressLogger() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                "com.canoo.Logger",
+                "-DXmlLogger.file=log.xml",
+                "-logger",
+                AntProgressLogger.class.getName(),
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName("com.canoo.Logger");
+        script.setBuildProperties(properties);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setProgress(new MockProgress());
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgs_ProgressLoggerLib() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                "com.canoo.Logger",
+                "-DXmlLogger.file=log.xml",
+                "-logger",
+                AntProgressLogger.class.getName(),
+                "-lib",
+                "c:\\DirWithAntProgressLoggerJar",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName("com.canoo.Logger");
+        script.setBuildProperties(properties);
+        script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setProgress(new MockProgress());
+        script.setProgressLoggerLib("c:\\DirWithAntProgressLoggerJar");
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
     public void testGetCommandLineArgs_PropertyFile() throws CruiseControlException {
         String[] args =
             {
@@ -675,4 +755,25 @@ public class AntScriptTest extends TestCase {
              script.buildCommandline().getCommandline());
      }
 
+    public void testConsumeLine() throws Exception {
+        final Progress progress = new MockProgress();
+        script.setProgress(progress);
+
+        assertNull(progress.getValue());
+
+        script.consumeLine("non-matching prefix");
+        assertNull(progress.getValue());
+
+        script.consumeLine("");
+        assertNull(progress.getValue());
+
+        script.consumeLine(null);
+        assertNull(progress.getValue());
+
+        script.consumeLine(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG);
+        assertEquals("", progress.getValue());
+
+        script.consumeLine(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG + "valid progress msg");
+        assertEquals("valid progress msg", progress.getValue());
+    }
 }
