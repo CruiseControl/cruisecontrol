@@ -60,13 +60,13 @@ public class ProcessesTest extends TestCase {
         // allow some time for thread to spin up. can be longer in java 5
         int waitCount = 0;
         int postCount = Thread.activeCount();
-        while ((preCount < postCount) && (waitCount < 20)) {
+        while ((preCount < postCount) && (waitCount < 40)) {
             waitCount++;
             Thread.yield();
             postCount = Thread.activeCount();
         }
         assertTrue("A StreamPumper Thread wasn't started. postCount: " + postCount 
-                + "; preCount: " + preCount,
+                + "; preCount: " + preCount + "; waitCount: " + waitCount,
                 postCount > preCount);
     }
 
