@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Jan 5, 2007
  * Time: 2:08:30 AM
  */

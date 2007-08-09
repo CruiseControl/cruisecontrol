@@ -7,7 +7,7 @@ import java.util.Date;
 
 /**
  * Allow progress updates as projects are processed during various ProjectStates.
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Jul 20, 2007
  * Time: 1:46:54 PM
  */

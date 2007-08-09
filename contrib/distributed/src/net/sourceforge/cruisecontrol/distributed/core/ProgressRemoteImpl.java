@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 
 /**
  * Allow progress updates from distributed agents.
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Jul 25, 2007
  * Time: 5:55:29 PM
  */
