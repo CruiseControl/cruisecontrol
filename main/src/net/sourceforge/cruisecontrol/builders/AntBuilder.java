@@ -89,6 +89,7 @@ public class AntBuilder extends Builder {
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
     private String propertyfile;
+    private String progressLoggerLib;
 
     public void validate() throws CruiseControlException {
         super.validate();
@@ -142,6 +143,10 @@ public class AntBuilder extends Builder {
 
         validateBuildFileExists();
 
+        // @todo Use progress after build is updated to create AntProgessLogger.jar containing AntProgressLogger.class
+        //final Progress progress = getShowProgress() ? progressIn : null;
+        final Progress progress = null;
+
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
@@ -162,6 +167,8 @@ public class AntBuilder extends Builder {
         script.setKeepGoing(keepGoing);
         script.setSystemClassPath(getSystemClassPath());
         script.setPropertyFile(propertyfile);
+        script.setProgressLoggerLib(progressLoggerLib);
+        script.setProgress(progress);
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
@@ -362,7 +369,7 @@ public class AntBuilder extends Builder {
         return listener;
     }
 
-    public Object createLoggerr() {
+    public Object createLogger() {
         AntBuilder.Logger logger = new AntBuilder.Logger();
         listeners.add(logger);
         return logger;
@@ -496,5 +503,12 @@ public class AntBuilder extends Builder {
      */
     public void setPropertyfile(String propertyfile) {
         this.propertyfile = propertyfile;
+    }
+
+    /**
+     * @param progressLoggerLib The directory containing the {@link AntProgressLogger} class.
+     */
+    public void setProgressLoggerLib(String progressLoggerLib) {
+        this.progressLoggerLib = progressLoggerLib;
     }
 }
