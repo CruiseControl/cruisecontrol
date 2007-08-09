@@ -5,7 +5,7 @@ import net.sourceforge.cruisecontrol.ProjectEvent;
 
 /**
  * Notification object with new progress value.
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Jul 20, 2007
  * Time: 3:49:36 PM
  */

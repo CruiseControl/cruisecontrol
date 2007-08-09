@@ -29,7 +29,7 @@ import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Aug 25, 2005
  * Time: 3:38:53 PM
  */

@@ -48,7 +48,7 @@ import net.jini.discovery.DiscoveryEvent;
 import net.jini.lookup.ServiceIDListener;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: May 6, 2005
  * Time: 2:34:24 PM
  */

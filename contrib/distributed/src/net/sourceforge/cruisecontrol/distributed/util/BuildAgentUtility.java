@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: Aug 1, 2005
  * Time: 4:00:38 PM
  */

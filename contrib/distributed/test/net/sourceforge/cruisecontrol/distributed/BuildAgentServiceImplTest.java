@@ -24,7 +24,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 
 /**
- * @author: Dan Rollo
+ * @author Dan Rollo
  * Date: May 25, 2005
  * Time: 1:54:38 PM
  */
