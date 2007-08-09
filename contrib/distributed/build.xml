@@ -176,7 +176,7 @@
     </path>
 
 
-    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar"/>
+    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar, validate-html"/>
 
     <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
 
