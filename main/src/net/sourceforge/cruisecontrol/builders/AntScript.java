@@ -61,7 +61,6 @@ public class AntScript implements Script, StreamConsumer {
     private List args;
     private List libs;
     private List listeners;
-    private List loggers;
     private String loggerClassName;
     private String tempFileName = "log.xml";
     private boolean useScript;
@@ -146,10 +145,6 @@ public class AntScript implements Script, StreamConsumer {
 
         for (Iterator antListenersIterator = listeners.iterator(); antListenersIterator.hasNext(); ) {
             cmdLine.createArguments("-listener", ((AntBuilder.Listener) antListenersIterator.next()).getClassName());
-        }
-
-        for (Iterator antLoggersIterator = loggers.iterator(); antLoggersIterator.hasNext(); ) {
-            cmdLine.createArguments("-logger", ((AntBuilder.Logger) antLoggersIterator.next()).getClassName());
         }
 
         for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
@@ -308,12 +303,6 @@ public class AntScript implements Script, StreamConsumer {
      */
     public void setListeners(List listeners) {
         this.listeners = listeners;
-    }
-    /**
-     * @param loggers The set of logger classes to use.
-     */
-    public void setLoggers(List loggers) {
-        this.loggers = loggers;
     }
     /**
      * @param target The target to set.

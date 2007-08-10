@@ -57,6 +57,7 @@ import org.jdom.input.SAXBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.helpers.XMLFilterImpl;
+import org.apache.log4j.Logger;
 
 /**
  * we often see builds that fail because the previous build is still holding on to some resource.
@@ -66,8 +67,8 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class AntBuilder extends Builder {
 
     protected static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
-    // fully qualified to differentiate from AntBuilder.Logger inner class
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AntBuilder.class);
+
+    private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
     private String antWorkingDir = null;
     private String buildFile = "build.xml";
@@ -79,7 +80,6 @@ public class AntBuilder extends Builder {
     private final List args = new ArrayList();
     private final List libs = new ArrayList();
     private final List listeners = new ArrayList();
-    private final List loggers = new ArrayList();
     private final List properties = new ArrayList();
     private boolean useDebug = false;
     private boolean useQuiet = false;
@@ -143,7 +143,7 @@ public class AntBuilder extends Builder {
 
         validateBuildFileExists();
 
-        // @todo Use progress after build is updated to create AntProgessLogger.jar containing AntProgressLogger.class
+        // @todo Use progress after build is updated to create jar containing AntProgressLogger.class
         //final Progress progress = getShowProgress() ? progressIn : null;
         final Progress progress = null;
 
@@ -152,7 +152,6 @@ public class AntBuilder extends Builder {
         script.setProperties(properties);
         script.setLibs(libs);
         script.setListeners(listeners);
-        script.setLoggers(loggers);
         script.setUseLogger(useLogger);
         script.setUseScript(antScript != null);
         script.setWindows(Util.isWindows());
@@ -369,12 +368,6 @@ public class AntBuilder extends Builder {
         return listener;
     }
 
-    public Object createLogger() {
-        AntBuilder.Logger logger = new AntBuilder.Logger();
-        listeners.add(logger);
-        return logger;
-    }
-
     public Property createProperty() {
         Property property = new Property();
         properties.add(property);
@@ -469,18 +462,6 @@ public class AntBuilder extends Builder {
     }
     
     public class Listener {
-        private String className;
-
-        public void setClassName(String className) {
-            this.className = className;
-        }
-
-        public String getClassName() {
-            return className;
-        }
-    }
-
-    public class Logger {
         private String className;
 
         public void setClassName(String className) {

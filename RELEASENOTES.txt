@@ -51,10 +51,10 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
-AntBuilder/AntBootstrapper
+AntBuilder/Bootstrapper/Publisher
 ----------------------
 * CC-664 : Allow properties files for ant builder and ant bootstrapper. Add propertyfile attribute. Patch by Willem Verstraeten.
-* CC-542 : (PATCH) Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib and -logger args.
+* CC-542 : (PATCH) Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib args.
 
 Builder Progress messages
 ----------------------
