@@ -3,6 +3,11 @@
 
     <property file="build.properties"/>
 
+    <property  name="http.proxyHost" value=""/>
+    <property name="http.proxyPort" value="0"/>
+    <property name="http.proxyUser" value=""/>
+    <property name="http.proxyPassword" value=""/>
+
     <!-- use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
@@ -171,7 +176,8 @@
     </target>
 
     <target name="prep-cc-config">
-        <mkdir dir="target"/>        
+        <mkdir dir="target"/>
+        <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" proxyUser="${http.proxyUser}" proxyPassword="${http.proxyPassword}"/>
         <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_V1.7_final.zip" dest="target/cc-config.zip" verbose="on" usetimestamp="true"/>
         <unzip src="target/cc-config.zip" dest="target/cc-config" />
 

@@ -7,6 +7,7 @@ CruiseControl Release Notes - 2.7.1
 cc-config
 ======================
 * Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7final cc-config jar. Patch by Brian Egge.
+* Updated cruisecontrol's main build to allow setting a proxy prior to downloading and including the cc-config application (CC-687). Patch by Ilkka Laukkanen. 
 
 contrib
 ======================
