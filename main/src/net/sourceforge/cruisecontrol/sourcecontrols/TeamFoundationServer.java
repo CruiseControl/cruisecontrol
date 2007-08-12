@@ -349,7 +349,7 @@ public class TeamFoundationServer implements SourceControl {
         protected static Date parseDate(String dateString) throws ParseException {
             Date date = null;
             try {
-                // Use the depricated Date.parse method as this is very good at detecting
+                // Use the deprecated Date.parse method as this is very good at detecting
                 // dates commonly output by the US and UK standard locales of dotnet that
                 // are output by the Microsoft command line client.
                 date = new Date(Date.parse(dateString));

@@ -70,13 +70,11 @@ public class PluginRegistryTest extends TestCase {
     public void testRegisteringPluginNoClass() {
         PluginRegistry registry = PluginRegistry.createRegistry();
 
-        final String nonExistentClassname =
-                "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
+        final String nonExistentClassname = "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
         registry.register("foo", nonExistentClassname);
         try {
             registry.getPluginClass("foo");
-            fail("Expected an exception when getting a plugin"
-                    + " class that isn't loadable.");
+            fail("Expected an exception when getting a plugin" + " class that isn't loadable.");
         } catch (CruiseControlException expected) {
         }
     }
@@ -84,12 +82,12 @@ public class PluginRegistryTest extends TestCase {
     public void testAddingPlugin() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
 
-        //Add a plugin with a classname that exists
+        // Add a plugin with a classname that exists
         final Class antBuilderClass = AntBuilder.class;
         final String antBuilderClassname = antBuilderClass.getName();
         registry.register("ant", antBuilderClassname);
 
-        //It should be registered
+        // It should be registered
         assertTrue(registry.isPluginRegistered("ant"));
         assertEquals(antBuilderClassname, registry.getPluginClassname("ant"));
         assertEquals(antBuilderClass, registry.getPluginClass("ant"));
@@ -98,8 +96,7 @@ public class PluginRegistryTest extends TestCase {
     public void testRootRegistryAndClassnameOverrideOverwrite() throws Exception {
         PluginRegistry registry = PluginRegistry.createRegistry();
         String antClassName = registry.getPluginClassname("ant");
-        String nonExistentClassname =
-            "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
+        String nonExistentClassname = "net.sourceforge.cruisecontrol.Foo" + System.currentTimeMillis();
         Element pluginElement = new Element("plugin");
         pluginElement.setAttribute("name", "ant");
         pluginElement.setAttribute("classname", nonExistentClassname);
@@ -117,16 +114,18 @@ public class PluginRegistryTest extends TestCase {
     }
 
     /**
-     * 2 levels of plugin registry, 1 plugin, 2 properties defined in
-     * parent, one overriden in child
-     *
-     * @throws Exception on failure
+     * 2 levels of plugin registry, 1 plugin, 2 properties defined in parent,
+     * one overriden in child
+     * 
+     * @throws Exception
+     *             on failure
      */
     public void testGetPluginConfigOverride() throws Exception {
 
         PluginRegistry registry = PluginRegistry.createRegistry();
 
-        // 2 plugins in the root, with the same plugin class, but different names
+        // 2 plugins in the root, with the same plugin class, but different
+        // names
         Element rootPluginElement = new Element("plugin");
         rootPluginElement.setAttribute("name", "testlistener");
         rootPluginElement.setAttribute("classname", ListenerTestPlugin.class.getName());
@@ -186,19 +185,19 @@ public class PluginRegistryTest extends TestCase {
     }
 
     public void testCaseInsensitivityPluginNames() throws Exception {
-        //Plugin names are treated as case-insensitive by CruiseControl, so
-        //  a plugin named TestName and testname are the same.
+        // Plugin names are treated as case-insensitive by CruiseControl, so
+        // a plugin named TestName and testname are the same.
         PluginRegistry registry = PluginRegistry.createRegistry();
 
-        //Add a plugin with an all lowercase name
+        // Add a plugin with an all lowercase name
         final String antBuilderClassname = AntBuilder.class.getName();
         registry.register("testname", antBuilderClassname);
 
-        //It should be registered
+        // It should be registered
         assertTrue(registry.isPluginRegistered("testname"));
 
-        //If we ask if other case versions are registered, it should
-        //  say "yes"
+        // If we ask if other case versions are registered, it should
+        // say "yes"
         assertTrue(registry.isPluginRegistered("TESTNAME"));
         assertTrue(registry.isPluginRegistered("Testname"));
         assertTrue(registry.isPluginRegistered("TestName"));
@@ -206,34 +205,24 @@ public class PluginRegistryTest extends TestCase {
     }
 
     public void testPluginRegistry() throws Exception {
+        // No plugins that require non-distributed API jars will be tested
+        // (i.e., Harvest, Starteam, Sametime, Yahoo)
 
-        verifyPluginClass(
-                "currentbuildstatusbootstrapper",
+        verifyPluginClass("currentbuildstatusbootstrapper",
                 "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
-        verifyPluginClass(
-                "cvsbootstrapper",
-                "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
-        verifyPluginClass(
-                "p4bootstrapper",
-                "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
-        verifyPluginClass(
-                "svnbootstrapper",
-                "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
-        verifyPluginClass(
-                "vssbootstrapper",
-                "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
+        verifyPluginClass("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
+        verifyPluginClass("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
+        verifyPluginClass("svnbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
+        verifyPluginClass("vssbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper");
         verifyPluginClass("alienbrain", "net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain");
         verifyPluginClass("clearcase", "net.sourceforge.cruisecontrol.sourcecontrols.ClearCase");
-        verifyPluginClass("cvs",
-                "net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem");
+        verifyPluginClass("cvs", "net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem");
         verifyPluginClass("filesystem", "net.sourceforge.cruisecontrol.sourcecontrols.FileSystem");
         verifyPluginClass("httpfile", "net.sourceforge.cruisecontrol.sourcecontrols.HttpFile");
         verifyPluginClass("mks", "net.sourceforge.cruisecontrol.sourcecontrols.MKS");
         verifyPluginClass("p4", "net.sourceforge.cruisecontrol.sourcecontrols.P4");
         verifyPluginClass("pvcs", "net.sourceforge.cruisecontrol.sourcecontrols.PVCS");
         verifyPluginClass("svn", "net.sourceforge.cruisecontrol.sourcecontrols.SVN");
-        // skipped because not everyone has starteam api jar
-        // verifyPluginClass("starteam", "net.sourceforge.cruisecontrol.sourcecontrols.StarTeam");
         verifyPluginClass("vss", "net.sourceforge.cruisecontrol.sourcecontrols.Vss");
         verifyPluginClass("vssjournal", "net.sourceforge.cruisecontrol.sourcecontrols.VssJournal");
         verifyPluginClass("compound", "net.sourceforge.cruisecontrol.sourcecontrols.Compound");
@@ -242,19 +231,13 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("ant", "net.sourceforge.cruisecontrol.builders.AntBuilder");
         verifyPluginClass("maven", "net.sourceforge.cruisecontrol.builders.MavenBuilder");
         verifyPluginClass("pause", "net.sourceforge.cruisecontrol.PauseBuilder");
-        verifyPluginClass(
-                "labelincrementer",
+        verifyPluginClass("labelincrementer", 
                 "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
-        verifyPluginClass(
-                "artifactspublisher",
-                "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        verifyPluginClass(
-                "currentbuildstatuspublisher",
+        verifyPluginClass("artifactspublisher", "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
+        verifyPluginClass("currentbuildstatuspublisher",
                 "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
         verifyPluginClass("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
-        verifyPluginClass(
-                "htmlemail",
-                "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
+        verifyPluginClass("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         verifyPluginClass("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
         verifyPluginClass("scp", "net.sourceforge.cruisecontrol.publishers.SCPPublisher");
         verifyPluginClass("modificationset", "net.sourceforge.cruisecontrol.ModificationSet");
@@ -297,8 +280,7 @@ public class PluginRegistryTest extends TestCase {
         assertTrue(0 < defaultTypes.length);
     }
 
-    static void verifyPluginClass(String pluginName, String expectedName)
-            throws Exception {
+    static void verifyPluginClass(String pluginName, String expectedName) throws Exception {
         PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();
 
         assertTrue(registry.isPluginRegistered(pluginName));

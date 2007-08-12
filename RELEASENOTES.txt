@@ -52,10 +52,14 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 build loop
 ======================
 
+AllFusion Harvest
+----------------------
+* CC-513: Added support for CA AllFusion Harvest via SDK.  Patch by Robert Thornburrow and Nayan Hajratwala.  Removed previous command-line based support.
+
 AntBuilder/Bootstrapper/Publisher
 ----------------------
 * CC-664 : Allow properties files for ant builder and ant bootstrapper. Add propertyfile attribute. Patch by Willem Verstraeten.
-* CC-542 : (PATCH) Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib args.
+* CC-542 : Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib args.
 
 Builder Progress messages
 ----------------------
@@ -71,11 +75,7 @@ CommandLine and Process exec handling
 ----------------------
 * Close process.outputStream to avoid deadlocks. (CC-527) Reported by Jason R. Hull
 
-ConcurrentVersionsSystem
-----------------------
-* Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
-
-CVSBootstrapper
+ConcurrentVersionsSystem/CVSBootstrapper
 ----------------------
 * Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
 
@@ -109,9 +109,9 @@ Schedule
 
 SVN/SVNBootstrapper
 ----------------------
-* Fixed CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
-* Fixed CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
-* Fixed CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
+* CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
+* CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
+* CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
 * Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
 
 TFS/TFSBootstrapper
