@@ -235,7 +235,6 @@ public final class PluginRegistry implements Serializable {
             String msg = "Attemping to load plugin named [" + pluginName
                     + "], but couldn't load corresponding class ["
                     + pluginClassname + "].";
-        //            LOG.error(msg, e);
             throw new CruiseControlException(msg);
         }
     }
@@ -275,7 +274,8 @@ public final class PluginRegistry implements Serializable {
                 availablePlugins.add(new GenericPluginDetail(pluginName, pluginClass));
             } catch (CruiseControlException e) {
                 String message = e.getMessage();
-                if (message.indexOf("starteam") < 0) {
+                // TODO: handle these potential unloadable plugins in a better way
+                if (message.indexOf("starteam") == -1 && message.indexOf("harvest") == -1) {
                     throw e;
                 }
             }

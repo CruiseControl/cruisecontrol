@@ -136,6 +136,7 @@
 <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
 <a href="#gzip">&lt;gzip&gt;</a>
 <a href="#harvest">&lt;harvest&gt;</a>
+<a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a>
 <a href="#htmlemail">&lt;htmlemail&gt;</a>
 <a href="#httpfile">&lt;httpfile&gt;</a>
 <a href="#include.projects">&lt;include.projects&gt;</a>
@@ -250,6 +251,7 @@
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
+         <a href="#harvestbootstrapper">&lt;harvestbootstrapper/&gt;</a>
          <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
          <a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper/&gt;</a>
@@ -1383,6 +1385,11 @@ password=P@ssW0rd!
                 <td>0 .. *</td>
                 <td>Execute a command for bootstrapping</td>
             </tr>
+             <tr>
+                <td><a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from AllFusion Harvest</td>
+            </tr>            
             <tr>
                 <td><a href="#lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a></td>
                 <td>0 .. *</td>
@@ -2005,6 +2012,100 @@ password=P@ssW0rd!
         <p>This bootstrapper executes a command. As it is based on the <a href="#exec">ExecBuilder</a>, it has the same
         attributes</p>
         
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="harvestbootstrapper">&lt;harvestbootstrapper&gt;</a></h2>
+ 
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;harvestbootstrapper&gt;</pre>
+        </div>
+
+        <p>Since there can be a reliance on the build.xml to handle updating
+           the source code, there has always been a problem with what happens when
+           the build.xml file itself changes.  <code>&lt;harvestbootstrapper&gt;</code>
+           can solve this problem either by pulling a single file (such as
+           build.xml) or by updating the entire project. Allowing the bootstrapper
+           to update the project makes for a simpler build.xml but allows a window
+           where a file can be committed after the update and before the
+           modification check.</p>
+        
+        <p>In order to use this element, you must have the AllFusion Harvest
+           client installed on the CruiseControl machine.  Additionally, the
+           <code>HARVESTHOME</code> environment variable should be set (this
+           should happen during installation of AllFusion Harvest) and you
+           should copy <code>jhsdk.jar</code> from your Harvest installation
+           into the CruiseControl <code>lib</code> directory.  If you do not do
+           this, you will see an error indicating that the JHSDK is not installed.</p>
+
+        <h3>Attributes</h3>
+
+        <p><code>&lt;harvestbootstrapper&gt;</code> requires at least one of its
+        attributes to be set.</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Usename to use in connecting to the Harvest Broker.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password to use in connecting to the Harvest Broker.</td>
+            </tr>
+            <tr>
+                <td>broker</td>
+                <td>Yes</td>
+                <td>The name of the Harvest Broker to connect to.</td>
+            </tr>
+            <tr>
+                <td>project</td>
+                <td>Yes</td>
+                <td>The name of the project containing the file you wish to
+                    bootstrap.  Can be different from the cruisecontrol project
+                    name.</td>
+            </tr>
+            <tr>
+                <td>state</td>
+                <td>Yes</td>
+                <td>The name of the state containing the file you wish to bootstrap.</td>
+            </tr>
+            <tr>
+                <td>viewpath</td>
+                <td>Yes</td>
+                <td>The Harvest view path of the file you wish to bootstrap.</td>
+            </tr>
+            <tr>
+                <td>clientpath</td>
+                <td>Yes</td>
+                <td>The Harvest client path to use when checking out the bootstrap file.</td>
+            </tr>
+            <tr>
+                <td>process</td>
+                <td>Yes</td>
+                <td>The name of the Harvest checkout process to use.</td>
+            </tr>
+            <tr>
+                <td>file</td>
+                <td>Yes</td>
+                <td>The name of the file to be bootstrapped.</td>
+            </tr>
+            </tbody>
+        </table>
         </div>
 
         <div class="elementdocumentation">
@@ -2769,7 +2870,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td><a href="#harvest">&lt;harvest&gt;</a></td>
                 <td>0 .. *</td>
-                <td>Checks for changes in an All Fusion Harvest CM511 repository.</td>
+                <td>Checks for changes in an All Fusion Harvest repository.</td>
             </tr>
             <tr>
                 <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
@@ -3796,19 +3897,34 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         </table>
         </div>
 
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="harvest">&lt;harvest&gt;</a></h2>
+         <div class="elementdocumentation">
+         <a class="toplink" href="#top">top</a>
+        <h2><a name="harvest7">&lt;harvest7&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#modificationset">&lt;modificationset&gt;</a>
-      &lt;harvest&gt;</pre>
+      &lt;harvest7&gt;</pre>
         </div>
 
-        <p>Checks a AllFusion Harvest CM 5.1.1 repository for changes.</p>
+        <p>Triggers a build if there is a change within an AllFusion Harvest
+           repository.</p>
+
+        <p>In order to use this element, you must have the AllFusion Harvest
+           client installed on the CruiseControl machine.  Additionally, the
+           <code>HARVESTHOME</code> environment variable should be set (this
+           should happen during installation of AllFusion Harvest) and you
+           should copy <code>jhsdk.jar</code> from your Harvest installation
+           into the CruiseControl <code>lib</code> directory.  If you do not do
+           this, you will see an error indicating that the JHSDK is not installed.</p>
+
+        <p>See the <a href="http://www3.ca.com/solutions/Product.aspx?ID=255">AllFusion
+           Harvest product page</a> for more information.</p>
+
+       <p>This implementation has only been tested against All Fusion Harvest
+         version 7.0.131.</p>
 
         <h3>Attributes</h3>
 
@@ -3822,56 +3938,46 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             </thead>
             <tbody>
             <tr>
-                <td>userName</td>
+                <td>username</td>
                 <td>Yes</td>
-                <td>user name used for authentication to the AllFusion Harvest server.</td>
+                <td>The username to connect as.</td>
             </tr>
             <tr>
-               <td>password</td>
-               <td>Yes</td>
-               <td>password used for authentication to the AllFusion Harvest server.</td>
-            </tr>
-            <tr>
-                <td>brokerName</td>
+                <td>password</td>
                 <td>Yes</td>
-                <td>name of the AllFusion Harvest server.</td>
+                <td>The password to connect with.</td>
             </tr>
             <tr>
-               <td>projectName</td>
-               <td>Yes</td>
-               <td>name of the project/repository under source control within the
-                AllFusion Harvest server.</td>
+                <td>broker</td>
+                <td>Yes</td>
+                <td>The name of the Harvest broker to connect to.</td>
             </tr>
             <tr>
-               <td>repositoryName</td>
-               <td>No</td>
-               <td>name of the project/repository under source control within the
-                 AllFusion Harvest server.<br /><small><em>Note:</em>This parameter can be used in place
-                 of the <code>projectName</code> parameter.</small></td>
+                <td>state</td>
+                <td>Yes</td>
+                <td>The state in which you want to search for changes.</td>
             </tr>
             <tr>
-               <td>timeAdjustmentFactor</td>
-               <td>No</td>
-               <td>a value representing the milliseconds needed to adjust any item's
-                 modification time due to time differences between the cc Server and the AllFusion Harvest server.</td>
+                <td>project</td>
+                <td>Yes</td>
+                <td>The name of the project in AllFusion Harvest that you want
+                    to watch.  Note that this can be different than the
+                    CruiseControl project name.</td>
             </tr>
             <tr>
-               <td>debug</td>
-               <td>No</td>
-               <td><code>true</code> or <code>false</code> used to display
-                 additional information within the cc Server log.</td>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                    in conditionally controlling the build later.</td>
             </tr>
             <tr>
-               <td>proprty</td>
-               <td>No</td>
-               <td>name of property to define if a modification is detected.</td>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                    conditionally controlling the build later.</td>
             </tr>
             </tbody>
         </table>
-        <pre>
- &#60;harvest userName="myUserName" password="myPassword"
-    brokerName="myHarvestBrokerName" projectName="myHarvestPackage"/&#62;
-        </pre>
         </div>
 
         <div class="elementdocumentation">

@@ -107,11 +107,14 @@
         <mkdir dir="${junit.results}" />
         <mkdir dir="${emma.results}" />
 
+        <available file="${lib}/jhsdk.jar" property="harvest-sdk-present"/>
         <available file="${lib}/starteam-sdk.jar" property="starteam-sdk-present" />
         <available file="${lib}/STComm.jar" property="sametime-sdk-present" />
-        <available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
         <available file="${lib}/ymsg_support_v0_6.jar" property="yahoo-sdk-present"/>
-        <tstamp />
+
+    	<available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
+        
+    	<tstamp />
         <property name="build.version" value="${cc.release.label}" />
         <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}" />
     </target>
@@ -145,7 +148,8 @@
 
     <target name="compile" depends="init" unless="compile.skip" description="Compile source code">
         <compile-macro>
-            <exclude name="**/StarTeam*" />
+            <exclude name="**/AllFusionHarvest*"/>
+        	<exclude name="**/StarTeam*" />
             <exclude name="**/Sametime*" />
             <exclude name="**/Yahoo*"/>
         </compile-macro>
@@ -163,6 +167,12 @@
         </copy>
     </target>
 
+	<target name="compile-harvest" if="harvest-sdk-present" depends="init">
+        <compile-macro>
+            <include name="**/AllFusionHarvest*" />
+        </compile-macro>
+	</target>
+	
     <target name="compile-starteam" if="starteam-sdk-present" depends="init">
         <compile-macro>
             <include name="**/StarTeam*" />
@@ -184,7 +194,8 @@
     <target name="compile-test" depends="compile" description="Compile test code">
         <compile-macro srcdir="${test}" destdir="${test.classes}">
             <classpath refid="project.runtime.classpath" />
-            <exclude name="**/StarTeam*" />
+            <exclude name="**/AllFusionHarvest*"/>
+        	<exclude name="**/StarTeam*" />
             <exclude name="**/Sametime*" />
             <exclude name="**/Yahoo*"/>
         </compile-macro>
@@ -201,6 +212,13 @@
         </copy>
     </target>
 
+    <target name="compile-test-harvest" if="harvest-sdk-present" depends="compile-harvest">
+        <compile-macro srcdir="${test}" destdir="${test.classes}">
+            <classpath refid="project.runtime.classpath" />
+            <include name="**/AllFusionHarvest*" />
+        </compile-macro>
+    </target>	
+	
     <target name="compile-test-starteam" if="starteam-sdk-present" depends="compile-starteam">
         <compile-macro srcdir="${test}" destdir="${test.classes}">
             <classpath refid="project.runtime.classpath" />
@@ -291,6 +309,10 @@
         </test-macro>
     </target>
 
+    <target name="test-harvest" depends="init, compile-test-harvest" unless="test.skip">
+        <test-macro includes="**/AllFusionHarvest*Test.class" />
+    </target>
+	
     <target name="test-starteam" depends="init, compile-test-starteam" unless="test.skip">
         <test-macro includes="**/StarTeam*Test.class" />
     </target>
@@ -356,8 +378,10 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
-    <target name="all"
-            depends="init,compile,compile-starteam,compile-sametime,checkstyle,check-duplication,test,test-starteam,test-sametime,test-yahoo,jar"
+	<target name="compile-all" depends="compile, compile-harvest, compile-sametime, compile-starteam, compile-yahoo"/>
+	<target name="test-all" depends="test, test-harvest, test-starteam, test-sametime, test-yahoo"/>
+	
+    <target name="all" depends="init,compile-all,checkstyle,check-duplication,test-all,jar"
             description="Performs a build, runs tests, and builds jar" />
 
 </project>
