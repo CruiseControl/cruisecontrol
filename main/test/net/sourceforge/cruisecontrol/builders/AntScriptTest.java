@@ -39,10 +39,12 @@ package net.sourceforge.cruisecontrol.builders;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.io.File;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.util.UtilLocator;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class AntScriptTest extends TestCase {
@@ -543,7 +545,62 @@ public class AntScriptTest extends TestCase {
         }
     }
 
-    public void testGetCommandLineArgs_ProgressLogger() throws CruiseControlException {
+
+    public void testSetupResolvedLoggerClassname() throws Exception {
+        // set to same default used by AntBuilder
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setProgress(null);
+        script.setupResolvedLoggerClassname();
+        assertEquals(AntBuilder.DEFAULT_LOGGER, script.getLoggerClassName());
+
+        final Progress progress = new AntScriptTest.MockProgress();
+        script.setProgress(progress);
+        script.setupResolvedLoggerClassname();
+        assertEquals(AntProgressLogger.class.getName(), script.getLoggerClassName());
+
+        // set to same default used by AntBuilder
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setUseLogger(true);
+        script.setProgress(null);
+        script.setupResolvedLoggerClassname();
+        assertEquals(AntBuilder.DEFAULT_LOGGER, script.getLoggerClassName());
+        script.setProgress(progress);
+        script.setupResolvedLoggerClassname();
+        assertEquals(AntProgressXmlLogger.class.getName(), script.getLoggerClassName());
+
+        final String dummyLogger = "dummyLogger";
+        script.setUseLogger(false);
+        script.setLoggerClassName(dummyLogger);
+        script.setIsLoggerClassNameSet(true);
+        script.setProgress(null);
+        script.setupResolvedLoggerClassname();
+        assertEquals(dummyLogger, script.getLoggerClassName());
+        script.setProgress(progress);
+        script.setupResolvedLoggerClassname();
+        assertEquals(dummyLogger, script.getLoggerClassName());
+
+        script.setUseLogger(true);
+        script.setLoggerClassName(dummyLogger);
+        script.setProgress(null);
+        script.setupResolvedLoggerClassname();
+        assertEquals(dummyLogger, script.getLoggerClassName());
+        script.setProgress(progress);
+        script.setupResolvedLoggerClassname();
+        assertEquals(dummyLogger, script.getLoggerClassName());
+    }
+
+    public void testSetupDefaultProgressLoggerLib() throws Exception {
+        script.setupDefaultProgressLoggerLib();
+        assertNotNull(script.getProgressLoggerLib());
+        final File progressLibFile = new File(script.getProgressLoggerLib());
+        assertTrue(progressLibFile.isDirectory());
+        assertTrue(progressLibFile.exists());
+    }
+
+    public void testGetCommandLineArgs_ProgressLoggerNotUseLogger() throws CruiseControlException {
+        final File ccMain = UtilLocator.getClassSource(AntScript.class);
+        final String loggerLib = ccMain.getAbsolutePath();
+
         String[] args =
             {
                 "java.exe",
@@ -552,16 +609,18 @@ public class AntScriptTest extends TestCase {
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
                 WINDOWS_PATH,
-                "-listener",
-                "com.canoo.Logger",
-                "-DXmlLogger.file=log.xml",
                 "-logger",
                 AntProgressLogger.class.getName(),
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
+                "-lib",
+                loggerLib,
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
-        script.setLoggerClassName("com.canoo.Logger");
+        script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setBuildProperties(properties);
         script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
@@ -575,7 +634,10 @@ public class AntScriptTest extends TestCase {
             script.buildCommandline().getCommandline());
     }
 
-    public void testGetCommandLineArgs_ProgressLoggerLib() throws CruiseControlException {
+    public void testGetCommandLineArgs_ProgressLoggerUseLogger() throws CruiseControlException {
+        final File ccMain = UtilLocator.getClassSource(AntScript.class);
+        final String loggerLib = ccMain.getAbsolutePath();
+
         String[] args =
             {
                 "java.exe",
@@ -584,20 +646,89 @@ public class AntScriptTest extends TestCase {
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
                 WINDOWS_PATH,
+                "-logger",
+                AntProgressXmlLogger.class.getName(),
                 "-listener",
-                "com.canoo.Logger",
+                AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
+                "-lib",
+                loggerLib,
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntProgressXmlLogger.class.getName());
+        script.setBuildProperties(properties);
+        script.setUseLogger(USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setProgress(new MockProgress());
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgs_ProgressLoggerLibNotUseLogger() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
                 "-logger",
                 AntProgressLogger.class.getName(),
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
                 "-lib",
                 "c:\\DirWithAntProgressLoggerJar",
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
-        script.setLoggerClassName("com.canoo.Logger");
+        script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setBuildProperties(properties);
         script.setUseLogger(!USE_LOGGER);
+        script.setWindows(IS_WINDOWS);
+        script.setUseScript(!USE_SCRIPT);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setProgress(new MockProgress());
+        script.setProgressLoggerLib("c:\\DirWithAntProgressLoggerJar");
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgs_ProgressLoggerLibUseLogger() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-logger",
+                AntProgressXmlLogger.class.getName(),
+                "-listener",
+                AntProgressXmlListener.class.getName(),
+                "-DXmlLogger.file=log.xml",
+                "-lib",
+                "c:\\DirWithAntProgressLoggerJar",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntProgressXmlLogger.class.getName());
+        script.setBuildProperties(properties);
+        script.setUseLogger(USE_LOGGER);
         script.setWindows(IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
@@ -732,10 +863,10 @@ public class AntScriptTest extends TestCase {
         script.consumeLine(null);
         assertNull(progress.getValue());
 
-        script.consumeLine(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG);
+        script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS);
         assertEquals("", progress.getValue());
 
-        script.consumeLine(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG + "valid progress msg");
+        script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS + "valid progress msg");
         assertEquals("valid progress msg", progress.getValue());
     }
 }

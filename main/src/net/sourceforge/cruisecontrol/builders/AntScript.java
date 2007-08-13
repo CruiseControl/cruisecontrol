@@ -40,11 +40,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.io.File;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.UtilLocator;
+import org.apache.log4j.Logger;
 
 /**
  * Ant script class.
@@ -54,6 +57,24 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class AntScript implements Script, StreamConsumer {
+
+    private static final Logger LOG = Logger.getLogger(AntScript.class);
+
+    static final String CLASSNAME_ANTPROGRESS_LOGGER
+            = "net.sourceforge.cruisecontrol.builders.AntProgressLogger";
+
+    static final String CLASSNAME_ANTPROGRESS_XML_LOGGER
+            = "net.sourceforge.cruisecontrol.builders.AntProgressXmlLogger";
+    static final String CLASSNAME_ANTPROGRESS_XML_LISTENER
+            = "net.sourceforge.cruisecontrol.builders.AntProgressXmlListener";
+
+    /**
+     * Prefix prepended to system out messages to be detected by AntScript as progress messages.
+     * NOTE: Must be the exact same string as that defined in AntProgressLog constant, kept separate
+     * to avoid dependence on Ant Builder classes in AntScript.
+     */
+    static final String MSG_PREFIX_ANT_PROGRESS = "ccAntProgress -- ";
+
     private Map buildProperties;
 
     private boolean isWindows;
@@ -62,6 +83,7 @@ public class AntScript implements Script, StreamConsumer {
     private List libs;
     private List listeners;
     private String loggerClassName;
+    private boolean isLoggerClassNameSet;
     private String tempFileName = "log.xml";
     private boolean useScript;
     private boolean useLogger;
@@ -76,7 +98,6 @@ public class AntScript implements Script, StreamConsumer {
     private String propertyfile;
     private String progressLoggerLib;
     private Progress progress;
-
 
     /**
      * construct the command that we're going to execute.
@@ -108,13 +129,40 @@ public class AntScript implements Script, StreamConsumer {
             cmdLine.createArguments("-lib", systemClassPath);
         }
 
-        if (useLogger) {
-            cmdLine.createArguments("-logger", getLoggerClassName());
-            cmdLine.createArguments("-logfile", tempFileName);
+        if (progress == null) {
+            if (useLogger) {
+                cmdLine.createArguments("-logger", getLoggerClassName());
+                cmdLine.createArguments("-logfile", tempFileName);
+            } else {
+                cmdLine.createArguments("-listener", getLoggerClassName());
+                cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
+            }
+
         } else {
-            cmdLine.createArguments("-listener", getLoggerClassName());
-            cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
+            // need to showProgress
+
+            // use proper default logger if loggerClassName was not specified by config
+            setupResolvedLoggerClassname();
+                                            // was set to proper default according to showProgress state.
+            cmdLine.createArguments("-logger", getLoggerClassName());
+
+            if (useLogger) {
+                // need to use AntProgressXmlLogger as a listener
+                cmdLine.createArguments("-listener", CLASSNAME_ANTPROGRESS_XML_LISTENER);
+                cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
+
+            } else {
+                cmdLine.createArguments("-listener", AntBuilder.DEFAULT_LOGGER);
+                cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
+            }
+
+            setupDefaultProgressLoggerLib();
+            // add -lib to progressLogger classes
+            if (progressLoggerLib != null) {
+                cmdLine.createArguments("-lib", progressLoggerLib);
+            }
         }
+
 
         // -debug and -quiet only affect loggers, not listeners: when we use the loggerClassName as
         // a listener, they will affect the default logger that writes to the console
@@ -127,17 +175,6 @@ public class AntScript implements Script, StreamConsumer {
         if (keepGoing) {
             cmdLine.createArgument("-keep-going");
         }
-
-        if (progress != null) {
-            // add -logger for progress logger
-            cmdLine.createArguments("-logger", AntProgressLogger.class.getName());
-
-            // add -lib to progressLogger class
-            if (progressLoggerLib != null) {
-                cmdLine.createArguments("-lib", progressLoggerLib);
-            }
-        }
-
 
         for (Iterator antLibsIterator = libs.iterator(); antLibsIterator.hasNext(); ) {
             cmdLine.createArguments("-lib", ((AntBuilder.Lib) antLibsIterator.next()).getSearchPath());
@@ -192,14 +229,49 @@ public class AntScript implements Script, StreamConsumer {
         throw new CruiseControlException("Couldn't find path to ant-launcher jar in this classpath: '" + path + "'");
     }
 
+    void setupResolvedLoggerClassname() {
+        // use proper default logger if loggerClassName was not specified by config
+        if ((progress != null) && (!isLoggerClassNameSet)) {
+            if (useLogger) {
+                // use string to avoid dependence on ant classes
+                loggerClassName = CLASSNAME_ANTPROGRESS_XML_LOGGER;
+            } else {
+                // use string to avoid dependence on ant classes
+                loggerClassName = CLASSNAME_ANTPROGRESS_LOGGER;
+            }
+        } else {
+
+            if (progress != null) {
+                LOG.warn("Ant Progress support is enabled AND loggerClassname is set. "
+                        + "Be sure the loggerClassName: " + loggerClassName + " is compatible with"
+                        + " Ant Progress.");
+            }
+        }
+    }
+
+    void setupDefaultProgressLoggerLib() {
+        if (progressLoggerLib == null) {
+            // Use a valid default for progressLoggerLib
+            final File ccMain = UtilLocator.getClassSource(AntScript.class);
+            if (ccMain != null) {
+                if (ccMain.isDirectory()) {
+                    progressLoggerLib = ccMain.getAbsolutePath();
+                } else {
+                    progressLoggerLib = ccMain.getParentFile().getAbsolutePath();
+                }
+            }
+        }
+    }
+
+    
     /**
      * Analyze the output of ant command, used to detect errors progress messages.
      */
     public void consumeLine(final String line) {
         if (progress != null && line != null
-                && line.startsWith(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG)) {
+                && line.startsWith(MSG_PREFIX_ANT_PROGRESS)) {
 
-            progress.setValue(line.substring(AntProgressLogger.MSG_PREFIX_PROGRESS_LOG.length()));
+            progress.setValue(line.substring(MSG_PREFIX_ANT_PROGRESS.length()));
         }
     }
 
@@ -222,6 +294,18 @@ public class AntScript implements Script, StreamConsumer {
      */
     public void setLoggerClassName(String loggerClassName) {
         this.loggerClassName = loggerClassName;
+    }
+    /**
+     * @return Returns the loggerClassName.
+     */
+    public boolean isLoggerClassNameSet() {
+        return isLoggerClassNameSet;
+    }
+    /**
+     * @param isLoggerClassNameSet The loggerClassName to set.
+     */
+    public void setIsLoggerClassNameSet(boolean isLoggerClassNameSet) {
+        this.isLoggerClassNameSet = isLoggerClassNameSet;
     }
     /**
      * @param antScript The antScript to set.
@@ -330,11 +414,16 @@ public class AntScript implements Script, StreamConsumer {
     }
 
     /**
-     * @param progressLoggerLib The directory containing the {@link AntProgressLogger} class.
+     * @param progressLoggerLib The directory containing the AntProgressLogger/Listener classes.
      */
     public void setProgressLoggerLib(final String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
     }
+    /** @return value of progress logger lib. */
+    String getProgressLoggerLib() {
+        return progressLoggerLib;
+    }
+    
     /**
      * @param progress The progress callback object to set.
      */

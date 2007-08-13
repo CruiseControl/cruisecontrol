@@ -353,6 +353,12 @@
             </manifest>
             <fileset dir="${classes}" includes="**/launch/**" />
         </jar>
+        <jar jarfile="${dist}/cruisecontrol-antprogresslogger.jar">
+            <fileset dir="${classes}" includes="**/builders/AntProgress*.class" />
+            <manifest>
+                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
+            </manifest>
+        </jar>
     </target>
 
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">

@@ -85,6 +85,7 @@ public class AntBuilder extends Builder {
     private boolean useQuiet = false;
     private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
+    private boolean isLoggerClassNameSet;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
@@ -143,9 +144,7 @@ public class AntBuilder extends Builder {
 
         validateBuildFileExists();
 
-        // @todo Use progress after build is updated to create jar containing AntProgressLogger.class
-        //final Progress progress = getShowProgress() ? progressIn : null;
-        final Progress progress = null;
+        final Progress progress = getShowProgress() ? progressIn : null;
 
         AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
@@ -160,6 +159,7 @@ public class AntBuilder extends Builder {
         script.setBuildFile(buildFile);
         script.setTarget(target);
         script.setLoggerClassName(loggerClassName);
+        script.setIsLoggerClassNameSet(isLoggerClassNameSet);
         script.setTempFileName(tempFileName);
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
@@ -435,6 +435,7 @@ public class AntBuilder extends Builder {
 
     public void setLoggerClassName(String string) {
         loggerClassName = string;
+        isLoggerClassNameSet = true;
     }
 
     public class JVMArg {
@@ -487,7 +488,7 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     * @param progressLoggerLib The directory containing the {@link AntProgressLogger} class.
+     * @param progressLoggerLib The directory containing the AntProgressLogger/Listener classes.
      */
     public void setProgressLoggerLib(String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
