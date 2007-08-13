@@ -5473,6 +5473,15 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 taking precedence. Useful when the propertyfile content can change for every build.</td>
             </tr>
             <tr>
+                <td>progressLoggerLib</td>
+                <td>No</td>
+                <td>Overrides the default -lib search path used to add support for showProgress features
+                    in the ant builder. This search path ensures customized ant Loggers/Listeners
+                    are available on the classpath of the ant builder VM. You should not normally
+                    set this value. This setting has no effect if showProgress=false.
+                </td>
+            </tr>
+            <tr>
                 <td>showProgress</td>
                 <td>No  (defaults to true)</td>
                 <td>If true or omitted, this builder will provide progress messages.
