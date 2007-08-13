@@ -342,6 +342,7 @@
                 <attribute name="Main-Class" value="CruiseControl" />
             </manifest>
             <fileset dir="${classes}" excludes="**/launch/**" />
+            <fileset dir="${classes}" excludes="**/builders/AntProgress*.class" />
             <fileset dir="${xsl}" />
             <manifest>
                 <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
