@@ -65,6 +65,7 @@ Builder Progress messages
 ----------------------
 * CC-686 : add a Progress signaling api to allow plugins to notify the system of their progress as they execute (at first, only Builders).
 Adds an optional "showProgess" tag to <schedule> and the builders: <composite>, <maven>, <maven2>, and CCDist <distributed>.
+An experimental impl for <ant> builder to showProgress is also included, and can be disabled with showProgress=false.
 Progess messages are shown on the reporting/jsp project pages, below the project state text.
 
 build.sh/release.sh scripts

@@ -298,6 +298,7 @@
 			</fileset>
 			<fileset dir="${dir.main.dist}">
 				<include name="cruisecontrol.jar" />
+				<include name="cruisecontrol-antprogresslogger.jar" />
 			</fileset>
 		</copy>
 	</target>
@@ -332,6 +333,7 @@
 			</fileset>
 			<fileset dir="${dir.main.dist}">
 				<include name="cruisecontrol.jar" />
+                <include name="cruisecontrol-antprogresslogger.jar" />
 			</fileset>
 		</copy>
 	</target>

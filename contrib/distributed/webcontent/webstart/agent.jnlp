@@ -22,6 +22,7 @@
         <jar href="lib/ccdist-core.jar"/>
 
         <jar href="lib/cruisecontrol.jar"/>
+        <jar href="lib/cruisecontrol-antprogresslogger.jar"/>
 
         <jar href="lib/jakarta-oro-2.0.8.jar"/>
         <jar href="lib/jdom.jar"/>
