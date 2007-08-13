@@ -253,7 +253,9 @@ public class AntScript implements Script, StreamConsumer {
         if (progressLoggerLib == null) {
             // Use a valid default for progressLoggerLib
             final File ccMain = UtilLocator.getClassSource(AntScript.class);
-            if (ccMain != null) {
+            if (ccMain == null) {
+                LOG.warn("Couldn't determine -lib path for progressLoggerLib.");
+            } else {
                 if (ccMain.isDirectory()) {
                     progressLoggerLib = ccMain.getAbsolutePath();
                 } else {
