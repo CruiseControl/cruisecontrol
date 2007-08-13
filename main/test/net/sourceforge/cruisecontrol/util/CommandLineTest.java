@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.File;
 
 /**
- * @author DRollo
+ * @author Dan Rollo
  * Date: Jan 2, 2007
  * Time: 12:08:33 PM
  */
