@@ -397,13 +397,15 @@ public class Maven2BuilderTest extends TestCase {
 
         Maven2Builder mb = new Maven2Builder();
         mb.setTimeout(TIMEOUT_SLEEP);
-        final long startTime = System.currentTimeMillis();
         //Element logElement = internalTestBuild(MOCK_SCRIPT_TIMEOUT, mb);
         setupMockBuild(MOCK_SCRIPT_TIMEOUT, mb);
 
         mb.setGoal("fakegoal");
+
+        final long startTime = System.currentTimeMillis();
+
         // this should "succeed"
-        Element logElement = mb.build(getUnitTestBuildProperties(), null);
+        final Element logElement = mb.build(getUnitTestBuildProperties(), null);
 
         final long endTime = System.currentTimeMillis();
 
