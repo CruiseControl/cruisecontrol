@@ -119,14 +119,14 @@ public class BuildDetailTest extends TestCase {
         Map props = new HashMap();
         props.put("logfile", new File("log20001212050505Lbuild.2.xml"));
         BuildDetail laterBuild = new BuildDetail(props);
-        assertEquals("Passed", laterBuild.getStatus());
+        assertEquals(ProjectBuildStatus.PASSED, laterBuild.getStatus());
     }
 
     public void testShouldReturnPassedAsStringWhenTheBuildFailed() {
         Map props = new HashMap();
         props.put("logfile", new File("log20001212050505.xml"));
         BuildDetail laterBuild = new BuildDetail(props);
-        assertEquals("Failed", laterBuild.getStatus());
+        assertEquals(ProjectBuildStatus.FAILED, laterBuild.getStatus());
     }
 
     public void testPluginOutputShouldBeInOrder() throws Exception {

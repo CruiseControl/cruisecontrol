@@ -83,8 +83,7 @@ public class LatestBuildsListingController implements Controller {
             lastScanTime = now;
             cachedDataMap = new HashMap();
             List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
-            cachedDataMap.put("buildSummaries", buildSummaryUIService
-                    .transform(allProjectsBuildSummaries));
+            cachedDataMap.put("buildSummaries", buildSummaryUIService.transform(allProjectsBuildSummaries, true));
             cachedDataMap.put("command", new ForceBuildCommand());
             cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
                     allProjectsBuildSummaries));

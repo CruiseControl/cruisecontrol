@@ -18,7 +18,7 @@
                   <div class="buildlist_header"><h1>$projectName</h1> &mdash; All builds</div>
                   <div id="container">
                      #foreach( $build in $buildSummaries )
-                         <div class="$build.build.status.toLowerCase() build_profile">
+                         <div class="$build.build.status.status.toLowerCase() build_profile">
                              <a href="$req.getContextPath()/build/detail/$projectName/$build.build.buildLogFilename">$build.build.name $!build.build.label</a>
                         <a href="$req.getContextPath()/build/download/log/$projectName/$build.build.buildLogFilename">Download log</a>
                         </div>

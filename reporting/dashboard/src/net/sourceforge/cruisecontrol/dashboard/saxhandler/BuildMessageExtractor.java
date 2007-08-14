@@ -9,6 +9,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class BuildMessageExtractor extends SAXBasedExtractor {
+    public static final Object KEY_BUILD = "build.error";
+    public static final String KEY_MESSAGES = "build.messages";
 
     private MessageExtractor messageExtractor = new MessageExtractor();
 
@@ -22,9 +24,12 @@ public class BuildMessageExtractor extends SAXBasedExtractor {
 
     private Map messagesResult = new HashMap();
 
+    private String buildError;
+
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         if ("build".equals(qName)) {
             readingBuild = true;
+            buildError = attributes.getValue("error");
             return;
         }
         if ("target".equals(qName)) {
@@ -56,6 +61,7 @@ public class BuildMessageExtractor extends SAXBasedExtractor {
     }
 
     public void report(Map resultSet) {
-        resultSet.put("buildmessages", buildMessages);
+        resultSet.put(KEY_BUILD, buildError);
+        resultSet.put(KEY_MESSAGES, buildMessages);
     }
 }

@@ -54,7 +54,7 @@ public class BuildListingTest extends BaseFunctionalTest {
         tester.assertTextPresent("project1");
         tester.assertTextPresent("readcb");
         tester.assertTextPresent("project name changed to cache");
-        tester.assertLinkPresentWithExactText("story123 project name changed to cache");
+        tester.assertLinkPresentWithExactText("story123");
     }
 
     public void testShouldNOTShowCommitMessageIfNoAnySuccessfulBuild() throws Exception {

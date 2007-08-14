@@ -44,19 +44,23 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/Tooltip.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
+function setUp() {
+	$('buildoutput_span').innerHTML = '';
+}
 
 function test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output() {
 	var build_output = "Build Failed."
-	ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output)
+	BuildDetailExecuter.ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output)
 	assertEquals("Build Failed.", $('buildoutput_span').innerHTML);
+}
+
+function test_should_replace_the_trailing_new_line_as_br() {
+	var build_output = "\n"
+	BuildDetailExecuter.ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output)
+	assertEquals("<br>", $('buildoutput_span').innerHTML.toLowerCase());
 }
 
 </script>

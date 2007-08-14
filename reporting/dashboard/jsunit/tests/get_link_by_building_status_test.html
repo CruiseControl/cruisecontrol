@@ -42,23 +42,22 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CCE Dashboard Tests</title>
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 function test_should_return_link_to_commit_message_when_status_is_not_building() {
 	var json = {
 	  building_info : { project_name : "project1", building_status : "Passed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
     var expected = 'build/detail/' + json.building_info.project_name
-	assertEquals(expected, get_link_by_building_status(json));
+	assertEquals(expected, new BuildBaseExecuter().get_link(json));
 	json = {
 	  building_info : { project_name : "project1", building_status : "Failed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
-	assertEquals(expected, get_link_by_building_status(json));
+	assertEquals(expected, new BuildBaseExecuter().get_link(json));
 }
 
 function test_should_return_link_to_commit_message_when_status_is_building() {
@@ -66,11 +65,11 @@ function test_should_return_link_to_commit_message_when_status_is_building() {
 	  building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
 	}
     var expected = 'build/detail/live/' + json.building_info.project_name;
-	assertEquals(expected, get_link_by_building_status(json));
+	assertEquals(expected, new BuildBaseExecuter().get_link(json));
 }
 
 function test_should_return_null_when_json_is_null() {
-	assertUndefined(get_link_by_building_status(null));
+	assertUndefined(new BuildBaseExecuter().get_link(null));
 }
 </script>
 </head>

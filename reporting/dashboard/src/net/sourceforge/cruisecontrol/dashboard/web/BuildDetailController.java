@@ -96,20 +96,24 @@ public class BuildDetailController extends BaseMultiActionController {
     public ModelAndView live(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         String projectName = DashboardUtils.decode(url[url.length - 1]);
-        String buildStatusStr;
-        buildStatusStr = (String) jmxService.getAllProjectsStatus().get(projectName);
+        String buildStatusStr = (String) jmxService.getAllProjectsStatus().get(projectName);
         ProjectBuildStatus buildStatus = ProjectBuildStatus.getProjectBuildStatus(buildStatusStr);
-        if (!buildStatus.isBuilding()) {
+        if (!ProjectBuildStatus.BUILDING.equals(buildStatus)) {
             return latest(request, response);
         } else {
-            ModelAndView mov = buildDetail(request, projectName, buildService.getActiveBuild(projectName));
-            mov.getModel().put(
-                    "buildSince",
-                    CCDateFormatter.getDateStringInHumanBeingReadingStyle(ProjectBuildStatus
-                            .getTimestamp(buildStatusStr)));
-            return mov;
-
+            return liveWithInformation(request, projectName, buildStatusStr);
         }
+    }
+
+    public ModelAndView liveWithInformation(HttpServletRequest request, String projectName,
+            String buildStatusStr) {
+        ModelAndView mov = buildDetail(request, projectName, buildService.getActiveBuild(projectName));
+        mov.getModel().put("lastStatus", buildSummarySerivce.getLastBuildStatus(projectName).getStatus());
+        mov.getModel().put(
+                "buildSince",
+                CCDateFormatter.getDateStringInHumanBeingReadingStyle(ProjectBuildStatus
+                        .getTimestamp(buildStatusStr)));
+        return mov;
     }
 
     private ModelAndView buildDetail(HttpServletRequest request, String projectName, Build build) {
@@ -117,10 +121,10 @@ public class BuildDetailController extends BaseMultiActionController {
         contextProperties.put(Widget.PARAM_WEB_CONTEXT_PATH, request.getContextPath());
         widgetPluginService.mergePluginOutput((BuildDetail) build, contextProperties);
         Map model = new HashMap();
-        model.put("summaries", buildSummaryUIService
-                .toCommands(buildSummarySerivce.getLastest25(projectName)));
-        model.put("build", buildSummaryUIService.transform(build));
-        model.put("status", build.getStatus());
+        model.put("summaries", buildSummaryUIService.transform(buildSummarySerivce.getLastest25(projectName),
+                false));
+        model.put("build", buildSummaryUIService.transform(build, true));
+        model.put("status", build.getStatus().getStatus());
         model.put("logfile", build.getBuildLogFilename());
         model.put("durationToSuccessfulBuild", buildSummarySerivce.getDurationFromLastSuccessfulBuild(
                 projectName, build.getBuildDate()));

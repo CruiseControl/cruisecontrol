@@ -49,6 +49,7 @@ public final class Localhost {
     private final Server server;
 
     public static void main(String[] args) throws Exception {
+        DataUtils.cloneCCHome();
         Localhost localhost = new Localhost();
         localhost.server.start();
     }
@@ -56,9 +57,17 @@ public final class Localhost {
     private Localhost() throws Exception {
         System.setProperty(DashboardXmlConfigService.PROPS_CC_DASHBOARD_CONFIG, DataUtils
                 .getDashboardConfigXmlOfWebApp().getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR, DataUtils.getLogDirAsFile()
+                .getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR, DataUtils
+                .getProjectDirAsFile().getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR, DataUtils
+                .getArtifactsDirAsFile().getAbsolutePath());
+        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, DataUtils.getConfigXmlAsFile()
+                .getAbsolutePath());
         System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "enabled");
         server = new Server(PORT);
-        server.addHandler(new WebAppContext("webapp", "/"));
+        server.addHandler(new WebAppContext("webapp", "/dashboard"));
     }
 
 }

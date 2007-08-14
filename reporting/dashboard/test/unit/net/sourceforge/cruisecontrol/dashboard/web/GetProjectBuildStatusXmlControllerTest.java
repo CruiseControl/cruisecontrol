@@ -122,8 +122,9 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
         request.setRequestURI("/dashboard/cctray.xml");
         controller.handleRequest(request, response);
         String xml = response.getContentAsString();
-        assertFalse(StringUtils.contains(xml, "name=\"project2\""));
-        assertFalse(StringUtils.contains(xml, "lastBuildLabel=\"build2\""));
+        assertEquals("text/xml", response.getContentType());
+        assertFalse(xml, StringUtils.contains(xml, "name=\"project2\""));
+        assertFalse(xml, StringUtils.contains(xml, "lastBuildLabel=\"build2\""));
     }
 
     public void testShouldReturnAllFieldsInRssFormat() throws Exception {
@@ -132,6 +133,7 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
         request.setRequestURI("/dashboard/rss.xml");
         controller.handleRequest(request, response);
         String xml = response.getContentAsString();
+        assertEquals("text/xml", response.getContentType());
         assertTrue(StringUtils.contains(xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
         assertTrue(StringUtils.contains(xml, "<rss version=\"2.0\">"));
         assertTrue(StringUtils.contains(xml, "<channel>"));

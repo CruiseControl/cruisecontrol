@@ -58,8 +58,7 @@ public class WidgetPluginServiceTest extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         configurationMock =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {null});
+                mock(Configuration.class, new Class[] {ConfigXmlFileService.class}, new Object[] {null});
         service = new WidgetPluginService((Configuration) configurationMock.proxy());
         Map props = new HashMap();
         props.put("projectname", "project1");
@@ -78,16 +77,16 @@ public class WidgetPluginServiceTest extends MockObjectTestCase {
         assertEquals(0, buildDetail.getPluginOutputs().size());
     }
 
-    public void testShouldIngoreNotExistClassAndConintueInitiailizeTheResult() throws Exception {
-        invokeGetCCHome(4, "test/data");
+    public void testShouldIgnoreNonExistentClassAndContinueInitializingTheResult() throws Exception {
+        invokeGetCCHome(5, "test/data");
         service.mergePluginOutput(buildDetail, new HashMap());
-        assertEquals(3, buildDetail.getPluginOutputs().size());
+        assertEquals(4, buildDetail.getPluginOutputs().size());
     }
 
     public void testShouldBeAbleToReturnInitializedServiceWhenCfgIsDefined() throws Exception {
-        invokeGetCCHome(4, "test/data");
+        invokeGetCCHome(5, "test/data");
         service.mergePluginOutput(buildDetail, new HashMap());
-        assertEquals(3, buildDetail.getPluginOutputs().size());
+        assertEquals(4, buildDetail.getPluginOutputs().size());
         assertTrue(buildDetail.getPluginOutputs().containsKey("Merged Check Style"));
         String content = (String) buildDetail.getPluginOutputs().get("Merged Check Style");
         assertTrue(StringUtils.contains(content, "Line has trailing spaces."));
@@ -103,8 +102,7 @@ public class WidgetPluginServiceTest extends MockObjectTestCase {
 
     private void invokeGetCCHome(int times, String path) {
         for (int i = 0; i < times; i++) {
-            configurationMock.expects(once()).method("getCCHome").will(
-                    returnValue(new File(path)));
+            configurationMock.expects(once()).method("getCCHome").will(returnValue(new File(path)));
         }
     }
 }

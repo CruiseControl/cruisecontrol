@@ -8,7 +8,6 @@
 <link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_bar.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_profile.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<script src="$req.getContextPath()/javascripts/Tooltip.js" type="text/javascript"></script>
 <script>
 ajax_periodical_refresh_dashboard_executer()
 Tooltip.showEvent = "mouseover";
@@ -27,7 +26,7 @@ Tooltip.hideEvent = "mouseout";
                         <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
                         <div id="statusbar" class="projects build_status_bar_container">
                                 #foreach( $buildSummary in $buildSummaries )
-                                    #parse("latest_builds/latest_builds_bar_${buildSummary.build.status.toLowerCase()}.vm")
+                                    #parse("latest_builds/latest_builds_bar_${buildSummary.build.status.status.toLowerCase()}.vm")
                                 #end
                         </div>
                         <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
@@ -49,6 +48,7 @@ Tooltip.hideEvent = "mouseout";
 	                        <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
 	                        <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
 	                       </div>
+	                       <div class="clear"> &nbsp; </div>
 	                     </div>
 	                     <div class="clear"> &nbsp; </div>
 	                </div>
@@ -76,7 +76,7 @@ Tooltip.hideEvent = "mouseout";
                             #if ($buildSummaries.size() > 0)
                                 #foreach( $buildSummary in $buildSummaries )
                                     <div id="${buildSummary.build.projectName}_profile_box">
-                                        #parse("latest_builds/latest_builds_profile_${buildSummary.build.status.toLowerCase()}.vm")
+                                        #parse("latest_builds/latest_builds_profile_${buildSummary.build.status.status.toLowerCase()}.vm")
                                     </div>
                                 #end
                             #else

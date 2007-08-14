@@ -48,16 +48,24 @@
 
 /* Define individual icon images for the three project states */
 
-.passed .build_detail_summary, .long_passed .build_detail_summary {
+.passed .build_detail_summary {
 	background-image : url( ../images/icon-success-large.gif );
 }
 
-.failed .build_detail_summary, .long_failed .build_detail_summary {
+.failed .build_detail_summary {
 	background-image : url( ../images/icon-failure-large.gif );
 }
 
 .building .build_detail_summary {
 	background-image : url( ../images/icon-building-large.gif );
+}
+
+.building .build_detail_summary.passed_building {
+	background-image : url( ../images/icon-build-previously-success-large.gif );
+}
+
+.building .build_detail_summary.failed_building {
+	background-image : url( ../images/icon-build-previously-failure-large.gif );
 }
 
 .build_detail_summary h3 {

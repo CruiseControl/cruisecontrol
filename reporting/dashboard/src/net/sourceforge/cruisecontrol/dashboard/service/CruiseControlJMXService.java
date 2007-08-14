@@ -69,11 +69,9 @@ public class CruiseControlJMXService {
 
     private static final Logger LOGGER = Logger.getLogger(CruiseControlJMXService.class);
 
-    private static final String WAITING_STATUS = "waiting for next time to build";
+    public static final String WAITING_STATUS = "waiting for next time to build";
 
-    private static final String[] SUPPORTED_STATUS_ARRAY =
-            new String[] {"bootstrapping", "checking for modifications", "now building",
-                    WAITING_STATUS};
+    private static final String[] SUPPORTED_STATUS_ARRAY = new String[] {"now building", WAITING_STATUS};
 
     private static final List SUPPORTED_STATUS_LIST = Arrays.asList(SUPPORTED_STATUS_ARRAY);
 
@@ -90,8 +88,8 @@ public class CruiseControlJMXService {
         String buildStatus = null;
         try {
             buildStatus =
-                    (String) getJMXConnection().getAttribute(getObjectName(projectName),
-                            JMXATTR_BUILD_STATUS);
+                    (String) getJMXConnection()
+                            .getAttribute(getObjectName(projectName), JMXATTR_BUILD_STATUS);
             return buildStatus;
         } catch (JMException e) {
             jmxFactory.closeConnector();
@@ -141,8 +139,7 @@ public class CruiseControlJMXService {
         try {
             ObjectName objectName = ObjectName.getInstance(ccManagerName);
             Map projectsInfo =
-                    (Map) getJMXConnection()
-                            .getAttribute(objectName, JMXCOMMAND_ALL_PROJECT_STATUS);
+                    (Map) getJMXConnection().getAttribute(objectName, JMXCOMMAND_ALL_PROJECT_STATUS);
             for (Iterator iter = projectsInfo.entrySet().iterator(); iter.hasNext();) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 result.put(entry.getKey(), getSupportedStatus((String) entry.getValue()));
@@ -166,9 +163,8 @@ public class CruiseControlJMXService {
 
     public String[] getBuildOutput(String projectName, int firstLine) {
         try {
-            return (String[]) getJMXConnection().invoke(getObjectName(projectName),
-                    JMXCOMMAND_BUILD_OUTPUT, new Object[] {new Integer(firstLine)},
-                    new String[] {Integer.class.getName()});
+            return (String[]) getJMXConnection().invoke(getObjectName(projectName), JMXCOMMAND_BUILD_OUTPUT,
+                    new Object[] {new Integer(firstLine)}, new String[] {Integer.class.getName()});
         } catch (JMException e) {
             jmxFactory.closeConnector();
             return new String[] {e.toString()};

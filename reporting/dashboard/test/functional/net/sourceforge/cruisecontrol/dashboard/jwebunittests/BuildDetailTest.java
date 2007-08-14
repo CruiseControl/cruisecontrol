@@ -49,8 +49,7 @@ public class BuildDetailTest extends BaseFunctionalTest {
         tester.assertTextPresent("Artifacts");
         tester.assertTextPresent("Merged Check Style");
         tester.assertTextPresent("Line has trailing spaces.");
-        tester.assertLinkPresentWithExactText("#123 project name changed to cache");
-        
+        tester.assertLinkPresentWithExactText("#123");
     }
 
     public void testShouldNotShowArtifactsIfNoPublishersInConfigFile() throws Exception {
@@ -73,5 +72,24 @@ public class BuildDetailTest extends BaseFunctionalTest {
         tester.assertTextPresent("Last successful build");
         tester.assertTextPresent("minutes");
         tester.assertTextPresent("ago");
+    }
+
+    public void testShouldShowErrorsAndWarningTabAndBuildErrorMessages() throws Exception {
+        tester.beginAt("/build/detail/project1/log20051209122104.xml");
+        tester.assertTextPresent("Errors and Warnings");
+        tester.assertTextPresent("Detected OS: Windows XP");
+        tester.assertTextPresent("Cannot find something");
+        tester.assertTextPresent("Ant Error Message");
+        tester.assertTextPresent("This is my error message");
+
+        tester.assertTextPresent("Stacktrace");
+        tester.assertTextPresent("This is my stacktrace");
+    }
+
+    public void testShouldShowDefaultMessagewhenNoErrors() throws Exception {
+        tester.beginAt("/build/detail/project1/log20051209122103Lbuild.489.xml");
+        tester.assertTextPresent("No error message");
+        tester.assertTextPresent("No stacktrace");
+        tester.assertTextPresent("No errors or warnings");
     }
 }

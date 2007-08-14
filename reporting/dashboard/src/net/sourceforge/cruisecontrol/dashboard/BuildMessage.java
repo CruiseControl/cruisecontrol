@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class BuildMessage {
     private String message;
 
@@ -51,7 +53,7 @@ public class BuildMessage {
     }
 
     public String toString() {
-        return message;
+        return ToStringBuilder.reflectionToString(this);
     }
 
     public MessageLevel getLevel() {

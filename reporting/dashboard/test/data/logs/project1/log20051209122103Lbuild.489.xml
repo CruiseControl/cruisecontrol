@@ -78,8 +78,6 @@
     <build time="3 minutes 10 seconds">
         <message priority="debug"><![CDATA[Adding reference: ant.PropertyHelper]]></message>
         <message priority="info"><![CDATA[Detected Java version: 1.4 in: C:\pdj\java\j2sdk1.4.2_09\jre]]></message>
-        <message priority="warn"><![CDATA[Detected OS: Windows XP]]></message>
-        <message priority="error"><![CDATA[Cannot find something]]></message>
         <target name="compile" time="1 second">
             <task location="c:\somedir"
                   name="mkdir" time="0 seconds">

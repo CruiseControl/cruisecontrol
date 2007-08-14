@@ -36,45 +36,40 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 
-public abstract class ProjectBuildStatus {
-    public static final ProjectBuildStatus BOOTSTRAPPING = new StatusBootStrapping();
+public final class ProjectBuildStatus {
+    public static final ProjectBuildStatus BOOTSTRAPPING =
+            new ProjectBuildStatus("Bootstrapping", "bootstrapping");
 
-    public static final ProjectBuildStatus MODIFICATIONSET = new StatusModificationSet();
+    public static final ProjectBuildStatus MODIFICATIONSET =
+            new ProjectBuildStatus("ModificationSet", "checking for modifications");
 
-    public static final ProjectBuildStatus BUILDING = new StatusBuilding();
+    public static final ProjectBuildStatus BUILDING = new ProjectBuildStatus("Building", "now building");
 
-    public static final ProjectBuildStatus WAITING = new StatusWaiting();
+    public static final ProjectBuildStatus WAITING =
+            new ProjectBuildStatus("Waiting", "waiting for next time to build");
 
-    public static final ProjectBuildStatus PASSED = new StatusPassed();
+    public static final ProjectBuildStatus PASSED = new ProjectBuildStatus("Passed", "Passed");
 
-    public static final ProjectBuildStatus FAILED = new StatusFailed();
+    public static final ProjectBuildStatus FAILED = new ProjectBuildStatus("Failed", "Failed");
 
-    public static final ProjectBuildStatus INACTIVE = new StatusInactive();
+    public static final ProjectBuildStatus INACTIVE = new ProjectBuildStatus("Inactive", "Inactive");
 
-    public static List values() {
-        List list = new ArrayList();
-        list.add(BOOTSTRAPPING);
-        list.add(MODIFICATIONSET);
-        list.add(BUILDING);
-        list.add(WAITING);
-        list.add(PASSED);
-        list.add(FAILED);
-        list.add(INACTIVE);
-        return list;
-    }
+    private static final ProjectBuildStatus[] STATUSES =
+            new ProjectBuildStatus[] {BOOTSTRAPPING, MODIFICATIONSET, BUILDING, WAITING, PASSED, FAILED,
+                    INACTIVE};
+
+    private String status;
+
+    private String cruiseStatusString;
 
     public static ProjectBuildStatus getProjectBuildStatus(String statusStr) {
-        List values = ProjectBuildStatus.values();
-        for (int i = 0; i < values.size(); i++) {
-            ProjectBuildStatus status = (ProjectBuildStatus) values.get(i);
+        for (int i = 0; i < STATUSES.length; i++) {
+            ProjectBuildStatus status = STATUSES[i];
             if (StringUtils.indexOf(statusStr, status.toString()) == 0) {
                 return status;
             }
@@ -90,12 +85,16 @@ public abstract class ProjectBuildStatus {
         return CCDateFormatter.format(parts[1], "yyyyMMddHHmmss");
     }
 
-    protected ProjectBuildStatus() {
+    private ProjectBuildStatus(String status, String cruiseStatusString) {
+        this.status = status;
+        this.cruiseStatusString = cruiseStatusString;
     }
 
-    public abstract String getStatus();
+    public String getStatus() {
+        return status;
+    }
 
-    public boolean isBuilding() {
-        return false;
+    public String toString() {
+        return cruiseStatusString;
     }
 }

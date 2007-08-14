@@ -47,6 +47,7 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.AlphabeticalDescOrderComparator;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.BuildSummariesFilters;
@@ -189,5 +190,14 @@ public class BuildSummariesService {
             summaries.add(buildSummaryService.createBuildSummary(buildSummariesFiles[i]));
         }
         return summaries;
+    }
+
+    public ProjectBuildStatus getLastBuildStatus(String projectName) {
+        try {
+            Build latest = getLatest(projectName);
+            return latest == null ? ProjectBuildStatus.PASSED : latest.getStatus();
+        } catch (Exception e) {
+            return ProjectBuildStatus.PASSED;
+        }
     }
 }

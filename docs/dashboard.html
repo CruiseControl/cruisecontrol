@@ -1,254 +1,641 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>CruiseControl Build Loop</title>
-    <style type="text/css" media="all">
-        @import "cruisecontrol.css";
-        @import "dashboard.css";
-    </style>
-    <link href="print.css" type="text/css" rel="stylesheet" media="print"/>
+  <title>CruiseControl Dashboard</title>
+
+
+  <style type="text/css" media="all">
+@import "cruisecontrol.css";
+@import "dashboard.css";
+  </style>
+  <link href="print.css" type="text/css" rel="stylesheet" media="print" />
+
 </head>
+
+
 <body>
+
 <div class="header">
-    <div class="hostedby">Hosted By:<br/>
-        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1"
-                                              width="88"
-                                              height="31" alt="SourceForge"/></a></div>
-    <div class="logo"><img alt="CruiseControl" src="banner.png"/></div>
+<div class="hostedby">Hosted By:<br />
+
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" alt="SourceForge" height="31" width="88" /></a></div>
+
+<div class="logo"><img alt="CruiseControl" src="banner.png" /></div>
+
 </div>
+
 <div class="container">&nbsp;
 <div id="menu">
-    <ul id="menulist">
-        <li class="top"><a href="index.html">home</a></li>
-        <li><a href="download.html">download</a></li>
-        <li><a href="license.html">license</a></li>
-        <li>
-            <h2>documentation</h2>
-        </li>
-        <li><a href="overview.html">overview</a></li>
-        <li><a class="expandmenu" href="../main/docs/index.html">build loop</a></li>
-        <li><a class="expandmenu" href="../reporting/jsp/docs/index.html">results jsp</a></li>
-        <li><p id="menuselected">dashboard</p></li>
-        <li><a href="widgets.html">widgets</a></li>
-        <li><a class="expandmenu" href="gettingstarted.html">getting started</a></li>
-        <li><a href="../main/docs/configxml.html">config ref</a></li>
-        <li><a href="faq.html">faq</a></li>
-        <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
-        <li>
-            <h2>contributing</h2>
-        </li>
-        <li><a class="expandmenu" href="developers.html">developers</a></li>
-        <li><a href="contact.html">mailing lists</a></li>
-        <li><a href="svn.html">source repository</a></li>
-        <li>
-            <p id="menubottom">Release: %%VERSION%%</p>
-        </li>
-    </ul>
+<ul id="menulist">
+
+  <li class="top"><a href="index.html">home</a></li>
+
+  <li><a href="download.html">download</a></li>
+
+  <li><a href="license.html">license</a></li>
+
+  <li>
+    <h2>documentation</h2>
+
+  </li>
+
+  <li><a href="overview.html">overview</a></li>
+
+  <li><a class="expandmenu" href="main/index.html">build loop</a></li>
+
+  <li><a class="expandmenu" href="reporting/jsp/index.html">results jsp</a></li>
+
+  <li>
+    <p id="menuselected">dashboard</p>
+
+  </li>
+
+  <li><a href="widgets.html">widgets</a></li>
+
+  <li><a class="expandmenu" href="gettingstarted.html">getting
+started</a></li>
+
+  <li><a href="main/configxml.html">config
+ref</a></li>
+
+  <li><a href="faq.html">faq</a></li>
+
+  <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+
+  <li>
+    <h2>contributing</h2>
+
+  </li>
+
+  <li><a class="expandmenu" href="developers.html">developers</a></li>
+
+  <li><a href="contact.html">mailing lists</a></li>
+
+  <li><a href="svn.html">source repository</a></li>
+
+  <li>
+    <p id="menubottom">Release: 2.7.1-dev</p>
+
+  </li>
+
+</ul>
+
 </div>
+
 <div class="content">
 <h1>Dashboard</h1>
 
 <h2>What is a CruiseControl Dashboard</h2>
 
-<p>The CruiseControl Dashboard is a powerful tool to help you visualise your projects statuses. Project builds’ statuses
-    are colour-coded so that you can get a snapshot of how your projects are doing instantly.</p>
+<p>The CruiseControl Dashboard is a powerful tool to help you
+visualise your project status. Project
+build status is colour-coded so
+that you can get a snapshot of how your projects are doing instantly.</p>
 
-<p><img src="dashboard/dashboard.jpg" alt="dashboard"/></p>
+<p><img src="dashboard/dashboard.jpg" alt="dashboard" /></p>
 
-<p>When you mouse-over the project builds, represented in the coloured squares, the status is shown.</p>
+<p>When you mouse-over the project builds, represented in the
+coloured squares, the status is shown.</p>
 
 <h3>What do the squares mean?</h3>
-<ul style="list-style:none">
-    <li class="success-long">This indicates a project build has been successful for more than 24 hours.</li>
-    <li class="success">This indicates a project build has been successful for less than 24 hours.</li>
-    <li class="failed-long">This indicates a project build that has failed for more than 24 hours.</li>
-    <li class="failed">This indicates a project build that has failed for less than 24 hours.</li>
-    <li class="building">This indicates a project is currently building.</li>
-    <li class="inactive">This indicates an inactive project.</li>
-</ul>
-<p>Here is a list of options you can do: add a project, link up the RSS feed to the project build, XML for CCTray,
-    and access the CruiseControl JMX console.</p>
 
-<p><img src="dashboard/actions.jpg" alt="actioins"/></p>
+<ul style="list-style-type: none; list-style-image: none; list-style-position: outside;">
+
+  <li class="success-long">This indicates a project build
+has been successful for more than 24 hours.</li>
+
+  <li class="success">This indicates a project build has
+been successful for less than 24 hours.</li>
+
+  <li class="failed-long">This indicates a project build
+that has failed for more than 24 hours.</li>
+
+  <li class="failed">This indicates a project build that
+has failed for less than 24 hours.</li>
+
+  <li class="building">This indicates a project is
+currently building.</li>
+
+  <li class="inactive">This indicates an inactive project.</li>
+
+</ul>
+
+<p>Here is a list of options you can do: add a project, link up
+the RSS feed to the project build, XML for CCTray, and access the
+CruiseControl JMX console.</p>
+
+<p><img src="dashboard/actions.jpg" alt="actioins" /></p>
 
 <h2>Build Page</h2>
 
-<p><img src="dashboard/buildpage.jpg" alt="buildpage"/></p>
+<p><img src="dashboard/buildpage.jpg" alt="buildpage" /></p>
 
-<p>This is the Build page. It enables you to look at each project build and its status. You can do the following actions
-    on each project build:</p>
-<ul style="list-style:none">
-    <li class="view-all-successful">View all successful build</li>
-    <li class="view-all-builds">View all builds</li>
-    <li class="force-build">Force build</li>
-    <li class="control-panel">Access individual project build's RSS feed and the CruiseControl JMX console</li>
+<p>This is the Build page. It enables you to look at each project
+build and its status. You can do the following actions on each project
+build:</p>
+
+<ul style="list-style-type: none; list-style-image: none; list-style-position: outside;">
+
+  <li class="view-all-successful">View all successful build</li>
+
+  <li class="view-all-builds">View all builds</li>
+
+  <li class="force-build">Force build</li>
+
+  <li class="control-panel">Access individual project
+build's RSS feed and the CruiseControl JMX console</li>
+
 </ul>
+
 <h2>Build Detail Page</h2>
 
-<p><img src="dashboard/builddetail.jpg" alt="builddetail"/></p>
+<p><img src="dashboard/builddetail.jpg" alt="builddetail" /></p>
 
-<p>The build detail page contains project build information such as the last successful build, build number,
-    duration of the build and the last 25 builds.</p>
+<p>The build detail page contains project build information such
+as the last successful build, build number, duration of the build and
+the last 25 builds.</p>
 
 <h2>Building Page</h2>
 
-<p><img src="dashboard/building.jpg" alt="building"/></p>
+<p><img src="dashboard/building.jpg" alt="building" /></p>
 
-<p>This is the building page. Whilst the project is building, the Ant output is displayed on-screen.</p>
+<p>This is the building page. Whilst the project is building, the
+Ant output is displayed on-screen.</p>
 
 <h2>Extending the project detail page</h2>
 
-<p>You can extend what you can see about a particular project build by adding tabs to the default ones.</p>
+<p>You can extend what you can see about a particular project
+build by adding tabs to the default ones.</p>
 
 <h3>Panopticode</h3>
 
-<p><img src="dashboard/panopticode.jpg" alt="panopticode"/></p>
+<p><img src="dashboard/panopticode.jpg" alt="panopticode" /></p>
 
-<p><a href="http://www.panopticode.org">Panopticode</a> is provided by default. You can easily enable Panopticode
-    views on your project builds. For more details go to <a href="widgets.html">CruiseControl Widgets</a>.</p>
+<p><a href="http://www.panopticode.org">Panopticode</a>
+is provided by default. You can easily enable Panopticode views on your
+project builds. For more details go to <a href="widgets.html">CruiseControl
+Widgets</a>.</p>
 
 <h2>Administration Page</h2>
 
-<p><img src="dashboard/admin.jpg" alt="admin"/></p>
+<p><img src="dashboard/admin.jpg" alt="admin" /></p>
 
-<p>In this page you can enter the configuration file path and edit the configuration file. You can also remove project
-    builds via this page by manually deleting the project builds.</p>
+<p>In this page you can enter the configuration file path and
+edit the configuration file. You can also remove project builds via
+this page by manually deleting the project builds.</p>
 
 <h2>Installation guide</h2>
 
-<p>Users are free to use system properties or context parameters in web.xml to configure the dashboard application. </p>
+<p>Users are free to use system properties or dashboard
+configuration file&nbsp;to configure the dashboard application. </p>
 
 <h3>System property</h3>
 
-<p>Administrators can pass system properties through cruisecontronl.sh/cruisecontrol.bat or the startup script of the
-    web container.</p>
+<p>Administrators can pass system properties through
+cruisecontronl.sh/cruisecontrol.bat or the startup script of the web
+container.</p>
+
 <table>
-    <thead>
-        <tr>
-            <td>Property</td>
-            <td>Value</td>
-            <td>Default Value</td>
-            <td>Description</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>cc.config.file</td>
-            <td>String</td>
-            <td>N/A</td>
-            <td>path to CRUISE_HOME/config.xml</td>
-        </tr>
-        <tr>
-            <td>cc.config.editable</td>
-            <td>true/false</td>
-            <td>true</td>
-            <td>whether users can edit config.xml from gui</td>
-        </tr>
-        <tr>
-            <td>cc.jmxport</td>
-            <td>int</td>
-            <td>8000</td>
-            <td>port of the JMX HttpAdapter</td>
-        </tr>
-        <tr>
-            <td>cc.rmiport</td>
-            <td>int</td>
-            <td>1099</td>
-            <td>RMI port of the JMX Controller</td>
-        </tr>
-        <tr>
-            <td>cc.config.forcebuild</td>
-            <td>enabled/disabled</td>
-            <td>enabled</td>
-            <td>whether users can force a build from gui</td>
-        </tr>
-        <tr>
-            <td>cc.logdir</td>
-            <td>String</td>
-            <td>logs</td>
-            <td>This should be the full path to your CruiseControl logs directory.</td>
-        </tr>
-        <tr>
-            <td>cc.artifacts</td>
-            <td>String</td>
-            <td>artifacts</td>
-            <td>This should be the full path to your CruiseControl artifacts directory.</td>
-        </tr>
-        <tr>
-            <td>cc.projects</td>
-            <td>String</td>
-            <td>projects</td>
-            <td>This should be the full path to your CruiseControl projects directory.</td>
-        </tr>
-    </tbody>
+
+  <thead> <tr>
+
+    <td>Property</td>
+
+    <td>Value</td>
+
+    <td>Default Value</td>
+
+    <td>Description</td>
+
+  </tr>
+
+  </thead> <tbody>
+
+    <tr>
+
+      <td>cc.config.file</td>
+
+      <td>String</td>
+
+      <td>N/A</td>
+
+      <td>path to CRUISE_HOME/config.xml</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.config.editable</td>
+
+      <td>true/false</td>
+
+      <td>true</td>
+
+      <td>whether users can edit config.xml from gui</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.jmxport</td>
+
+      <td>int</td>
+
+      <td>8000</td>
+
+      <td>port of the JMX HttpAdapter</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.rmiport</td>
+
+      <td>int</td>
+
+      <td>1099</td>
+
+      <td>RMI port of the JMX Controller</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.config.forcebuild</td>
+
+      <td>enabled/disabled</td>
+
+      <td>enabled</td>
+
+      <td>whether users can force a build from gui</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.logdir</td>
+
+      <td>String</td>
+
+      <td>logs</td>
+
+      <td>This should be the full path to your CruiseControl logs
+directory.</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.artifacts</td>
+
+      <td>String</td>
+
+      <td>artifacts</td>
+
+      <td>This should be the full path to your CruiseControl
+artifacts directory.</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cc.projects</td>
+
+      <td>String</td>
+
+      <td>projects</td>
+
+      <td>This should be the full path to your CruiseControl
+projects directory.</td>
+
+    </tr>
+
+  </tbody>
 </table>
 
+<h3>Dashboard Configuration File</h3>
 
-<h3>Context parameter</h3>
+<p>By default Dashboard uses &nbsp;<EM>dashboard-config.xml</EM>&nbsp; which is under CruiseControl installation directory as dashboard configuration file. Administrator can specify the location of the dashboard configuration file in&nbsp; <EM> cruisecontronl.sh/cruisecontrol.bat </EM>&nbsp; by setting the value of&nbsp; <EM>dashboard.config system property</EM>.</p>
 
-<p>Administrators can manually edit the web.xml to configure the dashboard application.</p>
+<h2><a name="buildloop">&lt;buildloop&gt;</a></h2>
+
+<div class="hierarchy">
+<pre>&lt;dashboard&gt;<br /> &lt;buildloop&gt;</pre>
+
+</div>
+
+<p>The &lt;buildloop&gt; tag is used to specify
+properties related to cruisecontrol build loop.&nbsp;</p>
+
+<h3>Attributes</h3>
+
+<table class="documentation">
+
+  <thead> <tr>
+
+    <th>Attribute</th>
+
+    <th>Description</th>
+
+  </tr>
+
+  </thead> <tbody>
+
+    <tr class="oddrow">
+
+      <td>home</td>
+
+      <td>Absolute path to cc.home.</td>
+
+    </tr>
+
+    <tr class="eggrow">
+
+      <td>configfile</td>
+
+      <td>Absolute path to your configuration file of
+cruisecontrol.</td>
+
+    </tr>
+
+    <tr class="oddrow">
+
+      <td>logsdir</td>
+
+      <td>This should be the full path to your CruiseControl logs
+directory.</td>
+
+    </tr>
+
+    <tr class="eggrow">
+
+      <td>artifactsdir</td>
+
+      <td>This should be the full path to your CruiseControl
+artifacts directory.</td>
+
+    </tr>
+
+    <tr class="oddrow">
+
+      <td>projectsdir</td>
+
+      <td>This should be the full path to your CruiseControl
+projects directory.</td>
+
+    </tr>
+
+    <tr class="eggrow">
+
+      <td>jmxport</td>
+
+      <td>port of the JMX HttpAdapter.</td>
+
+    </tr>
+
+    <tr class="oddrow">
+
+      <td>rmiport</td>
+
+      <td>RMI port of the JMX Controller.</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<h2><a name="features">&lt;features&gt;</a></h2>
+
+<div class="hierarchy">
+<pre>&lt;dashboard&gt;<br /> &lt;features&gt;</pre>
+
+</div>
+
+<p>The &lt;features&gt; tag is used to specify
+properties&nbsp;which will customize the behaviour of
+dashboard.&nbsp;</p>
+
+<h3>Attributes</h3>
+
+<table class="documentation">
+
+  <thead> <tr>
+
+    <th>Attribute</th>
+
+    <th>Description</th>
+
+  </tr>
+
+  </thead> <tbody>
+
+    <tr class="oddrow">
+
+      <td>allowforcebuild</td>
+
+      <td>whether users can force a build from gui.
+&nbsp;true or false.</td>
+
+    </tr>
+
+    <tr class="eggrow">
+
+      <td>alloweditconfig</td>
+
+      <td>whether users can edit config.xml from gui. true or
+false.</td>
+
+    </tr>
+
+  </tbody>
+</table>
+
+<h2><a name="trackingtool">&lt;trackingtool&gt;</a></h2>
+
+<div class="hierarchy">
+<pre>&lt;dashboard&gt;<br /> &lt;trackingtool&gt;</pre>
+
+</div>
+
+<p>The &lt;trackingtool&gt; tag is used to specify
+properties&nbsp;which will be used to create hyper link to project
+management tools.&nbsp; Each of your projects could have zero or one &lt;trackingtool&gt; </p>
+<p>Dashboard will parse your commit message to find story number which following with some keywords. and generate the hyper link based on
+the baseurl you defined and the story number.</p>
+
+<p>For example: If you check in source code with message "I fixed bug #425" and define your &lt;trackingtool&gt; as below:</p>
+<p>&nbsp; &nbsp; &lt;trackingtool projectname="cc" baseurl="http://mingle05/projects/ccee/cards/" keywords="#,build"/&gt;</p>
+In this case, Dashboard will create hyperlink "&lt;a
+href=http://mingle05/projects/ccee/cards/425&gt;I fixed bug #425&lt;/a&gt;" &nbsp;for the commit
+message.
+<h3>Attributes</h3>
+
+<table class="documentation">
+
+  <thead> <tr>
+
+    <th>Attribute</th>
+
+    <th>Description</th>
+
+  </tr>
+
+  </thead> <tbody>
+
+    <tr class="oddrow">
+
+      <td>projectname</td>
+
+      <td>Your project name in cruisecontrol.</td>
+
+    </tr>
+
+    <tr class="eggrow">
+
+      <td>baseurl</td>
+
+      <td>The base url of your project in&nbsp;project management tool</td>
+
+    </tr>
+
+    <tr class="oddrow">
+
+      <td>keywords</td>
+
+      <td>The keywords in your commit message. separated by comma.</td>
+
+    </tr>
+
+  </tbody>
+</table>
+<h3><br />
+</h3>
+<h3>Context parameter (Deprecated. Use System Property or Dashboard configuration file instead.)</h3>
+
+<p>Administrators can manually edit the web.xml to configure the
+dashboard application.</p>
+
 <table>
-    <thead>
-        <tr>
-            <td>Property</td>
-            <td>Value</td>
-            <td>Default Value</td>
-            <td>Description</td>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>cruisecontrol.config.file</td>
-            <td>String</td>
-            <td>N/A</td>
-            <td>path to CRUISE_HOME/config.xml</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.config.editable</td>
-            <td>true/false</td>
-            <td>true</td>
-            <td>whether users can edit config.xml from gui</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.jmxport</td>
-            <td>int</td>
-            <td>8000</td>
-            <td>port of the JMX HttpAdapter</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.rmiport</td>
-            <td>int</td>
-            <td>1099</td>
-            <td>RMI port of the JMX Controller</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.config.forcebuild</td>
-            <td>enabled/disabled</td>
-            <td>enabled</td>
-            <td>whether users can force a build from gui</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.logdir</td>
-            <td>String</td>
-            <td>logs</td>
-            <td>This should be the full path to your CruiseControl logs directory.</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.artifacts</td>
-            <td>String</td>
-            <td>artifacts</td>
-            <td>This should be the full path to your CruiseControl artifacts directory.</td>
-        </tr>
-        <tr>
-            <td>cruisecontrol.projects</td>
-            <td>String</td>
-            <td>projects</td>
-            <td>This should be the full path to your CruiseControl projects directory.</td>
-        </tr>
-    </tbody>
+
+  <thead> <tr>
+
+    <td>Property</td>
+
+    <td>Value</td>
+
+    <td>Default Value</td>
+
+    <td>Description</td>
+
+  </tr>
+
+  </thead> <tbody>
+
+    <tr>
+
+      <td>cruisecontrol.config.file</td>
+
+      <td>String</td>
+
+      <td>N/A</td>
+
+      <td>path to CRUISE_HOME/config.xml</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.config.editable</td>
+
+      <td>true/false</td>
+
+      <td>true</td>
+
+      <td>whether users can edit config.xml from gui</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.jmxport</td>
+
+      <td>int</td>
+
+      <td>8000</td>
+
+      <td>port of the JMX HttpAdapter</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.rmiport</td>
+
+      <td>int</td>
+
+      <td>1099</td>
+
+      <td>RMI port of the JMX Controller</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.config.forcebuild</td>
+
+      <td>enabled/disabled</td>
+
+      <td>enabled</td>
+
+      <td>whether users can force a build from gui</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.logdir</td>
+
+      <td>String</td>
+
+      <td>logs</td>
+
+      <td>This should be the full path to your CruiseControl logs
+directory.</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.artifacts</td>
+
+      <td>String</td>
+
+      <td>artifacts</td>
+
+      <td>This should be the full path to your CruiseControl
+artifacts directory.</td>
+
+    </tr>
+
+    <tr>
+
+      <td>cruisecontrol.projects</td>
+
+      <td>String</td>
+
+      <td>projects</td>
+
+      <td>This should be the full path to your CruiseControl
+projects directory.</td>
+
+    </tr>
+
+  </tbody>
 </table>
 
 </div>
+
 </div>
+
 </body>
 </html>

@@ -72,8 +72,8 @@ public class BuildService {
 
     public Build getActiveBuild(final String projectName) {
         return new BuildDetail(new HashMap()) {
-            public String getStatus() {
-                return ProjectBuildStatus.BUILDING.getStatus();
+            public ProjectBuildStatus getStatus() {
+                return ProjectBuildStatus.BUILDING;
             }
 
             public String getProjectName() {

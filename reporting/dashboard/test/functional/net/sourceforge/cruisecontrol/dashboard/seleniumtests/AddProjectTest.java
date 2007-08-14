@@ -51,38 +51,39 @@ public class AddProjectTest extends SeleniumTestCase {
 
     public void testShouldBeAbleToAddNewProjectToConfigXml() throws Exception {
         selenium.open("/dashboard/admin/config");
-        String text = selenium.getText("configFileContent");
-        assertFalse(StringUtils.contains(text, "addProjectTestProject"));
-        selenium.open("/dashboard/admin/action/add");
+        String contentOfConfigXml = selenium.getText("configFileContent");
+        assertFalse(StringUtils.contains(contentOfConfigXml, "addProjectTestProject"));
+        openAndWaiting("/dashboard/admin/action/add", 5);
         selenium.type("projectName", "addProjectTestProject");
         selenium.type("url", "valid");
-        selenium.click("addButton");
-        Thread.sleep(2000);
-        assertTrue(selenium.isTextPresent("Project added."));
-        selenium.open("/dashboard/admin/config");
-        text = selenium.getText("configFileContent");
-        assertTrue(StringUtils.contains(text, "addProjectTestProject"));
-        selenium.open("/dashboard/dashboard?s=1");
+        selenium.click("add_project_btn");
+        waitingForTextAppear("Project added.", 1 * AJAX_DURATION);
+        openAndWaiting("/dashboard/admin/config", 5);
+        contentOfConfigXml = selenium.getText("configFileContent");
+        assertTrue(StringUtils.contains(contentOfConfigXml, "addProjectTestProject"));
+        openAndWaiting("/dashboard/dashboard?s=1", 5);
         assertTrue(selenium.isTextPresent("addProjectTestProject"));
+
         selenium.open("/dashboard/forcebuild.ajax?projectName=addProjectTestProject");
-        selenium.open("/dashboard/dashboard?s=1");
-        createLogFile();
-        Thread.sleep(19000);
+        openAndWaiting("/dashboard/dashboard?s=1", 5);
+        waitingForTextAppear(BUILDING_STARTED, FORCE_BUILD_DURATION);
+        createFailedLogFile();
         String htmlSource = selenium.getHtmlSource();
         assertTrue(StringUtils.contains(htmlSource, "detail/live/addProjectTestProject"));
         assertTrue(StringUtils.contains(htmlSource, "list/all/addProjectTestProject"));
         assertTrue(StringUtils.contains(htmlSource, "list/passed/addProjectTestProject"));
         assertFalse(selenium.isTextPresent("NaN"));
+
         selenium.click("addProjectTestProject_config_panel");
         assertTrue(selenium.isVisible("toolkit_addProjectTestProject"));
-        Thread.sleep(35000);
+
+        waitingForTextDisappear(BUILDING_STARTED, BUILD_DURATION);
         htmlSource = selenium.getHtmlSource();
-        String exptectedBar = "id=\"addProjectTestProject_bar\" class=\"bar round_corner failed";
-        assertTrue(StringUtils.contains(htmlSource, exptectedBar));
+        hasClassName(htmlSource, "addProjectTestProject_bar", "failed");
         assertTrue(StringUtils.contains(htmlSource, "detail/addProjectTestProject"));
     }
 
-    private void createLogFile() throws Exception {
+    private void createFailedLogFile() throws Exception {
         addProjectTestProject = new File(DataUtils.getLogRootOfWebapp(), "addProjectTestProject");
         addProjectTestProject.mkdir();
         File log = new File(addProjectTestProject, "log20051209122103.xml");

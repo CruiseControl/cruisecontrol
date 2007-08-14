@@ -82,7 +82,7 @@
 
 /* On the admin page the message is displayed inline, not on top of other elements */
 
-.admin.transparent_message {
+.transparent_message.admin {
   width: 90%;
   text-align: center center;
   font-size: 12px;
@@ -95,7 +95,7 @@
   margin: 0px 0px 0px 0px;
 }
 
-.cc_status.transparent_message {
+.transparent_message.cc_status {
   font-size: 1.3em;
   font-weight: bold;
   text-align: left;

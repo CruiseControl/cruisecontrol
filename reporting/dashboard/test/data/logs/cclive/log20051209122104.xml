@@ -75,7 +75,7 @@
                   value="C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\logs\connectfour"/>
         <property name="logfile" value="log20051209122103Lbuild.0.xml"/>
     </info>
-    <build time="3 minutes 10 seconds">
+    <build error="time out">
         <message priority="debug"><![CDATA[Adding reference: ant.PropertyHelper]]></message>
         <message priority="info"><![CDATA[Detected Java version: 1.4 in: C:\pdj\java\j2sdk1.4.2_09\jre]]></message>
         <message priority="warn"><![CDATA[Detected OS: Windows XP]]></message>

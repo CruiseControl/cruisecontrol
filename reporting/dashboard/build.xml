@@ -53,6 +53,7 @@
 	<property name="functionaltest.dir" value="${test.dir}/functional" />
 	<property name="reports.dir" value="${build.dir}/reports" />
 	<property name="emma.dir" location="target/emma" />
+	<property name="jsunit.dir" location="jsunit" />
 
 	<import file="checklicense.xml" />
 
@@ -99,6 +100,9 @@
 		<delete dir="${emma.dir}/classes" quiet="true" />
 		<delete dir="${build.dir}" quiet="true" />
 		<delete dir="${app.classes.dir}" quiet="true" />
+		<delete dir="${jsunit.dir}/ccjs" quiet="true" />
+		<delete dir="${jsunit.dir}/logs" quiet="true" />
+		<delete dir="${war.src.dir}/compressed" quiet="true" />
 	</target>
 
 	<target name="-check-jdk">
@@ -143,8 +147,12 @@
 	<target name="-unit-tests">
 		<mkdir dir="${reports.dir}" />
 		<mkdir dir="${test.classes.dir}/build" />
-		<junit printsummary="true" dir="${basedir}" haltonfailure="true" fork="true" forkMode="once">
+		<junit printsummary="yes" dir="${basedir}" haltonfailure="true" fork="true" forkMode="once">
 			<classpath refid="test.classpath" />
+
+			<formatter type="brief" usefile="false" />
+            <formatter type="xml" />
+
 			<jvmarg value="-Demma.coverage.out.file=${emma.dir}/coverage.emma" />
 			<jvmarg value="-Demma.coverage.out.merge=true" />
 
@@ -205,6 +213,7 @@
 		<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
 			<fileset dir="${war.dir}">
 				<exclude name="**/applicationContext-development.xml" />
+				<exclude name="javascripts/*.js" />
 			</fileset>
 			<lib dir="${ccmain.dist.dir}">
 				<include name="cruisecontrol.jar" />
@@ -222,7 +231,10 @@
 	<target name="-war.development">
 		<mkdir dir="${dist.dir}" />
 		<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
-			<fileset dir="${war.dir}" />
+			<fileset dir="${war.dir}">
+				<exclude name="javascripts" />
+			</fileset>
+			<filename name="${war.dir}/javascripts/all.js"/>
 			<classes dir="${test.classes.dir}" />
 			<lib dir="lib" />
 		</war>
@@ -251,6 +263,7 @@
 			<sysproperty key="cc.home" value="${basedir}/test/data"/>
 			<sysproperty key="cc.artifacts" value="${basedir}/test/data/arbitrary_artifacts/artifacts"/>
 			<sysproperty key="cc.config.file" value="${basedir}/test/data/config.xml"/>
+			<sysproperty key="cc.config.forcebuild" value="enabled"/>
 			<classpath refid="test.classpath" />
 		</java>
 	</target>
@@ -296,9 +309,9 @@
 	</target>
 
 	<target name="-jsunit" unless="not.jdk1.5">
-		<copy todir="jsunit/ccjs" overwrite="true">
-			<fileset dir="${war.src.dir}/javascripts">
-				<include name="*.js" />
+		<copy todir="jsunit/compressed" overwrite="true">
+			<fileset dir="${war.src.dir}/compressed">
+				<include name="all.js" />
 			</fileset>
 		</copy>
 		<echo message="${lib}" />
@@ -330,20 +343,41 @@
 	<target name="-stop.selenium.server">
 		<get taskname="selenium-shutdown" src="http://localhost:4444/selenium-server/driver/?cmd=shutDown" dest="selenium-result.txt" ignoreerrors="true" />
 	</target>
+	
+	<taskdef name="jsmin" classname="org.inconspicuous.jsmin.JSMinTask" classpathref="test.classpath"></taskdef>
 
-	<target name="--compile" depends="-clean, -copy.resources.web, -compile" />
+	<target name="-compress.js">
+		<concat destfile="${war.src.dir}/compressed/all.js">
+			<fileset file="${war.src.dir}/javascripts/prototype.js"/>
+			<fileset file="${war.src.dir}/javascripts/build_base_executer.js"/>
+			<fileset file="${war.src.dir}/javascripts/effects.js"/>
+			<fileset dir="${war.src.dir}/javascripts" includes="*.js" excludes="prototype.js,scriptaculous.js,build_base_executer.js,effects.js"/>
+  		</concat>
+		<jsmin file="${war.src.dir}/compressed/all.js"/>
+	</target>
+
+	<target name="-compress.css">
+		<concat destfile="${war.src.dir}/compressed/all.css">
+			<fileset dir="${war.src.dir}/css" includes="*.css"/>
+		</concat>
+	</target>
+
+	<target name="--compile" depends="-clean, --compress, -copy.resources.web, -compile" />
+	<target name="--war.production" depends="-properties.production, -war.production" />
+	<target name="--war.development" depends="-properties.development, -war.development" />
 	<target name="--run.unit.tests" depends="--compile, -compile-tests, -properties.development, -unit-tests" />
 	<target name="--run.functional.tests" depends="--prepare.functional.tests, -functional-tests" />
 	<target name="--stat" depends="-emma.clean, --compile, -compile-tests,-properties.development, -emma.instr, -unit-tests, -emma.reporting, -emma.check" />
 	<target name="--start-jetty-server" depends="--package.development, -start.jetty.server.with.sys" />
 	<target name="--run.all.tests" depends="--check.license, --run.unit.tests, --run.functional.tests, -checkstyle-main" />
-	<target name="--package.production" depends="-clean, --compile, -properties.production, -war.production" />
-	<target name="--package.development" depends="-clean, --compile, -compile-tests, -properties.development, -war.development" />
-	<target name="--prepare.functional.tests" depends="--compile, -compile-tests, -war.development, -properties.development" />
+	<target name="--package.production" depends="-clean, --compile, --war.production" />
+	<target name="--package.development" depends="-clean, --compile, -compile-tests, --war.production" />
+	<target name="--prepare.functional.tests" depends="--compile, -compile-tests, --war.development" />
 	<target name="--run.selenium.tests" depends="-start.selenium.server, -selenium.tests, -stop.selenium.server" />
 	<target name="--selenium" depends="--prepare.functional.tests, -start.selenium.server, -selenium.tests, -stop.selenium.server" />
-	<target name="--dist" depends="-clean, --run.all.tests, -properties.production, -war.production" />
-	<target name="--product" depends="--compile, -properties.production, -war.production" description="build and package war without testing" />
+	<target name="--dist" depends="-clean, --run.all.tests, --war.production" />
+	<target name="--product" depends="--compile, --war.production" description="build and package war without testing" />
+	<target name="--compress" depends="-compress.js, -compress.css" description="compresses all the js and css files to speed up browser load" />
 
 	<target name="package.development" depends="--package.development" description="package for development" />
 	<target name="package.production" depends="--package.production" description="package application for production" />
@@ -355,10 +389,11 @@
 	<target name="clean" depends="-clean" description="clean all" />
 	<target name="stat" depends="--stat" description="generating the test coverage of source code" />
 	<target name="checkstyle" depends="-checkstyle-main" description="checkstyle" />
-	<target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, -jsunit" description="run jsunit test" />
+	<target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, --compress, -jsunit" description="run jsunit test" />
 	<target name="selenium" depends="--selenium" description="run selenium test" />
 	<target name="dist" depends="--dist" description="build and package war" />
 	<target name="product" depends="--product" description="build and package war without testing" />
+	<target name="compress" depends="--compress" description="compress the javascripts and css files" />
 </project>
 
 

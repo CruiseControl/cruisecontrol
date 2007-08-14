@@ -54,19 +54,22 @@ import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
 import org.apache.commons.collections.ListUtils;
+import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
 public class GetProjectBuildStatusController implements Controller {
     public static final String PROJECT_STATUS_IN_BUILDING = "Building";
 
+    private static final int CACHE_MILLISECONDS = 5000;
+
+    private static final Logger LOGGER = Logger.getLogger(GetProjectBuildStatusController.class);
+
     private CruiseControlJMXService cruiseControlJMXService;
 
     private final BuildSummariesService buildSummariesSerivce;
 
     private final BuildSummaryUIService uiService;
-
-    private static final int CACHE_MILLISECONDS = 5000;
 
     private long lastScanTime = 0;
 
@@ -88,12 +91,13 @@ public class GetProjectBuildStatusController implements Controller {
                 if (cruiseControlJMXService.isCruiseAlive()) {
                     List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
                     projectsBuildSummaries = updateWithLiveStatus(projectsBuildSummaries);
-                    List buildSummaryCommands = uiService.transform(projectsBuildSummaries);
+                    List buildSummaryCommands = uiService.transform(projectsBuildSummaries, true);
                     cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
                 } else {
                     cachedBuildInfo.put("error", "cruisecontrol unavailable");
                 }
             } catch (Exception e) {
+                LOGGER.warn(e);
                 cachedBuildInfo.put("error", e.getMessage());
             }
         }
@@ -125,5 +129,4 @@ public class GetProjectBuildStatusController implements Controller {
         }
         return infos;
     }
-
 }

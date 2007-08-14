@@ -37,48 +37,46 @@ public class ServletContextConfigService implements ServletContextAware, Dashboa
     }
 
     public String getArtifactsDir() throws ConfigurationException {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_ARTIFACTS_DIR));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_ARTIFACTS_DIR);
     }
 
     public String getConfigXml() {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_FILE));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_FILE);
     }
 
     public String getJMXPort() {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_JMX_PORT));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_JMX_PORT);
     }
 
     public String getLogsDir() throws ConfigurationException {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_LOG_DIR));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_LOG_DIR);
     }
 
     public String getProjectsDir() throws ConfigurationException {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_PROJECTS_DIR));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_PROJECTS_DIR);
     }
 
     public String getRMIPort() {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_RMI_PORT));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_RMI_PORT);
     }
 
     public String isConfigFileEditable() {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext.getInitParameter(CONTEXT_CC_CONFIG_EDITABLE));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_EDITABLE);
     }
 
     public String isForceBuildEnabled() {
-        LOGGER.warn(WARNING_MESSAGE);
-        return StringUtils.defaultString(servletContext
-                .getInitParameter(CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED));
+        return getValueAndwarnDeprecated(CONTEXT_CC_CONFIG_FORCEBUILD_ENABLED);
     }
 
     public String getCCHome() {
-        LOGGER.warn(WARNING_MESSAGE);
         return "";
+    }
+
+    private String getValueAndwarnDeprecated(final String parameter) {
+        String value = StringUtils.defaultString(servletContext.getInitParameter(parameter));
+        if (!StringUtils.isEmpty(value)) {
+            LOGGER.warn(WARNING_MESSAGE);
+        }
+        return value;
     }
 }

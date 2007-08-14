@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.dashboard.testhelpers;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
+
 public final class FilesystemUtils {
 
     private static final String ROOT = "target" + File.separator + "testfiles";
@@ -48,13 +50,22 @@ public final class FilesystemUtils {
 
     public static File createDirectory(String directoryName) {
         File directory = new File(getTestRootDir(), directoryName);
+        deleteDirectory(directory);
         directory.mkdir();
         directory.deleteOnExit();
         return directory;
     }
 
+    private static void deleteDirectory(File directory) {
+        try {
+            FileUtils.deleteDirectory(directory);
+        } catch (IOException e) {
+        }
+    }
+
     public static File createDirectory(String directoryName, String parent) {
         File directory = new File(getTestRootDir(), parent + File.separator + directoryName);
+        deleteDirectory(directory);
         directory.mkdir();
         directory.deleteOnExit();
         return directory;

@@ -59,11 +59,11 @@ public class CCTrayBuildSummaryAdapter implements XmlAdapter {
     }
 
     public String getActivity() {
-        String status = summary.getStatus();
-        if (status.equals(ProjectBuildStatus.BOOTSTRAPPING.getStatus()) || status
-                .equals(ProjectBuildStatus.MODIFICATIONSET.getStatus())) {
+        ProjectBuildStatus status = summary.getStatus();
+        if (status.equals(ProjectBuildStatus.BOOTSTRAPPING)
+                || status.equals(ProjectBuildStatus.MODIFICATIONSET)) {
             return "CheckingModifications";
-        } else if (status.equals(ProjectBuildStatus.BUILDING.getStatus())) {
+        } else if (status.equals(ProjectBuildStatus.BUILDING)) {
             return "Building";
         } else {
             return "Sleeping";
@@ -84,12 +84,12 @@ public class CCTrayBuildSummaryAdapter implements XmlAdapter {
 
     public String toXml() {
         StringBuffer sb = new StringBuffer();
-        sb.append("<Project").append(" name=").append(quote(this.getName())).append(" activity=")
-                .append(quote(this.getActivity())).append(" lastBuildStatus=").append(quote(this.getLastBuildStatus()))
-                .append(" lastBuildLabel=").append(quote(this.getLastBuildLabel())).append(" lastBuildTime=")
-                .append(quote(this.getLastBuildTime())).append(" webUrl=")
-                .append(quote(baseUrl + "build/detail/" + this.getName()))
-                .append(" />").append("\n");
+        sb.append("<Project").append(" name=").append(quote(this.getName())).append(" activity=").append(
+                quote(this.getActivity())).append(" lastBuildStatus=").append(
+                quote(this.getLastBuildStatus())).append(" lastBuildLabel=").append(
+                quote(this.getLastBuildLabel())).append(" lastBuildTime=").append(
+                quote(this.getLastBuildTime())).append(" webUrl=").append(
+                quote(baseUrl + "build/detail/" + this.getName())).append(" />").append("\n");
         return sb.toString();
     }
 

@@ -130,9 +130,9 @@
 .failed .r3{background:#FFC2C9;}
 .failed .r4{background:#FFC2C9;}
 
-.building .r2{background:#f9d861;}
-.building .r3{background:#f9d861;}
-.building .r4{background:#f9d861;}
+building .r2{background:#f9d861;}
+building .r3{background:#f9d861;}
+building .r4{background:#f9d861;}
 
 .inactive .r2{background:#ccc;}
 .inactive .r3{background:#ccc;}

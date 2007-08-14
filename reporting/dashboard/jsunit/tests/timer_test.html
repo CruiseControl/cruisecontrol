@@ -42,13 +42,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CCE Dashboard Tests</title>
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 
 Timer.prototype.get_elapsed_time = function() {
@@ -96,9 +94,9 @@ function test_timer_should_update_project_profile_box_with_specific_time() {
   content = $('project1_time_remaining').innerHTML
   assertEquals("00:04:59", content);
   content = $('project1_time_elapsed_lable').innerHTML
-  assertEquals("Elapsed ", content);
+  assertEquals("Elapsed&nbsp;", content);
   content = $('project1_time_remaining_lable').innerHTML
-  assertEquals(" remaining ", content);
+  assertEquals("&nbsp;remaining&nbsp;", content);
 }
 
 function test_timer_should_update_project_profile_box_with_specific_time_and_elapsed_time() {
@@ -111,9 +109,9 @@ function test_timer_should_update_project_profile_box_with_specific_time_and_ela
   content = $('project1_time_remaining').innerHTML
   assertEquals("00:04:49", content);
   content = $('project1_time_elapsed_lable').innerHTML
-  assertEquals("Elapsed ", content);
+  assertEquals("Elapsed&nbsp;", content);
   content = $('project1_time_remaining_lable').innerHTML
-  assertEquals(" remaining ", content);
+  assertEquals("&nbsp;remaining&nbsp;", content);
 }
 
 function test_should_not_throw_any_exception_when_the_target_html_element_missing() {

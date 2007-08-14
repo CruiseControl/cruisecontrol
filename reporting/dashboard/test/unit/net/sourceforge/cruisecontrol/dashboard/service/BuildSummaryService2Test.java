@@ -50,11 +50,12 @@ public class BuildSummaryService2Test extends TestCase {
     public void testTheStatusIsInactiveWhenCreateNewBuild() throws Exception {
         Build summary = new BuildSummaryService().createInactive(new File("project1"));
         assertEquals("project1", summary.getProjectName());
-        assertEquals(ProjectBuildStatus.INACTIVE.getStatus(), summary.getStatus());
+        assertEquals(ProjectBuildStatus.INACTIVE, summary.getStatus());
     }
 
     public void testShouldParseBuildWithLabelForPassingBuild() throws Exception {
-        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML));
+        Build actual =
+                new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML));
         assertEquals("build.489", actual.getLabel());
         assertEquals("2006-07-04 15:57.10", actual.getName());
         assertEquals(LOG20060704155710_LBUILD_489_XML, actual.getBuildLogFilename());

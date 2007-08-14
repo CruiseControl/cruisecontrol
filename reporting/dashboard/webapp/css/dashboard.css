@@ -278,15 +278,16 @@ div#tabContent2.tabContent {
 .yui-u .projects_summary .summary {
 	clear : both;
 	margin-top : 1em;
+	font-weight : bold;
 }
 
 .yui-g .projects_summary div.summary {
 	display : block;
-	clear : left;
-	margin-left : 57%;
-	padding-left : 32px;
+	clear:right;
+	float:right;
 	padding-top : 1.8em;
-	padding-bottom : 1.8em;
+	padding-bottom : 1em;
+	margin-right : 3em;
 	font-weight : bold;
 }
 

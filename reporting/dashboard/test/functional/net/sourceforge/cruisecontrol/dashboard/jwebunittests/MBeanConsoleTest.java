@@ -62,7 +62,7 @@ public class MBeanConsoleTest extends BaseFunctionalTest {
     }
 
     public String getURL(String context) throws Exception {
-        String hostName = InetAddress.getLocalHost().getHostName();
+        String hostName = InetAddress.getLocalHost().getCanonicalHostName();
         return "http://" + hostName + ":8000/" + context;
     }
 }

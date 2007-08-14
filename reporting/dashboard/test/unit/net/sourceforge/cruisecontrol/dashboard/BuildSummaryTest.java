@@ -48,17 +48,17 @@ public class BuildSummaryTest extends TestCase {
     }
 
     public void testShouldBeAbleToUpdateStatusWithJMXReturnStatus() {
-        assertFalse("Building".equals(buildSummary.getStatus()));
+        assertFalse(ProjectBuildStatus.BUILDING.equals(buildSummary.getStatus()));
         buildSummary.updateStatus("now building since 20070420174744");
-        assertEquals("Building", buildSummary.getStatus());
+        assertEquals(ProjectBuildStatus.BUILDING, buildSummary.getStatus());
         assertEquals(CCDateFormatter.format("2007-04-20 17:47:44", "yyyy-MM-dd HH:mm:ss"), buildSummary
                 .getBuildingSince());
     }
 
     public void testShouldReturnBuildingAsStatusWhenTheStatusIsNotWaiting() {
-        assertFalse("Building".equals(buildSummary.getStatus()));
+        assertFalse(ProjectBuildStatus.BUILDING.equals(buildSummary.getStatus()));
         buildSummary.updateStatus("checking for modifications");
-        assertEquals("ModificationSet", buildSummary.getStatus());
+        assertEquals(ProjectBuildStatus.MODIFICATIONSET, buildSummary.getStatus());
     }
 
     public void testShouldCompareTheProjectNameIgnoreCase() throws Exception {

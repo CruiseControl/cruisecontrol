@@ -54,3 +54,11 @@
 	height: 30px;
 	min-height: 30px;
 }
+
+.bar .passed_building {
+	background: url( "../images/icon-build-previously-success-medium.gif" ) center no-repeat;
+}
+
+.bar .failed_building {
+	background: url( "../images/icon-build-previously-failure-medium.gif" ) center no-repeat;
+}

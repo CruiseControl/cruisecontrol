@@ -41,6 +41,7 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
@@ -189,4 +190,17 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
         assertEquals("1 minutes ago", lastSuccessfulBuild);
     }
 
+    public void testGetLatestShouldReturnNullForNewProject() throws Exception {
+        configurationMock.expects(atLeastOnce()).method("getLogRoot").will(
+                returnValue(new File(projectDirectory, "new_project")));
+        Build latest = buildSummariesSevice.getLatest("new_project");
+        assertNull(latest);
+    }
+
+    public void testShouldReturnPassedStatusForNewProject() throws Exception {
+        configurationMock.expects(atLeastOnce()).method("getLogRoot").will(
+                returnValue(new File(projectDirectory, "new_project")));
+        ProjectBuildStatus status = buildSummariesSevice.getLastBuildStatus("new_project");
+        assertEquals(ProjectBuildStatus.PASSED, status);
+    }
 }

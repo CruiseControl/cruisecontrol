@@ -81,6 +81,7 @@
 
     <bean id="getCommitMessageController" class="net.sourceforge.cruisecontrol.dashboard.web.GetCommitMessageController">
         <constructor-arg ref="${cruise.jmx.service.imp}" />
+        <constructor-arg ref="dashboardXmlConfigService" />
     </bean>
 
     <bean id="getProjectBuildStatusXmlController" class="net.sourceforge.cruisecontrol.dashboard.web.GetProjectBuildStatusXmlController">

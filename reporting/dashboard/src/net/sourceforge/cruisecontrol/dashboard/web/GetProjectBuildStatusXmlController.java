@@ -68,6 +68,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
     }
 
     public ModelAndView cctray(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        resp.setContentType("text/xml");
         PrintWriter writer = resp.getWriter();
         writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         writer.println("<Projects>");
@@ -79,6 +80,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
 
     public ModelAndView rss(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         PrintWriter writer = resp.getWriter();
+        resp.setContentType("text/xml");
         writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         writer.println("<rss version=\"2.0\">");
         writer.println("<channel>");

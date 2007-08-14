@@ -49,7 +49,8 @@
 }
 
 .build_detail_container_menu li {
-	display: inline;	
+	display: inline;
+	cursor : pointer;	
 }
 
 /* To build the tabs we use the "sliding doors" method on an a tag and a span within the a */
@@ -96,7 +97,6 @@
 
 .build_detail_container_menu .current_tab a {
 	background-position: 0% top;
-	border-bottom : 1px solid white;
 }
 
 .build_detail_container_menu .current_tab a span {
@@ -135,8 +135,9 @@ div.maincol.build_detail b.rtop {
 .sidecol p.sidecol_header {
 	background : url( ../images/summary_panel_title_background.gif ) right top no-repeat;
 	padding : 0 5px 5px 0;
-	margin : 0 5px;
+	margin : 2px 5px;
 	font-weight : bold;
+	height:30px;
 }
 
 .sidecol p.sidecol_header span {
@@ -211,7 +212,7 @@ div.build_detail_container_content {
     list-style: none;
 }
 
-.errors pre, .failures pre, .stacktrace pre, .buildoutput pre{
+.errors pre, .failures pre, .stacktrace pre, .buildoutput pre {
     height: 400px;
     overflow: scroll;
 }
@@ -223,19 +224,26 @@ div.build_detail_container_content {
 
 .modifications .added {
     padding-left: 22px;
-    background-image: url( "../images/table_add.png" );
+    background-image: url( "../images/table_add.gif" );
     background-repeat: no-repeat;
 }
 
 .modifications .deleted {
     padding-left: 22px;
-    background-image: url( "../images/table_delete.png" );
+    background-image: url( "../images/table_delete.gif" );
+    background-repeat: no-repeat;
+}
+
+
+.modifications .modified {
+    padding-left: 22px;
+    background-image: url( "../images/table_edit.gif" );
     background-repeat: no-repeat;
 }
 
 .modifications .user {
     padding-left: 22px;
-    background-image: url( "../images/user.png" );
+    background-image: url( "../images/user.gif" );
     background-repeat: no-repeat;
     font-weight: bold;
 }
@@ -245,25 +253,25 @@ div.build_detail_container_content {
 }
 .log .logfile {
     padding-left: 22px;
-    background-image: url( "../images/script.png" );
+    background-image: url( "../images/script.gif" );
     background-repeat: no-repeat;
 }
 
 .artifacts .artifact {
     padding-left: 22px;
-    background-image: url( "../images/file.png" );
+    background-image: url( "../images/file.gif" );
     background-repeat: no-repeat;
 }
 
 .directory {
     padding-left: 22px;
-    background-image: url( "../images/directory.png" );
+    background-image: url( "../images/directory.gif" );
     background-repeat: no-repeat;
 }
 
 .opened_directory {
     padding-left: 22px;
-    background-image: url( "../images/opened_directory.png" );
+    background-image: url( "../images/opened_directory.gif" );
     background-repeat: no-repeat;
 }
 
@@ -271,7 +279,24 @@ div.build_detail_container_content {
     list-style: none;
     overflow: auto;
     width : 90%;
-    height : auto;
+}
+
+.testsuite {
+	list-style: none;
+    overflow: scroll;
+	height : 250px;
+}
+
+.widget {
+	list-style: none;
+    overflow: scroll;
+	height : 250px;
+}
+
+.modifications {
+	overflow: scroll;
+	height : 250px;
+	width: 100%;
 }
 
 .tests li {

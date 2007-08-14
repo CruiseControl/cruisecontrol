@@ -64,7 +64,9 @@ import javax.management.ReflectionException;
 public class MBeanServerConnectionProjectsStatusStub implements MBeanServerConnection {
     public Object getAttribute(ObjectName name, String attr) {
         Map projectsStatus = new HashMap();
-        projectsStatus.put("project1", "now building since 20070420174744");
+        projectsStatus.put("building", "now building since 20070420174744");
+        projectsStatus.put("bootstrapping", "bootstrapping");
+        projectsStatus.put("modifications", "checking for modifications");
         return projectsStatus;
     }
 

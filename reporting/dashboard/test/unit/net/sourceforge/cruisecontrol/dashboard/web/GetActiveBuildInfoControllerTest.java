@@ -102,8 +102,7 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
         controller =
                 new BuildDetailController((BuildService) mockBuildService.proxy(), buildSummariesService,
                         new WidgetPluginService(null), new BuildSummaryUIService(buildSummariesService,
-                                (DashboardXmlConfigService) mockConfigService.proxy()),
-                        jmxStub);
+                                (DashboardXmlConfigService) mockConfigService.proxy()), jmxStub);
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
         request.setMethod("GET");
@@ -116,6 +115,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnDurationFromLastSuccessfulBuildInBuildingStatus() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
+                .will(returnValue(ProjectBuildStatus.PASSED));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
@@ -124,6 +125,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnBuildSince() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
+                .will(returnValue(ProjectBuildStatus.PASSED));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
@@ -133,6 +136,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnLastBuildSummaries() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
+                .will(returnValue(ProjectBuildStatus.PASSED));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
@@ -150,19 +155,17 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
                 returnValue(getFailedBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
-        assertEquals("Failed", model.get("status"));
+        assertEquals(ProjectBuildStatus.FAILED.getStatus(), model.get("status"));
     }
 
     private void fakeJMXReturnBuildingAsStatus() throws Exception {
         jmxStub.forceBuild("connectfour");
-        jmxStub.getBuildStatus("connectfour");
-        jmxStub.getBuildStatus("connectfour");
     }
 
     public Build getActiveBuild() {
         return new BuildDetail(new HashMap()) {
-            public String getStatus() {
-                return ProjectBuildStatus.BUILDING.getStatus();
+            public ProjectBuildStatus getStatus() {
+                return ProjectBuildStatus.BUILDING;
             }
 
             public String getProjectName() {
@@ -181,8 +184,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public Build getFailedBuild() {
         return new BuildDetail(new HashMap()) {
-            public String getStatus() {
-                return ProjectBuildStatus.FAILED.getStatus();
+            public ProjectBuildStatus getStatus() {
+                return ProjectBuildStatus.FAILED;
             }
 
             public String getProjectName() {

@@ -9,11 +9,8 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.log4j.Logger;
 
 public class EnvironmentService {
-    private static final Logger LOGGER = Logger.getLogger(EnvironmentService.class);
-
     private DashboardConfigService[] services;
 
     private SystemService systemService;

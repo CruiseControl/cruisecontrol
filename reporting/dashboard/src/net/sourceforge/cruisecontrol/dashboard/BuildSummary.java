@@ -93,8 +93,8 @@ public class BuildSummary implements Build {
         return label;
     }
 
-    public String getStatus() {
-        return status.getStatus();
+    public ProjectBuildStatus getStatus() {
+        return status;
     }
 
     public String getBuildLogFilename() {

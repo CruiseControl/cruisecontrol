@@ -9,22 +9,22 @@
         </listeners>
 
         <modificationset quietperiod="30">
-            <svn LocalWorkingCopy="${cruise.working.dir}/checkout/${project.name}"/>
+            <svn LocalWorkingCopy="${cruise.working.dir}/projects/${project.name}"/>
         </modificationset>
 
         <schedule interval="60">
-            <ant antWorkingDir="${cruise.working.dir}/checkout/${project.name}"
+            <ant antWorkingDir="${cruise.working.dir}/projects/${project.name}"
                 buildfile="build.xml"
                 target="all"
                 />
         </schedule>
 
         <log>
-            <merge dir="${cruise.working.dir}/checkout/${project.name}/target/test-results"/>
+            <merge dir="${cruise.working.dir}/projects/${project.name}/target/test-results"/>
         </log>
 
         <publishers>
-            <artifactspublisher file="${cruise.working.dir}/checkout/${project.name}/target/${project.name}.jar" dest="${cruise.working.dir}/artifacts/${project.name}"/>
+            <artifactspublisher file="${cruise.working.dir}/projects/${project.name}/target/${project.name}.jar" dest="${cruise.working.dir}/artifacts/${project.name}"/>
         </publishers>
 
     </project>

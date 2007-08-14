@@ -54,10 +54,14 @@ public class BuildSummaryService {
         String now = CCDateFormatter.yyyyMMddHHmmss(dateTime);
         String name = CCDateFormatter.format(dateTime, "yyyy-MM-dd HH:mm.ss");
         File file = new File(logDirectory, "log" + now + ".xml");
-        return new BuildSummary(logDirectory.getName(), name, "", ProjectBuildStatus.INACTIVE, file.getAbsolutePath());
+        return new BuildSummary(logDirectory.getName(), name, "", ProjectBuildStatus.INACTIVE, file
+                .getAbsolutePath());
     }
 
     public Build createBuildSummary(File logFileXml) {
+        if (logFileXml == null) {
+            return null;
+        }
         BuildMatcher buildMatcher = isPassedBuild(logFileXml);
         Matcher matcher = buildMatcher.pattern().matcher(logFileXml.getName());
         if (matcher.find()) {
@@ -88,8 +92,8 @@ public class BuildSummaryService {
     private static class SuccessfulBuild implements BuildMatcher {
         private File filename;
 
-        private static final Pattern SUCCESSFUL_BUILD_PATTERN = Pattern
-                .compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})L(.*)\\.xml$");
+        private static final Pattern SUCCESSFUL_BUILD_PATTERN =
+                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})L(.*)\\.xml$");
 
         private static final int LABEL_GROUP = 7;
 
@@ -111,8 +115,8 @@ public class BuildSummaryService {
     private static class FailedBuild implements BuildMatcher {
         private File filename;
 
-        private static final Pattern FAILED_BUILD_PATTERN = Pattern
-                .compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})\\.xml");
+        private static final Pattern FAILED_BUILD_PATTERN =
+                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})\\.xml");
 
         public FailedBuild(File filename) {
             this.filename = filename;
@@ -129,8 +133,9 @@ public class BuildSummaryService {
     }
 
     private static String getDateTime(Matcher matcher) {
-        return matcher.group(YEAR_GROUP) + "-" + matcher.group(MONTH_GROUP) + "-" + matcher.group(DAY_GROUP) + " "
-                + matcher.group(HOUR_GROUP) + ":" + matcher.group(MINUTE_GROUP) + "." + matcher.group(SECOND_GROUP);
+        return matcher.group(YEAR_GROUP) + "-" + matcher.group(MONTH_GROUP) + "-" + matcher.group(DAY_GROUP)
+                + " " + matcher.group(HOUR_GROUP) + ":" + matcher.group(MINUTE_GROUP) + "."
+                + matcher.group(SECOND_GROUP);
     }
 
     private static BuildMatcher isPassedBuild(File logfile) {

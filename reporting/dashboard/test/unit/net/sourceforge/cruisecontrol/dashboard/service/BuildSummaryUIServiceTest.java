@@ -93,7 +93,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         StoryTracker expectedStoryTracker = new StoryTracker("", "", "");
         expectedMap.put(buildSummary.getProjectName(), expectedStoryTracker);
         mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(expectedMap));
-        List commands = service.toCommands(summaries);
+        List commands = service.transform(summaries, false);
         BuildCommand buildCommand = (BuildCommand) commands.get(0);
         assertNotNull(PrivateAccessor.getField(buildCommand, "storyTracker"));
         assertEquals(expectedStoryTracker, PrivateAccessor.getField(buildCommand, "storyTracker"));
@@ -112,7 +112,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
-        List transformed = service.transform(summaries);
+        List transformed = service.transform(summaries, true);
         BuildCommand buildCommand = (BuildCommand) transformed.get(0);
         assertNotNull(PrivateAccessor.getField(buildCommand, "storyTracker"));
         assertEquals(expectedStoryTracker, PrivateAccessor.getField(buildCommand, "storyTracker"));
@@ -126,29 +126,11 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
                 new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.INACTIVE, "log.xml");
         List summaries = new ArrayList();
         summaries.add(buildSummary);
-        List transformed = service.transform(summaries);
+        List transformed = service.transform(summaries, true);
         assertEquals(1, transformed.size());
         assertTrue(transformed.get(0) instanceof BuildCommand);
-        assertEquals(ProjectBuildStatus.INACTIVE.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
-                .getStatus());
+        assertEquals(ProjectBuildStatus.INACTIVE, ((BuildCommand) transformed.get(0)).getBuild().getStatus());
         assertEquals(ProjectBuildStatus.INACTIVE.getStatus().toLowerCase(), ((BuildCommand) transformed
-                .get(0)).getCssClassName());
-    }
-
-    public void testShouldBeAbleIngoreBuildingCaseAndReturnCommand() {
-        mockService.expects(never()).method("getEaliestFailed").withAnyArguments();
-        mockService.expects(never()).method("getLastSucceed").withAnyArguments();
-        mockConfigService.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
-        BuildSummary buildSummary =
-                new BuildSummary("", "2007-12-14", "build.489", ProjectBuildStatus.BUILDING, "log.xml");
-        List summaries = new ArrayList();
-        summaries.add(buildSummary);
-        List transformed = service.transform(summaries);
-        assertEquals(1, transformed.size());
-        assertTrue(transformed.get(0) instanceof BuildCommand);
-        assertEquals(ProjectBuildStatus.BUILDING.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
-                .getStatus());
-        assertEquals(ProjectBuildStatus.BUILDING.getStatus().toLowerCase(), ((BuildCommand) transformed
                 .get(0)).getCssClassName());
     }
 
@@ -162,9 +144,8 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
-        List transformed = service.transform(summaries);
-        assertEquals(ProjectBuildStatus.FAILED.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
-                .getStatus());
+        List transformed = service.transform(summaries, true);
+        assertEquals(ProjectBuildStatus.FAILED, ((BuildCommand) transformed.get(0)).getBuild().getStatus());
         assertEquals("failed", ((BuildCommand) transformed.get(0)).getCssClassName());
         assertEquals("failed_level_8", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
@@ -179,7 +160,7 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.FAILED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
-        List transformed = service.transform(summaries);
+        List transformed = service.transform(summaries, true);
         assertEquals("failed", ((BuildCommand) transformed.get(0)).getCssClassName());
         assertEquals("failed_level_1", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
@@ -194,9 +175,8 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
-        List transformed = service.transform(summaries);
-        assertEquals(ProjectBuildStatus.PASSED.getStatus(), ((BuildCommand) transformed.get(0)).getBuild()
-                .getStatus());
+        List transformed = service.transform(summaries, true);
+        assertEquals(ProjectBuildStatus.PASSED, ((BuildCommand) transformed.get(0)).getBuild().getStatus());
         assertEquals("passed", ((BuildCommand) transformed.get(0)).getCssClassName());
         assertEquals("passed_level_8", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
@@ -211,8 +191,9 @@ public class BuildSummaryUIServiceTest extends MockObjectTestCase {
         BuildSummary current = new BuildSummary("", NOW, "", ProjectBuildStatus.PASSED, "log.xml");
         List summaries = new ArrayList();
         summaries.add(current);
-        List transformed = service.transform(summaries);
+        List transformed = service.transform(summaries, true);
         assertEquals("passed", ((BuildCommand) transformed.get(0)).getCssClassName());
         assertEquals("passed_level_1", ((BuildCommand) transformed.get(0)).getCssClassNameForDashboard());
     }
+
 }

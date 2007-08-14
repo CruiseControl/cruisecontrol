@@ -44,65 +44,41 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
+var replaced_ajax_periodical_refresh_statistics_summary_infos = ajax_periodical_refresh_statistics_summary_infos
+function setUp() {
+	this.ajax_periodical_refresh_statistics_summary_infos = replaced_ajax_periodical_refresh_statistics_summary_infos;
+}
 
 function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invoke_functions() {
 	var json = ['','']
-	var is_update_project_box_called = false;
-	this.ajax_periodical_refresh_dashboard_update_project_box=function() {
-		is_update_project_box_called=true;
-	}
-	var is_category_projects_called = false;
-	var is_included_inactive = false;
-	this.category_projects_info_by_status=function(json, statis) {
-		is_category_projects_called=true;
-		var keys = statis.keys();
-		if (keys.toString().indexOf('inactive') > 0) {
-			is_included_inactive = true
-		}
-	}
-	var is_caculate_called = false;
-	this.calculate_projects_statistics=function() {
-		is_caculate_called = true;
-	}
-	var is_refresh_called = false;
-	this.ajax_periodical_refresh_statistics_summary_infos=function() {
-		is_refresh_called = true;
-	}
-	var is_set_inactive_called = false;
-	this.set_inactive_projects_amount=function() {
-		is_set_inactive_called = true;
-	}
 	var is_update_cc_status_called = false;
 	this.update_cc_status=function(){
 	    is_update_cc_status_called = true;
 	}
-	assertFalse(is_update_project_box_called)
-	assertFalse(is_refresh_called);
-	assertFalse(is_caculate_called)
-	assertFalse(is_refresh_called)
-	assertFalse(is_included_inactive)
-	assertFalse(is_set_inactive_called)
-	assertFalse(is_update_cc_status_called)
+	var is_update_projects_status = false;
+	this.update_projects_status=function(json) {
+		is_update_projects_status = true;
+	}
+	var is_update_statistics_status = false;
+    this.update_statistics_status = function(json) {
+    	is_update_statistics_status = true;	
+    }
+	assertFalse('is_update_cc_status_called', is_update_cc_status_called)
+	assertFalse('is_update_projects_status', is_update_projects_status);
+	assertFalse('is_update_statistics_status', is_update_statistics_status)
 	ajax_periodical_refresh_dashboard_executer_oncomplete(json)
-	assertTrue(is_update_project_box_called);
-	assertTrue(is_refresh_called);
-	assertTrue(is_caculate_called)
-	assertTrue(is_refresh_called)
-	assertTrue(is_set_inactive_called)
-	assertTrue(is_update_cc_status_called)
-	assertFalse(is_included_inactive)
+	assertTrue('is_update_cc_status_called', is_update_cc_status_called);
+	assertTrue('is_update_projects_status', is_update_projects_status);
+	assertTrue('is_update_statistics_status', is_update_statistics_status)
 }
 
 function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_invoke_functions_if_json_is_empty() {
 	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
 	ajax_periodical_refresh_statistics_summary_infos(hash);
+
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
@@ -129,12 +105,14 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_i
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 }
 
-function getFirstWord(var sentence) {
-	return sentence.substring(0, sentence.indexOf(' ') - 1);
+function getFirstWord(sentence) {
+	return sentence.split(' ')[0];
 }
+
 </script>
 </head>
 <body>
+						<div id="cruisecontrol_status" class="cc_status transparent_message transparent_notice" style="display:none">CruiseControl is currently unavailable. You will not be able to force a project build.</div>
 					   <div class="entry_set">
                         <div class="info total" id="statistics_total">$projectStatistics.total() project build(s)</div>
                         <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>

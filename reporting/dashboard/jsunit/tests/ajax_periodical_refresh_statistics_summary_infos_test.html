@@ -44,10 +44,8 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 function test_should_return_hash_contains_statistics_infos() {
 	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
@@ -60,15 +58,16 @@ function test_should_return_hash_contains_statistics_infos() {
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 }
 
-function getFirstWord(var sentence) {
-	return sentence.substring(0, sentence.indexOf(' ') - 1);
-}
-
 function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
 	var hash = $H({passed : 0, failed : 0, building : 0, inactive : '1'})
 	calculate_projects_statistics(hash);
 	assertEquals('0%', hash.rate);
 }
+
+function getFirstWord(sentence) {
+	return sentence.split(' ')[0];
+}
+
 </script>
 </head>
 <body>

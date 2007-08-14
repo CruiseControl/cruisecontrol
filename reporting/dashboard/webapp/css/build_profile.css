@@ -114,12 +114,16 @@ div.timer span {
     background-image: url( "../images/icon-failure-medium.gif" );
 }
 
-.build_profile.long_failed.build_profile_long_failed {
-    background-image: url( "../images/icon-failure-medium-prolonged.gif" );
-}
-
 .build_profile.building.build_profile_building {
     background-image: url( "../images/icon-building-medium.gif" );
+}
+
+.build_profile.passed_building.build_profile_building {
+    background-image: url( "../images/icon-build-previously-success-medium.gif" );
+}
+
+.build_profile.failed_building.build_profile_building {
+    background-image: url( "../images/icon-build-previously-failure-medium.gif" );
 }
 
 .build_profile.inactive.build_profile_inactive {

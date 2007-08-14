@@ -50,7 +50,6 @@ import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.ModifiedFile;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
-import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
@@ -98,12 +97,6 @@ public class BuildServiceTest extends MockObjectTestCase {
         assertEquals("java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor\n"
                 + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)",
                 erroredTest.getMessageBody());
-    }
-
-    public void testCanReadStackTrace() throws Exception {
-        BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getFailedBuildLbuildAsFile());
-        assertTrue(StringUtils.contains(build.getStackTrace(), "This is my error message"));
-        assertTrue(StringUtils.contains(build.getStackTrace(), "This is my stacktrace"));
     }
 
     public void testCanReadFailureFromTest() throws Exception {

@@ -103,6 +103,8 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         buildSummaryService = (BuildSummariesService) mockBuildSummaryService.proxy();
         mockDashboardXmlConfigService.expects(atLeastOnce()).method("getStoryTrackers").will(
                 returnValue(new HashMap()));
+        mockBuildSummaryService.expects(once()).method("getLastBuildStatus").withAnyArguments().will(
+                returnValue(ProjectBuildStatus.PASSED));
     }
 
     public void testShouldBeAbleToListAllTheProjectInDirectory() throws Exception {

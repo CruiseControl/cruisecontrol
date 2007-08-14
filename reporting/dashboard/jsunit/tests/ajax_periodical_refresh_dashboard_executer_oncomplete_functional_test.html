@@ -44,13 +44,8 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/nifty.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/Tooltip.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 var data = '[ { "building_info" : { "css_class_name" : "passed", "project_name" : "cache", "building_status" : "Passed" , "latest_build_date" : "5 Jul 2007 10:54 GMT +01:00", "latest_build_log_file_name" : "log20070705105402Lbuild-128 .xml", "css_class_name_for_dashboard" : "passed_level_7" } }, { "building_info" : { "css_class_name"  : "passed", "project_name" : "cache-interface", "building_status" : "Passed", "latest_build_date" :  "5 Jul 2007 10:57 GMT +01:00", "latest_build_log_file_name" : "log20070705105703Lbuild-467.xml", "css_class_name_for_dashboard"  : "passed_level_8" } }, { "building_info" : { "css_class_name" : "building", "project_name" : "cache-reconcile" , "building_status" : "Building", "latest_build_date" : "5 Jul 2007 10:56 GMT +01:00", "latest_build_log_file_name"  : "log20070705105615.xml", "css_class_name_for_dashboard" : "building" } }, { "building_info" : { "css_class_name" : "failed", "project_name" : "cachemgr", "building_status" : "Failed", "latest_build_date"  : "6 Jul 2007 10:41 GMT +01:00", "latest_build_log_file_name" : "log20070706104119.xml", "css_class_name_for_dashboard"  : "failed_level_7" } }, { "building_info" : { "css_class_name" : "passed", "project_name" : "caf-testing" , "building_status" : "Passed", "latest_build_date" : "5 Jul 2007 14:33 GMT +01:00", "latest_build_log_file_name"  : "log20070705143354Lbuild-99.xml", "css_class_name_for_dashboard" : "passed_level_8" } }, { "building_info"  : { "css_class_name" : "passed", "project_name" : "end-to-end-testing", "building_status" : "Passed" , "latest_build_date" : "6 Jul 2007 10:36 GMT +01:00", "latest_build_log_file_name" : "log20070706103622Lbuild-6 .xml", "css_class_name_for_dashboard" : "passed_level_7" } }, { "building_info" : { "css_class_name"  : "passed", "project_name" : "evtpub", "building_status" : "Passed", "latest_build_date" : "29 Jun 2007  15:12 GMT +01:00", "latest_build_log_file_name" : "log20070629151233Lbuild-108.xml", "css_class_name_for_dashboard"  : "passed_level_8" } }, { "building_info" : { "build_duration" : "21 minutes 45 seconds", "css_class_name"  : "building", "project_name" : "gds-linux-ci", "building_status" : "Building", "build_time_elapsed"  : "290", "latest_build_date" : "6 Jul 2007 10:39 GMT +01:00", "latest_build_log_file_name" : "log20070706093711Lgds-linux-ci-501 .xml", "css_class_name_for_dashboard" : "building" } }, { "building_info" : { "css_class_name" : "failed" , "project_name" : "gds-linux-nightly", "building_status" : "Failed", "latest_build_date" : "5 Jul 2007  23:00 GMT +01:00", "latest_build_log_file_name" : "log20070705230045.xml", "css_class_name_for_dashboard"  : "failed_level_3" } }, { "building_info" : { "css_class_name" : "passed", "project_name" : "support-utils" , "building_status" : "Passed", "latest_build_date" : "5 Jul 2007 11:00 GMT +01:00", "latest_build_log_file_name"  : "log20070705110005Lbuild-156.xml", "css_class_name_for_dashboard" : "passed_level_8" } }, { "building_info"  : { "css_class_name" : "passed", "project_name" : "uat-testing", "building_status" : "Passed", "latest_build_date"  : "5 Jul 2007 11:01 GMT +01:00", "latest_build_log_file_name" : "log20070705110138Lbuild-52.xml", "css_class_name_for_dashboard"  : "passed_level_8" } } ]'
 var contextPath = 'dashboard'
@@ -91,8 +86,8 @@ function test_should_update_classname_when_building(){
 	assertEquals('64%',  getFirstWord($('statistics_rate').innerHTML));
 }
 
-function getFirstWord(var sentence) {
-	return sentence.substring(0, sentence.indexOf(' ') - 1);
+function getFirstWord(sentence) {
+	return sentence.split(' ')[0];
 }
 </script>
 </head>

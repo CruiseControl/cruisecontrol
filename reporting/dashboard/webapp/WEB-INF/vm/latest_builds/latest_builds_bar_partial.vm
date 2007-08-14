@@ -1,10 +1,12 @@
-     <div id="${buildSummary.build.projectName}_bar" class="bar round_corner ${buildSummary.getCssClassNameForDashboard()}">
-         <a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
+    <div id="${buildSummary.build.projectName}_bar" class="bar round_corner ${buildSummary.getCssClassNameForDashboard()}">
+    	<div id="${buildSummary.build.projectName}_last_status" class="${buildSummary.getCssClassNameConsideringLastStatus()}">
+         	<a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
+         </div>
     </div>
     <div id="tooltip_${buildSummary.build.projectName}" class='tooltip tooltip_${buildSummary.getCssClassName()}'>
             <div class="tooltip_header"></div>
             <div class="tooltip_content">
-                    <div class="title"><span id="tooltip_${buildSummary.build.projectName}_name">${buildSummary.build.projectName}</span></div>
+                    <div class="title"><span id="tooltip_${buildSummary.build.projectName}_name" class="wbrSensitive">${buildSummary.build.projectName}</span></div>
                     <div><span id="tooltip_${buildSummary.build.projectName}_status">Status: ${buildSummary.build.status}</span></div>
                     #set($build_date="Date: ${buildSummary.getDateStringInHumanBeingReadingStyle()}")
                     #if("Inactive" == ${buildSummary.build.status})

@@ -146,12 +146,8 @@ public class BuildDetail implements Comparable, Build {
         return numberOfErrors;
     }
 
-    public String getStackTrace() {
-        return (String) props.get("stacktrace");
-    }
-
-    public String getStatus() {
-        return this.hasPassed() ? "Passed" : "Failed";
+    public ProjectBuildStatus getStatus() {
+        return hasPassed() ? ProjectBuildStatus.PASSED : ProjectBuildStatus.FAILED;
     }
 
     public boolean hasPassed() {

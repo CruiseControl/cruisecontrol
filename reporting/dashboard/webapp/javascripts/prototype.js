@@ -11,7 +11,12 @@ var Prototype = {
   BrowserFeatures: {
     XPath: !!document.evaluate
   },
-
+  Browser: {
+    IE:     !!(window.attachEvent && !window.opera),
+    Opera:  !!window.opera,
+    WebKit: navigator.userAgent.indexOf('AppleWebKit/') > -1,
+    Gecko:  navigator.userAgent.indexOf('Gecko') > -1 && navigator.userAgent.indexOf('KHTML') == -1
+  },
   ScriptFragment: '(?:<script.*?>)((\n|\r|.)*?)(?:<\/script>)',
   emptyFunction: function() {},
   K: function(x) { return x }
@@ -1127,6 +1132,7 @@ Element.extend = function(element) {
   }
 
   element._extended = true;
+  element._extended = Prototype.emptyFunction; 
   return element;
 };
 
