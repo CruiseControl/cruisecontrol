@@ -37,10 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
@@ -61,12 +65,18 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
                     new Object[] {null,
                             new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
 
+    private Mock dashboardConfigMock =
+            mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
+                    new Object[] {new SystemService()});
+
     private GetCommitMessageController controller =
-            new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy());
+            new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy(),
+                    (DashboardXmlConfigService) dashboardConfigMock.proxy());
 
     public void testJSONObjectTypeShouldBeArray() throws Exception {
         jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
                 returnValue(Arrays.asList(new ModificationKey[] {})));
+        dashboardConfigMock.expects(never()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
         controller.handleRequest(request, response);
@@ -79,6 +89,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
     public void testShouldReturnEmptyArrayIfThereIsNoCommitMessages() throws Exception {
         jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
                 returnValue(Arrays.asList(new ModificationKey[] {})));
+        dashboardConfigMock.expects(never()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
         controller.handleRequest(request, response);
@@ -92,6 +103,7 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
                 returnValue(Arrays.asList(new ModificationKey[] {
                         new ModificationKey("add new feature", "joe"),
                         new ModificationKey("update build", "joe")})));
+        dashboardConfigMock.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
         controller.handleRequest(request, response);
@@ -100,6 +112,29 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
         assertTrue(StringUtils.contains(json, "{"));
         assertTrue(StringUtils.contains(json, "\"user\":\"joe\""));
         assertTrue(StringUtils.contains(json, "\"comment\":\"update build\""));
+        assertTrue(StringUtils.contains(json, "\"comment\":\"add new feature\""));
+        assertTrue(StringUtils.contains(json, "}"));
+    }
+
+    public void testShouldContainHyperlinkIfConfiguredStoryTracker() throws Exception {
+        jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project_with_story_tracker"))
+                .will(
+                        returnValue(Arrays.asList(new ModificationKey[] {
+                                new ModificationKey("add new feature", "joe"),
+                                new ModificationKey("update build456", "joe")})));
+        Map expectedMap = new HashMap();
+        StoryTracker expectedStoryTracker =
+                new StoryTracker("project_with_story_tracker", "http://abc/", "build,bug");
+        expectedMap.put("project_with_story_tracker", expectedStoryTracker);
+        dashboardConfigMock.expects(once()).method("getStoryTrackers").will(returnValue(expectedMap));
+        request.setParameter("project", "project_with_story_tracker");
+
+        controller.handleRequest(request, response);
+
+        String json = (String) response.getContentAsString();
+        assertTrue(StringUtils.contains(json, "{"));
+        assertTrue(StringUtils.contains(json, "\"user\":\"joe\""));
+        assertTrue(json, StringUtils.contains(json, "\"comment\":\"update <a href='http://abc/456'>build456</a>"));
         assertTrue(StringUtils.contains(json, "\"comment\":\"add new feature\""));
         assertTrue(StringUtils.contains(json, "}"));
     }

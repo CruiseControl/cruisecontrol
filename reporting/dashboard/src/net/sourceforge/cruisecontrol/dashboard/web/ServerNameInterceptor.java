@@ -58,7 +58,7 @@ public class ServerNameInterceptor implements HandlerInterceptor {
         if (modelAndView != null) {
             String serverName = "Unknown";
             try {
-                serverName = InetAddress.getLocalHost().getHostName();
+                serverName = InetAddress.getLocalHost().getCanonicalHostName();
             } catch (UnknownHostException e) {
                 LOGGER.warn("No IP bound to the host", e);
             }

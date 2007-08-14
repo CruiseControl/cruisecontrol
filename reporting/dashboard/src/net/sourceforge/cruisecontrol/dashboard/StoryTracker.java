@@ -4,7 +4,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 
 public class StoryTracker {
 
@@ -14,10 +13,13 @@ public class StoryTracker {
 
     private final String keywords;
 
+    private Pattern pattern;
+
     public StoryTracker(String projectName, String baseUrl, String keywords) {
         this.projectName = projectName;
         this.baseUrl = baseUrl;
         this.keywords = keywords;
+        pattern = pattern();
     }
 
     public String getBaseUrl() {
@@ -32,23 +34,34 @@ public class StoryTracker {
         return projectName;
     }
 
-    public String getStoryURL(String text) {
-        int storyNumber = getStoryNumber(text);
-        if (storyNumber == -1) {
-            return "";
-        } else {
-            return baseUrl + storyNumber;
-        }
+    private Pattern pattern() {
+        String chompedKeywords = StringUtils.chomp(keywords, ",");
+        String preGroup = "(.*?)";
+        String keywordsGroup = '(' + StringUtils.replaceChars(chompedKeywords, ',', '|') + ')';
+        String spacesGroup = "([\t ]*)";
+        String numberGroup = "(\\d+)";
+        String postGroup = preGroup;
+        return Pattern.compile(preGroup + keywordsGroup + spacesGroup + numberGroup + postGroup);
     }
 
-    private int getStoryNumber(String text) {
-        String chomped = StringUtils.chomp(keywords, ",");
-        String regStr = '(' + StringUtils.replaceChars(chomped, ',', '|') + ')';
-        Pattern pattern = Pattern.compile(".*" + regStr + "(\\d+).*");
-        Matcher matcher = pattern.matcher(text);
-        if (matcher.find()) {
-            return NumberUtils.toInt(matcher.group(2));
+    public String getTextWithUrls(String inputString) {
+        Matcher matcher = pattern.matcher(inputString);
+        if (!matcher.matches()) {
+            return inputString;
         }
-        return -1;
+
+        matcher.reset();
+
+        String tail = "";
+        String resultString = "";
+        while (matcher.find()) {
+            String replacement = matcher.group(2) + matcher.group(3) + matcher.group(4);
+            resultString +=
+                    StringUtils.replace(matcher.group(0), replacement, "<a href=\"" + baseUrl
+                            + matcher.group(4) + "\">" + replacement + "</a>");
+            tail = inputString.substring(matcher.end());
+        }
+        resultString += tail;
+        return resultString;
     }
 }

@@ -22,6 +22,7 @@ packager
 * Now includes working connectfour sample
 * Stops CruiseControl on uninstall
 * Now only builds CruiseControl if needed
+* .svn folder in connectfour.zip now points to correct sourceforge repository url(http://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/connectfour)
 
 Documentation
 ======================
@@ -43,11 +44,15 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Allowed integration with project management tools
 * Allowed using dashboard-config.xml to configure the dashboard
 * Deprecated the way to configure the dashboard via web.xml
+* Modificationset and Bootstrapping are no longer considered as building status in summary section.
+* fixed unresolved velocity variable $build.build.duration in build detail page.
 * Applied the patch of CC-436 which committed by Szczepan Faber
-* Fixed CC-656 : Compound Publisher
-* Fixed CC-665 : error details are missing in the dashboard
-* Fixed CC-670 : Dashboard can't parse logfiles with testsuite elements without time attribute
-* Fixed CC-671 : Dashboard can't parse logfiles with non-default date formats
+* Added error details in the dashboard (CC-665).
+* Dashboard can now parse logfiles with testsuite elements without time attribute (CC-670). Patch by Ilkka Laukkanen.
+* Dashboard can now parse logfiles with non-default date formats (CC-671). Patch by Ilkka Laukkanen.
+* Fixed case where long project name would not wrap within Toolkit and Tooltip divs.
+* Fixed layout problem with tabs when wrapping.
+* Added Errors and Warnings tab. Removed Errors tab. Moved the test errors and test failures to Tests tab.
 
 build loop
 ======================
@@ -67,6 +72,7 @@ Builder Progress messages
 Experimental impl for <ant> builder to showProgress can be disabled with showProgress=false.
 Progess messages are shown on the reporting/jsp project pages, below the project state text.
 
+
 build.sh/release.sh scripts
 ----------------------
 * Set JAVA_HOME properly on MacOSX (CC-681). Patch by Ingo Richter
@@ -74,6 +80,10 @@ build.sh/release.sh scripts
 CommandLine and Process exec handling
 ----------------------
 * Close process.outputStream to avoid deadlocks. (CC-527) Reported by Jason R. Hull
+
+Compound Publisher
+----------------------
+* Introduced a Compound Publisher (CC-656).
 
 ConcurrentVersionsSystem/CVSBootstrapper
 ----------------------
@@ -113,6 +123,7 @@ SVN/SVNBootstrapper
 * svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element (CC-678). Reported by Ram Singaram
 * Improve error message when there is no valid localWorkingCopy for SVNBootstrapper (CC-679). Patch by Robert Watkins.
 * Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
+* Prevent "premature" SVN modifications being detected (CC-677). Patch by Robert Watkins.
 
 TFS/TFSBootstrapper
 ----------------------
@@ -160,10 +171,11 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Indicates when the Cruise server is down, such that force build will take no action.
 * Ignoring non-cruise xml files in the log directories.
 * Added ability to disable the force build button.
-* fix the bug that rc2 does not support the pre-config project
-* fix the bug that rc2 does not support the included project
-* fix the bug that rc2 does not support the white space in the project name
-* fix the bug that rc2 does not support that log directory cannot contain log.xml
+* Fixed the bug that rc2 does not support the pre-config project
+* Fixed the bug that rc2 does not support the included project
+* Fixed the bug that rc2 does not support the white space in the project name
+* Fixed the bug that rc2 does not support that log directory cannot contain log.xml
+* Fixed the text in Modification tab should not leak out of the tab
 
 documentation
 ======================

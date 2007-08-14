@@ -62,57 +62,54 @@ public class BuildSummaryUIService {
         this.xmlConfigService = xmlConfigService;
     }
 
-    public List toCommands(List buildSummaries) {
-        List commands = new ArrayList();
-        for (int i = 0; i < buildSummaries.size(); i++) {
-            Build build = (Build) buildSummaries.get(i);
-            commands.add(new BuildCommand(build, (StoryTracker) xmlConfigService.getStoryTrackers().get(
-                    build.getProjectName())));
-        }
-        return commands;
-    }
-
-    public List transform(List buildSummaries) {
+    public List transform(List buildSummaries, boolean uppdateCSS) {
         List buildSummaryCommands = new ArrayList();
         for (Iterator iter = buildSummaries.iterator(); iter.hasNext();) {
-            buildSummaryCommands.add(transform((Build) iter.next()));
+            buildSummaryCommands.add(transform((Build) iter.next(), uppdateCSS));
         }
         return buildSummaryCommands;
     }
 
-    public BuildCommand transform(Build build) {
+    public BuildCommand transform(Build build, boolean updateCSS) {
         BuildCommand command =
                 new BuildCommand(build, (StoryTracker) xmlConfigService.getStoryTrackers().get(
                         build.getProjectName()));
-        String status = command.getBuild().getStatus();
+        if (updateCSS) {
+            updateCSS(command);
+        }
+        return command;
+    }
+
+    private void updateCSS(BuildCommand command) {
+        ProjectBuildStatus status = command.getBuild().getStatus();
         String projectName = command.getBuild().getProjectName();
-        if (ProjectBuildStatus.FAILED.getStatus().equals(status)) {
+        if (ProjectBuildStatus.FAILED.equals(status)) {
             Build earliesFailedBuild =
                     buildSummariesService.getEaliestFailed(projectName, command.getBuild().getBuildDate());
             command.updateFailedCSS(earliesFailedBuild);
-        } else if (ProjectBuildStatus.PASSED.getStatus().equals(status)) {
+        } else if (ProjectBuildStatus.PASSED.equals(status)) {
             Build lastSucceed = buildSummariesService.getEarliestSucceeded(projectName, new DateTime());
             command.updatePassedCss(lastSucceed);
-        } else {
-            command.updateDefaultCss();
+        } else if (ProjectBuildStatus.BUILDING.equals(status)) {
+            command.updateBuildingCss(buildSummariesService.getLastBuildStatus(projectName));
         }
-        return command;
     }
 
     public String toXml(List buildSummaries, Map buildStatuses, String baseUrl, String type) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < buildSummaries.size(); i++) {
             Build buildSummary = (Build) buildSummaries.get(i);
-            if (!ProjectBuildStatus.INACTIVE.getStatus().equals(buildSummary.getStatus())) {
-                XmlAdapter adapter = null;
-                if ("rss".endsWith(type)) {
-                    adapter = new RSSBuildSummaryAdapter(baseUrl, buildSummary);
-                } else {
-                    adapter = new CCTrayBuildSummaryAdapter(baseUrl, buildSummary);
-                    buildSummary.updateStatus((String) buildStatuses.get(buildSummary.getProjectName()));
-                }
-                sb.append(adapter.toXml());
+            if (ProjectBuildStatus.INACTIVE.equals(buildSummary.getStatus())) {
+                continue;
             }
+            XmlAdapter adapter = null;
+            if ("rss".endsWith(type)) {
+                adapter = new RSSBuildSummaryAdapter(baseUrl, buildSummary);
+            } else {
+                adapter = new CCTrayBuildSummaryAdapter(baseUrl, buildSummary);
+                buildSummary.updateStatus((String) buildStatuses.get(buildSummary.getProjectName()));
+            }
+            sb.append(adapter.toXml());
         }
         return sb.toString();
     }

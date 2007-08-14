@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 #parse("partial/partial_head.vm")
-
 <link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_detail_summary.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_detail.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>

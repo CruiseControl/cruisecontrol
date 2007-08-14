@@ -57,7 +57,7 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
 
     private static final int DEFAULT_HTTP_PORT = 8000;
 
-    private static final int WAITING_LOOP = 6;
+    public static final Integer BUILD_TIMES = new Integer(4);
 
     public static final String WAITING = "waiting for next time to build";
 
@@ -67,49 +67,50 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
 
     public static final String MODIFICATIONSET = "checking for modifications";
 
-    private Map projectStatues = new HashMap();
+    private Map projectStatus = new HashMap();
 
-    private static int waitingLoop;
+    private Map buildingCounts = new HashMap();
 
     static {
         // Tests should not depend on the actual timestamp. And this way
-        // you get more meaninful output when using the stub to run the
+        // you get more meaningful output when using the stub to run the
         // application locally.
         BUILDING = "now building since " + CCDateFormatter.yyyyMMddHHmmss(new DateTime());
     }
 
+    private Integer nextBuildCount(String projectName) {
+        if (!buildingCounts.containsKey(projectName)) {
+            buildingCounts.put(projectName, BUILD_TIMES);
+        }
+        Integer current = (Integer) buildingCounts.get(projectName);
+        Integer next = new Integer(current.intValue() - 1);
+        buildingCounts.put(projectName, next);
+        return next;
+    }
+
     public String getBuildStatus(String projectName) {
-        String status = (String) projectStatues.get(projectName);
+        String status = (String) projectStatus.get(projectName);
         if (status == null) {
             status = WAITING;
-            projectStatues.put(projectName, status);
+            projectStatus.put(projectName, status);
             return status;
         }
-        if (!WAITING.equals(status)) {
-            projectStatues.put(projectName, getNextStatus(status));
-            return status;
+        if (BUILDING.equals(status)) {
+            String nextStatus = getNextStatus(projectName);
+            projectStatus.put(projectName, nextStatus);
+            return nextStatus;
         } else {
             return WAITING;
         }
     }
 
-    private String getNextStatus(final String status) {
-        String nextStatus = "";
-        if (BOOTSTRAPPING.equals(status)) {
-            return MODIFICATIONSET;
+    private String getNextStatus(String projectName) {
+        Integer buildCount = nextBuildCount(projectName);
+        if (buildCount.intValue() == 0) {
+            buildingCounts.remove(projectName);
+            return WAITING;
         }
-        if (MODIFICATIONSET.equals(status)) {
-            waitingLoop = WAITING_LOOP;
-            return BUILDING;
-        }
-        if (BUILDING.equals(status)) {
-            if (--waitingLoop == 0) {
-                waitingLoop = WAITING_LOOP;
-                return WAITING;
-            }
-            return BUILDING;
-        }
-        return nextStatus;
+        return BUILDING;
     }
 
     public Map getAllProjectsStatus() {
@@ -135,11 +136,11 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
         if ("projectWithoutPublishers".equals(projectName)) {
             return list;
         }
-        String status = (String) projectStatues.get(projectName);
+        String status = (String) projectStatus.get(projectName);
         if (BUILDING.equals(status)) {
             ModificationKey key = new ModificationKey("Some random change", "joe");
             list.add(key);
-            key = new ModificationKey("Fixed the build", "dev");
+            key = new ModificationKey("Fixed the build456", "dev");
             list.add(key);
             return list;
         } else {
@@ -148,7 +149,7 @@ public class CruiseControlJMXServiceStub extends CruiseControlJMXService {
     }
 
     public void forceBuild(String projectName) {
-        projectStatues.put(projectName, BOOTSTRAPPING);
+        projectStatus.put(projectName, BUILDING);
     }
 
     public String[] getBuildOutput(String projectName, int firstLine) {

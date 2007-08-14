@@ -43,6 +43,7 @@ import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestSuite;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
@@ -60,7 +61,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver;
 
 public class BuildDetailControllerTest extends SpringBasedControllerTests {
-    private DashboardXmlConfigService dashboardXmlConfigService;
 
     private BuildDetailController controller;
 
@@ -151,6 +151,14 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         BuildDetail build = getBuildDetail((BuildCommand) mav.getModel().get("build"));
         assertTrue(StringUtils.contains((String) build.getPluginOutputs().get("Merged Check Style"),
                 "Parser.java"));
+    }
+
+    public void testShouldBeAbleToShowLastStatusForActiveBuild() throws Exception {
+        getRequest().setRequestURI("/detail/live/project1");
+        ModelAndView mav =
+                controller.liveWithInformation(getRequest(), "project1", "build since 19991010232323");
+        String lastStatus = (String) mav.getModel().get("lastStatus");
+        assertEquals(ProjectBuildStatus.FAILED.getStatus(), lastStatus);
     }
 
     public void setProjectDetailResolver(PropertiesMethodNameResolver resolver) {

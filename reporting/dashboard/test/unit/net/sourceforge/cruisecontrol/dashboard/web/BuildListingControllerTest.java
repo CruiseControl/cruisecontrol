@@ -83,7 +83,7 @@ public class BuildListingControllerTest extends MockObjectTestCase {
     public void testShouldReturnAllSucceedBuilds() throws Exception {
         mockBuildSummaries.expects(once()).method("getAll").with(eq("project1")).will(
                 returnValue(new ArrayList()));
-        mockBuildSummaryUIService.expects(once()).method("toCommands").will(returnValue(new ArrayList()));
+        mockBuildSummaryUIService.expects(once()).method("transform").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.all(request, response);
         Map dataModel = mv.getModel();
         assertEquals(0, ((List) dataModel.get("buildSummaries")).size());
@@ -93,7 +93,7 @@ public class BuildListingControllerTest extends MockObjectTestCase {
     public void testShouldReturnAllBuilds() throws Exception {
         mockBuildSummaries.expects(once()).method("getAllSucceed").with(eq("project1")).will(
                 returnValue(new ArrayList()));
-        mockBuildSummaryUIService.expects(once()).method("toCommands").will(returnValue(new ArrayList()));
+        mockBuildSummaryUIService.expects(once()).method("transform").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.passed(request, response);
         Map dataModel = mv.getModel();
         assertEquals(0, ((List) dataModel.get("buildSummaries")).size());

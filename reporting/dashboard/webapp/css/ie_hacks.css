@@ -18,3 +18,11 @@ html .yui-g .projects_summary {
 	padding: 10px 3px 3px 42px;
     height:1%;
 }
+
+.sidecol {
+	margin-top: -14px;
+    padding: 1em;
+	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) left top repeat-x;
+    position:absolute;
+	margin-right: -5px;
+}

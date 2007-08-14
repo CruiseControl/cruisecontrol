@@ -43,6 +43,6 @@ public class BuildMessageTest extends TestCase {
         BuildMessage message = new BuildMessage("  Text  ", MessageLevel.DEBUG);
         String textMessage = message.getMessage();
         assertEquals("Text", textMessage);
-        assertEquals(textMessage, message.toString());
+        assertEquals(textMessage, message.getMessage());
     }
 }

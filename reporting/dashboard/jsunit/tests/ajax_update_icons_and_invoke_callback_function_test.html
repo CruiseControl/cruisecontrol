@@ -42,13 +42,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CCE Dashboard Tests</title>
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/transparent_message.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 
 contextPath = ""
@@ -70,7 +68,7 @@ function test_should_update_icons_and_invoke_callback_function() {
 			 callback : "setTimeout('call_back_stub()', 0)"
 	 	}
 	}
-	ajax_update_icons_and_invoke_callback_function(json);
+	new AdministrationExecuter($('add_project_btn')).ajax_update_icons_and_invoke_callback_function(json);
 	setTimeout("assertTrue(iscalled)", 500);
 }
 
@@ -85,7 +83,7 @@ function test_should_update_icons_and_invoke_callback_function() {
   <img id="url_icon" >
   <img id="projectName_icon">
   <img id="moduleName_icon">
-  <input id="addButton" type="button"> 
+  <input id="add_project_btn" type="button"> 
   <div id="vcError"></div>
 </div>
 </body>

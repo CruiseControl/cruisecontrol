@@ -18,5 +18,5 @@ CRUISE_WEB_PORT=8080
 #JAVA_HOME="/usr/lib/jvm/java-1.5.0-sun"
 
 # Arguments to pass to the CruiseControl script
-CRUISE_OPTS="-Xmx512m -Dcc.config.file=/etc/cruisecontrol/cruisecontrol.xml -Dcc.artifacts=/var/spool/cruisecontrol/artifacts -Dcc.projects=/var/spool/cruisecontrol/checkout -Dcc.logdir=/var/spool/cruisecontrol/logs"
+CRUISE_OPTS="-Xmx256m -Xms256m -server -Xincgc -Dcc.config.file=/etc/cruisecontrol/cruisecontrol.xml -Dcc.artifacts=/var/spool/cruisecontrol/artifacts -Dcc.projects=/var/spool/cruisecontrol/projects -Dcc.logdir=/var/spool/cruisecontrol/logs -Dcc.ajp13port=8009"
 

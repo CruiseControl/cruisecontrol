@@ -47,7 +47,7 @@
     	jmxport="8000"
     	rmiport="1099"/>
 	<features allowforcebuild="true" alloweditconfig="true"/>
-	<storytracker projectname="project1" baseurl="https://mingle05.thoughtworks.com/projects/project1/cards/" keywords="#,build,story,card"/>
-	<storytracker projectname="project2" baseurl="https://mingle05.thoughtworks.com/projects/project2/cards/" keywords="#,build,story,card"/>
+	<trackingtool projectname="project1" baseurl="https://mingle05.thoughtworks.com/projects/project1/cards/" keywords="#,build,story,card"/>
+	<trackingtool projectname="project2" baseurl="https://mingle05.thoughtworks.com/projects/project2/cards/" keywords="#,build,story,card"/>
  </dashboard>
  

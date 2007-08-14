@@ -43,6 +43,7 @@ import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import junitx.util.DirectorySuiteBuilder;
 import junitx.util.SimpleTestFilter;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
@@ -55,29 +56,31 @@ public final class AllSeleniumTests {
     }
 
     public static Test suite() {
-        TestSuite suite =
-                new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
-                    public void run(TestResult arg0) {
-                        try {
-                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR,
-                                    DataUtils.getLogRootOfWebapp().getAbsolutePath());
-                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR,
-                                    DataUtils.getArtifactRootOfWebapp().getAbsolutePath());
-                            System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR,
-                                    DataUtils.getProjectsRootOfWebapp().getAbsolutePath());
-                            DataUtils.cloneCCHome();
-                            SERVER.start();
-                            super.run(arg0);
-                        } catch (Exception e) {
-                        } finally {
-                            try {
-                                SERVER.stop();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+        TestSuite suite = new TestSuite("Functional test for net.sourceforge.cruisecontrol.dashboard") {
+            public void run(TestResult arg0) {
+                try {
+                    System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR, DataUtils
+                            .getLogRootOfWebapp().getAbsolutePath());
+                    System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR, DataUtils
+                            .getArtifactRootOfWebapp().getAbsolutePath());
+                    System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR, DataUtils
+                            .getProjectsRootOfWebapp().getAbsolutePath());
+                    System.setProperty(DashboardXmlConfigService.PROPS_CC_DASHBOARD_CONFIG, DataUtils
+                            .getDashboardConfigForSelenium().getAbsolutePath());
+                    DataUtils.cloneCCHome();
+                    SERVER.start();
+                    super.run(arg0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        SERVER.stop();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                };
+                }
+            }
+        };
         DirectorySuiteBuilder builder = new DirectorySuiteBuilder();
         builder.setFilter(new SimpleTestFilter() {
             public boolean include(String arg0) {

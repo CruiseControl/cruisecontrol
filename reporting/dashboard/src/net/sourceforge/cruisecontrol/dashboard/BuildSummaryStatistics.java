@@ -48,25 +48,25 @@ public class BuildSummaryStatistics {
     public BuildSummaryStatistics(List buildSummaryList) {
         for (int i = 0; i < buildSummaryList.size(); i++) {
             Build summary = (Build) buildSummaryList.get(i);
-            ((CounterHashMap) counterMap).put(summary.getStatus().toLowerCase());
+            ((CounterHashMap) counterMap).put(summary.getStatus());
         }
     }
 
     public Integer failed() {
-        return (Integer) counterMap.get(ProjectBuildStatus.FAILED.getStatus().toLowerCase());
+        return (Integer) counterMap.get(ProjectBuildStatus.FAILED);
 
     }
 
     public Integer building() {
-        return (Integer) counterMap.get(ProjectBuildStatus.BUILDING.getStatus().toLowerCase());
+        return (Integer) counterMap.get(ProjectBuildStatus.BUILDING);
     }
 
     public Integer passed() {
-        return (Integer) counterMap.get(ProjectBuildStatus.PASSED.getStatus().toLowerCase());
+        return (Integer) counterMap.get(ProjectBuildStatus.PASSED);
     }
 
     public Integer inactive() {
-        return (Integer) counterMap.get(ProjectBuildStatus.INACTIVE.getStatus().toLowerCase());
+        return (Integer) counterMap.get(ProjectBuildStatus.INACTIVE);
     }
 
     public Integer total() {
@@ -83,7 +83,7 @@ public class BuildSummaryStatistics {
     private static class CounterHashMap extends HashMap {
         private static final long serialVersionUID = 1L;
 
-        public void put(String key) {
+        public void put(ProjectBuildStatus key) {
             Object value = this.get(key);
             if (value == null) {
                 this.put(key, new Integer(1));

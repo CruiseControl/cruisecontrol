@@ -4640,8 +4640,13 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>checkExternals</td>
                 <td>No</td>
-                <td>whether any subversion externals this project uses should also
+                <td>Whether any subversion externals this project uses should also
                 be checked for modifications.</td>
+            </tr>
+            <tr>
+                <td>useLocalRevision</td>
+                <td>false</td>
+                <td>Optionally allows the user to get the modifications made between the last build time and the localworkingcopy's revision number.</td>
             </tr>
             </tbody>
         </table>

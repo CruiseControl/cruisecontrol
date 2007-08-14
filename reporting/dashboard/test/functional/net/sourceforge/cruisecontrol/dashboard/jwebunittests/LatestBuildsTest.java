@@ -53,7 +53,7 @@ public class LatestBuildsTest extends BaseFunctionalTest {
         tester.assertTextPresent("2 project build(s) succeed");
         tester.assertTextPresent("0 project(s) building");
         tester.assertTextPresent("3 project build(s) failed");
-        tester.assertTextPresent("Server : " + InetAddress.getLocalHost().getHostName());
+        tester.assertTextPresent("Server : " + InetAddress.getLocalHost().getCanonicalHostName());
     }
 
     public void testShouldUseDifferentClassNameForProjectSummary() throws Exception {

@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -147,7 +148,23 @@ public class SVNTest extends TestCase {
         assertArraysEquals(expectedCmd, actualCmd);
     }
 
-    public void testBuildHistoryCommandForWindows() throws CruiseControlException {
+    public void testFormatSVNDateForWindows() {
+        GregorianCalendar cal = new GregorianCalendar(2007, Calendar.JULY, 11, 12, 32, 45);
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Date date = cal.getTime();
+        
+        assertEquals("\"{2007-07-11T12:32:45Z}\"", SVN.formatSVNDate(date, true));
+    }
+
+    public void testFormatSVNDateForNonWindows() {
+        GregorianCalendar cal = new GregorianCalendar(2007, Calendar.JULY, 11, 12, 32, 45);
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Date date = cal.getTime();
+        
+        assertEquals("{2007-07-11T12:32:45Z}", SVN.formatSVNDate(date, false));
+    }
+    
+    public void testBuildHistoryCommand() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
         Date checkTime = new Date();
@@ -162,8 +179,9 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\""};
-        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false)};
+        String[] actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false)).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         expectedCmd =
@@ -174,9 +192,10 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
                 "external/path"};
-        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true, "external/path").getCommandline();
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false), "external/path").getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
@@ -189,9 +208,10 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false)).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         expectedCmd =
@@ -202,10 +222,11 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
                 "http://svn.collab.net/repos/external"};
         actualCmd = svn.buildHistoryCommand(
-            lastBuild, checkTime, true, "http://svn.collab.net/repos/external").getCommandline();
+                SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false), "http://svn.collab.net/repos/external").getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
 
         svn.setUsername("lee");
@@ -219,33 +240,14 @@ public class SVNTest extends TestCase {
                 "--xml",
                 "-v",
                 "-r",
-                "\"{" + SVN.formatSVNDate(lastBuild) + "}\":\"{" + SVN.formatSVNDate(checkTime) + "}\"",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
                 "--username",
                 "lee",
                 "--password",
                 "secret",
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, true).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
-    }
-
-    public void testBuildHistoryCommandForNotWindows() throws CruiseControlException {
-        svn.setLocalWorkingCopy(".");
-
-        Date checkTime = new Date();
-        long tenMinutes = 10 * 60 * 1000;
-        Date lastBuild = new Date(checkTime.getTime() - tenMinutes);
-
-        String[] expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                "{" + SVN.formatSVNDate(lastBuild) + "}:{" + SVN.formatSVNDate(checkTime) + "}"};
-        String[] actualCmd = svn.buildHistoryCommand(lastBuild, checkTime, false).getCommandline();
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false)).getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
     }
 
@@ -483,26 +485,26 @@ public class SVNTest extends TestCase {
         Date maySeventeenSixPM2001 =
             new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
         assertEquals(
-            "2001-05-17T08:00:00Z",
-            SVN.formatSVNDate(maySeventeenSixPM2001));
+            "{2001-05-17T08:00:00Z}",
+            SVN.formatSVNDate(maySeventeenSixPM2001, false));
 
         Date maySeventeenEightAM2001 =
             new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
         assertEquals(
-            "2001-05-16T22:00:00Z",
-            SVN.formatSVNDate(maySeventeenEightAM2001));
+            "{2001-05-16T22:00:00Z}",
+            SVN.formatSVNDate(maySeventeenEightAM2001, false));
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
 
         Date marchTwelfFourPM2003 =
             new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
         assertEquals(
-            "2003-03-13T02:00:00Z",
-            SVN.formatSVNDate(marchTwelfFourPM2003));
+            "{2003-03-13T02:00:00Z}",
+            SVN.formatSVNDate(marchTwelfFourPM2003, false));
 
         Date marchTwelfTenAM2003 =
             new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
-        assertEquals("2003-03-12T20:00:00Z", SVN.formatSVNDate(marchTwelfTenAM2003));
+        assertEquals("{2003-03-12T20:00:00Z}", SVN.formatSVNDate(marchTwelfTenAM2003, false));
     }
 
     public void testSetProperty() throws ParseException {
@@ -604,9 +606,42 @@ public class SVNTest extends TestCase {
     }
 
     private static void assertArraysEquals(Object[] expected, Object[] actual) {
-        assertEquals("array lengths mismatch!", expected.length, actual.length);
+        assertEquals("array lengths mismatch! was " + Arrays.asList(actual), expected.length, actual.length);
         for (int i = 0; i < expected.length; i++) {
             assertEquals(expected[i], actual[i]);
         }
+    }
+    
+    public void testParseInfo() throws JDOMException, IOException {
+        String svnInfo = "<?xml version=\"1.0\"?>\n"
+            + "<info>\n"
+            + "<entry kind=\"dir\" path=\".\" revision=\"12345\">\n"
+            + "<url>https://example.org/svn/playground-project</url>\n"
+            + "<repository>\n"
+            + "<root>https://example.org/svn</root>\n"
+            + "<uuid>e6710e3c-8f79-4e94-9235-f6793330c154</uuid>\n"
+            + "</repository>\n"
+            + "<wc-info>\n"
+            + "<schedule>normal</schedule>\n"
+            + "</wc-info>\n"
+            + "<commit revision=\"12345\">\n"
+            + "<author>joebloggs</author>\n"
+            + "<date>2007-07-11T08:31:58.089161Z</date>\n"
+            + "</commit>\n"
+            + "</entry>\n"
+            + "</info>";
+        String currentRevision = SVN.SVNInfoXMLParser.parse(new StringReader(svnInfo));
+        assertEquals("12345", currentRevision);
+    }
+
+    public void testBuildInfoCommand() throws CruiseControlException {
+        svn.setLocalWorkingCopy(".");
+        String[] expectedCmd = { "svn", "info", "--xml" };
+        String[] actualCmd = svn.buildInfoCommand(null).getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
+        expectedCmd = new String[] { "svn", "info", "--xml", "foo" };
+        actualCmd = svn.buildInfoCommand("foo").getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
     }
 }

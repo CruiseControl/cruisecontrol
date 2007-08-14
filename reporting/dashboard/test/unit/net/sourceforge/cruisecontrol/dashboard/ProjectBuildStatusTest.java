@@ -36,54 +36,55 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.joda.time.DateTime;
 
+import junit.framework.TestCase;
+
 public class ProjectBuildStatusTest extends TestCase {
     public void testShouldReturnInactiveAsTheDefaultStatus() {
         ProjectBuildStatus building = ProjectBuildStatus.getProjectBuildStatus(null);
-        assertTrue(building instanceof StatusInactive);
+        assertSame(ProjectBuildStatus.INACTIVE, building);
     }
 
     public void testShouldReturnBuildingObjectBaseOnValue() {
-        String exptected = new StatusBuilding().toString();
-        ProjectBuildStatus building = ProjectBuildStatus.getProjectBuildStatus(exptected);
-        assertTrue(building instanceof StatusBuilding);
+        ProjectBuildStatus exptected = ProjectBuildStatus.BUILDING;
+        ProjectBuildStatus building = ProjectBuildStatus.getProjectBuildStatus(exptected.toString());
+        assertSame(ProjectBuildStatus.BUILDING, building);
         assertEquals("Building", building.getStatus());
     }
 
     public void testShouldReturnBuildingObjectBaseOnValuePlusTimestamp() {
-        String exptected = new StatusBuilding().toString() + " since 20070420170000";
+        String exptected = ProjectBuildStatus.BUILDING.toString() + " since 20070420170000";
         ProjectBuildStatus building = ProjectBuildStatus.getProjectBuildStatus(exptected);
-        assertTrue(building instanceof StatusBuilding);
+        assertSame(ProjectBuildStatus.BUILDING, building);
         assertEquals("Building", building.getStatus());
     }
 
     public void testShouldReturnStatusBootStrappingObjectBaseOnValue() {
-        String exptected = new StatusBootStrapping().toString();
+        String exptected = ProjectBuildStatus.BOOTSTRAPPING.toString();
         ProjectBuildStatus bootstrapping = ProjectBuildStatus.getProjectBuildStatus(exptected);
-        assertTrue(bootstrapping instanceof StatusBootStrapping);
+        assertSame(ProjectBuildStatus.BOOTSTRAPPING, bootstrapping);
         assertEquals("Bootstrapping", bootstrapping.getStatus());
     }
 
     public void testShouldReturnStatusModificationSetObjectBaseOnValue() {
-        String exptected = new StatusModificationSet().toString();
+        String exptected = ProjectBuildStatus.MODIFICATIONSET.toString();
         ProjectBuildStatus modificationset = ProjectBuildStatus.getProjectBuildStatus(exptected);
-        assertTrue(modificationset instanceof StatusModificationSet);
+        assertSame(ProjectBuildStatus.MODIFICATIONSET, modificationset);
         assertEquals("ModificationSet", modificationset.getStatus());
     }
 
     public void testShouldReturnWaitingObjectBaseOnValue() {
-        String exptected = new StatusWaiting().toString();
+        String exptected = ProjectBuildStatus.WAITING.toString();
         ProjectBuildStatus waiting = ProjectBuildStatus.getProjectBuildStatus(exptected);
-        assertTrue(waiting instanceof StatusWaiting);
+        assertSame(ProjectBuildStatus.WAITING, waiting);
         assertEquals("Waiting", waiting.getStatus());
     }
 
     public void testShouldExtractTimestampFromStatusIfPresent() throws Exception {
-        String statusString = new StatusBuilding().toString() + " since 20070420170000";
+        String statusString = ProjectBuildStatus.BUILDING.toString() + " since 20070420170000";
         DateTime date = ProjectBuildStatus.getTimestamp(statusString);
         assertEquals(CCDateFormatter.format("2007-04-20 17:00:00", "yyyy-MM-dd HH:mm:ss"), date);
     }

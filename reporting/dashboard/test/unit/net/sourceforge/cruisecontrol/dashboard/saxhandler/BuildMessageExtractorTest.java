@@ -60,12 +60,11 @@ public class BuildMessageExtractorTest extends TestCase {
 
     public void testCanReadBuildLevelMessages() throws Exception {
         Map props = new HashMap();
-        parseLogFile(DataUtils.getPassingBuildLbuildAsFile(), props);
-        List messages = (List) props.get("buildmessages");
+        parseLogFile(DataUtils.getFailedBuildLbuildAsFile(), props);
+        List messages = (List) props.get(BuildMessageExtractor.KEY_MESSAGES);
 
         assertEquals(4, messages.size());
-        assertEquals("Adding reference: ant.PropertyHelper", ((BuildMessage) messages.get(0))
-                .getMessage());
+        assertEquals("Adding reference: ant.PropertyHelper", ((BuildMessage) messages.get(0)).getMessage());
         assertEquals(MessageLevel.DEBUG, ((BuildMessage) messages.get(0)).getLevel());
         assertEquals("Detected Java version: 1.4 in: C:\\pdj\\java\\j2sdk1.4.2_09\\jre",
                 ((BuildMessage) messages.get(1)).getMessage());
@@ -74,5 +73,11 @@ public class BuildMessageExtractorTest extends TestCase {
         assertEquals(MessageLevel.WARN, ((BuildMessage) messages.get(2)).getLevel());
         assertEquals("Cannot find something", ((BuildMessage) messages.get(3)).getMessage());
         assertEquals(MessageLevel.ERROR, ((BuildMessage) messages.get(3)).getLevel());
+    }
+
+    public void testShouldReturnContentOfErrorAttributeOfBuildElement() throws Exception {
+        Map props = new HashMap();
+        parseLogFile(DataUtils.getFailedBuildLbuildAsFile(), props);
+        assertEquals("This is my error message", props.get(BuildMessageExtractor.KEY_BUILD));
     }
 }

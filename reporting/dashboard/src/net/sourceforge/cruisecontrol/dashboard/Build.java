@@ -53,7 +53,7 @@ public interface Build extends Comparable {
 
     public String getProjectName();
 
-    public String getStatus();
+    public ProjectBuildStatus getStatus();
 
     public boolean hasPassed();
 

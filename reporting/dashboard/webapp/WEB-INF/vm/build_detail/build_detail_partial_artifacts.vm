@@ -9,7 +9,7 @@
 	        #if($artifactFile.isFile())			
 	            <li><span class="artifact"><a href="$url">$artifactFile.name</a></span></li>
 	        #else
-	            <li><span class="directory"><a onclick=ajax_tree_navigator(this,"$url")>$artifactFile.name</a></span></li>
+	            <li><span class="directory"><a onclick='BuildDetailExecuter.ajax_tree_navigator(this,"$url")'>$artifactFile.name</a></span></li>
 	            <div id="$url.replaceAll('/', '_')" style="display:none"></div>
 	        #end
         #end

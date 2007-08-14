@@ -1,6 +1,6 @@
 <div id="modifications" class="modifications" $modification_extra_attrs>
     <h2>Modifications</h2>
-    <ul class="modifications">
+    <ul>
         #if( $build.modifications.size() == 0)
             <p>No modifications found.</p>
         #end
@@ -9,7 +9,7 @@
                 <span class="user">$mod.user</span><br/><span class="comment">$mod.comment</span>
                 <ul class="files">
                 #foreach ($file in $mod.modifiedFiles)
-                    <li>[$file.revision] <span class="$file.action">$file.action</span> $file.filename</li>
+                    <li>[$file.revision]&nbsp;<span class="$file.action">$file.action</span>&nbsp;$file.filename</li>
                 #end
                 </ul>
             </li>

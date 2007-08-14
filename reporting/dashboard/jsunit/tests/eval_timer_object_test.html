@@ -42,13 +42,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CCE Dashboard Tests</title>
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/timer.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 function setUp() {
     $('project1_time_elapsed').innerHTML = ''
@@ -59,13 +57,14 @@ function test_should_create_timer_when_project_status_is_building() {
 	  building_info : { project_name : "project1", building_status : "building",build_duration: '1 hours 1 minutes 1 seconds' }
 	}
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, json.building_info.building_duration, 0)
-	var timer = eval('project1_timer')
+	var timer_id = escape_project_name("project1") + "_timer"	
+	var timer = eval(timer_id)
 	assertNotUndefined(timer)
 	assertTrue(timer instanceof Timer)
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, json.building_info.building_duration, 0)
-	var before = eval('project1_timer')
+	var before = eval(timer_id)
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, json.building_info.building_duration, 0)
-	var after = eval('project1_timer')
+	var after = eval(timer_id)
 	assertTrue(before === after)
 }
 
@@ -74,12 +73,13 @@ function test_should_clean_timer_when_project_status_is_not_building() {
 	  building_info : { project_name : "project1", building_status : "building" ,build_duration: '1 hours 1 minutes 1 seconds'}
 	}
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, json.building_info.building_duration, 0)
-	assertFalse(eval('project1_timer').is_stopped());
+	var timer_id = escape_project_name("project1") + "_timer"	
+	assertFalse(eval(timer_id).is_stopped());
 	var json = {
 	  building_info : { project_name : "project1", building_status : "passed" ,build_duration: '1 hours 1 minutes 1 seconds'}
 	}
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, json.building_info.building_duration, 0)
-	assertTrue(eval('project1_timer').is_stopped());
+	assertTrue(eval(timer_id).is_stopped());
 }
 
 

@@ -36,8 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
+import java.io.ByteArrayInputStream;
+
+import org.apache.commons.lang.StringUtils;
+import org.cyberneko.html.parsers.DOMParser;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
 
 import com.thoughtworks.selenium.DefaultSelenium;
 import com.thoughtworks.selenium.Selenium;
@@ -59,10 +67,9 @@ public abstract class SeleniumTestCase extends TestCase {
 
     private void setConfigFileLocation() throws Exception {
         selenium.open("/dashboard/admin/config");
-        selenium.type("configFileLocation", DataUtils.getConfigXmlInArbitraryCCHome()
-                .getAbsolutePath());
+        selenium.type("configFileLocation", DataUtils.getConfigXmlInArbitraryCCHome().getAbsolutePath());
         selenium.submit("specifyConfigLocation");
-        selenium.waitForPageToLoad("5000");
+        selenium.waitForPageToLoad("10000");
     }
 
     public final void tearDown() throws Exception {
@@ -74,12 +81,45 @@ public abstract class SeleniumTestCase extends TestCase {
         selenium.click("//a[text()='" + text + "']");
         Thread.sleep(milliseconds);
     }
-    
+
     protected void clickLinkWithIdAndWait(String text) throws Exception {
         selenium.click(text);
-        selenium.waitForPageToLoad("5000");
+        selenium.waitForPageToLoad("20000");
+    }
+
+    protected Document getHtmlDom(String htmlSource) throws Exception {
+        DOMParser parser = new DOMParser();
+        parser.parse(new InputSource(new ByteArrayInputStream(htmlSource.getBytes())));
+        return parser.getDocument();
     }
 
     protected void doTearDown() throws Exception {
+    }
+
+    protected void hasClassName(String htmlSource, String id, String className) throws Exception {
+        Document htmlDom = getHtmlDom(htmlSource);
+        String classNames = htmlDom.getElementById(id).getAttribute("class");
+        assertTrue(StringUtils.contains(classNames, className));
+    }
+
+    protected static final int AJAX_DURATION = 5;
+    protected static final int FORCE_BUILD_DURATION = AJAX_DURATION * 3;
+    protected static final int BUILD_DURATION =
+        AJAX_DURATION * (CruiseControlJMXServiceStub.BUILD_TIMES.intValue() + 1);
+    protected static final String BUILDING_STARTED = "remaining";
+
+    protected void waitingForTextAppear(String text, int seconds) {
+        String textPresent = "selenium.isTextPresent(\"" + text + "\")";
+        selenium.waitForCondition(textPresent, "" + seconds * 1000);
+    }
+
+    protected void waitingForTextDisappear(String text, int seconds) {
+        String textPresent = "!selenium.isTextPresent(\"" + text + "\")";
+        selenium.waitForCondition(textPresent, "" + seconds * 1000);
+    }
+
+    protected void openAndWaiting(String url, int seconds) {
+        selenium.open(url);
+        selenium.waitForPageToLoad("" + seconds * 1000);
     }
 }

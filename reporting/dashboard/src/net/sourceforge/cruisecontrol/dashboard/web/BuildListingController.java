@@ -63,13 +63,14 @@ public class BuildListingController extends BaseMultiActionController {
 
     public ModelAndView all(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List all = buildSummariesService.getAll(getProjectName(request));
-        return process(getProjectName(request), "page_all_builds", buildSummaryUIService.toCommands(all));
+        return process(getProjectName(request), "page_all_builds", buildSummaryUIService
+                .transform(all, false));
     }
 
     public ModelAndView passed(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List allSucceed = buildSummariesService.getAllSucceed(getProjectName(request));
         return process(getProjectName(request), "page_all_successful_builds", buildSummaryUIService
-                .toCommands(allSucceed));
+                .transform(allSucceed, false));
     }
 
     private ModelAndView process(String projectName, String viewname, List list) {

@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
@@ -54,7 +55,8 @@ public final class CCDateFormatter {
 
     private static DateTimeFormatter yyyyMMddHHmmssPattern = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    private static SimpleDateFormat yyyyMMddHHmmssSimpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static SimpleDateFormat yyyyMMddHHmmssSimpleDateFormat =
+        new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
 
     private CCDateFormatter() {
     }
@@ -75,7 +77,7 @@ public final class CCDateFormatter {
     }
 
     private static SimpleDateFormat getDateFormatterWithTimeZone() {
-        return new SimpleDateFormat("d MMM yyyy HH:mm 'GMT' Z");
+        return new SimpleDateFormat("d MMM yyyy HH:mm 'GMT' Z", Locale.ENGLISH);
     }
 
     public static String yyyyMMddHHmmss(DateTime date) {
@@ -87,7 +89,7 @@ public final class CCDateFormatter {
     }
 
     public static String format(DateTime datetime, String format) {
-        return new SimpleDateFormat(format).format(datetime.toDate());
+        return new SimpleDateFormat(format, Locale.ENGLISH).format(datetime.toDate());
     }
 
     public static DateTime formatLogName(String logFileName) {

@@ -111,7 +111,7 @@ public class DashboardXmlConfigService implements DashboardConfigService, Initia
         if (!isValid) {
             return new HashMap();
         }
-        NodeList nodes = document.getElementsByTagName("storytracker");
+        NodeList nodes = document.getElementsByTagName("trackingtool");
         Map storyTrackers = new HashMap();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node item = nodes.item(i);

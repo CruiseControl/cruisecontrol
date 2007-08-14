@@ -1,5 +1,5 @@
 #foreach($pluginDisplayName in $build.build.getPluginOutputs().keySet())
-    <div id="$pluginDisplayName.toLowerCase()" class="tests" style="display:none">
+    <div id="$pluginDisplayName.toLowerCase()" class="widget" style="display:none">
     #if($build.build.getPluginOutputs().get($pluginDisplayName))
         <pre>
 $build.build.getPluginOutputs().get($pluginDisplayName)
@@ -9,4 +9,5 @@ $build.build.getPluginOutputs().get($pluginDisplayName)
     #end
     </div>
 #end
+
 

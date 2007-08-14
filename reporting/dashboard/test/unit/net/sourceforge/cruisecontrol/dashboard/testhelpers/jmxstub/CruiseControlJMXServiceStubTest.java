@@ -54,42 +54,48 @@ public class CruiseControlJMXServiceStubTest extends TestCase {
 
     public void testForceBuildShouldTriggerBuildingProcessForNew() throws Exception {
         controlJMXServiceStub.forceBuild("new_project");
-        assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
-                .getBuildStatus("new_project"));
-        assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub
-                .getBuildStatus("new_project"));
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             assertEquals(CruiseControlJMXServiceStub.BUILDING, controlJMXServiceStub
                     .getBuildStatus("new_project"));
         }
-        assertEquals(CruiseControlJMXServiceStub.WAITING, controlJMXServiceStub
-                .getBuildStatus("new_project"));
+        assertEquals(CruiseControlJMXServiceStub.WAITING, controlJMXServiceStub.getBuildStatus("new_project"));
     }
 
     public void testTwoDifferentProjectShouldNotInfluenceEachOther() throws Exception {
         controlJMXServiceStub.forceBuild("new_project_1");
-        assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
-                .getBuildStatus("new_project_1"));
-        assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub
-                .getBuildStatus("new_project_1"));
-        assertEquals(CruiseControlJMXServiceStub.WAITING, controlJMXServiceStub
-                .getBuildStatus("new_project_2"));
+        assertEquals(CruiseControlJMXServiceStub.BUILDING, project1BuildStatus());
+        assertEquals(CruiseControlJMXServiceStub.WAITING, project2BuildStatus());
+    }
+    
+    public void testShouldNotShareBuildCountdownBetweenMultipleProjects() throws Exception {
+        controlJMXServiceStub.forceBuild("new_project_1");
+        controlJMXServiceStub.forceBuild("new_project_2");
+        for (int i = 0; i < 2; i++) {
+            project1BuildStatus();
+            project2BuildStatus();
+        }
+        assertEquals(CruiseControlJMXServiceStub.BUILDING, project1BuildStatus());
+        assertEquals(CruiseControlJMXServiceStub.BUILDING, project2BuildStatus());
+    }
+
+    private String project2BuildStatus() {
+        return controlJMXServiceStub.getBuildStatus("new_project_2");
+    }
+
+    private String project1BuildStatus() {
+        return controlJMXServiceStub.getBuildStatus("new_project_1");
     }
 
     public void testAllProjectStatusShouldBeChangedWhenUserTriggerTheBuild() throws Exception {
         String status = (String) controlJMXServiceStub.getAllProjectsStatus().get("new_project_2");
         assertEquals(CruiseControlJMXServiceStub.WAITING, status);
         controlJMXServiceStub.forceBuild("new_project_2");
-        assertEquals(CruiseControlJMXServiceStub.BOOTSTRAPPING, controlJMXServiceStub
-                .getAllProjectsStatus().get("new_project_2"));
-        assertEquals(CruiseControlJMXServiceStub.MODIFICATIONSET, controlJMXServiceStub
-                .getAllProjectsStatus().get("new_project_2"));
-        for (int i = 0; i < 6; i++) {
-            assertEquals(CruiseControlJMXServiceStub.BUILDING, controlJMXServiceStub
-                    .getAllProjectsStatus().get("new_project_2"));
+        for (int i = 0; i < 3; i++) {
+            assertEquals(CruiseControlJMXServiceStub.BUILDING, 
+                controlJMXServiceStub.getAllProjectsStatus().get("new_project_2"));
         }
-        assertEquals(CruiseControlJMXServiceStub.WAITING, controlJMXServiceStub
-                .getAllProjectsStatus().get("new_project_2"));
+        assertEquals(CruiseControlJMXServiceStub.WAITING,
+            controlJMXServiceStub.getAllProjectsStatus().get("new_project_2"));
     }
 
 }

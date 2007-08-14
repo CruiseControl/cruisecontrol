@@ -36,13 +36,14 @@
 </div>
     
 <script>
+    var executer = new BuildDetailExecuter();
     new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
         asynchronous: 1,
         method:'GET',
         onSuccess: function(transport) {
 			var json = transport.responseText
 			json = json ? eval('(' + json + ')') : null
-            ajax_periodical_refresh_active_build_executer_oncomplete(json, '$build.build.projectName')
+            BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete(json, '$build.build.projectName')
         }
     });
     new Ajax.Request(context_path('getCommitMessage.ajax?project=$build.build.projectName'), {
@@ -51,9 +52,9 @@
         onSuccess: function(transport) {
 			var json = transport.responseText
 			json = json ? eval('(' + json + ')') : null
-            ajax_refresh_active_build_commit_message(json)
+            executer.ajax_refresh_active_build_commit_message(json)
         }
     });
-    ajax_periodical_refresh_active_build_executer('$projectName');
-    ajax_periodical_refresh_active_build_output_executer('$build.build.projectName');
+    executer.ajax_periodical_refresh_active_build_executer('$projectName');
+    executer.ajax_periodical_refresh_active_build_output_executer('$build.build.projectName');
 </script>

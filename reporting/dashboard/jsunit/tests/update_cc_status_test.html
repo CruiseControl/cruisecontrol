@@ -42,12 +42,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>CCE Dashboard Tests</title>
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/prototype.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/scriptaculous.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/cc.js"></script>
-<script language="JavaScript" type="text/javascript" src="../ccjs/dashboard_global.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
 <script language="JavaScript" type="text/javascript">
 function setUp() {
     $('cruisecontrol_status').show()
@@ -87,7 +86,7 @@ function test_should_enable_all_force_build_if_json_dose_NOT_contains_error() {
 function test_should_NOT_update_links_if_already_updated() {
 	var json = [
 	    {building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
-	    {building_info : { project_name : "project2", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}},
+	    {building_info : { project_name : "project2", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log",  css_class_name : "building"}}
 	]
 	update_cc_status(json)
 	$A($$('.force_build_link')).each(function(element) {

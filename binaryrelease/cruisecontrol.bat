@@ -57,7 +57,7 @@ set CRUISE_PATH=%JAVA_HOME%\lib\tools.jar
 goto setCruise
 
 :noJavaHome
-echo WARNING: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as <javac>) will not work properly.
+echo WARNING: You have not set the JAVA_HOME environment variable. Any tasks relying on the tools.jar file (such as "<javac>") will not work properly.
 set JAVA_PATH=java
 
 :setCruise

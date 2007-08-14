@@ -61,7 +61,8 @@ public class ServerNameInterceptorTest extends TestCase {
     public void testShouldPutServerNameIntoModel() throws Exception {
         ModelAndView modelAndView = new ModelAndView();
         interceptor.postHandle(request, response, null, modelAndView);
-        assertEquals(InetAddress.getLocalHost().getHostName(), modelAndView.getModel().get("serverName"));
+        assertEquals(InetAddress.getLocalHost().getCanonicalHostName(), modelAndView.getModel().get(
+                "serverName"));
     }
 
     public void testPreHandlerShouldReturnTrue() throws Exception {

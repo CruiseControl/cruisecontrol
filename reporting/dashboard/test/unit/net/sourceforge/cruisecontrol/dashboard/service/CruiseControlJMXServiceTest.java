@@ -56,26 +56,20 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
 
     private Mock mockJMXFactory;
 
+    private Mock envService;
+
     protected void setUp() throws Exception {
+        envService =
+                mock(EnvironmentService.class, new Class[] {SystemService.class,
+                        DashboardConfigService[].class}, new Object[] {new SystemService(),
+                        new DashboardConfigService[] {}});
+        envService.expects(atLeastOnce()).method("getRmiPort").will(returnValue(9090));
         mockJMXFactory =
                 mock(JMXFactory.class, new Class[] {EnvironmentService.class, JMXConnectorFactory.class},
-                        new Object[] {
-                                new EnvironmentService(new SystemService(),
-                                        new DashboardConfigService[] {new SystemPropertyConfigService(
-                                                new SystemService())}), new JMXConnectorFactory()});
+                        new Object[] {envService.proxy(), new JMXConnectorFactory()});
         jmxService =
-                new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy(), new EnvironmentService(
-                        new SystemService(), new DashboardConfigService[] {new SystemPropertyConfigService(
-                                new SystemService())}));
-        cleanProperty();
-    }
-
-    private void cleanProperty() {
-        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "");
-    }
-
-    protected void tearDown() throws Exception {
-        cleanProperty();
+                new CruiseControlJMXService((JMXFactory) mockJMXFactory.proxy(),
+                        (EnvironmentService) envService.proxy());
     }
 
     public void testShouldGetStatusByProjectName() throws Exception {
@@ -88,6 +82,7 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
     public void testStatusOfProjectShouldBeChangedAfterForceBuildByRMIConnection() throws Exception {
         MBeanServerConnectionStatusStub beanServerConnectionStatusStub =
                 new MBeanServerConnectionStatusStub();
+        envService.expects(atLeastOnce()).method("isForceBuildEnabled").will(returnValue(true));
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(beanServerConnectionStatusStub));
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
@@ -154,9 +149,25 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(new MBeanServerConnectionProjectsStatusStub()));
         Map projectsStatus = jmxService.getAllProjectsStatus();
-        assertEquals("now building since 20070420174744", projectsStatus.get("project1"));
+        assertEquals("now building since 20070420174744", projectsStatus.get("building"));
     }
 
+    public void testShouldReturnWaitingStatusWhenProjectsStatusIsBootstrapping()
+    throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionProjectsStatusStub()));
+        Map projectsStatus = jmxService.getAllProjectsStatus();
+        assertEquals(CruiseControlJMXService.WAITING_STATUS, projectsStatus.get("bootstrapping"));
+    }
+    
+    public void testShouldReturnWaitingStatusWhenProjectsStatusIsCheckingForModifications()
+    throws Exception {
+        mockJMXFactory.expects(once()).method("getJMXConnection").will(
+                returnValue(new MBeanServerConnectionProjectsStatusStub()));
+        Map projectsStatus = jmxService.getAllProjectsStatus();
+        assertEquals(CruiseControlJMXService.WAITING_STATUS, projectsStatus.get("modifications"));
+    }
+    
     public void testShouldThrowExceptionWhenJMXCallThrowException() throws Exception {
         mockJMXFactory.expects(once()).method("getJMXConnection").will(
                 returnValue(new MBeanServerErrorConnectionStub()));
@@ -165,7 +176,7 @@ public class CruiseControlJMXServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldThrowExceptionWhenForceBuildIsDisabled() throws Exception {
-        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "false");
+        envService.expects(atLeastOnce()).method("isForceBuildEnabled").will(returnValue(false));
         mockJMXFactory.expects(never()).method("getJMXConnection");
         try {
             jmxService.forceBuild(PROJECT_NAME);

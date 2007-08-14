@@ -42,7 +42,6 @@ import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 
 public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
@@ -70,8 +69,7 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
     private File justFailed;
 
     protected void doSetUp() throws Exception {
-        File projectWithoutPublishers =
-                new File(DataUtils.getLogRootOfWebapp(), "projectWithoutPublishers");
+        File projectWithoutPublishers = new File(DataUtils.getLogRootOfWebapp(), "projectWithoutPublishers");
         DateTime now = new DateTime();
         failedLevel8 =
                 new File(projectWithoutPublishers, "log" + CCDateFormatter.yyyyMMddHHmmss(now.minusDays(2))
@@ -137,11 +135,10 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
     }
 
     private void assertClassName(File file, String className) throws Exception {
-        String exptectedBar = "id=\"projectWithoutPublishers_bar\" class=\"bar round_corner " + className;
         file.createNewFile();
-        Thread.sleep(7000);
-        String htmlSource = selenium.getHtmlSource();
-        assertTrue(htmlSource, StringUtils.contains(htmlSource, exptectedBar));
+        String textPresent =
+                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_bar').className.indexOf('"
+                        + className + "') >= 0";
+        selenium.waitForCondition(textPresent, "7000");
     }
-
 }

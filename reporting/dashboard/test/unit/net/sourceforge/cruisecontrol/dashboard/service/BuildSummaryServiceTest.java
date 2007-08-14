@@ -50,7 +50,7 @@ public class BuildSummaryServiceTest extends TestCase {
     public void testTheStatusIsInactiveWhenCreateNewBuildSummary() throws Exception {
         Build summary = new BuildSummaryService().createInactive(new File("project1"));
         assertEquals("project1", summary.getProjectName());
-        assertEquals(ProjectBuildStatus.INACTIVE.getStatus(), summary.getStatus());
+        assertEquals(ProjectBuildStatus.INACTIVE, summary.getStatus());
     }
 
     public void testShouldParseBuildSummaryWithLabelForPassingBuild() throws Exception {

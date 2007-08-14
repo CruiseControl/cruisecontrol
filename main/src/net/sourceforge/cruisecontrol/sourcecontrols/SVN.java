@@ -99,6 +99,8 @@ public class SVN implements SourceControl {
     private String password;
     private boolean checkExternals = false;
 
+    private boolean useLocalRevision = false;
+
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
@@ -209,26 +211,36 @@ public class SVN implements SourceControl {
         HashMap commandsAndPaths = new HashMap();
         try {
             // always check the root
-            command = buildHistoryCommand(lastBuild, now, Util.isWindows());
+            String startRevision = formatSVNDate(lastBuild);
+            String endRevision;
+            if (useLocalRevision) {
+                endRevision = execInfoCommand(buildInfoCommand(null));
+            } else {
+                endRevision = formatSVNDate(now);
+            }
+            command = buildHistoryCommand(startRevision, endRevision);
             commandsAndPaths.put(command, null);
             for (Iterator iter = directories.keySet().iterator(); iter.hasNext();) {
-                 String directory = (String) iter.next();
-                 ArrayList externals =
-                     (ArrayList) directories.get(directory);
-                 for (Iterator eiter = externals.iterator(); eiter.hasNext();) {
-                      String[] external = (String[]) eiter.next();
-                      path = directory + "/" + external[0];
-                      svnURL = external[1];
-                      if (repositoryLocation != null) {
-                          command = buildHistoryCommand(
-                              lastBuild, now, Util.isWindows(), svnURL);
-                          commandsAndPaths.put(command, null);
-                      } else {
-                          command = buildHistoryCommand(
-                              lastBuild, now, Util.isWindows(), path);
-                          commandsAndPaths.put(command, path);
-                      }
-                 }
+                String directory = (String) iter.next();
+                if (useLocalRevision) {
+                    endRevision = execInfoCommand(buildInfoCommand(directory));
+                } else {
+                    endRevision = formatSVNDate(now);
+                }
+                ArrayList externals =
+                    (ArrayList) directories.get(directory);
+                for (Iterator eiter = externals.iterator(); eiter.hasNext();) {
+                    String[] external = (String[]) eiter.next();
+                    path = directory + "/" + external[0];
+                    svnURL = external[1];
+                    if (repositoryLocation != null) {
+                        command = buildHistoryCommand(startRevision, endRevision, svnURL);
+                        commandsAndPaths.put(command, null);
+                    } else {
+                        command = buildHistoryCommand(startRevision, endRevision, svnURL);
+                        commandsAndPaths.put(command, path);
+                    }
+                }
             }
         } catch (CruiseControlException e) {
             LOG.error("Error building history command", e);
@@ -279,6 +291,22 @@ public class SVN implements SourceControl {
         return command;
     }
 
+    Commandline buildInfoCommand(String path) throws CruiseControlException {
+        Commandline command = new Commandline();
+        command.setExecutable("svn");
+
+        if (localWorkingCopy != null) {
+            command.setWorkingDirectory(localWorkingCopy);
+        }
+        command.createArgument("info");
+        command.createArgument("--xml");
+        if (path != null) {
+            command.createArgument(path);
+        }
+        LOG.debug("Executing command: " + command);
+
+        return command;
+    }
     /**
      * Generates the command line for the svn log command.
      *
@@ -291,12 +319,12 @@ public class SVN implements SourceControl {
      * @param isWindows os
      * @throws net.sourceforge.cruisecontrol.CruiseControlException exception
      */
-    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows)
+    Commandline buildHistoryCommand(String lastBuild, String checkTime)
         throws CruiseControlException {
-        return buildHistoryCommand(lastBuild, checkTime, isWindows, null);
+        return buildHistoryCommand(lastBuild, checkTime, null);
     }
 
-    Commandline buildHistoryCommand(Date lastBuild, Date checkTime, boolean isWindows, String path)
+    Commandline buildHistoryCommand(String lastBuild, String checkTime, String path)
         throws CruiseControlException {
 
         Commandline command = new Commandline();
@@ -311,13 +339,7 @@ public class SVN implements SourceControl {
         command.createArgument("--xml");
         command.createArgument("-v");
         command.createArgument("-r");
-        if (isWindows) {
-            command.createArgument("\"{" + formatSVNDate(lastBuild) + "}\"" + ":"
-                    + "\"{" + formatSVNDate(checkTime) + "}\"");
-        } else {
-            command.createArgument("{" + formatSVNDate(lastBuild) + "}" + ":"
-                    + "{" + formatSVNDate(checkTime) + "}");
-        }
+        command.createArgument(lastBuild + ":" + checkTime);
 
         if (userName != null) {
             command.createArguments("--username", userName);
@@ -336,11 +358,19 @@ public class SVN implements SourceControl {
         return command;
     }
 
-
-    static String formatSVNDate(Date lastBuild) {
+    static String formatSVNDate(Date date) {
+        return formatSVNDate(date, Util.isWindows());
+    }
+    
+    static String formatSVNDate(Date lastBuild, boolean isWindows) {
         DateFormat f = new SimpleDateFormat(SVN_DATE_FORMAT_IN);
         f.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return f.format(lastBuild);
+        String dateStr = f.format(lastBuild);
+        if (isWindows) {
+            return "\"{" + dateStr + "}\"";
+        } else {
+            return "{" + dateStr + "}";
+        }
     }
 
     private static HashMap execPropgetCommand(Commandline command)
@@ -400,6 +430,29 @@ public class SVN implements SourceControl {
         IO.close(p);
 
         return modifications;
+    }
+
+    private String execInfoCommand(Commandline command) throws CruiseControlException {
+        try {
+            Process p = command.execute();
+    
+            Thread stderr = logErrorStream(p);
+            InputStream svnStream = p.getInputStream();
+            InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
+            String revision = SVNInfoXMLParser.parse(reader);
+    
+            p.waitFor();
+            stderr.join();
+            IO.close(p);
+    
+            return revision;
+        } catch (IOException e) {
+            throw new CruiseControlException(e);
+        } catch (JDOMException e) {
+            throw new CruiseControlException(e);
+        } catch (InterruptedException e) {
+            throw new CruiseControlException(e);
+        }
     }
 
     private static Thread logErrorStream(Process p) {
@@ -574,5 +627,20 @@ public class SVN implements SourceControl {
             }
             return filtered;
         }
+    }
+    
+    static final class SVNInfoXMLParser {
+        private SVNInfoXMLParser() { }
+        public static String parse(Reader reader) throws JDOMException, IOException {
+            SAXBuilder builder = new SAXBuilder(false);
+            Document document = builder.build(reader);
+            String revisionNumber = document.getRootElement().getChild("entry").getAttribute("revision").getValue();
+            return revisionNumber;
+        }
+        
+    }
+
+    public void setUseLocalRevision(boolean useLocalRevision) {
+        this.useLocalRevision = useLocalRevision;
     }
 }

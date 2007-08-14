@@ -39,14 +39,20 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sourceforge.cruisecontrol.dashboard.Modification;
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.web.command.ModificationCommand;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -54,8 +60,12 @@ public class GetCommitMessageController implements Controller {
 
     private CruiseControlJMXService jmxService;
 
-    public GetCommitMessageController(CruiseControlJMXService jmxService) {
+    private final DashboardXmlConfigService configService;
+
+    public GetCommitMessageController(CruiseControlJMXService jmxService,
+            DashboardXmlConfigService configService) {
         this.jmxService = jmxService;
+        this.configService = configService;
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
@@ -63,21 +73,24 @@ public class GetCommitMessageController implements Controller {
         String projectName = request.getParameter("project");
         List commitMessages = jmxService.getCommitMessages(projectName);
         PrintWriter writer = response.getWriter();
-        writer.write("[" + toJsonHeader(commitMessages) + "]");
+        writer.write("[" + toJsonHeader(commitMessages, projectName) + "]");
         writer.close();
         return null;
     }
 
-    private String toJsonHeader(List commitMessages) {
+    private String toJsonHeader(List commitMessages, String projectName) {
         if (CollectionUtils.isEmpty(commitMessages)) {
             return "";
         }
         String result = "";
+        Map storyTrackers = configService.getStoryTrackers();
+        StoryTracker storyTracker = (StoryTracker) storyTrackers.get(projectName);
         for (Iterator iter = commitMessages.iterator(); iter.hasNext();) {
             ModificationKey modification = (ModificationKey) iter.next();
-            result +=
-                    ("{\"user\":\"" + modification.getUser() + "\",\"comment\":\""
-                            + modification.getComment() + "\"},");
+            Modification modi = new Modification("", modification.getUser(), modification.getComment());
+            ModificationCommand cmd = new ModificationCommand(modi, storyTracker);
+            String comment = StringUtils.replace(cmd.getComment(), "\"", "'");
+            result += ("{\"user\":\"" + cmd.getUser() + "\",\"comment\":\"" + comment + "\"},");
         }
         return result;
     }

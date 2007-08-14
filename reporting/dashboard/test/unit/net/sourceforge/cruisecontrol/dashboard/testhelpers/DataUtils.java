@@ -52,6 +52,8 @@ public final class DataUtils {
 
     public static final String DASHBOARD_XML = "dashboard-config.xml";
 
+    public static final String DASHBOARD_XML_FOR_SELENIUM = "dashboard-config-selenium.xml";
+
     public static final String FAILING_LOG = "cruisecontrollog_internalerror.log";
 
     public static final String FAILING_BUILD_XML = "log20051209122104.xml";
@@ -219,6 +221,10 @@ public final class DataUtils {
 
     public static File getDashboardConfig() throws Exception {
         return getData(DASHBOARD_XML);
+    }
+
+    public static File getDashboardConfigForSelenium() throws Exception {
+        return getData(DASHBOARD_XML_FOR_SELENIUM);
     }
 
 }

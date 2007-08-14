@@ -118,6 +118,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnViewIncludeMultipleProjects() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -146,6 +148,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnViewIncludeBuildInfomation() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -158,6 +162,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnJasonViewInWaitingStatus() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -170,6 +176,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnJasonViewWithClassNameAsLongFailedStatus() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -182,6 +190,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnPassedJasonViewInWaitingStatus() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -194,6 +204,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnJasonViewIncludeBuildingStatus() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -231,6 +243,8 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     public void testShouldUseCachedDataModelWithinTheCachePeriod() throws Exception {
         setUpControllerWithBuildSummaryService();
+        buildSummaryServiceMock.expects(atLeastOnce()).method("getLastBuildStatus").will(
+                returnValue(ProjectBuildStatus.PASSED));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(earliestFailed));
         buildSummaryServiceMock.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
