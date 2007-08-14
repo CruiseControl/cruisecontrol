@@ -63,7 +63,7 @@ public class CurrentBuildStatusListener implements Listener {
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusListener.class);
     private String fileName;
 
-    static final String MSG_PREFIX_PROGRESS = "Progress: ";
+    static final String MSG_PREFIX_PROGRESS = "progress: ";
 
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         if (event instanceof ProjectStateChangedEvent) {
