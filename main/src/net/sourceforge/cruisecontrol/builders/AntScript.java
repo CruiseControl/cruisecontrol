@@ -247,6 +247,7 @@ public class AntScript implements Script, StreamConsumer {
                         + " Ant Progress.");
             }
         }
+        LOG.debug("Using loggerClassName: " + loggerClassName);        
     }
 
     void setupDefaultProgressLoggerLib() {
@@ -254,13 +255,18 @@ public class AntScript implements Script, StreamConsumer {
             // Use a valid default for progressLoggerLib
             final File ccMain = UtilLocator.getClassSource(AntScript.class);
             if (ccMain == null) {
-                LOG.warn("Couldn't determine -lib path for progressLoggerLib.");
+                LOG.warn("Could not determine -lib path for progressLoggerLib. (Java 6/Webstart issue?) "
+                    + "\n\tTo enable showProgress, manully copy cruisecontrol-antprogresslogger.jar to some directory "
+                    + "\n\tand set that directory in your config.xml as the value of progressLoggerLib for this "
+                    + "\n\t<ant> builder, "
+                    + "\n\tOR set showProgress=false for this <ant> builder.");
             } else {
                 if (ccMain.isDirectory()) {
                     progressLoggerLib = ccMain.getAbsolutePath();
                 } else {
                     progressLoggerLib = ccMain.getParentFile().getAbsolutePath();
                 }
+                LOG.debug("Using default progressLoggerLib: " + progressLoggerLib);
             }
         }
     }
