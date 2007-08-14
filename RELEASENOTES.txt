@@ -6,7 +6,7 @@ CruiseControl Release Notes - 2.7.1
 
 cc-config
 ======================
-* Fixed CC-684 : cc-config\3rdparty\libsystray4j.so causes build to break on Windows. Use v1.7.1 cc-config jar. Patch by Brian Egge.
+* Fixed cc-config\3rdparty\libsystray4j.so causes build to break on Windows (CC-684). Patch by Brian Egge.
 * Updated cruisecontrol's main build to allow setting a proxy prior to downloading and including the cc-config application (CC-687). Patch by Ilkka Laukkanen. 
 
 contrib
@@ -54,18 +54,17 @@ build loop
 
 AllFusion Harvest
 ----------------------
-* CC-513: Added support for CA AllFusion Harvest via SDK.  Patch by Robert Thornburrow and Nayan Hajratwala.  Removed previous command-line based support.
+* Added support for CA AllFusion Harvest via SDK (CC-513).  Patch by Robert Thornburrow and Nayan Hajratwala.  Removed previous command-line based support.
 
 AntBuilder/Bootstrapper/Publisher
 ----------------------
-* CC-664 : Allow properties files for ant builder and ant bootstrapper. Add propertyfile attribute. Patch by Willem Verstraeten.
-* CC-542 : Provide support for configuring additional Ant listeners. Patch by Dan Fabulich. Also added support for multiple -lib args.
+* Add ant propertyfile attribute (CC-664). Patch by Willem Verstraeten.
+* Provide support for configuring additional Ant libs and listeners (CC-542). Patch by Dan Fabulich.
 
 Builder Progress messages
 ----------------------
-* CC-686 : add a Progress signaling api to allow plugins to notify the system of their progress as they execute (at first, only Builders).
-Adds an optional "showProgess" tag to <schedule> and the builders: <composite>, <maven>, <maven2>, and CCDist <distributed>.
-An experimental impl for <ant> builder to showProgress is also included, and can be disabled with showProgress=false.
+* Add a Progress signaling api to the builders: <composite>, <maven>, <maven2>, <ant>, and CCDist <distributed> (CC-686).
+Experimental impl for <ant> builder to showProgress can be disabled with showProgress=false.
 Progess messages are shown on the reporting/jsp project pages, below the project state text.
 
 build.sh/release.sh scripts
@@ -110,14 +109,14 @@ Schedule
 
 SVN/SVNBootstrapper
 ----------------------
-* CC-683 : svnrevision property set incorrectly. Patch by Tim Brown and Brian Egge.
-* CC-678 : svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element. Reported by Ram Singaram
-* CC-679 : Improve error message when there is no valid localWorkingCopy for SVNBootstrapper. Patch by Robert Watkins.
+* svnrevision property set incorrectly (CC-683). Patch by Tim Brown and Brian Egge.
+* svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element (CC-678). Reported by Ram Singaram
+* Improve error message when there is no valid localWorkingCopy for SVNBootstrapper (CC-679). Patch by Robert Watkins.
 * Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
 
 TFS/TFSBootstrapper
 ----------------------
-* CC-666 : TFS Support - new sourcecontrol and bootstrapper plugins. Patch by Martin Woodward.
+* TFS Support - new sourcecontrol and bootstrapper plugins (CC-666). Patch by Martin Woodward.
 
 TimeBuild
 ----------------------
