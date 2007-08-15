@@ -20,9 +20,9 @@
 
     <target name="clean" description="Clean dirs">
         <delete dir="target" failonerror="false"/>
-		<ant inheritAll="false" dir="main" target="clean"/>
-		<ant inheritAll="false" dir="reporting/jsp" target="clean"/>
-		<ant inheritAll="false" dir="reporting/dashboard" target="clean"/>
+        <ant inheritAll="false" dir="main" target="clean"/>
+        <ant inheritAll="false" dir="reporting/jsp" target="clean"/>
+        <ant inheritAll="false" dir="reporting/dashboard" target="clean"/>
     </target>
 
     <target name="build" depends="checklabel" description="Create core lib and webapp">
@@ -36,7 +36,7 @@
             <property name="cruise.build.jmxport" value="8000"/>
         </ant>
         <ant inheritAll="false" dir="reporting/dashboard" target="dist" >
-	    </ant>
+        </ant>
     </target>
 
     <target name="website" depends="checklabel" description="Create documentation website">
@@ -143,7 +143,7 @@
             <include name="config.xml"/>
         </replace>
 
-	    <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
+        <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip"
                 duplicate="preserve">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
@@ -156,7 +156,7 @@
                 <exclude name="**/.svn/**"/>
             </zipfileset>
             <zipfileset file="binaryrelease/cruisecontrol.sh" filemode="755"
-	                prefix="${cc.bin.zip.prefix}"/>
+                    prefix="${cc.bin.zip.prefix}"/>
             <zipfileset dir="target/binzip" prefix="${cc.bin.zip.prefix}"/>
             <!-- Force file and dir mode as ant has problem copying connectfour.zip's file permissions -->
             <zipfileset src="binaryrelease/connectfour.zip" filemode="644" dirmode="755" prefix="${cc.bin.zip.prefix}/projects"/>
@@ -198,20 +198,20 @@
     </target>
 
     <target name="win-installer" depends="check-win-installer, bin-zip" if="should-create-win-installer" description="Create win installer">
-		<property name="win-installer-stage" location="target/windows-install"/>
-		<mkdir dir="${win-installer-stage}"/>
-		<unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>
-		<move todir="${win-installer-stage}/cruisecontrol">
-			<fileset dir="${win-installer-stage}/${cc.bin.zip.prefix}"/>
-		</move>
+        <property name="win-installer-stage" location="target/windows-install"/>
+        <mkdir dir="${win-installer-stage}"/>
+        <unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>
+        <move todir="${win-installer-stage}/cruisecontrol">
+            <fileset dir="${win-installer-stage}/${cc.bin.zip.prefix}"/>
+        </move>
 
-		<exec os="Windows XP" executable="c:/Program Files/NSIS/makensis.exe">
-			<arg value="contrib/windowsInstaller/cruise.nsi" />
-		</exec>
+        <exec os="Windows XP" executable="c:/Program Files/NSIS/makensis.exe">
+            <arg value="contrib/windowsInstaller/cruise.nsi" />
+        </exec>
 
-		<move file="target/CruiseControl.exe" tofile="target/CruiseControl-${cc.release.label}.exe"/>
+        <move file="target/CruiseControl.exe" tofile="target/CruiseControl-${cc.release.label}.exe"/>
 
-	</target>
+    </target>
 
     <target name="compile-webtest">
         <mkdir dir="target/webtest-classes"/>
