@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.7.1
 
+general
+======================
+* Upgraded Ant that is distributed with CruiseControl to Ant version 1.7.0.
+
 cc-config
 ======================
 * Fixed cc-config\3rdparty\libsystray4j.so causes build to break on Windows (CC-684). Patch by Brian Egge.
