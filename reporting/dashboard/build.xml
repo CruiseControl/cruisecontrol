@@ -344,10 +344,9 @@
 		<get taskname="selenium-shutdown" src="http://localhost:4444/selenium-server/driver/?cmd=shutDown" dest="selenium-result.txt" ignoreerrors="true" />
 	</target>
 	
-	<taskdef name="jsmin" classname="org.inconspicuous.jsmin.JSMinTask" classpathref="test.classpath"></taskdef>
-
 	<target name="-compress.js">
-		<concat destfile="${war.src.dir}/compressed/all.js">
+        <taskdef name="jsmin" classname="org.inconspicuous.jsmin.JSMinTask" classpathref="test.classpath"></taskdef>
+        <concat destfile="${war.src.dir}/compressed/all.js">
 			<fileset file="${war.src.dir}/javascripts/prototype.js"/>
 			<fileset file="${war.src.dir}/javascripts/build_base_executer.js"/>
 			<fileset file="${war.src.dir}/javascripts/effects.js"/>
