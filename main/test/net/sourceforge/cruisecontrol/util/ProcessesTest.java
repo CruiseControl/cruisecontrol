@@ -51,7 +51,7 @@ public class ProcessesTest extends TestCase {
         assertNotNull(Processes.execute(c));
     }
 
-    public void testShouldStartStreamPumperForErrorStream() throws IOException {
+    public void testShouldStartStreamPumperForErrorStream() throws Exception {
         Processes.setRuntime(new MockExecutor());
         Commandline c = new Commandline();
         c.setExecutable("UnitTestDummyExcectuable");
@@ -62,7 +62,7 @@ public class ProcessesTest extends TestCase {
         int postCount = Thread.activeCount();
         while ((preCount <= postCount) && (waitCount < 40)) {
             waitCount++;
-            Thread.yield();
+            Thread.sleep(10);
             postCount = Thread.activeCount();
         }
         assertTrue("A StreamPumper Thread wasn't started. postCount: " + postCount 
