@@ -337,7 +337,7 @@
          <a href="#weblogpublisher">&lt;weblog&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
-         <a href="#yahoopublisher">&lt;yahoopublisher/&gt;</a>         
+         <a href="#yahoopublisher">&lt;yahoopublisher/&gt;</a>
       &lt;/publishers&gt;
    &lt;/project&gt;
 &lt;/cruisecontrol&gt;</pre>
@@ -713,7 +713,7 @@
                 <td>Relative path from current configuration file to the configuration file to process.</td>
             </tr>
 	    </tbody>
-	</table>    
+	</table>
 	</div>
 
 	<div class="elementdocumentation">
@@ -763,9 +763,9 @@
             <tr>
                <td>requireModification</td>
                <td>No (defaults to true)</td>
-               <td>Is a modification required for the build to continue? 
-               Default value is true. Useful to set to false when the schedule 
-               has only time based builds or if you want to run tests to verify 
+               <td>Is a modification required for the build to continue?
+               Default value is true. Useful to set to false when the schedule
+               has only time based builds or if you want to run tests to verify
                an external resource (such as a database).<br /></td>
             </tr>
             <tr>
@@ -1198,7 +1198,7 @@ password=P@ssW0rd!
 	</ul>
 
 	<p>A default template is provided of the form "{Project}: {State.Date} - {State.Name}: {State.Description}"</p>
-	
+
         <h3>Attributes</h3>
 
         <table class="documentation">
@@ -1223,7 +1223,7 @@ password=P@ssW0rd!
             </tbody>
         </table>
         </div>
-	
+
 	<div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a></h2>
@@ -1389,7 +1389,7 @@ password=P@ssW0rd!
                 <td><a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from AllFusion Harvest</td>
-            </tr>            
+            </tr>
             <tr>
                 <td><a href="#lockfilebootstrapper">&lt;lockfilebootstrapper&gt;</a></td>
                 <td>0 .. *</td>
@@ -1404,7 +1404,7 @@ password=P@ssW0rd!
                 <td><a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Plastic SCM</td>
-            </tr>    
+            </tr>
             <tr>
                 <td><a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
@@ -1729,18 +1729,18 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        
+
         <h3>Examples</h3>
         <ol>
             <li>Start the Windows view "j2ee_bld" and mount the VOBs "\J2EE_Sources" and "\J2EE_Binaries":
             <pre>
-&lt;property name="dir.j2ee" value="M:\j2ee_bld\J2EE_Sources\src"/&gt;            
+&lt;property name="dir.j2ee" value="M:\j2ee_bld\J2EE_Sources\src"/&gt;
 &lt;bootstrappers&gt;
     &lt;clearcaseviewstrapper viewpath="${dir.j2ee}" voblist="\J2EE_Sources,\J2EE_Binaries"/&gt;
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
-        
+
         </div>
 
         <div class="elementdocumentation">
@@ -1996,7 +1996,7 @@ password=P@ssW0rd!
             </tbody>
         </table>
         </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="execbootstrapper">&lt;execbootstrapper&gt;</a></h2>
@@ -2011,13 +2011,13 @@ password=P@ssW0rd!
 
         <p>This bootstrapper executes a command. As it is based on the <a href="#exec">ExecBuilder</a>, it has the same
         attributes</p>
-        
+
         </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="harvestbootstrapper">&lt;harvestbootstrapper&gt;</a></h2>
- 
+
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -2034,7 +2034,7 @@ password=P@ssW0rd!
            to update the project makes for a simpler build.xml but allows a window
            where a file can be committed after the update and before the
            modification check.</p>
-        
+
         <p>In order to use this element, you must have the AllFusion Harvest
            client installed on the CruiseControl machine.  Additionally, the
            <code>HARVESTHOME</code> environment variable should be set (this
@@ -2534,7 +2534,7 @@ password=P@ssW0rd!
 	  <div class="elementdocumentation">
 				<a class="toplink" href="#top">top</a>
 				<h2><a name="tfsbootstrapper">&lt;tfsbootstrapper&gt;</a></h2>
-		
+
 				<div class="hierarchy">
 					<pre>
 		<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -2542,50 +2542,50 @@ password=P@ssW0rd!
 			<a href="#bootstrappers">&lt;bootstrappers&gt;</a>
 			  &lt;tfsbootstrapper&gt;</pre>
 				</div>
-		
+
 			  <p>Gets a single path from Visual Studio Team Foundation Server before the build begins.</p>
 
-        <p>Gets are performed by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part 
-		of the Team Explorer client installation on Windows platforms. For 
+        <p>Gets are performed by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part
+		of the Team Explorer client installation on Windows platforms. For
 		information on obtaining the Microsoft Team Explorer client, visit
 		<a href="http://www.codeplex.com/CodePlex/Wiki/View.aspx?title=Obtaining%20the%20Team%20Explorer%20Client&amp;referringTitle=Source%20control%20clients">
-		CodePlex wiki</a>. 
-		<a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including 
+		CodePlex wiki</a>.
+		<a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including
 		GNU/Linux, Mac, MP-UX and Solaris platforms as well as Windows.&nbsp; To download the
 		<a href="http://www.teamprise.com/">Teamprise</a> command line client, visit the
-		<a href="http://www.teamprise.com/download/index.html">Teamprise download site</a> 
+		<a href="http://www.teamprise.com/download/index.html">Teamprise download site</a>
 		(fully functional evaluation licenses
-		<a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp; 
-		Note that the Teamprise client requires activation when using it with a 
-		purchased license, for instructions on how to activate from the command 
+		<a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp;
+		Note that the Teamprise client requires activation when using it with a
+		purchased license, for instructions on how to activate from the command
 		line consult the <a href="http://kb.teamprise.com/article/view/40">
 		Teamprise Knowledgebase</a>. </p>
 
         <p>Gets are performed by executing a command similar to the following</p>
-        <pre>tf get //build/path/to.get 
+        <pre>tf get //build/path/to.get
            -recursive -force -noprompt
            -login:DOMAIN\name,password</pre>
 
         <p>For further details regarding the tf get command, consult the
 		<a href="http://msdn2.microsoft.com/en-us/library/fx7sdeyf(VS.80).aspx">
 		MSDN documentation</a>.</p>
-        
+
         <p>Setting the path to a folder and setting the recursive option to true will get all
-        the files in that folder and subfolders.  This is useful if you want to leave the SCM 
+        the files in that folder and subfolders.  This is useful if you want to leave the SCM
         up to CruiseControl.  Allowing the bootstrapper to perform a get latest does make
         for a simplified build.xml, but it allows a window where a file can be checked in
         after this get but before the modification check.</p>
-        
+
         <p>For this to work, you must have an existing TFS workspace created for the user on the build server
-        and a working folder mapping created.  For example, in the case where the project location is 
-        <code>/cruisecontrol/projects/myproject</code> and the files are stored in TFS at 
-        <code>$/MyTeamProject/trunk</code> you would have first needed to execute 
+        and a working folder mapping created.  For example, in the case where the project location is
+        <code>/cruisecontrol/projects/myproject</code> and the files are stored in TFS at
+        <code>$/MyTeamProject/trunk</code> you would have first needed to execute
         the following commands on the machine running cruisecontrol</p>
-        
+
         <pre>tf workspace /server:http://tfsserver:8080 /login:user@DOMAIN,password /new buildWorkspace<br/>
 tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace:buildWorkspace /map $/MyTeamProject/trunk //cruisecontrol/projects/myproject
         </pre>
-        
+
         <p>If you would like gets to be performed using a TFS Version Control Proxy and you are using the Microsoft tf.exe
         command line then you should set the environment variable TFSPROXY (for example <code>set TFSPROXY=http://tfsproxy:8081</code>.
         If you are using the Teamprise command line client, then you may pass "-proxy:http://tfsproxy:8081" in the options attribute.</p>
@@ -2611,17 +2611,17 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
                 <td>username</td>
                 <td>no</td>
-                <td>The username to use when connection to Team Foundation 
-				Server.&nbsp; This user must have read permissions to the 
-				version control repository for the projectPath.&nbsp; When using 
-				the Microsoft client, if no username is passed then the user 
-				that the CruiseControl process is running as will be used.&nbsp; 
-				Note that is a username is provided then a password must be 
+                <td>The username to use when connection to Team Foundation
+				Server.&nbsp; This user must have read permissions to the
+				version control repository for the projectPath.&nbsp; When using
+				the Microsoft client, if no username is passed then the user
+				that the CruiseControl process is running as will be used.&nbsp;
+				Note that is a username is provided then a password must be
 				provided in order for the credentials to be used.<br />
 				<br />
-				The username should be passed in the form <code>DOMAIN\username</code>.&nbsp; 
-				From unix systems the name can be passed in the <code>username@DOMAIN</code> 
-				format if preferred as that removes confusion over escaping of 
+				The username should be passed in the form <code>DOMAIN\username</code>.&nbsp;
+				From unix systems the name can be passed in the <code>username@DOMAIN</code>
+				format if preferred as that removes confusion over escaping of
 				the <code>\</code> character which should not be required.<br/>
 				<br/>
 				It is possible for the command line client to determine the credentials automatically
@@ -2632,16 +2632,16 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>password</td>
                 <td>no</td>
-                <td>The password to use with the username when authenticating 
+                <td>The password to use with the username when authenticating
 				with the server.</td>
             </tr>
             <tr>
                 <td>tfPath</td>
                 <td>No (defaults to &quot;tf&quot;)</td>
 
-                <td>Specify the full path to the tf command being used.&nbsp; If 
-				not supplied then the plug-in will try to locate a command 
-				called &quot;tf&quot; in the cruise control system path.&nbsp; By default, 
+                <td>Specify the full path to the tf command being used.&nbsp; If
+				not supplied then the plug-in will try to locate a command
+				called &quot;tf&quot; in the cruise control system path.&nbsp; By default,
 				the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code>
 				</td>
             </tr>
@@ -2666,10 +2666,10 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>options</td>
                 <td>no</td>
-                <td>An optional string that may be passed as part of the command 
-				line.&nbsp; The contents of the options tag are passed as an 
+                <td>An optional string that may be passed as part of the command
+				line.&nbsp; The contents of the options tag are passed as an
 				argument to the tf get command.</td>
-            </tr>            
+            </tr>
             </tbody>
         </table>
 	  </div>
@@ -2769,11 +2769,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                <td>requiremodification</td>
                <td>No (defaults to true)</td>
-               <td>Is a modification required for the build to continue? 
-               Default value is true. Useful to set to false when the schedule 
-               has only time based builds or if you want to run tests to verify 
+               <td>Is a modification required for the build to continue?
+               Default value is true. Useful to set to false when the schedule
+               has only time based builds or if you want to run tests to verify
                an external resource (such as a database).  <b>NOTE - This attribute
-               will be going away.</b>  Use the requireModification attribute that is on the 
+               will be going away.</b>  Use the requireModification attribute that is on the
                project tag instead.<br /></td>
             </tr>
             <tr>
@@ -3750,7 +3750,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>Sets the compression level used for the call to cvs, corresponding to the "-z" command line
                     parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
                     low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
-            </tr>    
+            </tr>
             </tbody>
         </table>
         </div>
@@ -3899,7 +3899,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
          <div class="elementdocumentation">
          <a class="toplink" href="#top">top</a>
-        <h2><a name="harvest7">&lt;harvest7&gt;</a></h2>
+        <h2><a name="harvest">&lt;harvest&gt;</a></h2>
 
         <div class="hierarchy">
             <pre>
@@ -4686,24 +4686,24 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         </div>
 
         <p>Triggers a build if there is a change within a Microsoft Visual Studio Team Foundation Server (TFS) repository.</p>
-        <p>Changes are detected by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part 
-          of the Team Explorer client installation on Windows platforms. For 
-          information on obtaining the Microsoft Team Explorer client, visit <a href="http://www.codeplex.com/CodePlex/Wiki/View.aspx?title=Obtaining%20the%20Team%20Explorer%20Client&amp;referringTitle=Source%20control%20clients"> CodePlex wiki</a>. <a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including 
-          GNU/Linux, Mac, MP-UX and Solaris platforms as well as Windows.&nbsp; To download the <a href="http://www.teamprise.com/">Teamprise</a> command line client, visit the <a href="http://www.teamprise.com/download/index.html">Teamprise download site</a> (fully functional evaluation licenses <a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp; 
-          Note that the Teamprise client requires activation when using it with a 
-          purchased license, for instructions on how to activate from the command 
+        <p>Changes are detected by calling out to the TFS command line (tf).  Microsoft provide the tf.exe command line tool as part
+          of the Team Explorer client installation on Windows platforms. For
+          information on obtaining the Microsoft Team Explorer client, visit <a href="http://www.codeplex.com/CodePlex/Wiki/View.aspx?title=Obtaining%20the%20Team%20Explorer%20Client&amp;referringTitle=Source%20control%20clients"> CodePlex wiki</a>. <a href="http://www.teamprise.com/">Teamprise</a> also provide a tf command that works cross-platform including
+          GNU/Linux, Mac, MP-UX and Solaris platforms as well as Windows.&nbsp; To download the <a href="http://www.teamprise.com/">Teamprise</a> command line client, visit the <a href="http://www.teamprise.com/download/index.html">Teamprise download site</a> (fully functional evaluation licenses <a href="http://www.teamprise.com/download/evaluate.html">are available</a>).&nbsp;
+          Note that the Teamprise client requires activation when using it with a
+          purchased license, for instructions on how to activate from the command
           line consult the <a href="http://kb.teamprise.com/article/view/40"> Teamprise Knowledgebase</a>. </p>
         <p>Changes in TFS are detected by running a command similar to the following:</p>
-        <pre>tf history $/TeamProjectName/path 
-           -version:D2006-12-01T01:01:01Z~D2006-12-13T20:00:00Z 
+        <pre>tf history $/TeamProjectName/path
+           -version:D2006-12-01T01:01:01Z~D2006-12-13T20:00:00Z
            -recursive -format:detailed -noprompt
-           -server:http://tfsserver:8080 
+           -server:http://tfsserver:8080
            -login:DOMAIN\name,password</pre>
         <p>For further details regarding the tf history command, consult the <a href="http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx"> MSDN documentation</a>.</p>
-        <p>It is worth noting that this implementation of integration with TFS 
-          works with both the Microsoft tf.exe and the Teamprise tf command line 
-          client using the same command strings.&nbsp; There are some small 
-          differences in the output of the two commands, however this is taken 
+        <p>It is worth noting that this implementation of integration with TFS
+          works with both the Microsoft tf.exe and the Teamprise tf command line
+          client using the same command strings.&nbsp; There are some small
+          differences in the output of the two commands, however this is taken
           into account in the parsing logic contained within this integration.</p>
         <h3>Attributes</h3>
         <table class="documentation">
@@ -4718,50 +4718,50 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
               <td>tfPath</td>
               <td>No (defaults to &quot;tf&quot;)</td>
-              <td>Specify the full path to the tf command being used.&nbsp; If 
-                not supplied then the plug-in will try to locate a command 
-                called &quot;tf&quot; in the cruise control system path.&nbsp; By default, 
+              <td>Specify the full path to the tf command being used.&nbsp; If
+                not supplied then the plug-in will try to locate a command
+                called &quot;tf&quot; in the cruise control system path.&nbsp; By default,
                 the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code> </td>
             </tr>
             <tr>
               <td>server</td>
               <td>yes</td>
-              <td>URL to access the Team Foundation Server including port, for 
+              <td>URL to access the Team Foundation Server including port, for
                 example <code><a href="http://tfserver:8080">http://tfserver:8080</a></code></td>
             </tr>
             <tr>
               <td><p>projectPath</p></td>
               <td>yes</td>
-              <td>Path i<span class="style1">n the TFS repository that is 
-                recursively checked for modifications.&nbsp; Any changes under 
+              <td>Path i<span class="style1">n the TFS repository that is
+                recursively checked for modifications.&nbsp; Any changes under
                 that path will trigger a build.</span></td>
             </tr>
             <tr>
               <td>username</td>
               <td>no</td>
-              <td>The username to use when connection to Team Foundation 
-                Server.&nbsp; This user must have read permissions to the 
-                version control repository for the projectPath.&nbsp; When using 
-                the Microsoft client, if no username is passed then the user 
-                that the CruiseControl process is running as will be used.&nbsp; 
-                Note that is a username is provided then a password must be 
+              <td>The username to use when connection to Team Foundation
+                Server.&nbsp; This user must have read permissions to the
+                version control repository for the projectPath.&nbsp; When using
+                the Microsoft client, if no username is passed then the user
+                that the CruiseControl process is running as will be used.&nbsp;
+                Note that is a username is provided then a password must be
                 provided in order for the credentials to be used.<br />
                         <br />
-                The username should be passed in the form <code>DOMAIN\username</code>.&nbsp; 
-                From unix systems the name can be passed in the <code>username@DOMAIN</code> format if preferred as that removes confusion over escaping of 
+                The username should be passed in the form <code>DOMAIN\username</code>.&nbsp;
+                From unix systems the name can be passed in the <code>username@DOMAIN</code> format if preferred as that removes confusion over escaping of
                 the <code>\</code> character which should not be required.</td>
             </tr>
             <tr>
               <td>password</td>
               <td>no</td>
-              <td>The password to use with the username when authenticating 
+              <td>The password to use with the username when authenticating
                 with the server.</td>
             </tr>
             <tr>
               <td>options</td>
               <td>no</td>
-              <td>An optional string that may be passed as part of the command 
-                line.&nbsp; The contents of the options tag are passed as an 
+              <td>An optional string that may be passed as part of the command
+                line.&nbsp; The contents of the options tag are passed as an
                 argument to the tf history command.</td>
             </tr>
           </tbody>
@@ -4918,7 +4918,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="veto">&lt;veto&gt;</a></h2>
-        
+
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -4978,7 +4978,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="vss">&lt;vss&gt;</a></h2>
-        
+
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -5761,7 +5761,7 @@ endlocal</pre>
             </thead>
             <tbody>
             <tr>
-               <td>mvnscript</td>               
+               <td>mvnscript</td>
                <td rowspan="2">One of these</td>
                <td>Path to maven startup script (.../bin/mvn.bat or mvn.sh).</td>
             </tr>
@@ -5852,7 +5852,7 @@ endlocal</pre>
         </table>
 
         </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         </div>
@@ -5946,7 +5946,7 @@ endlocal</pre>
             </tbody>
         </table>
         </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         </div>
@@ -6209,7 +6209,7 @@ endlocal</pre>
         if we so desire.</p>
 
         <p>When a build runs, Phing is invoked in a separate Java process.  Phing and the PHP requisites need
-		to be installed for this builder to function.  See Phing's documentation for details on installation 
+		to be installed for this builder to function.  See Phing's documentation for details on installation
 		and configuration.</p>
 
         <p>The standard CruiseControl <a href="#buildproperties">properties
@@ -6268,7 +6268,7 @@ endlocal</pre>
                 <td>phingscript</td>
                 <td>No. Cannot be specified if <code>phinghome</code> attribute is also specified</td>
                 <td>Absolute filename of script (shell script or bat file) used
-                to start Phing. If this is not specified, the PhingBuilder assumes that phing (or phing.bat) 
+                to start Phing. If this is not specified, the PhingBuilder assumes that phing (or phing.bat)
 				is installed on your path.</td>
             </tr>
             <tr>
@@ -6297,30 +6297,30 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                 <td>uselogger</td>
                 <td>No</td>
-                <td>'true' if CruiseControl should call Phing using -logger; 'false' to call Phing using '-listener', 
-				thus using the loggerclass as a Listener. uselogger="true" will make Phing log its messages using the 
-				class specified by loggerclassname as a Phing Logger, which can make for smaller log files since it 
-				doesn't log DEBUG messages (see useDebug and useQuiet attributes below, and the Phing manual). Set to false 
-				to have Phing echo messages to console using its DefaultLogger, which is useful when debugging your Phing 
-				build. Defaults to 'false' to make initial setup easier but setting it to 'true' is recommended for 
+                <td>'true' if CruiseControl should call Phing using -logger; 'false' to call Phing using '-listener',
+				thus using the loggerclass as a Listener. uselogger="true" will make Phing log its messages using the
+				class specified by loggerclassname as a Phing Logger, which can make for smaller log files since it
+				doesn't log DEBUG messages (see useDebug and useQuiet attributes below, and the Phing manual). Set to false
+				to have Phing echo messages to console using its DefaultLogger, which is useful when debugging your Phing
+				build. Defaults to 'false' to make initial setup easier but setting it to 'true' is recommended for
 				production situations.</td>
             </tr>
             <tr>
                 <td>loggerclassname</td>
                 <td>No (defaults to phing.listener.XmlLogger)</td>
-                <td>If you want to use another logger (or listener, when uselogger="false") than Phing's XmlLogger, 
-				you can specify the classname of the logger here. The logger needs to output compatible XML, and 
+                <td>If you want to use another logger (or listener, when uselogger="false") than Phing's XmlLogger,
+				you can specify the classname of the logger here. The logger needs to output compatible XML, and
 				the class needs to be available on the classpath at buildtime.</td>
             </tr>
             <tr>
                 <td>usedebug</td>
                 <td>No</td>
-                <td>If true will invoke phing with -debug, which can be 
-				useful for debugging your phing build. Defaults to 'false', 
-				cannot be set to 'true' if usequiet is also set to 'true'. 
-				When used in combination with uselogger="true", this will 
-				result in bigger XML log files; otherwise, it will cause 
-				more output to be written to the console by Phing's 
+                <td>If true will invoke phing with -debug, which can be
+				useful for debugging your phing build. Defaults to 'false',
+				cannot be set to 'true' if usequiet is also set to 'true'.
+				When used in combination with uselogger="true", this will
+				result in bigger XML log files; otherwise, it will cause
+				more output to be written to the console by Phing's
 				DefaultLogger.</td>
             </tr>
             <tr>
@@ -6386,7 +6386,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </li>
         </ol>
       </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="exec">&lt;exec&gt;</a></h2>
@@ -6444,7 +6444,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                 <td>timeout</td>
                 <td>No</td>
-                <td>Build will be halted if the script or command continues longer 
+                <td>Build will be halted if the script or command continues longer
                 than the specified timeout. Value in seconds.</td>
             </tr>
             </tbody>
@@ -6454,7 +6454,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <ol>
             <li>Invoke execbuilder, specifying the
-            working directory as <code>/workspace/myproject</code> and 
+            working directory as <code>/workspace/myproject</code> and
             executing the Perl script <code>backup.pl</code>.
 
             <pre>&lt;schedule&gt;
@@ -6545,7 +6545,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Deletes old log files.</td>
 	    </tr>
 
-	
+
             </tbody>
         </table>
         </div>
@@ -6600,11 +6600,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
            </tbody>
         </table>
-	
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="gzip">&lt;gzip&gt;</a></h2>
-	
+
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -6640,11 +6640,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
            </tbody>
         </table>
 	</div>
-	
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="delete">&lt;delete&gt;</a></h2>
-	
+
         <div class="hierarchy">
             <pre>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
@@ -6681,11 +6681,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                <td>ignoreSuffix</td>
                <td>true</td>
                <td>Ignores default xml-suffix when deleting files, so other logfiles could be deleted</td>
-            </tr>	    
+            </tr>
            </tbody>
         </table>
 	</div>
-	
+
         </div>
 
         <div class="elementdocumentation">
@@ -6831,7 +6831,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>0 .. *</td>
                 <td>Sends an instant message with a link to the build results
                 via a Yahoo IM message</td>
-            </tr>            
+            </tr>
             </tbody>
         </table>
         </div>
@@ -8102,8 +8102,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td><a name="mavenmapper"><code>&lt;mavenmapper&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Map source control user names to their respective email address as
-                configured in Maven's POM (suitable for Maven 1 and 2). Used for the mapping 
-                is the <code>&lt;id&gt;</code> element of the <code>&lt;developer&gt;</code> entry.  
+                configured in Maven's POM (suitable for Maven 1 and 2). Used for the mapping
+                is the <code>&lt;id&gt;</code> element of the <code>&lt;developer&gt;</code> entry.
                 <code>&lt;mavenmapper&gt;</code> has the following attributes:
                     <table class="documentation">
                         <thead>
@@ -8769,14 +8769,14 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
       &lt;weblog&gt;</pre>
         </div>
 
-        <p>Posts the build results to a weblog using the 
+        <p>Posts the build results to a weblog using the
          <a href="http://www.blogger.com/developers/api">Blogger API</a>,
          the <a href="http://www.xmlrpc.com/metaWeblogApi">MetaWeblog API</a>
          or the <a href="http://www.livejournal.com/doc/server/ljp.csp.xml-rpc.postevent.html">LiveJournal API</a>.
         </p>
-        
+
         <h3>Examples</h3>
-         
+
          <pre>&lt;!-- Post the build results to your project blog
      under the category 'cruisecontrol' using the Blogger API.
   --&gt;
@@ -8851,7 +8851,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr class="oddrow">
                 <td>blogid</td>
                 <td>Yes</td>
-                <td>The "identifier" for your blog. See your blog's 
+                <td>The "identifier" for your blog. See your blog's
                  documentation for the correct value.</td>
             </tr>
             <tr>
@@ -8872,7 +8872,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr class="oddrow">
                 <td>xslfile</td>
                 <td>Yes, unless <i>xsldir</i> is used.</td>
-                <td>The XSL stylesheet used for transforming 
+                <td>The XSL stylesheet used for transforming
                  the build results into the message being posted to the blog.</td>
             </tr>
             <tr>
@@ -8890,7 +8890,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Yes, if <i>xsldir</i> is used.</td>
                 <td>The path to cruisecontrol.css to be
                  used for styling the generated HTML. You can use the CruiseControl
-                 distribution's 'cruisecontrol.css' file from 
+                 distribution's 'cruisecontrol.css' file from
                  "${CC_HOME}/reporting/jsp/css" or use a custom stylesheet.
                 </td>
             </tr>
@@ -8898,7 +8898,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>buildresultsurl</td>
                 <td>No</td>
                 <td>The base URL for the CruiseControl reporting
-                 web application. Usually of the form 
+                 web application. Usually of the form
                  "http://buildserver/cruisecontrol/&lt;projectname&gt;". If this
                  URL is provided, the resulting blog entry will include a link
                  to the build results.</td>
@@ -9157,7 +9157,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </div>
 
         <p>Sends an instant message with a link to the build results via a Yahoo IM message. You need to put the files
-        ymsg_network_v0_6.jar and ymsg_support_v0_6.jar into the library path of CC. These can be downloaded at 
+        ymsg_network_v0_6.jar and ymsg_support_v0_6.jar into the library path of CC. These can be downloaded at
         <a href="http://jymsg9.sourceforge.net/">http://jymsg9.sourceforge.net/</a>.
         </p>
 
@@ -9378,7 +9378,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         <pre>
 &lt;plugin&nbsp;name="labelincrementer"
         classname="net.sourceforge.cruisecontrol.labelincrementers.FormattedLabelIncrementer"/&gt;</pre>
-  
+
         <h4>P4ChangelistLabelIncrementer</h4>
 
         <p>Creates a label from either a given Perforce changelist number,
@@ -9388,21 +9388,21 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         time which will never change.  This class also has features
         for cleaning up and synchronizing the local client.  This incrementer
         will always run before the build executes.</p>
-        
+
         <p>Even though the <a href="#p4bootstrapper">Perforce Bootstrapper</a>
         handles synchronizing, this will execute before the <a href="#p4">p4
         modification check</a> runs.  Putting the synchronization after
         the modification check saves us a bit of time by only requesting
         the server's files when needed.  This feature can be turned off
         by setting the attribute <code>noSync</code> to <code>true</code>.</p>
-        
+
         <p>By default, the class will use to the most currently submitted
         changelist as the label.  If you wish to use a specific changelist
         number (say, for rerunning an old build), you can set the
         <code>changelist</code> attribute to the desired number.  Whichever
         of these is chosen, the synchronize step (if enabled) will sync
         to this changelist number.</p>
-        
+
         <p>A good habit of build environments entails ensuring that the local
         environment comes only from the source control system, meaning that
         files haven't been modified without the source control system's
@@ -9412,7 +9412,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         This will force the local clients to be removed first (ala
         <code>sync <em>view</em>#0</code>), and after deleting the files will
         perform the above synchronize.</p>
-        
+
         <p>Removing the local client files (sync #0) can be done without
         deleting the files by setting the <code>clean</code> attribute
         to <code>true</code>.</p>
