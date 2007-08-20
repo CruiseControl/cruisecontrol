@@ -55,19 +55,33 @@ public class ProcessesTest extends TestCase {
         Processes.setRuntime(new MockExecutor());
         Commandline c = new Commandline();
         c.setExecutable("UnitTestDummyExcectuable");
+
+        // try to ensure pending thread cleanups occur, so thread counts include only threads
+        // created by this unit test
+        System.gc();
+        System.gc();
+        Runtime.getRuntime().runFinalization();
+        System.gc();
+        System.gc();
+        Thread.sleep(500);
+
         int preCount = Thread.activeCount();
         assertNotNull(Processes.execute(c));
+
         // allow some time for thread to spin up. can be longer in java 5
-        int waitCount = 0;
         int postCount = Thread.activeCount();
-        while ((preCount <= postCount) && (waitCount < 40)) {
+        int waitCount = 0;
+        while ((postCount <= preCount) && (waitCount < 40)) {
             waitCount++;
             Thread.sleep(10);
             postCount = Thread.activeCount();
         }
-        assertTrue("A StreamPumper Thread wasn't started. postCount: " + postCount 
-                + "; preCount: " + preCount + "; waitCount: " + waitCount,
-                postCount > preCount);
+        final String msg = "A StreamPumper Thread wasn't started. postCount: " + postCount
+                + "; preCount: " + preCount + "; waitCount: " + waitCount
+                + (postCount < preCount
+                        ? "\n\tWARNING: Thread counts might include threads from prior tests."
+                        : "");
+        assertTrue(msg, postCount > preCount);
     }
 
     public void testShouldCloseStreamsWhenExecutingFully() throws IOException, InterruptedException {
@@ -120,7 +134,10 @@ public class ProcessesTest extends TestCase {
 
             if ((System.currentTimeMillis() - starttime) < millisTillEndOfStream) {
                 Thread.yield();
-                return 0;
+                //return 0;
+                // return a character value that allows Readers to read a new line,
+                // otherwise they buffer all reads until the final -1.
+                return '\n';
             }
             return -1;
         }
