@@ -40,7 +40,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 /**
- * Class for executing a {@code Commandline}.
+ * Class for executing a <code>Commandline</code>.
  * It setups an extra thread to consume stderr and blocks until the process and
  * the extra thread has finished.
  */
