@@ -299,7 +299,7 @@ public class AntBuilder extends Builder {
      * @param isWindows if true, running under windows
      * @return If the anthome attribute is set, then this method returns the correct shell script
      * to use for a specific environment.
-     * @throws CruiseControlException if {@link #antHome} is not set
+     * @throws CruiseControlException if <code>antHome</code> is not set
      */
     protected String findAntScript(boolean isWindows) throws CruiseControlException {
         if (antHome == null) {
