@@ -589,6 +589,19 @@ public class AntScriptTest extends TestCase {
         assertEquals(dummyLogger, script.getLoggerClassName());
     }
 
+    /**
+     * To avoid dependency and classpath issues, the custom AntLoggers/Listeners should NOT be
+     * referenced by CC production classes directly. The test below ensures the common definitions
+     * of constant strings in independent classes remain equal.
+     */
+    public void testIndependentContantsAreEqual() {
+        assertEquals(AntScript.MSG_PREFIX_ANT_PROGRESS, AntProgressLogger.MSG_PREFIX_ANT_PROGRESS);
+
+        assertEquals(AntScript.CLASSNAME_ANTPROGRESS_LOGGER, AntProgressLogger.class.getName());
+        assertEquals(AntScript.CLASSNAME_ANTPROGRESS_XML_LISTENER, AntProgressXmlListener.class.getName());
+        assertEquals(AntScript.CLASSNAME_ANTPROGRESS_XML_LOGGER, AntProgressXmlLogger.class.getName());
+    }
+
     public void testSetupDefaultProgressLoggerLib() throws Exception {
         script.setupDefaultProgressLoggerLib();
         assertNotNull(script.getProgressLoggerLib());
