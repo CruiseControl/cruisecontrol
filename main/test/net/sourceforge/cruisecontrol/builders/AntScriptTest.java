@@ -606,14 +606,13 @@ public class AntScriptTest extends TestCase {
         script.setupDefaultProgressLoggerLib();
         assertNotNull(script.getProgressLoggerLib());
         final File progressLibFile = new File(script.getProgressLoggerLib());
-        assertTrue(progressLibFile.isDirectory());
+        assertTrue("Expected default progressLoggerLib to be the class dir, but was: "
+                + progressLibFile.getAbsolutePath(),
+                progressLibFile.isDirectory());
         assertTrue(progressLibFile.exists());
     }
 
     public void testGetCommandLineArgs_ProgressLoggerNotUseLogger() throws CruiseControlException {
-        final File ccMain = UtilLocator.getClassSource(AntScript.class);
-        final String loggerLib = ccMain.getAbsolutePath();
-
         String[] args =
             {
                 "java.exe",
@@ -628,7 +627,7 @@ public class AntScriptTest extends TestCase {
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-lib",
-                loggerLib,
+                getLib(),
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
@@ -648,9 +647,6 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_ProgressLoggerUseLogger() throws CruiseControlException {
-        final File ccMain = UtilLocator.getClassSource(AntScript.class);
-        final String loggerLib = ccMain.getAbsolutePath();
-
         String[] args =
             {
                 "java.exe",
@@ -665,7 +661,7 @@ public class AntScriptTest extends TestCase {
                 AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
                 "-lib",
-                loggerLib,
+                getLib(),
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
@@ -881,5 +877,20 @@ public class AntScriptTest extends TestCase {
 
         script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS + "valid progress msg");
         assertEquals("valid progress msg", progress.getValue());
+    }
+
+    private String getLib() {
+        File ccMain = UtilLocator.getClassSource(AntScript.class);
+
+        final String lib;
+
+        // During unit tests, we'll always load from classes dir, so jar would never exist...
+        final File progressLoggerJar = new File(ccMain, AntScript.LIBNAME_PROGRESS_LOGGER);
+        if (progressLoggerJar.exists()) {
+            lib = progressLoggerJar.getAbsolutePath();
+        } else {
+            lib = ccMain.getAbsolutePath();
+        }
+        return lib;
     }
 }
