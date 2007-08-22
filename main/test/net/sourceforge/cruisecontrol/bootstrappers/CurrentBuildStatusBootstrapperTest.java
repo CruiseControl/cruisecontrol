@@ -73,17 +73,18 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
     }
 
     public void testBootstrap() throws CruiseControlException, IOException {
-        CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
+        final CurrentBuildStatusBootstrapper bootstrapper = new CurrentBuildStatusBootstrapper();
         final String fileName = TEST_DIR + File.separator + "_testCurrentBuildStatus.txt";
         bootstrapper.setFile(fileName);
         filesToDelete.add(new File(fileName));
 
-        bootstrapper.bootstrap();
         // This should be equivalent to the date used in bootstrap at seconds precision
-        Date date = new Date();
+        final Date date = new Date();
 
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        String expected = "Current Build Started At:\n" + formatter.format(date);
+        bootstrapper.bootstrap();
+
+        final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        final String expected = "Current Build Started At:\n" + formatter.format(date);
         assertEquals(expected, Util.readFileToString(fileName));
     }
 }
