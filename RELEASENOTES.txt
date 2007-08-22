@@ -75,6 +75,7 @@ Builder Progress messages
 * Add a Progress signaling api to the builders: <composite>, <maven>, <maven2>, <ant>, and CCDist <distributed> (CC-686).
 Experimental impl for <ant> builder to showProgress can be disabled with showProgress=false.
 Progess messages are shown on the reporting/jsp project pages, below the project state text.
+* Fix side effect of loading ant jars where possible by using -lib arg with full logger jar name. (CC-686) Patch by Yuan Yingjie, Hu Kai
 
 
 build.sh/release.sh scripts

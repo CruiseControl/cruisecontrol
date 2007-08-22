@@ -67,7 +67,7 @@ public class AntScript implements Script, StreamConsumer {
             = "net.sourceforge.cruisecontrol.builders.AntProgressXmlLogger";
     static final String CLASSNAME_ANTPROGRESS_XML_LISTENER
             = "net.sourceforge.cruisecontrol.builders.AntProgressXmlListener";
-
+    static final String LIBNAME_PROGRESS_LOGGER = "cruisecontrol-antprogresslogger.jar";
     /**
      * Prefix prepended to system out messages to be detected by AntScript as progress messages.
      * NOTE: Must be the exact same string as that defined in AntProgressLog constant, kept separate
@@ -157,8 +157,8 @@ public class AntScript implements Script, StreamConsumer {
             }
 
             setupDefaultProgressLoggerLib();
-            // add -lib to progressLogger classes
             if (progressLoggerLib != null) {
+                // add -lib to progressLogger classes
                 cmdLine.createArguments("-lib", progressLoggerLib);
             }
         }
@@ -266,6 +266,26 @@ public class AntScript implements Script, StreamConsumer {
                 } else {
                     progressLoggerLib = ccMain.getParentFile().getAbsolutePath();
                 }
+
+                final File progressLoggerJar = new File(progressLoggerLib, LIBNAME_PROGRESS_LOGGER);
+                if (progressLoggerJar.exists()) {
+                    // Use the specific jar if that jar exists.
+                    // This is a bit of a hack to load the progress logger jar into
+                    // ant without loading other jars (such as, ant.jar for instance)
+                    progressLoggerLib = progressLoggerJar.getAbsolutePath();
+                } else {
+                    // 1. This is a valid use case when running unit tests - uses classes dir.
+                    // 2. This is a valid use case when running CCDist with Webstart (<=5.0)
+                    // deployed Build Agents. In this case, cruisecontrol.jar and
+                    // cruisecontrol-antprogresslogger.jar will be in the same webstart cache dir,
+                    // but the cruisecontrol-antprogresslogger.jar file name will be different.
+                    // In this case, there should be no ant jars in the webstart cache dir,
+                    // therefore no loading of other ant jars in the ant builder should would occur. 
+                    LOG.warn("The progressLoggerLib jar file does not exist: "
+                            + progressLoggerJar.getAbsolutePath()
+                            + ", using dir instead: " + progressLoggerLib);
+                }
+
                 LOG.debug("Using default progressLoggerLib: " + progressLoggerLib);
             }
         }
