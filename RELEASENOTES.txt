@@ -7,11 +7,12 @@ CruiseControl Release Notes - 2.7.1
 general
 ======================
 * Upgraded Ant that is distributed with CruiseControl to Ant version 1.7.0.
+* Fix source version cruisecontrol.sh to work with cygwin (CC-694). Patch by Rex Tener.
 
 cc-config
 ======================
 * Fixed cc-config\3rdparty\libsystray4j.so causes build to break on Windows (CC-684). Patch by Brian Egge.
-* Updated cruisecontrol's main build to allow setting a proxy prior to downloading and including the cc-config application (CC-687). Patch by Ilkka Laukkanen. 
+* Updated cruisecontrol's main build to allow setting a proxy prior to downloading and including the cc-config application (CC-687). Patch by Ilkka Laukkanen.
 
 contrib
 ======================
@@ -42,7 +43,7 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Can render html/xml/txt in the browser.
 * Can display the unit test output for passed builds.
 * Enhanced the dashboard to display artifacts directories as tree structure.
-* Added the cc-config (http://cc-config.sourceforge.net/) application so that it can be included in the dashboard (CC-658). Patch by Allan Wick. 
+* Added the cc-config (http://cc-config.sourceforge.net/) application so that it can be included in the dashboard (CC-658). Patch by Allan Wick.
 * Allowed artifacts to be shown and downloaded in case of a failed build
 * Allowed project name to contain hyphen (-)
 * Allowed integration with project management tools
@@ -225,7 +226,7 @@ JMX
 ----------------------
 * Added the ability to retrieve commit messages for a project's "current" modification set.
 * Added the ability to retrieve build output (e.g. from Ant) from the most recent, or active, build.
-* Added the ability to retrieve statuses of all projects.  
+* Added the ability to retrieve statuses of all projects.
 
 Main.java
 ----------------------
@@ -276,15 +277,15 @@ CompositeBuilder
 
 Darcs Source Control
 ----------------------
-* New source control plugin for Darcs scm (CC-626). Contributed by Kim Pepper.  
+* New source control plugin for Darcs scm (CC-626). Contributed by Kim Pepper.
 
 EmailPublisher
 ----------------------
-* Validate that email addresses are legal (CC-601). Patch by Jerome Lacoste. 
+* Validate that email addresses are legal (CC-601). Patch by Jerome Lacoste.
 
 HtmlEmailPublisher
 ----------------------
-* Expanded automatic search path for xsl and css files to work better with binary distribution (CC-566). Patch by Michael Kloss. 
+* Expanded automatic search path for xsl and css files to work better with binary distribution (CC-566). Patch by Michael Kloss.
 
 HttpFile
 ----------------------
@@ -296,7 +297,7 @@ LockFileBootstrapper/LockFileListener
 
 Log4jThreadGroup
 ----------------------
-* Spelling correction: "uncaugth" changed to "uncaught". Pointed out by Martin Sweitzer. 
+* Spelling correction: "uncaugth" changed to "uncaught". Pointed out by Martin Sweitzer.
 
 Maven2Script
 ----------------------
@@ -435,7 +436,7 @@ ClearCase
 
 CompositeBuilder
 ----------------------
-* Fix reported build time.  Patch by Frederic Mockel. 
+* Fix reported build time.  Patch by Frederic Mockel.
 * Changed the default element name from <builders> to <composite>
 
 Compound
@@ -573,7 +574,7 @@ Accurev
 
 AllFusionHarvestCM511
 ----------------------
-* AllFusion Harvest CM 5.1.1 source control implementation, registered as "harvest" in the default plugins. Submitted by Larry Liberto. 
+* AllFusion Harvest CM 5.1.1 source control implementation, registered as "harvest" in the default plugins. Submitted by Larry Liberto.
 
 AntBuilder
 ----------------------
@@ -605,9 +606,9 @@ ConcurrentVersionSystem
 * Remove race condition on closing error stream.
 * Make empty string in tag an alias for HEAD (CC-511). Fix by Benjamin Burgess
 
-CompositeBuilder 
----------------------- 
-* Add CompositeBuilder to run a list of builders and have the results of the builds combined (CC-538). Submitted by Frederic Mockel 
+CompositeBuilder
+----------------------
+* Add CompositeBuilder to run a list of builders and have the results of the builds combined (CC-538). Submitted by Frederic Mockel
 * CompositeBuilder.validate() should validate child builders. Reported by EJ Ciramella
 
 cruisecontrol.bat
@@ -728,7 +729,7 @@ VSS
 
 VssBootstrapper
 ----------------------
-* VSSBoostrapper fix for intermitent "java.io.IOException: The handle is invalid" errors (CC-535). 
+* VSSBoostrapper fix for intermitent "java.io.IOException: The handle is invalid" errors (CC-535).
 
 reporting application
 ======================
@@ -771,7 +772,7 @@ testdetails.xsl
 
 taglib
 ----------------------
-* Taglib tries to read a system property named "false", which, depending on security policies, may be denied (CC-525). Based on patch by R. Lemos 
+* Taglib tries to read a system property named "false", which, depending on security policies, may be denied (CC-525). Based on patch by R. Lemos
 
 CruiseControl Release Notes - 2.5
 
@@ -1013,7 +1014,7 @@ BuildQueue:
 
 main/build.xml:
 ----------------------
-* Allow build for jdk 1.3 no matter which jdk is being used. Patch by Brad Clarke. 
+* Allow build for jdk 1.3 no matter which jdk is being used. Patch by Brad Clarke.
 
 ClearCase:
 ----------------------
@@ -1263,7 +1264,7 @@ CruiseControlController:
 
 DateUtil
 ----------------------
-* Deprecated millTimeDiffernce in favor of refactored millTimeDifference. Patch by Jerome Lacoste. 
+* Deprecated millTimeDiffernce in favor of refactored millTimeDifference. Patch by Jerome Lacoste.
 
 Documentation
 ----------------------
@@ -1766,7 +1767,7 @@ CruiseControl Release Notes - 2.2
 
 Ant:
 ----------------------
-* Upgraded internal Ant to 1.6.2. 
+* Upgraded internal Ant to 1.6.2.
   All ant jars are packaged, to remain backwards compatible with config files that don't use the antscript attribute.
 
 AntBuilder & MavenBuilder:
@@ -1814,7 +1815,7 @@ checkstyle (use in CC build)
 
 ClearCaseBootstrapper
 ----------------------
-* fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine 
+* fixed /dev/nul to /dev/null (CC-76). Patch by Esa Laine
 
 compile.xsl
 ----------------------
@@ -2012,7 +2013,7 @@ controlpanel.jsp
 CruiseControlController
 ----------------------
 * On a new project (no serialized project found) force a build. This is to aid setting up CruiseControl as you will not need to wait for a modification.
-* Now parses plugin definitions defined directly under the <cruisecontrol> root-element in the config file. 
+* Now parses plugin definitions defined directly under the <cruisecontrol> root-element in the config file.
   These are defined for all projects, but can still be overridden per project.
 
 distributables.xsl
