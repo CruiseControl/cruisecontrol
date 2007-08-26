@@ -84,8 +84,16 @@ fi
 
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
+LAUNCHER=$DISTDIR/cruisecontrol-launcher.jar
 
-EXEC="${JAVA_HOME:-/usr}/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar $@"
+if [ `uname | grep -n CYGWIN` ]; then
+    # convert the existing Java path to UNIX
+    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+    # convert the existing launcher path to Windows
+    LAUNCHER=`cygpath --windows "$LAUNCHER"`
+fi
+
+EXEC="${JAVA_HOME:-/usr}/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $LAUNCHER $@"
 echo $EXEC
 $EXEC &
 echo $! > cc.pid
