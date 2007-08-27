@@ -251,7 +251,7 @@ public class AntScript implements Script, StreamConsumer {
     }
 
     public static String findProgressLoggerLib() {
-        // find path (inluding filename) to progressLoggerLib jar
+        // find path (including filename) to progressLoggerLib jar
         final String progressLoggerLib;
 
         final String deprecatedMsg = "\n"
@@ -263,7 +263,7 @@ public class AntScript implements Script, StreamConsumer {
         if (ccMain == null) {
             LOG.warn("Could not determine -lib path for progressLoggerLib. (Java 6/Webstart issue?) "
                 + "\n\tTo enable showProgress, manully copy " + LIBNAME_PROGRESS_LOGGER + " to some directory "
-                + "\n\tand set the full path (inluding filename) to " + LIBNAME_PROGRESS_LOGGER + " in config.xml "
+                + "\n\tand set the full path (including filename) to " + LIBNAME_PROGRESS_LOGGER + " in config.xml "
                 + "\n\tas the value of 'progressLoggerLib' for this <ant> builder, "
                 + "\n\tOR set showProgress=false for this <ant> builder."
                 + deprecatedMsg);
