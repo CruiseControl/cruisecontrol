@@ -40,6 +40,8 @@
 # The root of the CruiseControl directory.  The key requirement is that this is the parent
 # directory of CruiseControl's lib and dist directories.
 
+# Inspired by Ant's wrapper script
+
 # Uncomment the following line if you have OutOfMemoryError errors
 # CC_OPTS="-Xms128m -Xmx256m"
 
@@ -54,7 +56,6 @@ case "`uname`" in
     ;;
 esac
 
-# Inspired by Ant's wrapper script
 if [ -z "$CCDIR" ] ; then
   # resolve links - $0 may be a softlink
   PRG="$0"
@@ -83,6 +84,14 @@ fi
 
 LIBDIR=$CCDIR/lib
 DISTDIR=$CCDIR/dist
+LAUNCHER=$DISTDIR/cruisecontrol-launcher.jar
+
+if [ `uname | grep -n CYGWIN` ]; then
+    # convert the existing Java path to UNIX
+    JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
+    # convert the existing launcher path to Windows
+    LAUNCHER=`cygpath --windows "$LAUNCHER"`
+fi
 
 # some of these need slashes (to get jars via -lib), others do not (conf dir)
 CCDIST=$CCDIR/../contrib/distributed
@@ -91,7 +100,7 @@ CCDIST_CORE=$CCDIST/dist/core/
 CCDIST_JINICORE=$CCDIST/jini-core/
 CCDIST_CONF=$CCDIST/conf
 
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $DISTDIR/cruisecontrol-launcher.jar -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_CONF $@"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $LAUNCHER -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_CONF $@"
 echo $EXEC
 $EXEC &
 echo $! > cc.pid
