@@ -488,7 +488,9 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     * @param progressLoggerLib The directory containing the AntProgressLogger/Listener classes.
+     * @param progressLoggerLib The path (inluding filename) to the jar file
+     * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
+     * containing the AntProgressLogger/Listener classes.
      */
     public void setProgressLoggerLib(String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
