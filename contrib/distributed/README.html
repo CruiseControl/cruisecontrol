@@ -295,7 +295,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                     To enable showProgress in such cases:
                         <ol type="1">
                             <li>Manully copy <i>cruisecontrol-antprogresslogger.jar</i> to some directory on your agent machine.</li>
-                            <li>Set that directory (or better still, the full jar: <i>/somedir/cruisecontrol-antprogresslogger.jar</i>) in your config.xml as the value of <code>progressLoggerLib</code> for this <code>ant</code> builder.</li>
+                            <li>Set the full path (inluding filename) to cruisecontrol-antprogresslogger.jar (for example: <i>/somedir/cruisecontrol-antprogresslogger.jar</i>) in your config.xml as the value of <code>progressLoggerLib</code> for this <code>ant</code> builder.</li>
                         </ol>
                         Another alternative is to set <code>showProgress=false</code> for this <code>ant</code> builder. In the future, we hope to solve this problem using jnlp "extensions". (Any volunteers?)<br/><br/></li>
                     <li><a name="advancedConfigAgentUtility"></a>Agent Utility: Running <code>ant agent-util</code> from inside the <i>dist/util</i> dir will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
