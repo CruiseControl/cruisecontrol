@@ -495,4 +495,12 @@ public class AntBuilder extends Builder {
     public void setProgressLoggerLib(String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
     }
+    /**
+     * @return The path (inluding filename) to the jar file
+     * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
+     * containing the AntProgressLogger/Listener classes.
+     */
+    public String getProgressLoggerLib() {
+        return progressLoggerLib;
+    }
 }
