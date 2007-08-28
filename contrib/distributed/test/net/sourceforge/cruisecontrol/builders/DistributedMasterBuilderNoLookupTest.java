@@ -100,7 +100,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
         final Map projectProperties = new HashMap();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
-        masterBuilder.setFailFast(); // to avoid pickAgent() retry loop
         try {
             masterBuilder.build(projectProperties, null);
             fail("Null agent should have failed.");
