@@ -644,7 +644,10 @@ public class DistributedMasterBuilderTest extends TestCase {
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
         masterBuilder.setEntries(getTestDMBEntries());
-        masterBuilder.setFailFast(); // don't block until an available agent is found
+
+        // changing failFastFindWaitMillis from 2000 to 3000 adds 10 seconds to the whole CCDist build,
+        // but it may help tests pass on new CCLive box.
+        masterBuilder.setFailFast(3000); // don't block until an available agent is found
 
         return masterBuilder;
     }

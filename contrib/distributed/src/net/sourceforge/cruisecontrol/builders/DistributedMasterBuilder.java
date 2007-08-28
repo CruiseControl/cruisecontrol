@@ -104,11 +104,14 @@ public class DistributedMasterBuilder extends Builder {
             + " in projectProperties";
 
 
+    /** Intended only for unit tests. */
+    private long failFastFindWaitMillis;
     /**
      * Available agent lookup will not block until an agent is found,
      * but will return null immediately. Intended only for unit tests.
      */
-    synchronized void setFailFast() {
+    synchronized void setFailFast(final long failFastFindWaitMillis) {
+        this.failFastFindWaitMillis = failFastFindWaitMillis;
         this.isFailFast = true;
     }
     private synchronized  boolean isFailFast() {
@@ -398,7 +401,7 @@ public class DistributedMasterBuilder extends Builder {
             try {
                 serviceItem = MulticastDiscovery.findMatchingServiceAndClaim(entries,
                         // Non-zero failfast value avoids intermittent failures in unit tests
-                        (isFailFast ? 2000 : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
+                        (isFailFast ? failFastFindWaitMillis : MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS));
 
             } catch (RemoteException e) {
                 throw new CruiseControlException("Error finding matching agent.", e);
