@@ -592,7 +592,9 @@ public class DistributedMasterBuilderTest extends TestCase {
         } finally {
             BuildAgentTest.removeServiceIDListener(agent, serviceIDListener);
         }
-        assertTrue("Unit test Agent was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
+        assertTrue("Unit test Agent was not discovered before timeout. elapsed: "
+                + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
+                + MSG_DISOCVERY_CHECK_FIREWALL,
                 BuildAgentTest.isServiceIDAssigned(agent));
 
         LOG.info(MSG_PREFIX_STATS + "Unit test Agent discovery took: "
