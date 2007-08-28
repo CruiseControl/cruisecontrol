@@ -36,20 +36,33 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Tracks a "buffer" of lines from a build, which allows a caller to ask all lines after a certain starting line number.
  * Note that the buffer rotates and will only include up to the last maxLines lines written to the buffer.
  */
 public class BuildOutputBuffer implements StreamConsumer {
 
+    private final int maxLines;
     private String[] lineBuffer;
     private int totalLines;
+    private File data;
+    private int fileLocation;
 
     /**
      * @param maxLines Maximum number of lines that can be placed into the buffer.
      */
     public BuildOutputBuffer(int maxLines) {
-        lineBuffer = new String[maxLines];
+        this.maxLines = maxLines;
+        clear();
+    }
+
+    public void clear() {
+        lineBuffer = new String[this.maxLines];
         totalLines = 0;
     }
 
@@ -66,6 +79,7 @@ public class BuildOutputBuffer implements StreamConsumer {
      * @return All lines available from firstLine (inclusive) up to maxLines.
      */
     public String[] retrieveLines(int firstLine) {
+        fileLoad();
         // TODO: this implementation needs refactoring to make it clearer
         int count = totalLines - firstLine;
         if (count <= 0) {
@@ -88,4 +102,37 @@ public class BuildOutputBuffer implements StreamConsumer {
         return result;
     }
 
+    public void setFile(final File outFile) {
+        this.data = outFile;
+        this.fileLocation = 0;
+    }
+
+    private void fileLoad() {
+        if (data == null || !data.exists()) { return; }
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(data));
+
+            skipLines(reader, fileLocation);
+
+            String line = reader.readLine();
+            while (line != null) {
+                consumeLine(line);
+                line = reader.readLine();
+                fileLocation++;
+            }
+        } catch (IOException e) {
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
+
+    private void skipLines(final BufferedReader inFile, final int numToSkip) throws IOException {
+        for (int i = 0; i < numToSkip; i++) { inFile.readLine(); }
+    }
 }

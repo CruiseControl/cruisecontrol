@@ -1,7 +1,7 @@
 #set($double_quote='"')
 #set($building_status="Building")
 #set($onforcebuild="javascript:void(0)")
-#set($project_name_href="$req.getContextPath()/build/detail/$buildSummary.build.projectName")
+#set($project_name_href="$req.getContextPath()/build/detail/live/$buildSummary.build.projectName")
 #set($build_date_text=" at ${buildSummary.dateStringInHumanBeingReadingStyle}")
 #set($success_build_href="$req.getContextPath()/project/list/passed/$buildSummary.build.projectName")
 #set($all_build_href="$req.getContextPath()/project/list/all/$buildSummary.build.projectName")

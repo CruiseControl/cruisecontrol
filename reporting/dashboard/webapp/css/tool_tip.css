@@ -75,7 +75,7 @@
 
 /* Passing builds */
 
-.tooltip.tooltip_passed .tooltip_header {
+.tooltip.tooltip_passed .tooltip_header, .tooltip.tooltip_building_passed .tooltip_header {
 	background: url( '../images/tooltip-passed.gif' ) no-repeat top left;
 }
 
@@ -105,16 +105,25 @@
 
 /* In-progress builds */
 
-.tooltip.tooltip_building .tooltip_header {
+.tooltip.tooltip_building_failed .tooltip_header, .tooltip.tooltip_building_unknown .tooltip_header {
 	background: url( '../images/tooltip-building.gif' ) no-repeat top left;
 }
 
-.tooltip.tooltip_building .tooltip_content {
-	background : #f9d861 url( ../images/icon-building-medium.gif ) no-repeat 7px 15px;
+.tooltip.tooltip_building_passed .tooltip_content {
+	background : #B6FFB1 url(../images/icon-build-previously-success-medium.gif) no-repeat 7px 15px;
+}
+
+.tooltip.tooltip_building_passed .r2, .tooltip.tooltip_building_passed .r3,  .tooltip.tooltip_building_passed .r4 {
+	background-color: #B6FFB1;
+}
+
+.tooltip.tooltip_building_failed .tooltip_content, .tooltip.tooltip_building_unknown .tooltip_content {
+	background : #f9d861 url( ../images/icon-build-previously-failure-medium.gif ) no-repeat 7px 15px;
 	color : #C30;
 }
 
-.tooltip.tooltip_building .r2, .tooltip.tooltip_building .r3,  .tooltip.tooltip_building .r4 {
+.tooltip.tooltip_building_failed .r2, .tooltip.tooltip_building_failed .r3,  .tooltip.tooltip_building_failed .r4,
+.tooltip.tooltip_building_unknown .r2, .tooltip.tooltip_building_unknown .r3,  .tooltip.tooltip_building_unknown .r4 {
 	background-color: #f9d861;
 }
 

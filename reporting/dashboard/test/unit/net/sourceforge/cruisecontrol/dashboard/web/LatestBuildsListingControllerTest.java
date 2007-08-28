@@ -36,8 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -49,10 +50,13 @@ import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DefaultDashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
+import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -79,23 +83,27 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         lastSucceed =
                 new BuildSummary("", "2005-12-05 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1");
         setUpMock();
+        BuildSummaryUIService buildSummaryUIService =
+                new BuildSummaryUIService(buildSummaryService,
+                        (DashboardXmlConfigService) mockDashboardXmlConfigService.proxy());
+        EnvironmentService environmentService =
+                new EnvironmentService(new SystemService(),
+                        new DashboardConfigService[] {new DefaultDashboardConfigService()});
         controller =
-                new LatestBuildsListingController(buildSummaryService, new BuildSummaryUIService(
-                        buildSummaryService, (DashboardXmlConfigService) mockDashboardXmlConfigService
-                                .proxy()), new EnvironmentService(new SystemService(),
-                        new DashboardConfigService[] {}));
+                new LatestBuildsListingController(buildSummaryService, buildSummaryUIService,
+                        environmentService);
     }
 
     private void setUpMock() throws Exception {
         mockBuildSummaryService =
-                mock(BuildSummariesService.class,
-                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
-                                new BuildSummaryService()});
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null,
+                        new BuildSummaryService(), null});
         mockDashboardXmlConfigService =
                 mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
                         new Object[] {new SystemService()});
         mockBuildSummaryService.expects(once()).method("getLatestOfProjects").withNoArguments().will(
-                returnValue(returnedValue()));
+                returnValue(originalBuilds()));
         mockBuildSummaryService.expects(atLeastOnce()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(ealiestFailed));
         mockBuildSummaryService.expects(atLeastOnce()).method("getEarliestSucceeded").withAnyArguments()
@@ -103,8 +111,10 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         buildSummaryService = (BuildSummariesService) mockBuildSummaryService.proxy();
         mockDashboardXmlConfigService.expects(atLeastOnce()).method("getStoryTrackers").will(
                 returnValue(new HashMap()));
-        mockBuildSummaryService.expects(once()).method("getLastBuildStatus").withAnyArguments().will(
-                returnValue(ProjectBuildStatus.PASSED));
+        mockBuildSummaryService.expects(once()).method("getLatest").withAnyArguments()
+                .will(returnValue(null));
+        mockBuildSummaryService.expects(once()).method("updateWithLiveStatus").will(
+                returnValue(updatedBuilds()));
     }
 
     public void testShouldBeAbleToListAllTheProjectInDirectory() throws Exception {
@@ -129,11 +139,11 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
     public void testShouldUseCachedLatestBuildSummaries() throws Exception {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
         mockBuildSummaryService =
-                mock(BuildSummariesService.class,
-                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
-                                new BuildSummaryService()});
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null,
+                        new BuildSummaryService(), null});
         mockBuildSummaryService.expects(never()).method("getLatestOfProjects").withNoArguments().will(
-                returnValue(returnedValue()));
+                returnValue(originalBuilds()));
         mockBuildSummaryService.expects(never()).method("getEaliestFailed").withAnyArguments().will(
                 returnValue(ealiestFailed));
         mockBuildSummaryService.expects(never()).method("getLastSucceed").withAnyArguments().will(
@@ -141,25 +151,39 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
     }
 
-    private List returnedValue() {
-        List list = new ArrayList();
-        BuildSummary build1 =
-                new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
-                        "log1");
-        Build build2 =
-                new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log2");
-        BuildSummary build3 =
-                new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.BUILDING, "log3");
-        BuildSummary build4 =
-                new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log4");
-        BuildSummary build5 =
-                new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log5");
-        list.add(build1);
-        list.add(build2);
-        list.add(build3);
-        list.add(build4);
-        list.add(build5);
-        return list;
+    public void testShouldUpdateLiveStatus() throws Exception {
+        ModelAndView mov =
+                controller.handleRequest(new MockHttpServletRequest(), new MockHttpServletResponse());
+        Map model = mov.getModel();
+        List projects = (List) model.get("buildSummaries");
+        for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
+            BuildCommand build = (BuildCommand) iterator.next();
+            if ("project2".equals(build.getBuild().getProjectName())) {
+                assertEquals(ProjectBuildStatus.BUILDING, build.getBuild().getStatus());
+                return;
+            }
+        }
+        fail("There should be at least one project is building");
     }
 
+    private List updatedBuilds() {
+        Build[] builds = new Build[] {
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1"),
+                new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log2"),
+                new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log3"),
+                new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log4"),
+                new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log5")};
+        builds[1].updateStatus("now building since 20070420170000");
+        return Arrays.asList(builds);
+    }
+
+    private List originalBuilds() {
+        Build[] builds = new Build[] {
+                new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED, "log1"),
+                new BuildSummary("project2", "2005-12-09 12:21.03", "", ProjectBuildStatus.FAILED, "log2"),
+                new BuildSummary("project3", "2005-12-09 12:21.03", "", ProjectBuildStatus.BUILDING, "log3"),
+                new BuildSummary("project4", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log4"),
+                new BuildSummary("project5", "2005-12-09 12:21.03", "", ProjectBuildStatus.INACTIVE, "log5")};
+        return Arrays.asList(builds);
+    }
 }

@@ -61,7 +61,7 @@ PeriodicalExecuter.prototype.getCallBack = function() {
 
 
 function test_should_inoke_timer_should_register_elapse_function_as_periodical_executer() {
-   var timer = new Timer("");
+   var timer = new Timer("project1");
    timer.start()
    var executer = timer.getPeriodicalExecuter()
    assertNotUndefined(executer);
@@ -69,7 +69,7 @@ function test_should_inoke_timer_should_register_elapse_function_as_periodical_e
 }
 
 function test_should_increase_1_each_time_when_invoked() {
-    var timer = new Timer("");
+    var timer = new Timer("project1");
   	timer.last_build_duration(300)
     timer.elapse();
     assertEquals("00:00:01", timer.report_elapsed());
@@ -77,7 +77,7 @@ function test_should_increase_1_each_time_when_invoked() {
 }
 
 function test_should_format_second_to_time_format() {
-   var timer = new Timer("");
+   var timer = new Timer("project1");
    timer.last_build_duration(300)
    assertEquals("00:00:01", timer.time(1));
    assertEquals("00:01:00", timer.time(60));
@@ -164,6 +164,7 @@ function test_should_be_able_to_stop_executer() {
 	assertFalse(timer.is_stopped());
 	timer.stop();
  	assertTrue(timer.is_stopped());
+	assertFalse($('project1_timer_area').visible());
 }
 
 </script>
@@ -181,10 +182,12 @@ function test_should_be_able_to_stop_executer() {
 		   	<p style="padding:1px;"><strong><a id="project1_build_detail" href="buildDetail.html?filename=log20060704155710Lbuild.489.xml&project=project1">project1 passed</a>
 		   	<a id="project1_build_date" style="text-decoration: none;">at 12:21 on 9 Dec 2005</a></strong>
    			<a><img src="images/flag_green.png" alt="Past successful builds" title="Past successful builds"/></a> |  <a href="projectDetail.html?project=project1" title="All Builds of Project project1"><img src="images/bricks.png"/></a></p>
-   			<span id="project1_time_elapsed_lable"></span>
-   			<span id="project1_time_elapsed"></span>
-   			<span id="project1_time_remaining_lable"></span>
-   			<span id="project1_time_remaining"></span>
+   			<div id="project1_timer_area" style="display:none;">
+				<span id="project1_time_elapsed_lable"></span>
+   				<span id="project1_time_elapsed"></span>
+   				<span id="project1_time_remaining_lable"></span>
+   				<span id="project1_time_remaining"></span>
+			</div>
 		</div>
 	</div>
 </body>

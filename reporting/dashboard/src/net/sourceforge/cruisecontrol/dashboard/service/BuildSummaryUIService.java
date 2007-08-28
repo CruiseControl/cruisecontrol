@@ -71,9 +71,9 @@ public class BuildSummaryUIService {
     }
 
     public BuildCommand transform(Build build, boolean updateCSS) {
-        BuildCommand command =
-                new BuildCommand(build, (StoryTracker) xmlConfigService.getStoryTrackers().get(
-                        build.getProjectName()));
+        final Map storyTrackers = xmlConfigService.getStoryTrackers();
+        final String projectName = build.getProjectName();
+        BuildCommand command = new BuildCommand(build, (StoryTracker) storyTrackers.get(projectName));
         if (updateCSS) {
             updateCSS(command);
         }
@@ -86,13 +86,18 @@ public class BuildSummaryUIService {
         if (ProjectBuildStatus.FAILED.equals(status)) {
             Build earliesFailedBuild =
                     buildSummariesService.getEaliestFailed(projectName, command.getBuild().getBuildDate());
-            command.updateFailedCSS(earliesFailedBuild);
+            command.updateCssLevel(earliesFailedBuild);
         } else if (ProjectBuildStatus.PASSED.equals(status)) {
             Build lastSucceed = buildSummariesService.getEarliestSucceeded(projectName, new DateTime());
-            command.updatePassedCss(lastSucceed);
+            command.updateCssLevel(lastSucceed);
         } else if (ProjectBuildStatus.BUILDING.equals(status)) {
-            command.updateBuildingCss(buildSummariesService.getLastBuildStatus(projectName));
+            command.updateBuildingCss(getLastBuildStatus(projectName));
         }
+    }
+
+    public ProjectBuildStatus getLastBuildStatus(String projectName) {
+        Build latest = buildSummariesService.getLatest(projectName);
+        return latest == null ? ProjectBuildStatus.UNKNOWN : latest.getStatus();
     }
 
     public String toXml(List buildSummaries, Map buildStatuses, String baseUrl, String type) {

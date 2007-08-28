@@ -37,7 +37,7 @@ public class NoDeadLinkTest extends SeleniumTestCase {
 
     private void clickBuildBar() throws Exception {
         selenium.open("/dashboard/dashboard");
-        clickAssert("//div[@id='project1_bar']/div/a");
+        clickAssert("//a[@id='project2_bar_link']");
     }
 
     private void clickAddProject() throws Exception {

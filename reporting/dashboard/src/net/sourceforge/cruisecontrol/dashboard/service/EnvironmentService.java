@@ -43,7 +43,7 @@ public class EnvironmentService {
     }
 
     public boolean isConfigFileEditable() {
-        return BooleanUtils.toBoolean(getConfigProperty("isConfigFileEditable"));
+        return isEnabled(getConfigProperty("isConfigFileEditable"));
     }
 
     public int getJmxPort() {
@@ -55,12 +55,7 @@ public class EnvironmentService {
     }
 
     public boolean isForceBuildEnabled() {
-        String isEnabled = getConfigProperty("isForceBuildEnabled");
-        if (StringUtils.isEmpty(isEnabled)) {
-            return true;
-        } else {
-            return isEnabled.equals("enabled");
-        }
+        return isEnabled(getConfigProperty("isForceBuildEnabled"));
     }
 
     public File getLogDir() throws ConfigurationException {
@@ -88,5 +83,9 @@ public class EnvironmentService {
                 return new File(new File(StringUtils.defaultString(cchome)), subDir);
             }
         }
+    }
+
+    private boolean isEnabled(String isEnabled) {
+        return "enabled".equalsIgnoreCase(isEnabled) || BooleanUtils.toBoolean(isEnabled);
     }
 }

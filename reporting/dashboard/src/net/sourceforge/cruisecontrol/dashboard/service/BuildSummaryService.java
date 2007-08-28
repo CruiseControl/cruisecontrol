@@ -93,7 +93,7 @@ public class BuildSummaryService {
         private File filename;
 
         private static final Pattern SUCCESSFUL_BUILD_PATTERN =
-                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})L(.*)\\.xml$");
+                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})L(.*)\\.xml(\\.gz)?$");
 
         private static final int LABEL_GROUP = 7;
 
@@ -116,7 +116,7 @@ public class BuildSummaryService {
         private File filename;
 
         private static final Pattern FAILED_BUILD_PATTERN =
-                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})\\.xml");
+                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})\\.xml(\\.gz)?$");
 
         public FailedBuild(File filename) {
             this.filename = filename;

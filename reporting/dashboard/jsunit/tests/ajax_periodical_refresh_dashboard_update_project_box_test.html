@@ -45,26 +45,24 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
-
 <script language="JavaScript" type="text/javascript">
-var replaced_method_1 =  BuildProfileExecuter.prototype.execute;
+var replaced_method_1 =  BuildProfileObserver.prototype.execute;
 var replaced_method_2 =  this.ajax_periodical_refresh_dashboard_update_tooltip;
-var replaced_method_3 =  BuildBarExecuter.prototype.execute;
+var replaced_method_3 =  BuildBarObserver.prototype.execute;
 var replaced_method_4 =  this.eval_timer_object;
-var replaced_method_5 =  ajax_periodical_refresh_dashboard_update_inactive_partial_links;
 function setUp() {
-	json = {
-	  building_info : { project_name : "project1", building_status : "passed", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
-	}
+	json = passed_json('project1');
+	json.building_info.latest_build_date = '2007-08-09 12:30:00';
+	json.building_info.build_time_elapsed = "100";  
 }
 
 function tearDown() {
-	BuildProfileExecuter.prototype.execute = replaced_method_1
+	BuildProfileObserver.prototype.execute = replaced_method_1
 	this.ajax_periodical_refresh_dashboard_update_tooltip = replaced_method_2
-	BuildBarExecuter.prototype.execute = replaced_method_3
+	BuildBarObserver.prototype.execute = replaced_method_3
 	this.eval_timer_object = replaced_method_4;
-	this.ajax_periodical_refresh_dashboard_update_inactive_partial_links = replaced_method_5;
 }
 
 
@@ -74,19 +72,15 @@ function test_ajax_periodical_refresh_dashboard_update_tooltip_should_be_invoked
 	var is_timer_called=false;
 	var is_correct_parameter = false;
 	var is_build_detail_called = false;
-	var is_update_link_called = false;
 	var is_bar_reound_called = false;
-	this.ajax_periodical_refresh_dashboard_update_tooltip = function() {
+	ToolTipObserver.prototype.notify = function() {
 		is_tooltip_called = true;
 	}
- 	BuildProfileExecuter.prototype.execute = function() {
+ 	BuildProfileObserver.prototype.notify = function() {
 		is_build_detail_called = true;
 	}
-	BuildBarExecuter.prototype.execute = function() {
+	BuildBarObserver.prototype.notify = function() {
 		is_bar_called = true;
-	}
-	this.ajax_periodical_refresh_dashboard_update_inactive_partial_links=function() {
-	    is_update_link_called = true;
 	}
 	this.eval_timer_object=function(project_name, build_status, build_duration, elapsed_time) {
 		is_timer_called = true;
@@ -106,7 +100,6 @@ function test_ajax_periodical_refresh_dashboard_update_tooltip_should_be_invoked
 	assertTrue('is_timer_called', is_timer_called);
 	assertTrue('is_correct_parameter', is_correct_parameter);
 	assertTrue('is_build_detail_called', is_build_detail_called)
-	assertTrue('is_update_link_called', is_update_link_called);
 }
 
 function test_should_not_change_anything_when_ui_is_inactive() {

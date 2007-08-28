@@ -39,14 +39,9 @@ Toolkit.prototype = {
 	_displayed_toolkit : null,
 	initialize : function() {
 	},
-	show : function (id, e) {
+	show : function (id) {
 		if (this._displayed_toolkit) {
 			this.hide(this._displayed_toolkit);
-		}
-		if (e) {
-			if (window.screen.height - Event.pointerY(e) < 200) {
-				$(id).setStyle({marginTop:'-200px'});
-			}
 		}
 		$(id).show();
 		this._displayed_toolkit = $(id);

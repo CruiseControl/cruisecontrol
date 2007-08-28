@@ -27,9 +27,9 @@
 	                                <div id="error_${erroredTest.name}" name="error_${erroredTest.name}">
 	                                 <li>TestName: $erroredTest.name Duration: $erroredTest.duration
 	                                     <pre>
-	                                         <b id="${erroredTest.name}_error_msg">$erroredTest.message</b>
+	                                         <b id="${erroredTest.name}_error_msg">$esc.html($erroredTest.message)</b>
 	                                        <br>
-	                                        <div id="${erroredTest.name}_error_msgbody">$erroredTest.messageBody</div>
+	                                        <div id="${erroredTest.name}_error_msgbody">$esc.html($erroredTest.messageBody)</div>
 	                                      </pre>
 	                                 </li>
 	                            </div>
@@ -53,9 +53,9 @@
 	                <div id="failed_${failingTest.name}" name="failed_${failingTest.name}">
 	                    <li>TestName: $failingTest.name  Duration: $failingTest.duration
 	                    <pre>
-	                        <b id="${failingTest.name}_failed_msg">$failingTest.message</b>
+	                        <b id="${failingTest.name}_failed_msg">$esc.html($failingTest.message)</b>
 	                        <br>
-	                        <div id="${failingTest.name}_failed_msgbody">$failingTest.messageBody</div>
+	                        <div id="${failingTest.name}_failed_msgbody">$esc.html($failingTest.messageBody)</div>
 	                    </pre>
 	                    </li>
 	                </div>

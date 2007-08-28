@@ -59,6 +59,8 @@ import org.apache.log4j.Logger;
 public class AntScript implements Script, StreamConsumer {
 
     private static final Logger LOG = Logger.getLogger(AntScript.class);
+    static final String CLASSNAME_DASHBOARD_LISTENER
+            = "net.sourceforge.cruisecontrol.builders.AntOutputLogger";
 
     static final String CLASSNAME_ANTPROGRESS_LOGGER
             = "net.sourceforge.cruisecontrol.builders.AntProgressLogger";
@@ -131,7 +133,7 @@ public class AntScript implements Script, StreamConsumer {
 
         if (progress == null) {
             if (useLogger) {
-                cmdLine.createArguments("-logger", getLoggerClassName());
+                useLogger(cmdLine);
                 cmdLine.createArguments("-logfile", tempFileName);
             } else {
                 cmdLine.createArguments("-listener", getLoggerClassName());
@@ -144,7 +146,7 @@ public class AntScript implements Script, StreamConsumer {
             // use proper default logger if loggerClassName was not specified by config
             setupResolvedLoggerClassname();
                                             // was set to proper default according to showProgress state.
-            cmdLine.createArguments("-logger", getLoggerClassName());
+            useLogger(cmdLine);
 
             if (useLogger) {
                 // need to use AntProgressXmlLogger as a listener
@@ -210,6 +212,10 @@ public class AntScript implements Script, StreamConsumer {
         return cmdLine;
     }
 
+    private void useLogger(final Commandline cmdLine) {
+        cmdLine.createArguments("-logger", getLoggerClassName());
+        cmdLine.createArguments("-listener", CLASSNAME_DASHBOARD_LISTENER);
+    }
 
     /**
      * @param path the classpath in which to search for the ant-launcher.jar

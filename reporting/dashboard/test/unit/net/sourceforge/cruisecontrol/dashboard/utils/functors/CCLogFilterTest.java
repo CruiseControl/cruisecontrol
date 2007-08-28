@@ -59,4 +59,9 @@ public class CCLogFilterTest extends TestCase {
         assertFalse(new CCLogFilter().accept(null, "log1234.xml"));
         assertFalse(new CCLogFilter().accept(null, "log.xml"));
     }
+
+    public void testShouldAcceptZippedLogFile() throws Exception {
+        assertTrue(new CCLogFilter().accept(null, "log19990505080808.xml.gz"));
+        assertTrue(new CCLogFilter().accept(null, "log19990505080808Lbuild.123.xml.gz"));
+    }
 }

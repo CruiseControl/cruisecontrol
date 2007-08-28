@@ -46,16 +46,13 @@ import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Modification;
 import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
+import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.joda.time.DateTime;
 
 public class BuildCommand {
-
-    private static final String CSS_CLASS_NAME_CONSIDERING_LAST_STATUS =
-            "css_class_name_considering_last_status";
-
-    private static final String CSS_CLASS_NAME_FOR_DASHBOARD = "css_class_name_for_dashboard";
+    public static final String CSS_LEVEL = "level";
 
     private static final String CSS_CLASS_NAME = "css_class_name";
 
@@ -73,8 +70,7 @@ public class BuildCommand {
         this.build = build;
         this.storyTracker = storyTracker;
         jsonParams.put(CSS_CLASS_NAME, build.getStatus().getStatus().toLowerCase());
-        jsonParams.put(CSS_CLASS_NAME_FOR_DASHBOARD, build.getStatus().getStatus().toLowerCase());
-        jsonParams.put(CSS_CLASS_NAME_CONSIDERING_LAST_STATUS, "");
+        jsonParams.put(CSS_LEVEL, "unknown");
     }
 
     public Build getBuild() {
@@ -82,12 +78,17 @@ public class BuildCommand {
     }
 
     public Collection getModifications() {
-        Collection modifications = build.getModificationSet().getModifications();
         Collection modificationCmds = new ArrayList();
-        for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
-            Modification modification = (Modification) iterator.next();
-            modificationCmds.add(new ModificationCommand(modification, storyTracker));
+
+        ModificationSet modificationSet = build.getModificationSet();
+        if (modificationSet != null) {
+            Collection modifications = modificationSet.getModifications();
+            for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
+                Modification modification = (Modification) iterator.next();
+                modificationCmds.add(new ModificationCommand(modification, storyTracker));
+            }
         }
+
         return modificationCmds;
 
     }
@@ -100,20 +101,16 @@ public class BuildCommand {
         return new Long((date.getMillis() - build.getBuildingSince().getMillis()) / MILLI_SECOND_TO_SECOND);
     }
 
-    public void updateFailedCSS(Build last) {
-        jsonParams.put(CSS_CLASS_NAME_FOR_DASHBOARD, "failed_level_" + statusStandingLevel(last));
-    }
-
-    public void updatePassedCss(Build last) {
-        jsonParams.put(CSS_CLASS_NAME_FOR_DASHBOARD, "passed_level_" + statusStandingLevel(last));
+    public void updateCssLevel(Build last) {
+        jsonParams.put(CSS_LEVEL, String.valueOf(statusStandingLevel(last)));
     }
 
     public String getCssClassName() {
         return (String) jsonParams.get(CSS_CLASS_NAME);
     }
 
-    public String getCssClassNameForDashboard() {
-        return (String) jsonParams.get(CSS_CLASS_NAME_FOR_DASHBOARD);
+    public String getLevel() {
+        return (String) jsonParams.get(CSS_LEVEL);
     }
 
     private long statusStandingLevel(Build lastSuccessful) {
@@ -125,7 +122,6 @@ public class BuildCommand {
     public Map toJsonHash() {
         jsonParams.put("building_status", build.getStatus().getStatus());
         jsonParams.put("project_name", build.getProjectName());
-        jsonParams.put("latest_build_log_file_name", build.getBuildLogFilename());
         jsonParams.put("latest_build_date", getDateStringInHumanBeingReadingStyle());
         if (ProjectBuildStatus.BUILDING.equals(build.getStatus())) {
             jsonParams.put("build_duration", build.getDuration());
@@ -137,13 +133,13 @@ public class BuildCommand {
     }
 
     public void updateBuildingCss(ProjectBuildStatus lastStatus) {
-//        We don't support different building status now.
-//        jsonParams.put(CSS_CLASS_NAME_CONSIDERING_LAST_STATUS, lastStatus.getStatus().toLowerCase()
-//                + "_building");
-    }
-
-    public String getCssClassNameConsideringLastStatus() {
-        return (String) jsonParams.get(CSS_CLASS_NAME_CONSIDERING_LAST_STATUS);
+        String status;
+        if (ProjectBuildStatus.BUILDING.equals(build.getStatus())) {
+            status = "building_" + lastStatus.getStatus().toLowerCase();
+        } else {
+            status = build.getStatus().getStatus().toLowerCase();
+        }
+        jsonParams.put(CSS_CLASS_NAME, status);    
     }
 
     public String getDuration() {

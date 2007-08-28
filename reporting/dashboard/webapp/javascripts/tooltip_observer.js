@@ -34,27 +34,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+var ToolTipObserver = Class.create();
 
-function update_cc_status(json) {
-    if (json.error){
-        $('cruisecontrol_status').show();
-        $A($$('.building')).each(function(building_project){
-           	var project_name = $(building_project).id.replace("_profile", "")
-            eval_timer_object(project_name, "anystatusbutbuilding", 0, 0)
-        })
-        $A($$('.force_build_link')).each(function(element){
-            $(element).onclick = null
-        })
-    } else if($('cruisecontrol_status').visible()) {
-        $('cruisecontrol_status').hide();
-        if (!json.length) return 
-        if (json.length == 0) return 
-        for (var i = 0; i < json.length; i++) {
-        	if (!json[i]) continue;
-            $(json[i].building_info.project_name + '_forcebuild').onclick = function(event) {
-            	var project_name = this.id.replace("_forcebuild","")
-            	ajax_force_build("projectName", project_name, event)
-            }
-        }
-    }
+ToolTipObserver.prototype = {
+	initialize : function() {},
+	notify : function(json) {
+		var projectName = json.building_info.project_name
+		var tool_tip_id_prefix = 'tooltip_' + projectName
+		$(tool_tip_id_prefix).className='';
+		Element.addClassName($(tool_tip_id_prefix), 'tooltip')
+		Element.addClassName($(tool_tip_id_prefix), 'tooltip_' + json.building_info.css_class_name)
+		
+		var buildStatus = json.building_info.building_status
+		$(tool_tip_id_prefix + '_name').update(projectName);
+		$$WordBreaker.word_break($(tool_tip_id_prefix + '_name'));
+		$(tool_tip_id_prefix + '_status').update("Status: " + buildStatus);
+		if(buildStatus.toLowerCase() != 'inactive'){
+		    $(tool_tip_id_prefix + '_date').innerHTML = "Date: " + json.building_info.latest_build_date
+		}
+	}
 }

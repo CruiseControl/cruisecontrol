@@ -104,7 +104,7 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         assertEquals(DataUtils.TESTSUITE_IN_BUILD_LBUILD, suite.getName());
         assertEquals(10, suite.getNumberOfTests());
         assertEquals("Get wrong number of passed test cases.", 8, suite.getPassedTestCases().size());
-        assertEquals("Get wrong number of failed test cases.", 1, suite.getFailingTestCases().size());
+        assertEquals("Get wrong number of failed test cases.", 2, suite.getFailingTestCases().size());
         BuildTestCase testCase = (BuildTestCase) suite.getFailingTestCases().get(0);
         assertEquals("testSomething", testCase.getName());
         assertEquals("3.807", testCase.getDuration());
@@ -167,7 +167,7 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
 
     public void testShouldBeAbleToInvokePluginOutputServiceStub() throws Exception {
         prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
-        BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService());
+        BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService(), null);
         BuildDetailController newController =
                 new BuildDetailController(new BuildService(configuration), service, new WidgetPluginService(
                         configuration) {
@@ -185,7 +185,7 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
     public void testShouldPassWebContextRootToWidgets() throws Exception {
         prepareRequest(DataUtils.getFailedBuildLbuildAsFile().getName(), "project1");
         getRequest().setContextPath("any_new_context_path");
-        BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService());
+        BuildSummariesService service = new BuildSummariesService(configuration, new BuildSummaryService(), null);
         BuildDetailController newController =
                 new BuildDetailController(new BuildService(configuration), service, new WidgetPluginService(
                         configuration) {

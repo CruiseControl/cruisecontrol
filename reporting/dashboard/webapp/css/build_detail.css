@@ -103,7 +103,7 @@
 	background-position: 100% top;
 }
 
-div.maincol.build_detail b.rtop {
+div.maincol.build_detail {
 	background-color : white;
 }
 
@@ -212,8 +212,9 @@ div.build_detail_container_content {
     list-style: none;
 }
 
-.errors pre, .failures pre, .stacktrace pre, .buildoutput pre {
+.errors pre, .failures pre, .stacktrace pre, .buildoutput pre{
     height: 400px;
+	width : 100%;
     overflow: scroll;
 }
 
@@ -291,6 +292,7 @@ div.build_detail_container_content {
 	list-style: none;
     overflow: scroll;
 	height : 250px;
+	width:100%;
 }
 
 .modifications {

@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Collection;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
@@ -71,9 +72,9 @@ public class BuildCommandTest extends MockObjectTestCase {
         BuildCommand command = new BuildCommand(build, null);
         BuildSummary buildSummary =
                 new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
-        command.updateFailedCSS(buildSummary);
+        command.updateCssLevel(buildSummary);
         assertEquals("failed", command.getCssClassName());
-        assertEquals("failed_level_8", command.getCssClassNameForDashboard());
+        assertEquals("8", command.getLevel());
     }
 
     public void testShouldReturnClassNameAsFailedWhenBuildIsLessThanFailed24HoursAgo() {
@@ -84,9 +85,9 @@ public class BuildCommandTest extends MockObjectTestCase {
         BuildDetail build = new BuildDetail(props);
         BuildCommand command = new BuildCommand(build, null);
         BuildSummary buildSummary = new BuildSummary("", dateBuildSummary, "", ProjectBuildStatus.PASSED, "");
-        command.updateFailedCSS(buildSummary);
+        command.updateCssLevel(buildSummary);
         assertEquals("failed", command.getCssClassName());
-        assertEquals("failed_level_0", command.getCssClassNameForDashboard());
+        assertEquals("0", command.getLevel());
     }
 
     public void testShouldReturnClassNameAsFailedWhenBuildNeverPassed() {
@@ -94,9 +95,9 @@ public class BuildCommandTest extends MockObjectTestCase {
         props.put("logfile", new File("log20051209122103.xml"));
         BuildDetail build = new BuildDetail(props);
         BuildCommand command = new BuildCommand(build, null);
-        command.updateFailedCSS(null);
+        command.updateCssLevel(null);
         assertEquals("failed", command.getCssClassName());
-        assertEquals("failed_level_8", command.getCssClassNameForDashboard());
+        assertEquals("8", command.getLevel());
     }
 
     public void testShouldNotReturnDarkRedWhenBuildIsPassed() {
@@ -114,9 +115,9 @@ public class BuildCommandTest extends MockObjectTestCase {
         BuildCommand buildCommand = new BuildCommand(build, null);
         BuildSummary buildSummary =
                 new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
-        buildCommand.updatePassedCss(buildSummary);
+        buildCommand.updateCssLevel(buildSummary);
         assertEquals("passed", buildCommand.getCssClassName());
-        assertEquals("passed_level_8", buildCommand.getCssClassNameForDashboard());
+        assertEquals("8", buildCommand.getLevel());
     }
 
     public void testShouldBeAbleToDelegateTheInvocationToBuildSummary() throws Exception {
@@ -139,9 +140,9 @@ public class BuildCommandTest extends MockObjectTestCase {
         Build buildSummary = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.FAILED, "");
         Build lastSuccessful = new BuildSummary("", "2005-12-09 12:21.10", "", ProjectBuildStatus.PASSED, "");
         BuildCommand command = new BuildCommand(buildSummary, null);
-        command.updateFailedCSS(lastSuccessful);
+        command.updateCssLevel(lastSuccessful);
         assertEquals("failed", command.toJsonHash().get("css_class_name"));
-        assertEquals("failed_level_8", command.toJsonHash().get("css_class_name_for_dashboard"));
+        assertEquals("8", command.toJsonHash().get(BuildCommand.CSS_LEVEL));
     }
 
     public void testShouldClassNameAsFailedWhenBuildIsLessThanFailed24HoursAgo() {
@@ -151,9 +152,9 @@ public class BuildCommandTest extends MockObjectTestCase {
 
         BuildCommand command = new BuildCommand(currentBuildSummary, null);
         Map json = command.toJsonHash();
-        command.updateFailedCSS(lastSuccessfualBuild);
+        command.updateCssLevel(lastSuccessfualBuild);
         assertEquals("failed", json.get("css_class_name"));
-        assertEquals("failed_level_0", json.get("css_class_name_for_dashboard"));
+        assertEquals("0", json.get(BuildCommand.CSS_LEVEL));
     }
 
     public void testJsonHashShouldNotReturnDarkRedWhenBuildIsPassed() {
@@ -161,19 +162,19 @@ public class BuildCommandTest extends MockObjectTestCase {
         BuildCommand command = new BuildCommand(buildSummary, null);
         BuildSummary lastSuccessful =
                 new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.PASSED, "");
-        command.updatePassedCss(lastSuccessful);
+        command.updateCssLevel(lastSuccessful);
         Map json = command.toJsonHash();
         assertEquals("passed", json.get("css_class_name"));
-        assertEquals("passed_level_8", json.get("css_class_name_for_dashboard"));
+        assertEquals("8", json.get(BuildCommand.CSS_LEVEL));
     }
 
     public void testJsonHashShouldNotReturnCurrentStatusWhenLastSuccessfulBuildIsEmpty() {
         Build buildSummary = new BuildSummary("", "2005-12-07 12:21.10", "", ProjectBuildStatus.FAILED, "");
         BuildCommand command = new BuildCommand(buildSummary, null);
-        command.updateFailedCSS(null);
+        command.updateCssLevel(null);
         Map json = command.toJsonHash();
         assertEquals("failed", json.get("css_class_name"));
-        assertEquals("failed_level_8", json.get("css_class_name_for_dashboard"));
+        assertEquals("8", json.get(BuildCommand.CSS_LEVEL));
     }
 
     public void testJsonHashShouldReturnBuildSinceForActiveBuild() throws Exception {
@@ -210,5 +211,30 @@ public class BuildCommandTest extends MockObjectTestCase {
         BuildCommand command = new BuildCommand((Build) build.proxy(), null);
 
         assertEquals("Unknown", command.getDuration());
+    }
+    
+    public void testShouldReturnCurrentStatus() throws Exception {
+        Mock build = mock(Build.class);
+        build.expects(atLeastOnce()).method("getStatus").will(returnValue(ProjectBuildStatus.PASSED));
+        BuildCommand command = new BuildCommand((Build) build.proxy(), null);
+        command.updateBuildingCss(null);
+        assertEquals("passed", command.getCssClassName());
+    }
+    
+    public void testShouldReturnBuildingFailedIfCurrentStatusIsBuildingAndLastStatusIsFailed() throws Exception {
+        Mock build = mock(Build.class);
+        build.expects(atLeastOnce()).method("getStatus").will(returnValue(ProjectBuildStatus.BUILDING));
+        BuildCommand command = new BuildCommand((Build) build.proxy(), null);
+        command.updateBuildingCss(ProjectBuildStatus.FAILED);
+        assertEquals("building_failed", command.getCssClassName());
+    }
+
+    public void testShouldReturnEmptyCollectionWhenNoModificationsAvailableFromLogFile() throws Exception {
+        Mock build = mock(Build.class);
+        build.expects(atLeastOnce()).method("getStatus").will(returnValue(ProjectBuildStatus.BUILDING));
+        build.expects(atLeastOnce()).method("getModificationSet").will(returnValue(null));
+        BuildCommand command = new BuildCommand((Build) build.proxy(), null);
+        final Collection modifications = command.getModifications();
+        assertTrue("Modifications should be empty", modifications.isEmpty());
     }
 }

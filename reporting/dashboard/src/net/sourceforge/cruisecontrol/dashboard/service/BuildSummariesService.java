@@ -44,16 +44,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.AlphabeticalDescOrderComparator;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.BuildSummariesFilters;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.ReportableFilter;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.joda.time.DateTime;
 
 public class BuildSummariesService {
@@ -68,9 +69,13 @@ public class BuildSummariesService {
 
     private final Configuration configuration;
 
-    public BuildSummariesService(Configuration configuration, BuildSummaryService buildSummaryService) {
+    private final CruiseControlJMXService cruiseControlJMXService;
+
+    public BuildSummariesService(Configuration configuration, BuildSummaryService buildSummaryService,
+            CruiseControlJMXService cruiseControlJMXService) {
         this.configuration = configuration;
         this.buildSummaryService = buildSummaryService;
+        this.cruiseControlJMXService = cruiseControlJMXService;
     }
 
     public List getLastest25(String projectName) {
@@ -187,17 +192,26 @@ public class BuildSummariesService {
     private List getBuildSummariesObject(File[] buildSummariesFiles) {
         List summaries = new ArrayList();
         for (int i = 0; i < buildSummariesFiles.length; i++) {
-            summaries.add(buildSummaryService.createBuildSummary(buildSummariesFiles[i]));
+            final Build summary = buildSummaryService.createBuildSummary(buildSummariesFiles[i]);
+            if (summary != null) {
+                summaries.add(summary);
+            }
         }
         return summaries;
     }
 
-    public ProjectBuildStatus getLastBuildStatus(String projectName) {
-        try {
-            Build latest = getLatest(projectName);
-            return latest == null ? ProjectBuildStatus.PASSED : latest.getStatus();
-        } catch (Exception e) {
-            return ProjectBuildStatus.PASSED;
+    public List updateWithLiveStatus(List projectsBuildSummaries) {
+        Map buildLiveStatuses = cruiseControlJMXService.getAllProjectsStatus();
+        if (buildLiveStatuses.isEmpty()) {
+            return ListUtils.EMPTY_LIST;
         }
+        for (int i = 0; i < projectsBuildSummaries.size(); i++) {
+            Build buildSummary = (Build) projectsBuildSummaries.get(i);
+            if (!buildLiveStatuses.containsKey(buildSummary.getProjectName())) {
+                continue;
+            }
+            buildSummary.updateStatus((String) buildLiveStatuses.get(buildSummary.getProjectName()));
+        }
+        return projectsBuildSummaries;
     }
 }

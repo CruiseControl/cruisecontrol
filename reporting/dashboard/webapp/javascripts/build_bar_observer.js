@@ -34,18 +34,24 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-var BuildBaseExecuter = function() { };
+var BuildBarObserver = Class.create();
 
-BuildBaseExecuter.prototype = {
-	get_link : function (json) {
-	    if (!json)  return;
-	    if (!json.building_info) return;
-	    if (!json.building_info.building_status) return;
-	    if (json.building_info.building_status == 'Building') {
-	        return 'build/detail/live/' + json.building_info.project_name
-	    } else {
-	        return 'build/detail/' + json.building_info.project_name
-	    }
+BuildBarObserver.CSS_LEVEL = 'level';
+
+BuildBarObserver.prototype = Object.extend(new BuildBaseObserver(), {
+	initialize : function() {},
+	notify : function(json) {
+		function renew_class_name(elementOrId, cssClass) {
+			var element = $(elementOrId);
+			clean_active_css_class_on_element(element);	
+			Element.addClassName(element, cssClass);
+		}
+		var projectName = json.building_info.project_name;
+	    var bar = $(projectName + "_bar");
+	    renew_class_name(bar, json.building_info['css_class_name']);
+		var level = $(projectName + "_level");
+		renew_class_name(level, BuildBarObserver.CSS_LEVEL + '_'  + json.building_info[BuildBarObserver.CSS_LEVEL]);
+	    reround(level);
+	    $(projectName + "_bar_link").href = this.get_link(json);
 	}
-}
-
+});

@@ -38,6 +38,12 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+
 public class BuildOutputBufferTest extends TestCase {
 
     public void testShouldReturnEmptyArrayWhenBufferEmpty() throws Exception {
@@ -112,6 +118,85 @@ public class BuildOutputBufferTest extends TestCase {
         assertEquals("16", lines[1]);
         assertEquals("25", lines[10]);
         assertEquals("(Skipped 5 lines)", lines[0]);
+    }
+
+    public void testShouldStartedFromEarliestLine() throws Exception {
+        BuildOutputBuffer buffer = new BuildOutputBuffer(10);
+        fillBuffer(buffer, 12);
+
+        String[] lines = buffer.retrieveLines(0);
+
+        assertEquals(11, lines.length);
+        assertEquals("(Skipped 2 lines)", lines[0]);
+        assertEquals("3", lines[1]);
+        assertEquals("4", lines[2]);
+        assertEquals("5", lines[3]);
+        assertEquals("12", lines[10]);
+    }
+
+    public void testShouldRetrieveNothingAfterClearingBuffer() throws Exception {
+        BuildOutputBuffer buffer = new BuildOutputBuffer(10);
+        fillBuffer(buffer, 6);
+
+        assertEquals(6, buffer.retrieveLines(0).length);
+        buffer.clear();
+        assertEquals(0, buffer.retrieveLines(0).length);
+    }
+
+    public void testShouldLoadBufferFromFileWhenFilePresentAndLinesRetrieved() throws Exception {
+        BuildOutputBuffer buffer = new BuildOutputBuffer(10);
+        final File tempFile = prepareBufferFile(6);
+        buffer.setFile(tempFile);
+
+        final String[] lines = buffer.retrieveLines(0);
+        assertEquals(6, lines.length);
+        assertEquals("1", lines[0]);
+        assertEquals("2", lines[1]);
+        assertEquals("3", lines[2]);
+    }
+
+    public void testShouldOnlyLoadNewLinesFromFile() throws Exception {
+        BuildOutputBuffer buffer = new BuildOutputBuffer(10);
+        final File tempFile = prepareBufferFile(6);
+        buffer.setFile(tempFile);
+
+        assertEquals(6, buffer.retrieveLines(0).length);
+        assertEquals(6, buffer.retrieveLines(0).length);
+        addLineToFile(tempFile);
+        assertEquals(7, buffer.retrieveLines(0).length);
+    }
+
+    public void testShouldNotFailIfFileDoesNotExist() throws Exception {
+        BuildOutputBuffer buffer = new BuildOutputBuffer(10);
+        final File tempFile = new File("notexists.tmp");
+        buffer.setFile(tempFile);
+
+        assertEquals(0, buffer.retrieveLines(0).length);
+    }
+
+    private void addLineToFile(final File file) throws FileNotFoundException {
+        PrintStream out = null;
+        try {
+            out = new PrintStream(new FileOutputStream(file, true));
+            out.println("1");
+        } finally {
+            if (out != null) { out.close(); }
+        }
+    }
+
+    private File prepareBufferFile(final int count) throws IOException {
+        final File tempFile = File.createTempFile("bufferload-test", ".tmp");
+        tempFile.deleteOnExit();
+        PrintStream out = null;
+        try {
+            out = new PrintStream(new FileOutputStream(tempFile));
+            for (int i = 0; i < count; i++) {
+                out.println(1 + i);
+            }
+        } finally {
+            if (out != null) { out.close(); }
+        }
+        return tempFile;
     }
 
     private void fillBuffer(BuildOutputBuffer buffer, int count) {

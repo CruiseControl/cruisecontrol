@@ -45,35 +45,34 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 
 <script language="JavaScript" type="text/javascript">
+var tooltip_observer;
 function setUp() {
-	json = {
-	  building_info : {css_class_name:'passed', project_name : "project1", building_status : "passed", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
-	}
+	json = passed_json('project1');
+	json.building_info.latest_build_date = '2007-08-09 12:30:00';
+	json.building_info.build_time_elapsed = "100";
 	$('tooltip_project1_date').innerHTML = '2005-07-09 12:30:00';
+	tooltip_observer = new ToolTipObserver();
 }
-function test_should_add_status_as_class_name_to_div() {
-	ajax_periodical_refresh_dashboard_update_tooltip(json)
+function test_should_update_attributes_on_div() {
+	tooltip_observer.notify(json);
 	var div_class_names = $('tooltip_project1').classNames();
 	assertEquals(2, div_class_names.size())
 	assertTrue(div_class_names.include('tooltip'))
 	assertTrue(div_class_names.include('tooltip_passed'))
-}
-
-function test_should_update_the_project_status_and_date() {
-	ajax_periodical_refresh_dashboard_update_tooltip(json)
-	assertEquals('Status: passed', $('tooltip_project1_status').innerHTML)
+	assertEquals('Status: Passed', $('tooltip_project1_status').innerHTML)
 	assertEquals('Date: 2007-08-09 12:30:00', $('tooltip_project1_date').innerHTML)
 }
 
 function test_should_not_update_the_date_of_inactive_project() {
-	json = {
-	  building_info : {css_class_name:'inactive', project_name : "project1", building_status : "inactive", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
-	}
-	ajax_periodical_refresh_dashboard_update_tooltip(json)
-	assertEquals('Status: inactive', $('tooltip_project1_status').innerHTML)
+	json = inactive_json('project1')
+	json.building_info.latest_build_date = '2007-08-09 12:30:00';
+	json.building_info.build_time_elapsed = "100";
+	tooltip_observer.notify(json);
+	assertEquals('Status: Inactive', $('tooltip_project1_status').innerHTML)
 	assertEquals('2005-07-09 12:30:00', $('tooltip_project1_date').innerHTML)
 }
 
@@ -85,7 +84,7 @@ function test_should_not_update_the_date_of_inactive_project() {
 	<div>
 		<div>project : <span id="tooltip_project1_name">project1</span></div>
 		<div><span id="tooltip_project1_status">failed</span></div>
-		<div><span id="tooltip_project1_date">2005-07-09 12:30:00</span></div>
+		<div><span id="tooltip_project1_date"></span></div>
 	</div>
     <b class="rbottom"><b class="r1"></b><b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
 </div>

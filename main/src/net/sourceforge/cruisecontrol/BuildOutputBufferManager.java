@@ -64,7 +64,7 @@ public class BuildOutputBufferManager {
         return (BuildOutputBuffer) buffers.get(projectName);
     }
 
-    public BuildOutputBuffer create(String projectName) {
+    BuildOutputBuffer create(String projectName) {
         buffers.put(projectName, new BuildOutputBuffer(bufferSize));
         return (BuildOutputBuffer) buffers.get(projectName);
     }

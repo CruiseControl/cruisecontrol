@@ -116,7 +116,14 @@ public class AddProjectFromVersionControlControllerTest extends MockObjectTestCa
         prepareRequestParameter("valid", "", "svn");
         ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
         Map result = (Map) mov.getModelMap().get("result");
-        assertEquals("Project name can not be blank", result.get("response"));
+        assertEquals("Project name cannot be blank.", result.get("response"));
+    }
+    
+    public void testShouldPromptErrorMessageWhenProjectNameContainsInvalidCharacter() throws Exception {
+        prepareRequestParameter("valid", "&", "svn");
+        ModelAndView mov = controller.handleRequest(getRequest(), getResponse());
+        Map result = (Map) mov.getModelMap().get("result");
+        assertEquals("'&' is not a valid character in a project name.", result.get("response"));
     }
 
     public void testShouldPromptErrorMessageWhenProjectAlreadyExist() throws Exception {

@@ -90,6 +90,6 @@ public class ErrorsAndWarningsMessagesWidget implements Widget {
     }
 
     private static final String HTML_TEMPLATE =
-            "<h2>Ant Error Message</h2>$antError<h2>Errors and Warnings</h2>$errors<h2>Stacktrace</h2>$stacktrace";
+            "<h2>Build Error Message</h2>$antError<h2>Errors and Warnings</h2>$errors<h2>Stacktrace</h2>$stacktrace";
 
 }

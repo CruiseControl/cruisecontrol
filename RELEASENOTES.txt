@@ -28,6 +28,10 @@ packager
 * Stops CruiseControl on uninstall
 * Now only builds CruiseControl if needed
 * .svn folder in connectfour.zip now points to correct sourceforge repository url(http://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/connectfour)
+* Sample project now use the projects directory, not checkouts directory
+* Sample project does not use https any more
+* Sample project config now uses ProjectConfig plugin
+* Get Cruise to start on boot on Debian systems
 
 Windows Installer
 ----------------------
@@ -41,7 +45,8 @@ Documentation
 
 dashboard
 ======================
-NOTE: The dashboard has known display issues in Internet Explorer 6.
+NOTE: The dashboard has known display issues in Internet Explorer 7.
+* Fixed display issues in IE6.
 * Allowed artifacts to be kept in an arbitrary locations.
 * Allowed config.xml to be kept in an arbitrary location
 * Can render html/xml/txt in the browser.
@@ -55,13 +60,23 @@ NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Deprecated the way to configure the dashboard via web.xml
 * Modificationset and Bootstrapping are no longer considered as building status in summary section.
 * fixed unresolved velocity variable $build.build.duration in build detail page.
-* Applied the patch of CC-436 which committed by Szczepan Faber
-* Added error details in the dashboard (CC-665).
-* Dashboard can now parse logfiles with testsuite elements without time attribute (CC-670). Patch by Ilkka Laukkanen.
-* Dashboard can now parse logfiles with non-default date formats (CC-671). Patch by Ilkka Laukkanen.
+* Error details are missing in the dashboard (CC-665).
+* Dashboard can't parse logfiles with testsuite elements without time attribute (CC-670).
+* Dashboard can't parse logfiles with non-default date formats (CC-671).
 * Fixed case where long project name would not wrap within Toolkit and Tooltip divs.
 * Fixed layout problem with tabs when wrapping.
 * Added Errors and Warnings tab. Removed Errors tab. Moved the test errors and test failures to Tests tab.
+* Implemented the capability of displaying the status of last build while building
+* Fixed the problem that cursor in IE6 does not show as hand for the link.
+* Fixed the problem that timer does not stop after build finished.
+* Fixed the problem that the hyperlink in building status turns brown.
+* Fixed the problem that the color of text was red in IE6.
+* Fixed the problem of allowforcebuild flag in dashboard-config.xml not accepting "true" or "yes" values as true.
+* Added validation on project name to disallow the special characters in the set "!£$%^&*()+=#~?/<>[]{}`@:;\|'
+* Made the colour of force build icon correct when a build changes from inactive to active.
+* Include the zipped log files in the build detail page.
+* Switched the active build icon to a transparent image that does not interfer with the background color.
+* Changed the anthome to ant-1.7.0 when adding new projects via the dashboard.
 
 build loop
 ======================
@@ -74,6 +89,7 @@ AntBuilder/Bootstrapper/Publisher
 ----------------------
 * Add ant propertyfile attribute (CC-664). Patch by Willem Verstraeten.
 * Provide support for configuring additional Ant libs and listeners (CC-542). Patch by Dan Fabulich.
+* Provide support for displaying current build messages when using ant logger.
 
 Builder Progress messages
 ----------------------
@@ -91,9 +107,10 @@ CommandLine and Process exec handling
 ----------------------
 * Close process.outputStream to avoid deadlocks. (CC-527) Reported by Jason R. Hull
 
-Compound Publisher
+CompoundPublisher
 ----------------------
-* Introduced a Compound Publisher (CC-656).
+* New publisher which allows multiple publishers internally. (CC-656)
+
 
 ConcurrentVersionsSystem/CVSBootstrapper
 ----------------------
@@ -133,7 +150,7 @@ SVN/SVNBootstrapper
 * svnbootstrapper documentation incorrectly lists "checkExternals" flag. Must be moved to the "svn" modificationset element (CC-678). Reported by Ram Singaram
 * Improve error message when there is no valid localWorkingCopy for SVNBootstrapper (CC-679). Patch by Robert Watkins.
 * Set svnrepository property so that it can be used by builders, etc (CC-639). Patch by Brian Egge.
-* Prevent "premature" SVN modifications being detected (CC-677). Patch by Robert Watkins.
+* Prevent "premature" SVN modifications being detected with new attribute 'useLocalRevision' (CC-677). Patch by Robert Watkins.
 
 TFS/TFSBootstrapper
 ----------------------
@@ -150,6 +167,12 @@ UCM
 Veto
 ----------------------
 * Improvement to provide detail in log as to what changes caused the veto (CC-676). Patch by Barrett Nuzum.
+
+
+Reporting (legacy)
+======================
+
+* Force build when already building could end up not going into the build queue(CC-436). Patch by Szczepan Faber
 
 
 CruiseControl Release Notes - 2.7

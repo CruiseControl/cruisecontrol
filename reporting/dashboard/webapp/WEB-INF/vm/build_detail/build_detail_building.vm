@@ -1,6 +1,5 @@
 
-<div class="building">
-    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
+<div class="round_corner $build.cssClassName">
     <div class="build_detail_summary">
             <h3>${projectName} is now <span class='build_status'>${status.toLowerCase()}</span></h3>
             <ul class="summary">
@@ -11,7 +10,6 @@
             </ul>
             <div class="clear">&nbsp;</div>
     </div>
-    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
 </div>
 
 <div class="build_detail_container">

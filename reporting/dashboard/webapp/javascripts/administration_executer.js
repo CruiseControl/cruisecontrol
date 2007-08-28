@@ -47,7 +47,7 @@ AdministrationExecuter.prototype = {
 		var _executer = this;
 	    $('url_icon').src = context_path("images/wait.gif");
 	    new Ajax.Request(context_path('addProjectFromVersionControl.ajax'), {
-	        parameters: "url=" + url + "&projectName=" + projectName + "&vcsType=" + $('vcsType').value + "&moduleName=" + $('moduleName').value,
+	        parameters: "url=" + url + "&projectName=" + encodeURIComponent(projectName) + "&vcsType=" + $('vcsType').value + "&moduleName=" + $('moduleName').value,
 	        asynchronous:1,
 	        method: 'GET',
 	        onComplete: function(transport) {

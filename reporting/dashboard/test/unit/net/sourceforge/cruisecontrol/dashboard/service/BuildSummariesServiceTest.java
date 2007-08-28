@@ -41,7 +41,6 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
@@ -58,6 +57,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     private File projectDirectory;
 
     private Mock configurationMock;
+    private static final String NONMATCHING_FILE = "nonmatching_file.xml";
 
     protected void setUp() throws Exception {
         projectName = "listingProject";
@@ -68,7 +68,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
                         new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService(),
                                 new DashboardConfigService[] {}))});
         Configuration configuration = (Configuration) configurationMock.proxy();
-        buildSummariesSevice = new BuildSummariesService(configuration, new BuildSummaryService());
+        buildSummariesSevice = new BuildSummariesService(configuration, new BuildSummaryService(), null);
     }
 
     private void setUpConfigurationMock() {
@@ -78,14 +78,16 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
     public void createLogFiles(File directory) throws Exception {
         long base = 20060704155710L;
         int label = 489;
-        for (int i = 0; i < 26; i++) {
+        final int count = 26;
+        for (int i = 0; i < count; i++) {
             String fileName = "log" + (base + i) + "";
             if (i % 7 == 0) {
                 fileName += "Lbuild." + (label + i);
             }
-            fileName += ".xml";
+            fileName += (i < count / 2) ? ".xml.gz" : ".xml";
             FilesystemUtils.createFile(fileName, projectDirectory);
         }
+        FilesystemUtils.createFile(NONMATCHING_FILE, projectDirectory);
     }
 
     public void tearDown() throws Exception {
@@ -97,7 +99,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
         List lastest25 = buildSummariesSevice.getLastest25(projectName);
         assertEquals(25, lastest25.size());
         assertEquals("log20060704155735.xml", ((Build) lastest25.get(0)).getBuildLogFilename());
-        assertEquals("log20060704155711.xml", ((Build) lastest25.get(24)).getBuildLogFilename());
+        assertEquals("log20060704155711.xml.gz", ((Build) lastest25.get(24)).getBuildLogFilename());
     }
 
     public void testShouldBeAbleToReturnLastSuccessfulBuild() {
@@ -133,8 +135,8 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
         assertEquals(4, allSuccessful.size());
         assertEquals("log20060704155731Lbuild.510.xml", ((Build) allSuccessful.get(0)).getBuildLogFilename());
         assertEquals("log20060704155724Lbuild.503.xml", ((Build) allSuccessful.get(1)).getBuildLogFilename());
-        assertEquals("log20060704155717Lbuild.496.xml", ((Build) allSuccessful.get(2)).getBuildLogFilename());
-        assertEquals("log20060704155710Lbuild.489.xml", ((Build) allSuccessful.get(3)).getBuildLogFilename());
+        assertEquals("log20060704155717Lbuild.496.xml.gz", ((Build) allSuccessful.get(2)).getBuildLogFilename());
+        assertEquals("log20060704155710Lbuild.489.xml.gz", ((Build) allSuccessful.get(3)).getBuildLogFilename());
     }
 
     public void testShouldBeAbleToReturnAllBuildOfSpecificProject() {
@@ -142,7 +144,7 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
         List all = buildSummariesSevice.getAll(projectName);
         assertEquals(26, all.size());
         assertEquals("log20060704155735.xml", ((Build) all.get(0)).getBuildLogFilename());
-        assertEquals("log20060704155710Lbuild.489.xml", ((Build) all.get(25)).getBuildLogFilename());
+        assertEquals("log20060704155710Lbuild.489.xml.gz", ((Build) all.get(25)).getBuildLogFilename());
     }
 
     public void testShouldBeAbleToReturnLatestBuildSpecificProject() {
@@ -195,12 +197,5 @@ public class BuildSummariesServiceTest extends MockObjectTestCase {
                 returnValue(new File(projectDirectory, "new_project")));
         Build latest = buildSummariesSevice.getLatest("new_project");
         assertNull(latest);
-    }
-
-    public void testShouldReturnPassedStatusForNewProject() throws Exception {
-        configurationMock.expects(atLeastOnce()).method("getLogRoot").will(
-                returnValue(new File(projectDirectory, "new_project")));
-        ProjectBuildStatus status = buildSummariesSevice.getLastBuildStatus("new_project");
-        assertEquals(ProjectBuildStatus.PASSED, status);
     }
 }

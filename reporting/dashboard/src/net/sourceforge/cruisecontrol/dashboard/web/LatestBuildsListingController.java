@@ -75,22 +75,26 @@ public class LatestBuildsListingController implements Controller {
         this.environmentService = environmentService;
     }
 
-    public synchronized ModelAndView handleRequest(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException {
+    public synchronized ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         long now = new Date().getTime();
         if (lastScanTime == 0 || (now - lastScanTime) > CACHE_MILLISECONDS) {
-            boolean isForceBuildEnabled = environmentService.isForceBuildEnabled();            
+            boolean isForceBuildEnabled = environmentService.isForceBuildEnabled();
             lastScanTime = now;
             cachedDataMap = new HashMap();
             List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
-            cachedDataMap.put("buildSummaries", buildSummaryUIService.transform(allProjectsBuildSummaries, true));
+            try {
+                allProjectsBuildSummaries = buildSummariesService.updateWithLiveStatus(allProjectsBuildSummaries);
+            } catch (Exception e) {
+                // It's OK for now. Usually means that JMX wasn't available.
+            }
+            cachedDataMap.put("buildSummaries", buildSummaryUIService.transform(allProjectsBuildSummaries,
+                    true));
             cachedDataMap.put("command", new ForceBuildCommand());
-            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
-                    allProjectsBuildSummaries));
+            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
             cachedDataMap.put("forceBuildEnabled", Boolean.valueOf(isForceBuildEnabled));
-            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(
-                    allProjectsBuildSummaries));
-            
+            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
+
         }
         return new ModelAndView("page_latest_builds", cachedDataMap);
     }

@@ -64,6 +64,7 @@ public class TemplateRenderServiceTest extends TestCase {
         map.put("$projectname", "value");
         output = renderer.renderTemplate("project_xml.template", map);
         assertTrue(StringUtils.contains(output, "value"));
+        assertTrue(StringUtils.contains(output, "1.7.0"));
     }
 
 }

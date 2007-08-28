@@ -44,8 +44,10 @@ import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
 
 public class BuildSummaryServiceTest extends TestCase {
     private static final String LOG20060704155710_LBUILD_489_XML = "log20060704155710Lbuild.489.xml";
+    private static final String LOG20060704155710_LBUILD_489_XML_GZ = "log20060704155710Lbuild.489.xml.gz";
 
     private static final String LOG20060704155710_XML = "log20060704155710.xml";
+    private static final String LOG20060704155710_XML_GZ = "log20060704155710.xml.gz";
 
     public void testTheStatusIsInactiveWhenCreateNewBuildSummary() throws Exception {
         Build summary = new BuildSummaryService().createInactive(new File("project1"));
@@ -60,11 +62,25 @@ public class BuildSummaryServiceTest extends TestCase {
         assertEquals(LOG20060704155710_LBUILD_489_XML, actual.getBuildLogFilename());
     }
 
+    public void testShouldParseBuildSummaryWithLabelForPassingGZipBuild() throws Exception {
+        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML_GZ));
+        assertEquals("build.489", actual.getLabel());
+        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals(LOG20060704155710_LBUILD_489_XML_GZ, actual.getBuildLogFilename());
+    }
+
     public void testShouldParseBuildSummaryWithLabelForFailBuild() throws Exception {
         Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML));
         assertEquals("", actual.getLabel());
         assertEquals("2006-07-04 15:57.10", actual.getName());
         assertEquals(LOG20060704155710_XML, actual.getBuildLogFilename());
+    }
+
+    public void testShouldParseBuildSummaryWithLabelForFailGZipBuild() throws Exception {
+        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML_GZ));
+        assertEquals("", actual.getLabel());
+        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals(LOG20060704155710_XML_GZ, actual.getBuildLogFilename());
     }
 
 }

@@ -48,6 +48,7 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.BuildOutputBufferManager;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -170,6 +171,10 @@ public class AntBuilder extends Builder {
         script.setProgress(progress);
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
+
+        if (useLogger) {
+            BuildOutputBufferManager.INSTANCE.lookupOrCreate("").setFile(new File(workingDir, "antBuilderOutput.log"));
+        }
 
         boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
 

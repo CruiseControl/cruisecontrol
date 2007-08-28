@@ -47,36 +47,31 @@
 
         function coreSuite() {
             var result = new top.jsUnitTestSuite();
-            result.addTestPage("tests/word_break_inserter_test.html");
+            result.addTestPage("tests/build_profile_observer_test.html");
+            result.addTestPage("tests/timer_test.html");
+			result.addTestPage("tests/build_profile_test.html");
+            result.addTestPage("tests/cc_status_observer_test.html");
+            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_project_box_test.html");
+            result.addTestPage("tests/build_bar_observer_test.html");
+			result.addTestPage("tests/word_break_inserter_test.html");
 			result.addTestPage("tests/clean_text_node_test.html");
             result.addTestPage("tests/escape_project_name_test.html");
             result.addTestPage("tests/ajax_tree_navigator_test.html");
             result.addTestPage("tests/display_toolkit_test.html");
             result.addTestPage("tests/build_detail_toggle_tab_content_test.html");
-            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_inactive_partial_links_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_executer_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_active_build_output_executer_oncomplete_test.html");
             result.addTestPage("tests/ajax_periodical_refresh_dashboard_executer_oncomplete_test.html");
-            result.addTestPage("tests/ajax_periodical_refresh_dashboard_executer_oncomplete_functional_test.html");
-            result.addTestPage("tests/ajax_periodical_refresh_statistics_summary_infos_test.html");
+            result.addTestPage("tests/statistics_observer_test.html");
             result.addTestPage("tests/ajax_refresh_active_build_commit_message_test.html");
-			result.addTestPage("tests/category_projects_info_by_status_test.html");
-            result.addTestPage("tests/calculate_projects_statistics_test.html");
-            result.addTestPage("tests/calculate_projects_statistics_test_sad_path.html");
-            result.addTestPage("tests/build_bar_executer_test.html");
-            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_project_box_test.html");
-            result.addTestPage("tests/build_profile_executer_test.html");
-            result.addTestPage("tests/ajax_periodical_refresh_dashboard_update_tooltip_test.html");
-			result.addTestPage("tests/get_inactive_projects_amount_test.html");
+            result.addTestPage("tests/tooltip_observer_test.html");
             result.addTestPage("tests/ajax_update_icons_and_invoke_callback_function_test.html");
             result.addTestPage("tests/eval_timer_object_test.html");
             result.addTestPage("tests/evaluate_time_to_seconds_test.html");
             result.addTestPage("tests/get_link_by_building_status_test.html");
-            result.addTestPage("tests/timer_test.html");
             result.addTestPage("tests/toggle_tab_content_test.html");
             result.addTestPage("tests/toggle_tab_test.html");
             result.addTestPage("tests/rounded_test.html");
-            result.addTestPage("tests/update_cc_status_test.html");
             return result;
         }
 

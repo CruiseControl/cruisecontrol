@@ -45,42 +45,53 @@ public final class BuildSummariesFilters {
     }
 
     private static FilenameFilter cclog = new CCLogFilter();
+    private static SuccessLogFilter success = new SuccessLogFilter();
 
-    private static FilenameFilter succeed = new And(new FilenameFilter[] {new SuccessLogFilter(), cclog});
+    private static FilenameFilter succeeded = and(cclog, success);
 
-    private static FilenameFilter failed =
-            new And(new FilenameFilter[] {new Not(new SuccessLogFilter()), cclog});
+    private static FilenameFilter failed = and(cclog, not(success));
 
     public static FilenameFilter cclogFilter() {
         return cclog;
     }
 
     public static FilenameFilter succeedFilter() {
-        return succeed;
-    }
-
-    public static ReportableFilter lastSucceedFilter(DateTime time) {
-        return new ReportAdapterFilter(new And(new FilenameFilter[] {succeed, new OlderLogFilter(time),
-                new NearestLogFilter(time)}));
-    }
-
-    public static ReportableFilter earliestFailedFilter(DateTime time) {
-        return new ReportAdapterFilter(new And(new FilenameFilter[] {failed,
-                new Not(new OlderLogFilter(time)), new NearestLogFilter(time)}));
-    }
-
-    public static ReportableFilter lastFilter() {
-        return new ReportAdapterFilter(new And(new FilenameFilter[] {cclog,
-                new NearestLogFilter(new DateTime())}));
-    }
-
-    public static ReportableFilter lastFailedFilter(DateTime time) {
-        return new ReportAdapterFilter(new And(new FilenameFilter[] {failed, new OlderLogFilter(time),
-                new NearestLogFilter(time)}));
+        return succeeded;
     }
 
     public static ReportableFilter earliestSucceededFilter(DateTime time) {
-        return new ReportAdapterFilter(new And(new FilenameFilter[] {succeed,
-                new Not(new OlderLogFilter(time)), new NearestLogFilter(time)}));
+        return new ReportAdapterFilter(and(succeeded, earliestLog(time)));
+    }
+
+    public static ReportableFilter lastSucceedFilter(DateTime time) {
+        return new ReportAdapterFilter(and(succeeded, lastLog(time)));
+    }
+
+    public static ReportableFilter earliestFailedFilter(DateTime time) {
+        return new ReportAdapterFilter(and(failed, earliestLog(time)));
+    }
+
+    public static ReportableFilter lastFailedFilter(DateTime time) {
+        return new ReportAdapterFilter(and(failed, lastLog(time)));
+    }
+
+    public static ReportableFilter lastFilter() {
+        return new ReportAdapterFilter(and(cclog, new NearestLogFilter(new DateTime())));
+    }
+
+    private static final FilenameFilter and(FilenameFilter first, FilenameFilter second) {
+        return new And(new FilenameFilter[] {first, second});
+    }
+
+    private static final Not not(FilenameFilter filter) {
+        return new Not(filter);
+    }
+
+    private static FilenameFilter earliestLog(final DateTime time) {
+        return and(not(new OlderLogFilter(time)), new NearestLogFilter(time));
+    }
+
+    private static FilenameFilter lastLog(final DateTime time) {
+        return and(new OlderLogFilter(time), new NearestLogFilter(time));
     }
 }

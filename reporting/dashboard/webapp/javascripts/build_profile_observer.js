@@ -1,4 +1,3 @@
-<!--
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -35,29 +34,35 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+var BuildProfileObserver = Class.create(); 
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CCE Dashboard Tests</title>
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
-
-<script language="JavaScript" type="text/javascript">
-function test_should_return_default_value_when_no_project_in_the_dashboard() {
-	var hash = calculate_projects_statistics($H({passed:0,failed:0,building:0,inactive:0}));
-	assertEquals(0, hash['passed']);
-	assertEquals(0, hash['failed']);
-	assertEquals(0, hash['building']);
-	assertEquals(0, hash['total']);
-	assertEquals('0%', hash['rate']);
-}
-</script>
-</head>
-<body>
-</body>
-</html>
+BuildProfileObserver.prototype = Object.extend(new BuildBaseObserver(), {
+	initialize : function() {
+	},
+	notify : function(json) {
+		this.activate(json);
+	    var profile_id = json.building_info.project_name + '_profile'
+	    clean_active_css_class_on_element(profile_id)
+	   	Element.addClassName($(profile_id), json.building_info.css_class_name)
+	
+	    var project_build_date = json.building_info.project_name + '_build_date';
+	    $(project_build_date).innerHTML = " at " + json.building_info.latest_build_date;
+	    var project_build_detail = json.building_info.project_name + '_build_detail';
+	    $(project_build_detail).href =   new BuildBaseObserver().get_link(json);
+	},
+	activate: function(json) {
+		var profile_id = json.building_info.project_name + '_profile';
+		
+		if(!$(profile_id).hasClassName("inactive")) return;
+	    $(json.building_info.project_name + '_forcebuild').onclick = function() {new BuildProfile().force_build(this)};
+		var img =  $(json.building_info.project_name + '_forcebuild').immediateDescendants()[0];
+		if (img) {
+			img.src = context_path('images/icon-force-build.gif');
+			img.title = "Force build";
+			img.alt = "Force build";
+		}
+		$(json.building_info.project_name + '_config_panel').onclick = function() {new Toolkit().show('toolkit_' + json.building_info.project_name)};
+	    $(json.building_info.project_name + '_all_builds').href = context_path('project/list/all/' + json.building_info.project_name);
+	    $(json.building_info.project_name + '_all_successful_builds').href = context_path('project/list/passed/' + json.building_info.project_name);
+	}
+})

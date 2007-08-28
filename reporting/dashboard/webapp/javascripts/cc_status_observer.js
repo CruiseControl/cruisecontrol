@@ -34,48 +34,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-
-function update_statistics_status(json) {
-    if (!json.length) return 
-    if (json.length == 0) return 
-	var statistics = $H({passed:0,failed:0,building:0})
-    for (var i = 0; i < json.length; i++) {
-		if (!json[i]) continue;
-    	category_projects_info_by_status(json[i], statistics);
-    }
-    set_inactive_projects_amount(statistics)
-    calculate_projects_statistics(statistics)
-  	ajax_periodical_refresh_statistics_summary_infos(statistics);
-}
-
-function set_inactive_projects_amount(statistics) {
-	statistics['inactive'] = $A($$('.inactive.bar')).size()
-}
-
-function calculate_projects_statistics(statistics) {
-	var total = 0;
-	statistics.each(function(pair){
-		total += pair.value;
-	});
-	statistics['total'] = total;
-    var rate = ((statistics['passed'] / (total - statistics['inactive'])) * 100).toFixed(0)
-	statistics['rate'] = isNaN(rate) ? "0%" : rate+"%";
-	return statistics; 
-}
-
-function category_projects_info_by_status(json, statistics) {
-	if (!json) return;
-	if (!json.building_info) return;
-	if (!json.building_info.building_status) return;
-	var status = json.building_info.building_status.toLowerCase();
-	if (status == 'inactive') return;
-	statistics[status] +=  1;
-}
-
-function ajax_periodical_refresh_statistics_summary_infos(statistics_infos) {
-	var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive'])
-	infos.each(function(info) {
-	    var statistic = $('statistics_' + info).innerHTML;
-		$('statistics_' + info).innerHTML = statistics_infos[info] + statistic.substring(statistic.indexOf(' '));
-	});
+ var CCStatusObserver = Class.create();
+ 
+ CCStatusObserver.prototype = {
+    initialize : function() {},
+    notify     : function (json) {
+        if (json.error){
+            $('cruisecontrol_status').show();
+			this.reset_timer();
+			this.remove_handler();
+        } else if($('cruisecontrol_status').visible()) {
+			$('cruisecontrol_status').hide();
+			if (!json) return;
+            if (!json.length) return; 
+            for (var i = 0; i < json.length; i++) {
+                if (!json[i]) continue;
+                $(json[i].building_info.project_name + '_forcebuild').onclick =  new BuildProfile().force_build_enabled.on_click; 
+			}
+        }
+    },
+	reset_timer : function() {
+		function _reset_timer_by_class_name (class_name) {
+			$A($$(class_name)).each(
+				function(building_project) {
+	            	var project_name = $(building_project).id.replace("_profile", "")
+	            	eval_timer_object(project_name, "", 0, 0);
+	        	}
+			)
+		}
+		_reset_timer_by_class_name('.building_passed');
+		_reset_timer_by_class_name('.building_failed');
+		_reset_timer_by_class_name('.building_unknown');
+	},
+	remove_handler : function() {
+		$A($$('.force_build_link')).each(function(element){
+                $(element).onclick = Prototype.emptyFunction;
+		})
+	}
 }

@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
@@ -84,9 +85,9 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
         List allBuilds =
                 Arrays.asList(new Build[] {new BuildSummary("", "", "", ProjectBuildStatus.PASSED, "")});
         mockBuildSummariesService =
-                mock(BuildSummariesService.class,
-                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
-                                null});
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null, null,
+                        null});
         buildSummariesService = (BuildSummariesService) mockBuildSummariesService.proxy();
         mockBuildSummariesService.expects(once()).method("getLastest25").withAnyArguments().will(
                 returnValue(allBuilds));
@@ -115,8 +116,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnDurationFromLastSuccessfulBuildInBuildingStatus() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
-                .will(returnValue(ProjectBuildStatus.PASSED));
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLatest").withAnyArguments().will(
+                returnValue(null));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
@@ -125,8 +126,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnBuildSince() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
-                .will(returnValue(ProjectBuildStatus.PASSED));
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLatest").withAnyArguments().will(
+                returnValue(null));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();
@@ -136,8 +137,8 @@ public class GetActiveBuildInfoControllerTest extends MockObjectTestCase {
 
     public void testShouldReturnLastBuildSummaries() throws Throwable {
         fakeJMXReturnBuildingAsStatus();
-        mockBuildSummariesService.expects(atLeastOnce()).method("getLastBuildStatus").withAnyArguments()
-                .will(returnValue(ProjectBuildStatus.PASSED));
+        mockBuildSummariesService.expects(atLeastOnce()).method("getLatest").withAnyArguments().will(
+                returnValue(null));
         mockBuildService.expects(once()).method("getActiveBuild").will(returnValue(getActiveBuild()));
         ModelAndView mov = controller.live(request, response);
         Map model = mov.getModel();

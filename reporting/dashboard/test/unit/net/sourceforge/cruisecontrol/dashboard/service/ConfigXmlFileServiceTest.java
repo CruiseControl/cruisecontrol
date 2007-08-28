@@ -122,7 +122,7 @@ public class ConfigXmlFileServiceTest extends MockObjectTestCase {
         assertEquals(new File(artifacts, "project1"), projects.getArtifactRoot("project1"));
         assertEquals(new File(artifacts, "project2"), projects.getArtifactRoot("project2"));
 
-        assertEquals(7, projects.getProjectNames().length);
+        assertEquals(8, projects.getProjectNames().length);
     }
 
     public void testShouldPutPluginProjectIntoProjectsHashMap() throws Exception {

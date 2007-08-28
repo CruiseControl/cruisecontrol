@@ -44,6 +44,7 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 
 
@@ -52,62 +53,50 @@
 contextPath = "/dashboard"
 
 function test_ajax_periodical_refresh_active_build_should_update_css_when_build_finished() {
-    $$('.build_detail_summary')[0].ancestors()[0].className = "building"
-	var json = {
-	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
-	}
+    $$('.build_detail_summary')[0].ancestors()[0].className = "building_passed"
+	var json = building_json('project1', 'passed')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
-	assertEquals("building", $$('.build_detail_summary')[0].ancestors()[0].className);
+	assertEquals("building_passed", $$('.build_detail_summary')[0].ancestors()[0].className);
 
-	json.building_info.css_class_name = "passed"
-	json.building_info.building_status = "passed"
+	json = passed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertEquals("passed", $$('.build_detail_summary')[0].ancestors()[0].className);
 	
-	json.building_info.css_class_name = "failed"
-	json.building_info.building_status = "failed"
+	json = failed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertEquals("failed", $$('.build_detail_summary')[0].ancestors()[0].className);
 }
 
 function test_ajax_periodical_refresh_active_build_should_update_title_when_build_finished() {
     $$('.build_detail_summary h3')[0].innerHTML = 'project1 is now <span class="build_status">building</span>'
-	var json = {
-	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_log_file_name : "1.log"  }
-	}
+	var json = building_json('project1', 'failed');
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('building') > -1);
 	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('project1') > -1);
 
-	json.building_info.css_class_name = "passed"
-	json.building_info.building_status = "passed"
+	json = passed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('passed') > -1);
-	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('/dashboard/build/detail/project1/1.log') > -1);
+	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('/dashboard/build/detail/project1') > -1);
 
-	json.building_info.css_class_name = "failed"
-	json.building_info.building_status = "failed"
+	json = failed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertTrue($$('.build_detail_summary h3')[0].innerHTML.indexOf('failed') > -1);
 
 }
 
 function test_ajax_periodical_refresh_active_build_should_stop_timer_when_build_finished() {
-	var json = {
-	  building_info : { css_class_name : "", project_name : "project1", building_status : "building", latest_build_log_file_name : "1.log"  }
-	}
+	var json = building_json('project1', 'passed');
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 
 	var project1_timer = eval(escape_project_name("project1") + "_timer");
 	assertFalse(project1_timer.is_stopped());
 
-	json.building_info.css_class_name = "passed"
-	json.building_info.building_status = "passed"
+	json = passed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertTrue(project1_timer.is_stopped());
 	
-	json.building_info.css_class_name = "failed"
-	json.building_info.building_status = "failed"
+	json = failed_json('project1')
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete([json], "project1")
 	assertTrue(project1_timer.is_stopped());
 }
@@ -115,7 +104,7 @@ function test_ajax_periodical_refresh_active_build_should_stop_timer_when_build_
 </script>
 </head>
 <body>
-<div class="building">
+<div class="building_passed">
     <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
     <div class="build_detail_summary">
 			<h3>project1 is now <span class='build_status'>building</span></h3>

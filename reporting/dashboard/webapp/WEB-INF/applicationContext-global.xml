@@ -74,6 +74,7 @@
 	<bean id="buildSummariesService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService">
 		<constructor-arg ref="configuration"/>
 		<constructor-arg ref="buildSummaryService"/>
+		<constructor-arg ref="${cruise.jmx.service.imp}"/>
 	</bean>
 
 	<bean id="buildSummaryUIService" class="net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService">

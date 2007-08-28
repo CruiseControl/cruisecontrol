@@ -36,6 +36,8 @@
  ********************************************************************************/
 var BuildDetailExecuter = Class.create();
 
+BuildDetailExecuter.is_build_finished = false;
+
 BuildDetailExecuter.prototype = {
 	initialize: function() {
 	},
@@ -59,7 +61,7 @@ BuildDetailExecuter.prototype = {
 	            asynchronous:1,
 	            method: 'GET',
 	            onComplete: function() {
-			        if(BuildDetailExecuter.active_build_finished()){
+			        if(BuildDetailExecuter.is_build_finished){
 			            return;
 			        }
 	                executer.registerCallback();
@@ -81,7 +83,7 @@ BuildDetailExecuter.prototype = {
 	            method: 'GET',
 	            parameters: 'project=' + project_name + '&start=' + start,
 	            onComplete: function() {
-			        if(BuildDetailExecuter.active_build_finished()){
+			        if(BuildDetailExecuter.is_build_finished){
 			            return;
 			        }
 	                executer.registerCallback();
@@ -98,11 +100,11 @@ BuildDetailExecuter.prototype = {
 //static method 
 BuildDetailExecuter.ajax_periodical_refresh_active_build_output_executer_oncomplete = function(build_output) {
 	    if (!build_output) return
-	    $('buildoutput_span').update($('buildoutput_span').innerHTML + build_output.replace(/\n/g,"<br>"));
+	    $('buildoutput_pre').update($('buildoutput_pre').innerHTML + build_output.replace(/\n/g,"<br>"));
 }
 
-BuildDetailExecuter.active_build_finished = function() {
-    	return $$('.build_detail_summary')[0].ancestors()[0].className != "building";
+BuildDetailExecuter.build_finished = function() {
+	BuildDetailExecuter.is_build_finished = true;
 }
 
 BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete = function(json, project_name) {
@@ -113,8 +115,12 @@ BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete = f
         if (building_info.project_name == project_name) {
             var building_status = building_info.building_status.toLowerCase();
             if (building_status == 'passed' || building_status == 'failed' ) {
-                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("build/detail/" + project_name + "/" + building_info.latest_build_log_file_name) + "'>see details</a>)"
-                $$('.build_detail_summary')[0].ancestors()[0].className = building_info.css_class_name
+                $$('.build_detail_summary h3')[0].innerHTML = project_name + " <span class='build_status'>" + building_status + "</span> (<a href='" + context_path("build/detail/" + project_name) + "'>see details</a>)"
+				var div = $$('.build_detail_summary')[0].ancestors()[0]
+				clean_active_css_class_on_element(div);
+				$(div).addClassName(building_info.css_class_name);
+				reround(div);
+				BuildDetailExecuter.build_finished();
             }
             $$(".build_status").each(function(elem) {
                 elem.innerHTML = building_status;
