@@ -47,15 +47,13 @@
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 
 <script language="JavaScript" type="text/javascript">
-var replaced_ajax_periodical_refresh_statistics_summary_infos = ajax_periodical_refresh_statistics_summary_infos
 function setUp() {
-	this.ajax_periodical_refresh_statistics_summary_infos = replaced_ajax_periodical_refresh_statistics_summary_infos;
 }
 
 function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invoke_functions() {
 	var json = ['','']
 	var is_update_cc_status_called = false;
-	this.update_cc_status=function(){
+	CCStatusObserver.prototype.notify = function() {
 	    is_update_cc_status_called = true;
 	}
 	var is_update_projects_status = false;
@@ -63,7 +61,7 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invok
 		is_update_projects_status = true;
 	}
 	var is_update_statistics_status = false;
-    this.update_statistics_status = function(json) {
+    StatisticsObserver.prototype.notify = function(json) {
     	is_update_statistics_status = true;	
     }
 	assertFalse('is_update_cc_status_called', is_update_cc_status_called)
@@ -75,35 +73,6 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_invok
 	assertTrue('is_update_statistics_status', is_update_statistics_status)
 }
 
-function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_invoke_functions_if_json_is_empty() {
-	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
-	ajax_periodical_refresh_statistics_summary_infos(hash);
-
-	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
-	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
-	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
-	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
-	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
-	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
-	
-	ajax_periodical_refresh_dashboard_executer_oncomplete([])
-	
-	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
-	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
-	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
-	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
-	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
-	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
-
-	ajax_periodical_refresh_dashboard_executer_oncomplete({ })
-	
-	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
-	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
-	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
-	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
-	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
-	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
-}
 
 function getFirstWord(sentence) {
 	return sentence.split(' ')[0];

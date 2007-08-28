@@ -106,7 +106,7 @@ public class BuildServiceTest extends MockObjectTestCase {
         BuildTestSuite firstSuite = (BuildTestSuite) suites.get(0);
 
         List failingCases = firstSuite.getFailingTestCases();
-        assertEquals(1, failingCases.size());
+        assertEquals(2, failingCases.size());
 
         BuildTestCase failingTest = (BuildTestCase) failingCases.get(0);
         assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", failingTest
@@ -155,7 +155,7 @@ public class BuildServiceTest extends MockObjectTestCase {
 
         BuildTestSuite firstTestSuite = (BuildTestSuite) suites.get(0);
         assertEquals(1, firstTestSuite.getNumberOfErrors());
-        assertEquals(1, firstTestSuite.getNumberOfFailures());
+        assertEquals(2, firstTestSuite.getNumberOfFailures());
         assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
                 firstTestSuite.getName());
         assertEquals(10, firstTestSuite.getNumberOfTests());

@@ -46,6 +46,7 @@ import org.xml.sax.InputSource;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 import com.thoughtworks.selenium.DefaultSelenium;
 import com.thoughtworks.selenium.Selenium;
@@ -54,8 +55,25 @@ public abstract class SeleniumTestCase extends TestCase {
 
     protected Selenium selenium;
 
+    private String browser = "";
+
+    public SeleniumTestCase() {
+        String browserPath = new OSEnvironment().getVariable("BROWSER_PATH");
+        if (StringUtils.isEmpty(browserPath)) {
+            throw new RuntimeException("You must define browser "
+                    + "path using env variable BROWSER_PATH");
+        }
+        if (StringUtils.containsIgnoreCase(browserPath, "firefox")) {
+            browser = "*firefox";
+        } else if (StringUtils.containsIgnoreCase(browserPath, "iexplore")) {
+            browser = "*iexplore";
+        } else {
+            throw new RuntimeException("BROWSER_PATH should either point to firefox or IE");
+        }
+    }
+
     public final void setUp() throws Exception {
-        selenium = new DefaultSelenium("localhost", 4444, "*firefox", "http://localhost:9090");
+        selenium = new DefaultSelenium("localhost", 4444, browser, "http://localhost:9090");
         selenium.start();
         DataUtils.cloneCCHome();
         setConfigFileLocation();
@@ -103,9 +121,12 @@ public abstract class SeleniumTestCase extends TestCase {
     }
 
     protected static final int AJAX_DURATION = 5;
+
     protected static final int FORCE_BUILD_DURATION = AJAX_DURATION * 3;
+
     protected static final int BUILD_DURATION =
-        AJAX_DURATION * (CruiseControlJMXServiceStub.BUILD_TIMES.intValue() + 1);
+            AJAX_DURATION * (CruiseControlJMXServiceStub.BUILD_TIMES.intValue() + 2);
+
     protected static final String BUILDING_STARTED = "remaining";
 
     protected void waitingForTextAppear(String text, int seconds) {

@@ -35,17 +35,25 @@ Timer.prototype = {
 		}
 	},
 	start:function() {
+		this.setStyle('');
 		this.executer.registerCallback();
 	    this.stopped = false;
 	},
 	stop:function() {
+		this.setStyle('none');
 		this.stopped = true;
-	    this.elapsed_time=0;
+		this.elapsed_time = 0;
 	    this.executer.stop();
 	    this.update_element_content(this.project_name + '_time_elapsed', '')
 	    this.update_element_content(this.project_name + '_time_remaining', '')
 	    this.update_element_content(this.project_name + '_time_elapsed_lable', '')
 	    this.update_element_content(this.project_name + '_time_remaining_lable', '')	    
+	},
+	setStyle : function(displary_style) {
+		var elem = $(this.project_name + '_timer_area');
+		if (elem) {
+			elem.style.display = displary_style;	
+		} 
 	},
 	is_stopped:function() {
 		return this.stopped;	

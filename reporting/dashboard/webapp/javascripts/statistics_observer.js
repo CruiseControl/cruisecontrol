@@ -1,4 +1,3 @@
-<!--
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -35,34 +34,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CCE Dashboard Tests</title>
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
-
-<script language="JavaScript" type="text/javascript">
-function setUp() {
+var StatisticsObserver = Class.create();
+StatisticsObserver.prototype = {
+	initialize:function() { },
+	notify : function(json) {
+		if (!json.length) return;
+	    if (json.length == 0) return; 
+		var statistics = $H({passed:0,failed:0,building:0})
+		for (var i = 0; i < json.length; i++) {
+			if (!json[i]) continue;
+	    	this.category(json[i], statistics);
+	    }
+		this.inactive_projects(statistics);
+		this.calculate(statistics);
+	  	this.update(statistics);
+	},
+	inactive_projects : function (statistics) {
+		statistics['inactive'] = $A($$('.inactive.bar')).size()
+	},
+	calculate : function (statistics) {
+		var total = 0;
+		statistics.each(function(pair){
+			total += pair.value;
+		});
+		statistics['total'] = total;
+	    var rate = ((statistics['passed'] / (total - statistics['inactive'])) * 100).toFixed(0)
+		statistics['rate'] = isNaN(rate) ? "0%" : rate+"%";
+		return statistics; 
+	},
+	category : function (json, statistics) {
+		if (!json) return;
+		if (!json.building_info) return;
+		if (!json.building_info.building_status) return;
+		var status = json.building_info.building_status.toLowerCase();
+		if (status == 'inactive') return;
+		statistics[status] +=  1;
+	},
+	update : function (statistics_infos) {
+		var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive'])
+		infos.each(function(info) {
+		    var statistic = $('statistics_' + info).innerHTML;
+			$('statistics_' + info).update(statistics_infos[info] + statistic.substring(statistic.indexOf(' ')));
+		});
+	}
 }
-
-function test_should_return_hash_contains_statistics_infos() {
-	var hash = $H({passed:1, failed:1,building:1, inactive:1})
-	calculate_projects_statistics(hash);
-	assertEquals(1, hash['passed']);
-	assertEquals(1, hash['failed']);
-	assertEquals(1, hash['building']);
-	assertEquals(1, hash['inactive']);
-	assertEquals(4, hash['total']);
-	assertEquals('33%', hash['rate']);
-}
-</script>
-</head>
-<body>
-</body>
-</html>

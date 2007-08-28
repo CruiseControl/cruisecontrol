@@ -121,23 +121,23 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
 
     public void testChangeColorWhenFailedDateChanges() throws Exception {
         selenium.open("/dashboard/dashboard");
-        assertClassName(failedLevel0, "failed_level_0");
-        assertClassName(failedLevel1, "failed_level_1");
-        assertClassName(failedLevel2, "failed_level_2");
-        assertClassName(failedLevel3, "failed_level_3");
-        assertClassName(failedLevel4, "failed_level_4");
-        assertClassName(failedLevel5, "failed_level_5");
-        assertClassName(failedLevel6, "failed_level_6");
-        assertClassName(failedLevel7, "failed_level_7");
-        assertClassName(failedLevel8, "failed_level_8");
-        assertClassName(justSucceeded, "passed_level_0");
-        assertClassName(justFailed, "failed_level_0");
+        assertClassName(failedLevel0,  "level_0");
+        assertClassName(failedLevel1,  "level_1");
+        assertClassName(failedLevel2,  "level_2");
+        assertClassName(failedLevel3,  "level_3");
+        assertClassName(failedLevel4,  "level_4");
+        assertClassName(failedLevel5,  "level_5");
+        assertClassName(failedLevel6,  "level_6");
+        assertClassName(failedLevel7,  "level_7");
+        assertClassName(failedLevel8,  "level_8");
+        assertClassName(justSucceeded, "level_0");
+        assertClassName(justFailed,    "level_0");
     }
 
     private void assertClassName(File file, String className) throws Exception {
         file.createNewFile();
         String textPresent =
-                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_bar').className.indexOf('"
+                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_level').className.indexOf('"
                         + className + "') >= 0";
         selenium.waitForCondition(textPresent, "7000");
     }

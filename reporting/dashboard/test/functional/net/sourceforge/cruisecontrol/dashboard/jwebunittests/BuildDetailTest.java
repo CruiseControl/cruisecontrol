@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public class BuildDetailTest extends BaseFunctionalTest {
@@ -79,11 +81,22 @@ public class BuildDetailTest extends BaseFunctionalTest {
         tester.assertTextPresent("Errors and Warnings");
         tester.assertTextPresent("Detected OS: Windows XP");
         tester.assertTextPresent("Cannot find something");
-        tester.assertTextPresent("Ant Error Message");
+        tester.assertTextPresent("Build Error Message");
         tester.assertTextPresent("This is my error message");
 
         tester.assertTextPresent("Stacktrace");
         tester.assertTextPresent("This is my stacktrace");
+    }
+
+    public void testShouldEscapeSpecialCharacterInJUnitMessages() throws Exception {
+        tester.beginAt("/build/detail/project1/log20051209122104.xml");
+        assertTrue(StringUtils.contains(tester.getPageSource(), "expected:&lt;1&gt; but was:&lt;2&gt;"));
+    }
+
+    public void testShouldEscapeSpecialCharacterinCommitMessages() throws Exception {
+        tester.beginAt("/build/detail/project1/log20051209122104.xml");
+        assertTrue(StringUtils.contains(tester.getPageSource(),
+                "project name changed to &lt;b&gt;cache&lt;/b&gt;"));
     }
 
     public void testShouldShowDefaultMessagewhenNoErrors() throws Exception {
@@ -91,5 +104,14 @@ public class BuildDetailTest extends BaseFunctionalTest {
         tester.assertTextPresent("No error message");
         tester.assertTextPresent("No stacktrace");
         tester.assertTextPresent("No errors or warnings");
+    }
+
+    public void testShouldListGZippedLogs() throws Exception {
+        tester.beginAt("/build/detail/project3");
+        tester.assertTextPresent("9 Dec 2007 12:21 GMT");
+        tester.assertTextPresent("9 Dec 2006 12:21 GMT");
+        tester.assertTextPresent("build.489");
+        tester.assertTextPresent("9 Nov 2006 12:21 GMT");
+        tester.assertTextPresent("9 Dec 2005 12:21 GMT");
     }
 }

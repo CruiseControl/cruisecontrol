@@ -52,7 +52,7 @@ public class LatestBuildsTest extends BaseFunctionalTest {
         tester.assertTextPresent("project2");
         tester.assertTextPresent("2 project build(s) succeed");
         tester.assertTextPresent("0 project(s) building");
-        tester.assertTextPresent("3 project build(s) failed");
+        tester.assertTextPresent("4 project build(s) failed");
         tester.assertTextPresent("Server : " + InetAddress.getLocalHost().getCanonicalHostName());
     }
 

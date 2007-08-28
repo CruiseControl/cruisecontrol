@@ -167,15 +167,10 @@
     </target>
 
     <target name="install.sample.project" depends="install.cc">
-        <!-- Make sure we have the SSL certificate for sample project -->
-        <copy todir="${build.dir}/var/spool/cruisecontrol/.subversion">
-            <fileset dir="${basedir}/.subversion"/>
-        </copy>
-
         <!-- Make sure we have the sample connectfour project checked out -->
         <echo message="Checking out sample connectfour project..."/>
         <exec executable="svn" dir="${build.dir}/${reporting.cruise.checkout.dir}" failonerror="true">
-            <arg line="co https://cruisecontrol.svn.sf.net/svnroot/cruisecontrol/trunk/connectfour"/>
+            <arg line="co http://cruisecontrol.svn.sf.net/svnroot/cruisecontrol/trunk/connectfour"/>
         </exec>
     </target>
 

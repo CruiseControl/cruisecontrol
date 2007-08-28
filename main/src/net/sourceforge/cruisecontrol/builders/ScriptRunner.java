@@ -98,6 +98,9 @@ public class ScriptRunner  {
 
         commandline.setWorkingDir(workingDir);
 
+        BuildOutputBuffer buildOutputConsumer = BuildOutputBufferManager.INSTANCE.lookupOrCreate("");
+        buildOutputConsumer.clear();
+        
         Process p;
         int exitCode = -1;
 
@@ -108,19 +111,18 @@ public class ScriptRunner  {
                     + script.toString() + "'. CruiseControl cannot continue.", e);
         }
 
-        CompositeConsumer comsumerForError = new CompositeConsumer(StreamLogger.getWarnLogger(LOG));
-        CompositeConsumer comumerForOut = new CompositeConsumer(StreamLogger.getInfoLogger(LOG));
+        CompositeConsumer consumerForError = new CompositeConsumer(StreamLogger.getWarnLogger(LOG));
+        CompositeConsumer consumerForOut = new CompositeConsumer(StreamLogger.getInfoLogger(LOG));
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
-        BuildOutputBuffer buildOutputConsumer = BuildOutputBufferManager.INSTANCE.create("");
-        comsumerForError.add(buildOutputConsumer);
-        comumerForOut.add(buildOutputConsumer);
+        consumerForError.add(buildOutputConsumer);
+        consumerForOut.add(buildOutputConsumer);
         if (script instanceof StreamConsumer) {
-            comsumerForError.add((StreamConsumer) script);
-            comumerForOut.add((StreamConsumer) script);
+            consumerForError.add((StreamConsumer) script);
+            consumerForOut.add((StreamConsumer) script);
         }
 
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), comsumerForError);
-        StreamPumper outPumper = new StreamPumper(p.getInputStream(), comumerForOut);
+        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), consumerForError);
+        StreamPumper outPumper = new StreamPumper(p.getInputStream(), consumerForOut);
 
         Thread stderr = new Thread(errorPumper);
         stderr.start();

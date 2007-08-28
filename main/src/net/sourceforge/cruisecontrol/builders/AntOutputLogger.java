@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2007, ThoughtWorks, Inc.
+ * Copyright (c) 2003, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,23 +34,40 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-var BuildBarExecuter = Class.create();
+package net.sourceforge.cruisecontrol.builders;
 
-BuildBarExecuter.prototype = Object.extend(new BuildBaseExecuter(), {
-	initialize : function() {
-	},
-	execute : function(json) {
-		function renew_class_name(elementOrId, cssClass) {
-			var element = $(elementOrId);
-			clean_active_css_class_on_element(element);	
-			Element.addClassName(element, cssClass);
-		}
-		var projectName = json.building_info.project_name;
-	    var bar = $(projectName + "_bar");
-	    var last_build = json.building_info.project_name + '_last_status';
-	    renew_class_name(bar, json.building_info.css_class_name_for_dashboard);
-	   	renew_class_name(last_build, json.building_info.css_class_name_considering_last_status);
-	    reround(bar)
-	    $(projectName + "_bar_link").href = this.get_link(json);		
-	}
-});
+import java.io.File;
+import java.io.PrintStream;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+
+/**
+ * Understands writing all messages to a file.
+ *
+ * Date: Aug 22, 2007
+ * Time: 5:44:00 PM
+ */
+public class AntOutputLogger extends DefaultLogger {
+    public static final String DEFAULT_OUTFILE_NAME = "antBuilderOutput.log";
+    private final File outfile = new File(DEFAULT_OUTFILE_NAME);
+
+    public AntOutputLogger() {
+        outfile.delete();
+        setMessageOutputLevel(Project.MSG_INFO);
+    }
+
+    protected void printMessage(final String message, final PrintStream stream, final int priority) {
+        PrintStream mystream = null;
+        try {
+            mystream = new PrintStream(new FileOutputStream(outfile, true));
+            super.printMessage(message, mystream, priority);
+        } catch (FileNotFoundException e) {
+            super.printMessage("Error (" + e.getMessage() + "): " + message, stream, priority);
+        } finally {
+            if (mystream != null) { mystream.close(); }
+        }
+    }
+}

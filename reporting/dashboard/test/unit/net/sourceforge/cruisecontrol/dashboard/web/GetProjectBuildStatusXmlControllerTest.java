@@ -80,9 +80,9 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
                 new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
                         "log1");
         mockBuildSummaryService =
-                mock(BuildSummariesService.class,
-                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
-                                null});
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null, null,
+                        null});
         buildSummariesService = (BuildSummariesService) mockBuildSummaryService.proxy();
         CruiseControlJMXService cruisecontrolJMXService =
                 new CruiseControlJMXService(null, new EnvironmentService(new SystemService(),

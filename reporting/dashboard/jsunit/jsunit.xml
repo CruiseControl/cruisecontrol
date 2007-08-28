@@ -7,7 +7,7 @@
      See the documentation at http://www.jsunit.net for more information.
      -->
 
-	<property name="browserFileNames" value="/usr/bin/firefox" description="browserFileNames is the list of browsers in which to run tests when StandaloneTest is invoked on this machine. For a JsUnit Server, this is a mandatory property. For example: 'c:\program files\internet explorer\iexplore.exe,c:\program files\netscape\netscape7.1\netscp.exe'" />
+	<property name="browserFileNames" value="${env.BROWSER_PATH}" description="browserFileNames is the list of browsers in which to run tests when StandaloneTest is invoked on this machine. For a JsUnit Server, this is a mandatory property. For example: 'c:\program files\internet explorer\iexplore.exe,c:\program files\netscape\netscape7.1\netscp.exe'" />
 
 	<property id="closeBrowsersAfterTestRuns" name="closeBrowsersAfterTestRuns" value="false" description="closeBrowsersAfterTestRuns determines whether to attempt to close browsers after test runs. This is not a mandatory property. The default is true. For example: 'true'" />
 

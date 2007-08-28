@@ -1,4 +1,3 @@
-<!--
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
  * Copyright (c) 2007, ThoughtWorks, Inc.
@@ -35,48 +34,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+var BuildBaseObserver = function() { };
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>CCE Dashboard Tests</title>
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
-<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
-<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
-
-<script language="JavaScript" type="text/javascript">
-function setUp() {
-}
-
-function test_should_return_category_the_current_json_info() {
-	json = {
-	  building_info : { project_name : "project1", building_status : "passed", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
+BuildBaseObserver.prototype = {
+	get_link : function (json) {
+	    if (!json)  return;
+	    if (!json.building_info) return;
+	    if (!json.building_info.building_status) return;
+	    if (json.building_info.building_status == 'Building') {
+	        return 'build/detail/live/' + json.building_info.project_name
+	    } else {
+	        return 'build/detail/' + json.building_info.project_name
+	    }
 	}
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
-	category_projects_info_by_status(json, hash);
-	assertEquals(1, hash['passed']);
 }
 
-function test_should_not_throw_any_exception() {
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
-	category_projects_info_by_status(null, hash);
-	assertEquals(0, hash['passed']);
-}
-
-function test_ignore_inactive() {
-	json = {
-	  building_info : { project_name : "project1", building_status : "inactive", latest_build_date: '2007-08-09 12:30:00', build_time_elapsed : "100"  }
-	}
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
-	category_projects_info_by_status(json, hash);
-	assertEquals(0, hash['inactive']);
-}
-
-</script>
-</head>
-<body>
-</body>
-</html>

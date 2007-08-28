@@ -69,36 +69,17 @@
    vertical-align: middle;
 }
 
-/* Underline links to clarify user path */
-
-.build_profile a.clickable_target {
+.build_profile a.clickable_target, .build_profile span.no_decoration {
+	color : #030;
 	text-decoration : underline;
 }
 
-/* Inactive builds aren't clickable so remove the link cues */
-
-.build_profile_inactive a.clickable_target {
-	text-decoration : none;
-	cursor : default;
-}
-
-/* Set text colours for four types of build */
-
-.build_profile.passed.build_profile_passed a.clickable_target, .build_profile.passed.build_profile_passed span.no_decoration {
-	color : #030;
-}
-
-.build_profile.failed.build_profile_failed a.clickable_target, .build_profile.failed.build_profile_failed span.no_decoration {
-	color : #300;	
-}
-
-.build_profile.inactive.build_profile_inactive a.clickable_target, .build_profile.build_profile_inactive.inactive span.no_decoration {
+.inactive a.clickable_target, .inactive span.no_decoration, .inactive span.project_name {
 	color : #666;
+	cursor : default;
+	text-decoration : none;
 }
 
-.build_profile.building.build_profile_building a.clickable_target, .build_profile.building.build_profile_building span.no_decoration {
-	color : #C30;
-}
 
 div.timer span {
 	color : #C30;
@@ -106,27 +87,31 @@ div.timer span {
 
 /* Apply icons to bars as background images */
 
-.build_profile.passed.build_profile_passed {
+.build_profile.passed {
     background-image: url( "../images/icon-success-medium.gif" );
 }
 
-.build_profile.failed.build_profile_failed {
+.build_profile.failed {
     background-image: url( "../images/icon-failure-medium.gif" );
 }
 
-.build_profile.building.build_profile_building {
+.build_profile.building {
     background-image: url( "../images/icon-building-medium.gif" );
 }
 
-.build_profile.passed_building.build_profile_building {
+.build_profile.building_passed {
     background-image: url( "../images/icon-build-previously-success-medium.gif" );
 }
 
-.build_profile.failed_building.build_profile_building {
+.build_profile.building_failed {
     background-image: url( "../images/icon-build-previously-failure-medium.gif" );
 }
 
-.build_profile.inactive.build_profile_inactive {
+.build_profile.building_unknown {
+    background-image: url( "../images/icon-build-previously-failure-medium.gif" );
+}
+
+.build_profile.inactive {
     background-image: url( "../images/icon-inactive-medium.gif" );
 }
 
@@ -203,10 +188,7 @@ div.timer span {
    text-align:right;
    font-family: Verdana;
    float:right;
-}
-
-.toolkit_panel .toolkit_entry .close:hover{
-	cursor:pointer;
+   cursor:pointer;
 }
 
 .toolkit_panel .toolkit_entry .title {
@@ -250,4 +232,8 @@ div.buildlist_header {
 
 .successfulBuilds .build_profile a, .allBuilds .build_profile a {
 	display : block;
+}
+
+a.force_build_disabled, .inactive .force_build_link{
+	cursor : default;
 }

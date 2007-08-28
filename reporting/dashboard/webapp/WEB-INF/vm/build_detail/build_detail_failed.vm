@@ -1,16 +1,14 @@
-<div class="$build.getCssClassName()">
-    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
-    <div class="build_detail_summary">
-        <h3>$build.build.getProjectName() $build.build.status</h3>
-        <ul class="summary">
-            <li><strong>Build Time:</strong> $build.dateStringInHumanBeingReadingStyle</li>
-            <li><strong>Duration:</strong> $build.duration</li>
-            <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
-        </ul>
-        <div class="clear">&nbsp;</div>
-    </div>
-    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
-</div>
+	<div class="round_corner $build.getCssClassName()">
+	    <div class="build_detail_summary">
+	        <h3>$build.build.getProjectName() $build.build.status</h3>
+	        <ul class="summary">
+	            <li><strong>Build Time:</strong> $build.dateStringInHumanBeingReadingStyle</li>
+	            <li><strong>Duration:</strong> $build.duration</li>
+	            <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
+	        </ul>
+	        <div class="clear">&nbsp;</div>
+	    </div>
+	</div>
 
 <div class="build_detail_container">
     

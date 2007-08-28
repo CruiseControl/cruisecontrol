@@ -46,14 +46,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
@@ -65,7 +63,9 @@ public class GetProjectBuildStatusController implements Controller {
 
     private static final Logger LOGGER = Logger.getLogger(GetProjectBuildStatusController.class);
 
-    private CruiseControlJMXService cruiseControlJMXService;
+    public static final String CACHE_CONTROL = "max-age=1, no-cache";
+
+    public CruiseControlJMXService cruiseControlJMXService;
 
     private final BuildSummariesService buildSummariesSerivce;
 
@@ -90,7 +90,8 @@ public class GetProjectBuildStatusController implements Controller {
             try {
                 if (cruiseControlJMXService.isCruiseAlive()) {
                     List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
-                    projectsBuildSummaries = updateWithLiveStatus(projectsBuildSummaries);
+                    projectsBuildSummaries =
+                            buildSummariesSerivce.updateWithLiveStatus(projectsBuildSummaries);
                     List buildSummaryCommands = uiService.transform(projectsBuildSummaries, true);
                     cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
                 } else {
@@ -101,22 +102,12 @@ public class GetProjectBuildStatusController implements Controller {
                 cachedBuildInfo.put("error", e.getMessage());
             }
         }
-        return new ModelAndView(new JsonView(), new HashMap(cachedBuildInfo));
-    }
+        // This will force the browser to clear the cache only for this page.
+        // If any other pages need to clear the cache, we might want to move this
+        // logic to an intercepter.
+        response.addHeader("Cache-Control", CACHE_CONTROL);
 
-    private List updateWithLiveStatus(List projectsBuildSummaries) {
-        Map buildLiveStatuses = cruiseControlJMXService.getAllProjectsStatus();
-        if (buildLiveStatuses.isEmpty()) {
-            return ListUtils.EMPTY_LIST;
-        }
-        for (int i = 0; i < projectsBuildSummaries.size(); i++) {
-            Build buildSummary = (Build) projectsBuildSummaries.get(i);
-            if (!buildLiveStatuses.containsKey(buildSummary.getProjectName())) {
-                continue;
-            }
-            buildSummary.updateStatus((String) buildLiveStatuses.get(buildSummary.getProjectName()));
-        }
-        return projectsBuildSummaries;
+        return new ModelAndView(new JsonView(), new HashMap(cachedBuildInfo));
     }
 
     private List createBuildInfos(List commands) {

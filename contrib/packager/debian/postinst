@@ -24,6 +24,7 @@ echo "To switch your default JVM to Sun"
 echo ""
 
 if [ -f /etc/debian_version ]; then
+    update-rc.d cruisecontrol defaults 99 >/dev/null
     echo "Run the command: update-java-alternatives -s java-1.5.0-sun"
 elif [ -f /etc/redhat-release ]; then
     echo ""

@@ -1,7 +1,7 @@
-    <div id="${buildSummary.build.projectName}_bar" class="bar round_corner ${buildSummary.getCssClassNameForDashboard()}">
-    	<div id="${buildSummary.build.projectName}_last_status" class="${buildSummary.getCssClassNameConsideringLastStatus()}">
+    <div id="${buildSummary.build.projectName}_bar" class="bar ${buildSummary.cssClassName}">
+	    <div id="${buildSummary.build.projectName}_level" class="round_corner level_${buildSummary.level}">
          	<a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
-         </div>
+	    </div>
     </div>
     <div id="tooltip_${buildSummary.build.projectName}" class='tooltip tooltip_${buildSummary.getCssClassName()}'>
             <div class="tooltip_header"></div>

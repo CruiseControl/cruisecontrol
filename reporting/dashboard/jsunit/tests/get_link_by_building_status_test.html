@@ -45,31 +45,26 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 
 <script language="JavaScript" type="text/javascript">
 function test_should_return_link_to_commit_message_when_status_is_not_building() {
-	var json = {
-	  building_info : { project_name : "project1", building_status : "Passed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
-	}
+	var json = passed_json('project1')
     var expected = 'build/detail/' + json.building_info.project_name
-	assertEquals(expected, new BuildBaseExecuter().get_link(json));
-	json = {
-	  building_info : { project_name : "project1", building_status : "Failed", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
-	}
-	assertEquals(expected, new BuildBaseExecuter().get_link(json));
+	assertEquals(expected, new BuildBaseObserver().get_link(json));
+	json = failed_json('project1')
+	assertEquals(expected, new BuildBaseObserver().get_link(json));
 }
 
 function test_should_return_link_to_commit_message_when_status_is_building() {
-	var json = {
-	  building_info : { project_name : "project1", building_status : "Building", onclick_call:"clickcall()", force_build_action_text : "Force Build", latest_build_log_file_name : "log.log" }
-	}
+	var json = building_json('project1')
     var expected = 'build/detail/live/' + json.building_info.project_name;
-	assertEquals(expected, new BuildBaseExecuter().get_link(json));
+	assertEquals(expected, new BuildBaseObserver().get_link(json));
 }
 
 function test_should_return_null_when_json_is_null() {
-	assertUndefined(new BuildBaseExecuter().get_link(null));
+	assertUndefined(new BuildBaseObserver().get_link(null));
 }
 </script>
 </head>

@@ -9,6 +9,6 @@
             <$repository localWorkingCopy="projects/${project.name}"/>
         </modificationset>
         <schedule>
-            <ant anthome="apache-ant-1.6.5" buildfile="projects/${project.name}/build.xml"/>
+            <ant anthome="apache-ant-1.7.0" buildfile="projects/${project.name}/build.xml"/>
         </schedule>
     </project>

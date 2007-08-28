@@ -37,7 +37,10 @@
 /**
  * BEGIN: using ajax call to update dashboard.
  */
-var active_build_status = ['passed', 'failed', 'building', 'passed_building', 'failed_building', 'inactive', 'build_profile_inactive', 'failed_level_0', 'failed_level_1', 'failed_level_2', 'failed_level_3', 'failed_level_4', 'failed_level_5', 'failed_level_6', 'failed_level_7', 'failed_level_8', 'passed_level_0', 'passed_level_1', 'passed_level_2', 'passed_level_3', 'passed_level_4', 'passed_level_5', 'passed_level_6', 'passed_level_7', 'passed_level_8']
+var active_build_status = ['passed', 'failed', 'inactive',  
+						   'building_failed', 'building_passed', 'building_unknown',
+						   'level_0', 'level_1', 'level_2', 'level_3',
+						   'level_4', 'level_5', 'level_6', 'level_7', 'level_8']
 
 function ajax_periodical_refresh_dashboard_executer() {
     var executer = new PeriodicalExecuter(function() {
@@ -62,8 +65,8 @@ function ajax_periodical_refresh_dashboard_executer() {
 function ajax_periodical_refresh_dashboard_executer_oncomplete(json) {
     if (!json) return
     update_projects_status(json)
-    update_statistics_status(json)
-    update_cc_status(json)
+    new StatisticsObserver().notify(json);
+    new CCStatusObserver().notify(json);
 }
 
 function update_projects_status(json) {
@@ -77,21 +80,10 @@ function update_projects_status(json) {
 
 function ajax_periodical_refresh_dashboard_update_project_box(json) {
 	if (json.building_info.building_status.toLowerCase() == 'inactive') return;
-	ajax_periodical_refresh_dashboard_update_inactive_partial_links(json)
-	new BuildProfileExecuter().execute(json)
-	new BuildBarExecuter().execute(json)
-	ajax_periodical_refresh_dashboard_update_tooltip(json)
+	new BuildProfileObserver().notify(json)
+	new BuildBarObserver().notify(json)
+	new ToolTipObserver().notify(json)
 	eval_timer_object(json.building_info.project_name, json.building_info.building_status, evaluate_time_to_seconds(json.building_info.build_duration), json.building_info.build_time_elapsed);
-}
-
-function ajax_periodical_refresh_dashboard_update_inactive_partial_links(json) {
-	var profile_id = json.building_info.project_name + '_profile'
-	if(!$(profile_id).hasClassName("inactive")) return
-
-    $(json.building_info.project_name + '_forcebuild').onclick = function(event) {ajax_force_build("projectName", json.building_info.project_name, event)}
-    $(json.building_info.project_name + '_config_panel').onclick = function(event) {new Toolkit().show('toolkit_' + json.building_info.project_name, event)}
-    $(json.building_info.project_name + '_all_builds').href = context_path('project/list/all/' + json.building_info.project_name)
-    $(json.building_info.project_name + '_all_successful_builds').href = context_path('project/list/passed/' + json.building_info.project_name)
 }
 
 function clean_active_css_class_on_element(element) {

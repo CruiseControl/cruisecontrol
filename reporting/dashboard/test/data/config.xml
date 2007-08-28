@@ -123,6 +123,28 @@
             </onsuccess>
         </publishers>
     </project>
+    <project name="project3">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset quietperiod="30">
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule interval="300">
+            <ant anthome="apache-ant-1.6.5" buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <log>
+            <merge dir="projects/${project.name}/target/test-results"/>
+        </log>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/project3" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
     <project name="projectWithoutPublishers"/>
     <project name="project space">
         <listeners>

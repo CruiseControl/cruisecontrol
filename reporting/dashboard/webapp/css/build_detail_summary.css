@@ -56,15 +56,11 @@
 	background-image : url( ../images/icon-failure-large.gif );
 }
 
-.building .build_detail_summary {
-	background-image : url( ../images/icon-building-large.gif );
-}
-
-.building .build_detail_summary.passed_building {
+.building_passed .build_detail_summary {
 	background-image : url( ../images/icon-build-previously-success-large.gif );
 }
 
-.building .build_detail_summary.failed_building {
+.building_failed .build_detail_summary, .building_unknown .build_detail_summary {
 	background-image : url( ../images/icon-build-previously-failure-large.gif );
 }
 

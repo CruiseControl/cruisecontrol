@@ -49,6 +49,17 @@ public class AddProjectTest extends SeleniumTestCase {
 
     private File addProjectTestProject;
 
+    public void testShouldNotAddNewProjectContainsInvalidCharacters() throws Exception {
+        selenium.open("/dashboard/admin/config");
+        String contentOfConfigXml = selenium.getText("configFileContent");
+        assertFalse(StringUtils.contains(contentOfConfigXml, "addProjectTestProject"));
+        openAndWaiting("/dashboard/admin/action/add", 5);
+        selenium.type("projectName", "A&B");
+        selenium.type("url", "valid");
+        selenium.click("add_project_btn");
+        waitingForTextAppear("'&' is not a valid character in a project name.", 1 * AJAX_DURATION);
+    }
+
     public void testShouldBeAbleToAddNewProjectToConfigXml() throws Exception {
         selenium.open("/dashboard/admin/config");
         String contentOfConfigXml = selenium.getText("configFileContent");
@@ -61,6 +72,7 @@ public class AddProjectTest extends SeleniumTestCase {
         openAndWaiting("/dashboard/admin/config", 5);
         contentOfConfigXml = selenium.getText("configFileContent");
         assertTrue(StringUtils.contains(contentOfConfigXml, "addProjectTestProject"));
+        Thread.sleep(6000);
         openAndWaiting("/dashboard/dashboard?s=1", 5);
         assertTrue(selenium.isTextPresent("addProjectTestProject"));
 
@@ -91,7 +103,9 @@ public class AddProjectTest extends SeleniumTestCase {
     }
 
     protected void doTearDown() throws Exception {
-        FileUtils.deleteDirectory(addProjectTestProject);
+        if (addProjectTestProject != null && addProjectTestProject.exists()) {
+            FileUtils.deleteDirectory(addProjectTestProject);    
+        }
         FileUtils.writeStringToFile(DataUtils.getConfigXmlInArbitraryCCHome(), originalText);
     }
 

@@ -17,7 +17,11 @@
     <ul class="buildlist">
         #foreach( $buildSummary in $summaries )
             <li class="$buildSummary.getCssClassName()">
+            #if ($buildSummary.build.buildLogFilename.endsWith(".xml.gz"))
+                <div title="This log is zipped and cannot currently be viewed via the Dashboard">$buildSummary.getDateStringInHumanBeingReadingStyle() $!buildSummary.build.label</div>
+            #else
                 <a href="$req.getContextPath()/build/detail/$projectName/$buildSummary.build.buildLogFilename">$buildSummary.getDateStringInHumanBeingReadingStyle() $!buildSummary.build.label</a>
+            #end
             </li>
         #end
     </ul>

@@ -59,9 +59,13 @@ public final class ProjectBuildStatus {
 
     public static final ProjectBuildStatus INACTIVE = new ProjectBuildStatus("Inactive", "Inactive");
 
+    public static final ProjectBuildStatus UNKNOWN = new ProjectBuildStatus("Unknown", "Unknown");
+    
     private static final ProjectBuildStatus[] STATUSES =
             new ProjectBuildStatus[] {BOOTSTRAPPING, MODIFICATIONSET, BUILDING, WAITING, PASSED, FAILED,
                     INACTIVE};
+
+    
 
     private String status;
 

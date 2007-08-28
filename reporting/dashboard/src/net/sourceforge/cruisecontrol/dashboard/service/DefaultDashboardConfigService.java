@@ -33,7 +33,7 @@ public class DefaultDashboardConfigService implements DashboardConfigService {
     }
 
     public String isForceBuildEnabled() {
-        return "enabled";
+        return "true";
     }
 
     public String getCCHome() {

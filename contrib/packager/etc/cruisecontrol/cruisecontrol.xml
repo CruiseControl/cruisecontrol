@@ -1,7 +1,7 @@
 <cruisecontrol>
     <property name="cruise.working.dir" value="/var/spool/cruisecontrol"/>
-    <project name="connectfour" buildafterfailed="false">
 
+    <plugin name="basicproject" classname="net.sourceforge.cruisecontrol.ProjectConfig">
         <labelincrementer defaultLabel="${project.name}-1" separator="-"/>
 
         <listeners>
@@ -15,7 +15,6 @@
         <schedule interval="60">
             <ant antWorkingDir="${cruise.working.dir}/projects/${project.name}"
                 buildfile="build.xml"
-                target="all"
                 />
         </schedule>
 
@@ -26,6 +25,8 @@
         <publishers>
             <artifactspublisher file="${cruise.working.dir}/projects/${project.name}/target/${project.name}.jar" dest="${cruise.working.dir}/artifacts/${project.name}"/>
         </publishers>
+    </plugin>
 
-    </project>
+    <basicproject name="connectfour" buildafterfailed="false"/>
+
 </cruisecontrol>

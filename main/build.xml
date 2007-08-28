@@ -329,7 +329,7 @@
 			<manifest>
 				<attribute name="Main-Class" value="CruiseControl" />
 			</manifest>
-			<fileset dir="${classes}" excludes="**/launch/**,**/builders/AntProgress*.class" />
+			<fileset dir="${classes}" excludes="**/launch/**,**/builders/AntProgress*.class,**/builders/AntOutputLogger.class" />
 			<fileset dir="${xsl}" />
 			<manifest>
 				<attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
@@ -343,6 +343,7 @@
 		</jar>
 		<jar jarfile="${dist}/cruisecontrol-antprogresslogger.jar">
 			<fileset dir="${classes}" includes="**/builders/AntProgress*.class" />
+            <fileset dir="${classes}" includes="**/builders/AntOutputLogger.class" />
 			<manifest>
 				<attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
 			</manifest>

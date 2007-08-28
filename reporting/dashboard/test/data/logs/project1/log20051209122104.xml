@@ -46,7 +46,7 @@
             </file>
             <date>12/21/2006 10:57:34</date>
             <user>readcb</user>
-            <comment><![CDATA[project name changed to cache]]></comment>
+            <comment><![CDATA[project name changed to <b>cache</b>]]></comment>
             <revision>1.2</revision>
             <email>Chris.Read@rbos.com</email>
         </modification>
@@ -251,7 +251,7 @@ not part of the command.]]></message>
         <target name="all" time="0 seconds"/>
         <stacktrace><![CDATA[This is my stacktrace]]></stacktrace>
     </build>
-    <testsuite errors="1" failures="1" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
+    <testsuite errors="1" failures="2" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
                tests="10" time="0.109">
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
                   name="testFourConnected" time="0.016">
@@ -262,6 +262,11 @@ not part of the command.]]></message>
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testSomething" time="3.807">
       <failure message="Not the expected result" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Error during schema validation 
 	at junit.framework.Assert.fail(Assert.java:47)</failure>
+    </testcase>
+        <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testSomething" time="3.807">
+    <failure message="expected:&lt;1&gt; but was:&lt;2&gt;" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: expected:&lt;1&gt; but was:&lt;2&gt;
+	at net.sourceforge.cruisecontrol.dashboard.BuildDetailTest.testname(BuildDetailTest.java:194)
+	</failure>
     </testcase>
 
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"

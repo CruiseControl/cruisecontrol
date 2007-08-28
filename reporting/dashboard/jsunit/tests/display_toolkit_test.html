@@ -70,13 +70,6 @@ function test_hide_click_one_same_entry_twice_should_not_hide_it() {
 	assertFalse($('toolkit_project2').visible());
 }
 
-function test_should_change_margin_top_when_no_enough_space() {
-	Event.pointerY = function(event) {
-		return 9999999;
-	}
-	new Toolkit().show('toolkit_project1', 'whatever');
-	assertEquals('-200px', $('toolkit_project1').getStyle('margin-top'));
-}
 </script>
 </head>
 <body>

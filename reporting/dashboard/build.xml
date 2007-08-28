@@ -54,6 +54,7 @@
     <property name="reports.dir" value="${build.dir}/reports" />
     <property name="emma.dir" location="target/emma" />
     <property name="jsunit.dir" location="jsunit" />
+    <property environment="env"/>
 
     <import file="checklicense.xml" />
 
@@ -113,10 +114,19 @@
         </condition>
     </target>
 
+    <target name="-check-browser-path">
+        <available file="${env.BROWSER_PATH}" filepath="${env.BROWSER_PATH}" property="is.browser.found"></available>
+    </target>
+
     <target name="-report-no-jsunit-tests" if="not.jdk1.5">
         <echo>You are using an older jdk version, so functional testing with jsunit will be skipped.</echo>
     </target>
 
+
+    <target name="-report-failed-to-find-browser" unless="is.browser.found">
+        <echo message="The browser you defined can not be found in destionation '${env.BROWSER_PATH}'."></echo>
+    </target>
+    
     <target name="-compile">
         <fail>
             <condition>
@@ -308,12 +318,15 @@
         <delete dir="${emma.dir}" />
     </target>
 
-    <target name="-jsunit" unless="not.jdk1.5">
+	<target name="-copy.compress.jsunit">
         <copy todir="jsunit/compressed" overwrite="true">
             <fileset dir="${war.src.dir}/compressed">
                 <include name="all.js" />
             </fileset>
         </copy>
+	</target>
+	
+    <target name="-jsunit" unless="not.jdk1.5">
         <echo message="${lib}" />
         <echo message="${basedir}" />
         <junit showoutput="true" haltonerror="true" haltonfailure="true">
@@ -331,6 +344,10 @@
         </junit>
     </target>
 
+    <target name="-stop.selenium.server">
+        <get taskname="selenium-shutdown" src="http://localhost:4444/selenium-server/driver/?cmd=shutDown" dest="selenium-result.txt" ignoreerrors="true" />
+    </target>
+
     <target name="-start.selenium.server">
         <java jar="lib/buildtime/selenium-server.jar" fork="true" spawn="true">
             <arg line="-timeout 30" />
@@ -340,15 +357,12 @@
         </waitfor>
     </target>
 
-    <target name="-stop.selenium.server">
-        <get taskname="selenium-shutdown" src="http://localhost:4444/selenium-server/driver/?cmd=shutDown" dest="selenium-result.txt" ignoreerrors="true" />
-    </target>
 
     <target name="-compress.js">
         <taskdef name="jsmin" classname="org.inconspicuous.jsmin.JSMinTask" classpathref="test.classpath"></taskdef>
         <concat destfile="${war.src.dir}/compressed/all.js">
             <fileset file="${war.src.dir}/javascripts/prototype.js"/>
-            <fileset file="${war.src.dir}/javascripts/build_base_executer.js"/>
+            <fileset file="${war.src.dir}/javascripts/build_base_observer.js"/>
             <fileset file="${war.src.dir}/javascripts/effects.js"/>
             <fileset dir="${war.src.dir}/javascripts" includes="*.js" excludes="prototype.js,scriptaculous.js,build_base_executer.js,effects.js"/>
           </concat>
@@ -361,6 +375,8 @@
         </concat>
     </target>
 
+	<target name="--copy.compress.jsunit" depends="--compress, -copy.compress.jsunit" />
+	<target name="--jsunit" depends="--copy.compress.jsunit, -jsunit" />
     <target name="--compile" depends="-clean, --compress, -copy.resources.web, -compile" />
     <target name="--war.production" depends="-properties.production, -war.production" />
     <target name="--war.development" depends="-properties.development, -war.development" />
@@ -388,11 +404,12 @@
     <target name="clean" depends="-clean" description="clean all" />
     <target name="stat" depends="--stat" description="generating the test coverage of source code" />
     <target name="checkstyle" depends="-checkstyle-main" description="checkstyle" />
-    <target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, --compress, -jsunit" description="run jsunit test" />
+    <target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, -check-browser-path, -report-failed-to-find-browser, --jsunit" description="run jsunit test" />
     <target name="selenium" depends="--selenium" description="run selenium test" />
     <target name="dist" depends="--dist" description="build and package war" />
     <target name="product" depends="--product" description="build and package war without testing" />
     <target name="compress" depends="--compress" description="compress the javascripts and css files" />
+	<target name="reload.jsunit" depends="--copy.compress.jsunit" description="refresh the javascript for testing in jsunit"/>
 </project>
 
 

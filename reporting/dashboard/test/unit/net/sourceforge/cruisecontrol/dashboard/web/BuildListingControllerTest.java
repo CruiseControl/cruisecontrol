@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 
 import org.jmock.Mock;
@@ -69,9 +70,9 @@ public class BuildListingControllerTest extends MockObjectTestCase {
         request.setMethod("GET");
         request.setRequestURI("/list/passed/project1");
         mockBuildSummaries =
-                mock(BuildSummariesService.class,
-                        new Class[] {Configuration.class, BuildSummaryService.class}, new Object[] {null,
-                                null});
+                mock(BuildSummariesService.class, new Class[] {Configuration.class,
+                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null, null,
+                        null});
         BuildSummariesService serivce = (BuildSummariesService) mockBuildSummaries.proxy();
         mockBuildSummaryUIService =
                 mock(BuildSummaryUIService.class, new Class[] {BuildSummariesService.class,

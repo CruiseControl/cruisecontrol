@@ -173,7 +173,9 @@
 		<property name="exposeSpringMacroHelpers" value="true" />
 		<property name="requestContextAttribute" value="req"/>
 		<property name="order" value="2" />
+		<property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
 	</bean>
+
 	<bean id="beanNameViewResolver"
           class="org.springframework.web.servlet.view.BeanNameViewResolver">
 		<property name="order" value="1" />

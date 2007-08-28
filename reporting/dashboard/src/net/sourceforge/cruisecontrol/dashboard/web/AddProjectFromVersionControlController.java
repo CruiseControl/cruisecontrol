@@ -52,6 +52,7 @@ import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Cvs;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.Perforce;
 import net.sourceforge.cruisecontrol.dashboard.sourcecontrols.VCS;
 import net.sourceforge.cruisecontrol.dashboard.web.command.AddProjectCommand;
+import net.sourceforge.cruisecontrol.dashboard.web.validator.ProjectNameValidator;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
 import org.apache.commons.lang.StringUtils;
@@ -88,8 +89,9 @@ public class AddProjectFromVersionControlController implements Controller {
         String projectName = httpServletRequest.getParameter("projectName");
         String vcsType = httpServletRequest.getParameter("vcsType");
         String moduleName = httpServletRequest.getParameter("moduleName");
-        if (StringUtils.isBlank(projectName)) {
-            return getViewWithMessage(false, "projectName", "Project name can not be blank");
+        ProjectNameValidator validator = new ProjectNameValidator(projectName);
+        if (validator.isNotValid()) {
+            return getViewWithMessage(false, "projectName", validator.error());
         }
         if (configuration.hasProject(projectName)) {
             return getViewWithMessage(false, "projectName", projectName + PROJECT_ALREADY_EXISTS);

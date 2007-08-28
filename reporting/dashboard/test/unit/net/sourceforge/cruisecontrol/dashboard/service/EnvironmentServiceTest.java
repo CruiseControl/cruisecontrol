@@ -81,11 +81,24 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
     }
 
     //force build enabled
-    public void testShouldReturnFalseIfForceBuildSetToDisableInDashboardConfig() throws Exception {
-        mockSystemPropertyConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(""));
-        mockDashboardConfigService.expects(once()).method("isForceBuildEnabled")
-                .will(returnValue("disabled"));
-        assertEquals(false, service.isForceBuildEnabled());
+    public void testShouldReturnFalseIfForceBuildSetToDisable() throws Exception {
+        setReturnValueOfForceBuild("disabled");
+        assertFalse(service.isForceBuildEnabled());
+    }
+    
+    public void testShouldReturnTrueIfForceBuildSetToEnable() throws Exception {
+        setReturnValueOfForceBuild("Enabled");
+        assertTrue(service.isForceBuildEnabled());
+    }
+    
+    public void testShouldReturnTrueIfForceBuildSetToTrue() throws Exception {
+        setReturnValueOfForceBuild("True");
+        assertTrue(service.isForceBuildEnabled());
+    }
+    
+    public void testShouldReturnTrueIfForceBuildSetToYes() throws Exception {
+        setReturnValueOfForceBuild("Yes");
+        assertTrue(service.isForceBuildEnabled());
     }
 
     //Log dir
@@ -241,5 +254,12 @@ public class EnvironmentServiceTest extends MockObjectTestCase {
                 returnValue("/home/khu/projects"));
         mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
         assertEquals(new File("/home/khu/projects"), service.getProjectsDir());
+    }
+
+    private void setReturnValueOfForceBuild(String value) {
+        mockSystemPropertyConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(""));
+        mockDashboardConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(""));
+        mockServletContextConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(""));
+        mockDefaultConfigService.expects(once()).method("isForceBuildEnabled").will(returnValue(value));
     }
 }

@@ -40,13 +40,13 @@
  <dashboard>
  	<buildloop
 		home=""
-      	        configfile=""
-	    	logsdir=""
-    		artifactsdir=""
+      	configfile=""
+	    logsdir=""
+    	artifactsdir=""
 		projectsdir=""
-    		jmxport=""
-    		rmiport=""/>
-	<features allowforcebuild="" alloweditconfig=""/>
-	<storytracker projectname="" baseurl="" keywords=""/>
+    	jmxport=""
+    	rmiport=""/>
+	<features allowforcebuild="true" alloweditconfig="true"/>
+	<trackingtool projectname="" baseurl="" keywords=""/>
  </dashboard>
  

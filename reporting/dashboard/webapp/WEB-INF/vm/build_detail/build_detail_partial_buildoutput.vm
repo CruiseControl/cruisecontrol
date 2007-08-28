@@ -1,4 +1,4 @@
-<div id="build output" class="buildoutput"  $buildoutput_extra_attrs>
+<div id="build output" $buildoutput_extra_attrs>
     <h2>Build Output</h2>
-    <span class="buildoutput" id="buildoutput_span"></span>
+    <span class="buildoutput"><pre id="buildoutput_pre"></pre></span>
 </div>

@@ -132,25 +132,25 @@ public class SuccessfulBuildMoreThan24HourTest extends SeleniumTestCase {
 
     public void testChangeColorWhenFailedDateChanges() throws Exception {
         selenium.open("/dashboard/dashboard");
-        assertClassName(failed3DaysAgo, "failed_level_8");
-        assertClassName(passedLevel0, "passed_level_0");
-        assertClassName(passedLevel1, "passed_level_1");
-        assertClassName(passedLevel2, "passed_level_2");
-        assertClassName(passedLevel3, "passed_level_3");
-        assertClassName(passedLevel4, "passed_level_4");
-        assertClassName(passedLevel5, "passed_level_5");
-        assertClassName(passedLevel6, "passed_level_6");
-        assertClassName(passedLevel7, "passed_level_7");
-        assertClassName(succeed2dayAgo, "passed_level_8");
-        assertClassName(succeed4daysAgo, "passed_level_8");
-        assertClassName(justFailed, "failed_level_0");
-        assertClassName(justSucceeded, "passed_level_0");
+        assertClassName(failed3DaysAgo, "level_8");
+        assertClassName(passedLevel0, "level_0");
+        assertClassName(passedLevel1, "level_1");
+        assertClassName(passedLevel2, "level_2");
+        assertClassName(passedLevel3, "level_3");
+        assertClassName(passedLevel4, "level_4");
+        assertClassName(passedLevel5, "level_5");
+        assertClassName(passedLevel6, "level_6");
+        assertClassName(passedLevel7, "level_7");
+        assertClassName(succeed2dayAgo, "level_8");
+        assertClassName(succeed4daysAgo, "level_8");
+        assertClassName(justFailed, "level_0");
+        assertClassName(justSucceeded, "level_0");
     }
 
     private void assertClassName(File file, String className) throws Exception {
         file.createNewFile();
         String textPresent =
-                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_bar').className.indexOf('"
+                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_level').className.indexOf('"
                         + className + "') >= 0";
         selenium.waitForCondition(textPresent, "7000");
     }

@@ -44,12 +44,27 @@
 <link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
 <script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 
 <script language="JavaScript" type="text/javascript">
-function test_should_return_hash_contains_statistics_infos() {
+var statisticsObserver;
+
+function setUp() {
+	statisticsObserver  = new StatisticsObserver();
+
+	$('statistics_passed').update('');
+	$('statistics_failed').update('');
+	$('statistics_building').update('');
+	$('statistics_inactive').update('');
+	$('statistics_total').update('');
+	$('statistics_rate').update('');
+
+}
+
+function test_should_update_summary_infomation_accordingly() {
 	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
-	ajax_periodical_refresh_statistics_summary_infos(hash);
+	statisticsObserver.update(hash);
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
@@ -60,8 +75,85 @@ function test_should_return_hash_contains_statistics_infos() {
 
 function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
 	var hash = $H({passed : 0, failed : 0, building : 0, inactive : '1'})
-	calculate_projects_statistics(hash);
+	statisticsObserver.calculate(hash);
 	assertEquals('0%', hash.rate);
+}
+
+function test_should_return_category_the_current_json_info() {
+	json = passed_json('project1')
+	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	statisticsObserver.category(json, hash);
+	assertEquals(1, hash['passed']);
+}
+
+function test_should_not_throw_any_exception() {
+	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	statisticsObserver.category(null, hash);
+	assertEquals(0, hash['passed']);
+}
+
+function test_ignore_inactive() {
+	json = inactive_json('project1')
+	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	statisticsObserver.category(json, hash);
+	assertEquals(0, hash['inactive']);
+}
+
+function test_should_return_hash_contains_statistics_infos() {
+	var hash = $H({passed:1, failed:1,building:1, inactive:1})
+	statisticsObserver.calculate(hash);
+	assertEquals(1, hash['passed']);
+	assertEquals(1, hash['failed']);
+	assertEquals(1, hash['building']);
+	assertEquals(1, hash['inactive']);
+	assertEquals(4, hash['total']);
+	assertEquals('33%', hash['rate']);
+}
+
+function test_should_return_default_value_when_no_project_in_the_dashboard() {
+	var hash = statisticsObserver.calculate($H({passed:0,failed:0,building:0,inactive:0}))
+	assertEquals(0, hash['passed']);
+	assertEquals(0, hash['failed']);
+	assertEquals(0, hash['building']);
+	assertEquals(0, hash['total']);
+	assertEquals('0%', hash['rate']);
+}
+
+function test_should_return_amount_of_all_inactive_projects() {
+	var statistics = $H({})
+	statisticsObserver.inactive_projects(statistics);
+	assertEquals(1, statistics['inactive']);
+}
+
+
+function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_invoke_functions_if_json_is_empty() {
+	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
+	statisticsObserver.update(hash);
+
+	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
+	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
+	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
+	
+	statisticsObserver.notify([]);
+	
+	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
+	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
+	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
+
+	statisticsObserver.notify({ });
+	
+	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
+	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
+	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 }
 
 function getFirstWord(sentence) {
@@ -81,6 +173,7 @@ function getFirstWord(sentence) {
                         <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
                         <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
 </div>
+<div id="project name_bar" class="inactive bar round_corner"></div>
 
 </body>
 </html>

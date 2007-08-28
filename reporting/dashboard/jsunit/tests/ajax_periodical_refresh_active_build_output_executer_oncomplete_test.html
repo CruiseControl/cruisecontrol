@@ -48,24 +48,24 @@
 
 <script language="JavaScript" type="text/javascript">
 function setUp() {
-	$('buildoutput_span').innerHTML = '';
+	$('buildoutput_pre').innerHTML = '';
 }
 
 function test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output() {
 	var build_output = "Build Failed."
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output)
-	assertEquals("Build Failed.", $('buildoutput_span').innerHTML);
+	assertEquals("Build Failed.", $('buildoutput_pre').innerHTML);
 }
 
 function test_should_replace_the_trailing_new_line_as_br() {
 	var build_output = "\n"
 	BuildDetailExecuter.ajax_periodical_refresh_active_build_output_executer_oncomplete(build_output)
-	assertEquals("<br>", $('buildoutput_span').innerHTML.toLowerCase());
+	assertEquals("<br>", $('buildoutput_pre').innerHTML.toLowerCase());
 }
 
 </script>
 </head>
 <body>
-<span id="buildoutput_span"></span>
+<span id="buildoutput_pre"></span>
 </body>
 </html>

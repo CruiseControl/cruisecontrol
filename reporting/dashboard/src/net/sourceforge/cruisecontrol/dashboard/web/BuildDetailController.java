@@ -108,7 +108,7 @@ public class BuildDetailController extends BaseMultiActionController {
     public ModelAndView liveWithInformation(HttpServletRequest request, String projectName,
             String buildStatusStr) {
         ModelAndView mov = buildDetail(request, projectName, buildService.getActiveBuild(projectName));
-        mov.getModel().put("lastStatus", buildSummarySerivce.getLastBuildStatus(projectName).getStatus());
+        mov.getModel().put("lastStatus", buildSummaryUIService.getLastBuildStatus(projectName).getStatus());
         mov.getModel().put(
                 "buildSince",
                 CCDateFormatter.getDateStringInHumanBeingReadingStyle(ProjectBuildStatus

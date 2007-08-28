@@ -1,0 +1,163 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+var contextPath = 'localhost';
+var have_called_stop;
+function setUp() {
+	$('project1_profile').className = "";
+	$('project1_forcebuild').className = "force_build_link";
+	$('project1_forcebuild').innerHTML = "";
+	$('project1_forcebuild').href = null;
+	$('project1_forcebuild').onclick = null;
+	have_called_stop = false;
+}
+
+function test_should_add_inactive_image_when_project_is_active_and_force_build_disabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_forcebuild').addClassName("force_build_disabled");
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_links();
+
+	var img = $('project1_forcebuild').immediateDescendants()[0];
+	var expectedSrc = context_path("images/icon-force-build-grey.gif");
+	assertEquals('Force build (disabled)', img.alt);
+	assertEquals('Force build (disabled)', img.title);
+	assertEquals(20, img.width);
+	assertEquals(20, img.height);
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+function test_should_add_active_image_when_project_is_active_and_force_build_enabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_forcebuild').addClassName("force_build_enabled");
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_links();
+
+	var img = $('project1_forcebuild').immediateDescendants()[0];
+	var expectedSrc = context_path("images/icon-force-build.gif");
+	assertEquals('Force build', img.alt);
+	assertEquals('Force build', img.title);
+	assertEquals(20, img.width);
+	assertEquals(20, img.height);
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+function test_should_add_inactive_image_when_project_inactive() {
+	$('project1_profile').addClassName("inactive");
+	$('project1_forcebuild').addClassName("force_build_enabled");
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_links();
+
+	var img = $('project1_forcebuild').immediateDescendants()[0];
+	var expectedSrc = context_path("images/icon-force-build-grey.gif");
+	assertEquals('Force build (disabled)', img.alt);
+	assertEquals('Force build (disabled)', img.title);
+	assertEquals(20, img.width);
+	assertEquals(20, img.height);
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+function test_should_enable_onclick_for_active_and_force_build_enabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_forcebuild').addClassName("force_build_enabled");
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_links();
+	
+	var link = $('project1_forcebuild')
+	assertEquals(new BuildProfile().force_build_enabled.on_click, link.onclick);
+	assertEquals("javascript:void(0)", link.href);
+}
+function test_should_disable_onclick_for_active_and_force_build_disabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_forcebuild').addClassName("force_build_disabled");
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_links();
+	
+	var link = $('project1_forcebuild')
+	assertEquals(Prototype.emptyFunction, link.onclick);
+	assertTrue("Should not set the href attribute on link", is_null(link.getAttribute("href")));
+}
+
+function is_null(str) {
+    //to make the test in IE easier;
+    return (str == null || str == "null" || str == "");
+}
+
+<!---->
+function test_should_NOT_update_links_if_previous_status_is_not_inactive() {
+	$('project1_profile').className = "passed"
+	var json = passed_json('project1')
+	new BuildProfileObserver().activate(json);
+	assertNull($('project1_forcebuild').onclick)
+}
+
+function test_should_update_links_if_previous_status_is_inactive() {
+	$('project1_profile').className = "build_profile inactive"
+	var json = building_json('project1');
+   	new BuildProfileObserver().activate(json);
+	var isFunctionExist = $('project1_forcebuild').onclick.toString().indexOf('force_build') > -1;
+	assertTrue(isFunctionExist);
+	assertEquals("localhost/project/list/all/project1", $('project1_all_builds').getAttribute('href'));
+	assertEquals("localhost/project/list/passed/project1", $('project1_all_successful_builds').getAttribute('href'));
+	isFunctionExist = $('project1_config_panel').onclick.toString().indexOf('new Toolkit') > -1;
+	assertTrue(isFunctionExist);
+}
+
+</script>
+</head>
+<body>
+	<div id="project1_profile">
+	    <div id="project1_profile">
+		    <a id="project1_forcebuild" ></a>
+            <a id="project1_config_panel"></a>
+            <a id="project1_all_builds" href=""></a>
+            <a id="project1_all_successful_builds" href=""></a>
+		</div>
+	</div>
+</body>
+</html>
