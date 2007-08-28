@@ -29,6 +29,10 @@ packager
 * Now only builds CruiseControl if needed
 * .svn folder in connectfour.zip now points to correct sourceforge repository url(http://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/connectfour)
 
+Windows Installer
+----------------------
+* Added the -webport parameter so that Jetty will start by default, just like the binary distribution.
+
 Documentation
 ======================
 * Added docs for the Darcs scm plugin (CC-626).
