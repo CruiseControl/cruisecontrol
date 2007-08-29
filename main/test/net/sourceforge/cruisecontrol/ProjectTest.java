@@ -85,6 +85,9 @@ public class ProjectTest extends TestCase {
         projectConfig = new ProjectConfig();
         projectConfig.add(new DefaultLabelIncrementer());
         project.setProjectConfig(projectConfig);
+
+        // required for runners where log4j isn't initialized
+        Logger.getLogger(Project.class).setLevel(Level.INFO);
     }
 
     public void tearDown() {
@@ -92,7 +95,10 @@ public class ProjectTest extends TestCase {
         project = null;
         projectConfig = null;
 
+        // minimize logging to the console during test runs
+        Logger.getLogger(Project.class).setLevel(Level.ALL);
         LOG.getLoggerRepository().setThreshold(Level.ALL);
+        
         filesToDelete.delete();
     }
 
