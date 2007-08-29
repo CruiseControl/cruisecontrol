@@ -5734,10 +5734,10 @@ endlocal</pre>
 
         <a name="maven2-session-note">Sessions</a>
         <ul>
-            <li>"clean my-cvs-update|compile" will run 'clean' goal then
-            'my-cvs-update' goal on the project, within the <b>same</b> Maven
+            <li>"clean scm:update|deploy" will run 'clean' goal then
+            'scm:update' goal on the project, within the <b>same</b> Maven
             session run, then it will run Maven <b>again</b> with goal
-            'compile'. Handy behavior for running update goals that update
+            'deploy'. Handy behavior for running update goals that update
             the "pom.xml" itself (or the like). Arbitrary number of subsets
             allowed . Subset separator is '|'.
             </li>
