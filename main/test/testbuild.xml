@@ -1,9 +1,0 @@
-<!-- used by AntBuilderTest -->
-<project name="testbuild" default="init" basedir=".">
-    <target name="init">
-        <echo message="called testbulid.xml init target"/>
-    </target>
-    <target name="timeout-test-target">
-        <sleep seconds="20"/>
-    </target>
-</project>

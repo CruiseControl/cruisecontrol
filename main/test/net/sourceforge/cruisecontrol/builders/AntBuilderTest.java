@@ -235,7 +235,6 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        
         File buildFile = File.createTempFile("testbuild", ".xml");
         writeBuildFile(buildFile);
         filesToDelete.add(buildFile);
@@ -259,6 +258,7 @@ public class AntBuilderTest extends TestCase {
         StringBuffer contents = new StringBuffer();
         contents.append("<project name='testbuild' default='init'>");
         contents.append("<target name='init'><echo message='called testbulid.xml init target'/></target>");
+        contents.append("<target name='time.out'><sleep seconds='10'/></target>");
         contents.append("</project>");
         IO.write(buildFile, contents.toString());
     }
@@ -277,9 +277,12 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-        assertTrue("testbuild.xml expected in working dir", new File("testbuild.xml").exists());
-        builder.setBuildFile("testbuild.xml");
-        builder.setTarget("timeout-test-target");
+        File buildFile = File.createTempFile("testbuild", ".xml");
+        writeBuildFile(buildFile);
+        filesToDelete.add(buildFile);
+
+        builder.setBuildFile(buildFile.getAbsolutePath());
+        builder.setTarget("time.out");
         builder.setTimeout(5);
         builder.setUseDebug(true);
         builder.setUseLogger(true);

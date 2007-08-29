@@ -199,7 +199,6 @@
 			<fileset dir="${test}" includes="**/*.properties" />
 		</copy>
 		<copy todir="${target}">
-			<fileset dir="${test}" includes="testbuild.xml" />
 			<fileset dir="${test}" includes="test.build" />
 		</copy>
 	</target>
