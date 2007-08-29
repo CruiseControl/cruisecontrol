@@ -238,6 +238,7 @@ public class AntBuilderTest extends TestCase {
         
         File buildFile = File.createTempFile("testbuild", ".xml");
         writeBuildFile(buildFile);
+        filesToDelete.add(buildFile);
 
         builder.setBuildFile(buildFile.getAbsolutePath());
         builder.setTempFile("notLog.xml");
@@ -252,6 +253,14 @@ public class AntBuilderTest extends TestCase {
         buildElement = builder.build(buildProperties, null);
         initCount = getInitCount(buildElement);
         assertEquals(2, initCount);
+    }
+
+    private void writeBuildFile(File buildFile) throws CruiseControlException {
+        StringBuffer contents = new StringBuffer();
+        contents.append("<project name='testbuild' default='init'>");
+        contents.append("<target name='init'><echo message='called testbulid.xml init target'/></target>");
+        contents.append("</project>");
+        IO.write(buildFile, contents.toString());
     }
 
     public int getInitCount(Element buildElement) {
