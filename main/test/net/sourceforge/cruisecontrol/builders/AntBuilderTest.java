@@ -235,8 +235,11 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        assertTrue("testbuild.xml expected in working dir", new File("testbuild.xml").exists());
-        builder.setBuildFile("testbuild.xml");
+        
+        File buildFile = File.createTempFile("testbuild", ".xml");
+        writeBuildFile(buildFile);
+
+        builder.setBuildFile(buildFile.getAbsolutePath());
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         builder.validate();
