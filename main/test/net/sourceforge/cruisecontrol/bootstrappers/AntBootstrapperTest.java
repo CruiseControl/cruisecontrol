@@ -46,6 +46,7 @@ public class AntBootstrapperTest extends TestCase {
         
         File buildFile = File.createTempFile("testbuild", ".xml");
         writeBuildFile(buildFile);
+        filesToDelete.add(buildFile);
 
         bootstrapper.setBuildFile(buildFile.getAbsolutePath());
         bootstrapper.setTempFile("notLog.xml");
