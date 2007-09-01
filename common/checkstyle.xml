@@ -71,6 +71,12 @@
         <module name="MissingSwitchDefault"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
+        <!--Return from within a finally block. Will cause any exception that might be thrown in the try block to be discarded.-->
+        <module name="DescendantToken">
+            <property name="tokens" value="LITERAL_FINALLY"/>
+            <property name="limitedTokens" value="LITERAL_RETURN"/>
+            <property name="maximumNumber" value="0"/>
+        </module>
 
         <!-- Design checks -->
         <module name="VisibilityModifier">
@@ -83,6 +89,10 @@
         <!-- Miscellaneous -->
         <module name="UpperEll"/>
         <module name="ArrayTypeStyle"/>
+    </module>
+
+    <module name="SuppressionFilter">
+        <property name="file" value="${basedir}/checkstyleSuppressions.xml"/>
     </module>
 
 </module>
