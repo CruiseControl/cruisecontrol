@@ -43,6 +43,7 @@
 
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
+	<property name="reports.dir" value="${target}/reports" />
     <property name="deploy.dir" value="${dist}"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
@@ -57,9 +58,12 @@
     <property name="webcontent" value="webcontent"/>
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
-    <property name="checkstyle.fail.on.violation" value="true"/>
+	<property name="checkstyle.config" value="../../common/checkstyle.xml"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.3.jar"/>
+
     <property name="simian.jar" value="${lib}/simian-2.2.14.jar"/>
+
+    <import file="../../common/checkstyle-build.xml"/>
 
     <path id="project.classpath" >
         <fileset dir="${lib}" includes="*.jar"/>
@@ -126,20 +130,15 @@
         </simian>
     </target>
 
-    <!-- **************************************************** -->
-    <!-- Run style check on code -->
-    <!-- **************************************************** -->
-    <target name="checkstyle" depends="init" description="Generates a report of code convention violations.">
-        <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}"/>
-        <touch file="${checkstyle.cache}"/>
-        <checkstyle config="checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
-            <property key="cacheFile" value="${checkstyle.cache}"/>
-            <formatter type="plain"/>
-            <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
-            <fileset dir="${src}" includes="**/*.java"/>
-            <fileset dir="${test}" includes="**/*.java"/>
-            <property key="checkstyle.cache.file" file="${checkstyle.cache}"/>
-        </checkstyle>
+    <target name="-checkstyle">
+        <checkstyle-macro
+            reportsdir="${reports.dir}"
+            configfile="${checkstyle.config}"
+            checkstylecache="${checkstyle.cache}">
+
+            <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}" />
+
+        </checkstyle-macro>
     </target>
 
     <target name="compile" depends="init">
@@ -241,7 +240,7 @@
         <copy todir="${docs}">
             <fileset dir="docs"/>
         </copy>
-        
+
        <mkdir dir="${apidocs}"/>
        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
            breakiterator="yes" failonerror="true" source="1.4">
@@ -254,8 +253,9 @@
     </target>
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
-    
-    <target name="all" depends="init,compile,checkstyle,check-duplication,test,war, jsp-precompile"
+
+    <target name="all" depends="init,compile,-checkstyle,check-duplication,test,war, jsp-precompile"
             description="Performs a build, runs tests, and builds war" />
+    <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
 
 </project>

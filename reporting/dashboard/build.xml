@@ -54,10 +54,14 @@
     <property name="reports.dir" value="${build.dir}/reports" />
     <property name="emma.dir" location="target/emma" />
     <property name="jsunit.dir" location="jsunit" />
+
+	<property name="checkstyle.cache" value="${build.dir}/checkstyle.cache"/>
+	<property name="checkstyle.config" value="../../common/checkstyle.xml"/>
+
     <property environment="env"/>
 
     <import file="checklicense.xml" />
-
+	<import file="../../common/checkstyle-build.xml"/>
     <import file="jsunit/jsunit.xml" />
 
     <path id="lib.classpath">
@@ -126,7 +130,7 @@
     <target name="-report-failed-to-find-browser" unless="is.browser.found">
         <echo message="The browser you defined can not be found in destionation '${env.BROWSER_PATH}'."></echo>
     </target>
-    
+
     <target name="-compile">
         <fail>
             <condition>
@@ -205,17 +209,16 @@
         </copy>
     </target>
 
-    <!-- checkstyle -->
     <target name="-checkstyle-main">
-        <taskdef classpathref="lib.classpath" resource="checkstyletask.properties" />
-        <sequential>
-            <checkstyle config="checkstyle.xml">
-                <fileset dir="${src.dir}" includes="**/*.java" />
-                <fileset dir="${unittest.dir}" includes="**/*.java" />
-                <formatter type="plain" />
-                <formatter type="xml" toFile="${reports.dir}/checkstyle-log.xml" />
-            </checkstyle>
-        </sequential>
+        <checkstyle-macro
+            reportsdir="${reports.dir}"
+            configfile="${checkstyle.config}"
+            checkstylecache="${checkstyle.cache}"
+        	testdir="${unittest.dir}">
+
+        	<taskdef classpathref="lib.classpath" resource="checkstyletask.properties" />
+
+        </checkstyle-macro>
     </target>
 
     <target name="-war.production">
@@ -325,7 +328,7 @@
             </fileset>
         </copy>
 	</target>
-	
+
     <target name="-jsunit" unless="not.jdk1.5">
         <echo message="${lib}" />
         <echo message="${basedir}" />

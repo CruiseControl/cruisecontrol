@@ -5,7 +5,7 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 
 <suppressions>
-
+    <!-- suppressions added only to avoid different behavior after checkstyle upgrade to v4.3 -->
     <suppress checks="InnerAssignment"
               files="Maven2SnapshotDependency.java"
               lines="340,362"/>
