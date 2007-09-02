@@ -2,6 +2,16 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.7.2
+
+build loop
+======================
+
+Mercurial Source Control
+----------------------
+* Sourcecontrol implementation for Mercurial (hg) http://www.selenic.com/mercurial/wiki/ (CC-638). Submitted by Jerome Lacoste.
+
+
 CruiseControl Release Notes - 2.7.1
 
 general
