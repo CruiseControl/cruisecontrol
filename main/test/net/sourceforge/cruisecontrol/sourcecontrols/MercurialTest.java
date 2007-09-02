@@ -43,37 +43,83 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.jdom.JDOMException;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.text.DateFormat;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 
 /**
  * @author <a href="jerome@coffeebreaks.org">Jerome Lacoste</a>
+ * @see <a href="http://www.selenic.com/mercurial">Mercurial web site</a>
  */
 public class MercurialTest extends TestCase {
     private Mercurial mercurial;
     private TimeZone originalTimeZone;
+    private File tempFile;
 
     protected void setUp() throws Exception {
         mercurial = new Mercurial();
         originalTimeZone = TimeZone.getDefault();
+        tempFile = File.createTempFile("temp", "txt");
+        tempFile.deleteOnExit();
     }
 
     protected void tearDown() throws Exception {
         TimeZone.setDefault(originalTimeZone);
     }
 
+    public void testValidateNoAttributesSet() throws IOException {
+        try {
+            mercurial.validate();
+        } catch (CruiseControlException e) {
+            fail("should not throw an exception when no attributes are set " + e.getMessage());
+        }
+    }
+
+    public void testValidatInvalidLocalWorkingCopy() throws IOException {
+        mercurial.setLocalWorkingCopy("invalid directory");
+        try {
+            mercurial.validate();
+            fail("should throw an exception when an invalid 'localWorkingCopy' attribute is set");
+        } catch (CruiseControlException e) {
+            // expected
+        }
+    }
+
+    public void testValidateValidLocalWorkingCopy() throws IOException {
+
+        mercurial = new Mercurial();
+        mercurial.setLocalWorkingCopy(tempFile.getParent());
+        try {
+            mercurial.validate();
+        } catch (CruiseControlException e) {
+            fail(
+                "should not throw an exception when at least a valid 'localWorkingCopy' "
+                    + "attribute is set");
+        }
+    }
+
+    public void testValidateFailWhenLocalWorkingCopyIsAFile() throws IOException {
+        mercurial = new Mercurial();
+        mercurial.setLocalWorkingCopy(tempFile.getAbsolutePath());
+        try {
+            mercurial.validate();
+            fail("should throw an exception when 'localWorkingCopy' is file instead of directory.");
+        } catch (CruiseControlException e) {
+            // expected
+        }
+    }
+
     public void testBuildHistoryCommand() throws CruiseControlException {
         mercurial.setLocalWorkingCopy(".");
+
         String[] expectedCmd =
             new String[] {
                 "hg",
@@ -95,7 +141,7 @@ public class MercurialTest extends TestCase {
 
         Modification modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-27 16:11:19 +0200"),
+                parseIso8601Format("2007-08-27 16:11:19 +0200"),
                 "ET4642@localhost",
                 "Test of a fourth commit",
                 "3:bb0a5f00315f4f6dddb7362a69bc0910b07c4faa",
@@ -106,7 +152,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-29 21:38:18 +0200"),
+                parseIso8601Format("2007-08-29 21:38:18 +0200"),
                 "ET4642@edbwp000856.edb.local",
                 "Changed 2 files",
                 "4:1da89ee88532fddb21235b2d21e4a46424adbe39",
@@ -117,7 +163,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-29 21:38:18 +0200"),
+                parseIso8601Format("2007-08-29 21:38:18 +0200"),
                 "ET4642@edbwp000856.edb.local",
                 "Changed 2 files",
                 "4:1da89ee88532fddb21235b2d21e4a46424adbe39",
@@ -128,7 +174,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-29 21:44:37 +0200"),
+                parseIso8601Format("2007-08-29 21:44:37 +0200"),
                 "ET4642@edbwp000856.edb.local",
                 "new change, with one directory depth",
                 "5:93981bd125719a98d7c11028560b2b736b3f12ec",
@@ -140,7 +186,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-29 21:44:37 +0200"),
+                parseIso8601Format("2007-08-29 21:44:37 +0200"),
                 "ET4642@edbwp000856.edb.local",
                 "new change, with one directory depth",
                 "5:93981bd125719a98d7c11028560b2b736b3f12ec",
@@ -151,7 +197,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-30 09:09:08 +0200"),
+                parseIso8601Format("2007-08-30 09:09:08 +0200"),
                 "ET4642@localhost",
                 "removed one file, changed one",
                 "6:e3cefb520ddc6c7de8bad83f17df4b3d4194fe08",
@@ -162,7 +208,7 @@ public class MercurialTest extends TestCase {
 
         modification =
             createModification(
-                getOutDateFormatter().parse("2007-08-30 09:09:08 +0200"),
+                parseIso8601Format("2007-08-30 09:09:08 +0200"),
                 "ET4642@localhost",
                 "removed one file, changed one",
                 "6:e3cefb520ddc6c7de8bad83f17df4b3d4194fe08",
@@ -171,6 +217,10 @@ public class MercurialTest extends TestCase {
                 "modified");
         assertEquals(modification, modifications.get(6));
 
+    }
+
+    private Date parseIso8601Format(String iso8601Date) throws ParseException {
+        return Iso8601DateParser.parse(iso8601Date);
     }
 
     // 2007-08-29 21:44:19 +0200
@@ -183,10 +233,6 @@ public class MercurialTest extends TestCase {
         }
     }
 
-    public static DateFormat getOutDateFormatter() {
-        return Iso8601DateParser.ISO8601_DATE_PARSER;
-    }
-
 
     private InputStream loadTestLog(String name) {
         InputStream testStream = getClass().getResourceAsStream(name);
@@ -194,52 +240,101 @@ public class MercurialTest extends TestCase {
         return testStream;
     }
 
-    public void testParseEmptyModifications() throws JDOMException, ParseException, IOException {
-        String svnLog =
-            "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
+    public void testSetPropertyNoChanges() throws ParseException {
+        mercurial.setProperty("hasChanges?");
 
-        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
-        assertEquals(0, modifications.length);
+        List noModifications = new ArrayList();
+        mercurial.fillPropertiesIfNeeded(noModifications);
+
+        assertFalse(mercurial.getProperties().containsKey("hasChanges?"));
+        assertEquals(null, mercurial.getProperties().get("hgrevision"));
     }
 
-    public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
-          throws ParseException, JDOMException, IOException {
-        String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                           + "<log>\n"
-                           + "    <logentry revision=\"1234\">\n"
-                           + "        <msg></msg>\n"
-                           + "    </logentry>\n"
-                           + "</log>";
-        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
-        assertEquals(0, modifications.length);
+    public void testSetPropertyHasChanges() throws ParseException {
+        mercurial.setProperty("hasChanges?");
+
+        List hasModifications = new ArrayList();
+        hasModifications.add(createModification(
+                parseIso8601Format("2007-08-27 16:11:19 +0200"),
+                "ET4642@localhost",
+                "Test of a fourth commit",
+                "3:bb0a5f00315f4f6dddb7362a69bc0910b07c4faa",
+                "",
+                "file1.txt",
+                "modified"));
+
+        hasModifications.add(createModification(
+                parseIso8601Format("2007-08-29 21:38:18 +0200"),
+                "ET4642@edbwp000856.edb.local",
+                "Changed 2 files",
+                "4:1da89ee88532fddb21235b2d21e4a46424adbe39",
+                "",
+                "file1.txt",
+                "modified"));
+
+        mercurial.fillPropertiesIfNeeded(hasModifications);
+        Map properties = mercurial.getProperties();
+        assertEquals("true", properties.get("hasChanges?"));
+        assertEquals("4:1da89ee88532fddb21235b2d21e4a46424adbe39", properties.get("hgrevision"));
     }
 
-    public void testFormatDatesForSvnLog() {
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
+    public void testSetPropertyIgnoresPriorState() throws ParseException {
+        testSetPropertyHasChanges();
+        mercurial.fillPropertiesIfNeeded(new ArrayList());
+        
+        assertFalse(mercurial.getProperties().containsKey("hasChanges?"));
+    }
 
-        Date maySeventeenSixPM2001 =
-            new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
-        assertEquals(
-            "{2001-05-17T08:00:00Z}",
-            SVN.formatSVNDate(maySeventeenSixPM2001, false));
+    public void testSetPropertyOnDeleteEmptyModifications() throws ParseException {
+        mercurial.setPropertyOnDelete("hasDeletions?");
 
-        Date maySeventeenEightAM2001 =
-            new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
-        assertEquals(
-            "{2001-05-16T22:00:00Z}",
-            SVN.formatSVNDate(maySeventeenEightAM2001, false));
+        List noModifications = new ArrayList();
+        mercurial.fillPropertiesIfNeeded(noModifications);
 
-        TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
+        assertEquals(null, mercurial.getProperties().get("hasDeletions?"));
+    }
 
-        Date marchTwelfFourPM2003 =
-            new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
-        assertEquals(
-            "{2003-03-13T02:00:00Z}",
-            SVN.formatSVNDate(marchTwelfFourPM2003, false));
+    public void testSetPropertyOnDeleteNoDeletion() throws ParseException {
+        mercurial.setPropertyOnDelete("hasDeletions?");
 
-        Date marchTwelfTenAM2003 =
-            new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
-        assertEquals("{2003-03-12T20:00:00Z}", SVN.formatSVNDate(marchTwelfTenAM2003, false));
+        List noDeletions = new ArrayList();
+        noDeletions.add(createModification(
+                parseIso8601Format("2007-08-27 16:11:19 +0200"),
+                "ET4642@localhost",
+                "Test of a fourth commit",
+                "3:bb0a5f00315f4f6dddb7362a69bc0910b07c4faa",
+                "",
+                "file1.txt",
+                "modified"));
+
+        mercurial.fillPropertiesIfNeeded(noDeletions);
+
+        assertEquals(null, mercurial.getProperties().get("hasDeletions?"));
+    }
+
+    public void testSetPropertyOnDeleteHasDeletion() throws ParseException {
+        mercurial.setPropertyOnDelete("hasDeletions?");
+
+        List hasDeletions = new ArrayList();
+        hasDeletions.add(createModification(
+                parseIso8601Format("2007-08-27 16:11:19 +0200"),
+                "ET4642@localhost",
+                "Test of a fourth commit",
+                "3:bb0a5f00315f4f6dddb7362a69bc0910b07c4faa",
+                "",
+                "file1.txt",
+                "modified"));
+
+        hasDeletions.add(createModification(
+                parseIso8601Format("2007-08-29 21:38:18 +0200"),
+                "ET4642@edbwp000856.edb.local",
+                "Changed 2 files",
+                "4:1da89ee88532fddb21235b2d21e4a46424adbe39",
+                "",
+                "file1.txt",
+                "deleted"));
+        mercurial.fillPropertiesIfNeeded(hasDeletions);
+        assertEquals("true", mercurial.getProperties().get("hasDeletions?"));
     }
 
     private static Modification createModification(
@@ -260,5 +355,20 @@ public class MercurialTest extends TestCase {
         modification.comment = comment;
         modification.revision = revision;
         return modification;
+    }
+
+    public void testParseVersion() throws JDOMException, IOException, ParseException {
+        BufferedInputStream input = new BufferedInputStream(loadTestLog("mercurial_version.txt"));
+        String version = Mercurial.parseVersionStream(input);
+        input.close();
+
+        assertEquals("version 0.9.4", version);
+    }
+
+    public void testBuildVersionCommand() throws CruiseControlException {
+        mercurial.setLocalWorkingCopy(".");
+        String[] expectedCmd = { "hg", "version" };
+        String[] actualCmd = mercurial.buildVersionCommand().getCommandline();
+        TestUtil.assertArray("", expectedCmd, actualCmd);
     }
 }

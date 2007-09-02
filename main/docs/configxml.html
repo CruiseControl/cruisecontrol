@@ -150,6 +150,7 @@
 <a href="#maven2">&lt;maven2&gt;</a>
 <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency&gt;</a>
 <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency&gt;</a>
+<a href="#mercurial">&lt;mercurial&gt;</a>
 <a href="#merge">&lt;merge&gt;</a>
 <a href="#mks">&lt;mks&gt;</a>
 <a href="#modificationset">&lt;modificationset&gt;</a>
@@ -253,6 +254,7 @@
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
          <a href="#harvestbootstrapper">&lt;harvestbootstrapper/&gt;</a>
          <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
+         <a href="#mercurialbootstrapper">&lt;mercurialbootstrapper/&gt;</a>
          <a href="#p4bootstrapper">&lt;p4bootstrapper/&gt;</a>
          <a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper/&gt;</a>
          <a href="#snapshotcmbootstrapper">&lt;snapshotcmbootstrapper/&gt;</a>
@@ -281,6 +283,7 @@
          <a href="#httpfile">&lt;httpfile/&gt;</a>
          <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency/&gt;</a>
          <a href="#maven2snapshotdependency">&lt;maven2snapshotdependency/&gt;</a>
+         <a href="#mercurial">&lt;mercurial/&gt;</a>
          <a href="#mks">&lt;mks/&gt;</a>
          <a href="#p4">&lt;p4/&gt;</a>
          <a href="#plasticscm">&lt;plasticscm/&gt;</a>
@@ -1396,6 +1399,11 @@ password=P@ssW0rd!
                 <td>Creates the lock file if it doesn't already exist</td>
             </tr>
             <tr>
+                <td><a href="#mercurialbootstrapper">&lt;mercurialbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Mercurial</td>
+            </tr>
+            <tr>
                 <td><a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from Perforce</td>
@@ -2149,6 +2157,43 @@ password=P@ssW0rd!
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="mercurialbootstrapper">&lt;mercurialbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;mercurialbootstrapper&gt;</pre>
+        </div>
+
+        <p>Handles updating from a Mercurial repository before the build
+        begins.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>localWorkingCopy</td>
+                <td>Yes</td>
+                <td>the relative or absolute path to the local working copy of
+                the Mercurial repository on which to execute the update
+                command.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="p4bootstrapper">&lt;p4bootstrapper&gt;</a></h2>
 
         <div class="hierarchy">
@@ -2529,7 +2574,7 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-        </div>
+      </div>
 
 	  <div class="elementdocumentation">
 				<a class="toplink" href="#top">top</a>
@@ -2876,6 +2921,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td><a href="#httpfile">&lt;httpfile&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a remote file via http.</td>
+            </tr>
+            <tr>
+                <td><a href="#mercurial">&lt;mercurial&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Mercurial repository.</td>
             </tr>
             <tr>
                 <td><a href="#mks">&lt;mks&gt;</a></td>
@@ -4187,6 +4237,61 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="mercurial">&lt;mercurial&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;mercurial&gt;</pre>
+        </div>
+
+        <p>Triggers a build if there is a change within an Mercurial repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>localworkingdir</td>
+                <td>Yes</td>
+                <td>Local directory for the sandbox.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Properties Passed to the Builders</h3>
+
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties passed to builders</a>, &lt;mercurial&gt; sets the
+        following properties:</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>hgrevision</td>
+                <td>The latest revision number</td>
             </tr>
             </tbody>
         </table>
