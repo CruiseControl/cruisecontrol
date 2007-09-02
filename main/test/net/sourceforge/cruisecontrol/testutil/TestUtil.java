@@ -178,7 +178,7 @@ public final class TestUtil {
     /**
      * Return true when same.
      */
-    public static void assertArray(String msg, String[] refarr, String[] testarr) {
+    public static void assertArray(String msg, Object[] refarr, Object[] testarr) {
         Assert.assertNotNull(refarr);
         Assert.assertNotNull(testarr);
 

@@ -1,0 +1,53 @@
+comparing with C:\b2bdev\mercurial\hg-repo-testproj
+searching for changes
+examining e3cefb520ddc:96c69a5940d9
+found incomplete branch e3cefb520ddc:96c69a5940d9
+narrowing 1:4 93981bd12571
+narrowing 2:4 1da89ee88532
+narrowing 4:4 d3e69c09238e
+narrowed branch search to 1da89ee88532:d3e69c09238e
+narrowing 1:2 bb0a5f00315f
+narrowing 2:2 d3e69c09238e
+found new branch changeset bb0a5f00315f
+found new changesets starting at bb0a5f00315f
+2 total queries
+<hgChange>
+        <author>ET4642@localhost</author>
+        <rev>3</rev>
+        <node>bb0a5f00315f4f6dddb7362a69bc0910b07c4faa</node>
+        <description>Test of a fourth commit</description>
+        <date>1188223879 -7200</date>
+        <addedFiles></addedFiles>
+        <removedFiles></removedFiles>
+        <changedFiles>file1.txt</changedFiles>
+</hgChange>
+<hgChange>
+        <author>ET4642@edbwp000856.edb.local</author>
+        <rev>4</rev>
+        <node>1da89ee88532fddb21235b2d21e4a46424adbe39</node>
+        <description>Changed 2 files</description>
+        <date>1188416298 -7200</date>
+        <addedFiles>file2.txt</addedFiles>
+        <removedFiles></removedFiles>
+        <changedFiles>file1.txt</changedFiles>
+</hgChange>
+<hgChange>
+        <author>ET4642@edbwp000856.edb.local</author>
+        <rev>5</rev>
+        <node>93981bd125719a98d7c11028560b2b736b3f12ec</node>
+        <description>new change, with one directory depth</description>
+        <date>1188416677 -7200</date>
+        <addedFiles>mydir/newfile.txt</addedFiles>
+        <removedFiles></removedFiles>
+        <changedFiles>file1.txt</changedFiles>
+</hgChange>
+<hgChange>
+        <author>ET4642@localhost</author>
+        <rev>6</rev>
+        <node>e3cefb520ddc6c7de8bad83f17df4b3d4194fe08</node>
+        <description>removed one file, changed one</description>
+        <date>1188457748 -7200</date>
+        <addedFiles></addedFiles>
+        <removedFiles>file2.txt</removedFiles>
+        <changedFiles>file1.txt</changedFiles>
+</hgChange>
