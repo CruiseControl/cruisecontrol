@@ -36,21 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
-
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 
 /**
  *  Instantiates a project from a JDOM Element. Supports the use of Ant-like patterns in
@@ -141,106 +134,25 @@ public class ProjectXMLHelper implements ProjectHelper {
         parsePropertiesInElement(element, this.projectProperties, CruiseControlConfig.FAIL_UPON_MISSING_PROPERTY);
     }
 
-
-
-    /**
+  /**
      * Registers one or more properties as defined in a property element.
      *
      * @param propertyElement The element from which we will register properties
      * @throws CruiseControlException
      */
-    public static void registerProperty(Map props, Element propertyElement,
+    public static DefaultPropertiesPlugin registerProperty(Map props, Element propertyElement,
                                          boolean failIfMissing) throws CruiseControlException {
-        // Determine which attributes were set in the element
-        String fileName = parsePropertiesInString(props, propertyElement.getAttributeValue("file"),
-                                                  failIfMissing);
-        String environment = parsePropertiesInString(props,
-                                                     propertyElement.getAttributeValue("environment"),
-                                                     failIfMissing);
-        String propName = parsePropertiesInString(props, propertyElement.getAttributeValue("name"),
-                                                  failIfMissing);
-        String propValue = propertyElement.getAttributeValue("value");
-        String toUpperValue = parsePropertiesInString(props,
-                                                      propertyElement.getAttributeValue("toupper"),
-                                                      failIfMissing);
-        boolean toupper = "true".equalsIgnoreCase(toUpperValue);
 
-        // If the file attribute was set, try to read properties
-        // from the given filename.
-        if (fileName != null && fileName.trim().length() > 0) {
-            File file = new File(fileName);
-            // TODO FIXME add exists check.
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
-                // Read the file line by line, expanding macros
-                // as we go. We must do this manually to preserve the
-                // order of the properties.
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    line = line.trim();
-                    if (line.length() == 0 || line.charAt(0) == '#') {
-                        continue;
-                    }
-                    int index = line.indexOf('=');
-                    if (index < 0) {
-                        continue;
-                    }
-                    String parsedName
-                        = parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
-                    String parsedValue
-                        = parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
-                    setProperty(props, parsedName, parsedValue);
-                }
-                reader.close();
-            } catch (FileNotFoundException e) {
-                throw new CruiseControlException(
-                        "Could not load properties from file \"" + fileName
-                                + "\". The file does not exist", e);
-            } catch (IOException e) {
-                throw new CruiseControlException(
-                        "Could not load properties from file \"" + fileName
-                                + "\".", e);
-            }
-        } else if (environment != null) {
-            // Load the environment into the project's properties
-            Iterator variables = new OSEnvironment().getEnvironment().iterator();
-            while (variables.hasNext()) {
-                String line = (String) variables.next();
-                int index = line.indexOf('=');
-                if (index < 0) {
-                    continue;
-                }
-                // If the toupper attribute was set, upcase the variables
-                StringBuffer name = new StringBuffer(environment);
-                name.append(".");
-                if (toupper) {
-                    name.append(line.substring(0, index).toUpperCase());
-                } else {
-                    name.append(line.substring(0, index));
-                }
-                String parsedValue = parsePropertiesInString(props, line.substring(index + 1), failIfMissing);
-                setProperty(props, name.toString(), parsedValue);
-            }
-        } else {
-            // Try to get a name value pair
-            if (propName == null) {
-                throw new CruiseControlException("Bad property definition - "
-                        + new XMLOutputter().outputString(propertyElement));
-            }
-            if (propValue == null) {
-                throw new CruiseControlException(
-                        "No value provided for property \"" + propName + "\" - "
-                        + new XMLOutputter().outputString(propertyElement));
-            }
-            String parsedValue = parsePropertiesInString(props, propValue, failIfMissing);
-            setProperty(props, propName, parsedValue);
+        parsePropertiesInElement(propertyElement, props, failIfMissing);
+
+        Object o = new ProjectXMLHelper().configurePlugin(propertyElement, false);
+        if (!(o instanceof DefaultPropertiesPlugin)) {
+          throw new CruiseControlException("Properties element does not extend DefaultPropertiesPlugin interface."
+                  + " Check your CC global plugin configuration.");
         }
-    }
-
-    // FIXME Helper extract ?
-    private static void setProperty(Map props, String name, String parsedValue) {
-        LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
-        props.put(name, parsedValue);
+        DefaultPropertiesPlugin propertiesObject = (DefaultPropertiesPlugin) o;
+        propertiesObject.loadProperties(props, failIfMissing);
+        return propertiesObject;
     }
 
 
@@ -323,5 +235,10 @@ public class ProjectXMLHelper implements ProjectHelper {
         if (text.length() > 0) {
             element.setText(parsePropertiesInString(props, text, failIfMissing));
         }
+    }
+
+    public static void setProperty(Map props, String name, String parsedValue) {
+        ProjectXMLHelper.LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
+        props.put(name, parsedValue);
     }
 }

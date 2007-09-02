@@ -39,6 +39,12 @@ package net.sourceforge.cruisecontrol;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
+import net.sourceforge.cruisecontrol.config.ConfigurationPlugin;
+import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.SystemPlugin;
+import net.sourceforge.cruisecontrol.config.ThreadsPlugin;
+import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -54,7 +60,10 @@ public final class PluginType implements Serializable {
     public static final PluginType BOOTSTRAPPER = new PluginType("bootstrapper", "bootstrappers");
     public static final PluginType BOOTSTRAPPERS = new PluginType("bootstrappers", "project");
     public static final PluginType BUILDER = new PluginType("builder", "schedule");
+    public static final PluginType CONFIGURATION = new PluginType("configuration", "system");
+    public static final PluginType CRUISECONTROL = new PluginType("cruisecontrol", "");
     public static final PluginType DATE_FORMAT = new PluginType("dateformat", "project");
+    public static final PluginType INCLUDE_PROJECTS = new PluginType("include.projects", "cruisecontrol");
     public static final PluginType LABEL_INCREMENTER = new PluginType("labelincrementer", "project");
     public static final PluginType LISTENER = new PluginType("listener", "listeners");
     public static final PluginType LISTENERS = new PluginType("listeners", "project");
@@ -64,20 +73,27 @@ public final class PluginType implements Serializable {
     public static final PluginType MANIPULATORS = new PluginType("manipulators", "log");
     public static final PluginType MODIFICATION_SET = new PluginType("modificationset", "project");
     public static final PluginType PROJECT = new PluginType("project", "cruisecontrol");
+    public static final PluginType PLUGIN = new PluginType("plugin", "cruisecontrol");
     public static final PluginType EMAIL_MAPPER = new PluginType("propertiesmapper", "email");
     public static final PluginType PAUSE = new PluginType("pause", "schedule");
+    public static final PluginType PROPERTIES = new PluginType("property", "cruisecontrol");
     public static final PluginType PUBLISHER = new PluginType("publisher", "publishers");
     public static final PluginType PUBLISHERS = new PluginType("publishers", "project");
     public static final PluginType SCHEDULE = new PluginType("schedule", "project");
     public static final PluginType SOURCE_CONTROL = new PluginType("sourcecontrol", "modificationset");
+    public static final PluginType SYSTEM = new PluginType("system", "cruisecontrol");
+    public static final PluginType THREADS = new PluginType("threads", "configuration");
 
     private static final Map PLUGIN_TYPES = new HashMap() {
         {
             put(Bootstrapper.class, BOOTSTRAPPER);
             put(ProjectConfig.Bootstrappers.class, BOOTSTRAPPERS);
             put(Builder.class, BUILDER);
+            put(ConfigurationPlugin.class, CONFIGURATION);
+            put(CruiseControlConfig.class, CRUISECONTROL);
             put(CCDateFormat.class, DATE_FORMAT);
             put(LabelIncrementer.class, LABEL_INCREMENTER);
+            put(IncludeProjectsPlugin.class, INCLUDE_PROJECTS);
             put(Listener.class, LISTENER);
             put(ProjectConfig.Listeners.class, LISTENERS);
             put(Log.class, LOG);
@@ -86,12 +102,16 @@ public final class PluginType implements Serializable {
             put(Manipulator.class, MANIPULATORS);
             put(ModificationSet.class, MODIFICATION_SET);
             put(ProjectConfig.class, PROJECT);
+            put(PluginPlugin.class, PLUGIN);
             put(EmailMapper.class, EMAIL_MAPPER);
             put(ProjectConfig.Publishers.class, PUBLISHERS);
             put(PauseBuilder.class, PAUSE);
+            put(DefaultPropertiesPlugin.class, PROPERTIES);
             put(Publisher.class, PUBLISHER);
             put(Schedule.class, SCHEDULE);
             put(SourceControl.class, SOURCE_CONTROL);
+            put(SystemPlugin.class, SYSTEM);
+            put(ThreadsPlugin.class, THREADS);
         }
     };
 

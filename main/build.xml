@@ -377,6 +377,21 @@
 		</exec>
 	</target>
 
+    <target name="gendoc" depends="init,compile" description="generate the plugin documentation">
+        <ant dir="../gendoc" target="all" inheritall="false"/>
+
+        <java classname="net.sourceforge.cruisecontrol.gendoc.Gendoc">
+            <classpath>
+                <pathelement location="../gendoc/dist/gendoc.jar"/>
+                <pathelement location="../gendoc/lib/qdox-1.6.1.jar"/>
+                <pathelement location="../gendoc/lib/velocity-1.5.jar"/>
+                <pathelement location="../gendoc/lib/velocity-dep-1.5.jar"/>
+                <pathelement location="../gendoc/src/"/>
+            </classpath>
+        </java>
+
+    </target>
+
     <target name="all" depends="init,compile-all,-checkstyle,check-duplication,test-all,jar" description="Performs a build, runs tests, and builds jar" />
     <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />

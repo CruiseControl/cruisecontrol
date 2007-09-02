@@ -81,6 +81,7 @@
                     <li><a href="#preconfiguration">Preconfiguration</a></li>
                 </ul>
             </li>
+            <li><a href="#xmldocumentation">Plugin XML Documentation</a></li>
             <li><a href="#defaultregistry">Default Registry</a></li>
         </ol>
 
@@ -255,6 +256,44 @@
         <p>More information and examples can be found on <a class="external"
         href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">the wiki</a>.
         </p>
+
+        <h2><a name="xmldocumentation"/>Plugin XML Documentation</h2>
+
+        <p>The <a href="configxml.html">config reference</a> is automatically generated from
+        comments and tags contained in the plugins code.</p>
+
+        Here's a simple self-commented example:
+<pre>
+/**
+ * This will make it into the plugin description.
+ * &lt;p&gt;You can also have HTML code &lt;/p&gt;
+ * @cc-plugin
+ * @see other javadoc tags are not taken into account.
+ */
+public class MyPlugin {
+    /** The default value is automatically identified whenever possible */
+    private String myField = "defaultValue";
+
+    /**
+     * A comment that will describe the entry in the parameter table for the plugin.
+     * @required "the comment that will make it into the required column"
+     * @defaultValue "forceDefaultValue"
+     */
+    public void setMyField(String myField) {
+        this.myField = myField;
+    }
+
+    /**
+     * A comment that will describe the entry in the Child table for the plugin.
+     * @cardinality 0..*
+     */
+    public void addObject(Object object) {
+        ...
+    }
+}
+</pre>
+
+    For more information look at the gendoc API (FIXME link).
 
         <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 

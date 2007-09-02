@@ -49,6 +49,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
 
 
 /**
@@ -131,38 +132,43 @@ public final class PluginRegistry implements Serializable {
      * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
      */
     public void register(String pluginName, String pluginClassname) {
+        // TODO hide from public interface
         plugins.put(pluginName.toLowerCase(), pluginClassname);
     }
 
-    /**
+    public void register(PluginPlugin plugin) throws CruiseControlException {
+      String pluginName = plugin.getName();
+      String pluginClassName = plugin.getClassname();
+      Element transformedElement = plugin.getTransformedElement();
+      if (pluginClassName != null) {
+        register(pluginName, pluginClassName);
+      } else {
+        // should be known plugin, then
+        if (!isPluginRegistered(pluginName)) {
+          throw new CruiseControlException("Unknown plugin '"
+                  + pluginName + "'; maybe you forgot to specify a classname?");
+        }
+      }
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("storing plugin configuration " + pluginName);
+      }
+      pluginConfigs.put(pluginName, transformedElement);
+    }
+
+  /**
      * Registers the given plugin, including plugin configuration.
      *
      * @param pluginElement the JDom element that contains the plugin definition.
+     * @deprecated use {@link #register(PluginPlugin)}
      */
     public void register(Element pluginElement) throws CruiseControlException {
-        String pluginName = pluginElement.getAttributeValue("name").toLowerCase();
-        String pluginClassName = pluginElement.getAttributeValue("classname");
-        if (pluginClassName != null) {
-            register(pluginName, pluginClassName);
-        } else {
-            // should be known plugin, then
-            if (!isPluginRegistered(pluginName)) {
-                throw new CruiseControlException("Unknown plugin '"
-                        + pluginName + "'; maybe you forgot to specify a classname?");
-            }
-        }
-
-        Element clonedPluginElement = (Element) pluginElement.clone();
-        clonedPluginElement.removeAttribute("name");
-        clonedPluginElement.removeAttribute("classname");
-        clonedPluginElement.setName(pluginName);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("storing plugin configuration " + pluginName);
-        }
-        pluginConfigs.put(pluginName, clonedPluginElement);
+      PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(pluginElement, false);
+      register(plugin);
     }
 
-    /**
+
+  /**
      * Registers the given plugin in the root registry, so it will be
      * available to all projects.
      *
