@@ -49,6 +49,8 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 
 import org.apache.log4j.Logger;
 
@@ -125,8 +127,30 @@ public class ProjectConfig implements ProjectInterface {
         this.buildAfterFailed = buildAfterFailed;
     }
 
+    /**
+     * Defines a name/value pair used in configuration.
+     */
+    public void add(DefaultPropertiesPlugin plugin) {
+      // currently only declared for documentation generation purposes
+    }
+
+    /**
+     * Registers a classname with an alias.
+     */
+    public void add(PluginPlugin plugin) {
+      // currently only declared for documentation generation purposes
+    }
+
     public void add(CCDateFormat dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    public void add(LabelIncrementer labelIncrementer) {
+        this.labelIncrementer = labelIncrementer;
+    }
+
+    public void add(Listeners listeners) {
+        this.listeners = listeners;
     }
 
     public void add(ModificationSet modificationSet) {
@@ -135,10 +159,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public void add(Bootstrappers bootstrappers) {
         this.bootstrappers = bootstrappers;
-    }
-
-    public void add(Listeners listeners) {
-        this.listeners = listeners;
     }
 
     public void add(Publishers publishers) {
@@ -151,10 +171,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public void add(Log log) {
         this.log = log;
-    }
-
-    public void add(LabelIncrementer labelIncrementer) {
-        this.labelIncrementer = labelIncrementer;
     }
 
     public CCDateFormat getDateFormat() {

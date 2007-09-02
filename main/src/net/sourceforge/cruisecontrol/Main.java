@@ -141,8 +141,8 @@ public final class Main implements CruiseControlMain {
             LOG.error("error setting config file on controller", e);
             throw e;
         }
-        ServerXMLHelper helper = new ServerXMLHelper(configFile);
-        ThreadQueueProperties.setMaxThreadCount(helper.getNumThreads());
+        int maxNbThreads = ccController.getConfigManager().getCruiseControlConfig().getMaxNbThreads(); 
+        ThreadQueueProperties.setMaxThreadCount(maxNbThreads);
         return ccController;
     }
 

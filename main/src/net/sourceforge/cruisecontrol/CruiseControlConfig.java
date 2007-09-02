@@ -48,14 +48,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.XmlResolver;
+import net.sourceforge.cruisecontrol.config.SystemPlugin;
+import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
+import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- * A plugin that represents the whole XML config file.
+ * <p>The <code>&lt;cruisecontrol&gt;</code> element is the root element of the configuration,
+ * and acts as a container to the rest of the  configuration elements.</p>
+ * 
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class CruiseControlConfig {
@@ -82,6 +88,19 @@ public class CruiseControlConfig {
     private Map projectPluginRegistries = new TreeMap();
 
     private XmlResolver xmlResolver;
+
+    private SystemPlugin system;
+
+    public int getMaxNbThreads() {
+        if (system != null) {
+            if (system.getConfig() != null) {
+                if (system.getConfig().getThreads() != null) {
+                    return system.getConfig().getThreads().getCount();
+                }
+            }
+        }
+        return 1;
+    }
 
     private final CruiseControlController controller;
 
@@ -122,7 +141,9 @@ public class CruiseControlConfig {
             final String nodeName = childElement.getName();
             if (isProject(nodeName)) {
                 handleProject(childElement);
-            } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
+            } else if ("system".equals(nodeName)) {
+                add((SystemPlugin) new ProjectXMLHelper().configurePlugin(childElement, false));
+            }  else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
@@ -148,19 +169,10 @@ public class CruiseControlConfig {
             return;
         }
         try {
-            path = ProjectXMLHelper.parsePropertiesInString(rootProperties, path, FAIL_UPON_MISSING_PROPERTY);
-            LOG.debug("getting included projects from " + path);
-            Element includedElement = xmlResolver.getElement(path);
-            CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
-            Set includedProjectNames = includedConfig.getProjectNames();
-            for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
-                String name = (String) iter.next();
-                if (projects.containsKey(name)) {
-                    String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
-                    LOG.error(message);
-                }
-                projects.put(name, includedConfig.getProject(name));
-            }
+            IncludeProjectsPlugin includeProjects =
+                    (IncludeProjectsPlugin) new ProjectXMLHelper(rootProperties, this.getRootPlugins())
+                            .configurePlugin(includeElement, FAIL_UPON_MISSING_PROPERTY);
+            add(includeProjects);
         } catch (CruiseControlException e) {
             LOG.error("Exception including file " + path, e);
         }
@@ -213,7 +225,70 @@ public class CruiseControlConfig {
     }
 
     private void handleRootProperty(Element childElement) throws CruiseControlException {
-        ProjectXMLHelper.registerProperty(rootProperties, childElement, FAIL_UPON_MISSING_PROPERTY);
+        DefaultPropertiesPlugin props
+                = ProjectXMLHelper.registerProperty(rootProperties, childElement, FAIL_UPON_MISSING_PROPERTY);
+        add(props);
+    }
+
+
+    /**
+     * Defines a name/value pair used in configuration.
+     * @param property
+     * @cardinality 0..*;
+     */
+    public void add(DefaultPropertiesPlugin property) {
+        // FIXME this is empty today for the documentation to be generated properly
+    }
+
+    /**
+     * Add projects defined in other configuration files.
+     * @cardinality 0..*;
+     */
+    public void add(IncludeProjectsPlugin project) throws CruiseControlException {
+      String file = project.getFile();
+      String path = ProjectXMLHelper.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
+      // FIXME GENDOC Self configure ??
+      LOG.debug("getting included projects from " + path);
+      Element includedElement = xmlResolver.getElement(path);
+      CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
+      Set includedProjectNames = includedConfig.getProjectNames();
+      for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
+          String name = (String) iter.next();
+          if (projects.containsKey(name)) {
+              String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
+              LOG.error(message);
+          }
+          projects.put(name, includedConfig.getProject(name));
+      }
+    }
+
+    /**
+     * Currently just a placeholder for the <configuration> element, which in its turn is just a placeholder for
+     * the <threads> element.
+     * We expect that in the future, more system-level features can be configured under this element.
+     * @param system
+     * @cardinality 0..1;
+     */
+    public void add(SystemPlugin system) {
+        this.system = system;
+    }
+
+    /**
+     * Registers a classname with an alias.
+     * @param plugin
+     * @cardinality 0..*;
+     */
+    public void add(PluginPlugin plugin) {
+        // FIXME this is empty today for the documentation to be generated properly
+    }
+
+    /**
+     * Defines a basic unit of work
+     * @param project
+     * @cardinality 1..*;
+     */
+    public void add(ProjectInterface project) {
+        // FIXME this is empty today for the documentation to be generated properly
     }
 
     private void handleProject(Element projectElement) throws CruiseControlException {
@@ -268,7 +343,11 @@ public class CruiseControlConfig {
         // Register any custom plugins
         PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
         for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
-            projectPlugins.register((Element) pluginIter.next());
+            Element element = (Element) pluginIter.next();
+            PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(element, false);
+            // projectPlugins.register(plugin);
+            projectPlugins.register(element);
+            // add(plugin);
         }
 
         projectElement.removeChildren("property");
@@ -283,6 +362,8 @@ public class CruiseControlConfig {
         } catch (CruiseControlException e) {
             throw new CruiseControlException("error configuring project " + projectName, e);
         }
+
+        add(project);
 
         // TODO: get rid of this ProjectConfig special case
         if (project instanceof ProjectConfig) {
