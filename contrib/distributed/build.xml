@@ -47,9 +47,9 @@
      jramsdale                                                                
      ====================================================================== -->
 
-<project name="project" default="build" basedir=".">
+<project name="CCDist" default="build" basedir=".">
 
-    <property environment="env"/>
+    <property file="override.properties" />
 
     <!-- define ccdist.version, use same props file as CC Main -->
     <property file="../../build.properties" />
