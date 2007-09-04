@@ -56,6 +56,7 @@
     <property name="ccdist.release.label" value="${cc.version}" />
 
     <property name="target" value="${basedir}/target"/>
+    <property name="reports.dir" value="${target}/reports" />
 
     <property name="classes" value="${target}/classes"/>
     <property name="test.classes" value="${target}/test-classes" />
@@ -84,10 +85,16 @@
     <property name="dist.lookup.DirName" value="dist/lookup"/>
 
 
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
+    <property name="checkstyle.config" value="../../common/checkstyle.xml"/>
+    <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-4.3.jar" />
+
     <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
 
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
+
+    <import file="../../common/checkstyle-build.xml"/>
 
     <path id='emma.classpath'>
         <pathelement location="${dir.main.lib}/emma.jar" />
@@ -377,18 +384,14 @@
     </target>
 
     <target name="checkstyle" depends="init" description="Run CheckStyle on code">
-        <taskdef resource="checkstyletask.properties" >
-            <classpath>
-                <fileset dir="${dir.main.lib}" includes="checkstyle-all*.jar"/>
-            </classpath>
-        </taskdef>
-        <checkstyle config="${dir.main}/checkstyle.xml" failOnViolation="${checkstyle.fail.on.violation}">
-            <formatter type="plain"/>
-            <formatter type="plain" tofile="${target}/checkstyleResults.txt"/>
-            <fileset dir="${src}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
-            <fileset dir="${test}" includes="net/sourceforge/cruisecontrol/**/*.java"/>
-            <property key="basedir" value="${dir.main}"/>
-        </checkstyle>
+        <checkstyle-macro
+            reportsdir="${reports.dir}"
+            configfile="${checkstyle.config}"
+            checkstylecache="${checkstyle.cache}">
+
+            <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}" />
+
+        </checkstyle-macro>
     </target>
 
 
