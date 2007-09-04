@@ -18,10 +18,6 @@
               files="UCM.java"
               lines="307,436"/>
 
-    <suppress checks="InnerAssignment"
-              files="FileUtil.java"
-              lines="82"/>
-
 
     <suppress checks="DescendantToken"
               files="SametimeAnnouncementPublisher.java"
