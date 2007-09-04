@@ -7,7 +7,6 @@
     <property name="http.proxyPort" value="0"/>
     <property name="http.proxyUser" value=""/>
     <property name="http.proxyPassword" value=""/>
-    <property environment="env" />
 
     <!-- use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one -->
@@ -179,8 +178,8 @@
     <target name="prep-cc-config">
         <mkdir dir="target"/>
         <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" proxyUser="${http.proxyUser}" proxyPassword="${http.proxyPassword}"/>
-        <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_1.7.1.zip" dest="${env.TEMP}/cc-config.zip" verbose="on" usetimestamp="true"/>
-        <unzip src="${env.TEMP}/cc-config.zip" dest="target/cc-config" />
+        <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_1.7.1.zip" dest="${java.io.tmpdir}/cc-config.zip" verbose="on" usetimestamp="true"/>
+        <unzip src="${java.io.tmpdir}/cc-config.zip" dest="target/cc-config" />
         <ant antfile="build.xml" target="setup" dir="target/cc-config" inheritAll="false">
             <property name="main.dir" value="../../main" />
         </ant>
