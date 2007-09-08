@@ -316,7 +316,6 @@ public class SVN implements SourceControl {
      * @return history command
      * @param lastBuild date
      * @param checkTime checkTime
-     * @param isWindows os
      * @throws net.sourceforge.cruisecontrol.CruiseControlException exception
      */
     Commandline buildHistoryCommand(String lastBuild, String checkTime)
