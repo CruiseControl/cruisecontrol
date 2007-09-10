@@ -56,6 +56,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.AntScript;
+import net.sourceforge.cruisecontrol.builders.CompositeBuilder;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
@@ -394,9 +395,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             }
 
             // @todo Test under webstart 4, 5 and 6.0
-            if (nestedBuilder instanceof AntBuilder) {
-                injectAntProgressLoggerLibIfNeeded((AntBuilder) nestedBuilder);
-            }
+            injectAntProgressLoggerLibIfNeeded(nestedBuilder);
 
             final String overrideTarget = (String) distributedAgentProps.get(
                     PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
@@ -465,8 +464,17 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         }
     }
 
-    // @todo Add unit tests of non-Webstart logic
-    static void injectAntProgressLoggerLibIfNeeded(final AntBuilder antBuilder) {
+    static void injectAntProgressLoggerLibIfNeeded(final Builder builder) {
+        if (builder instanceof AntBuilder) {
+            doInjectAntProgressLoggerLibIfNeeded((AntBuilder) builder);
+        } else if (builder instanceof CompositeBuilder) {
+            final Builder[] builders = ((CompositeBuilder) builder).getBuilders();
+            for (int i = 0; i < builders.length; i++) {
+                injectAntProgressLoggerLibIfNeeded(builders[i]);
+            }
+        }
+    }
+    private static void doInjectAntProgressLoggerLibIfNeeded(final AntBuilder antBuilder) {
 
         if (antBuilder.getProgressLoggerLib() != null) {
             // path already set, so don't interfere
