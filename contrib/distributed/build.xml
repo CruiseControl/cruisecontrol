@@ -537,7 +537,19 @@
 				<!--<include name="**/BuildAgentServiceImpl.class" />-->
 			<!--</fileset>-->
 		<!--</jar>-->
-	</target>
+
+        <!-- wrapper jar for Ant Progress Logger.jar -->
+        <jar destfile="dist/agent/lib/cc-agent-antprogresslogger.jar">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+                <attribute name="Implementation-Version" value="${ccdist.build.version} ${ccdist.build.version.info}" />
+			</manifest>
+			<fileset dir="dist/agent/lib">
+                <!-- wrap the jar in a jar so we can get it as a resource -->
+                <include name="cruisecontrol-antprogresslogger.jar" />           <!-- Do NOT include sub dirs -->
+			</fileset>
+		</jar>
+    </target>
 
     <target name="jar-util" depends="compile, jar-core" description="Creates ccdist-util.jar">
         <!-- @todo Find a clean, webstart friendly way to avoid duplicating these jars. Maybe use Maven2? -->

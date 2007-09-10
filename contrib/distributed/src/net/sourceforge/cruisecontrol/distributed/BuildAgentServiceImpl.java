@@ -54,11 +54,14 @@ import java.util.HashMap;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.builders.AntScript;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
+import net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
@@ -390,6 +393,11 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 throw new RemoteException(message, e);
             }
 
+            // @todo Test under webstart 4, 5 and 6.0
+            if (nestedBuilder instanceof AntBuilder) {
+                injectAntProgressLoggerLibIfNeeded((AntBuilder) nestedBuilder);
+            }
+
             final String overrideTarget = (String) distributedAgentProps.get(
                     PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
 
@@ -455,6 +463,46 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 LOG.info("Restored Agent log level to: " + origLogLevel);
             }
         }
+    }
+
+    // @todo Add unit tests of non-Webstart logic
+    static void injectAntProgressLoggerLibIfNeeded(final AntBuilder antBuilder) {
+
+        if (antBuilder.getProgressLoggerLib() != null) {
+            // path already set, so don't interfere
+            LOG.debug("Agent skipping AntProgressLogger injection, already set to: "
+                    + antBuilder.getProgressLoggerLib());
+            return; // no kludges required
+        }
+
+        final String defaultAntProgressLoggerLib;
+        try {
+            defaultAntProgressLoggerLib = AntScript.findDefaultProgressLoggerLib();
+
+            if (defaultAntProgressLoggerLib != null) {
+                // AntScript will be able to find the jar on it's own, so again, don't interfere
+                LOG.debug("Agent skipping AntProgressLogger injection, AntScript will set to: "
+                        + defaultAntProgressLoggerLib);
+                return; // no kludges required
+            }
+        } catch (AntScript.ProgressLibLocatorException e) {
+            // This exception is expected under Webstart, so ignore and continue
+            LOG.debug("Couldn't find default AntProgressLogger, will attempt injection.");
+        }
+
+        // This assumes JNLP Extension for Ant Progress Logger has been installed.
+        final String jnlpMuffinAntProgressLoggerPath = AntProgressLoggerInstaller.getJNLPMuffinAntProgressLoggerPath();
+        LOG.debug("jnlpMuffinAntProgressLoggerPath: " + jnlpMuffinAntProgressLoggerPath);
+
+        final File progressLoggerJar = new File(jnlpMuffinAntProgressLoggerPath);
+        if (!progressLoggerJar.exists()) {
+            throw new IllegalStateException(
+                    "JNLP Build Agent couldn't find progress logger lib jar in expected location: "
+                    + progressLoggerJar.getAbsolutePath());
+        }
+
+        antBuilder.setProgressLoggerLib(progressLoggerJar.getAbsolutePath());
+        LOG.debug("Injected AntProgressLogger lib: " + progressLoggerJar.getAbsolutePath() + " into AntBuilder.");
     }
 
     /**
