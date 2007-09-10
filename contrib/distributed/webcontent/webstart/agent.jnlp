@@ -22,7 +22,6 @@
         <jar href="lib/ccdist-core.jar"/>
 
         <jar href="lib/cruisecontrol.jar"/>
-        <jar href="lib/cruisecontrol-antprogresslogger.jar"/>
 
         <jar href="lib/jakarta-oro-2.0.8.jar"/>
         <jar href="lib/jdom.jar"/>
@@ -38,6 +37,10 @@
 
         <jar href="jini-lib/jsk-platform.jar"/>
 
+    </resources>
+
+    <resources>
+        <extension name="antprogresslogger" href="agent_antprogresslogger.jnlp"/>
     </resources>
 
     <application-desc main-class="net.sourceforge.cruisecontrol.distributed.BuildAgent"/>

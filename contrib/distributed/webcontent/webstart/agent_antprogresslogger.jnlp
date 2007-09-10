@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File for Distributed Build Agent -->
+<jnlp spec="1.0+" codebase="$$codebase" href="$$name">
+    <information>
+        <title>CC-Agent-AntProgressLogger-Installer</title>
+        <vendor>CruiseControl</vendor>
+        <description>CruiseControl distributed Build Agent Ant Progress support installer</description>
+        <description kind="short">Installs Ant Progress support libs for Build Agent on this machine.</description>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+"/>
+        <jar href="lib/ccdist-core.jar" main="true"/>
+
+        <!-- support for logging -->
+        <!-- @todo
+        <jar href="??path to log4j properties??"/>
+         -->
+        <jar href="lib/log4j.jar"/>
+
+        <jar href="lib/cc-agent-antprogresslogger.jar"/>
+    </resources>
+    <installer-desc main-class="net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller"/>
+</jnlp>    
