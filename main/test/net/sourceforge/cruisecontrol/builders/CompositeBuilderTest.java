@@ -53,7 +53,7 @@ public class CompositeBuilderTest extends TestCase {
 
     private CompositeBuilder builder;
 
-    private String buildLog1txt = "<cruisecontrol>\n"
+    private static final String BUILD_LOG_TXT_1 = "<cruisecontrol>\n"
             + "<modifications>\n"
             + "<modification type=\"always\">\n"
             + "<file action=\"change\">\n"
@@ -79,7 +79,7 @@ public class CompositeBuilderTest extends TestCase {
             + "</build>\n"
             + "</cruisecontrol>\n";
 
-    private String buildLog2txt = "<cruisecontrol>\n"
+    private static final String BUILD_LOG_TXT_2 = "<cruisecontrol>\n"
             + "<modifications>\n"
             + "<modification type=\"always\">\n"
             + "<file action=\"change\">\n"
@@ -157,7 +157,7 @@ public class CompositeBuilderTest extends TestCase {
     public void testBuildAllBuildersWhenNoErrorOccured() throws Exception {
 
         Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog1txt);
+        buildLog1.addContent(BUILD_LOG_TXT_1);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -180,7 +180,7 @@ public class CompositeBuilderTest extends TestCase {
     public void testBuildWithTargetAllBuilders() throws Exception {
 
         Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog1txt);
+        buildLog1.addContent(BUILD_LOG_TXT_1);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -206,9 +206,9 @@ public class CompositeBuilderTest extends TestCase {
     public void testBuildAllBuildersWhenAnErrorOccured() throws Exception {
 
         Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog1txt);
+        buildLog1.addContent(BUILD_LOG_TXT_1);
         Element buildLog2 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog2txt);
+        buildLog1.addContent(BUILD_LOG_TXT_2);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -232,9 +232,9 @@ public class CompositeBuilderTest extends TestCase {
     public void testBuildWithTargetWhenAnErrorOccured() throws Exception {
 
         Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog1txt);
+        buildLog1.addContent(BUILD_LOG_TXT_1);
         Element buildLog2 = new Element("cruisecontrol");
-        buildLog1.addContent(buildLog2txt);
+        buildLog1.addContent(BUILD_LOG_TXT_2);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -256,5 +256,18 @@ public class CompositeBuilderTest extends TestCase {
 
         assertTrue("builder3 didn't build", mock3.isBuildCalled());
         assertEquals("builder2 didn't build with target", mockTargetWError, mock3.getTarget());
+    }
+
+    public void testGetBuilders() throws Exception {
+        builder = new CompositeBuilder();
+        assertEquals(0, builder.getBuilders().length);
+
+        MockBuilder mock1 = new MockBuilder("builder1");
+        builder.add(mock1);
+        assertEquals(1, builder.getBuilders().length);
+
+        MockBuilder mock2 = new MockBuilder("builder2");
+        builder.add(mock2);
+        assertEquals(2, builder.getBuilders().length);
     }
 } // CompositeBuilderTest

@@ -140,4 +140,9 @@ public class CompositeBuilder extends Builder {
             builder.validate();
         }
     }
+
+    /** @return array of the builders in this composite. */
+    public Builder[] getBuilders() {
+        return (Builder[]) builders.toArray(new Builder[builders.size()]);
+    }
 }
