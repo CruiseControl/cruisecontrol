@@ -18,10 +18,16 @@ import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
+import net.sourceforge.cruisecontrol.distributed.core.jnlputil.JNLPServiceUtil;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.builders.CompositeBuilder;
+import net.sourceforge.cruisecontrol.builders.AntScript;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+
+import javax.jnlp.UnavailableServiceException;
 
 /**
  * @author Dan Rollo
@@ -83,6 +89,94 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         void resetAgentStatusChangeCount() {
             this.agentStatusChangeCount = 0;
+        }
+    }
+
+
+    private static final File LOGGER_JAR_REAL_MAIN_DIST
+            // @todo Change path to main/dist is we ever move CCDist into main
+            = new File("../../main/dist", AntScript.LIBNAME_PROGRESS_LOGGER);
+    private static final File LOGGER_JAR_MOVED = new File(LOGGER_JAR_REAL_MAIN_DIST.getParentFile(),
+            "hidden" + AntScript.LIBNAME_PROGRESS_LOGGER);
+    private static void hideAntProgressLoggerLib() {
+        LOGGER_JAR_REAL_MAIN_DIST.renameTo(LOGGER_JAR_MOVED);
+    }
+    private static void unhideAntProgressLoggerLib() {
+        LOGGER_JAR_MOVED.renameTo(LOGGER_JAR_REAL_MAIN_DIST);
+    }
+
+    public void testInjectAntProgressLoggerLibIfNeeded() throws  Exception {
+        hideAntProgressLoggerLib();
+        try {
+
+            final AntBuilder antBuilder = new AntBuilder();
+
+            // should attempt injection
+            try {
+                BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(antBuilder);
+                fail("Expected JNLP Basic Service to be unavailable");
+            } catch (JNLPServiceUtil.JNLPServiceException e) {
+                assertTrue("Unexpected exception cause.",
+                        e.getCause() instanceof UnavailableServiceException);
+            }
+
+            // test found via default lib location
+            unhideAntProgressLoggerLib();
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(antBuilder);
+            hideAntProgressLoggerLib();
+
+            // test path already set
+            antBuilder.setProgressLoggerLib("someProgressLoggerLibPath");
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(antBuilder);
+        } finally {
+            unhideAntProgressLoggerLib();
+        }
+    }
+
+    public void testInjectAntProgressLoggerLibIfNeededWithComposite() throws  Exception {
+        hideAntProgressLoggerLib();
+        try {
+            final CompositeBuilder compositeBuilder = new CompositeBuilder();
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+
+            compositeBuilder.add(new MockBuilder());
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+
+            final AntBuilder antBuilder = new AntBuilder();
+            compositeBuilder.add(antBuilder);
+
+            // should attempt injection
+            try {
+                BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+                fail("Expected JNLP Basic Service to be unavailable");
+            } catch (JNLPServiceUtil.JNLPServiceException e) {
+                assertTrue("Unexpected exception cause.",
+                        e.getCause() instanceof UnavailableServiceException);
+            }
+            // test path already set
+            antBuilder.setProgressLoggerLib("someProgressLoggerLibPath");
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+
+            // test with composite inside composite
+            final CompositeBuilder compositeBuilder2 = new CompositeBuilder();
+            compositeBuilder.add(compositeBuilder2);
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+
+            final AntBuilder antBuilder2 = new AntBuilder();
+            compositeBuilder2.add(antBuilder2);
+            // should attempt injection
+            try {
+                BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+                fail("Expected JNLP Basic Service to be unavailable");
+            } catch (JNLPServiceUtil.JNLPServiceException e) {
+                assertTrue("Unexpected exception cause.",
+                        e.getCause() instanceof UnavailableServiceException);
+            }
+            // test path already set
+            antBuilder2.setProgressLoggerLib("someProgressLoggerLibPath");
+            BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
+        } finally {
+            unhideAntProgressLoggerLib();
         }
     }
 
