@@ -159,10 +159,8 @@ public class AntScript implements Script, StreamConsumer {
             }
 
             setupDefaultProgressLoggerLib();
-            if (progressLoggerLib != null) {
-                // add -lib to progressLogger classes
-                cmdLine.createArguments("-lib", progressLoggerLib);
-            }
+            // add -lib to progressLogger classes
+            cmdLine.createArguments("-lib", progressLoggerLib);
         }
 
 
@@ -256,24 +254,28 @@ public class AntScript implements Script, StreamConsumer {
         LOG.debug("Using loggerClassName: " + loggerClassName);        
     }
 
-    public static String findProgressLoggerLib() {
+    /**
+     * Finds the default location of the {@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar}
+     * by first finding the location of the jar containing the {@link AntScript} class.
+     *
+     * @return the full path (including jar name) to the jar file
+     * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
+     * containing the AntProgressLogger/Listener classes.
+     * @throws ProgressLibLocatorException if the search class ({@link AntScript}) file can't be found,
+     * likely related to running under Java Webstart >= 6, or simply if the jar can't be found
+     */
+    public static String findDefaultProgressLoggerLib() throws ProgressLibLocatorException {
         // find path (including filename) to progressLoggerLib jar
         final String progressLoggerLib;
 
-        final String deprecatedMsg = "\n"
-                + "\n\t***NOTE: This behavior should be considered deprecated and will hopefully be removed soon. "
-                + "\n\tIt is likely any case where the jar can not be found will result in an exception "
-                + "\n\tin future releases.";
-
         final File ccMain = UtilLocator.getClassSource(AntScript.class);
         if (ccMain == null) {
-            LOG.warn("Could not determine -lib path for progressLoggerLib. (Java 6/Webstart issue?) "
+            throw new ProgressLibLocatorException(
+                "Could not determine -lib path for progressLoggerLib. (Java 6/Webstart issue?) "
                 + "\n\tTo enable showProgress, manully copy " + LIBNAME_PROGRESS_LOGGER + " to some directory "
                 + "\n\tand set the full path (including filename) to " + LIBNAME_PROGRESS_LOGGER + " in config.xml "
                 + "\n\tas the value of 'progressLoggerLib' for this <ant> builder, "
-                + "\n\tOR set showProgress=false for this <ant> builder."
-                + deprecatedMsg);
-            progressLoggerLib = null;
+                + "\n\tOR set showProgress=false for this <ant> builder.");
         } else {
             final String pathToDirContainingCCMainJar;
             if (ccMain.isDirectory()) {
@@ -282,39 +284,34 @@ public class AntScript implements Script, StreamConsumer {
                 pathToDirContainingCCMainJar = ccMain.getParentFile().getAbsolutePath();
             }
 
-            final File progressLoggerJar = new File(pathToDirContainingCCMainJar, LIBNAME_PROGRESS_LOGGER);
-            if (progressLoggerJar.exists()) {
+            final File expectedProgressLoggerJar = new File(pathToDirContainingCCMainJar, LIBNAME_PROGRESS_LOGGER);
+            if (expectedProgressLoggerJar.exists()) {
                 // Use the specific jar if that jar exists.
                 // This is a bit of a hack to load the progress logger jar into
                 // ant without loading other jars (such as, ant.jar for instance)
-                progressLoggerLib = progressLoggerJar.getAbsolutePath();
+                progressLoggerLib = expectedProgressLoggerJar.getAbsolutePath();
             } else {
-                // 1. This is a valid use case when running unit tests - uses classes dir.
-                // 2. This is a valid use case when running CCDist with Webstart (<=5.0)
-                // deployed Build Agents. In this case, cruisecontrol.jar and
-                // cruisecontrol-antprogresslogger.jar will be in the same webstart cache dir,
-                // but the cruisecontrol-antprogresslogger.jar file name will be different.
-                // In this case, there should be no ant jars in the webstart cache dir,
-                // therefore no loading of other ant jars in the ant builder should would occur.
-                // Hopefully, use of jnlp extension service can remove the need for this use case.
-                LOG.warn("The progressLoggerLib jar file does not exist: "
-                        + progressLoggerJar.getAbsolutePath()
-                        + ", using dir instead: " + pathToDirContainingCCMainJar
-                        + deprecatedMsg);
-                progressLoggerLib = pathToDirContainingCCMainJar;
+                // Missing Progress Logger Lib is nasty to debug, so error out here if we can't find it for sure.
+                throw new ProgressLibLocatorException("The progressLoggerLib jar file does not exist where expected: "
+                        + expectedProgressLoggerJar.getAbsolutePath());
             }
         }
         return progressLoggerLib;
     }
 
-    void setupDefaultProgressLoggerLib() {
+    void setupDefaultProgressLoggerLib() throws ProgressLibLocatorException {
         if (progressLoggerLib == null) {
             // Use a valid default for progressLoggerLib
-            progressLoggerLib = findProgressLoggerLib();
+            progressLoggerLib = findDefaultProgressLoggerLib();
             LOG.debug("Using default progressLoggerLib: " + progressLoggerLib);
         }
     }
 
+    public static final class ProgressLibLocatorException extends CruiseControlException {
+        private ProgressLibLocatorException(final String msg) {
+            super(msg);
+        }
+    }
     
     /**
      * Analyze the output of ant command, used to detect errors progress messages.
@@ -347,12 +344,7 @@ public class AntScript implements Script, StreamConsumer {
     public void setLoggerClassName(String loggerClassName) {
         this.loggerClassName = loggerClassName;
     }
-    /**
-     * @return Returns the loggerClassName.
-     */
-    public boolean isLoggerClassNameSet() {
-        return isLoggerClassNameSet;
-    }
+
     /**
      * @param isLoggerClassNameSet The loggerClassName to set.
      */
@@ -471,11 +463,7 @@ public class AntScript implements Script, StreamConsumer {
     public void setProgressLoggerLib(final String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
     }
-    /** @return value of progress logger lib. */
-    String getProgressLoggerLib() {
-        return progressLoggerLib;
-    }
-    
+
     /**
      * @param progress The progress callback object to set.
      */

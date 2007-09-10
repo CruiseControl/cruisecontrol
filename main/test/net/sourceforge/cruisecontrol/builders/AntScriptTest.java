@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -612,17 +613,23 @@ public class AntScriptTest extends TestCase {
         assertEquals(AntScript.CLASSNAME_ANTPROGRESS_XML_LOGGER, AntProgressXmlLogger.class.getName());
     }
 
-    public void testSetupDefaultProgressLoggerLib() throws Exception {
-        script.setupDefaultProgressLoggerLib();
-        assertNotNull(script.getProgressLoggerLib());
-        final File progressLibFile = new File(script.getProgressLoggerLib());
-        assertTrue("Expected default progressLoggerLib to be the class dir, but was: "
-                + progressLibFile.getAbsolutePath(),
-                progressLibFile.isDirectory());
-        assertTrue(progressLibFile.exists());
+    public void testDefaultProgressLoggerLib() throws Exception {
+        try {
+            AntScript.findDefaultProgressLoggerLib();
+            fail("Shouldn't find ProgressLoggerLib in classes tree.");
+        } catch (AntScript.ProgressLibLocatorException e) {
+            assertTrue(e.getMessage().startsWith("The progressLoggerLib jar file does not exist where expected: "));
+        }
+
+        try {
+            script.setupDefaultProgressLoggerLib();
+            fail("Shouldn't find ProgressLoggerLib in classes tree.");
+        } catch (AntScript.ProgressLibLocatorException e) {
+            assertTrue(e.getMessage().startsWith("The progressLoggerLib jar file does not exist where expected: "));
+        }
     }
 
-    public void testGetCommandLineArgs_ProgressLoggerNotUseLogger() throws CruiseControlException {
+    public void testGetCommandLineArgs_ProgressLoggerNotUseLogger() throws Exception {
         String[] args =
             {
                 "java.exe",
@@ -652,13 +659,18 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        final File fakeJar = createFakeProgressLoggerLib();
+        try {
+            TestUtil.assertArray(
+                    "args",
+                    args,
+                script.buildCommandline().getCommandline());
+        } finally {
+            fakeJar.delete();
+        }
     }
 
-    public void testGetCommandLineArgs_ProgressLoggerUseLogger() throws CruiseControlException {
+    public void testGetCommandLineArgs_ProgressLoggerUseLogger() throws Exception {
         String[] args =
             {
                 "java.exe",
@@ -688,10 +700,15 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        final File fakeJar = createFakeProgressLoggerLib();
+        try {
+            TestUtil.assertArray(
+                    "args",
+                    args,
+                script.buildCommandline().getCommandline());
+        } finally {
+            fakeJar.delete();
+        }
     }
 
     public void testGetCommandLineArgs_ProgressLoggerLibNotUseLogger() throws CruiseControlException {
@@ -897,18 +914,16 @@ public class AntScriptTest extends TestCase {
         assertEquals("valid progress msg", progress.getValue());
     }
 
-    private String getLib() {
+    private static String getLib() {
         File ccMain = UtilLocator.getClassSource(AntScript.class);
-
-        final String lib;
-
-        // During unit tests, we'll always load from classes dir, so jar would never exist...
         final File progressLoggerJar = new File(ccMain, AntScript.LIBNAME_PROGRESS_LOGGER);
-        if (progressLoggerJar.exists()) {
-            lib = progressLoggerJar.getAbsolutePath();
-        } else {
-            lib = ccMain.getAbsolutePath();
-        }
-        return lib;
+        return progressLoggerJar.getAbsolutePath();
+    }
+
+    private static File createFakeProgressLoggerLib() throws IOException {
+        final File fakeJar = new File(getLib());
+        fakeJar.createNewFile();
+        fakeJar.deleteOnExit();
+        return fakeJar;
     }
 }
