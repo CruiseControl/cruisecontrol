@@ -586,7 +586,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         try {
             synchronized (agent) {
                 if (!BuildAgentTest.isServiceIDAssigned(agent)) {
-                    agent.wait(30 * 1000);
+                    agent.wait(60 * 1000);
                 }
             }
         } finally {
@@ -630,7 +630,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             try {
                 synchronized (discovery) {
                     if (!MulticastDiscoveryTest.isDiscovered()) {
-                        discovery.wait(10 * 1000);
+                        discovery.wait(60 * 1000);
                     }
                 }
             } finally {
