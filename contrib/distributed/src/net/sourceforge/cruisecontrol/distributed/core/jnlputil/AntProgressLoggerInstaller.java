@@ -152,7 +152,6 @@ public final class AntProgressLoggerInstaller {
     private static void uninstall() {
         final ExtensionInstallerService extensionInstallerService = getExtensionInstallerService();
 
-        // get and create install dir
         final File extPath = getExtPath(extensionInstallerService);
         if (!extPath.exists()) {
             log("Doing nothing because expected file to remove does not exist: " + extPath.getAbsolutePath());
