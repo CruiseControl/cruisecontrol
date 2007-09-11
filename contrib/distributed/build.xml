@@ -546,7 +546,7 @@
 			</manifest>
 			<fileset dir="dist/agent/lib">
                 <!-- wrap the jar in a jar so we can get it as a resource -->
-                <include name="cruisecontrol-antprogresslogger.jar" />           <!-- Do NOT include sub dirs -->
+                <include name="cruisecontrol-antprogresslogger.jar" />
 			</fileset>
 		</jar>
     </target>
