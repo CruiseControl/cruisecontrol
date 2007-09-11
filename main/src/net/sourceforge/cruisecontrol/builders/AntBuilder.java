@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -443,7 +444,9 @@ public class AntBuilder extends Builder {
         isLoggerClassNameSet = true;
     }
 
-    public class JVMArg {
+    public class JVMArg implements Serializable {
+        private static final long serialVersionUID = 402625457108399047L;
+
         private String arg;
 
         public void setArg(String arg) {
@@ -455,7 +458,9 @@ public class AntBuilder extends Builder {
         }
     }
     
-    public class Lib {
+    public class Lib implements Serializable {
+        private static final long serialVersionUID = 1804469347425625224L;
+
         private String searchPath;
 
         public void setSearchPath(String searchPath) {
@@ -467,7 +472,9 @@ public class AntBuilder extends Builder {
         }
     }
     
-    public class Listener {
+    public class Listener implements Serializable {
+        private static final long serialVersionUID = 4813682685614734386L;
+
         private String className;
 
         public void setClassName(String className) {
