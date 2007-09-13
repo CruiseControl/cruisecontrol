@@ -7,6 +7,10 @@ CruiseControl Release Notes - 2.7.2-dev
 build loop
 ======================
 
+AntBootstrapper/Publisher
+----------------------
+* Fix uselogger/AntOutputLogger bug. Provides independent showAntOutput attribute on AntBuilder (CC-699). Reported by Jerome Hourquebie.
+
 Configuration documentation generation
 ----------------------
 * Created addiitonal plugin superclasses to make generating configxml.html. Still a work in progress (CC-202). Patch by Jerome Lacoste.
