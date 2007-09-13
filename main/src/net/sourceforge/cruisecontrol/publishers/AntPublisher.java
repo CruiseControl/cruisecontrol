@@ -65,6 +65,14 @@ public class AntPublisher implements Publisher {
 
     private final AntBuilder delegate = new AntBuilder();
 
+    /**
+     * Constructor overrides default AntBuilder.showAntOutput value in delegate.
+     * Required if showAntOutput defaults to true.
+     */
+    public AntPublisher() {
+        delegate.setShowAntOutput(false);
+    }
+
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */

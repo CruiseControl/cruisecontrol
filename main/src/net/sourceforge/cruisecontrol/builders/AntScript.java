@@ -86,6 +86,7 @@ public class AntScript implements Script, StreamConsumer {
     private List listeners;
     private String loggerClassName;
     private boolean isLoggerClassNameSet;
+    private boolean showAntOutput;
     private String tempFileName = "log.xml";
     private boolean useScript;
     private boolean useLogger;
@@ -133,7 +134,7 @@ public class AntScript implements Script, StreamConsumer {
 
         if (progress == null) {
             if (useLogger) {
-                useLogger(cmdLine);
+                cmdLine.createArguments("-logger", getLoggerClassName());
                 cmdLine.createArguments("-logfile", tempFileName);
             } else {
                 cmdLine.createArguments("-listener", getLoggerClassName());
@@ -145,8 +146,7 @@ public class AntScript implements Script, StreamConsumer {
 
             // use proper default logger if loggerClassName was not specified by config
             setupResolvedLoggerClassname();
-                                            // was set to proper default according to showProgress state.
-            useLogger(cmdLine);
+            cmdLine.createArguments("-logger", getLoggerClassName());
 
             if (useLogger) {
                 // need to use AntProgressXmlLogger as a listener
@@ -157,6 +157,15 @@ public class AntScript implements Script, StreamConsumer {
                 cmdLine.createArguments("-listener", AntBuilder.DEFAULT_LOGGER);
                 cmdLine.createArgument("-DXmlLogger.file=" + tempFileName);
             }
+        }
+
+        if (showAntOutput) {
+            cmdLine.createArguments("-listener", CLASSNAME_DASHBOARD_LISTENER);
+        }
+
+        if (showAntOutput || progress != null) {
+            // we need to add the custom logger jar {@link #LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar}
+            // to the ant VM class path as a lib
 
             setupDefaultProgressLoggerLib();
             // add -lib to progressLogger classes
@@ -210,11 +219,6 @@ public class AntScript implements Script, StreamConsumer {
         return cmdLine;
     }
 
-    private void useLogger(final Commandline cmdLine) {
-        cmdLine.createArguments("-logger", getLoggerClassName());
-        cmdLine.createArguments("-listener", CLASSNAME_DASHBOARD_LISTENER);
-    }
-
     /**
      * @param path the classpath in which to search for the ant-launcher.jar
      * @param isWindows true if running on Windows
@@ -254,12 +258,22 @@ public class AntScript implements Script, StreamConsumer {
         LOG.debug("Using loggerClassName: " + loggerClassName);        
     }
 
+    private static final String MSG_RESOLUTION_PROGRESS_LOGGER_LIB
+            = "\n\tTo enable showAntOutput and/or showProgress, do one of the following: "
+            + "\n\t1. Copy " + LIBNAME_PROGRESS_LOGGER + " to a directory, and set the full path (including filename) "
+            + "\n\t\tto " + LIBNAME_PROGRESS_LOGGER + " in config.xml as the value of 'progressLoggerLib' for this "
+            + "<ant> builder. "
+            + "\n\t2. Set showAntOutput=false and/or showProgress=false for this <ant> builder."
+            + "\n\t3. Copy " + LIBNAME_PROGRESS_LOGGER + " into your ant/lib directory."
+            + "\n\tNote: Please report this issue, as not finding this library is most likely a boog.";
+
+
     /**
      * Finds the default location of the {@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar}
      * by first finding the location of the jar containing the {@link AntScript} class.
      *
      * @return the full path (including jar name) to the jar file
-     * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
+     * ({@link #LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
      * containing the AntProgressLogger/Listener classes.
      * @throws ProgressLibLocatorException if the search class ({@link AntScript}) file can't be found,
      * likely related to running under Java Webstart >= 6, or simply if the jar can't be found
@@ -272,10 +286,7 @@ public class AntScript implements Script, StreamConsumer {
         if (ccMain == null) {
             throw new ProgressLibLocatorException(
                 "Could not determine -lib path for progressLoggerLib. (Java 6/Webstart issue?) "
-                + "\n\tTo enable showProgress, manully copy " + LIBNAME_PROGRESS_LOGGER + " to some directory "
-                + "\n\tand set the full path (including filename) to " + LIBNAME_PROGRESS_LOGGER + " in config.xml "
-                + "\n\tas the value of 'progressLoggerLib' for this <ant> builder, "
-                + "\n\tOR set showProgress=false for this <ant> builder.");
+                +  MSG_RESOLUTION_PROGRESS_LOGGER_LIB);
         } else {
             final String pathToDirContainingCCMainJar;
             if (ccMain.isDirectory()) {
@@ -293,7 +304,7 @@ public class AntScript implements Script, StreamConsumer {
             } else {
                 // Missing Progress Logger Lib is nasty to debug, so error out here if we can't find it for sure.
                 throw new ProgressLibLocatorException("The progressLoggerLib jar file does not exist where expected: "
-                        + expectedProgressLoggerJar.getAbsolutePath());
+                        + expectedProgressLoggerJar.getAbsolutePath() +  MSG_RESOLUTION_PROGRESS_LOGGER_LIB);
             }
         }
         return progressLoggerLib;
@@ -314,7 +325,7 @@ public class AntScript implements Script, StreamConsumer {
     }
     
     /**
-     * Analyze the output of ant command, used to detect errors progress messages.
+     * Analyze the output of ant command, used to detect progress messages.
      */
     public void consumeLine(final String line) {
         if (progress != null && line != null
@@ -351,6 +362,14 @@ public class AntScript implements Script, StreamConsumer {
     public void setIsLoggerClassNameSet(boolean isLoggerClassNameSet) {
         this.isLoggerClassNameSet = isLoggerClassNameSet;
     }
+
+    /**
+     * @param showAntOutput if true, use Dashboard {@link #CLASSNAME_DASHBOARD_LISTENER AntOutputLogger} as listener
+     */
+    public void setShowAntOutput(final boolean showAntOutput) {
+        this.showAntOutput = showAntOutput;
+    }
+
     /**
      * @param antScript The antScript to set.
      */

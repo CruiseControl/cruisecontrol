@@ -59,6 +59,14 @@ public class AntBootstrapper implements Bootstrapper {
     private final AntBuilder delegate = new AntBuilder();
 
     /**
+     * Constructor overrides default AntBuilder.showAntOutput value in delegate.
+     * Required if showAntOutput defaults to true.
+     */
+    public AntBootstrapper() {
+        delegate.setShowAntOutput(false);
+    }
+
+    /**
      * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
      */
     public void bootstrap() throws CruiseControlException {

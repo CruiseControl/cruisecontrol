@@ -178,8 +178,6 @@ public class AntScriptTest extends TestCase {
                 UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
                 "-logfile",
                 "log.xml",
                 "-Dlabel=200.1.23",
@@ -236,8 +234,6 @@ public class AntScriptTest extends TestCase {
                 UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
                 "-logfile",
                 "log.xml",
                 "-buildfile",
@@ -265,8 +261,6 @@ public class AntScriptTest extends TestCase {
                 UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
                 "-logfile",
                 "log.xml",
                 "-debug",
@@ -330,8 +324,6 @@ public class AntScriptTest extends TestCase {
                 UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
                 "-logfile",
                 "log.xml",
                 "-quiet",
@@ -364,8 +356,6 @@ public class AntScriptTest extends TestCase {
                 UNIX_PATH,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
                 "-logfile",
                 "log.xml",
                 "-keep-going",
@@ -641,8 +631,6 @@ public class AntScriptTest extends TestCase {
                 "-logger",
                 AntProgressLogger.class.getName(),
                 "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-lib",
@@ -652,10 +640,7 @@ public class AntScriptTest extends TestCase {
                 "buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressLogger.class.getName());
-        script.setBuildProperties(properties);
-        script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
 
@@ -682,8 +667,6 @@ public class AntScriptTest extends TestCase {
                 "-logger",
                 AntProgressXmlLogger.class.getName(),
                 "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-listener",
                 AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
                 "-lib",
@@ -693,10 +676,8 @@ public class AntScriptTest extends TestCase {
                 "buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressXmlLogger.class.getName());
-        script.setBuildProperties(properties);
         script.setUseLogger(USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
 
@@ -723,24 +704,19 @@ public class AntScriptTest extends TestCase {
                 "-logger",
                 AntProgressLogger.class.getName(),
                 "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-lib",
-                "c:\\DirWithAntProgressLoggerJar",
+                "c:\\PathToAntProgressLogger.jar",
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressLogger.class.getName());
-        script.setBuildProperties(properties);
-        script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
-        script.setProgressLoggerLib("c:\\DirWithAntProgressLoggerJar");
+        script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
         TestUtil.assertArray(
                 "args",
@@ -760,24 +736,197 @@ public class AntScriptTest extends TestCase {
                 "-logger",
                 AntProgressXmlLogger.class.getName(),
                 "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-listener",
                 AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
                 "-lib",
-                "c:\\DirWithAntProgressLoggerJar",
+                "c:\\PathToAntProgressLogger.jar",
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressXmlLogger.class.getName());
-        script.setBuildProperties(properties);
         script.setUseLogger(USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new MockProgress());
-        script.setProgressLoggerLib("c:\\DirWithAntProgressLoggerJar");
+        script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgs_ShowAntOutputFalse() throws Exception {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setWindows(IS_WINDOWS);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setShowAntOutput(false);
+
+        final File fakeJar = createFakeProgressLoggerLib();
+        try {
+            TestUtil.assertArray(
+                    "args",
+                    args,
+                script.buildCommandline().getCommandline());
+        } finally {
+            fakeJar.delete();
+        }
+    }
+
+    public void testGetCommandLineArgs_ShowAntOutputTrue() throws Exception {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
+                "-listener",
+                AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib",
+                getLib(),
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setWindows(IS_WINDOWS);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setShowAntOutput(true);
+
+        final File fakeJar = createFakeProgressLoggerLib();
+        try {
+            TestUtil.assertArray(
+                    "args",
+                    args,
+                script.buildCommandline().getCommandline());
+        } finally {
+            fakeJar.delete();
+        }
+    }
+
+    public void testGetCommandLineArgs_ShowAntOutputUseLogger() throws Exception {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-logger",
+                AntBuilder.DEFAULT_LOGGER,
+                "-logfile",
+                "log.xml",
+                "-listener",
+                AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib",
+                getLib(),
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setWindows(IS_WINDOWS);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setShowAntOutput(true);
+        script.setUseLogger(true);
+
+        final File fakeJar = createFakeProgressLoggerLib();
+        try {
+            TestUtil.assertArray(
+                    "args",
+                    args,
+                script.buildCommandline().getCommandline());
+        } finally {
+            fakeJar.delete();
+        }
+    }
+
+    public void testGetCommandLineArgs_ShowAntOutputOverrideLib() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-listener",
+                AntBuilder.DEFAULT_LOGGER,
+                "-DXmlLogger.file=log.xml",
+                "-listener",
+                AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib",
+                "c:\\PathToAntProgressLogger.jar",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setWindows(IS_WINDOWS);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setShowAntOutput(true);
+        script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
+
+        TestUtil.assertArray(
+                "args",
+                args,
+            script.buildCommandline().getCommandline());
+    }
+
+    public void testGetCommandLineArgs_ShowAntOutputOverrideLibUseLogger() throws CruiseControlException {
+        String[] args =
+            {
+                "java.exe",
+                "-classpath",
+                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
+                "org.apache.tools.ant.launch.Launcher",
+                "-lib",
+                WINDOWS_PATH,
+                "-logger",
+                AntBuilder.DEFAULT_LOGGER,
+                "-logfile",
+                "log.xml",
+                "-listener",
+                AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib",
+                "c:\\PathToAntProgressLogger.jar",
+                "-Dlabel=200.1.23",
+                "-buildfile",
+                "buildfile",
+                "target" };
+        script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
+        script.setBuildProperties(properties);
+        script.setWindows(IS_WINDOWS);
+        script.setSystemClassPath(WINDOWS_PATH);
+        script.setShowAntOutput(true);
+        script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
+        script.setUseLogger(true);
 
         TestUtil.assertArray(
                 "args",
@@ -805,9 +954,7 @@ public class AntScriptTest extends TestCase {
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
-        script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setPropertyFile("testPropertyFile.properties");
 
@@ -843,9 +990,7 @@ public class AntScriptTest extends TestCase {
         List libs = new ArrayList();
         libs.add(lib);
         script.setLibs(libs);
-        script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
 
 
@@ -880,9 +1025,7 @@ public class AntScriptTest extends TestCase {
         List listeners = new ArrayList();
         listeners.add(listener);
         script.setListeners(listeners);
-        script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
-        script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
 
 
@@ -920,7 +1063,7 @@ public class AntScriptTest extends TestCase {
         return progressLoggerJar.getAbsolutePath();
     }
 
-    private static File createFakeProgressLoggerLib() throws IOException {
+    static File createFakeProgressLoggerLib() throws IOException {
         final File fakeJar = new File(getLib());
         fakeJar.createNewFile();
         fakeJar.deleteOnExit();

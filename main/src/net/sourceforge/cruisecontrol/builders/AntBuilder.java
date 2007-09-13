@@ -88,6 +88,8 @@ public class AntBuilder extends Builder {
     private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private boolean isLoggerClassNameSet;
+    // default showAntOutput to false until AntBootstrapper, Publisher, CCDist and antBuilderOutput.log are resolved
+    private boolean showAntOutput;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
@@ -112,6 +114,22 @@ public class AntBuilder extends Builder {
 
         ValidationHelper.assertFalse(antScript != null && antHome != null,
             "'antHome' and 'antscript' cannot both be set");
+
+        // NOTE: We can't validate showProgress here because we don't know if we will really show progress until
+        // the AntBuilder.build() method is called (as parent Builders/Schedule may override the showProgress value).
+
+        // Validate showAntOutput
+        if (showAntOutput) {
+            if (progressLoggerLib == null) {
+                // since progressLoggerLib is not specified in the config.xml,
+                // we must be able to find the path to {@link AntScript#LIBNAME_PROGRESS_LOGGER}
+                // to ensure the separate ant VM will have access to the required listeners
+                AntScript.findDefaultProgressLoggerLib();
+            } else {
+                // config.xml specified progressLoggerLib, so just make sure it exists
+                ValidationHelper.assertExists(new File(progressLoggerLib), "progressLoggerLib", this.getClass());
+            }
+        }
 
         if (antHome != null) {
             final File antHomeFile = new File(antHome);
@@ -162,6 +180,7 @@ public class AntBuilder extends Builder {
         script.setTarget(target);
         script.setLoggerClassName(loggerClassName);
         script.setIsLoggerClassNameSet(isLoggerClassNameSet);
+        script.setShowAntOutput(showAntOutput);
         script.setTempFileName(tempFileName);
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
@@ -173,7 +192,7 @@ public class AntBuilder extends Builder {
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
-        if (useLogger) {
+        if (showAntOutput) {
             BuildOutputBufferManager.INSTANCE.lookupOrCreate("").setFile(new File(workingDir, "antBuilderOutput.log"));
         }
 
@@ -354,6 +373,17 @@ public class AntBuilder extends Builder {
      */
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
+    }
+
+    /**
+     * Sets whether Ant will use the custom AntOutputLogger as a listener.
+     * @param showAntOutput if true, add AntOutputLogger as a listener.
+     */
+    public void setShowAntOutput(final boolean showAntOutput) {
+        this.showAntOutput = showAntOutput;
+    }
+    boolean getShowAntOutput() {
+        return showAntOutput;
     }
 
     public Object createJVMArg() {
