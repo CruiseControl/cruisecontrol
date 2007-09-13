@@ -112,6 +112,12 @@ public class AntBuilderTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
+
+        /*
+        // required if showAntOutput defaults to true
+        fakeProgressLoggerLibJar = AntScriptTest.createFakeProgressLoggerLib();
+        filesToDelete.add(fakeProgressLoggerLibJar);
+        */
     }
 
     public void tearDown() {
@@ -201,6 +207,56 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
+    public void testValidateShowAntOutput() throws Exception {
+        builder = new AntBuilder();
+
+        assertFalse("Wrong default value", builder.getShowAntOutput());
+        assertNull("Wrong default value", builder.getProgressLoggerLib());
+
+        final File fakeProgressLoggerLibJar = AntScriptTest.createFakeProgressLoggerLib();
+        filesToDelete.add(fakeProgressLoggerLibJar);
+
+        builder.setShowAntOutput(false);
+        builder.validate();
+
+        builder.setShowAntOutput(true);
+        builder.validate(); // should pass since fakeProgressLoggerLibJar exists
+
+        final String dummyLoggerLib = "dummyLoggerLib";
+        builder.setProgressLoggerLib(dummyLoggerLib);
+        try {
+            builder.validate();
+            fail("Non-existant overriden progressLoggerLib should have failed.");
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().startsWith("File specified ["));
+        }
+
+        // Now run tests without fakeProgressLoggerLibJar
+        assertTrue("failed to delete fakeProgressLoggerLibJar: " + fakeProgressLoggerLibJar.getAbsolutePath(),
+                fakeProgressLoggerLibJar.delete());
+        // reset to default
+        builder.setProgressLoggerLib(null);
+
+        builder.setShowAntOutput(false);
+        builder.validate();
+
+        builder.setShowAntOutput(true);
+        try {
+            builder.validate();
+            fail("Missing default progressLoggerLib should have failed.");
+        } catch (AntScript.ProgressLibLocatorException e) {
+            assertTrue(e.getMessage().startsWith("The progressLoggerLib jar file does not exist where expected: "));
+        }
+
+        builder.setProgressLoggerLib(dummyLoggerLib);
+        try {
+            builder.validate();
+            fail("Non-existant overriden progressLoggerLib should have failed.");
+        } catch (CruiseControlException e) {
+            assertTrue(e.getMessage().startsWith("File specified ["));
+        }
+    }
+
     public void testGetCommandLineArgs_DebugAndQuiet() {
         builder.setUseDebug(true);
         builder.setUseQuiet(true);
@@ -263,7 +319,7 @@ public class AntBuilderTest extends TestCase {
         IO.write(buildFile, contents.toString());
     }
 
-    public int getInitCount(Element buildElement) {
+    private int getInitCount(Element buildElement) {
         int initFoundCount = 0;
         Iterator targetIterator = buildElement.getChildren("target").iterator();
         String name;

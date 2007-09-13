@@ -5602,10 +5602,18 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>No  (defaults to true)</td>
                 <td>If true or omitted, this builder will provide progress messages.
                     If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings. NOTE: In
-                    order to show progress, the AntBuilder uses custom Build Loggers and Listeners.
-                    If these interfere with your Ant build, set showProgress=false (and please
-                    report the problem).
+                    then no progress will be shown, regardless of this builder's settings.<br/>
+                    NOTE: In order to show progress, the AntBuilder uses custom Build Loggers and Listeners.
+                    If these interfere with your Ant build, set showProgress=false (and please report the problem).
+                </td>
+            </tr>
+            <tr>
+                <td>showAntOutput</td>
+                <td>No  (defaults to false)</td>
+                <td>If true, this builder will write the ant output to a file (antBuilderOutput.log) that can be read
+                    by the Dashboard reporting application.<br/>
+                    NOTE: In order to show ant output, the AntBuilder uses a custom Build Listener.
+                    If this interferes with your Ant build, set showAntOutput=false (and please report the problem).
                 </td>
             </tr>
             </tbody>

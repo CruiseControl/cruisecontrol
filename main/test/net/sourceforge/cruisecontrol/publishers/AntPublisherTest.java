@@ -16,7 +16,12 @@ import org.jdom.Element;
  * @author Jeffrey Fredrick
  */
 public class AntPublisherTest extends TestCase {
-    
+
+    public void testValidate() throws Exception {
+        AntPublisher publisher = new AntPublisher();
+        publisher.validate();
+    }
+
     public void testPopulatePropertiesForAntBuilder() {
         Element successfulBuild = TestUtil.createElement(true, true);
         Element failedBuild = TestUtil.createElement(false, false);
