@@ -373,13 +373,13 @@ public class BuildAgent implements DiscoveryListener,
 
     // For unit tests only
     private final Collection utestServiceIDListeners = Collections.synchronizedCollection(new ArrayList());
-    void addServiceIDListener(final ServiceIDListener serviceIDListener) {
+    synchronized void addServiceIDListener(final ServiceIDListener serviceIDListener) {
         utestServiceIDListeners.add(serviceIDListener);
     }
-    void removeServiceIDListener(final ServiceIDListener serviceIDListener) {
+    synchronized void removeServiceIDListener(final ServiceIDListener serviceIDListener) {
         utestServiceIDListeners.add(serviceIDListener);
     }
-    boolean isServiceIDAssigned() { return serviceID == null; }
+    synchronized boolean isServiceIDAssigned() { return serviceID == null; }
 
 
     public synchronized void serviceIDNotify(final ServiceID serviceID) {

@@ -584,8 +584,8 @@ public class DistributedMasterBuilderTest extends TestCase {
         };
         BuildAgentTest.addServiceIDListener(agent, serviceIDListener);
         try {
-            if (!BuildAgentTest.isServiceIDAssigned(agent)) {
-                synchronized (agent) {
+            synchronized (agent) {
+                if (!BuildAgentTest.isServiceIDAssigned(agent)) {
                     agent.wait(60 * 1000);
                 }
             }
@@ -628,8 +628,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             };
             MulticastDiscoveryTest.addDiscoveryListener(discoveryListener);
             try {
-                if (!MulticastDiscoveryTest.isDiscovered()) {
-                    synchronized (discovery) {
+                synchronized (discovery) {
+                    if (!MulticastDiscoveryTest.isDiscovered()) {
                         discovery.wait(60 * 1000);
                     }
                 }

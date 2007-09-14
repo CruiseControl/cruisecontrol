@@ -292,13 +292,13 @@ public final class MulticastDiscovery {
     }
 
     // For unit tests only
-    private void addDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+    private synchronized void addDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
         clientMgr.getDiscoveryManager().addDiscoveryListener(discoveryListener);
     }
     static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
         getDiscovery().addDiscoveryListenerImpl(discoveryListener);
     }
-    private void removeDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+    private synchronized void removeDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
         clientMgr.getDiscoveryManager().removeDiscoveryListener(discoveryListener);
     }
     static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
