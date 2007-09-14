@@ -199,6 +199,9 @@ public class DistributedMasterBuilder extends Builder {
             final Progress progress = getShowProgress() ? progressIn : null;
 
             final BuildAgentService agent = pickAgent(projectName, progress);
+            if (agent == null) {
+                throw new IllegalStateException("pickAgent() retuned without an Agent. Only valid in unit tests.");
+            }
             // agent is now marked as claimed
 
             String agentMachine = "unknown";
@@ -412,6 +415,7 @@ public class DistributedMasterBuilder extends Builder {
                     throw new CruiseControlException("Error calling agent method.", e);
                 }
             } else if (isFailFast()) {
+                LOG.warn("pickAgent: Agent not found. Should only occur in unit tests.");
                 break;
             } else {
                 // wait a bit and try again
