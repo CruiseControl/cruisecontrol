@@ -121,7 +121,7 @@
                    source="1.4"
                    target="1.4"
                    compiler="javac1.4"
-                   classpathref="project.classpath"
+                   classpathref="@{classpathref}"
                    srcdir="@{srcdir}">
                 <nested />
             </javac>
