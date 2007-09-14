@@ -343,7 +343,20 @@ public class BuildAgent implements DiscoveryListener,
 
     public void terminate() {
         LOG.info("Terminating build agent.");
-        getExporter().unexport(true);
+        int unexportAttempts = 0;
+        while (!getExporter().unexport(false) && unexportAttempts < 10) {
+            // wait a bit
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                LOG.warn("Sleep interrupted during terminate.unexport", e);
+            }
+            unexportAttempts++;
+        }
+        if (!getExporter().unexport(false)) {
+            LOG.warn("Unexport of Agent service failed. Forcing export.");
+            getExporter().unexport(true);
+        }
         getJoinManager().terminate();
 
         if (!isTerminateFast) {
