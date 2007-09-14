@@ -40,7 +40,8 @@
     </resources>
 
     <resources>
-        <extension name="antprogresslogger" href="agent_antprogresslogger.jnlp"/>
+        <extension name="antprogresslogger" href="agent_antprogresslogger.jnlp">
+        </extension>
     </resources>
 
     <application-desc main-class="net.sourceforge.cruisecontrol.distributed.BuildAgent"/>
