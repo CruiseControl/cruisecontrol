@@ -236,7 +236,7 @@ public class AntBuilder extends Builder {
 
     void validateBuildFileExists() throws CruiseControlException {
         File build = new File(buildFile);
-        if (!build.isAbsolute() && antWorkingDir != null) {
+        if (!build.exists() && !build.isAbsolute() && antWorkingDir != null) {
             build = new File(antWorkingDir, buildFile);
         }
         ValidationHelper.assertExists(build, "buildfile", this.getClass());

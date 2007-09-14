@@ -418,11 +418,65 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testValidateBuildFileWorksForNonDefaultDirectory() throws IOException, CruiseControlException {
-        File antworkdir = new File("antworkdir");
+        final File antworkdir = new File("antworkdir");
         antworkdir.mkdir();
-        File file = File.createTempFile("build", ".xml", antworkdir);
+        antworkdir.deleteOnExit();
+
+        final File file = File.createTempFile("build", ".xml", antworkdir);
+        file.deleteOnExit();
+
+        filesToDelete.add(file);
+        filesToDelete.add(antworkdir);
+
         builder.setAntWorkingDir(antworkdir.getAbsolutePath());
         builder.setBuildFile(file.getName());
+
+        builder.validateBuildFileExists();
+
+        builder.setBuildFile(file.getAbsolutePath());
+        builder.validateBuildFileExists();
+
+        file.delete();
+        try {
+            builder.validateBuildFileExists();
+            fail();
+        } catch (CruiseControlException expected) {
+        }
+
+        builder.setBuildFile(file.getName());
+        try {
+            builder.validateBuildFileExists();
+            fail();
+        } catch (CruiseControlException expected) {
+        }
+    }
+
+    public void testValidateBuildFileNonAbsFileWithDifferentAntWorkDir()
+            throws IOException, CruiseControlException {
+
+        // this use case occurs for paths like "/tools/build.xml" on winz, where "/" will be on the current drive.
+        // in such cases where config must build on multiple OS's, and we don't want to configure paths twice for each.
+        // for example: antworkdir = /project
+        //              buildfile = /tools/build.xml - not absolute on Winz, but will be found by Ant
+        // assuming the following file exists: c:\tools\build.xml
+
+        final File antworkdir = new File("antworkdir");
+        antworkdir.mkdir();
+        antworkdir.deleteOnExit();
+
+        final File buildfileDir = new File("tools");
+        buildfileDir.mkdir();
+        buildfileDir.deleteOnExit();
+
+        final File file = File.createTempFile("build", ".xml", buildfileDir);
+        file.deleteOnExit();
+
+        filesToDelete.add(file);
+        filesToDelete.add(buildfileDir);
+        filesToDelete.add(antworkdir);
+
+        builder.setAntWorkingDir(antworkdir.getAbsolutePath());
+        builder.setBuildFile(buildfileDir.getName() + "/" + file.getName());
 
         builder.validateBuildFileExists();
 
