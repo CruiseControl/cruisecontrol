@@ -53,7 +53,7 @@ public final class AntProgressLoggerInstaller {
             install();
 
         } else {
-            log("Installer called without install arg, uninstalling...");
+            log("Installer called without install arg, uninstalling Ant Progress Logger...");
 
             uninstall();
         }
