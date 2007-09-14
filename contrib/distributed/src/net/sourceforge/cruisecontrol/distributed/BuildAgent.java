@@ -390,7 +390,7 @@ public class BuildAgent implements DiscoveryListener,
         utestServiceIDListeners.add(serviceIDListener);
     }
     synchronized void removeServiceIDListener(final ServiceIDListener serviceIDListener) {
-        utestServiceIDListeners.add(serviceIDListener);
+        utestServiceIDListeners.remove(serviceIDListener);
     }
     synchronized boolean isServiceIDAssigned() { return serviceID == null; }
 
@@ -403,12 +403,14 @@ public class BuildAgent implements DiscoveryListener,
             ui.updateAgentInfoUI(getService());
         }
 
-        // For unit tests only
+        // For unit tests only, so don't synchronize on "this" unless we have to
         if (utestServiceIDListeners.size() > 0) {
-            synchronized (utestServiceIDListeners) {
-                Iterator itr = utestServiceIDListeners.iterator(); // Must be in the synchronized block
-                while (itr.hasNext()) {
-                    ((ServiceIDListener) itr.next()).serviceIDNotify(serviceID);
+            synchronized (this) {
+                synchronized (utestServiceIDListeners) {
+                    Iterator itr = utestServiceIDListeners.iterator(); // Must be in the synchronized block
+                    while (itr.hasNext()) {
+                        ((ServiceIDListener) itr.next()).serviceIDNotify(serviceID);
+                    }
                 }
             }
         }
