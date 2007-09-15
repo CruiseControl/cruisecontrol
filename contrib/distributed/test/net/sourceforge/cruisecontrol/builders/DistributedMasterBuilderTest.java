@@ -569,18 +569,19 @@ public class DistributedMasterBuilderTest extends TestCase {
         BuildAgentTest.setTerminateFast();
 
         // listen for agent to discover LUS
+        final String lock = "agentDiscLock" + thisAgentID;
         final DiscoveryListener utestListener = new DiscoveryListener() {
 
             public void discovered(DiscoveryEvent evt) {
-                synchronized (this) {
-                    LOG.info("Agent discovered. (agentID: " + thisAgentID + ")");
-                    this.notifyAll();
+                LOG.info("Agent discovered. (agentID: " + thisAgentID + ")");
+                synchronized (lock) {
+                    lock.notifyAll();
                 }
             }
             public void discarded(DiscoveryEvent evt) {
-                synchronized (this) {
-                    LOG.info("Agent discarded. (agentID: " + thisAgentID + ")");
-                    this.notifyAll();
+                LOG.info("Agent discarded. (agentID: " + thisAgentID + ")");
+                synchronized (lock) {
+                    lock.notifyAll();
                 }
             }
         };
@@ -592,10 +593,10 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, thisAgentID);
 
 
-        synchronized (utestListener) {
+        synchronized (lock) {
             int count = 0;
             while (!BuildAgentTest.isServiceIDAssigned(agent) && count < 6) {
-                utestListener.wait(10 * 1000);
+                lock.wait(10 * 1000);
                 count++;
             }
         }
