@@ -561,8 +561,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     public static BuildAgent createBuildAgent() throws InterruptedException {
 
-        testAgentID++;
-        final int thisAgentID = testAgentID;
+        final int thisAgentID = ++testAgentID;
 
         final long begin = System.currentTimeMillis();
 
@@ -590,7 +589,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         final BuildAgent agent = BuildAgentTest.createTestBuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, testAgentID);
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, thisAgentID);
 
 
         synchronized (utestListener) {

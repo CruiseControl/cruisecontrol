@@ -205,7 +205,12 @@ public class BuildAgent implements DiscoveryListener,
         }
 
         try {
-            joinManager = new JoinManager(getProxy(), getEntries(), this, lld, null);
+            if (serviceID == null) {
+                joinManager = new JoinManager(getProxy(), getEntries(), this, lld, null);
+            } else {
+                LOG.warn("Didn't expect to have a serviceID: " + serviceID + " (agentID: " + testAgentID + ")");
+                joinManager = new JoinManager(getProxy(), getEntries(), serviceID, lld, null);
+            }
         } catch (IOException e) {
             final String message = "Error starting discovery";
             LOG.error(message, e);
