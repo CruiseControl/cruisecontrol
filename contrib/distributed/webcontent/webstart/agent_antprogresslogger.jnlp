@@ -22,5 +22,6 @@
 
         <jar href="lib/cc-agent-antprogresslogger.jar"/>
     </resources>
+
     <installer-desc main-class="net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller"/>
-</jnlp>    
+</jnlp>
