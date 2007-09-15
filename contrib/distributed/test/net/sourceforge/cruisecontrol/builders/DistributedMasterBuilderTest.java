@@ -638,8 +638,10 @@ public class DistributedMasterBuilderTest extends TestCase {
             MulticastDiscoveryTest.addDiscoveryListener(discoveryListener);
             try {
                 synchronized (discovery) {
-                    if (!MulticastDiscoveryTest.isDiscovered()) {
-                        discovery.wait(60 * 1000);
+                    int count = 0;
+                    while (!MulticastDiscoveryTest.isDiscovered() && count < 6) {
+                        discovery.wait(10 * 1000);
+                        count++;
                     }
                 }
             } finally {
