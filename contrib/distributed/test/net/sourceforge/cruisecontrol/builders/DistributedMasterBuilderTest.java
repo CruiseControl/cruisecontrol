@@ -593,9 +593,11 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, testAgentID);
 
 
-        if (!BuildAgentTest.isServiceIDAssigned(agent)) {
-            synchronized (utestListener) {
-                utestListener.wait(60 * 1000);
+        synchronized (utestListener) {
+            int count = 0;
+            while (!BuildAgentTest.isServiceIDAssigned(agent) && count < 6) {
+                utestListener.wait(10 * 1000);
+                count++;
             }
         }
 
