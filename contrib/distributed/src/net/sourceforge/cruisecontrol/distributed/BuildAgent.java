@@ -51,8 +51,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Collections;
-import java.util.Collection;
 import java.awt.GraphicsEnvironment;
 
 import net.jini.core.lookup.ServiceID;
@@ -130,13 +128,33 @@ public class BuildAgent implements DiscoveryListener,
         fireLUSCountChanged();
     }
 
+    /** Only used for unit testing. */
+    private final int testAgentID;
+
     /**
      * @param propsFile the agent properties file
      * @param userDefinedPropertiesFilename the user defined properties file
      * @param isSkipUI if true, do not show the build agent UI.
      */
-    public BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
+    private BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
                       final boolean isSkipUI) {
+
+        this (propsFile, userDefinedPropertiesFilename, isSkipUI, null, 0);
+    }
+    /**
+     * This constructor only intended for unit tests.
+     * @param propsFile the agent properties file
+     * @param userDefinedPropertiesFilename the user defined properties file
+     * @param isSkipUI if true, do not show the build agent UI.
+     * @param testListener only used for unit testing.
+     * @param testAgentID only used for unit testing.
+     */
+    BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
+                      final boolean isSkipUI,
+                      final DiscoveryListener testListener, final int testAgentID) {
+
+        this.testAgentID = testAgentID;
+
         loadProperties(propsFile, userDefinedPropertiesFilename);
 
         serviceImpl = new BuildAgentServiceImpl(this);
@@ -195,6 +213,11 @@ public class BuildAgent implements DiscoveryListener,
         }
 
         getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
+
+        // for unit testing only
+        if (testListener != null) {
+            getJoinManager().getDiscoveryManager().addDiscoveryListener(testListener);
+        }
     }
 
 
@@ -340,8 +363,19 @@ public class BuildAgent implements DiscoveryListener,
     private static boolean isTerminateFast;
     /** Only for unit testing. */
     static void setTerminateFast() { isTerminateFast = true; }
+    /** Only for unit testing.
+     * @param agent the unit test agent to terminate.
+     */
+    void terminateTestAgent(final BuildAgent agent) {
+        LOG.info("Terminating test agentID: " + agent.testAgentID);
+        agent.terminate();
+        if (agent.testAgentID == 0) {
+            throw new IllegalStateException("This does not appear to be a unit test Agent, agentID: "
+                    + agent.testAgentID);
+        }
+    }
 
-    public void terminate() {
+    private void terminate() {
         LOG.info("Terminating build agent.");
         int unexportAttempts = 0;
         while (!getExporter().unexport(false) && unexportAttempts < 10) {
@@ -385,34 +419,20 @@ public class BuildAgent implements DiscoveryListener,
     }
 
     // For unit tests only
-    private final Collection utestServiceIDListeners = Collections.synchronizedCollection(new ArrayList());
-    synchronized void addServiceIDListener(final ServiceIDListener serviceIDListener) {
-        utestServiceIDListeners.add(serviceIDListener);
-    }
-    synchronized void removeServiceIDListener(final ServiceIDListener serviceIDListener) {
-        utestServiceIDListeners.remove(serviceIDListener);
-    }
     synchronized boolean isServiceIDAssigned() { return serviceID == null; }
 
-
+    /** 
+     * Called when the JoinManager gets a valid ServiceID from a lookup
+     * service.
+     *
+     *@param serviceID  the service ID assigned by the lookup service.
+     */
     public synchronized void serviceIDNotify(final ServiceID serviceID) {
         // @todo technically, should serviceID be stored permanently and reused?....
         this.serviceID = serviceID;
         LOG.info("ServiceID assigned: " + this.serviceID);
         if (ui != null) {
             ui.updateAgentInfoUI(getService());
-        }
-
-        // For unit tests only, so don't synchronize on "this" unless we have to
-        if (utestServiceIDListeners.size() > 0) {
-            synchronized (this) {
-                synchronized (utestServiceIDListeners) {
-                    Iterator itr = utestServiceIDListeners.iterator(); // Must be in the synchronized block
-                    while (itr.hasNext()) {
-                        ((ServiceIDListener) itr.next()).serviceIDNotify(serviceID);
-                    }
-                }
-            }
         }
     }
     synchronized ServiceID getServiceID() {

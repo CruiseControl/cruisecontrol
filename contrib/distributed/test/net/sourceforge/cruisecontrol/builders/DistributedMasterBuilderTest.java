@@ -38,14 +38,12 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.core.lookup.ServiceID;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.config.ConfigurationProvider;
 import net.jini.config.Configuration;
 import net.jini.config.ConfigurationException;
 import net.jini.discovery.DiscoveryListener;
 import net.jini.discovery.DiscoveryEvent;
-import net.jini.lookup.ServiceIDListener;
 
 /**
  * @author Dan Rollo
@@ -450,7 +448,7 @@ public class DistributedMasterBuilderTest extends TestCase {
                     progress.getValue().indexOf(" retrieving results from ") == 8);
         } finally {
             // terminate JoinManager in BuildAgent
-            agentAvailable.terminate();
+            BuildAgentTest.terminateTestAgent(agentAvailable);
         }
     }
 
@@ -488,8 +486,8 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         } finally {
             // terminate JoinManager in BuildAgent
-            agentAvailable.terminate();
-            agentAvailable2.terminate();
+            BuildAgentTest.terminateTestAgent(agentAvailable);
+            BuildAgentTest.terminateTestAgent(agentAvailable2);
         }
     }
 
@@ -516,7 +514,7 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         } finally {
             // terminate JoinManager in BuildAgent
-            agentAvailable.terminate();
+            BuildAgentTest.terminateTestAgent(agentAvailable);
         }
     }
 
@@ -547,7 +545,7 @@ public class DistributedMasterBuilderTest extends TestCase {
                     agentRefound.isBusy());
         } finally {
             // terminate JoinManager in BuildAgent
-            agentAvailable.terminate();
+            BuildAgentTest.terminateTestAgent(agentAvailable);
         }
     }
 
@@ -559,45 +557,52 @@ public class DistributedMasterBuilderTest extends TestCase {
     }
 
 
-
+    private static int testAgentID = 0;
 
     public static BuildAgent createBuildAgent() throws InterruptedException {
+
+        testAgentID++;
+        final int thisAgentID = testAgentID;
 
         final long begin = System.currentTimeMillis();
 
         BuildAgentTest.setSkipMainSystemExit();
         BuildAgentTest.setTerminateFast();
 
-        final BuildAgent agent = new BuildAgent(
-                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
-                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true);
+        // listen for agent to discover LUS
+        final DiscoveryListener utestListener = new DiscoveryListener() {
 
-
-        // wait for agent to discover LUS
-        final ServiceIDListener serviceIDListener = new ServiceIDListener() {
-
-            public void serviceIDNotify(ServiceID serviceID) {
-                synchronized (agent) {
-                    agent.notifyAll();
+            public void discovered(DiscoveryEvent evt) {
+                synchronized (this) {
+                    LOG.info("Agent discovered. (agentID: " + thisAgentID + ")");
+                    this.notifyAll();
+                }
+            }
+            public void discarded(DiscoveryEvent evt) {
+                synchronized (this) {
+                    LOG.info("Agent discarded. (agentID: " + thisAgentID + ")");
+                    this.notifyAll();
                 }
             }
         };
-        BuildAgentTest.addServiceIDListener(agent, serviceIDListener);
-        try {
+
+        final BuildAgent agent = BuildAgentTest.createTestBuildAgent(
+                BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
+                BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, testAgentID);
+
+
+        synchronized (utestListener) {
             if (!BuildAgentTest.isServiceIDAssigned(agent)) {
-                synchronized (agent) {
-                    agent.wait(60 * 1000);
-                }
+                utestListener.wait(60 * 1000);
             }
-        } finally {
-            BuildAgentTest.removeServiceIDListener(agent, serviceIDListener);
         }
+
         assertTrue("Unit test Agent was not discovered before timeout. elapsed: "
                 + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
                 + MSG_DISOCVERY_CHECK_FIREWALL,
                 BuildAgentTest.isServiceIDAssigned(agent));
 
-        LOG.info(MSG_PREFIX_STATS + "Unit test Agent discovery took: "
+        LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
                 + (System.currentTimeMillis() - begin) / 1000f + " sec");
 
         return agent;
