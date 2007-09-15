@@ -586,13 +586,15 @@ public class DistributedMasterBuilderTest extends TestCase {
             }
         };
 
+        LOG.info("Creating test Agent (agentID: " + thisAgentID + ")");
+
         final BuildAgent agent = BuildAgentTest.createTestBuildAgent(
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, testAgentID);
 
 
-        synchronized (utestListener) {
-            if (!BuildAgentTest.isServiceIDAssigned(agent)) {
+        if (!BuildAgentTest.isServiceIDAssigned(agent)) {
+            synchronized (utestListener) {
                 utestListener.wait(60 * 1000);
             }
         }
