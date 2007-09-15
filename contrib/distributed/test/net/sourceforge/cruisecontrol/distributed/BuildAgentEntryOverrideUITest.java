@@ -61,7 +61,7 @@ public class BuildAgentEntryOverrideUITest extends TestCase {
 
         } finally {
             // terminate JoinManager in BuildAgent
-            agent.terminate();
+            BuildAgentTest.terminateTestAgent(agent);
             entryOverrideUI.dispose();
         }
     }

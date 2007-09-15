@@ -9,7 +9,7 @@ import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.entry.Entry;
-import net.jini.lookup.ServiceIDListener;
+import net.jini.discovery.DiscoveryListener;
 
 import java.rmi.RemoteException;
 
@@ -111,14 +111,20 @@ public class BuildAgentTest extends TestCase {
         BuildAgent.setTerminateFast();
     }
 
-    public static void addServiceIDListener(final BuildAgent agent, final ServiceIDListener serviceIDListener) {
-        agent.addServiceIDListener(serviceIDListener);
+
+    public static BuildAgent createTestBuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
+                                                  final boolean isSkipUI,
+                                                  final DiscoveryListener testListener, final int testAgentID) {
+
+        return new BuildAgent(propsFile, userDefinedPropertiesFilename, isSkipUI, testListener, testAgentID);
     }
-    public static void removeServiceIDListener(final BuildAgent agent, final ServiceIDListener serviceIDListener) {
-        agent.removeServiceIDListener(serviceIDListener);
-    }
+
     public static boolean isServiceIDAssigned(final BuildAgent agent) {
         return agent.isServiceIDAssigned();
+    }
+
+    public static void terminateTestAgent(final BuildAgent agent) {
+        agent.terminateTestAgent(agent);
     }
 
     /**
