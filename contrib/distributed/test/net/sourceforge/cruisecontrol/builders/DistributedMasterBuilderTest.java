@@ -593,12 +593,12 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, thisAgentID);
 
 
-        synchronized (lock) {
-            int count = 0;
-            while (!BuildAgentTest.isServiceIDAssigned(agent) && count < 6) {
+        int count = 0;
+        while (!BuildAgentTest.isServiceIDAssigned(agent) && count < 6) {
+            synchronized (lock) {
                 lock.wait(10 * 1000);
-                count++;
             }
+            count++;
         }
 
         assertTrue("Unit test Agent was not discovered before timeout. elapsed: "
