@@ -155,7 +155,11 @@ public class BuildAgent implements DiscoveryListener,
                       final boolean isSkipUI,
                       final ServiceIDListener testListener, final int testAgentID) {
 
+        // for unit testing only
         this.testAgentID = testAgentID;
+        // for unit testing only
+        this.testListener = testListener;
+
 
         loadProperties(propsFile, userDefinedPropertiesFilename);
 
@@ -220,9 +224,6 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
-        // for unit testing only
-        this.testListener = testListener;
-        
         getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
     }
 
