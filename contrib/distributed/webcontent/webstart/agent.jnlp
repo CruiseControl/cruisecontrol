@@ -44,8 +44,4 @@
     </resources>
 
     <application-desc main-class="net.sourceforge.cruisecontrol.distributed.BuildAgent"/>
-
-    <!-- I don't think this should be needed here, but it seems to make Webstart 6 on Winz stop complaining. -->
-    <installer-desc main-class="net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller"/>
-                                                                
 </jnlp>
