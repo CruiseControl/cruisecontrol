@@ -108,10 +108,10 @@ public class DistributedMasterBuilder extends Builder {
      * Available agent lookup will not block until an agent is found,
      * but will return null immediately. Intended only for unit tests.
      */
-    synchronized void setFailFast() {
+    void setFailFast() {
         this.isFailFast = true;
     }
-    private synchronized  boolean isFailFast() {
+    private boolean isFailFast() {
         return isFailFast;
     }
 
