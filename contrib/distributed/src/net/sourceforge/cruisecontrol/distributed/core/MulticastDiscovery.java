@@ -106,7 +106,7 @@ public final class MulticastDiscovery {
     }
 
     /** @return true if the {@link #discovery} variable is set, intended only for unit tests.  */
-    static synchronized boolean isDiscoverySet() {
+    static boolean isDiscoverySet() {
         return discovery != null;
     }
 
@@ -151,7 +151,7 @@ public final class MulticastDiscovery {
      * will automatically start discovery.
      * Only needed by short-lived classes, like JiniLookUpUtility and InteractiveBuildUtility.
      */
-    public static synchronized void begin() {
+    public static void begin() {
         getDiscovery();
     }
 
@@ -167,7 +167,7 @@ public final class MulticastDiscovery {
      * Only for use by JiniLookUpUtility and InteractiveBuilder.
      * @return an array of discovered LUS's
      */
-    public static synchronized ServiceRegistrar[] getRegistrars() {
+    public static ServiceRegistrar[] getRegistrars() {
         //@todo remove ?
         return getDiscovery().getRegistrarsImpl();
     }
@@ -175,7 +175,7 @@ public final class MulticastDiscovery {
     private int getLUSCountImpl() {
         return clientMgr.getDiscoveryManager().getRegistrars().length;
     }
-    public static synchronized int getLUSCount() {
+    public static int getLUSCount() {
         return getDiscovery().getLUSCountImpl();
     }
 
@@ -191,7 +191,7 @@ public final class MulticastDiscovery {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
-    public static synchronized ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
+    public static ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
         return getDiscovery().findBuildAgentServicesImpl(entries, waitDurMillis);
     }
@@ -217,7 +217,7 @@ public final class MulticastDiscovery {
         }
         return result;
     }
-    public static synchronized ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
+    public static ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
         return getDiscovery().findMatchingServiceAndClaimImpl(entries, waitDurMillis);
@@ -291,29 +291,30 @@ public final class MulticastDiscovery {
         LOG.info("LUS " + type + regMsg);
     }
 
-    // For unit tests only
-    private synchronized void addDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+    // For unit tests only - begin
+    private void addDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
         clientMgr.getDiscoveryManager().addDiscoveryListener(discoveryListener);
     }
     static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
         getDiscovery().addDiscoveryListenerImpl(discoveryListener);
     }
-    private synchronized void removeDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
+    private void removeDiscoveryListenerImpl(final DiscoveryListener discoveryListener) {
         clientMgr.getDiscoveryManager().removeDiscoveryListener(discoveryListener);
     }
     static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
         getDiscovery().removeDiscoveryListenerImpl(discoveryListener);
     }
     private boolean isDiscovered;
-    private synchronized void setDiscoveredImpl() {
+    private void setDiscoveredImpl() {
         isDiscovered = true;
     }
-    private synchronized boolean isDiscoveredImpl() {
+    private boolean isDiscoveredImpl() {
         return isDiscovered;
     }
-    static synchronized boolean isDiscovered() {
+    static boolean isDiscovered() {
         return getDiscovery().isDiscoveredImpl();
     }
+    // For unit tests only - end
 
     /*
     public final class ServiceDiscListener implements ServiceDiscoveryListener {
