@@ -915,6 +915,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final long begin = System.currentTimeMillis();
 
         final BuildAgentServiceImpl.DelayedAction delayedAction = agentImpl.getLastDelayedAction();
+        assertNotNull("Last DelayedAction should not be null", delayedAction);
 
         final BuildAgentServiceImpl.DelayedAction.FinishedListener finishedListener
                 = new BuildAgentServiceImpl.DelayedAction.FinishedListener() {
@@ -929,18 +930,23 @@ public class BuildAgentServiceImplTest extends TestCase {
         delayedAction.setFinishedListener(finishedListener);
         try {
             synchronized (delayedAction) {
-                if (!delayedAction.isFinished()) {
+                int count = 0;
+                while (!delayedAction.isFinished() && count < 6) {
                     delayedAction.wait(10 * 1000);
+                    count++;
                 }
             }
         } finally {
             delayedAction.setFinishedListener(null);
         }
 
-        assertTrue("Delayed action didn't finish before timeout.", delayedAction.isFinished());
+        final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
+        
+        assertTrue("Delayed action didn't finish before timeout. elapsed: \n"
+                + elapsedSecs + " sec", delayedAction.isFinished());
 
         LOG.info(DistributedMasterBuilderTest.MSG_PREFIX_STATS + "Unit test Agent Delayed Action took: "
-                + (System.currentTimeMillis() - begin) / 1000f + " sec");
+                + elapsedSecs + " sec");
     }
 
 
