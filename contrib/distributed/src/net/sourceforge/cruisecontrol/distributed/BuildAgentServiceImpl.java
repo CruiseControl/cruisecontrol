@@ -190,7 +190,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     /**
      * @return the project being built now, or null if no project is being built.
      */
-    public synchronized String getProjectName() {
+    public String getProjectName() {
         return projectName;
     }
 

@@ -38,12 +38,14 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.lookup.ServiceID;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.config.ConfigurationProvider;
 import net.jini.config.Configuration;
 import net.jini.config.ConfigurationException;
 import net.jini.discovery.DiscoveryListener;
 import net.jini.discovery.DiscoveryEvent;
+import net.jini.lookup.ServiceIDListener;
 
 /**
  * @author Dan Rollo
@@ -559,7 +561,10 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     private static int testAgentID = 0;
 
-    public static BuildAgent createBuildAgent() throws InterruptedException {
+    private static BuildAgent createBuildAgent() throws InterruptedException {
+        return createBuildAgent(true);
+    }
+    public static BuildAgent createBuildAgent(final boolean isDiscoveryRequired) throws InterruptedException {
 
         final int thisAgentID = ++testAgentID;
 
@@ -570,21 +575,24 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         // listen for agent to discover LUS
         final String lock = "agentDiscLock" + thisAgentID;
-        final DiscoveryListener utestListener = new DiscoveryListener() {
+        final class MyServiceIDListener implements ServiceIDListener {
 
-            public void discovered(DiscoveryEvent evt) {
-                LOG.info("Agent discovered. (agentID: " + thisAgentID + ")");
+            private volatile ServiceID myServiceID;
+            /**
+             * Called when the JoinManager gets a valid ServiceID from a lookup
+             * service.
+             *
+             * @param serviceID the service ID assigned by the lookup service.
+             */
+            public void serviceIDNotify(ServiceID serviceID) {
+                myServiceID = serviceID;
+                LOG.info("Agent assigned serviceID: " + serviceID + ". (agentID: " + thisAgentID + ")");
                 synchronized (lock) {
                     lock.notifyAll();
                 }
             }
-            public void discarded(DiscoveryEvent evt) {
-                LOG.info("Agent discarded. (agentID: " + thisAgentID + ")");
-                synchronized (lock) {
-                    lock.notifyAll();
-                }
-            }
-        };
+        }
+        final MyServiceIDListener utestListener = new MyServiceIDListener();
 
         LOG.info("Creating test Agent (agentID: " + thisAgentID + ")");
 
@@ -592,26 +600,27 @@ public class DistributedMasterBuilderTest extends TestCase {
                 BuildAgentServiceImplTest.TEST_AGENT_PROPERTIES_FILE,
                 BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE, true, utestListener, thisAgentID);
 
-
-        int count = 0;
-        while (!BuildAgentTest.isServiceIDAssigned(agent) && count < 6) {
+        if (isDiscoveryRequired) {
             synchronized (lock) {
-                lock.wait(10 * 1000);
+                int count = 0;
+                while (utestListener.myServiceID == null && count < 6) {
+                    lock.wait(10 * 1000);
+                    count++;
+                }
             }
-            count++;
-        }
 
-        // @todo Fix this on CCLive!!!
-//        assertTrue("Unit test Agent was not discovered before timeout. elapsed: "
-//                + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
-//                + MSG_DISOCVERY_CHECK_FIREWALL,
-//                BuildAgentTest.isServiceIDAssigned(agent));
-        if (!BuildAgentTest.isServiceIDAssigned(agent)) {
-            LOG.warn("Test agent may not have been discovered!!!");
-        }
+            // @todo Fix this on CCLive!!!
+//            assertNotNull("Unit test Agent was not discovered before timeout. elapsed: "
+//                    + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
+//                    + MSG_DISOCVERY_CHECK_FIREWALL,
+//                    utestListener.myServiceID);
+            if (utestListener.myServiceID == null) {
+                LOG.warn("Test agent may not have been discovered!!!");
+            }
 
-        LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
-                + (System.currentTimeMillis() - begin) / 1000f + " sec");
+            LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
+                    + (System.currentTimeMillis() - begin) / 1000f + " sec");
+        }
 
         return agent;
     }
