@@ -52,7 +52,7 @@
     <property file="override.properties" />
 
     <!-- define ccdist.version, use same props file as CC Main -->
-    <property file="../../build.properties" />
+    <property file="${basedir}/../../build.properties" />
     <property name="ccdist.release.label" value="${cc.version}" />
 
     <property name="target" value="${basedir}/target"/>
@@ -66,7 +66,7 @@
     <property name="src" value="${basedir}/src"/>
     <property name="test" value="${basedir}/test"/>
 
-    <property name="dir.main" value="../../main"/>
+    <property name="dir.main" value="${basedir}/../../main"/>
     <property name="dir.main.lib" value="${dir.main}/lib"/>
     <property name="dir.main.dist" value="${dir.main}/dist"/>
 
@@ -86,7 +86,7 @@
 
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
-    <property name="checkstyle.config" value="../../common/checkstyle.xml"/>
+    <property name="checkstyle.config" value="${basedir}/../../common/checkstyle.xml"/>
     <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-4.3.jar" />
 
     <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
@@ -94,7 +94,7 @@
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
 
-    <import file="../../common/checkstyle-build.xml"/>
+    <import file="${basedir}/../../common/checkstyle-build.xml"/>
 
     <path id='emma.classpath'>
         <pathelement location="${dir.main.lib}/emma.jar" />
@@ -182,8 +182,17 @@
         <!--</fileset>-->
     </path>
 
+    <target name="buildMainIfMissing" description="Only exists to avoid CCLive compile errors when Main jar a missing">        
+        <available property="ccmainJarExists" file="${dir.main.dist}/cruisecontrol.jar"/>
+        <antcall target="_doBuildMainIfMissing"/>
+    </target>
+    <target name="_doBuildMainIfMissing" unless="ccmainJarExists">
+        <echo>Missing CCMain jars. Building them now. Need to fix CCLive config to ensure CCMain jars exist before building CCDist.</echo>
+        <ant antfile="${dir.main}/build.xml" dir="${dir.main}" target="compile-test" inheritAll="false"/>
+        <ant antfile="${dir.main}/build.xml" dir="${dir.main}" target="jar" inheritAll="false"/>
+    </target>
 
-    <target name="build" depends="clean, compile-test, checkstyle, check-duplication, test, jar, validate-html"/>
+    <target name="build" depends="buildMainIfMissing, clean, compile-test, checkstyle, check-duplication, test, jar, validate-html"/>
 
     <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
 
