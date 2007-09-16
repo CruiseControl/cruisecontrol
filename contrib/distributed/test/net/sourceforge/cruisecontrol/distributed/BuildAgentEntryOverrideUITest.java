@@ -24,7 +24,7 @@ public class BuildAgentEntryOverrideUITest extends TestCase {
             return;
         }
 
-        final BuildAgent agent = DistributedMasterBuilderTest.createBuildAgent();
+        final BuildAgent agent = DistributedMasterBuilderTest.createBuildAgent(false);
         final BuildAgentService agentService = agent.getService();
         agent.clearEntryOverrides(); // otherwise, tests fail if overrides with same test values exist
         final BuildAgentEntryOverrideUI entryOverrideUI = new BuildAgentEntryOverrideUI(null, agentService, null);

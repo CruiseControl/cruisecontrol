@@ -95,7 +95,7 @@ public class BuildAgent implements DiscoveryListener,
     private final PropertyEntry[] origEntries;
     private final Exporter exporter;
     private final JoinManager joinManager;
-    private ServiceID serviceID;
+    private volatile ServiceID serviceID;
     private final Remote proxy;
 
     private Properties entryProperties;
@@ -122,7 +122,7 @@ public class BuildAgent implements DiscoveryListener,
             ((LUSCountListener) lusCountListeners.get(i)).lusCountChanged(registrarCount);
         }
     }
-    private synchronized void setRegCount(final int regCount) {
+    private void setRegCount(final int regCount) {
         registrarCount = regCount;
         LOG.info("Lookup Services found: " + registrarCount);
         fireLUSCountChanged();
@@ -130,6 +130,8 @@ public class BuildAgent implements DiscoveryListener,
 
     /** Only used for unit testing. */
     private final int testAgentID;
+    /** Only used for unit testing. */
+    private final ServiceIDListener testListener;
 
     /**
      * @param propsFile the agent properties file
@@ -151,7 +153,7 @@ public class BuildAgent implements DiscoveryListener,
      */
     BuildAgent(final String propsFile, final String userDefinedPropertiesFilename,
                       final boolean isSkipUI,
-                      final DiscoveryListener testListener, final int testAgentID) {
+                      final ServiceIDListener testListener, final int testAgentID) {
 
         this.testAgentID = testAgentID;
 
@@ -208,7 +210,8 @@ public class BuildAgent implements DiscoveryListener,
             if (serviceID == null) {
                 joinManager = new JoinManager(getProxy(), getEntries(), this, lld, null);
             } else {
-                LOG.warn("Didn't expect to have a serviceID: " + serviceID + " (agentID: " + testAgentID + ")");
+                LOG.warn("Didn't expect to have a serviceID: " + serviceID + " (agentID: " + testAgentID
+                        + "). Are we storing and re-using the serviceID now?");
                 joinManager = new JoinManager(getProxy(), getEntries(), serviceID, lld, null);
             }
         } catch (IOException e) {
@@ -217,12 +220,10 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
-        getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
-
         // for unit testing only
-        if (testListener != null) {
-            getJoinManager().getDiscoveryManager().addDiscoveryListener(testListener);
-        }
+        this.testListener = testListener;
+        
+        getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
     }
 
 
@@ -372,7 +373,7 @@ public class BuildAgent implements DiscoveryListener,
      * @param agent the unit test agent to terminate.
      */
     void terminateTestAgent(final BuildAgent agent) {
-        LOG.info("Terminating test agentID: " + agent.testAgentID);
+        LOG.info("Terminating test agent (agentID: " + agent.testAgentID + ")");
         agent.terminate();
         if (agent.testAgentID == 0) {
             throw new IllegalStateException("This does not appear to be a unit test Agent, agentID: "
@@ -419,12 +420,9 @@ public class BuildAgent implements DiscoveryListener,
     }
 
 
-    public synchronized BuildAgentService getService() {
+    public BuildAgentService getService() {
         return serviceImpl;
     }
-
-    // For unit tests only
-    synchronized boolean isServiceIDAssigned() { return serviceID == null; }
 
     /** 
      * Called when the JoinManager gets a valid ServiceID from a lookup
@@ -432,7 +430,7 @@ public class BuildAgent implements DiscoveryListener,
      *
      *@param serviceID  the service ID assigned by the lookup service.
      */
-    public synchronized void serviceIDNotify(final ServiceID serviceID) {
+    public void serviceIDNotify(final ServiceID serviceID) {
         // @todo technically, should serviceID be stored permanently and reused?....
         this.serviceID = serviceID;
         LOG.info("ServiceID assigned: " + this.serviceID
@@ -440,8 +438,14 @@ public class BuildAgent implements DiscoveryListener,
         if (ui != null) {
             ui.updateAgentInfoUI(getService());
         }
+
+
+        // for unit testing only
+        if (testListener != null) {
+            testListener.serviceIDNotify(serviceID);
+        }
     }
-    synchronized ServiceID getServiceID() {
+    ServiceID getServiceID() {
         return serviceID;
     }
 
@@ -498,10 +502,10 @@ public class BuildAgent implements DiscoveryListener,
     private static final Object KEEP_ALIVE = new Object();
     private static Thread mainThread;
 
-    private static synchronized void setMainThread(final Thread newMainThread) {
+    private static void setMainThread(final Thread newMainThread) {
         mainThread = newMainThread;
     }
-    static synchronized Thread getMainThread() {
+    static Thread getMainThread() {
         return mainThread;
     }
 
@@ -510,6 +514,8 @@ public class BuildAgent implements DiscoveryListener,
     static void setSkipMainSystemExit() { isSkipMainSystemExit = true; }
 
     public static void main(final String[] args) {
+
+        setMainThread(Thread.currentThread());
 
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
 
@@ -530,9 +536,6 @@ public class BuildAgent implements DiscoveryListener,
 
                 MainArgs.argumentPresent(args, MAIN_ARG_SKIP_UI)
         );
-
-
-        setMainThread(Thread.currentThread());
 
         // stay around forever
         synchronized (KEEP_ALIVE) {
