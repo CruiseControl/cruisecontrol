@@ -609,14 +609,10 @@ public class DistributedMasterBuilderTest extends TestCase {
                 }
             }
 
-            // @todo Fix this on CCLive!!!
-//            assertNotNull("Unit test Agent was not discovered before timeout. elapsed: "
-//                    + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
-//                    + MSG_DISOCVERY_CHECK_FIREWALL,
-//                    utestListener.myServiceID);
-            if (utestListener.myServiceID == null) {
-                LOG.warn("Test agent may not have been discovered!!!");
-            }
+            assertNotNull("Unit test Agent was not discovered before timeout. elapsed: "
+                    + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
+                    + MSG_DISOCVERY_CHECK_FIREWALL,
+                    utestListener.myServiceID);
 
             LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
                     + (System.currentTimeMillis() - begin) / 1000f + " sec");
