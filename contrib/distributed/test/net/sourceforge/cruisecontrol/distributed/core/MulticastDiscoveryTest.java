@@ -120,7 +120,7 @@ public class MulticastDiscoveryTest extends TestCase {
                 + (System.currentTimeMillis() - begin) / 1000f + " sec");
     }
     /** @return true if the discovery singleton variable is set, intended only for unit tests.  */
-    public static synchronized boolean isDiscoverySet() {
+    public static boolean isDiscoverySet() {
         return MulticastDiscovery.isDiscoverySet();
     }
     
