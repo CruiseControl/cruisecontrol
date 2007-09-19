@@ -609,13 +609,14 @@ public class DistributedMasterBuilderTest extends TestCase {
                 }
             }
 
-            assertNotNull("Unit test Agent was not discovered before timeout. elapsed: "
-                    + (System.currentTimeMillis() - begin) / 1000f + " sec \n"
+            final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
+
+            assertNotNull("Unit test Agent was not discovered before timeout. elapsed: " + elapsedSecs + " sec \n"
                     + MSG_DISOCVERY_CHECK_FIREWALL,
                     utestListener.myServiceID);
 
             LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
-                    + (System.currentTimeMillis() - begin) / 1000f + " sec");
+                    + elapsedSecs + " sec");
         }
 
         return agent;
@@ -656,11 +657,14 @@ public class DistributedMasterBuilderTest extends TestCase {
             } finally {
                 MulticastDiscoveryTest.removeDiscoveryListener(discoveryListener);
             }
-            assertTrue("MulticastDiscovery was not discovered before timeout.\n" + MSG_DISOCVERY_CHECK_FIREWALL,
+
+            final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
+
+            assertTrue("MulticastDiscovery was not discovered before timeout. elapsed: \n" + elapsedSecs + " sec\n"
+                    + MSG_DISOCVERY_CHECK_FIREWALL,
                     MulticastDiscoveryTest.isDiscovered());
 
-            LOG.info(MSG_PREFIX_STATS + "Unit test MulticastDiscovery took: "
-                    + (System.currentTimeMillis() - begin) / 1000f + " sec");
+            LOG.info(MSG_PREFIX_STATS + "Unit test MulticastDiscovery took: " + elapsedSecs + " sec");
         }
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
