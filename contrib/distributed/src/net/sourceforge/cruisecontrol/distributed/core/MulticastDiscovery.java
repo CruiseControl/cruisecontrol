@@ -151,7 +151,7 @@ public final class MulticastDiscovery {
      * will automatically start discovery.
      * Only needed by short-lived classes, like JiniLookUpUtility and InteractiveBuildUtility.
      */
-    public static synchronized void begin() {
+    public static void begin() {
         getDiscovery();
     }
 
@@ -175,7 +175,7 @@ public final class MulticastDiscovery {
     private int getLUSCountImpl() {
         return clientMgr.getDiscoveryManager().getRegistrars().length;
     }
-    public static synchronized int getLUSCount() {
+    public static int getLUSCount() {
         return getDiscovery().getLUSCountImpl();
     }
 
@@ -191,7 +191,7 @@ public final class MulticastDiscovery {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
-    public static synchronized ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
+    public static ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
         return getDiscovery().findBuildAgentServicesImpl(entries, waitDurMillis);
     }
@@ -217,6 +217,15 @@ public final class MulticastDiscovery {
         }
         return result;
     }
+
+    /**
+     * This method is called concurrently by multiple threads running DistributedMasterBuilders, so until we have
+     * a better way to make an Agent's busy state changes atomic, this method should be synchronized.
+     * @param entries matching criteria to use when finding an available agent
+     * @param waitDurMillis milliseconds to wait for an agent to be found
+     * @return a matching agent that has been marked as claimed
+     * @throws RemoteException if something breaks
+     */
     public static synchronized ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
