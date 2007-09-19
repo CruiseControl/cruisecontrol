@@ -151,7 +151,7 @@ public final class MulticastDiscovery {
      * will automatically start discovery.
      * Only needed by short-lived classes, like JiniLookUpUtility and InteractiveBuildUtility.
      */
-    public static void begin() {
+    public static synchronized void begin() {
         getDiscovery();
     }
 
@@ -167,7 +167,7 @@ public final class MulticastDiscovery {
      * Only for use by JiniLookUpUtility and InteractiveBuilder.
      * @return an array of discovered LUS's
      */
-    public static ServiceRegistrar[] getRegistrars() {
+    public static synchronized ServiceRegistrar[] getRegistrars() {
         //@todo remove ?
         return getDiscovery().getRegistrarsImpl();
     }
@@ -175,7 +175,7 @@ public final class MulticastDiscovery {
     private int getLUSCountImpl() {
         return clientMgr.getDiscoveryManager().getRegistrars().length;
     }
-    public static int getLUSCount() {
+    public static synchronized int getLUSCount() {
         return getDiscovery().getLUSCountImpl();
     }
 
@@ -191,7 +191,7 @@ public final class MulticastDiscovery {
             throw new RuntimeException("Error finding BuildAgent services.", e);
         }
     }
-    public static ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
+    public static synchronized ServiceItem[] findBuildAgentServices(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
         return getDiscovery().findBuildAgentServicesImpl(entries, waitDurMillis);
     }
@@ -217,7 +217,7 @@ public final class MulticastDiscovery {
         }
         return result;
     }
-    public static ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
+    public static synchronized ServiceItem findMatchingServiceAndClaim(final Entry[] entries, final long waitDurMillis)
             throws RemoteException {
 
         return getDiscovery().findMatchingServiceAndClaimImpl(entries, waitDurMillis);
