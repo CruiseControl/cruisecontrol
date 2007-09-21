@@ -138,6 +138,7 @@
 <a href="#harvest">&lt;harvest&gt;</a>
 <a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a>
 <a href="#htmlemail">&lt;htmlemail&gt;</a>
+<a href="#http">&lt;http&gt;</a> 
 <a href="#httpfile">&lt;httpfile&gt;</a>
 <a href="#include.projects">&lt;include.projects&gt;</a>
 <a href="#jabber">&lt;jabber&gt;</a>
@@ -329,6 +330,7 @@
          <a href="#execute">&lt;execute/&gt;</a>
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
+         <a href="#http">&lt;http&gt;</a> 
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#onfailure">&lt;onfailure/&gt;</a>
          <a href="#onsuccess">&lt;onsuccess/&gt;</a>
@@ -7009,6 +7011,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Sends an email with the build results embedded as HTML</td>
             </tr>
             <tr>
+                <td><a href="#http"><code>&lt;http&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Connects to an HTTP URL and sends the build results as parameters</td>
+            </tr>
+            <tr>
                 <td><a href="#jabber"><code>&lt;jabber&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an instant message with a link to the build results
@@ -8555,6 +8562,71 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         </table>
                     </td>
                 </tr>
+            </tbody>
+        </table>
+        </div>
+
+
+
+
+         <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="http">&lt;http&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;http&gt;</pre>
+        </div>
+
+        <p>Connects to an HTTP URL and sends the build results as parameters</p>
+
+        <p>Build results can be sent to a URL using any of the HTTP methods</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>url</td>
+                <td>Yes</td>
+                <td>The URL to connect to. Must be of the HTTP protocol.</td>
+            </tr>
+            <tr>
+                <td>requestMethod</td>
+                <td>Yes</td>
+                <td>HTTP request method. POST, GET etc.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Child Elements</h3>
+        <table class="documentation">
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>&lt;parameter&gt;</code></td>
+                <td>0..*</td>
+                <td>Sets an HTTP attribute-value parameter. If the request method is GET, the attribute-value pairs are
+                    added to the URL string. Otherwise they are included in the message body. This child element is optional and is a
+                    <a href="#namedxpathawarechildattributes">Named XPath Aware Child</a>. Look there for attribute details.
+                </td>
+              </tr>
             </tbody>
         </table>
         </div>
