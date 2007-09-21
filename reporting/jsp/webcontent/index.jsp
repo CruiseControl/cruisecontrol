@@ -92,8 +92,8 @@
   }
 
   class StatusCollection {
-    private Map statuses = new HashMap();
-    private SortableStatus unknown = new SortableStatus(null, "dull", -1);
+    private final Map statuses = new HashMap();
+    private final SortableStatus unknown = new SortableStatus(null, "dull", -1);
 
     public void add(ProjectState state, String importance) {
       statuses.put(state.getDescription(), new SortableStatus(state, importance, statuses.size()));
@@ -146,12 +146,12 @@
   class Info implements Comparable {
     public static final int ONE_DAY = 1000 * 60 * 60 * 24;
 
-    private BuildInfo latest;
-    private BuildInfo lastSuccessful;
+    private final BuildInfo latest;
+    private final BuildInfo lastSuccessful;
     private SortableStatus status;
     private Date statusSince;
-    private String project;
-    private String statusDescription;
+    private final String project;
+    private String progressMsg;
 
     public Info(File logsDir, String project) throws ParseException, IOException {
       this.project = project;
@@ -163,19 +163,29 @@
 
       if (latestLogFile != null) {
         latest = new BuildInfo(latestLogFile);
-      }
-      if (latestSuccessfulLogFile != null) {
-        lastSuccessful = new BuildInfo(latestSuccessfulLogFile);
+      } else {
+        latest = null;
       }
 
-      File statusFile = new File(projectLogDir, statusFileName);
+      if (latestSuccessfulLogFile != null) {
+        lastSuccessful = new BuildInfo(latestSuccessfulLogFile);
+      } else {
+        lastSuccessful = null;
+      }
+
+      final File statusFile = new File(projectLogDir, statusFileName);
       BufferedReader reader = null;
       try {
         reader = new BufferedReader(new FileReader(statusFile));
-        statusDescription = reader.readLine().replaceAll(" since", "");
-
+        final String statusDescription = reader.readLine().replaceAll(" since", "");
         status = statuses.get(statusDescription);
-        statusSince = new Date(statusFile.lastModified());
+
+        // statusFile mod date can be wrong, so read the status date from the statusFile contents
+        final String sinceString = reader.readLine();
+        final DateFormat formatter = DateFormatFactory.getDateFormat();
+        statusSince = formatter.parse(sinceString);
+
+        progressMsg = reader.readLine();
       }
       catch (Exception e) {
         status = statuses.unknown;
@@ -220,6 +230,10 @@
       return statusSince != null ? format(statusSince) : "?";
     }
 
+    public String getProgressMsg() {
+        return progressMsg;
+    }
+      
     public boolean failed() {
       return latest == null || ! latest.isSuccessful();
     }
@@ -447,7 +461,7 @@
         }
         else {
           java.io.File logDir = new java.io.File(logDirPath);
-          if (logDir.isDirectory() == false) {
+          if (!logDir.isDirectory()) {
         %><tr><td>Context parameter logDir needs to be set to a directory. Currently set to &quot;<%=logDirPath%>
           &quot;</td></tr><%
         }
@@ -495,7 +509,7 @@
             %>
             <tr class="<%= (i % 2 == 1) ? "even-row" : "odd-row" %> ">
               <td class="data"><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
-              <td class="data date status-<%= info[i].getStatus().getImportance() %>"><%= info[i].getStatus()%> <em>(<%= info[i].getStatusSince() %>)</em></td>
+              <td class="data date status-<%= info[i].getStatus().getImportance() %>" <%= (info[i].getProgressMsg() != null) ? "title='" + info[i].getProgressMsg() + "'" : "" %> ><%= info[i].getStatus()%>  <em>(<%= info[i].getStatusSince() %>)</em></td>
               <td class="data date failure"><%= (info[i].failed()) ? info[i].getLastBuildTime() : "" %></td>
               <td class="data date"><%= info[i].getLastSuccessfulBuildTime() %></td>
               <td class="data"><%= info[i].getLabel()%></td>
