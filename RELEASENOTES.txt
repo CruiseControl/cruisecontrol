@@ -15,6 +15,10 @@ AntBuilder
 ----------------------
 * Fix validateBuildFileExists() to handle non-absolute, but valid build file with antWorkingDir set to a different work dir on Windows.
 
+CompositeBuilder
+----------------------
+* Document builder attributes of <composite> builder. Reported by Mark Kefauver and EJ Ciramella.
+
 Configuration documentation generation
 ----------------------
 * Created addiitonal plugin superclasses to make generating configxml.html. Still a work in progress (CC-202). Patch by Jerome Lacoste.
