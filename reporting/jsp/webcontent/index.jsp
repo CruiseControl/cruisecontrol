@@ -37,6 +37,7 @@
 <%@ page errorPage="/error.jsp" contentType="text/html; charset=UTF-8"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%@ page import="net.sourceforge.cruisecontrol.*" %>
+<%@ page import="net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
 <%@ page import="java.net.URL" %>
@@ -56,6 +57,7 @@
   final DateFormat dateTimeFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, request.getLocale());
   final DateFormat dateOnlyFormat = DateFormat.getDateInstance(DateFormat.SHORT, request.getLocale());
   final DateFormat timeOnlyFormat = DateFormat.getTimeInstance(DateFormat.SHORT, request.getLocale());
+  final DateFormat timeWithSecsOnlyFormat = DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale());
 
   final Date now = new Date();
   final String dateNow = dateTimeFormat.format(now);
@@ -231,9 +233,28 @@
     }
 
     public String getProgressMsg() {
-        return progressMsg;
+      if (progressMsg == null) {
+        return null;
+      }
+
+      if (progressMsg.startsWith(CurrentBuildStatusListener.MSG_PREFIX_PROGRESS)) {
+
+        final int prefixLen = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS.length();
+        final int startOfMessage = progressMsg.indexOf(" ", prefixLen);
+
+        final String msgTimeText = progressMsg.substring(prefixLen, startOfMessage);
+        final Date msgTime;
+        try {
+          msgTime = DateFormatFactory.getTimeFormat().parse(msgTimeText);
+        } catch (ParseException e) {
+          return progressMsg;
+        }
+        return "(" + timeWithSecsOnlyFormat.format(msgTime) + ")" + progressMsg.substring(startOfMessage);
+      }
+
+      return progressMsg;
     }
-      
+
     public boolean failed() {
       return latest == null || ! latest.isSuccessful();
     }
