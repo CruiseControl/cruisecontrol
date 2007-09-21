@@ -194,20 +194,7 @@ public class BuildAgent implements DiscoveryListener,
         if (registryURLList == null) {
             lld = null;
         } else {
-            final String[] registryURLs = registryURLList.split(",");
-            final LookupLocator[] lookups = new LookupLocator[registryURLs.length];
-            for (int i = 0; i < registryURLs.length; i++) {
-                try {
-                    lookups[i] = new LookupLocator(registryURLs[i]);
-                } catch (MalformedURLException e) {
-                    final String message = "Error creating unicast lookup locator: " + registryURLs[i]
-                            + "; " + e.getMessage();
-                    LOG.error(message, e);
-                    throw new RuntimeException(message, e);
-                }
-                LOG.info("Using Unicast LookupLocator URL: " + registryURLs[i]);
-            }
-            lld = new LookupLocatorDiscovery(lookups);
+            lld = new LookupLocatorDiscovery(parseUnicastLocators(registryURLList));
         }
 
         try {
@@ -225,6 +212,34 @@ public class BuildAgent implements DiscoveryListener,
         }
 
         getJoinManager().getDiscoveryManager().addDiscoveryListener(this);
+    }
+
+    /**
+     * Parses a comma separated list of Unicast Lookup Locaters (URL's).
+     * Useful if multicast isn't working.
+     * @param registryURLList a comma separated list of Unicast Lookup Locaters (URL's).
+     * @return null if the given registryURLList is null, or a LookupLocator array populated with the given URL's.
+     */
+    private static LookupLocator[] parseUnicastLocators(String registryURLList) {
+        final LookupLocator[] lookups;
+        if (registryURLList == null) {
+            lookups = null;
+        } else {
+            final String[] registryURLs = registryURLList.split(",");
+            lookups = new LookupLocator[registryURLs.length];
+            for (int i = 0; i < registryURLs.length; i++) {
+                try {
+                    lookups[i] = new LookupLocator(registryURLs[i]);
+                } catch (MalformedURLException e) {
+                    final String message = "Error creating unicast lookup locator: " + registryURLs[i]
+                            + "; " + e.getMessage();
+                    LOG.error(message, e);
+                    throw new RuntimeException(message, e);
+                }
+                LOG.info("Using Unicast LookupLocator URL: " + registryURLs[i]);
+            }
+        }
+        return lookups;
     }
 
 
