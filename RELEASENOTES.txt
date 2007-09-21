@@ -15,6 +15,10 @@ AntBuilder
 ----------------------
 * Fix validateBuildFileExists() to handle non-absolute, but valid build file with antWorkingDir set to a different work dir on Windows.
 
+Cincom Smalltalk VisualWorks Store Source Control
+----------------------
+* A sourcecontrol implementation for Cincom Smalltalk VisualWorks Store scm (CC-709). Contributed by Randy Coulman.
+
 CompositeBuilder
 ----------------------
 * Document builder attributes of <composite> builder. Reported by Mark Kefauver and EJ Ciramella.

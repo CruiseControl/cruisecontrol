@@ -181,6 +181,7 @@
 <a href="#socket">&lt;socket&gt;</a>
 <a href="#starteam">&lt;starteam&gt;</a>
 <a href="#starteambootstrapper">&lt;starteambootstrapper&gt;</a>
+<a href="#store">&lt;store&gt;</a>
 <a href="#surround">&lt;surround&gt;</a>
 <a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a>
 <a href="#svn">&lt;svn&gt;</a>
@@ -290,6 +291,7 @@
          <a href="#pvcs">&lt;pvcs/&gt;</a>
          <a href="#snapshotcm">&lt;snapshotcm/&gt;</a>
          <a href="#starteam">&lt;starteam/&gt;</a>
+         <a href="#store">&lt;store/&gt;</a>
          <a href="#surround">&lt;surround/&gt;</a>
          <a href="#svn">&lt;svn/&gt;</a>
          <a href="#tfs">&lt;tfs/&gt;</a>
@@ -2958,6 +2960,12 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>Checks for changes in a Star Team repository.</td>
             </tr>
             <tr>
+                <td><a href="#store">&lt;store&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a Cincom Smalltalk VisualWorks
+                Store repository.</td>
+            </tr>
+            <tr>
                  <td><a href="#surround">&lt;surround&gt;</a></td>
                  <td>0 .. *</td>
                  <td>Checks for changes in a Surround SCM repository.</td>
@@ -4611,6 +4619,100 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Property to be set if a file has been deleted.  For use in
                 conditionally controlling the build later.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="store">&lt;store&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;store&gt;</pre>
+        </div>
+
+        <p>Checks for changes within a Cincom Smalltalk VisualWorks
+        Store repository.</p>
+
+        <p>In order to use this element, you must set up a script or
+        batch file that will launch a VisualWorks Smalltalk image with
+        the CruiseControl package loaded. The image must be configured
+        so that the only output on standard output is that produced by
+        the CruiseControl package itself.</p>
+
+        <p>The latest version of the CruiseControl package is
+        available in the <a
+        href="http://www.cincomsmalltalk.com/CincomSmalltalkWiki/PostgreSQL+Access+Page">Cincom
+        Public Store Repository</a>.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>workingDirectory</td>
+                <td>Yes</td>
+                <td>Relative or absolute path to the directory in
+                which to run the Store script.</td>
+            </tr>
+            <tr>
+                <td>script</td>
+                <td>Yes</td>
+                <td>The name of the script to run to access the Store repository.
+                The script should launch a VisualWorks Smalltalk image with the
+                CruiseControl package loaded.  The image must be configured so
+                that the only output on standard output is that produced by the
+                CruiseControl package itself.</td>
+            </tr>
+            <tr>
+                <td>profile</td>
+                <td>Yes</td>
+                <td>The name of the Store connection profile for the repository
+                to check.</td>
+            </tr>
+            <tr>
+                <td>packages</td>
+                <td>Yes</td>
+                <td>A comma-separated list of package names.  These packages and
+                their pre-requisites will be checked for modifications.</td>
+            </tr>
+            <tr>
+                <td>versionRegex</td>
+                <td>No</td>
+                <td>A Regex11-style regular expression.  Only package versions that
+                match the regular expression will be considered.  By default, all
+                package versions are considered.</td>
+            </tr>
+            <tr>
+                <td>minimumBlessingLevel</td>
+                <td>No</td>
+                <td>A Store blessing level string.  Package versions with a lower
+                blessing level will not be considered.  Default: Development.</td>
+            </tr>
+            <tr>
+                <td>parcelBuilderFile</td>
+                <td>No</td>
+                <td>Relative or absolute path to a file which will contain a list of
+                packages and version numbers for later use as input to a build
+                script.  By default, no parcel builder file will be created.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
             </tr>
             </tbody>
         </table>
