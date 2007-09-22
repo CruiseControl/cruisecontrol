@@ -95,7 +95,7 @@ public class BuildAgent implements DiscoveryListener,
     private final PropertyEntry[] origEntries;
     private final Exporter exporter;
     private final JoinManager joinManager;
-    private volatile ServiceID serviceID;
+    private ServiceID serviceID;
     private final Remote proxy;
 
     private Properties entryProperties;
