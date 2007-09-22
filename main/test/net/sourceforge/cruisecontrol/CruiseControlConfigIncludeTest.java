@@ -123,7 +123,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
 
     public void testIncludeFilenameContainsProperty() throws CruiseControlException {
         XmlResolver includeFOOXmlResolver = new XmlResolver() {
-            private Element includePropertyElement;
+            private final Element includePropertyElement;
             {
                 StringBuffer includeText = new StringBuffer(200);
                 includeText.append("<cruisecontrol>");
@@ -170,7 +170,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         assertIsFooProject(config.getProject("in.root"));
     }
 
-    private Element elementFromString(String text) throws CruiseControlException {
+    public static Element elementFromString(String text) throws CruiseControlException {
         InputStream is = new ByteArrayInputStream(text.getBytes());
         return Util.loadRootElement(is);
     }
@@ -182,7 +182,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
     
     private class IncludeXmlResolver implements XmlResolver {
         
-        private Element[] includeElements;
+        private final Element[] includeElements;
         private int count = 0;
         
         IncludeXmlResolver(Element element) {
