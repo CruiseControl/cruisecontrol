@@ -447,7 +447,7 @@ public class BuildAgent implements DiscoveryListener,
      *@param serviceID  the service ID assigned by the lookup service.
      */
     public void serviceIDNotify(final ServiceID serviceID) {
-        // @todo technically, should serviceID be stored permanently and reused?...
+        // @todo technically, should serviceID be stored permanently and reused?....
         this.serviceID = serviceID;
         LOG.info("ServiceID assigned: " + this.serviceID
                 + (testAgentID == 0 ? "" : " (agentID: " + testAgentID) + ")");
