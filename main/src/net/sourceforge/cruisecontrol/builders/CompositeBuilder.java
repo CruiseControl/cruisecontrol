@@ -14,6 +14,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.CDATA;
 
 public class CompositeBuilder extends Builder {
 
@@ -22,7 +23,9 @@ public class CompositeBuilder extends Builder {
     private final List builders = new ArrayList();
 
     private long startTime = 0;
-    
+
+    private long childStartTime = 0;
+
     public void add(Builder builder) {
         builders.add(builder);
     }
@@ -36,7 +39,19 @@ public class CompositeBuilder extends Builder {
         buildResult.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
     }
 
-    private static boolean processBuildResult(Element buildResult, Element compositeBuildResult) {
+
+    private void startChild() {
+        childStartTime = System.currentTimeMillis();
+    }
+
+
+    private static boolean processBuildResult(final Element buildResult, final Element compositeBuildResult,
+                                              final String buildlogMsgPrefix, final Builder builder,
+                                              final long childStartTime) {
+
+        // add child builder info to build log
+        insertBuildLogHeader(buildResult, buildlogMsgPrefix + " - " + builder.getClass().getName(), childStartTime);
+
         Iterator elements = buildResult.getChildren().iterator();
         while (elements.hasNext()) {
             // combining the outputs
@@ -59,16 +74,48 @@ public class CompositeBuilder extends Builder {
             compositeBuildResult.setAttribute(attribute);
 
         }
-        // searching for errors (if we found one ore more, we will stop)
-        Iterator messageElements = buildResult.getChildren("message").iterator();
-        while (messageElements.hasNext()) {
-            Element messageElement = (Element) messageElements.next();
-            if (messageElement.getAttribute("priority").getValue().equals("error")) {
-                LOG.debug("CompositeBuilder: errorlement found, stopping)");
-                return true; // stop looking, since we found an error
-            }
+        // check for error (if we found one, we will stop)
+        if (!isBuildSuccessful(buildResult)) {
+            LOG.debug("CompositeBuilder: errorlement found, stopping)");
+            return true; // stop, since we found an error in the last build
         }
+
         return false; // if we made it this far, no errors were found
+    }
+
+    /**
+     * set the "header" for this part of the build log. turns it into an Ant target/task style element for reporting
+     * purposes
+     *
+     * @param buildResult the element of the build log for the current child builder
+     * @param buildLogMsg child builder info to add to the build log
+     * @param childStartTime the time this child builder started building
+     */
+    private static void insertBuildLogHeader(final Element buildResult,
+                                             final String buildLogMsg, final long childStartTime) {
+
+        // @todo Rearrange these elements (even nesting childLog elements?), might display this info in reporting apps
+
+        Element target = new Element("target");
+        target.setAttribute("name", "composite");
+        target.setAttribute("time", DateUtil.getDurationAsString((System.currentTimeMillis() - childStartTime)));
+
+        Element task = new Element("task");
+        task.setAttribute("name", "composite-childbuilder");
+
+        Element msg = new Element("message");
+        msg.addContent(new CDATA(buildLogMsg));
+        msg.setAttribute("priority", "info");
+        task.addContent(msg);
+
+        target.addContent(task);
+
+        buildResult.addContent(0, target);
+    } // insertBuildLogHeader
+
+    
+    private static boolean isBuildSuccessful(final Element buildResult) {
+        return (buildResult.getAttribute("error") == null);
     }
 
     public Element build(final Map properties, final Progress progressIn) throws CruiseControlException {
@@ -85,14 +132,17 @@ public class CompositeBuilder extends Builder {
         startBuild();
         while (iter.hasNext() & !errorOcurred) {
 
+            i++;
+            final String buildlogMsgPrefix = "composite build " + i + " of " + totalBuilders;
             if (progress != null) {
-                i++;
-                progress.setValue("composite build " + i + " of " + totalBuilders);
+                progress.setValue(buildlogMsgPrefix);
             }
 
             final Builder builder = (Builder) iter.next();
+            startChild();
             final Element buildResult = builder.build(properties, progress);
-            errorOcurred = processBuildResult(buildResult, compositeBuildResult);
+            errorOcurred = processBuildResult(buildResult, compositeBuildResult,
+                    buildlogMsgPrefix, builder, childStartTime);
         }
         endBuild(compositeBuildResult);
 
@@ -114,14 +164,17 @@ public class CompositeBuilder extends Builder {
         startBuild();
         while (iter.hasNext() & !errorOcurred) {
 
+            i++;
+            final String buildlogMsgPrefix = "composite build " + i + " of " + totalBuilders;
             if (progress != null) {
-                i++;
-                progress.setValue("composite build " + i + " of " + totalBuilders);
+                progress.setValue(buildlogMsgPrefix);
             }
 
             final Builder builder = (Builder) iter.next();
+            startChild();
             final Element buildResult = builder.buildWithTarget(properties, target, progress);
-            errorOcurred = processBuildResult(buildResult, compositeBuildResult);
+            errorOcurred = processBuildResult(buildResult, compositeBuildResult,
+                    buildlogMsgPrefix, builder, childStartTime);
         }
         endBuild(compositeBuildResult);
 

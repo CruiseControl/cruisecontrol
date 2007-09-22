@@ -41,6 +41,7 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest;
 
 import org.jdom.Element;
 
@@ -53,58 +54,29 @@ public class CompositeBuilderTest extends TestCase {
 
     private CompositeBuilder builder;
 
-    private static final String BUILD_LOG_TXT_1 = "<cruisecontrol>\n"
-            + "<modifications>\n"
-            + "<modification type=\"always\">\n"
-            + "<file action=\"change\">\n"
-            + "<filename>force build</filename>\n"
-            + "<project>force build</project>\n"
-            + "</file>\n"
-            + "<date>09/27/2006 00:00:00</date>\n"
-            + "<user>cruisecontroluser</user>\n"
-            + "<comment />\n"
-            + "</modification>\n"
-            + "</modifications>\n"
-            + "<info>\n"
-            + "<property name=\"projectname\" value=\"TestCruisecontrol\" />\n"
-            + "</info>\n"
-            + "<build time=\"1 second\" >\n"
-            + "<target name=\"exec\">\n"
-            + "<task name=\"cvs\">\n"
-            + "<message priority=\"info\"><do something></message>\n"
-            + "<message priority=\"info\"><do something more></message>\n"
-            + "<message priority=\"info\"><boring...></message>\n"
-            + "</task>\n"
-            + "</target>\n"
-            + "</build>\n"
-            + "</cruisecontrol>\n";
+    private static final String BUILD_LOG_TXT_SUCCESS
+            = "<build time=\"1 second\" >"
+            + "<target name=\"exec\">"
+            + "<task name=\"cvs\">"
+            + "<message priority=\"info\">do something</message>"
+            + "<message priority=\"info\">do something more</message>"
+            + "<message priority=\"info\">boring...</message>"
+            + "<message priority=\"error\">non-fatal error occured</message>"
+            + "</task>"
+            + "</target>"
+            + "</build>";
 
-    private static final String BUILD_LOG_TXT_2 = "<cruisecontrol>\n"
-            + "<modifications>\n"
-            + "<modification type=\"always\">\n"
-            + "<file action=\"change\">\n"
-            + "<filename>force build</filename>\n"
-            + "<project>force build</project>\n"
-            + "</file>\n"
-            + "<date>09/27/2006 00:00:00</date>\n"
-            + "<user>cruisecontroluser</user>\n"
-            + "<comment />\n"
-            + "</modification>\n"
-            + "</modifications>\n"
-            + "<info>\n"
-            + "<property name=\"projectname\" value=\"TestCruisecontrol\" />\n"
-            + "</info>\n"
-            + "<build time=\"1 second\" >\n"
-            + "<target name=\"exec\">\n"
-            + "<task name=\"cvs\">\n"
-            + "<message priority=\"info\"><do something></message>\n"
-            + "<message priority=\"info\"><do something more></message>\n"
-            + "<message priority=\"info\"><boring...></message>\n"
-            + "<message priority=\"error\"><error occured></message>\n"
-            + "</task>\n"
-            + "</target>\n"
-            + "</build>\n"
-            + "</cruisecontrol>\n";
+    private static final String BUILD_LOG_TXT_FAILED
+            = "<build time=\"1 second\" error=\"Mock build failed\">"
+            + "<target name=\"exec\">"
+            + "<task name=\"cvs\">"
+            + "<message priority=\"info\">do something</message>"
+            + "<message priority=\"info\">do something more</message>"
+            + "<message priority=\"info\">boring...</message>"
+            + "<message priority=\"error\">error occured</message>"
+            + "</task>"
+            + "</target>"
+            + "</build>";
 
     public CompositeBuilderTest(String name) {
         super(name);
@@ -156,8 +128,7 @@ public class CompositeBuilderTest extends TestCase {
 
     public void testBuildAllBuildersWhenNoErrorOccured() throws Exception {
 
-        Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_1);
+        final Element buildLogSuccess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -167,20 +138,19 @@ public class CompositeBuilderTest extends TestCase {
         builder.add(mock1);
         builder.add(mock2);
 
-        mock1.setBuildLogXML(buildLog1);
-        mock2.setBuildLogXML(buildLog1);
+        mock1.setBuildLogXML(buildLogSuccess);
+        mock2.setBuildLogXML(buildLogSuccess);
 
         final Element result = builder.build(buildProperties, null);
         assertNotNull(result);
 
-        assertTrue("builder1 didn't build", mock1.isBuildCalled());
-        assertTrue("builder2 didn't build", mock2.isBuildCalled());
+        assertTrue(mock1.getName() + " didn't build", mock1.isBuildCalled());
+        assertTrue(mock2.getName() + " didn't build", mock2.isBuildCalled());
     }
 
     public void testBuildWithTargetAllBuilders() throws Exception {
 
-        Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_1);
+        final Element buildLogSucess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
@@ -190,72 +160,82 @@ public class CompositeBuilderTest extends TestCase {
         builder.add(mock1);
         builder.add(mock2);
 
-        mock1.setBuildLogXML(buildLog1);
-        mock2.setBuildLogXML(buildLog1);
+        mock1.setBuildLogXML(buildLogSucess);
+        mock2.setBuildLogXML(buildLogSucess);
 
         final String mockTarget = "mockTarget";
         final Element result = builder.buildWithTarget(buildProperties, mockTarget, null);
         assertNotNull(result);
 
-        assertTrue("builder1 didn't build", mock1.isBuildCalled());
-        assertEquals("builder1 didn't build with target", mockTarget, mock1.getTarget());
-        assertTrue("builder2 didn't build", mock2.isBuildCalled());
-        assertEquals("builder2 didn't build with target", mockTarget, mock1.getTarget());
+        assertTrue(mock1.getName() + " didn't build", mock1.isBuildCalled());
+        assertEquals(mock1.getName() + " missing target", mockTarget, mock1.getTarget());
+        
+        assertTrue(mock2.getName() + " didn't build", mock2.isBuildCalled());
+        assertEquals(mock2.getName() + " missing target", mockTarget, mock2.getTarget());
     }
 
     public void testBuildAllBuildersWhenAnErrorOccured() throws Exception {
 
-        Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_1);
-        Element buildLog2 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_2);
+        final Element buildLogSuccess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
+
+        final Element buildLogFailed = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_FAILED);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
         MockBuilder mock1 = new MockBuilder("builder1");
-        MockBuilder mock2 = new MockBuilder("builder2");
-        MockBuilder mock3 = new MockBuilder("builder3");
+        MockBuilder mock2WithError = new MockBuilder("builder2-Fail");
+        MockBuilder mock3NotRun = new MockBuilder("builder3-NotRun");
 
         builder.add(mock1);
-        builder.add(mock2);
-        builder.add(mock3);
+        builder.add(mock2WithError);
+        builder.add(mock3NotRun);
 
-        mock1.setBuildLogXML(buildLog1);
-        mock2.setBuildLogXML(buildLog2);
-        mock3.setBuildLogXML(buildLog1);
+        mock1.setBuildLogXML(buildLogSuccess);
+        mock2WithError.setBuildLogXML(buildLogFailed);
+        mock3NotRun.setBuildLogXML(buildLogSuccess);
 
         builder.build(buildProperties, null);
-        assertTrue("builder3 didn't build", mock3.isBuildCalled());
-        assertEquals("builder3 should not have built with target", null, mock3.getTarget());
+
+        assertTrue(mock1.isBuildCalled());
+
+        assertTrue(mock2WithError.isBuildCalled());
+
+        assertFalse(mock3NotRun.getName() + " should not have built", mock3NotRun.isBuildCalled());
+        assertEquals(mock3NotRun.getName() + " should not have built with target", null, mock3NotRun.getTarget());
     }
 
     public void testBuildWithTargetWhenAnErrorOccured() throws Exception {
 
-        Element buildLog1 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_1);
-        Element buildLog2 = new Element("cruisecontrol");
-        buildLog1.addContent(BUILD_LOG_TXT_2);
+        final Element buildLogSuccess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
+
+        final Element buildLogFailed = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_FAILED);
 
         builder = new CompositeBuilder();
         HashMap buildProperties = new HashMap();
         MockBuilder mock1 = new MockBuilder("builder1");
-        MockBuilder mock2 = new MockBuilder("builder2");
-        MockBuilder mock3 = new MockBuilder("builder3");
+        MockBuilder mock2WithError = new MockBuilder("builder2-Fail");
+        MockBuilder mock3NotRun = new MockBuilder("builder3-NotRun");
 
         builder.add(mock1);
-        builder.add(mock2);
-        builder.add(mock3);
+        builder.add(mock2WithError);
+        builder.add(mock3NotRun);
 
-        mock1.setBuildLogXML(buildLog1);
-        mock2.setBuildLogXML(buildLog2);
-        mock3.setBuildLogXML(buildLog1);
+        mock1.setBuildLogXML(buildLogSuccess);
+        mock2WithError.setBuildLogXML(buildLogFailed);
+        mock3NotRun.setBuildLogXML(buildLogSuccess);
 
         final String mockTargetWError = "mockTargetWithError";
         final Element result = builder.buildWithTarget(buildProperties, mockTargetWError, null);
         assertNotNull(result);
 
-        assertTrue("builder3 didn't build", mock3.isBuildCalled());
-        assertEquals("builder2 didn't build with target", mockTargetWError, mock3.getTarget());
+        assertTrue(mock1.isBuildCalled());
+        assertEquals(mock1.getName() + " missing target", mockTargetWError, mock1.getTarget());
+
+        assertTrue(mock2WithError.isBuildCalled());
+        assertEquals(mock2WithError.getName() + " missing target", mockTargetWError, mock2WithError.getTarget());
+
+        assertFalse(mock3NotRun.getName() + " should not have built", mock3NotRun.isBuildCalled());
+        assertNull(mockTargetWError, mock3NotRun.getTarget());
     }
 
     public void testGetBuilders() throws Exception {
