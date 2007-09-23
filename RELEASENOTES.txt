@@ -30,6 +30,10 @@ Configuration documentation generation
 ----------------------
 * Created addiitonal plugin superclasses to make generating configxml.html. Still a work in progress (CC-202). Patch by Jerome Lacoste.
 
+Git Source Control & Bootstrapper
+----------------------
+* Sourcecontrol & Bootstrapper implementation for Git http://git.or.cz/ (CC-710). Submitted by Robert Schiele.
+
 Http Publisher
 ----------------------
 * New publisher to publish to via Http post, get, etc (CC-688). Contributed by Jonathan Gerrish.

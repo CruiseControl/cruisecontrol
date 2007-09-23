@@ -134,6 +134,8 @@
 <a href="#filesystem">&lt;filesystem&gt;</a>
 <a href="#forceonly">&lt;forceonly&gt;</a>
 <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
+<a href="#git">&lt;git&gt;</a>
+<a href="#gitbootstrapper">&lt;gitbootstrapper&gt;</a>
 <a href="#gzip">&lt;gzip&gt;</a>
 <a href="#harvest">&lt;harvest&gt;</a>
 <a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a>
@@ -254,6 +256,7 @@
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
+         <a href="#gitbootstrapper">&lt;gitbootstrapper/&gt;</a>
          <a href="#harvestbootstrapper">&lt;harvestbootstrapper/&gt;</a>
          <a href="#lockfilebootstrapper">&lt;lockfilebootstrapper/&gt;</a>
          <a href="#mercurialbootstrapper">&lt;mercurialbootstrapper/&gt;</a>
@@ -281,6 +284,7 @@
          <a href="#darcs">&lt;darcs/&gt;</a>
          <a href="#filesystem">&lt;filesystem/&gt;</a>
          <a href="#forceonly">&lt;forceonly/&gt;</a>
+         <a href="#git">&lt;git/&gt;</a>
          <a href="#harvest">&lt;harvest/&gt;</a>
          <a href="#httpfile">&lt;httpfile/&gt;</a>
          <a href="#mavensnapshotdependency">&lt;mavensnapshotdependency/&gt;</a>
@@ -1392,6 +1396,11 @@ password=P@ssW0rd!
                 <td>0 .. *</td>
                 <td>Execute a command for bootstrapping</td>
             </tr>
+            <tr>
+                <td><a href="#gitbootstrapper">&lt;gitbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from git</td>
+            </tr>
              <tr>
                 <td><a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
@@ -2025,6 +2034,43 @@ password=P@ssW0rd!
         attributes</p>
 
         </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="gitbootstrapper">&lt;gitbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;gitbootstrapper&gt;</pre>
+        </div>
+
+        <p>Handles updating from a git repository before the build
+        begins.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>localWorkingCopy</td>
+                <td>Yes</td>
+                <td>the relative or absolute path to the local working copy of
+                the git repository on which to execute the update
+                command.</td>
+            </tr>
+            </tbody>
+        </table>
+      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -2915,6 +2961,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td><a href="#forceonly">&lt;forceonly&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
+            </tr>
+             <tr>
+                <td><a href="#git">&lt;git&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a git repository.</td>
             </tr>
             <tr>
                 <td><a href="#harvest">&lt;harvest&gt;</a></td>
@@ -3952,6 +4003,74 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Set this property if a modification has occurred.  For use
                 in conditionally controlling the build later.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="git">&lt;git&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#modificationset">&lt;modificationset&gt;</a>
+      &lt;git&gt;</pre>
+        </div>
+
+        <p>Checks for changes within a git repository.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>LocalWorkingCopy</td>
+                <td>Yes</td>
+                <td>Relative or absolute path to the local working copy of the
+                git repository of which to find the log history.</td>
+            </tr>
+            <tr>
+                <td>property</td>
+                <td>No</td>
+                <td>Set this property if a modification has occurred.  For use
+                in conditionally controlling the build later.</td>
+            </tr>
+            <tr>
+                <td>propertyondelete</td>
+                <td>No</td>
+                <td>Set this property if a file has been deleted.  For use in
+                conditionally controlling the build later.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Properties Passed to the Builders</h3>
+
+        <p>In addition to the standard CruiseControl <a href="#buildproperties">
+        properties passed to builders</a>, &lt;git&gt; sets the
+        following properties:</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Property Name</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>gitcommitid</td>
+                <td>The commit id of the latest commit</td>
             </tr>
             </tbody>
         </table>
