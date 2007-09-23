@@ -187,6 +187,13 @@ public class CMSynergy implements SourceControl {
     private boolean recurse = true;
 
     /**
+     * If set to true, the time a task came into a reconfigure folder is used
+     * to determine modified tasks instead of the tasks completion time. Works
+     * for Synergy 6.3SP1 and newer only.
+     */
+    private boolean useBindTime = false;
+
+    /**
      * If set to true, the work area location will not be queried and passed to
      * the builder.
      */
@@ -350,6 +357,19 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
+     * Sets the value of the useBindtime attribute. If set to true, the time the
+     * task came into the reconfigure folders is used to query the modifications
+     * instead of the time the task was completed. Works
+     * for Synergy 6.3SP1 and newer only.
+     * Default value is false.
+     *
+     * @param useBindTime
+     */
+    public void setUseBindTime(boolean useBindTime) {
+        this.useBindTime = useBindTime;
+    }
+
+    /**
      * Sets the value of the recurse attribute. Used in conjuction with the
      * reconfigure attribute. If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
@@ -475,6 +495,9 @@ public class CMSynergy implements SourceControl {
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument("reconfigure_properties");
+        if (recurse) {
+            cmd.createArgument("-recurse");
+        }
         cmd.createArguments("-refresh", projectFourPartName);
         try {
             cmd.execute();
@@ -487,7 +510,8 @@ public class CMSynergy implements SourceControl {
     /**
      * Get a list of all tasks which are contained in all folders in the
      * reconfigure properties of the specified project and were completed after
-     * the last build.
+     * the last build. If useBindTime is <code>true</code> not the completion time of
+     * the task is considered but the time the task came into the folder.
      *
      * @return A list of <code>CMSynergyModifications</code> which represent
      *         the new tasks
@@ -513,9 +537,17 @@ public class CMSynergy implements SourceControl {
                 "%task_synopsis" + CCM_END_OBJECT); // 4
 
         // Construct the query string
-        cmd.createArgument(
-                "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName + "')) and completion_date>time('"
-                        + toCcmDate.format(lastBuild) + "')");
+        if (useBindTime) {
+                cmd.createArgument(
+                        "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName
+                                + "'), '>', time('"
+                                + toCcmDate.format(lastBuild) + "'))");
+        } else {
+                cmd.createArgument(
+                        "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName
+                                + "')) and completion_date>time('"
+                                + toCcmDate.format(lastBuild) + "')");
+        }
 
         // Execute the command
         try {

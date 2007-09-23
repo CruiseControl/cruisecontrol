@@ -3497,6 +3497,18 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                    the default) all subprojects will also be reconfigured.</td>
             </tr>
             <tr>
+                <td>usebindtime</td>
+                <td>No</td>
+                <td>If set to true, the time a task came into the reconfigure folder is used
+                    to determine modified tasks instead of the tasks completion date. This is
+                    a more precise query to find modifications since the last build when the
+                    reconfiguration rules are based on other criteria e.g. the status of a Change
+                    Synergy change request. <b>This feature will only work with CM Synergy version 
+                    6.3SP1 and above. If you are using an older version, you <i>must</i> set this
+                    option to false (default).
+                    </td>
+            </tr>
+            <tr>
                <td>ignoreworkarea</td>
                <td>No</td>
                <td>By default, the plugin will query CM Synergy to determine the work area
