@@ -296,8 +296,6 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the updateFolders attribute. If set to true, the
      * contents of the folders contained within the project's reconfigure
      * properties will be updated before we query to find new tasks.
-     *
-     * @param updateFolders
      */
     public void setUpdateFolders(boolean updateFolders) {
         this.updateFolders = updateFolders;
@@ -349,8 +347,6 @@ public class CMSynergy implements SourceControl {
     /**
      * Sets the value of the reconfigure attribute. If set to true, the project
      * will be reconfigured when changes are detected. Default value is false.
-     *
-     * @param reconfigure
      */
     public void setReconfigure(boolean reconfigure) {
         this.reconfigure = reconfigure;
@@ -362,8 +358,6 @@ public class CMSynergy implements SourceControl {
      * instead of the time the task was completed. Works
      * for Synergy 6.3SP1 and newer only.
      * Default value is false.
-     *
-     * @param useBindTime
      */
     public void setUseBindTime(boolean useBindTime) {
         this.useBindTime = useBindTime;
@@ -373,8 +367,6 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the recurse attribute. Used in conjuction with the
      * reconfigure attribute. If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
-     *
-     * @param recurse
      */
     public void setRecurse(boolean recurse) {
         this.recurse = recurse;
@@ -384,8 +376,6 @@ public class CMSynergy implements SourceControl {
      * Sets the value of the ignoreWorkarea attribute. If set to true, we will
      * not attempt to determine the location of the project's workarea, nor will
      * we pass the cc.ccm.workarea attribute to the builders. Default is false.
-     *
-     * @param ignoreWorkarea
      */
     public void setIgnoreWorkarea(boolean ignoreWorkarea) {
         this.ignoreWorkarea = ignoreWorkarea;
@@ -838,8 +828,6 @@ public class CMSynergy implements SourceControl {
      * @param sessionFile
      *            The session map file
      * @return The session ID.
-     *
-     * @throws CruiseControlException
      */
     public static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
 
