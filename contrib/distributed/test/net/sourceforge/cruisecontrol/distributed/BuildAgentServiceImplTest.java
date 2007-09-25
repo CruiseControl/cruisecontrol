@@ -105,6 +105,90 @@ public class BuildAgentServiceImplTest extends TestCase {
         LOGGER_JAR_MOVED.renameTo(LOGGER_JAR_REAL_MAIN_DIST);
     }
 
+    public void testInjectProgressLibBeforeValidation() throws Exception {
+
+        final class MyAntBuilder extends AntBuilder {
+            static final String MSG_FORCED_FAILURE = "Forced Failure for unit testing";
+            private boolean isValidateCalled;
+            boolean isValidateCalled() { return isValidateCalled; }
+
+            private boolean isBuildCalled;
+            boolean isBuildCalled() { return isBuildCalled; }
+
+            void resetFlags() {
+                isValidateCalled = false;
+                isBuildCalled = false;
+            }
+
+
+            public void validate() throws CruiseControlException {
+                isValidateCalled = true;
+                super.validate();
+            }
+
+            public Element build(Map buildProperties, Progress progressIn)
+                    throws CruiseControlException {
+
+                isBuildCalled = true;
+                // for failure
+                throw new CruiseControlException(MSG_FORCED_FAILURE);
+            }
+        }
+        final MyAntBuilder antBuilder = new MyAntBuilder();
+        antBuilder.setUseLogger(true);
+        antBuilder.setShowAntOutput(true);
+        antBuilder.setProgressLoggerLib(LOGGER_JAR_REAL_MAIN_DIST.getAbsolutePath());
+        
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+
+        final Map distributedAgentProps = new HashMap();
+
+        final Map projectProperties = new HashMap();
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
+
+        hideAntProgressLoggerLib();
+        try {
+            agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+            try {
+                try {
+                    agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null);
+                    fail("Missing progressLoggerLib should have failed validation");
+                } catch (RemoteException e) {
+                    assertTrue(e.getMessage().startsWith(
+                            "Failed to validate nested Builder on agent"));
+                    assertTrue(e.getCause() instanceof CruiseControlException);
+                    final CruiseControlException cce = (CruiseControlException) e.getCause();
+                    assertTrue(cce.getMessage().startsWith("File specified ["));
+                }
+
+                assertTrue(antBuilder.isValidateCalled());
+                assertFalse(antBuilder.isBuildCalled());
+            } finally {
+                agentImpl.clearOutputFiles();
+            }
+        } finally {
+            unhideAntProgressLoggerLib();
+        }
+
+        antBuilder.resetFlags();
+        try {
+            try {
+                agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null);
+                fail("build failure should have been forced");
+            } catch (RemoteException e) {
+                assertTrue(e.getMessage().startsWith("Failed to complete build on agent"));
+                assertTrue(e.getCause() instanceof CruiseControlException);
+                final CruiseControlException cce = (CruiseControlException) e.getCause();
+                assertEquals(MyAntBuilder.MSG_FORCED_FAILURE, cce.getMessage());                
+            }
+            assertTrue(antBuilder.isValidateCalled());
+            assertTrue(antBuilder.isBuildCalled());
+        } finally {
+            agentImpl.clearOutputFiles();
+        }
+    }
+
     public void testInjectAntProgressLoggerLibIfNeeded() throws  Exception {
         hideAntProgressLoggerLib();
         try {
