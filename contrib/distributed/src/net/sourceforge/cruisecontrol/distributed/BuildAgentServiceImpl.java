@@ -385,6 +385,11 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 progressRemote.setValueRemote("validating remote builder");
                 fireAgentStatusChanged(); // update UI
             }
+
+            // @todo Test under webstart 4, 5 and 6.0
+            // must do Ant Logger Lib injection before validation
+            injectAntProgressLoggerLibIfNeeded(nestedBuilder);
+
             try {
                 nestedBuilder.validate();
             } catch (CruiseControlException e) {
@@ -393,9 +398,6 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
             }
-
-            // @todo Test under webstart 4, 5 and 6.0
-            injectAntProgressLoggerLibIfNeeded(nestedBuilder);
 
             final String overrideTarget = (String) distributedAgentProps.get(
                     PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
