@@ -88,8 +88,8 @@ public class AntBuilder extends Builder {
     private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private boolean isLoggerClassNameSet;
-    // default showAntOutput to false until AntBootstrapper, Publisher, CCDist and antBuilderOutput.log are resolved
-    private boolean showAntOutput;
+    // @todo Verify default showAntOutput=true doesn't break AntBootstrapper and AntPublisher (see constructors)
+    private boolean showAntOutput = true;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
@@ -119,7 +119,7 @@ public class AntBuilder extends Builder {
         // the AntBuilder.build() method is called (as parent Builders/Schedule may override the showProgress value).
 
         // Validate showAntOutput
-        if (showAntOutput) {
+        if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
             if (progressLoggerLib == null) {
                 // since progressLoggerLib is not specified in the config.xml,
                 // we must be able to find the path to {@link AntScript#LIBNAME_PROGRESS_LOGGER}
@@ -192,7 +192,7 @@ public class AntBuilder extends Builder {
 
         File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
-        if (showAntOutput) {
+        if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
             BuildOutputBufferManager.INSTANCE.lookupOrCreate("").setFile(new File(workingDir, "antBuilderOutput.log"));
         }
 
@@ -384,6 +384,16 @@ public class AntBuilder extends Builder {
     }
     boolean getShowAntOutput() {
         return showAntOutput;
+    }
+
+    /**
+     * @param showAntOutput if false, disables Dashboard AntOutputLogger
+     * @param useLogger if false, disables Dashboard AntOutputLogger
+     * @return true if the jar containing the custom Dashboard logger class must be added to the command line used
+     * to execute Ant.
+     */
+    static boolean isDashboardLoggerRequired(final boolean showAntOutput, final boolean useLogger) {
+        return showAntOutput && useLogger;
     }
 
     public Object createJVMArg() {
