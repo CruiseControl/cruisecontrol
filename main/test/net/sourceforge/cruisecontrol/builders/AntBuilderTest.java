@@ -207,11 +207,21 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
+    public void testIsDashboardLoggerRequired() throws Exception {
+        // Dashboard logger is ONLY required if both showAntOutput==true and useLogger==true
+        
+        assertFalse(AntBuilder.isDashboardLoggerRequired(false, false));
+        assertFalse(AntBuilder.isDashboardLoggerRequired(false, true));
+        assertFalse(AntBuilder.isDashboardLoggerRequired(true, false));
+
+        assertTrue(AntBuilder.isDashboardLoggerRequired(true, true));
+    }
+
     public void testValidateShowAntOutput() throws Exception {
         builder = new AntBuilder();
 
-        assertFalse("Wrong default value", builder.getShowAntOutput());
-        assertNull("Wrong default value", builder.getProgressLoggerLib());
+        assertTrue("Wrong default value for showAntOutput", builder.getShowAntOutput());
+        assertNull("Wrong default value for progressLoggerLib", builder.getProgressLoggerLib());
 
         final File fakeProgressLoggerLibJar = AntScriptTest.createFakeProgressLoggerLib();
         filesToDelete.add(fakeProgressLoggerLibJar);
@@ -224,6 +234,10 @@ public class AntBuilderTest extends TestCase {
 
         final String dummyLoggerLib = "dummyLoggerLib";
         builder.setProgressLoggerLib(dummyLoggerLib);
+        // should pass since default useLogger is false (see AntBuilder.isDashboardLoggerRequired())
+        builder.validate();
+
+        builder.setUseLogger(true);
         try {
             builder.validate();
             fail("Non-existant overriden progressLoggerLib should have failed.");
@@ -232,6 +246,7 @@ public class AntBuilderTest extends TestCase {
         }
 
         // Now run tests without fakeProgressLoggerLibJar
+        builder.setUseLogger(false);
         assertTrue("failed to delete fakeProgressLoggerLibJar: " + fakeProgressLoggerLibJar.getAbsolutePath(),
                 fakeProgressLoggerLibJar.delete());
         // reset to default
@@ -241,6 +256,10 @@ public class AntBuilderTest extends TestCase {
         builder.validate();
 
         builder.setShowAntOutput(true);
+        // should pass since default useLogger is false (see AntBuilder.isDashboardLoggerRequired())
+        builder.validate();
+
+        builder.setUseLogger(true);
         try {
             builder.validate();
             fail("Missing default progressLoggerLib should have failed.");
@@ -342,6 +361,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTimeout(5);
         builder.setUseDebug(true);
         builder.setUseLogger(true);
+        builder.setShowAntOutput(false); // required to bypass Dashboard logger
         builder.validate();
 
         HashMap buildProperties = new HashMap();
