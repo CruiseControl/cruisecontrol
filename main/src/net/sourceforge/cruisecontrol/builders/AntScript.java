@@ -366,7 +366,8 @@ public class AntScript implements Script, StreamConsumer {
     }
 
     /**
-     * @param showAntOutput if true, use Dashboard {@link #CLASSNAME_DASHBOARD_LISTENER AntOutputLogger} as listener
+     * @param showAntOutput if true use Dashboard AntOutputLogger (CLASSNAME_DASHBOARD_LISTENER) as listener IIF
+     * useLogger is also true
      */
     public void setShowAntOutput(final boolean showAntOutput) {
         this.showAntOutput = showAntOutput;
