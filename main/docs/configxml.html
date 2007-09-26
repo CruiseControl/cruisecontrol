@@ -5844,10 +5844,12 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>showAntOutput</td>
-                <td>No  (defaults to false)</td>
-                <td>If true, this builder will write the ant output to a file (antBuilderOutput.log) that can be read
-                    by the Dashboard reporting application.<br/>
-                    NOTE: In order to show ant output, the AntBuilder uses a custom Build Listener.
+                <td>No  (defaults to true)</td>
+                <td>If true AND uselogger=true, this builder will write the ant output to a file (antBuilderOutput.log)
+                    that can be read by the Dashboard reporting application. This setting has no effect if uselogger=false.
+                    <a href="#antbootstrapper">AntBootstrapper</a> and <a href="#antpublisher">AntPublisher</a> do not
+                    provide access to showAntOutput, and operate as if showAntOutput=false.<br/>
+                    NOTE: In order to show ant output while uselogger=true, the AntBuilder uses a custom Build Listener.
                     If this interferes with your Ant build, set showAntOutput=false (and please report the problem).
                 </td>
             </tr>
