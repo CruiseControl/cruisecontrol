@@ -161,7 +161,7 @@ public class Maven2Builder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map buildProperties, Progress progressIn) throws CruiseControlException {
+    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
@@ -172,24 +172,24 @@ public class Maven2Builder extends Builder {
                 "the pom file could not be found : " + filePomFile.getAbsolutePath()
                         + "; Check the 'pomfile' attribute: " + pomFile);
 
-        File workingDir = filePomFile.getAbsoluteFile().getParentFile();
+        final File workingDir = filePomFile.getAbsoluteFile().getParentFile();
         LOG.debug("Working dir is : " + workingDir.toString());
 
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
         Element buildLogElement = new Element("build");
 
-        List goalSets = getGoalSets();
+        final List goalSets = getGoalSets();
         for (int i = 0; i < goalSets.size(); i++) {
 
-            String goals = (String) goalSets.get(i);
+            final String goals = (String) goalSets.get(i);
 
             final Maven2Script script = new Maven2Script(this, buildLogElement, goals, progress);
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
 
-            ScriptRunner scriptRunner = new ScriptRunner();
-            boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+            final ScriptRunner scriptRunner = new ScriptRunner();
+            final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
             script.flushCurrentElement();
 
             if (!scriptCompleted) {
@@ -210,14 +210,16 @@ public class Maven2Builder extends Builder {
 
         }
 
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
 
         buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
-        String origGoal = goal;
+    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+            throws CruiseControlException {
+
+        final String origGoal = goal;
         try {
             goal = target;
             return build(properties, progress);

@@ -92,7 +92,7 @@ public class MavenScriptTest extends TestCase {
     }
 
     private MavenScript getScript() {
-      MavenScript script = new MavenScript(null);
+      MavenScript script = new MavenScript(null, null);
       // none should exist for this test
       script.setMavenScript("testmaven.sh");
       script.setProjectFile("testproject.xml");

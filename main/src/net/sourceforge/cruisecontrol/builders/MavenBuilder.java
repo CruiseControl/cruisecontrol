@@ -84,7 +84,7 @@ public class MavenBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties, Progress progressIn) throws CruiseControlException {
+    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
@@ -97,21 +97,20 @@ public class MavenBuilder extends Builder {
         ValidationHelper.assertTrue(ckFile.exists(),
             "Project descriptor " + ckFile.getAbsolutePath() + " does not exist");
 
-        File workingDir = (new File(projectFile)).getParentFile();
+        final File workingDir = (new File(projectFile)).getParentFile();
 
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
         Element buildLogElement = new Element("build");
 
-        List runs = getGoalSets();
+        final List runs = getGoalSets();
         for (int runidx = 0; runidx < runs.size(); runidx++) {
             String goalset = (String) runs.get(runidx);
-            MavenScript script = new MavenScript(progress);
+            final MavenScript script = new MavenScript(buildLogElement, progress);
             script.setGoalset(goalset);
             script.setBuildProperties(buildProperties);
             script.setMavenScript(mavenScript);
             script.setProjectFile(projectFile);
-            script.setBuildLogElement(buildLogElement);
             ScriptRunner scriptRunner = new ScriptRunner();
             boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
             script.flushCurrentElement();
@@ -134,14 +133,16 @@ public class MavenBuilder extends Builder {
 
         }
 
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
 
         buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
-        String origGoal = goal;
+    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+            throws CruiseControlException {
+
+        final String origGoal = goal;
         try {
             goal = target;
             return build(properties, progress);

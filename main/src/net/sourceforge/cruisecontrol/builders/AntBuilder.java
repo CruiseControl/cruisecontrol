@@ -156,7 +156,7 @@ public class AntBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties, Progress progressIn) throws CruiseControlException {
+    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -166,7 +166,7 @@ public class AntBuilder extends Builder {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
-        AntScript script = new AntScript();
+        final AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
         script.setLibs(libs);
@@ -190,16 +190,16 @@ public class AntBuilder extends Builder {
         script.setProgressLoggerLib(progressLoggerLib);
         script.setProgress(progress);
 
-        File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
+        final File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
         if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
             BuildOutputBufferManager.INSTANCE.lookupOrCreate("").setFile(new File(workingDir, "antBuilderOutput.log"));
         }
 
-        boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
+        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
 
-        File logFile = new File(antWorkingDir, tempFileName);
-        Element buildLogElement;
+        final File logFile = new File(antWorkingDir, tempFileName);
+        final Element buildLogElement;
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
@@ -222,10 +222,10 @@ public class AntBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+    public Element buildWithTarget(final Map properties, final String buildTarget, final Progress progress)
             throws CruiseControlException {
         
-        String origTarget = target;
+        final String origTarget = target;
         try {
             target = buildTarget;
             return build(properties, progress);

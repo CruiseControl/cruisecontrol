@@ -67,15 +67,17 @@ public class MavenScript implements Script, StreamConsumer {
     private String projectFile;
     private int exitCode;
     /** Global log to produce, passed in from MavenBuilder */
-    private Element buildLogElement;
+    private final Element buildLogElement;
     private Element currentElement = null;
 
     private final Progress progress;
 
     /**
+     * @param buildLogElement Global log to produce, passed in from MavenBuilder.
      * @param progress progress callback object, may be null.
      */
-    public MavenScript(final Progress progress) {
+    public MavenScript(final Element buildLogElement, final Progress progress) {
+        this.buildLogElement = buildLogElement;
         this.progress = progress;
     }
 
@@ -136,7 +138,7 @@ public class MavenScript implements Script, StreamConsumer {
      * Ugly parsing of Maven output into some Elements.
      * Gets called from StreamPumper.
      */
-    public synchronized void consumeLine(String line) {
+    public synchronized void consumeLine(final String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {
             return;
         }
@@ -156,7 +158,7 @@ public class MavenScript implements Script, StreamConsumer {
                 makeNewCurrentElement(line.substring(0, line.lastIndexOf(':')));
                 return; // Do not log the goal itself
             }
-            Element msg = new Element("message");
+            final Element msg = new Element("message");
             msg.addContent(new CDATA(line));
             // Initially call it "info" level.
             // If "the going gets tough" we'll switch this to "error"
@@ -246,11 +248,5 @@ public class MavenScript implements Script, StreamConsumer {
      */
     public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
-    }
-    /**
-     * @param buildLogElement The buildLogElement to set.
-     */
-    public void setBuildLogElement(Element buildLogElement) {
-        this.buildLogElement = buildLogElement;
     }
 }
