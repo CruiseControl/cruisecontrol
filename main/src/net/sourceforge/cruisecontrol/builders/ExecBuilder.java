@@ -89,26 +89,29 @@ public class ExecBuilder extends Builder {
     /**
      * execute the command and return the results as XML
      */
-    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
+    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
 
         // time the command started
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
         buildLogElement = new Element("build");
 
         // setup script handler
-        ExecScript script = new ExecScript();
+        final ExecScript script = new ExecScript();
         script.setExecCommand(this.command);
         script.setExecArgs(this.args);
         script.setErrorStr(this.errorStr);
         //script.setBuildProperties(buildProperties); - currently ignored
+        script.setProgress(progress);
 
         // mimic Ant target/task logging
-        Element task = script.setBuildLogHeader(buildLogElement);
+        final Element task = script.setBuildLogHeader(buildLogElement);
         script.setBuildLogElement(task);
 
         // execute the command
-        ScriptRunner scriptRunner = new ScriptRunner();
+        final ScriptRunner scriptRunner = new ScriptRunner();
         boolean scriptCompleted = false;
         boolean scriptIOError = false;
         try {
@@ -118,7 +121,7 @@ public class ExecBuilder extends Builder {
         }
 
         // set the time it took to exec command
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
         buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
 
         // did the exec fail in anyway?
@@ -161,8 +164,10 @@ public class ExecBuilder extends Builder {
     } // build
 
 
-    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
-        String origArgs = args;
+    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+            throws CruiseControlException {
+
+        final String origArgs = args;
         try {
             args = target;
             return build(properties, progress);

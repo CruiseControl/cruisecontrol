@@ -42,6 +42,7 @@ import org.jdom.Element;
 import org.jdom.CDATA;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
@@ -57,6 +58,7 @@ public class RakeScript implements Script, StreamConsumer {
     private String args;
     private String buildFile = null;
     private String target = "";
+    private Progress progress;
     private int exitCode;
     private Element buildLogElement;
 
@@ -132,6 +134,10 @@ public class RakeScript implements Script, StreamConsumer {
     public void setTarget(String target) {
         this.target = target;
     }
+    /** @param progress The progress callback object to set. */
+    public void setProgress(final Progress progress) {
+        this.progress = progress;
+    }
     /**
      * @return Returns the exitCode.
      */
@@ -150,7 +156,7 @@ public class RakeScript implements Script, StreamConsumer {
       * Gets called from StreamPumper.
       * @param line the line of output to parse
       */
-    public synchronized void consumeLine(String line) {
+    public synchronized void consumeLine(final String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {
             return;
         }
@@ -162,6 +168,10 @@ public class RakeScript implements Script, StreamConsumer {
                 msg.addContent(new CDATA(line));
                 msg.setAttribute("priority", "info");
                 buildLogElement.addContent(msg);
+            }
+
+            if (progress != null) {
+                progress.setValue(line);
             }
         }
     }

@@ -82,7 +82,7 @@ public class RakeBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
+    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -90,13 +90,16 @@ public class RakeBuilder extends Builder {
 
         validateBuildFileExists();
 
+        final Progress progress = getShowProgress() ? progressIn : null;
+
         Element buildLogElement = new Element("build");
-        RakeScript script = this.getRakeScript();
+        final RakeScript script = this.getRakeScript();
         script.setBuildLogHeader(buildLogElement);
         script.setWindows(Util.isWindows());
         script.setArgs(args);
         script.setBuildFile(buildFile);
         script.setTarget(target);
+        script.setProgress(progress);
         long startTime = System.currentTimeMillis();
 
         File workDir = workingDir != null ? new File(workingDir) : null;
@@ -116,10 +119,10 @@ public class RakeBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+    public Element buildWithTarget(final Map properties, final String buildTarget, final Progress progress)
             throws CruiseControlException {
         
-        String origTarget = target;
+        final String origTarget = target;
         try {
             target = buildTarget;
             return build(properties, progress);

@@ -6050,6 +6050,11 @@ endlocal</pre>
                 support multiple days except for the default of every day.</td>
             </tr>
             <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
                 <td>showProgress</td>
                 <td>No  (defaults to true)</td>
                 <td>If true or omitted, this builder will provide progress messages.
@@ -6172,6 +6177,11 @@ endlocal</pre>
                 <td>Valid values are (case-insensitive) the English names for
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
             </tr>
             <tr>
                 <td>showProgress</td>
@@ -6821,6 +6831,14 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>No</td>
                 <td>Build will be halted if the script or command continues longer
                 than the specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, this builder will provide progress messages.
+                    If false, no progress messages will be shown. If any parent showProgress is false,
+                    then no progress will be shown, regardless of this builder's settings.
+                </td>
             </tr>
             </tbody>
         </table>
