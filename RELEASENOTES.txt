@@ -9,7 +9,7 @@ contrib
 
 distributed
 ----------------------
-* Added more robust Progress support for AntBuilder on webstart BuildAgents.
+* Added more robust Progress support for AntBuilder on BuildAgents.
 * Remove extraneous synchronized flags.
 
 build loop
