@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
@@ -58,6 +59,7 @@ public class ExecScript implements Script, StreamConsumer {
     private String execCommand;
     private String execArgs;
     private String errorStr;
+    private Progress progress;
     private int exitCode;
     private boolean foundError = false;
     private Element buildLogElement;
@@ -105,7 +107,7 @@ public class ExecScript implements Script, StreamConsumer {
      * @param line
      *            the line of output to parse
      */
-    public synchronized void consumeLine(String line) {
+    public synchronized void consumeLine(final String line) {
         if (line == null || line.length() == 0 || buildLogElement == null) {
             return;
         }
@@ -119,7 +121,7 @@ public class ExecScript implements Script, StreamConsumer {
                 }
             } else {
                 // NO: just write the ouput to the log
-                Element msg = new Element("message");
+                final Element msg = new Element("message");
                 msg.addContent(new CDATA(line));
                 msg.setAttribute("priority", "info");
                 if (currentElement == null) {
@@ -127,6 +129,10 @@ public class ExecScript implements Script, StreamConsumer {
                 } else {
                     currentElement.addContent(msg);
                 }
+            }
+
+            if (progress != null) {
+                progress.setValue(line);
             }
         }
     } // consumeLine
@@ -222,6 +228,11 @@ public class ExecScript implements Script, StreamConsumer {
     public void setBuildLogElement(Element buildLogElement) {
         this.buildLogElement = buildLogElement;
     } // setBuildLogElement
+
+    /** @param progress The progress callback object to set. */
+    public void setProgress(final Progress progress) {
+        this.progress = progress;
+    }
 
     /**
      * @return true if error occurred, else false
