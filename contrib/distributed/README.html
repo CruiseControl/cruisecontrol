@@ -290,14 +290,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 &lt;/system&gt;</pre>
                     where 5 would be replaced with your expected number of build agents.<br/><br/></li>
                     <li><a name="advancedConfigWebStartAgents"></a>Java Web Start deployment of build agents: The command <code>ant war-agent</code> will use the file <i>build-sign.properties</i> to sign agent jars and bundle them into a deployable <code>.war</code> file (<i>dist/cc-agent.war</i>).
-                    Be sure you update <i>build-sign.properties</i> appropriately to use your signing information/certificate.<br/><br/>
-                    NOTE: When using a nested <u><code>ant</code> builder</u> AND the build agent invoked was deployed via <u>webstart</u> AND that agent is running under <u>webstart in JRE 6</u>, the technique used to determine the location of the required custom Ant Logger/Listener classes does not work.
-                    To enable showProgress in such cases:
-                        <ol type="1">
-                            <li>Manully copy <i>cruisecontrol-antprogresslogger.jar</i> to some directory on your agent machine.</li>
-                            <li>Set the full path (including filename) to cruisecontrol-antprogresslogger.jar (for example: <i>/somedir/cruisecontrol-antprogresslogger.jar</i>) in your config.xml as the value of <code>progressLoggerLib</code> for this <code>ant</code> builder.</li>
-                        </ol>
-                        Another alternative is to set <code>showProgress=false</code> for this <code>ant</code> builder. In the future, we hope to solve this problem using jnlp "extensions". (Any volunteers?)<br/><br/></li>
+                    Be sure you update <i>build-sign.properties</i> appropriately to use your signing information/certificate.<br/><br/></li>
                     <li><a name="advancedConfigAgentUtility"></a>Agent Utility: Running <code>ant agent-util</code> from inside the <i>dist/util</i> dir will launch a Build Agent monitoring utility. The Agent Utility can also be used to kill (and if the agent was launched via webstart - restart) Build Agents.
                     This utility is intended as a starting point to from which to build JMX features to monitor/control Build Agents.<br/><br/></li>
                     <li><a name="advancedConfigAgentUI"></a>Build Agent UI: Build Agents default to showing a simple User Interface. The Build Agent will detect if it is running in a headles environment and automatically bypass the UI. This UI can be manually bypassed by adding: <code>-Djava.awt.headless=true</code> or <code>-skipUI</code> to the Build Agent during startup (either via command line or as a webstart jnlp parameter).<br/><br/></li>
@@ -338,6 +331,8 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
         </ol>
 
         <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
+        <h4>v2.7.2</h4>
+        The <code>ant</code> builder with <code>showProgress=true</code> issues (mentioned below in the 2.7.1 upgrade notes) have been solved via the use of a JNLP Extension to install the required <i>cruisecontrol-antprogresslogger.jar</i>.
         <h4>v2.7.1</h4>
         The <code>ant</code> builder with <code>showProgress=true</code> has known issues when using Java Web Start 6.0 to deploy build agents. See <a href="#advancedConfigWebStartAgents">Java Web Start deployment of build agents</a> for details/workarounds.
         <h4>v2.7</h4>
