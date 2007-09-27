@@ -155,7 +155,7 @@ public final class Maven2Script implements Script, StreamConsumer {
      * Analyze the output of the mvn command. This is used to detect errors
      * or successful build.
      */
-    public void consumeLine(String line) {
+    public void consumeLine(final String line) {
         final String level;
         final String infoLine;
         if (line == null || line.length() == 0 || buildLogElement == null) {
@@ -194,7 +194,7 @@ public final class Maven2Script implements Script, StreamConsumer {
                 return; // Do not log the goal itself
             }
 
-            Element msg = new Element("message");
+            final Element msg = new Element("message");
             msg.addContent(new CDATA(line));
             // Initially call it "info" level.
             // If "the going gets tough" we'll switch this to "error"
