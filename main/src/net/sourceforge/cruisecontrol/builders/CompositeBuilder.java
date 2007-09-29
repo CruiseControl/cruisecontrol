@@ -52,31 +52,23 @@ public class CompositeBuilder extends Builder {
         // add child builder info to build log
         insertBuildLogHeader(buildResult, buildlogMsgPrefix + " - " + builder.getClass().getName(), childStartTime);
 
-        Iterator elements = buildResult.getChildren().iterator();
+        final Iterator elements = buildResult.getChildren().iterator();
         while (elements.hasNext()) {
             // combining the outputs
-            Element elem = (Element) elements.next();
+            final Element elem = (Element) elements.next();
             elements.remove();
             elem.detach();
             compositeBuildResult.addContent(elem);
         }
-        Iterator attributes = buildResult.getAttributes().iterator();
-        while (attributes.hasNext()) {
-            Attribute attribute = (Attribute) attributes.next();
-            if (attribute.getName().equalsIgnoreCase("error")) {
-                attributes.remove();
-                attribute.detach();
-                compositeBuildResult.setAttribute(attribute);
-                return true;
-            }
-            attributes.remove();
+
+        // check for error (if we found one, we will stop)
+        if (!isBuildSuccessful(buildResult)) {
+            LOG.debug("CompositeBuilder: error element found, stopping)");
+
+            final Attribute attribute = buildResult.getAttribute("error");
             attribute.detach();
             compositeBuildResult.setAttribute(attribute);
 
-        }
-        // check for error (if we found one, we will stop)
-        if (!isBuildSuccessful(buildResult)) {
-            LOG.debug("CompositeBuilder: errorlement found, stopping)");
             return true; // stop, since we found an error in the last build
         }
 
@@ -94,23 +86,39 @@ public class CompositeBuilder extends Builder {
     private static void insertBuildLogHeader(final Element buildResult,
                                              final String buildLogMsg, final long childStartTime) {
 
+        // add info from attributes of "build" tag from child build
+        String buildMsgWithAttibs = buildLogMsg + "; child build attributes: ";
+        Iterator attributes = buildResult.getAttributes().iterator();
+        while (attributes.hasNext()) {
+            Attribute attribute = (Attribute) attributes.next();
+            buildMsgWithAttibs += attribute.getName() + "=" + attribute.getValue() + "; ";
+        }
+
         // @todo Rearrange these elements (even nesting childLog elements?), might display this info in reporting apps
 
-        Element target = new Element("target");
+        final Element target = new Element("target");
         target.setAttribute("name", "composite");
         target.setAttribute("time", DateUtil.getDurationAsString((System.currentTimeMillis() - childStartTime)));
 
-        Element task = new Element("task");
+        final Element task = new Element("task");
         task.setAttribute("name", "composite-childbuilder");
 
-        Element msg = new Element("message");
-        msg.addContent(new CDATA(buildLogMsg));
-        msg.setAttribute("priority", "info");
+        final Element msg = new Element("message");
+        msg.addContent(new CDATA(buildMsgWithAttibs));
+        msg.setAttribute("priority", "warn");
         task.addContent(msg);
 
         target.addContent(task);
 
         buildResult.addContent(0, target);
+
+
+        final Element msgBuild = new Element("message");
+        msgBuild.addContent(new CDATA(buildMsgWithAttibs));
+        msgBuild.setAttribute("priority", "warn");
+
+        buildResult.addContent(1, msgBuild);
+
     } // insertBuildLogHeader
 
     
