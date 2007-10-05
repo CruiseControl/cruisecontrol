@@ -164,25 +164,30 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     }
 
     void updateAgentInfoUI(final BuildAgentService buildAgentService) {
-        // only update UI on event dispatch thread,
+        // collect data to update on separate thread
         // it's also good to wait a bit for the agent info to be updated...
-        SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
-                public void run() {
-                    String agentInfo = "";
-                    if (buildAgentService != null) {
-                        try {
-                            agentInfo = buildAgentService.asString();
-                        } catch (RemoteException e) {
-                            agentInfo = e.getMessage();
-                        }
+        new Thread("AgentUI updateAgentInfoUI-data") {
+            public void run() {
+                String agentInfo = "";
+                if (buildAgentService != null) {
+                    try {
+                        agentInfo = buildAgentService.asString();
+                    } catch (RemoteException e) {
+                        agentInfo = e.getMessage();
                     }
-
-                    txaAgentInfo.setText("Build Agent: " + buildAgent.getServiceID() + "\n"
-                            + agentInfo
-                            + MulticastDiscovery.toStringEntries(buildAgent.getEntries())
-                    );
                 }
-        });
+                final String agentText = "Build Agent: " + buildAgent.getServiceID() + "\n"
+                        + agentInfo
+                        + MulticastDiscovery.toStringEntries(buildAgent.getEntries());
+
+                // only update UI on event dispatch thread,
+                SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
+                        public void run() {
+                            txaAgentInfo.setText(agentText);
+                        }
+                });
+            }
+        } .start();
     }
 
 
