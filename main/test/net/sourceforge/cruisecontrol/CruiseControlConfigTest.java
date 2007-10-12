@@ -54,10 +54,13 @@ import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom.Element;
 
 public class CruiseControlConfigTest extends TestCase {
+
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     private CruiseControlConfig config;
     private File configFile;
@@ -82,15 +85,21 @@ public class CruiseControlConfigTest extends TestCase {
         testpropertiesdir.setAttribute("value", propertiesFile.getParentFile().getAbsolutePath());
         ccElement.addContent(0, testpropertiesdir);
 
+        // The directory "foo" in the classpath is
+        // created by CruiseControl by the log element
+        // in testconfig.xml.
+        filesToDelete.add(new File(classpathDirectory, "foo"));
+
+        // The directory "${missing}" is
+        // created by CruiseControl by the log element <log dir='${missing}'/>
+        // in testconfig.xml.
+        filesToDelete.add(new File("${missing}"));
+
         config = new CruiseControlConfig(ccElement);
     }
 
     protected void tearDown() {
-        // The directory "foo" in the classpath is
-        // created by CruiseControl by the log element
-        // in testconfig.xml.
-        File fooDirectory = new File(classpathDirectory, "foo");
-        fooDirectory.delete();
+        filesToDelete.delete();
 
         propertiesFile = null;
         configFile = null;
