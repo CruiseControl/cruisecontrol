@@ -60,6 +60,7 @@ import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -128,7 +129,7 @@ public class ProjectTest extends TestCase {
         filesToDelete.add(logDir);
         final String myProjectName = "myproject"; 
         log.setProjectName(myProjectName);
-        filesToDelete.add(new File(myProjectName + ".ser"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), myProjectName + ".ser"));
         log.setDir(logDir.getAbsolutePath());
         log.setEncoding("ISO-8859-1");
         log.validate();
@@ -329,7 +330,7 @@ public class ProjectTest extends TestCase {
         };
         final String testProjectForNewConfigDuringBuild = "TestProjectForGettingNewProjectConfigDuringBuild";
         projectConfig.setName(testProjectForNewConfigDuringBuild);
-        filesToDelete.add(new File(testProjectForNewConfigDuringBuild + ".ser"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), testProjectForNewConfigDuringBuild + ".ser"));
         projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.configureProject();
         

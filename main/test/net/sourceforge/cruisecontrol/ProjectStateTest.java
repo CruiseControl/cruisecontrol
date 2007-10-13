@@ -19,11 +19,11 @@ public class ProjectStateTest extends TestCase {
 
     private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
-    private static final File QUEUED_OBJECT_FILE = new File("target/queued.object");
+    private static final File QUEUED_OBJECT_FILE = new File(TestUtil.getTargetDir(), "target/queued.object");
 
     protected void setUp() throws Exception {
         QUEUED_OBJECT_FILE.getParentFile().mkdir();
-        filesToDelete.add(QUEUED_OBJECT_FILE.getParentFile());
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "target"));
     }
     protected void tearDown() throws Exception {
         filesToDelete.delete();

@@ -48,6 +48,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
 import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.jdom.Element;
@@ -62,7 +63,7 @@ public class LogTest extends TestCase {
     private static final String LOG_DIR = "target/LogTest";
 
     protected void setUp() {
-        filesToDelete.add(new File(LOG_DIR).getParentFile());
+        filesToDelete.add(new File(TestUtil.getTargetDir(), LOG_DIR));
     }
     
     protected void tearDown() {

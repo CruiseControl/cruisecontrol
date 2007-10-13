@@ -38,11 +38,14 @@
 package net.sourceforge.cruisecontrol.testutil;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+import java.net.URL;
+import java.net.URLDecoder;
 
 import junit.framework.Assert;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -53,7 +56,7 @@ import org.jdom.Element;
 public final class TestUtil {
 
     public static class FilesToDelete {
-        private List files = new Vector();
+        private final List files = new Vector();
     
         public void add(File file) {
             files.add(file);
@@ -67,6 +70,30 @@ public final class TestUtil {
             }
             files.clear();
         }
+    }
+
+    private static File targetDir;
+    public static File getTargetDir() {
+        if (targetDir == null) {
+            final URL url;
+            url = TestUtil.class.getClassLoader().getResource("net/sourceforge/cruisecontrol/BuilderTest.class");
+            final File classFile;
+            try {
+                classFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
+            targetDir = classFile.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile();
+
+            final String absPath = targetDir.getAbsolutePath();
+            Assert.assertTrue("Unit test 'target' dir not a dir: " + absPath, targetDir.isDirectory());
+            Assert.assertTrue("Unit test 'target' does not exist: " + absPath, targetDir.exists());
+            Assert.assertEquals("Unit test 'target' dir has unexpected name: " + absPath,
+                    "target", targetDir.getName());
+            Assert.assertEquals("Unit test 'target' dir in unexpected location: " + absPath,
+                    "main", targetDir.getParentFile().getName());
+        }
+        return targetDir;
     }
 
     private TestUtil() {

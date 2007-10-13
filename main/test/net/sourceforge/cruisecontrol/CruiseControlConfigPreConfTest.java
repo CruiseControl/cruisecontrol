@@ -49,10 +49,13 @@ import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener;
 import net.sourceforge.cruisecontrol.publishers.AntPublisher;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom.Element;
 
 public class CruiseControlConfigPreConfTest extends TestCase {
+
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     private CruiseControlConfig config;
     private File configFile;
@@ -63,11 +66,15 @@ public class CruiseControlConfigPreConfTest extends TestCase {
 
         Element rootElement = Util.loadRootElement(configFile);
         config = new CruiseControlConfig(rootElement);
+
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
     }
 
     protected void tearDown() {
         configFile = null;
         config = null;
+
+        filesToDelete.delete();
     }
 
     public void testGetProjectNames() {

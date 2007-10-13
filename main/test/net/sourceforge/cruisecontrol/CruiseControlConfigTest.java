@@ -93,12 +93,9 @@ public class CruiseControlConfigTest extends TestCase {
         // The directories "${missing}", "mylogs", and "logs"
         // created by CruiseControl by the log element
         // in testconfig.xml.
-        final File targetDir =
-                //                /target        /test-classes   /net            /sourceforge
-                classpathDirectory.getParentFile().getParentFile().getParentFile().getParentFile();
-        filesToDelete.add(new File(targetDir, "${missing}"));
-        filesToDelete.add(new File(targetDir, "mylogs"));
-        filesToDelete.add(new File(targetDir, "logs"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "${missing}"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "mylogs"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
         
         config = new CruiseControlConfig(ccElement);
     }

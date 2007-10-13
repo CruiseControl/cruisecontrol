@@ -45,23 +45,28 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-public class CruiseControlControllerTest extends TestCase {
+public final class CruiseControlControllerTest extends TestCase {
 
-    private File dir = new File("target");
-    private File configFile = new File(dir, "_tempConfigFile");
-    private File configFile2 = new File(dir, "_tempConfigFile2");
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
+
+    private final File dir = new File(TestUtil.getTargetDir(), "target");
+    private final File configFile = new File(dir, "_tempConfigFile");
+    private final File configFile2 = new File(dir, "_tempConfigFile2");
     private CruiseControlController ccController;
 
-    protected void setUp() throws CruiseControlException {
+    protected void setUp() throws Exception {
         dir.mkdirs();
         ccController = new CruiseControlController();
         ensureFileDoesntExist(configFile);
         ensureFileDoesntExist(configFile2);
+
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
     }
 
     public void tearDown() {
@@ -69,6 +74,8 @@ public class CruiseControlControllerTest extends TestCase {
         ccController = null;
         ensureFileDoesntExist(configFile);
         ensureFileDoesntExist(configFile2);
+
+        filesToDelete.delete();
     }
 
     private void ensureFileDoesntExist(File file) {
@@ -436,9 +443,9 @@ public class CruiseControlControllerTest extends TestCase {
         configOut.write("</project>\n");
     }
 
-    class MyListener implements CruiseControlController.Listener {
-        private List added = new ArrayList();
-        private List removed = new ArrayList();
+    final class MyListener implements CruiseControlController.Listener {
+        private final List added = new ArrayList();
+        private final List removed = new ArrayList();
         public void clear() {
             added.clear();
             removed.clear();
