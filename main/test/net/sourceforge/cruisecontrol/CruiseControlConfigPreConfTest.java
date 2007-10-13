@@ -65,9 +65,12 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
 
         Element rootElement = Util.loadRootElement(configFile);
-        config = new CruiseControlConfig(rootElement);
 
-        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
+        final File testLogsDir = new File(TestUtil.getTargetDir(), "logs");
+        // Pre-create parent "logs" dir to minimize chance of error creating project-log dir on Winz
+        testLogsDir.mkdirs();
+        config = new CruiseControlConfig(rootElement);
+        filesToDelete.add(testLogsDir);
     }
 
     protected void tearDown() {
