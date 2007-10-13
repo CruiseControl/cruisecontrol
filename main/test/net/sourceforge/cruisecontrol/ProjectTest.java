@@ -126,7 +126,9 @@ public class ProjectTest extends TestCase {
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
         filesToDelete.add(logDir);
-        log.setProjectName("myproject");
+        final String myProjectName = "myproject"; 
+        log.setProjectName(myProjectName);
+        filesToDelete.add(new File(myProjectName + ".ser"));
         log.setDir(logDir.getAbsolutePath());
         log.setEncoding("ISO-8859-1");
         log.validate();
@@ -155,6 +157,7 @@ public class ProjectTest extends TestCase {
         writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
         File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
         auxLogsDirectory.mkdir();
+        filesToDelete.add(auxLogsDirectory);
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog2.xml",
                 "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog3.xml", "<testsuite/>");
@@ -324,7 +327,9 @@ public class ProjectTest extends TestCase {
                 return project;
             } 
         };
-        projectConfig.setName("TestProjectForGettingNewProjectConfigDuringBuild");
+        final String testProjectForNewConfigDuringBuild = "TestProjectForGettingNewProjectConfigDuringBuild";
+        projectConfig.setName(testProjectForNewConfigDuringBuild);
+        filesToDelete.add(new File(testProjectForNewConfigDuringBuild + ".ser"));
         projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.configureProject();
         
@@ -678,6 +683,8 @@ public class ProjectTest extends TestCase {
         final Log log = new Log();
         final File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
+        filesToDelete.add(logDir);
+
         log.setProjectName("myproject");
         log.setDir(logDir.getAbsolutePath());
         log.setEncoding("ISO-8859-1");
