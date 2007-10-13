@@ -74,7 +74,7 @@ public class StatusHelperTest extends TestCase {
 
     private StatusHelper helper;
     private File logDir;
-    private FilesToDelete filesToDelete = new FilesToDelete();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
         helper = new StatusHelper();
@@ -85,6 +85,10 @@ public class StatusHelperTest extends TestCase {
             logDir.delete();
         }
         if (!logDir.isDirectory()) {
+            if (!logDir.getParentFile().exists()) {
+                // Pre-create parent dir to minimize chance of error creating project-log dir on Winz
+                logDir.getParentFile().mkdirs();
+            }
             assertTrue("Failed to create test result dir " + logDir.getAbsolutePath(), logDir.mkdirs());
             filesToDelete.add(logDir);
         }
