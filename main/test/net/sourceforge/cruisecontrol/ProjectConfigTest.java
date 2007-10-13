@@ -37,8 +37,13 @@
 package net.sourceforge.cruisecontrol;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
+
+import java.io.File;
 
 public class ProjectConfigTest extends TestCase {
+
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     private ProjectConfig config;
 
@@ -49,6 +54,8 @@ public class ProjectConfigTest extends TestCase {
 
     protected void tearDown() {
         config = null;
+
+        filesToDelete.delete();
     }
 
     public void testBuildAfterFailedShouldDefaultToTrue() {
@@ -67,6 +74,8 @@ public class ProjectConfigTest extends TestCase {
 
         config.add(new MockSchedule());
         config.validate();
+
+        filesToDelete.add(new File(config.getLog().getLogDir()).getParentFile());
     }
 
     public void testValidateCallsSubelementValidates() throws CruiseControlException {
