@@ -80,7 +80,7 @@ public final class FilesystemUtils {
     }
 
     public static File createFile(String filename, File directory) throws IOException {
-        File file = new File(directory.getAbsolutePath() + File.separator + filename);
+        File file = new File(directory, filename);
         file.createNewFile();
         file.deleteOnExit();
         return file;
