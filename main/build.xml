@@ -201,9 +201,6 @@
 			<fileset dir="${test}" includes="**/*.jar" />
 			<fileset dir="${test}" includes="**/*.properties" />
 		</copy>
-		<copy todir="${target}">
-			<fileset dir="${test}" includes="test.build" />
-		</copy>
 	</target>
 
 	<target name="compile-test-harvest" if="harvest-sdk-present" depends="compile-harvest">
