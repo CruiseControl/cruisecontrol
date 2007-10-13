@@ -366,6 +366,7 @@ public class AntBuilderTest extends TestCase {
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
+        filesToDelete.add(new File("log.xml"));
         Element buildElement = builder.build(buildProperties, null);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
@@ -380,20 +381,21 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testSaveAntLog() throws IOException {
-        String originalDirName = "target";
-        String logName = "log.xml";
-        String saveDirName = "target/reports/ant";
+        final String originalDirName = "target";
+        filesToDelete.add(new File(originalDirName));
+        final String logName = "log.xml";
+        final String saveDirName = "target/reports/ant";
 
         builder.setSaveLogDir(saveDirName);
         builder.setTempFile(logName);
 
-        File originalDir = new File(originalDirName);
-        File originalLog = new File(originalDir, logName);
+        final File originalDir = new File(originalDirName);
+        final File originalLog = new File(originalDir, logName);
         originalDir.mkdirs();
         originalLog.createNewFile();
 
-        File saveDir = new File(saveDirName);
-        File savedLog = new File(saveDir, logName);
+        final File saveDir = new File(saveDirName);
+        final File savedLog = new File(saveDir, logName);
         saveDir.mkdirs();
         savedLog.delete();
 

@@ -323,20 +323,21 @@ public class NantBuilderTest extends TestCase {
     }
 
     public void testSaveNantLog() throws IOException {
-        String originalDirName = "target";
-        String logName = "log.xml";
-        String saveDirName = "target/reports/nant";
+        final String originalDirName = "target";
+        filesToDelete.add(new File(originalDirName));
+        final String logName = "log.xml";
+        final String saveDirName = "target/reports/nant";
 
         builder.setSaveLogDir(saveDirName);
         builder.setTempFile(logName);
 
-        File originalDir = new File(originalDirName);
-        File originalLog = new File(originalDir, logName);
+        final File originalDir = new File(originalDirName);
+        final File originalLog = new File(originalDir, logName);
         originalDir.mkdirs();
         originalLog.createNewFile();
 
-        File saveDir = new File(saveDirName);
-        File savedLog = new File(saveDir, logName);
+        final File saveDir = new File(saveDirName);
+        final File savedLog = new File(saveDir, logName);
         saveDir.mkdirs();
         savedLog.delete();
 
