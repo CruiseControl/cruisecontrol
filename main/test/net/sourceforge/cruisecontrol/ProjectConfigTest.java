@@ -75,7 +75,7 @@ public class ProjectConfigTest extends TestCase {
         config.add(new MockSchedule());
         config.validate();
 
-        filesToDelete.add(new File(config.getLog().getLogDir()).getParentFile());
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
     }
 
     public void testValidateCallsSubelementValidates() throws CruiseControlException {

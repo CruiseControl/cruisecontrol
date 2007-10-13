@@ -44,6 +44,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
@@ -324,7 +325,7 @@ public class NantBuilderTest extends TestCase {
 
     public void testSaveNantLog() throws IOException {
         final String originalDirName = "target";
-        filesToDelete.add(new File(originalDirName));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), originalDirName));
         final String logName = "log.xml";
         final String saveDirName = "target/reports/nant";
 

@@ -44,6 +44,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.jdom.Element;
@@ -366,7 +367,7 @@ public class AntBuilderTest extends TestCase {
 
         HashMap buildProperties = new HashMap();
         long startTime = System.currentTimeMillis();
-        filesToDelete.add(new File("log.xml"));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "log.xml"));
         Element buildElement = builder.build(buildProperties, null);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
@@ -382,7 +383,7 @@ public class AntBuilderTest extends TestCase {
 
     public void testSaveAntLog() throws IOException {
         final String originalDirName = "target";
-        filesToDelete.add(new File(originalDirName));
+        filesToDelete.add(new File(TestUtil.getTargetDir(), originalDirName));
         final String logName = "log.xml";
         final String saveDirName = "target/reports/ant";
 

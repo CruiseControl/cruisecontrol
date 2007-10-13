@@ -43,6 +43,7 @@ import org.jdom.Element;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 
 public class XMLConfigManagerTest extends TestCase {
@@ -53,6 +54,7 @@ public class XMLConfigManagerTest extends TestCase {
         configurationFile = File.createTempFile("config", "xml");
         filesToDelete.add(configurationFile);
         
+        filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
         writeConfigurationFile(
                 "<cruisecontrol><include.projects file='foo.xml'/><project name=\"DOESNTMATTER\"><schedule>"
                         + "<ant/></schedule></project></cruisecontrol>\n");

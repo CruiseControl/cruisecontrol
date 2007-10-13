@@ -9,16 +9,20 @@ package net.sourceforge.cruisecontrol.jmx;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 /**
  * @author alwick
  */
 public class CruiseControlControllerJMXAdaptorTest extends TestCase {
+
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     private CruiseControlControllerJMXAdaptor adaptor;
 
@@ -26,6 +30,11 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
         super.setUp();
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController());
     }
+
+    protected void tearDown() throws Exception {
+        filesToDelete.delete();
+    }
+
 
     public void testShouldReturnAllProjectWithStatus() throws Exception {
         final ProjectConfig projectConfig = new ProjectConfig() {
@@ -106,6 +115,8 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             sb.append("<schedule><ant/></schedule>");
             sb.append("</project>");
             sb.append("</cruisecontrol>");
+
+            filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
 
             adaptor.validateConfig(sb.toString());
 
