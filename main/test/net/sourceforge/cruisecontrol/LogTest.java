@@ -62,7 +62,7 @@ public class LogTest extends TestCase {
     private static final String LOG_DIR = "target/LogTest";
 
     protected void setUp() {
-        filesToDelete.add(new File(LOG_DIR));
+        filesToDelete.add(new File(LOG_DIR).getParentFile());
     }
     
     protected void tearDown() {
