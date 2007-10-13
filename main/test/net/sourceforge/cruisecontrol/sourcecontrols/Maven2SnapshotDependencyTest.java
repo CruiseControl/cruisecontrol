@@ -171,7 +171,7 @@ public class Maven2SnapshotDependencyTest extends TestCase {
     }
 
 
-//* @todo NOTE: Add a single slash to the front of this line to try running these tests.
+/* @todo NOTE: Add a single slash to the front of this line to try running these tests.
 
 
     //this test is not jre 1.3 compatible because it invokes the MavenEmbedder.
