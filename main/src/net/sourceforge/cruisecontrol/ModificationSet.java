@@ -68,7 +68,7 @@ public class ModificationSet implements Serializable {
     private static final int ONE_SECOND = 1000;
 
     private List modifications = new ArrayList();
-    private List sourceControls = new ArrayList();
+    private final List sourceControls = new ArrayList();
     private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
     private final DateFormat formatter = DateFormatFactory.getDateFormat();
@@ -78,9 +78,12 @@ public class ModificationSet implements Serializable {
      */
     private List ignoreFiles;
 
+    static final String MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP = "quiet period modification, sleep ";
+
     /**
      * Set the amount of time in which there is no source control activity after which it is assumed that it is safe to
      * update from the source control system and initiate a build.
+     * @param seconds quite period in seconds
      */
     public void setQuietPeriod(int seconds) {
         quietPeriod = seconds * ONE_SECOND;
@@ -186,9 +189,17 @@ public class ModificationSet implements Serializable {
     }
 
     /**
-     *
+     * @deprecated use {@link #getModifications(java.util.Date, Progress)} instead.
      */
-    public Element getModifications(Date lastBuild) {
+    public Element getModifications(final Date lastBuild) {
+        return getModifications(lastBuild, null);
+    }
+    /**
+     * @param lastBuild date of last build
+     * @param progress ModificationSet progress message callback object
+     * @return modifications element
+     */
+    public Element getModifications(final Date lastBuild, final Progress progress) {
         Element modificationsElement;
         do {
             timeOfCheck = new Date();
@@ -231,6 +242,13 @@ public class ModificationSet implements Serializable {
                 Date now = new Date();
                 long timeToSleep = getQuietPeriodDifference(now, modifications);
                 LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");
+
+                // @todo Remove "if (progress != null)" when deprecated getModifications(Date lastBuild) is removed
+                if (progress != null) {
+                    progress.setValue(MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP
+                            + (timeToSleep / 1000) + " secs");
+                }
+                
                 try {
                     Thread.sleep(timeToSleep);
                 } catch (InterruptedException e) {

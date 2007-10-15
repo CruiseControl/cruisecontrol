@@ -58,6 +58,10 @@ Mercurial Source Control & Bootstrapper
 ----------------------
 * Sourcecontrol & Bootstrapper implementation for Mercurial (hg) http://www.selenic.com/mercurial/wiki/ (CC-638). Submitted by Jerome Lacoste.
 
+ModificationSet
+----------------------
+* Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
+
 Documentation
 ======================
 * Add missing docs for "timeout" attributes on Maven and Maven2 builders.

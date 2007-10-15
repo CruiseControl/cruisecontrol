@@ -409,10 +409,10 @@ public class Project implements Serializable, Runnable {
         boolean checkNewChangesFirst = checkOnlySinceLastBuild();
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
-            modifications = modificationSet.getModifications(lastBuild);
+            modifications = modificationSet.getModifications(lastBuild, progress);
         } else {
             debug("getting changes since last successful build");
-            modifications = modificationSet.getModifications(lastSuccessfulBuild);
+            modifications = modificationSet.getModifications(lastSuccessfulBuild, progress);
         }
 
         if (!modificationSet.isModified()) {
@@ -438,7 +438,7 @@ public class Project implements Serializable, Runnable {
 
         if (checkNewChangesFirst) {
             debug("new changes found; now getting complete set");
-            modifications = modificationSet.getModifications(lastSuccessfulBuild);
+            modifications = modificationSet.getModifications(lastSuccessfulBuild, progress);
         }
 
         return modifications;

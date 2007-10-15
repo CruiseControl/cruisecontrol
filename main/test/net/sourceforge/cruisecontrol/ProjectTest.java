@@ -413,7 +413,7 @@ public class ProjectTest extends TestCase {
 
     public void testGetModifications() {
         MockModificationSet modSet = new MockModificationSet();
-        Element modifications = modSet.getModifications(null);
+        Element modifications = modSet.getModifications(null, null);
         projectConfig.add(modSet);
         project.init();
 

@@ -43,11 +43,11 @@ import java.util.Date;
 public class MockModificationSet extends ModificationSet {
 
     private int modCheckCount = 0;
-    private Element modifications = new Element("modifications");
+    private final Element modifications = new Element("modifications");
     private boolean modified = true;
     private Date time = null;
 
-    public Element getModifications(Date lastBuild) {
+    public Element getModifications(final Date lastBuild, final Progress progress) {
         modCheckCount++;
         return modifications;
     }
