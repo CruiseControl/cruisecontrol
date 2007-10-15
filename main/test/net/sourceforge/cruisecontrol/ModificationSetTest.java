@@ -54,6 +54,19 @@ import org.jdom.output.XMLOutputter;
 
 public class ModificationSetTest extends TestCase {
 
+    private static class MockProgress implements Progress {
+        private String value;
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+    private final MockProgress mockProgress = new MockProgress();
+
     private ModificationSet modSet;
 
     protected void setUp() throws Exception {
@@ -132,6 +145,53 @@ public class ModificationSetTest extends TestCase {
         assertEquals(2000, modSet.getQuietPeriodDifference(now, mods2));
     }
 
+    /**
+     * @deprecated Tests deprecated method, remove when method is removed.
+     */
+    public void testProgressNull() throws Exception {
+        //@todo Tests deprecated method, remove when method is removed.
+        
+        final Date now = new Date();
+
+        final MockSourceControl mock1 = new MockSourceControl();
+        mock1.setType(1);
+        mock1.setModifiedDate(now);
+
+        modSet.add(mock1);
+
+        final int quietPeriod = 1;
+        modSet.setQuietPeriod(quietPeriod);
+
+        // Wait to ensure "now" used in getMods will detect mod in quiet period
+        Thread.sleep((long) ((quietPeriod * 1000) * .5));
+
+        assertNull(mockProgress.getValue());
+        modSet.getModifications(new Date(), null);
+        assertNull(mockProgress.getValue());
+    }
+
+    public void testProgressInQuietPeriod() throws Exception {
+        final Date now = new Date();
+
+        final MockSourceControl mock1 = new MockSourceControl();
+        mock1.setType(1);
+        mock1.setModifiedDate(now);
+
+        modSet.add(mock1);
+
+        final int quietPeriod = 1;
+        modSet.setQuietPeriod(quietPeriod);
+
+        // Wait to ensure "now" used in getMods will detect mod in quiet period
+        Thread.sleep((long) ((quietPeriod * 1000) * .5));
+
+        assertNull(mockProgress.getValue());
+        modSet.getModifications(now, mockProgress);
+        final String progressMsg = mockProgress.getValue();
+        assertNotNull("Modset progress msg should not be null", progressMsg);
+        assertTrue(progressMsg.indexOf(ModificationSet.MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP) > -1);
+    }
+
     public void testGetModifications() throws Exception {
         MockSourceControl mock1 = new MockSourceControl();
         mock1.setType(1);
@@ -141,7 +201,8 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        Element modSetResults = modSet.getModifications(new Date()); //mock source controls don't care about the date
+                                //mock source controls don't care about the date
+        final Element modSetResults = modSet.getModifications(new Date(), mockProgress);
 
         DateFormat formatter = DateFormatFactory.getDateFormat();
         Element modificationsElement = new Element("modifications");
@@ -198,7 +259,7 @@ public class ModificationSetTest extends TestCase {
             }
         });
 
-        Element actual = modSet.getModifications(new Date());
+        final Element actual = modSet.getModifications(new Date(), mockProgress);
 
         Element expected = new Element("modifications");
         expected.addContent(mod1.toElement(formatter));
@@ -218,7 +279,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
 
         Hashtable table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -236,7 +297,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
 
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -251,7 +312,7 @@ public class ModificationSetTest extends TestCase {
         mock1.setProperty("property");
 
         modSet.add(mock1);
-        modSet.getModifications(new Date()); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
         assertEquals("Properties should should have 1 entry.", 1, table.size());
@@ -283,7 +344,7 @@ public class ModificationSetTest extends TestCase {
      * @deprecated
      */
     public void testSetRequireModification() {
-        modSet.getModifications(new Date());
+        modSet.getModifications(new Date(), mockProgress);
         assertFalse(modSet.isModified());
         modSet.setRequireModification(false);
         assertTrue(modSet.isModified());

@@ -49,7 +49,7 @@ import java.util.Map;
 public class MockSourceControl implements SourceControl {
 
     private int version;
-    private Hashtable properties = new Hashtable();
+    private final Hashtable properties = new Hashtable();
     private String property = null;
     private String propertyOnDelete = null;
 
@@ -57,7 +57,10 @@ public class MockSourceControl implements SourceControl {
     // if the machine is slow. I promise, this was hard to catch :-)
     private Date modifiedDate = new Date();
 
-
+    public void setModifiedDate(final Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+    
     public void setProperty(String property) {
         this.property = property;
     }
