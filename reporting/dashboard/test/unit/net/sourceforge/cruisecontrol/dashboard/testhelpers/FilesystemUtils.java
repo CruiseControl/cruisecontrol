@@ -80,8 +80,20 @@ public final class FilesystemUtils {
     }
 
     public static File createFile(String filename, File directory) throws IOException {
-        File file = new File(directory, filename);
-        file.createNewFile();
+        final File file = new File(directory, filename);
+
+        // attempt workaround for intermitent w2k error:
+        // java.io.IOException: Access is denied
+        // at java.io.WinNTFileSystem.createFileExclusively(Native Method)
+        // at java.io.File.createNewFile(File.java:883)
+        // at net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils.createFile(FilesystemUtils.java:84)
+        // ...
+        // see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6198547
+        // see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325169
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+        
         file.deleteOnExit();
         return file;
     }
