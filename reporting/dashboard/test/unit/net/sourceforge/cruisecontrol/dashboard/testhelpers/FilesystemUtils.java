@@ -86,12 +86,31 @@ public final class FilesystemUtils {
         // java.io.IOException: Access is denied
         // at java.io.WinNTFileSystem.createFileExclusively(Native Method)
         // at java.io.File.createNewFile(File.java:883)
-        // at net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils.createFile(FilesystemUtils.java:84)
+        // at net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils.createFile(FilesystemUtils.java:99)
         // ...
         // see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6198547
         // see: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325169
         if (!file.exists()) {
-            file.createNewFile();
+            boolean created = false;
+            int count = 0;
+            IOException lastIOException = null;
+            do {
+                try {
+                    created = file.createNewFile();
+                } catch (IOException e) {
+                    lastIOException = e;
+                    Thread.yield();
+                }
+                count++;
+            } while (!created && count < 3);
+
+            if (!file.exists()) {
+                if (lastIOException != null) {
+                    throw lastIOException;
+                } else {
+                    throw new RuntimeException("Error creating file: " + file.getAbsolutePath());
+                }
+            }
         }
         
         file.deleteOnExit();
