@@ -169,7 +169,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                             <td>&lt;remoteResult&gt;</td>
                             <td>0 .. *</td>
                             <td>Specifies additional artifacts directory. All content of this directory is returned to the Master, and deleted from the Agent after the build completes.
-                            The element has two required attributes: "agentDir" and "masterDir".<br/>
+                            The element has two required attributes: "agentDir" and "masterDir". The "masterDir" is typically included in <a href="../../main/docs/configxml.html#merge">log merge</a><br/>
                             <b>Example:</b> <code>&lt;remoteResult agentDir="target/site" masterDir="target/site"/&gt;</code>
                             </td>
                         </tr>
