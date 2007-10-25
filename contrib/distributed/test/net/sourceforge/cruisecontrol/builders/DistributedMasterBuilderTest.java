@@ -33,6 +33,7 @@ import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResultTest;
 import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProjectConfig;
@@ -480,6 +481,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
+            RemoteResultTest.resetTempZippedFile(BuildAgentServiceImplTest.REMOTE_RESULTS_ONE[0]);
 
             final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent", agentRefound);
@@ -509,6 +511,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             // callTestDoBuildSuccess() only needed to clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agentAvailable.getService()));
             agentAvailable.getService().clearOutputFiles();
+            RemoteResultTest.resetTempZippedFile(BuildAgentServiceImplTest.REMOTE_RESULTS_ONE[0]);
+
             final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
@@ -541,6 +545,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             // only needed so clearOuputFiles() will succeed
             assertNotNull(BuildAgentServiceImplTest.callTestDoBuildSuccess(agent)); 
             agent.clearOutputFiles();
+            RemoteResultTest.resetTempZippedFile(BuildAgentServiceImplTest.REMOTE_RESULTS_ONE[0]);
+
             final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
             assertNotNull("Couldn't find released agent", agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",

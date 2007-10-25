@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
+import java.util.Arrays;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
@@ -68,6 +69,7 @@ import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemoteImpl;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -93,6 +95,8 @@ public class DistributedMasterBuilder extends Builder {
 
     private String masterLogDir;
     private String masterOutputDir;
+
+    private RemoteResult[] remoteResults;
 
     private final List tmpNestedBuilders = new ArrayList();
     private Builder nestedBuilder;
@@ -161,6 +165,12 @@ public class DistributedMasterBuilder extends Builder {
         // In order to support Build Agents who's build tree does not exactly match the Master, only validate
         // the nested builder on the Build Agent (so don't validate it here).
         //nestedBuilder.validate();
+
+        if (remoteResults != null) {
+            for (int i = 0; i < remoteResults.length; i++) {
+                remoteResults[i].validate();
+            }
+        }
     }
 
 
@@ -272,7 +282,7 @@ public class DistributedMasterBuilder extends Builder {
 
                 try {
                     buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps,
-                            progressRemote);
+                            progressRemote, remoteResults);
                 } finally {
                     if (exporter != null) {
                         int count = 0;
@@ -322,8 +332,11 @@ public class DistributedMasterBuilder extends Builder {
             return buildResults;
         } catch (RuntimeException e) {
             final String message = "Distributed build runtime exception";
-            LOG.error(message, e);
-            System.err.println(message + " - " + e.getMessage());
+            if (!isFailFast()) {
+                // do not log expected error during unit test
+                LOG.error(message, e);
+                System.err.println(message + " - " + e.getMessage());
+            }
             throw new CruiseControlException(message, e);
         }
     }
@@ -336,11 +349,20 @@ public class DistributedMasterBuilder extends Builder {
             progress.setValue("retrieving results from " + agentMachine);
         }
 
-        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS,
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS, 0,
                 resolveMasterDestDir(masterLogDir, workDir, PropertiesHelper.RESULT_TYPE_LOGS));
 
-        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT,
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT, 0,
                 resolveMasterDestDir(masterOutputDir, workDir, PropertiesHelper.RESULT_TYPE_OUTPUT));
+
+
+        if (remoteResults != null) {
+
+            for (int i = 0; i < remoteResults.length; i++) {
+                getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_DIR,
+                        remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
+            }
+        }
 
         agent.clearOutputFiles();
     }
@@ -357,14 +379,46 @@ public class DistributedMasterBuilder extends Builder {
         return resultDir;
     }
 
+    /**
+     * @deprecated use {@link #getResultsFiles(BuildAgentService, File, String, String, int, File)} instead.
+     * @param agent build agent
+     * @param workDir working dir for temp files
+     * @param projectName project name being built
+     * @param resultsType log, output, or file (RemoteResults)
+     * @param masterDestDir destination directory on master into which to expand the result files.
+     * @throws RemoteException if a remote call fails
+     */
     public static void getResultsFiles(final BuildAgentService agent, final File workDir, final String projectName,
                                        final String resultsType, final File masterDestDir)
+            throws RemoteException {
+
+        getResultsFiles(agent, workDir, projectName, resultsType, 0, masterDestDir);
+    }
+    /**
+     * @param agent build agent
+     * @param workDir working dir for temp files
+     * @param projectName project name being built
+     * @param resultsType log, output, or file (RemoteResults)
+     * @param remoteResultIdx index number of the remote result to retrieve
+     * @param masterDestDir destination directory on master into which to expand the result files.
+     * @throws RemoteException if a remote call fails
+     */
+    public static void getResultsFiles(final BuildAgentService agent, final File workDir, final String projectName,
+                                       final String resultsType, final int remoteResultIdx, final File masterDestDir)
             throws RemoteException {
 
         if (agent.resultsExist(resultsType)) {
 
             final File zipFile = ZipUtil.getTempResultsZipFile(workDir, projectName, resultsType);
-            FileUtil.bytesToFile(agent.retrieveResultsAsZip(resultsType), zipFile);
+
+            final byte[] remoteResultBytes;
+            if (PropertiesHelper.RESULT_TYPE_DIR.equals(resultsType)) {
+                remoteResultBytes = agent.retrieveRemoteResult(remoteResultIdx);
+            } else {
+                remoteResultBytes = agent.retrieveResultsAsZip(resultsType);
+            }
+
+            FileUtil.bytesToFile(remoteResultBytes, zipFile);
 
             try {
                 LOG.info("unzip " + resultsType + " (" + zipFile.getAbsolutePath() + ") to: " + masterDestDir);
@@ -461,5 +515,28 @@ public class DistributedMasterBuilder extends Builder {
 
     public void setMasterOutputDir(final String masterOutputDir) {
         this.masterOutputDir = masterOutputDir;
+    }
+
+
+    private int remoteResultIdxCounter;
+    
+    public Object createRemoteResult() {
+        final RemoteResult remoteResult = new RemoteResult(remoteResultIdxCounter++);
+
+        final ArrayList newList;
+        if (remoteResults != null) {
+            newList = new ArrayList(Arrays.asList(remoteResults));
+        } else {
+            newList = new ArrayList();
+        }
+        newList.add(remoteResult);
+        
+        remoteResults = (RemoteResult[]) newList.toArray(new RemoteResult[newList.size()]);
+
+        return remoteResult;
+    }
+
+    public RemoteResult[] getRemoteResultsInfo() {
+        return remoteResults;
     }
 }

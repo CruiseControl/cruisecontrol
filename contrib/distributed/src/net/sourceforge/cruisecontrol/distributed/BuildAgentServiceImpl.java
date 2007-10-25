@@ -62,6 +62,7 @@ import net.sourceforge.cruisecontrol.distributed.core.ZipUtil;
 import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 import net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller;
 import net.sourceforge.cruisecontrol.util.IO;
 
@@ -115,6 +116,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
     private File logDir;
     private File outputDir;
+    private RemoteResult[] remoteResults;
     private File buildRootDir;
     private File zippedLogs;
     private File zippedOutput;
@@ -332,6 +334,14 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                            final Map distributedAgentProperties, final ProgressRemote progressRemote)
             throws RemoteException {
 
+        return doBuild(nestedBuilder, projectPropertiesMap, distributedAgentProperties, progressRemote, null);
+    }
+
+    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
+                           final Map distributedAgentProperties, final ProgressRemote progressRemote,
+                           final RemoteResult[] remoteResults)
+            throws RemoteException {
+
         synchronized (busyLock) {
             if (!isBusy()) {    // only reclaim if needed, since it resets the dateClaimed.
                 setBusy(true); // we could remove this, since claim() is called during lookup...
@@ -361,14 +371,22 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             logPrefixDebug("Build Agent Props: " + distributedAgentProperties.toString());
             distributedAgentProps.putAll(distributedAgentProperties);
 
+
+            this.remoteResults = remoteResults;
+
+            String remoreResultsMsg = "";
+            if (remoteResults != null) {
+                for (int i = 0; i < remoteResults.length; i++) {
+                    remoreResultsMsg += "\n\tRemoteResult: " + remoteResults[i].getAgentDir().getAbsolutePath();
+                }
+            }
             final String infoMessage = "Building project: " + projectName
                     + "\n\tAgentLogDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
                     + "\n\tAgentOutputDir: " + distributedAgentProps.get(
-                            PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR);
+                            PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR)
+                    + remoreResultsMsg;
 
-            //System.out.println();
-            //System.out.println(infoMessage);
             logPrefixInfo(infoMessage);
 
             logPrefixDebug("Build Agent Project Props: " + projectPropertiesMap.toString());
@@ -542,6 +560,21 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
         zippedOutput = ZipUtil.getTempResultsZipFile(buildRootDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT);
         ZipUtil.zipFolderContents(zippedOutput.getAbsolutePath(), outputDir.getAbsolutePath());
+
+        if (remoteResults != null) {
+            for (int i = 0; i < remoteResults.length; i++) {
+
+                final File agentResultDir = remoteResults[i].getAgentDir();
+                ensureDirExists(agentResultDir);
+
+                remoteResults[i].storeTempZippedFile(
+                        ZipUtil.getTempResultsZipFile(buildRootDir, projectName, "remoteResult" + i));
+
+                ZipUtil.zipFolderContents(remoteResults[i].fetchTempZippedFile().getAbsolutePath(),
+                        agentResultDir.getAbsolutePath());
+            }
+        }
+
     }
 
     private File getAgentResultDir(final String resultType, final String resultProperty) {
@@ -556,6 +589,12 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
         // ensure dir exists
         final File fileResultDir = new File(resultDir);
+        ensureDirExists(fileResultDir);
+
+        return fileResultDir;
+    }
+
+    private static void ensureDirExists(File fileResultDir) {
         if (!fileResultDir.exists()) {
             if (!fileResultDir.mkdirs()) {
                 final String msg = "Error creating Agent result dir: " + fileResultDir.getAbsolutePath();
@@ -563,8 +602,6 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 throw new RuntimeException(msg);
             }
         }
-
-        return fileResultDir;
     }
 
     public String getMachineName() {
@@ -627,11 +664,33 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     }
 
 
+    /**
+     * For unit testing only. Normally only passed in via
+     * {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])}.
+     * @param remoteResults array of remoteResults to attempt to retrieve.
+     */
+    void setRemoteResults(final RemoteResult[] remoteResults) {
+        this.remoteResults = remoteResults;
+    }
+
+
     public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
             return recursiveFilesExist(logDir);
         } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
             return recursiveFilesExist(outputDir);
+
+        } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_DIR)) {
+            if (remoteResults != null) {
+                for (int i = 0; i < remoteResults.length; i++) {
+                    final boolean resultsExist = recursiveFilesExist(remoteResults[i].getAgentDir());
+                    if (resultsExist) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+
         } else {
             throw new RemoteException("Unrecognized result type: " + resultsType);
         }
@@ -689,6 +748,38 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         return response;
     }
 
+    public byte[] retrieveRemoteResult(final int resultIdx) throws RemoteException {
+
+        RemoteResult remoteResult = null;
+        if (remoteResults != null) {
+            for (int i = 0; i < remoteResults.length; i++) {
+                if (resultIdx == remoteResults[i].getIdx()) {
+                    remoteResult = remoteResults[i];
+                    break;
+                }
+            }
+        }
+
+        if (remoteResult == null) {
+            final String message = "Invalid remote result index: " + resultIdx;
+            logPrefixError(message);
+            System.err.println(message);
+            throw new RuntimeException(message);
+        }
+        
+        final byte[] response;
+        try {
+            response = FileUtil.getFileAsBytes(remoteResult.fetchTempZippedFile());
+        } catch (IOException e) {
+            final String message = "Unable to get remote result file: " + remoteResult.getAgentDir().getAbsolutePath();
+            logPrefixError(message, e);
+            System.err.println(message + " - " + e.getMessage());
+            throw new RuntimeException(message, e);
+        }
+
+        return response;
+    }
+
     public void clearOutputFiles() {
         try {
             if (logDir != null) {
@@ -717,6 +808,21 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 IO.delete(zippedOutput);
             } else {
                 logPrefixError("Skipping delete of output zip, file path is null.");
+            }
+
+
+            if (remoteResults != null) {
+                for (int i = 0; i < remoteResults.length; i++) {
+                    logPrefixDebug("Deleting contents of " + remoteResults[i].getAgentDir().getAbsolutePath());
+                    IO.delete(remoteResults[i].getAgentDir());
+
+                    final File tempZippedFile = remoteResults[i].fetchTempZippedFile();
+                    if (tempZippedFile != null) {
+                        logPrefixDebug("Deleting remote result zip " + tempZippedFile.getAbsolutePath());
+                        tempZippedFile.deleteOnExit();
+                        IO.delete(tempZippedFile);
+                    }
+                }
             }
 
             setBusy(false);

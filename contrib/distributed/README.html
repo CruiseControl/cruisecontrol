@@ -134,7 +134,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                         <tr>
                            <td>masteroutputdir</td>
                            <td>No</td>
-                           <td>Another build artifacts directory on Master into which Agent artifacts will be moved. Typically included in <a href="../../main/docs/configxml.html#merge">log merge</a></td>
+                           <td>Another artifacts directory on Master into which Agent artifacts will be moved. Typically included in <a href="../../main/docs/configxml.html#merge">log merge</a></td>
                         </tr>
                         <tr>
                             <td>showProgress</td>
@@ -164,6 +164,14 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                             <td>&lt;builder&gt;</td>
                             <td>1</td>
                             <td>The nested <a href="../../main/docs/configxml.html#schedule">&lt;builder&gt;</a> to be executed on the remote Build Agent. See <a href="../../main/docs/configxml.html#composite">&lt;composite&gt;</a> to execute multiple Builders.</td>
+                        </tr>
+                        <tr>
+                            <td>&lt;remoteResult&gt;</td>
+                            <td>0 .. *</td>
+                            <td>Specifies additional artifacts directory. All content of this directory is returned to the Master, and deleted from the Agent after the build completes.
+                            The element has two required attributes: "agentDir" and "masterDir".<br/>
+                            <b>Example:</b> <code>&lt;remoteResult agentDir="target/site" masterDir="target/site"/&gt;</code>
+                            </td>
                         </tr>
                         </tbody>
                     </table>
@@ -219,7 +227,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
                         <li>By default, the canonical locations for log and output files are used on both the remote agents and the master. These can be overridden using the following attributes on the &lt;distributed&gt; tag:
                         <pre>&lt;distributed
     agentlogdir="agent/log" masterlogdir="master/log"
-    agentoutputdir="agent/output" masteroutputdir="master/log"&gt;
+    agentoutputdir="agent/output" masteroutputdir="master/output"&gt;
 ...
 &lt;/distributed&gt;</pre>
                         After a remote build, any files on the agent machine in dir "agent/log" will be copied back to the master machine into dir "master/log". The "logs" and "output" dirs will be deleted on the Agent after the build finishes.<br/><br/>
