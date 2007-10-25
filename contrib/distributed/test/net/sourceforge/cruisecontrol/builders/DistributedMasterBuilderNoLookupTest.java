@@ -5,6 +5,8 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResultTest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +35,35 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder mockBuilder = new MockBuilder();
         masterBuilder.add(mockBuilder);
 
+        assertNull(masterBuilder.getRemoteResultsInfo());
+        final RemoteResult remoteResult = (RemoteResult) masterBuilder.createRemoteResult();
+        assertEquals(1, masterBuilder.getRemoteResultsInfo().length);
+        assertEquals(remoteResult, masterBuilder.getRemoteResultsInfo()[0]);
+        try {
+            masterBuilder.validate();
+            fail("invalid remote result");
+        } catch (CruiseControlException e) {
+            assertEquals("'agentDir' is required for "
+                    + RemoteResultTest.MSG_SUFFIX_BAD_DISTRIBUTED_CHILD_ELEMENT_RESULT, e.getMessage());
+        }
+        remoteResult.setAgentDir("agentDir");
+
+        try {
+            masterBuilder.validate();
+            fail("invalid remote result");
+        } catch (CruiseControlException e) {
+            assertEquals("'masterDir' is required for "
+                    + RemoteResultTest.MSG_SUFFIX_BAD_DISTRIBUTED_CHILD_ELEMENT_RESULT, e.getMessage());
+        }
+        remoteResult.setMasterDir("masterDir");
         masterBuilder.validate();
+
+        final RemoteResult remoteResult2 = (RemoteResult) masterBuilder.createRemoteResult();
+        remoteResult2.setAgentDir(".");
+        remoteResult2.setMasterDir(".");
+        assertEquals(2, masterBuilder.getRemoteResultsInfo().length);
+        assertEquals(remoteResult, masterBuilder.getRemoteResultsInfo()[0]);
+        assertEquals(remoteResult2, masterBuilder.getRemoteResultsInfo()[1]);
     }
 
     public void testScheduleDay() throws Exception {

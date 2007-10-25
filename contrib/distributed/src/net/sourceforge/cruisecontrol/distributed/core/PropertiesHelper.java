@@ -58,6 +58,7 @@ public final class PropertiesHelper {
 
     public static final String RESULT_TYPE_LOGS = "logs";
     public static final String RESULT_TYPE_OUTPUT = "output";
+    public static final String RESULT_TYPE_DIR = "dir";
 
     private PropertiesHelper() { }
 

@@ -45,12 +45,13 @@ import java.util.Date;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 
 public interface BuildAgentService extends Remote {
 
     /**
      * Exists for backwards compatibility.
-     * @deprecated use {@link #doBuild(Builder, Map, Map, ProgressRemote)} instead
+     * @deprecated use {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])} instead
      * @param nestedBuilder the builder to execute on the agent
      * @param projectProperties cc properties for the current project
      * @param distributedAgentProperties ccdist properties for this remote build
@@ -62,6 +63,7 @@ public interface BuildAgentService extends Remote {
 
     /**
      * Performs a build on a build agent.
+     * @deprecated use {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])} instead
      * @param nestedBuilder the builder to execute on the agent
      * @param projectProperties cc properties for the current project
      * @param distributedAgentProperties ccdist properties for this remote build
@@ -72,6 +74,21 @@ public interface BuildAgentService extends Remote {
      */
     public Element doBuild(Builder nestedBuilder, Map projectProperties,
                            Map distributedAgentProperties, ProgressRemote progressRemote) throws RemoteException;
+
+    /**
+     * Performs a build on a build agent.
+     * @param nestedBuilder the builder to execute on the agent
+     * @param projectProperties cc properties for the current project
+     * @param distributedAgentProperties ccdist properties for this remote build
+     * @param progressRemote callback object to provide progress info as the build progresses,
+     * can be null.
+     * @param remoteResults build artifacts to be returned from the agent to the master, used to agent clear results.
+     * @return the build log xml document
+     * @throws RemoteException if the remote call fails
+     */
+    public Element doBuild(Builder nestedBuilder, Map projectProperties,
+                           Map distributedAgentProperties, ProgressRemote progressRemote,
+                           RemoteResult[] remoteResults) throws RemoteException;
 
     public String getMachineName() throws RemoteException;
 
@@ -93,9 +110,13 @@ public interface BuildAgentService extends Remote {
      */
     public String getProjectName() throws RemoteException;
 
+
     public boolean resultsExist(String resultsType) throws RemoteException;
 
     public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException;
+
+    public byte[] retrieveRemoteResult(int resultIdx) throws RemoteException;
+
 
     public void clearOutputFiles() throws RemoteException;
 

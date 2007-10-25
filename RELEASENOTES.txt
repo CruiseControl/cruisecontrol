@@ -11,6 +11,7 @@ distributed
 ----------------------
 * Added more robust Progress support for AntBuilder on BuildAgents.
 * Remove extraneous synchronized flags.
+* Add optional child element <remoteResult> to allow retrieval of additional build artifact directories.
 
 build loop
 ======================

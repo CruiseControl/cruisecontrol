@@ -57,6 +57,7 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -90,8 +91,8 @@ public class InteractiveBuildUtility {
         distributedBuilderElement = getBuilderFromProject(project);
         ServiceItem[] serviceItems = findAgents(distributedBuilderElement.getAttribute("entries"));
         final BuildAgentService agent = selectAgent(serviceItems);
-        doBuild();
-        retrieveBuildArtifacts(agent);
+        final DistributedMasterBuilder distributedBuildMaster = doBuild();
+        retrieveBuildArtifacts(agent, distributedBuildMaster);
     }
 
     private Element getProjectFromConfig(File configFile) {
@@ -275,15 +276,16 @@ public class InteractiveBuildUtility {
         System.err.println("Unimplemented feature - quitting...see BuildAgentUtility");
     }
 
-    private void doBuild() {
+    private DistributedMasterBuilder doBuild() {
 
         System.out.println("Beginning build...");
         System.out.println();
         ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
         PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
 
+        final DistributedMasterBuilder distributedBuildMaster;
         try {
-            DistributedMasterBuilder distributedBuildMaster = (DistributedMasterBuilder) pluginXMLHelper.configure(
+            distributedBuildMaster = (DistributedMasterBuilder) pluginXMLHelper.configure(
                     distributedBuilderElement, DistributedMasterBuilder.class, false);
             XMLOutputter xmlOutputter = new XMLOutputter();
             xmlOutputter.output(distributedBuildMaster.build(new Properties(), null), System.out);
@@ -291,23 +293,35 @@ public class InteractiveBuildUtility {
             String message = "Oops...";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
+            return null;
         } catch (IOException e) {
             String message = "Oops...";
             LOG.error(message, e);
             System.err.println(message + " - " + e.getMessage());
+            return null;
         }
         System.out.println();
+        return distributedBuildMaster;
     }
 
-    private void retrieveBuildArtifacts(final BuildAgentService agent) {
+    private void retrieveBuildArtifacts(final BuildAgentService agent,
+                                        final DistributedMasterBuilder distributedBuildMaster) {
         try {
             final File currentDir = new File(".");
             DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
-                    PropertiesHelper.RESULT_TYPE_LOGS, currentDir);
+                    PropertiesHelper.RESULT_TYPE_LOGS, 0, currentDir);
 
             DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
-                    PropertiesHelper.RESULT_TYPE_OUTPUT, currentDir);
+                    PropertiesHelper.RESULT_TYPE_OUTPUT, 0, currentDir);
             
+            final RemoteResult[] remoteResults = distributedBuildMaster.getRemoteResultsInfo();
+            if (remoteResults != null) {
+                for (int i = 0; i < remoteResults.length; i++) {
+                    DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
+                            PropertiesHelper.RESULT_TYPE_DIR,
+                            remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
+                }
+            }
             agent.clearOutputFiles();
         } catch (RemoteException e) {
             String message = "Problem occurred getting or unzipping results";

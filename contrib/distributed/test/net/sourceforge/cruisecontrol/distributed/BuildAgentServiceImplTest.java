@@ -18,6 +18,8 @@ import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.CCDistVersion;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
+import net.sourceforge.cruisecontrol.distributed.core.RemoteResultTest;
 import net.sourceforge.cruisecontrol.distributed.core.jnlputil.JNLPServiceUtil;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
@@ -44,6 +46,14 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static final File DIR_LOGS = new File(PropertiesHelper.RESULT_TYPE_LOGS);
     private static final File DIR_OUTPUT = new File(PropertiesHelper.RESULT_TYPE_OUTPUT);
+    private static final File DIR_FILE = new File(PropertiesHelper.RESULT_TYPE_DIR);
+
+    private static final RemoteResult[] REMOTE_RESULTS_EMPTY = new RemoteResult[]{};
+    public static final RemoteResult[] REMOTE_RESULTS_ONE = new RemoteResult[] { new RemoteResult(0) };
+    static {
+        REMOTE_RESULTS_ONE[0].setAgentDir(PropertiesHelper.RESULT_TYPE_DIR);
+        REMOTE_RESULTS_ONE[0].setMasterDir("masterResultFile");
+    }
 
     private Properties origSysProps;
     private static final String TEST_PROJECT_FAIL = "testproject-fail";
@@ -57,13 +67,17 @@ public class BuildAgentServiceImplTest extends TestCase {
     protected void setUp() throws Exception {
         DIR_LOGS.delete();
         DIR_OUTPUT.delete();
+        DIR_FILE.delete();
         origSysProps = System.getProperties();
+
+        RemoteResultTest.resetTempZippedFile(REMOTE_RESULTS_ONE[0]);
     }
 
     protected void tearDown() throws Exception {
         System.setProperties(origSysProps);
         deleteDirConfirm(DIR_LOGS);
         deleteDirConfirm(DIR_OUTPUT);
+        deleteDirConfirm(DIR_FILE);
     }
 
     private static void deleteDirConfirm(final File dirToDelete) {
@@ -152,7 +166,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
             try {
                 try {
-                    agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null);
+                    agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY);
                     fail("Missing progressLoggerLib should have failed validation");
                 } catch (RemoteException e) {
                     assertTrue(e.getMessage().startsWith(
@@ -174,7 +188,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         antBuilder.resetFlags();
         try {
             try {
-                agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null);
+                agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY);
                 fail("build failure should have been forced");
             } catch (RemoteException e) {
                 assertTrue(e.getMessage().startsWith("Failed to complete build on agent"));
@@ -272,14 +286,15 @@ public class BuildAgentServiceImplTest extends TestCase {
         // build w/out override to verify null target value after build
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
-        final MockBuilder mockBuilder = createMockBuilder(false);
+        final MockBuilder mockBuilder = createMockBuilder(false, REMOTE_RESULTS_EMPTY);
         assertNull(mockBuilder.getTarget());
 
         final Map projectProperties = new HashMap();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
 
         try {
-            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps, null));
+            assertNotNull(agentImpl.doBuild(
+                    mockBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY));
             clearDefaultSuccessResultDirs();
             assertNull(mockBuilder.getTarget());
         } finally {
@@ -290,7 +305,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, TEST_PROJECT_SUCCESS);
         assertNull(mockBuilder.getTarget());
         try {
-            assertNotNull(agentImpl.doBuild(mockBuilder, projectProperties, distributedAgentProps, null));
+            assertNotNull(agentImpl.doBuild(
+                    mockBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY));
             clearDefaultSuccessResultDirs();
             assertEquals(TEST_PROJECT_SUCCESS, mockBuilder.getTarget());
         } finally {
@@ -330,12 +346,12 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
         try {
             // fails at nestedBuilder.validate() due to null nestedBuilder
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
         }
-        assertEquals("Wrong agent status", 2, agentListener.getAgentStatusChangeCount());
+        assertEquals("Wrong agent status change count", 2, agentListener.getAgentStatusChangeCount());
 
         
         distributedAgentProps.remove(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
@@ -343,7 +359,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         agentListener.resetAgentStatusChangeCount();
         try {
             // gets far enough to fire 2nd agent status change
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -387,7 +403,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Project name...
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -437,7 +453,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         try {
             // gets far enough to set Project name...
-            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null);
+            agentImpl.doBuild(null, projectProperties, distributedAgentProps, null, null);
             fail("should fail w/ NPE");
         } catch (NullPointerException e) {
             assertEquals(null, e.getMessage());
@@ -607,21 +623,20 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
     
     public void testResultsExistAfterBuild() throws Exception {
-        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_LOGS);
-        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_OUTPUT);
+        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_LOGS, REMOTE_RESULTS_EMPTY);
+        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_OUTPUT, REMOTE_RESULTS_EMPTY);
+        checkResultsExistByType(PropertiesHelper.RESULT_TYPE_DIR, REMOTE_RESULTS_ONE);
     }
 
-    private static void checkResultsExistByType(String resultType)
+    private static void checkResultsExistByType(final String resultType, final RemoteResult[] remoteResults)
             throws IOException {
         
-        final File resultTypeBaseDir
-                = (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
-                        ? DIR_LOGS : DIR_OUTPUT);
+        final File resultTypeBaseDir = new File(resultType);
 
         final File testDirResult = new File(resultTypeBaseDir, 
                 (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
-                        ? "myTest" + PropertiesHelper.RESULT_TYPE_LOGS + "Dir"
-                        : TEST_PROJECT_SUCCESS)); // used default dir since no property is set
+                        ? "myTest" + resultType + "Dir"
+                        : TEST_PROJECT_SUCCESS)); // use default dir since no property is set
         
         testDirResult.deleteOnExit();
         testDirResult.mkdirs();
@@ -629,7 +644,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final Map distributedAgentProps = new HashMap();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testDirResult.getAbsolutePath());
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps);
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps, remoteResults);
         // clear out default result dirs
         clearDefaultSuccessResultDirs();
 
@@ -679,6 +694,10 @@ public class BuildAgentServiceImplTest extends TestCase {
         final File tmpOutputSuccessDir = new File(DIR_OUTPUT, TEST_PROJECT_SUCCESS);
         new File(tmpOutputSuccessDir, "testoutputSuccess").delete();
         deleteDirConfirm(tmpOutputSuccessDir);
+
+        final File tmpResultSuccessDir = new File(DIR_FILE, TEST_PROJECT_SUCCESS);
+        new File(tmpResultSuccessDir, "remoteResult").delete();
+        deleteDirConfirm(tmpResultSuccessDir);
     }
 
     public void testRetrieveResultsWithAgentLogDir() throws Exception {
@@ -690,7 +709,8 @@ public class BuildAgentServiceImplTest extends TestCase {
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testLogDir.getAbsolutePath());
 
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps);
+        final BuildAgentServiceImpl agentImpl
+                = createTestAgentDoBuild(false, distributedAgentProps, REMOTE_RESULTS_EMPTY);
         // delete result zips here to avoid left overs when prepareLogsAndArtifacts() is called below.
         //assertTrue(agentImpl.getResultsZip(PropertiesHelper.RESULT_TYPE_LOGS).delete());
         assertTrue(agentImpl.getResultsZip(PropertiesHelper.RESULT_TYPE_OUTPUT).delete());
@@ -746,16 +766,18 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildSuccess() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, new HashMap());
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, new HashMap(), REMOTE_RESULTS_ONE);
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
+            assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_DIR));
             assertTrue("Agent should be busy until build results are retrived and cleared.",
                     agentImpl.isBusy());
 
             // make sure we can actually get the results
             assertNonEmptyResultsZip(agentImpl, PropertiesHelper.RESULT_TYPE_LOGS);
             assertNonEmptyResultsZip(agentImpl, PropertiesHelper.RESULT_TYPE_OUTPUT);
+            assertNonEmptyResultsZip(agentImpl, PropertiesHelper.RESULT_TYPE_DIR);
         } finally {
             // cleanup left over files
             agentImpl.clearOutputFiles();
@@ -766,13 +788,19 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static void assertNonEmptyResultsZip(final BuildAgentServiceImpl agentImpl, final String resultType)
             throws RemoteException {
 
-        final byte[] resultZip = agentImpl.retrieveResultsAsZip(resultType);
+        final byte[] resultZip;
+        if (PropertiesHelper.RESULT_TYPE_DIR.equals(resultType)) {
+            resultZip = agentImpl.retrieveRemoteResult(0);    
+        } else {
+            resultZip = agentImpl.retrieveResultsAsZip(resultType);
+        }
+
         assertNotNull("Null " + resultType + " zip bytes.", resultZip);
         assertTrue("Empty " + resultType + " zip bytes.", resultZip.length > 0);
     }
 
     public void testRetrieveResultsAsZipBuildFail() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(true, new HashMap());
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(true, new HashMap(), REMOTE_RESULTS_ONE);
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertNonEmptyResultsZip(agentImpl, PropertiesHelper.RESULT_TYPE_LOGS);
@@ -784,7 +812,17 @@ public class BuildAgentServiceImplTest extends TestCase {
             } catch (RuntimeException e) {
                 assertTrue(e.getMessage().startsWith("Unable to get file "));
             }
-            
+
+            assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_DIR));
+            try {
+                agentImpl.retrieveRemoteResult(0);
+                fail("should've failed retrieval of non-existant results.");
+            } catch (RuntimeException e) {
+                assertTrue("Wrong message: " + e.getMessage(),
+                        e.getMessage().startsWith("Unable to get remote result file: "));
+            }
+
+
             assertTrue("Agent should be busy until build results are retrived and cleared.",
                     agentImpl.isBusy());
         } finally {
@@ -802,7 +840,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         final HashMap distributedAgentProps = new HashMap();
         final BuildAgentServiceImpl agentImpl = createTestAgent(distributedAgentProps);
         try {
-            callTestDoBuild(projectProperties, agentImpl, distributedAgentProps, true);
+            callTestDoBuild(projectProperties, agentImpl, distributedAgentProps, REMOTE_RESULTS_ONE, true);
         } catch (RemoteException e) {
             assertTrue("Wrong root cause of exception", e.getCause() instanceof CruiseControlException);
             CruiseControlException ce = (CruiseControlException) e.getCause();
@@ -825,7 +863,8 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     private static BuildAgentServiceImpl createTestAgentDoBuild(final boolean isBuildFailure,
-                                                         final Map distributedAgentProps)
+                                                         final Map distributedAgentProps,
+                                                         final RemoteResult[] remoteResults)
             throws RemoteException {
 
         final BuildAgentServiceImpl agentImpl = createTestAgent(distributedAgentProps);
@@ -837,7 +876,7 @@ public class BuildAgentServiceImplTest extends TestCase {
             projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
         }
 
-        callTestDoBuild(projectProperties, agentImpl, distributedAgentProps, false);
+        callTestDoBuild(projectProperties, agentImpl, distributedAgentProps, remoteResults, false);
 
         return agentImpl;
     }
@@ -870,7 +909,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         // handle re-use case of DMB when overrideTarget is null
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
-        return callTestDoBuild(projectProperties, agent, distributedAgentProps, false);
+        return callTestDoBuild(projectProperties, agent, distributedAgentProps, REMOTE_RESULTS_ONE, false);
     }
     
     /**
@@ -878,6 +917,7 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @param projectProperties map passed to build() method, contains "projectname" property
      * @param agent the build agent on which to run the build
      * @param distributedAgentProps the map of distributed props used by the build agent
+     * @param remoteResults the array of (possible) build results to be returned from agent
      * @param isValidateFailure if true, force the builder.validate() call to fail.
      * @return the build result jdom element
      * @throws RemoteException if something else dies
@@ -885,18 +925,19 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static Element callTestDoBuild(final Map projectProperties,
                                        final BuildAgentService agent,
                                        final Map distributedAgentProps,
+                                       final RemoteResult[] remoteResults,
                                        final boolean isValidateFailure)
             throws RemoteException {
         
-        final MockBuilder mockBuilder = createMockBuilder(isValidateFailure);
+        final MockBuilder mockBuilder = createMockBuilder(isValidateFailure, remoteResults);
 
-        return agent.doBuild(mockBuilder, projectProperties, distributedAgentProps, null);
+        return agent.doBuild(mockBuilder, projectProperties, distributedAgentProps, null, remoteResults);
     }
 
     
     private static final String MSG_BUILDER_VALIDATE_FAIL = "Unit Test forced builder.validate() failure.";
 
-    private static MockBuilder createMockBuilder(final boolean isValidateFailure) {
+    private static MockBuilder createMockBuilder(final boolean isValidateFailure, final RemoteResult[] remoteResults) {
 
         return new MockBuilder("testCCDistMockChildBuilder") {
 
@@ -914,10 +955,15 @@ public class BuildAgentServiceImplTest extends TestCase {
 
                 final Element retVal = super.build(properties, progress);
 
-                // create a files in the expected dirs
+                // create a file in the expected dirs
                 createExpectedBuildArtifact(new File("logs/" + projectName + "/TEST-bogustestclassSuccess.xml"));
                 if (!isBuildFailure) {
                     createExpectedBuildArtifact(new File("output/" + projectName + "/testoutputSuccess"));
+
+                    for (int i = 0; i < remoteResults.length; i++) {
+                        createExpectedBuildArtifact(
+                                new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
+                    }
                 }
 
                 return retVal;
@@ -1046,7 +1092,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static void callDoBuildWithNulls(BuildAgentServiceImpl agentImpl, Date firstClaimDate)
     {
         try {
-            agentImpl.doBuild(null, null, null, null);
+            agentImpl.doBuild(null, null, null, null, null);
             fail("Should have failed to build");
         } catch (NullPointerException e) {
             assertEquals("Unexpected build error: " + e.getMessage(), null, e.getMessage());
