@@ -49,11 +49,21 @@ public class BuildAgentServiceImplTest extends TestCase {
     private static final File DIR_FILE = new File(PropertiesHelper.RESULT_TYPE_DIR);
 
     private static final RemoteResult[] REMOTE_RESULTS_EMPTY = new RemoteResult[]{};
+
     public static final RemoteResult[] REMOTE_RESULTS_ONE = new RemoteResult[] { new RemoteResult(0) };
     static {
         REMOTE_RESULTS_ONE[0].setAgentDir(PropertiesHelper.RESULT_TYPE_DIR);
         REMOTE_RESULTS_ONE[0].setMasterDir("masterResultFile");
     }
+
+    private static final RemoteResult[] REMOTE_RESULTS_TWO_WITHEMPTYDIR = new RemoteResult[] {
+            REMOTE_RESULTS_ONE[0], new RemoteResult(1)
+    };
+    static {
+        REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].setAgentDir(PropertiesHelper.RESULT_TYPE_DIR + "2");
+        REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].setMasterDir("masterResultFile2");
+    }
+
 
     private Properties origSysProps;
     private static final String TEST_PROJECT_FAIL = "testproject-fail";
@@ -621,7 +631,59 @@ public class BuildAgentServiceImplTest extends TestCase {
             testDir.delete();            
         }
     }
-    
+
+    public void testRemoteResultOneExistsOneEmpty() throws Exception {
+        // test the case where one RemoteResult exists, but a second does not
+        final String resultType = PropertiesHelper.RESULT_TYPE_DIR;
+        final RemoteResult[] remoteResults = REMOTE_RESULTS_TWO_WITHEMPTYDIR;
+
+        final File resultTypeBaseDir = new File(resultType);
+
+        final File testDirResult = new File(resultTypeBaseDir,
+                (PropertiesHelper.RESULT_TYPE_LOGS.equals(resultType)
+                        ? "myTest" + resultType + "Dir"
+                        : TEST_PROJECT_SUCCESS)); // use default dir since no property is set
+
+        testDirResult.deleteOnExit();
+        testDirResult.mkdirs();
+
+        REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().deleteOnExit();
+        REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().mkdirs();
+
+        final Map distributedAgentProps = new HashMap();
+        distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
+                testDirResult.getAbsolutePath());
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps, remoteResults);
+        // clear out default result dirs
+        clearDefaultSuccessResultDirs();
+        // second RemoteResult dir is left empty by MockBuilder
+
+        try {
+            assertFalse(agentImpl.remoteResultExists(0));
+            assertFalse(agentImpl.remoteResultExists(1));
+            // make file in first RemoteResultDir
+            new File(resultTypeBaseDir, "testRemoteResult1").createNewFile();
+            assertTrue(agentImpl.remoteResultExists(0));
+            assertFalse(agentImpl.remoteResultExists(1));
+
+            assertTrue(agentImpl.retrieveRemoteResult(0).length > 0);
+            // second RemoteResult dir is left empty by MockBuilder
+            try {
+                agentImpl.retrieveRemoteResult(1);
+                fail("retrieveRemoteResult on missing result should fail");
+            } catch (RuntimeException e) {
+                assertEquals("Unable to get remote result file: "
+                        + REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().getAbsolutePath(), 
+                        e.getMessage());
+            }
+        } finally {
+            // cleanup left over files
+            agentImpl.clearOutputFiles();
+            testDirResult.delete();
+            deleteDirConfirm(REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir());
+        }
+    }
+
     public void testResultsExistAfterBuild() throws Exception {
         checkResultsExistByType(PropertiesHelper.RESULT_TYPE_LOGS, REMOTE_RESULTS_EMPTY);
         checkResultsExistByType(PropertiesHelper.RESULT_TYPE_OUTPUT, REMOTE_RESULTS_EMPTY);
@@ -660,19 +722,19 @@ public class BuildAgentServiceImplTest extends TestCase {
         // before unit tests are run, and hence no test log files have been created yet 
         // in sub dirs.
         try {
-            assertFalse(agentImpl.resultsExist(resultType));
+            assertResultsExistByType(null, false, resultType, agentImpl);
             testDirResultSubSub.mkdirs();
-            assertFalse("Result dir with no files, only subdirs, should be considered empty",
-                    agentImpl.resultsExist(resultType));
+            assertResultsExistByType("Result dir with no files, only subdirs, should be considered empty", false,
+                    resultType, agentImpl);
 
             testFileSub.createNewFile();
-            assertTrue("Any file in tree should produce results",
-                    agentImpl.resultsExist(resultType));
+            assertResultsExistByType("Any file in tree should produce results", true,
+                    resultType, agentImpl);
 
             testFileResult.createNewFile();
             testFileResult.deleteOnExit();
-            assertTrue("Multiple files in tree should produce results", 
-                    agentImpl.resultsExist(resultType));
+            assertResultsExistByType("Multiple files in tree should produce results", true,
+                    resultType, agentImpl);
 
         } finally {
             // cleanup left over files
@@ -682,6 +744,17 @@ public class BuildAgentServiceImplTest extends TestCase {
             testDirResultSubSub.delete();
             testDirResultSub.delete();
             testDirResult.delete();
+        }
+    }
+
+    private static void assertResultsExistByType(final String msg, final boolean expectedExists,
+                                                 final String resultType, BuildAgentServiceImpl agentImpl)
+            throws RemoteException {
+
+        if (PropertiesHelper.RESULT_TYPE_DIR.equals(resultType)) {
+            assertEquals(msg, expectedExists, agentImpl.remoteResultExists(0));
+        } else {
+            assertEquals(msg, expectedExists, agentImpl.resultsExist(resultType));
         }
     }
 
@@ -770,7 +843,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
-            assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_DIR));
+            assertTrue(agentImpl.remoteResultExists(0));
             assertTrue("Agent should be busy until build results are retrived and cleared.",
                     agentImpl.isBusy());
 
@@ -813,7 +886,7 @@ public class BuildAgentServiceImplTest extends TestCase {
                 assertTrue(e.getMessage().startsWith("Unable to get file "));
             }
 
-            assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_DIR));
+            assertFalse(agentImpl.remoteResultExists(0));
             try {
                 agentImpl.retrieveRemoteResult(0);
                 fail("should've failed retrieval of non-existant results.");
@@ -961,8 +1034,11 @@ public class BuildAgentServiceImplTest extends TestCase {
                     createExpectedBuildArtifact(new File("output/" + projectName + "/testoutputSuccess"));
 
                     for (int i = 0; i < remoteResults.length; i++) {
-                        createExpectedBuildArtifact(
-                                new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
+                        // skip artifact creation for empty RemoteResult test
+                        if (!REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].equals(remoteResults[i])) {
+                            createExpectedBuildArtifact(
+                                    new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
+                        }
                     }
                 }
 

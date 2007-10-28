@@ -349,17 +349,17 @@ public class DistributedMasterBuilder extends Builder {
             progress.setValue("retrieving results from " + agentMachine);
         }
 
-        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS, 0,
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_LOGS,
                 resolveMasterDestDir(masterLogDir, workDir, PropertiesHelper.RESULT_TYPE_LOGS));
 
-        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT, 0,
+        getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_OUTPUT,
                 resolveMasterDestDir(masterOutputDir, workDir, PropertiesHelper.RESULT_TYPE_OUTPUT));
 
 
         if (remoteResults != null) {
 
             for (int i = 0; i < remoteResults.length; i++) {
-                getResultsFiles(agent, workDir, projectName, PropertiesHelper.RESULT_TYPE_DIR,
+                getRemoteResult(agent, workDir, projectName,
                         remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
             }
         }
@@ -380,7 +380,6 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     /**
-     * @deprecated use {@link #getResultsFiles(BuildAgentService, File, String, String, int, File)} instead.
      * @param agent build agent
      * @param workDir working dir for temp files
      * @param projectName project name being built
@@ -392,47 +391,60 @@ public class DistributedMasterBuilder extends Builder {
                                        final String resultsType, final File masterDestDir)
             throws RemoteException {
 
-        getResultsFiles(agent, workDir, projectName, resultsType, 0, masterDestDir);
-    }
-    /**
-     * @param agent build agent
-     * @param workDir working dir for temp files
-     * @param projectName project name being built
-     * @param resultsType log, output, or file (RemoteResults)
-     * @param remoteResultIdx index number of the remote result to retrieve
-     * @param masterDestDir destination directory on master into which to expand the result files.
-     * @throws RemoteException if a remote call fails
-     */
-    public static void getResultsFiles(final BuildAgentService agent, final File workDir, final String projectName,
-                                       final String resultsType, final int remoteResultIdx, final File masterDestDir)
-            throws RemoteException {
-
         if (agent.resultsExist(resultsType)) {
 
-            final File zipFile = ZipUtil.getTempResultsZipFile(workDir, projectName, resultsType);
+            final byte[] remoteResultBytes = agent.retrieveResultsAsZip(resultsType);
 
-            final byte[] remoteResultBytes;
-            if (PropertiesHelper.RESULT_TYPE_DIR.equals(resultsType)) {
-                remoteResultBytes = agent.retrieveRemoteResult(remoteResultIdx);
-            } else {
-                remoteResultBytes = agent.retrieveResultsAsZip(resultsType);
-            }
-
-            FileUtil.bytesToFile(remoteResultBytes, zipFile);
-
-            try {
-                LOG.info("unzip " + resultsType + " (" + zipFile.getAbsolutePath() + ") to: " + masterDestDir);
-                ZipUtil.unzipFileToLocation(zipFile.getAbsolutePath(), masterDestDir.getAbsolutePath());
-                IO.delete(zipFile);
-            } catch (IOException e) {
-                // Empty zip for log results--ignore
-                LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
-            }
+            extractBytesToMaster(workDir, projectName, resultsType, remoteResultBytes, masterDestDir);
         } else {
             final String message = projectName + ": No results returned for " + resultsType;
             LOG.info(message);
         }
     }
+
+    /**
+     * @param agent build agent
+     * @param workDir working dir for temp files
+     * @param projectName project name being built
+     * @param remoteResultIdx index number of the remote result to retrieve
+     * @param masterDestDir destination directory on master into which to expand the result files.
+     * @throws RemoteException if a remote call fails
+     */
+    public static void getRemoteResult(final BuildAgentService agent, final File workDir, final String projectName,
+                                       final int remoteResultIdx, final File masterDestDir)
+            throws RemoteException {
+
+        final String resultsType = PropertiesHelper.RESULT_TYPE_DIR;
+
+        if (agent.remoteResultExists(remoteResultIdx)) {
+
+            final byte[] remoteResultBytes = agent.retrieveRemoteResult(remoteResultIdx);
+
+            extractBytesToMaster(workDir, projectName, resultsType, remoteResultBytes, masterDestDir);
+        } else {
+            final String message = projectName + ": No results returned for remote result " + resultsType
+                    + ", idx: " + remoteResultIdx;
+            LOG.info(message);
+        }
+    }
+
+    private static void extractBytesToMaster(File workDir, String projectName, String resultsType,
+                                             byte[] remoteResultBytes, File masterDestDir) {
+        
+        final File zipFile = ZipUtil.getTempResultsZipFile(workDir, projectName, resultsType);
+
+        FileUtil.bytesToFile(remoteResultBytes, zipFile);
+
+        try {
+            LOG.info("unzip " + resultsType + " (" + zipFile.getAbsolutePath() + ") to: " + masterDestDir);
+            ZipUtil.unzipFileToLocation(zipFile.getAbsolutePath(), masterDestDir.getAbsolutePath());
+            IO.delete(zipFile);
+        } catch (IOException e) {
+            // Empty zip for log results--ignore
+            LOG.debug("Ignored retrieve " + resultsType + " results error:", e);
+        }
+    }
+
 
     BuildAgentService pickAgent(final String projectName, Progress progress) throws CruiseControlException {
         BuildAgentService agent = null;

@@ -112,9 +112,9 @@ public interface BuildAgentService extends Remote {
 
 
     public boolean resultsExist(String resultsType) throws RemoteException;
-
     public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException;
 
+    public boolean remoteResultExists(int idx) throws RemoteException;
     public byte[] retrieveRemoteResult(int resultIdx) throws RemoteException;
 
 
