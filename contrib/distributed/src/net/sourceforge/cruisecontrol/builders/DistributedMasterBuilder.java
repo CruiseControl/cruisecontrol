@@ -189,7 +189,9 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     
-    public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
+    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+            throws CruiseControlException {
+        
         final String oldOverideTarget = overrideTarget;
         overrideTarget = target;
         try {
@@ -428,8 +430,8 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    private static void extractBytesToMaster(File workDir, String projectName, String resultsType,
-                                             byte[] remoteResultBytes, File masterDestDir) {
+    private static void extractBytesToMaster(final File workDir, final String projectName, final String resultsType,
+                                             final byte[] remoteResultBytes, final File masterDestDir) {
         
         final File zipFile = ZipUtil.getTempResultsZipFile(workDir, projectName, resultsType);
 
@@ -446,7 +448,7 @@ public class DistributedMasterBuilder extends Builder {
     }
 
 
-    BuildAgentService pickAgent(final String projectName, Progress progress) throws CruiseControlException {
+    BuildAgentService pickAgent(final String projectName, final Progress progress) throws CruiseControlException {
         BuildAgentService agent = null;
 
         if (progress != null) {
