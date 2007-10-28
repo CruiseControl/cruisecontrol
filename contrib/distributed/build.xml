@@ -465,7 +465,7 @@
     <target name="test" depends="compile-test, setupTestEntry" description="Runs unit tests for distributed extensions to Cruise Control">
 
         <!-- @todo haltonfailure? -->
-        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true"><!--dir="${target}" -->
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true" dir="${target}">
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
 

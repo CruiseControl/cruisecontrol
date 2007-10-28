@@ -118,8 +118,10 @@ public class BuildAgentServiceImplTest extends TestCase {
 
 
     private static final File LOGGER_JAR_REAL_MAIN_DIST
-            // @todo Change path to main/dist is we ever move CCDist into main
-            = new File("../../main/dist", AntScript.LIBNAME_PROGRESS_LOGGER);
+            // @todo Change path to main/dist if we move CCDist into main
+            = new File(DistributedMasterBuilderTest.MAIN_CCDIST_DIR + "../../main/dist",
+                    AntScript.LIBNAME_PROGRESS_LOGGER);
+    
     private static final File LOGGER_JAR_MOVED = new File(LOGGER_JAR_REAL_MAIN_DIST.getParentFile(),
             "hidden" + AntScript.LIBNAME_PROGRESS_LOGGER);
     private static void hideAntProgressLoggerLib() {

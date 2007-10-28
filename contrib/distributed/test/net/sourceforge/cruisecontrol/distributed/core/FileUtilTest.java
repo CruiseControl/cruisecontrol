@@ -4,6 +4,8 @@ import junit.framework.TestCase;
 
 import java.io.File;
 
+import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
+
 /**
  * @author Dan Rollo
  * Date: Jul 30, 2007
@@ -27,7 +29,7 @@ public class FileUtilTest extends TestCase {
         }
 
         final File actualResourceFile = FileUtil.getFileFromResource("");
-        final File currentDir = new File(".").getCanonicalFile();
+        final File currentDir = new File(DistributedMasterBuilderTest.MAIN_CCDIST_DIR).getCanonicalFile();
         assertEquals(currentDir, actualResourceFile.getParentFile().getParentFile());
 
         final File classFile = FileUtil
