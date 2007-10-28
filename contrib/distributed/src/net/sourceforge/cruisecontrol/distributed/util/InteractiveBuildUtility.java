@@ -309,16 +309,15 @@ public class InteractiveBuildUtility {
         try {
             final File currentDir = new File(".");
             DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
-                    PropertiesHelper.RESULT_TYPE_LOGS, 0, currentDir);
+                    PropertiesHelper.RESULT_TYPE_LOGS, currentDir);
 
             DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
-                    PropertiesHelper.RESULT_TYPE_OUTPUT, 0, currentDir);
+                    PropertiesHelper.RESULT_TYPE_OUTPUT, currentDir);
             
             final RemoteResult[] remoteResults = distributedBuildMaster.getRemoteResultsInfo();
             if (remoteResults != null) {
                 for (int i = 0; i < remoteResults.length; i++) {
-                    DistributedMasterBuilder.getResultsFiles(agent, currentDir, "projectInteractive",
-                            PropertiesHelper.RESULT_TYPE_DIR,
+                    DistributedMasterBuilder.getRemoteResult(agent, currentDir, "projectInteractive",
                             remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
                 }
             }

@@ -679,22 +679,21 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             return recursiveFilesExist(logDir);
         } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_OUTPUT)) {
             return recursiveFilesExist(outputDir);
-
-        } else if (resultsType.equals(PropertiesHelper.RESULT_TYPE_DIR)) {
-            if (remoteResults != null) {
-                for (int i = 0; i < remoteResults.length; i++) {
-                    final boolean resultsExist = recursiveFilesExist(remoteResults[i].getAgentDir());
-                    if (resultsExist) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-
         } else {
             throw new RemoteException("Unrecognized result type: " + resultsType);
         }
     }
+
+    public boolean remoteResultExists(int idx) throws RemoteException {
+        if (remoteResults != null) {
+            final boolean resultsExist = recursiveFilesExist(remoteResults[idx].getAgentDir());
+            if (resultsExist) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     static boolean recursiveFilesExist(final File fileToCheck) {
 
