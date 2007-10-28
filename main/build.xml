@@ -65,8 +65,6 @@
 	<property name="checkstyle.config" value="../common/checkstyle.xml"/>
 	<property name="checkstyle.jar" value="${lib}/checkstyle-all-4.3.jar" />
 
-	<property name="simian.jar" value="${lib}/simian-2.2.14.jar" />
-
 	<property name="emma.results" value="${target}/emma-results" />
 	<property name="emma.stats" value="${emma.results}/coverage.emma" />
 
@@ -262,14 +260,6 @@
 		<echo message="View EMMA's HTML report at ${emma.html.report}" />
 	</target>
 
-	<target name="check-duplication" description="Check for duplicated code">
-		<taskdef resource="simiantask.properties" classpath="${simian.jar}" />
-		<!-- Switch this to true with a threshold once we deal with current duplication -->
-		<simian failOnDuplication="false">
-			<fileset dir="${src}" includes="**/*.java" />
-		</simian>
-	</target>
-
 	<macrodef name="test-macro">
 		<attribute name="includes" default="**/${tests}.class" />
 		<attribute name="excludes" default="" />
@@ -389,7 +379,7 @@
 
     </target>
 
-    <target name="all" depends="init,compile-all,-checkstyle,check-duplication,test-all,jar" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init,compile-all,-checkstyle,test-all,jar" description="Performs a build, runs tests, and builds jar" />
     <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
     <target name="compile-all" depends="compile, compile-harvest, compile-sametime, compile-starteam, compile-yahoo" description="Compile everything" />
