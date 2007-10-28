@@ -594,7 +594,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         return fileResultDir;
     }
 
-    private static void ensureDirExists(File fileResultDir) {
+    private static void ensureDirExists(final File fileResultDir) {
         if (!fileResultDir.exists()) {
             if (!fileResultDir.mkdirs()) {
                 final String msg = "Error creating Agent result dir: " + fileResultDir.getAbsolutePath();
@@ -684,7 +684,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         }
     }
 
-    public boolean remoteResultExists(int idx) throws RemoteException {
+    public boolean remoteResultExists(final int idx) throws RemoteException {
         if (remoteResults != null) {
             final boolean resultsExist = recursiveFilesExist(remoteResults[idx].getAgentDir());
             if (resultsExist) {
