@@ -57,6 +57,28 @@ public class DistributedMasterBuilderTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(DistributedMasterBuilderTest.class);
 
+    /** NOTE: Assumes we are executing with current dir cc/contrig/distributed/target */
+    // @todo Change if we move CCDist into main
+    public static final String MAIN_CCDIST_DIR = "../";
+    static {
+        final File mainCCDistDir;
+        try {
+            mainCCDistDir = new File(MAIN_CCDIST_DIR).getCanonicalFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        final String msg = "Executing unit tests in unexpected directory: " + mainCCDistDir.getAbsolutePath() + ";";
+        assertEquals(msg, "distributed", mainCCDistDir.getName());
+
+        final File ccDistTargetDir;
+        try {
+            ccDistTargetDir = new File(".").getCanonicalFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(msg, "target", ccDistTargetDir.getName());
+    }
+
     private static final String INSECURE_POLICY_FILENAME = "insecure.policy";
     private static Properties origSysProps;
 
@@ -66,7 +88,7 @@ public class DistributedMasterBuilderTest extends TestCase {
         final Configuration config;
         String hostname;
         try {
-            config = ConfigurationProvider.getInstance(new String[] {CONFIG_START_JINI});            
+            config = ConfigurationProvider.getInstance(new String[] {MAIN_CCDIST_DIR + CONFIG_START_JINI});            
             hostname = (String) config.getEntry("com.sun.jini.start", "hostname", String.class);
         } catch (ConfigurationException e) {
             throw new RuntimeException("Error loading jini config: " + CONFIG_START_JINI, e);
@@ -173,7 +195,8 @@ public class DistributedMasterBuilderTest extends TestCase {
 
 
         LOG.debug("jini startup command: " + Arrays.asList(cmdLine.getCommandline()));
-        final Process newJiniProcess = Runtime.getRuntime().exec(cmdLine.getCommandline());
+        final Process newJiniProcess = Runtime.getRuntime().exec(cmdLine.getCommandline(),
+                null, new File(MAIN_CCDIST_DIR));
 
         newJiniProcess.getOutputStream().close();
 
