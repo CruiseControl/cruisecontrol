@@ -42,8 +42,8 @@ import com.trinem.harvest.hsdkwrap.JCaContextWrap;
 import com.trinem.harvest.hsdkwrap.JCaHarvestWrap;
 import com.trinem.harvest.hsdkwrap.JCaHarvestLogStreamWrap;
 import com.trinem.harvest.hsdkwrap.JCaVersionChooserWrap;
-import com.trinem.harvest.hsdkwrap.IJCaLogStreamListenerImpl;
-//import com.trinem.harvest.hsdkwrap.hutils.JCaAttrKeyWrap;
+import com.trinem.harvest.hsdkwrap.IJCaLogStreamListenerImpl; // import
+                                                                // com.trinem.harvest.hsdkwrap.hutils.JCaAttrKeyWrap;
 import com.trinem.harvest.hsdkwrap.hutils.JCaHarvestExceptionWrap;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
@@ -52,26 +52,24 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
-
 /**
  * BootStrapper for CA's AllFusion Harvest Change Manager.
  *
  * This BootStrapper class is used to connect to Harvest to retrieve files
- * before the build is started.  It has a number of properties which must be
- * set in order to connect to Harvest.  It also provides a mechanism to pipe
- * Harvest errors through into the CruiseControl log.
+ * before the build is started. It has a number of properties which must be set
+ * in order to connect to Harvest. It also provides a mechanism to pipe Harvest
+ * errors through into the CruiseControl log.
  *
  * @author <a href="mailto:info@trinem.com">Trinem Consulting Ltd</a>
  */
-public class AllFusionHarvestBootstrapper
-    implements Bootstrapper {
-        
+public class AllFusionHarvestBootstrapper implements Bootstrapper {
+
     private JCaHarvestWrap harvest = null;
-    
+
     private String broker = null;
     private String username = null;
     private String password = null;
-    
+
     private String project = null;
     private String state = null;
 
@@ -79,16 +77,15 @@ public class AllFusionHarvestBootstrapper
     private String clientPath = null;
     private String viewPath = null;
     private String filename = null;
-    
+
     private boolean loggedIn = false;
-    
+
     private JCaHarvestLogStreamWrap logstream = null;
 
     private static Logger log = Logger.getLogger(AllFusionHarvestBootstrapper.class);
 
-
     /**
-     * Default constructor.  Creates a new uninitialise Bootstrapper.
+     * Default constructor. Creates a new uninitialise Bootstrapper.
      */
     public AllFusionHarvestBootstrapper() {
     }
@@ -96,7 +93,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the Harvest Broker for all calls to HSDK.
      *
-     * @param broker  Harvest Broker to use.
+     * @param broker
+     *            Harvest Broker to use.
      */
     public void setBroker(String broker) {
         log.debug("Broker: " + broker);
@@ -106,7 +104,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the Harvest username for all calls to HSDK.
      *
-     * @param username  Harvest username to use.
+     * @param username
+     *            Harvest username to use.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -115,7 +114,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the Harvest password for all calls to HSDK.
      *
-     * @param password  Harvest password to use.
+     * @param password
+     *            Harvest password to use.
      */
     public void setPassword(String password) {
         this.password = password;
@@ -124,7 +124,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the Harvest project for all calls to HSDK.
      *
-     * @param project Harvest project to use.
+     * @param project
+     *            Harvest project to use.
      */
     public void setProject(String project) {
         this.project = project;
@@ -133,7 +134,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the Harvest state for all calls to HSDK.
      *
-     * @param state  Harvest state to use.
+     * @param state
+     *            Harvest state to use.
      */
     public void setState(String state) {
         this.state = state;
@@ -142,7 +144,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the name of the process to use when making calls to HSDK.
      *
-     * @param process  String indicating the process name.
+     * @param process
+     *            String indicating the process name.
      */
     public void setProcess(String process) {
         this.process = process;
@@ -151,7 +154,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the view path to use when making calls to HSDK.
      *
-     * @param viewPath  String indicating the view path.
+     * @param viewPath
+     *            String indicating the view path.
      */
     public void setViewpath(String viewPath) {
         this.viewPath = viewPath;
@@ -160,7 +164,8 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the client path to use when making calls to HSDK.
      *
-     * @param clientPath  String indicating the client path.
+     * @param clientPath
+     *            String indicating the client path.
      */
     public void setClientpath(String clientPath) {
         this.clientPath = clientPath;
@@ -169,22 +174,22 @@ public class AllFusionHarvestBootstrapper
     /**
      * Sets the filename to update.
      *
-     * @param filename  String indicating the filename.
+     * @param filename
+     *            String indicating the filename.
      */
     public void setFile(String filename) {
         this.filename = filename;
     }
-    
-    
+
     /**
      * Internal method which connects to Harvest using the details provided.
      */
     protected boolean login() {
-        
+
         if (loggedIn) {
             return true;
         }
-        
+
         harvest = new JCaHarvestWrap(broker);
 
         logstream = new JCaHarvestLogStreamWrap();
@@ -192,7 +197,7 @@ public class AllFusionHarvestBootstrapper
 
         harvest.setStaticLog(logstream);
         harvest.setLog(logstream);
-        
+
         if (harvest.login(username, password) != 0) {
             log.error("Login failed: " + harvest.getLastMessage());
             return false;
@@ -201,8 +206,7 @@ public class AllFusionHarvestBootstrapper
         loggedIn = true;
         return true;
     }
-    
-    
+
     /**
      * Internal method which disconnects from Harvest.
      */
@@ -216,12 +220,11 @@ public class AllFusionHarvestBootstrapper
 
     // From Bootstrapper
     /**
-     * Standard Bootstrapper validation method.  Throws an exception if any of
+     * Standard Bootstrapper validation method. Throws an exception if any of
      * the required properties are not set.
      */
-    public void validate()
-            throws CruiseControlException {
-                
+    public void validate() throws CruiseControlException {
+
         ValidationHelper.assertIsSet(username, "username", this.getClass());
         ValidationHelper.assertIsSet(password, "password", this.getClass());
         ValidationHelper.assertIsSet(broker, "broker", this.getClass());
@@ -232,34 +235,32 @@ public class AllFusionHarvestBootstrapper
         ValidationHelper.assertIsSet(viewPath, "viewPath", this.getClass());
         ValidationHelper.assertIsSet(filename, "filename", this.getClass());
     }
-    
-    
+
     /**
      * Update the specified file.
      */
     public void bootstrap() {
-        
+
         log.debug("bootstrap()");
-        
+
         if (!login()) {
             return;
         }
-                
+
         try {
             JCaContextWrap context = harvest.getContext();
             context.setProject(project);
             context.setState(state);
-    
+
             if (!context.setCheckout(process)) {
-                log.error("No checkout process named \""
-                          + process + "\" in this project/state");
+                log.error("No checkout process named \"" + process + "\" in this project/state");
                 return;
             }
             if (!context.isProcessSet(JCaConstWrap.HAR_CHECKOUT_PROCESS_TYPE)) {
                 log.error("No checkout process in this project/state");
                 return;
             }
-                
+
             JCaCheckoutWrap coproc = context.getCheckout();
             coproc.setCheckoutMode(JCaConstWrap.CO_MODE_SYNCHRONIZE);
             coproc.setPathOption(JCaConstWrap.CO_OPTION_PRESERVE_AND_CREATE);
@@ -268,9 +269,9 @@ public class AllFusionHarvestBootstrapper
             coproc.setViewPath(viewPath);
             coproc.setShareWorkDir(true);
             coproc.setUseCITimeStamp(true);
-            
+
             JCaVersionChooserWrap vc = context.getVersionChooser();
-            
+
             vc.clear();
             vc.setRecursive(true);
             vc.setVersionItemOption(JCaConstWrap.VERSION_FILTER_ITEM_BOTH);
@@ -278,54 +279,55 @@ public class AllFusionHarvestBootstrapper
             vc.setVersionStatusOption(JCaConstWrap.VERSION_FILTER_ALL_TAG);
             vc.setBranchOption(JCaConstWrap.BRANCH_FILTER_TRUNK_ONLY);
             vc.setItemName(filename);
-        
-            vc.execute();
-        
-            /*JCaContainerWrap versionList =*/ vc.getVersionList();
-            
-            /*int numVers = versionList.isEmpty() ? 0
-                    : versionList.getKeyElementCount(JCaAttrKeyWrap.CA_ATTRKEY_NAME);
-            
-            for (int n = 0; n < numVers; n++)
-            {                                                
-                System.out.println(versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_NAME, n) + ";"
-                                 + versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_MAPPED_VERSION_NAME, n) + ";"
-                                 + versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_VERSION_STATUS, n));
 
-            }*/
-    
+            vc.execute();
+
+            /* JCaContainerWrap versionList = */vc.getVersionList();
+
+            /*
+             * int numVers = versionList.isEmpty() ? 0 :
+             * versionList.getKeyElementCount(JCaAttrKeyWrap.CA_ATTRKEY_NAME);
+             *
+             * for (int n = 0; n < numVers; n++) {
+             * System.out.println(versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_NAME,
+             * n) + ";" +
+             * versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_MAPPED_VERSION_NAME,
+             * n) + ";" +
+             * versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_VERSION_STATUS,
+             * n));
+             *  }
+             */
+
             coproc.execute();
-            
+
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.toString() /*, getLocation()*/);
-            //e.printStackTrace();
+            log.error(e.toString() /* , getLocation() */);
+            // e.printStackTrace();
         }
     }
-   
-    
+
     /**
      * Simple LogStream Listener class which interprets the message serverity
      * level of Harvest messages and reports them to the CruiseControl log.
      *
      * @author <a href="mailto:info@trinem.com">Trinem Consulting Ltd</a>
      */
-    public class MyLogStreamListener
-        implements IJCaLogStreamListenerImpl {
+    public class MyLogStreamListener implements IJCaLogStreamListenerImpl {
 
         // From IJCaLogStreamListenerImpl
         /**
          * Takes the given message from Harvest, figures out its severity and
          * reports it back to CruiseControl.
          *
-         * @param message  The message to process.
+         * @param message
+         *            The message to process.
          */
         public void handleMessage(String message) {
-            
+
             int level = JCaHarvestLogStreamWrap.getSeverityLevel(message);
-            
+
             // Convert Harvest level to log4j level
             switch (level) {
-            default:
             case JCaHarvestLogStreamWrap.OK:
                 log.debug(message);
                 break;
@@ -338,6 +340,7 @@ public class AllFusionHarvestBootstrapper
             case JCaHarvestLogStreamWrap.ERROR:
                 log.error(message);
                 break;
+            default:
             }
         }
     }

@@ -52,8 +52,8 @@ import org.jdom.output.XMLOutputter;
 import net.sourceforge.cruisecontrol.Modification;
 
 /**
- * Data structure which holds data specific to a single modification
- * within a CM Synergy repository.
+ * Data structure which holds data specific to a single modification within a CM
+ * Synergy repository.
  *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
@@ -129,9 +129,8 @@ public class CMSynergyModification extends Modification {
      *
      * @return A new <code>ModifiedObject</code>
      */
-    public final ModifiedObject createModifiedObject(String name,
-            String version, String type, String instance, String project,
-            String comment) {
+    public final ModifiedObject createModifiedObject(String name, String version, String type, String instance,
+            String project, String comment) {
         ModifiedObject obj = createModifiedObject();
         obj.name = name;
         obj.version = version;
@@ -146,7 +145,8 @@ public class CMSynergyModification extends Modification {
      * Creates a new <code>ChangeRequest</code>, and adds it to the list of
      * change requests associated with the task.
      *
-     * @param number The CR number
+     * @param number
+     *            The CR number
      *
      * @return A new <code>ChangeRequest</code>
      */
@@ -185,8 +185,7 @@ public class CMSynergyModification extends Modification {
                 cd = new CDATA(comment);
             } catch (org.jdom.IllegalDataException e) {
                 LOG.error(e);
-                cd = new CDATA(
-                        "Unable to parse comment. It contains illegal data.");
+                cd = new CDATA("Unable to parse comment. It contains illegal data.");
             }
             commentElement.addContent(cd);
             modificationElement.addContent(commentElement);
@@ -225,12 +224,13 @@ public class CMSynergyModification extends Modification {
         return modificationElement;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see java.lang.Object#toString()
      */
     public String toString() {
-        SimpleDateFormat formatter =
-            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
 
         sb.append("Task Number: ").append(taskNumber).append('\n');
@@ -260,7 +260,9 @@ public class CMSynergyModification extends Modification {
         return sb.toString();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see net.sourceforge.cruisecontrol.Modification#log(java.text.DateFormat)
      */
     public void log(DateFormat formatter) {
@@ -292,8 +294,11 @@ public class CMSynergyModification extends Modification {
         }
     }
 
-    /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
+     *      java.text.DateFormat)
      */
     public void fromElement(Element modification, DateFormat formatter) {
 
@@ -341,7 +346,7 @@ public class CMSynergyModification extends Modification {
         }
     }
 
-    /* (non-Javadoc)
+    /**
      * @see java.lang.Object#equals(java.lang.Object)
      */
     public boolean equals(Object o) {
@@ -350,6 +355,14 @@ public class CMSynergyModification extends Modification {
         }
         CMSynergyModification mod = (CMSynergyModification) o;
         return (type.equals(mod.type) && taskNumber.equals(mod.taskNumber));
+    }
+
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((type == null) ? 0 : type.hashCode())
+                + ((taskNumber == null) ? 0 : taskNumber.hashCode());
+        return result;
     }
 
     /**
@@ -372,8 +385,11 @@ public class CMSynergyModification extends Modification {
         protected ModifiedObject() {
         }
 
-        /* (non-Javadoc)
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
+         *      java.text.DateFormat)
          */
         public Element toElement(DateFormat formatter) {
             Element element = new Element(TAGNAME_OBJECT);
@@ -404,8 +420,7 @@ public class CMSynergyModification extends Modification {
                 cd = new CDATA(comment);
             } catch (org.jdom.IllegalDataException e) {
                 LOG.error(e);
-                cd = new CDATA(
-                        "Unable to parse comment.  It contains illegal data.");
+                cd = new CDATA("Unable to parse comment.  It contains illegal data.");
             }
             commentElement.addContent(cd);
             element.addContent(commentElement);
@@ -413,17 +428,21 @@ public class CMSynergyModification extends Modification {
             return element;
         }
 
-        /* (non-Javadoc)
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
+         *      java.text.DateFormat)
          */
         public void fromElement(Element modification, DateFormat formatter) {
-             name = modification.getChildText(TAGNAME_NAME);
-             version = modification.getChildText(TAGNAME_VERSION);
-             type = modification.getChildText(TAGNAME_TYPE);
-             instance = modification.getChildText(TAGNAME_INSTANCE);
-             project = modification.getChildText(TAGNAME_PROJECT);
-             comment = modification.getChildText(TAGNAME_COMMENT);
+            name = modification.getChildText(TAGNAME_NAME);
+            version = modification.getChildText(TAGNAME_VERSION);
+            type = modification.getChildText(TAGNAME_TYPE);
+            instance = modification.getChildText(TAGNAME_INSTANCE);
+            project = modification.getChildText(TAGNAME_PROJECT);
+            comment = modification.getChildText(TAGNAME_COMMENT);
         }
+
     }
 
     /**
@@ -441,8 +460,11 @@ public class CMSynergyModification extends Modification {
         protected ChangeRequest() {
         }
 
-        /* (non-Javadoc)
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
+         *      java.text.DateFormat)
          */
         public Element toElement(DateFormat formatter) {
             Element element = new Element(TAGNAME_CHANGEREQUEST);
@@ -461,8 +483,11 @@ public class CMSynergyModification extends Modification {
             return element;
         }
 
-        /* (non-Javadoc)
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element, java.text.DateFormat)
+        /*
+         * (non-Javadoc)
+         *
+         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
+         *      java.text.DateFormat)
          */
         public void fromElement(Element modification, DateFormat formatter) {
             Element linkElement = modification.getChild(TAGNAME_HTML_LINK);

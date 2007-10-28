@@ -59,9 +59,12 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- * <p>The <code>&lt;cruisecontrol&gt;</code> element is the root element of the configuration,
- * and acts as a container to the rest of the  configuration elements.</p>
- * 
+ * <p>
+ * The <code>&lt;cruisecontrol&gt;</code> element is the root element of the
+ * configuration, and acts as a container to the rest of the configuration
+ * elements.
+ * </p>
+ *
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
 public class CruiseControlConfig {
@@ -80,7 +83,10 @@ public class CruiseControlConfig {
     }
 
     private Map rootProperties = new HashMap();
-    /** Properties of a particular node. Mapped by the node name. Doesn't handle rootProperties yet */
+    /**
+     * Properties of a particular node. Mapped by the node name. Doesn't handle
+     * rootProperties yet
+     */
     private Map templatePluginProperties = new HashMap();
     private PluginRegistry rootPlugins = PluginRegistry.createRegistry();
     private Map projects = new LinkedHashMap();
@@ -115,8 +121,8 @@ public class CruiseControlConfig {
     public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver) throws CruiseControlException {
         this(ccElement, xmlResolver, null);
     }
-    
-    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver, CruiseControlController controller) 
+
+    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver, CruiseControlController controller)
             throws CruiseControlException {
         this.xmlResolver = xmlResolver;
         this.controller = controller;
@@ -124,26 +130,27 @@ public class CruiseControlConfig {
     }
 
     private void parse(Element ccElement) throws CruiseControlException {
-        // parse properties and plugins first, so their order in the config file doesn't matter
-        for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext(); ) {
+        // parse properties and plugins first, so their order in the config file
+        // doesn't matter
+        for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext();) {
             handleRootProperty((Element) i.next());
         }
-        for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext();) {
             handleRootPlugin((Element) i.next());
         }
-        for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext();) {
             handleIncludedProjects((Element) i.next());
         }
 
         // other childNodes must be projects or the <system> node
-        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext(); ) {
+        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
             Element childElement = (Element) i.next();
             final String nodeName = childElement.getName();
             if (isProject(nodeName)) {
                 handleProject(childElement);
             } else if ("system".equals(nodeName)) {
                 add((SystemPlugin) new ProjectXMLHelper().configurePlugin(childElement, false));
-            }  else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
+            } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
@@ -169,9 +176,8 @@ public class CruiseControlConfig {
             return;
         }
         try {
-            IncludeProjectsPlugin includeProjects =
-                    (IncludeProjectsPlugin) new ProjectXMLHelper(rootProperties, this.getRootPlugins())
-                            .configurePlugin(includeElement, FAIL_UPON_MISSING_PROPERTY);
+            IncludeProjectsPlugin includeProjects = (IncludeProjectsPlugin) new ProjectXMLHelper(rootProperties, this
+                    .getRootPlugins()).configurePlugin(includeElement, FAIL_UPON_MISSING_PROPERTY);
             add(includeProjects);
         } catch (CruiseControlException e) {
             LOG.error("Exception including file " + path, e);
@@ -180,7 +186,7 @@ public class CruiseControlConfig {
 
     private boolean isProject(String nodeName) throws CruiseControlException {
         return rootPlugins.isPluginRegistered(nodeName)
-            &&  ProjectInterface.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
+                && ProjectInterface.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
     }
 
     private boolean isProjectTemplate(Element pluginElement) {
@@ -193,9 +199,11 @@ public class CruiseControlConfig {
             Class pluginClass = rootPlugins.instanciatePluginClass(pluginClassName, pluginName);
             return ProjectInterface.class.isAssignableFrom(pluginClass);
         } catch (CruiseControlException e) {
-            // this is only triggered by tests today, when a class is not loadable.
+            // this is only triggered by tests today, when a class is not
+            // loadable.
             // I didn't want to propagate the exception
-            // in case something like Distributed CC requires a class to not be loadable locally at this point...
+            // in case something like Distributed CC requires a class to not be
+            // loadable locally at this point...
             LOG.warn("Couldn't check if the plugin " + pluginName + " is an instance of ProjectInterface", e);
             return false;
         }
@@ -225,47 +233,51 @@ public class CruiseControlConfig {
     }
 
     private void handleRootProperty(Element childElement) throws CruiseControlException {
-        DefaultPropertiesPlugin props
-                = ProjectXMLHelper.registerProperty(rootProperties, childElement, FAIL_UPON_MISSING_PROPERTY);
+        DefaultPropertiesPlugin props = ProjectXMLHelper.registerProperty(rootProperties, childElement,
+                FAIL_UPON_MISSING_PROPERTY);
         add(props);
     }
 
-
     /**
      * Defines a name/value pair used in configuration.
+     *
      * @param property
      * @cardinality 0..*;
      */
     public void add(DefaultPropertiesPlugin property) {
-        // FIXME this is empty today for the documentation to be generated properly
+        // FIXME this is empty today for the documentation to be generated
+        // properly
     }
 
     /**
      * Add projects defined in other configuration files.
+     *
      * @cardinality 0..*;
      */
     public void add(IncludeProjectsPlugin project) throws CruiseControlException {
-      String file = project.getFile();
-      String path = ProjectXMLHelper.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
-      // FIXME GENDOC Self configure ??
-      LOG.debug("getting included projects from " + path);
-      Element includedElement = xmlResolver.getElement(path);
-      CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
-      Set includedProjectNames = includedConfig.getProjectNames();
-      for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
-          String name = (String) iter.next();
-          if (projects.containsKey(name)) {
-              String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
-              LOG.error(message);
-          }
-          projects.put(name, includedConfig.getProject(name));
-      }
+        String file = project.getFile();
+        String path = ProjectXMLHelper.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
+        // FIXME GENDOC Self configure ??
+        LOG.debug("getting included projects from " + path);
+        Element includedElement = xmlResolver.getElement(path);
+        CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
+        Set includedProjectNames = includedConfig.getProjectNames();
+        for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
+            String name = (String) iter.next();
+            if (projects.containsKey(name)) {
+                String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
+                LOG.error(message);
+            }
+            projects.put(name, includedConfig.getProject(name));
+        }
     }
 
     /**
-     * Currently just a placeholder for the <configuration> element, which in its turn is just a placeholder for
-     * the <threads> element.
-     * We expect that in the future, more system-level features can be configured under this element.
+     * Currently just a placeholder for the <configuration> element, which in
+     * its turn is just a placeholder for the <threads> element. We expect that
+     * in the future, more system-level features can be configured under this
+     * element.
+     *
      * @param system
      * @cardinality 0..1;
      */
@@ -275,20 +287,24 @@ public class CruiseControlConfig {
 
     /**
      * Registers a classname with an alias.
+     *
      * @param plugin
      * @cardinality 0..*;
      */
     public void add(PluginPlugin plugin) {
-        // FIXME this is empty today for the documentation to be generated properly
+        // FIXME this is empty today for the documentation to be generated
+        // properly
     }
 
     /**
      * Defines a basic unit of work
+     *
      * @param project
      * @cardinality 1..*;
      */
     public void add(ProjectInterface project) {
-        // FIXME this is empty today for the documentation to be generated properly
+        // FIXME this is empty today for the documentation to be generated
+        // properly
     }
 
     private void handleProject(Element projectElement) throws CruiseControlException {
@@ -303,7 +319,8 @@ public class CruiseControlConfig {
         // property handling is a little bit dirty here.
         // we have a set of properties mostly resolved in the rootProperties
         // and a child set of properties
-        // it is possible that the rootProperties contain references to child properties
+        // it is possible that the rootProperties contain references to child
+        // properties
         // in particular the project.name one
         MapWithParent nonFullyResolvedProjectProperties = new MapWithParent(rootProperties);
         // Register the project's name as a built-in property
@@ -315,16 +332,16 @@ public class CruiseControlConfig {
         if (projectTemplateProperties != null) {
             for (int i = 0; i < projectTemplateProperties.size(); i++) {
                 Element element = (Element) projectTemplateProperties.get(i);
-                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties,
-                    element, FAIL_UPON_MISSING_PROPERTY);
+                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element,
+                        FAIL_UPON_MISSING_PROPERTY);
             }
         }
 
         // Register any project specific properties
-        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext(); ) {
+        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext();) {
             final Element propertyElement = (Element) projProps.next();
-            ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties,
-                propertyElement, FAIL_UPON_MISSING_PROPERTY);
+            ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
+                    FAIL_UPON_MISSING_PROPERTY);
         }
 
         // add the resolved rootProperties to the project's properties
@@ -342,7 +359,7 @@ public class CruiseControlConfig {
 
         // Register any custom plugins
         PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
-        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext(); ) {
+        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext();) {
             Element element = (Element) pluginIter.next();
             PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(element, false);
             // projectPlugins.register(plugin);
@@ -356,7 +373,7 @@ public class CruiseControlConfig {
         LOG.debug("**************** configuring project " + projectName + " *******************");
         ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, controller);
         ProjectInterface project;
-        
+
         try {
             project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
         } catch (CruiseControlException e) {
@@ -375,12 +392,8 @@ public class CruiseControlConfig {
                 try {
                     labelIncrementer = (LabelIncrementer) labelIncrClass.newInstance();
                 } catch (Exception e) {
-                    LOG.error("Error instantiating label incrementer named "
-                        + labelIncrClass.getName()
-                        + "in project "
-                        + projectName
-                        + ". Using DefaultLabelIncrementer instead.",
-                        e);
+                    LOG.error("Error instantiating label incrementer named " + labelIncrClass.getName() + "in project "
+                            + projectName + ". Using DefaultLabelIncrementer instead.", e);
                     labelIncrementer = new DefaultLabelIncrementer();
                 }
                 projectConfig.add(labelIncrementer);
@@ -418,7 +431,8 @@ public class CruiseControlConfig {
         return (PluginRegistry) this.projectPluginRegistries.get(name);
     }
 
-    // Unfortunately it seems like the commons-collection CompositeMap doesn't fit that role
+    // Unfortunately it seems like the commons-collection CompositeMap doesn't
+    // fit that role
     // at least size is not implemented the way I want it.
     // TODO is there a clean way to do without this?
     private static class MapWithParent implements Map {
@@ -450,13 +464,11 @@ public class CruiseControlConfig {
         }
 
         public boolean containsKey(Object key) {
-            return thisMap.containsKey(key)
-                || (parent != null && parent.containsKey(key));
+            return thisMap.containsKey(key) || (parent != null && parent.containsKey(key));
         }
 
         public boolean containsValue(Object value) {
-            return thisMap.containsValue(value)
-                || (parent != null && parent.containsValue(value));
+            return thisMap.containsValue(value) || (parent != null && parent.containsValue(value));
         }
 
         public Object get(Object key) {
@@ -493,21 +505,18 @@ public class CruiseControlConfig {
 
         public Collection values() {
             throw new UnsupportedOperationException("not implemented");
-            /* we have to support the Map contract. Back the returned values. Mmmmm */
             /*
-            Collection values = thisMap.values();
-            if (parent != null) {
-                Set keys = parent.keySet();
-                List parentValues = new ArrayList();
-                for (Iterator iterator = keys.iterator(); iterator.hasNext();) {
-                    String key = (String) iterator.next();
-                    if (! thisMap.containsKey(key)) {
-                        parentValues.add(parent.get(key));
-                    }
-                }
-            }
-            return values;
-            */
+             * we have to support the Map contract. Back the returned values.
+             * Mmmmm
+             */
+            /*
+             * Collection values = thisMap.values(); if (parent != null) { Set
+             * keys = parent.keySet(); List parentValues = new ArrayList(); for
+             * (Iterator iterator = keys.iterator(); iterator.hasNext();) {
+             * String key = (String) iterator.next(); if (!
+             * thisMap.containsKey(key)) { parentValues.add(parent.get(key)); } } }
+             * return values;
+             */
         }
 
         public Set entrySet() {

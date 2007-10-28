@@ -5,7 +5,19 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 
 <suppressions>
+    <suppress checks="AnonInnerLength" files="PluginType.java"/>
+    <suppress checks="AnonInnerLength" files="NantBuilderTest.java"/>
+
+    <suppress checks="ModifiedControlVariable" files="Launcher.java"/>
+
+    <suppress checks="PackageDeclaration" files="CruiseControl.java"/>
+    <suppress checks="PackageDeclaration" files="CruiseControlWithJetty.java"/>
+
     <!-- suppressions added only to avoid different behavior after checkstyle upgrade to v4.3 -->
+    <suppress checks="DescendantToken"
+              files="SametimeAnnouncementPublisher.java"
+              lines="348"/>
+
     <suppress checks="InnerAssignment"
               files="Maven2SnapshotDependency.java"
               lines="340,362"/>
@@ -18,8 +30,4 @@
               files="UCM.java"
               lines="307,436"/>
 
-
-    <suppress checks="DescendantToken"
-              files="SametimeAnnouncementPublisher.java"
-              lines="348"/>
 </suppressions>
