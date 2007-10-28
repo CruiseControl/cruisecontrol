@@ -4,95 +4,179 @@
     "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
 
 <module name="Checker">
-    <module name="Translation"/>
+    <module name="Translation" />
     <module name="TreeWalker">
-        <property name="tabWidth" value="4"/>
+        <property name="tabWidth" value="4" />
 
         <!-- Naming conventions -->
-        <module name="ConstantName"/>
-        <module name="LocalFinalVariableName"/>
-        <module name="LocalVariableName"/>
-        <module name="MemberName"/>
+        <module name="ConstantName" />
+        <module name="LocalFinalVariableName" />
+        <module name="LocalVariableName" />
+        <module name="MemberName" />
         <module name="MethodName">
-            <property name="format" value="^[a-z][a-zA-Z0-9]*_?[a-zA-Z0-9]*$"/>
+            <property name="format"
+                value="^[a-z][a-zA-Z0-9]*_?[a-zA-Z0-9]*$" />
         </module>
         <module name="PackageName">
-            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" />
         </module>
-        <module name="ParameterName"/>
-        <module name="StaticVariableName"/>
-        <module name="TypeName"/>
+        <module name="ParameterName" />
+        <module name="StaticVariableName" />
+        <module name="TypeName" />
 
         <!-- Imports -->
-        <module name="AvoidStarImport"/>
-        <module name="IllegalImport"/>
-        <module name="RedundantImport"/>
-        <module name="UnusedImports"/>
+        <module name="AvoidStarImport" />
+        <module name="IllegalImport" />
+        <module name="RedundantImport" />
+        <module name="UnusedImports" />
 
         <!-- Size violations -->
-        <module name="FileLength"/>
-        <module name="LineLength">
-            <property name="max" value="120"/>
+        <module name="AnonInnerLength" />
+        <module name="ExecutableStatementCount">
+            <!--  TODO: Drop down to default of 30 and fix violations -->
+            <property name="max" value="72" />
         </module>
-        <module name="MethodLength"/>
-        <module name="ParameterNumber"/>
+        <module name="FileLength" />
+        <module name="LineLength">
+            <property name="max" value="120" />
+        </module>
+        <module name="ParameterNumber" />
 
         <!-- Whitespace -->
+        <module name="EmptyForInitializerPad" />
+        <!-- TODO: activate and fix violations -->
+        <!--  <module name="EmptyForIteratorPad"/> -->
+        <!-- TODO: activate and fix violations -->
+        <!--  <module name="MethodParamPad"/>  -->
         <module name="NoWhitespaceAfter">
             <property name="tokens"
-                value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS"/>
+                value="BNOT, DEC, DOT, INC, LNOT, UNARY_MINUS, UNARY_PLUS" />
         </module>
-        <module name="NoWhitespaceBefore"/>
-        <module name="OperatorWrap"/>
-        <module name="ParenPad"/>
-        <module name="TabCharacter"/>
-        <module name="WhitespaceAfter"/>
-        <module name="WhitespaceAround"/>
+        <module name="NoWhitespaceBefore" />
+        <module name="OperatorWrap" />
+        <module name="ParenPad" />
+        <module name="TabCharacter" />
+        <module name="TypecastParenPad" />
+        <module name="WhitespaceAfter" />
+        <module name="WhitespaceAround" />
 
         <!-- Modifiers -->
-        <module name="ModifierOrder"/>
+        <module name="ModifierOrder" />
 
         <!-- Blocks -->
         <module name="EmptyBlock">
             <property name="tokens"
-                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT"/>
+                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_TRY, LITERAL_WHILE, STATIC_INIT" />
         </module>
-        <module name="LeftCurly"/>
-        <module name="NeedBraces"/>
-        <module name="RightCurly"/>
-        <module name="AvoidNestedBlocks"/>
+        <module name="LeftCurly" />
+        <module name="NeedBraces" />
+        <module name="RightCurly" />
+        <module name="AvoidNestedBlocks" />
 
         <!-- Checks for coding problems -->
-        <module name="DoubleCheckedLocking"/>
-        <module name="HiddenField">
-            <property name="tokens" value="VARIABLE_DEF"/>
-        </module>
-        <module name="InnerAssignment"/>
-        <module name="MissingSwitchDefault"/>
-        <module name="SimplifyBooleanExpression"/>
-        <module name="SimplifyBooleanReturn"/>
-        <!--Return from within a finally block. Will cause any exception that might be thrown in the try block to be discarded.-->
+        <module name="CovariantEquals" />
+        <!-- TODO enable and fix violations -->
+        <!--  <module name="DeclarationOrder" />  -->
+        <module name="DefaultComesLast" />
         <module name="DescendantToken">
-            <property name="tokens" value="LITERAL_FINALLY"/>
-            <property name="limitedTokens" value="LITERAL_RETURN"/>
-            <property name="maximumNumber" value="0"/>
+            <property name="tokens" value="LITERAL_FINALLY" />
+            <property name="limitedTokens" value="LITERAL_RETURN" />
+            <property name="maximumNumber" value="0" />
         </module>
+        <module name="DoubleCheckedLocking" />
+        <module name="EmptyStatement" />
+        <module name="EqualsHashCode" />
+        <!--  TODO enable and fix violations -->
+        <!--  <module name="ExplicitInitialization" /> -->
+        <module name="FallThrough" />
+        <module name="HiddenField">
+            <property name="tokens" value="VARIABLE_DEF" />
+        </module>
+        <module name="JUnitTestCase" />
+        <module name="IllegalInstantiation">
+            <property name="classes" value="java.lang.Boolean" />
+        </module>
+        <!--  TODO enable and fix violations -->
+        <!--  <module name="IllegalType" /> -->
+        <module name="InnerAssignment" />
+        <module name="MissingSwitchDefault" />
+        <module name="ModifiedControlVariable" />
+
+        <!--  TODO enable and fix violations -->
+        <!--  <module name="MultipleStringLiterals" /> -->
+        <!--  TODO enable and fix violations -->
+        <!-- <module name="MultipleVariableDeclarations" /> -->
+        <!-- TODO: Review -->
+        <module name="NestedIfDepth">
+            <property name="max" value="7" />
+        </module>
+        <!-- TODO: Review -->
+        <module name="NestedTryDepth">
+            <property name="max" value="2" />
+        </module>
+        <module name="PackageDeclaration" />
+        <!--  TODO enable and fix violations -->
+        <!-- <module name="ParameterAssignment" />  -->
+        <!-- TODO: Review -->
+        <module name="ReturnCount">
+            <property name="max" value="6" />
+        </module>
+        <module name="SimplifyBooleanExpression" />
+        <module name="SimplifyBooleanReturn" />
+        <module name="StringLiteralEquality" />
+        <module name="SuperClone" />
+        <module name="SuperFinalize" />
+        <!--  TODO enable and fix violations -->
+        <!-- <module name="UnnecessaryParentheses" /> -->
 
         <!-- Design checks -->
-        <module name="VisibilityModifier">
-            <property name="publicMemberPattern" value="^[a-zA-Z0-9]*$"/>
+        <!--  TODO enable and fix violations -->
+        <!--  <module name="VisibilityModifier" /> -->
+        <module name="FinalClass" />
+        <module name="InterfaceIsType" />
+        <module name="HideUtilityClassConstructor" />
+        <module name="MutableException" />
+        <module name="ThrowsCount">
+            <property name="max" value="4" />
         </module>
-        <module name="FinalClass"/>
-        <module name="InterfaceIsType"/>
-        <module name="HideUtilityClassConstructor"/>
+
+        <!-- Metrics -->
+        <!-- TODO drop to default and fix violations -->
+        <module name="BooleanExpressionComplexity">
+            <property name="max" value="15" />
+        </module>
+        <!-- TODO drop to default and fix violations -->
+        <module name="ClassDataAbstractionCoupling">
+            <property name="max" value="35" />
+        </module>
+        <!-- TODO drop to default and fix violations -->
+        <module name="ClassFanOutComplexity">
+            <property name="max" value="45" />
+        </module>
+        <!-- TODO drop to default and fix violations -->
+        <module name="CyclomaticComplexity">
+            <property name="max" value="32" />
+        </module>
+        <!-- TODO drop to default and fix violations -->
+        <module name="NPathComplexity">
+            <property name="max" value="64512" />
+        </module>
 
         <!-- Miscellaneous -->
-        <module name="UpperEll"/>
-        <module name="ArrayTypeStyle"/>
+        <module name="ArrayTypeStyle" />
+        <module name="UpperEll" />
+
+    </module>
+
+    <!-- Duplicate code -->
+    <!-- TODO drop to default and fix violations -->
+    <module name="StrictDuplicateCode">
+        <property name="min" value="133" />
     </module>
 
     <module name="SuppressionFilter">
-        <property name="file" value="${basedir}/checkstyleSuppressions.xml"/>
+        <property name="file"
+            value="${basedir}/checkstyleSuppressions.xml" />
     </module>
 
 </module>

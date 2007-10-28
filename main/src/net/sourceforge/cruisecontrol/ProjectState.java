@@ -48,32 +48,23 @@ import java.util.Map;
 public final class ProjectState implements Serializable {
     private static final Map ALL_STATES = new HashMap();
 
-    public static final ProjectState QUEUED =
-            new ProjectState(1, "queued", "in build queue");
-    public static final ProjectState IDLE =
-            new ProjectState(0, "idle", "idle");
-    public static final ProjectState BOOTSTRAPPING =
-            new ProjectState(2, "bootstrapping", "bootstrapping");
-    public static final ProjectState MODIFICATIONSET =
-            new ProjectState(3, "modificationset", "checking for modifications");
-    public static final ProjectState BUILDING =
-            new ProjectState(4, "building", "now building");
-    public static final ProjectState MERGING_LOGS =
-            new ProjectState(5, "merging", "merging accumulated log files");
-    public static final ProjectState PUBLISHING =
-            new ProjectState(6, "publishing", "publishing build results");
-    public static final ProjectState PAUSED =
-            new ProjectState(7, "paused", "paused");
-    public static final ProjectState STOPPED =
-            new ProjectState(8, "stopped", "stopped");
-    public static final ProjectState WAITING =
-            new ProjectState(9, "waiting", "waiting for next time to build");
+    public static final ProjectState QUEUED = new ProjectState(1, "queued", "in build queue");
+    public static final ProjectState IDLE = new ProjectState(0, "idle", "idle");
+    public static final ProjectState BOOTSTRAPPING = new ProjectState(2, "bootstrapping", "bootstrapping");
+    public static final ProjectState MODIFICATIONSET = new ProjectState(3, "modificationset",
+            "checking for modifications");
+    public static final ProjectState BUILDING = new ProjectState(4, "building", "now building");
+    public static final ProjectState MERGING_LOGS = new ProjectState(5, "merging", "merging accumulated log files");
+    public static final ProjectState PUBLISHING = new ProjectState(6, "publishing", "publishing build results");
+    public static final ProjectState PAUSED = new ProjectState(7, "paused", "paused");
+    public static final ProjectState STOPPED = new ProjectState(8, "stopped", "stopped");
+    public static final ProjectState WAITING = new ProjectState(9, "waiting", "waiting for next time to build");
 
     private String description;
     private String name;
     private int code;
 
-    private ProjectState (int code, String name, String desc) {
+    private ProjectState(int code, String name, String desc) {
         this.code = code;
         this.name = name;
         this.description = desc;
@@ -98,7 +89,8 @@ public final class ProjectState implements Serializable {
      * the ProjectState enum instances that already exist.
      *
      * @return a replacement object instance
-     * @throws ObjectStreamException never actually thrown
+     * @throws ObjectStreamException
+     *             never actually thrown
      */
     private Object readResolve() throws ObjectStreamException {
         return ALL_STATES.get(name);
