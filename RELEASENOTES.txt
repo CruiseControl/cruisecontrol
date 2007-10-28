@@ -36,7 +36,7 @@ CompositeBuilder
 ----------------------
 * Document builder attributes of <composite> builder. Reported by Mark Kefauver and EJ Ciramella.
 * Change composite builder to use same technique as Project to detect build errors (in the build log, the "build" tag has an "error" attribute).
-* Insert composite builder info into build log for each child builder. 
+* Insert composite builder info into build log for each child builder.
 Todo: Rearranging these elements (even nesting childLog elements?), might allow display of these child buider info elements in reporting apps.
 
 Configuration documentation generation
@@ -62,6 +62,10 @@ Mercurial Source Control & Bootstrapper
 ModificationSet
 ----------------------
 * Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
+
+PVCS
+----------------------
+* Add support to check for changes against promotion group (CC-717); make thread-safe (CC-583); fix quoting (CC-655).  Patch by Shane Genschaw.
 
 Documentation
 ======================
