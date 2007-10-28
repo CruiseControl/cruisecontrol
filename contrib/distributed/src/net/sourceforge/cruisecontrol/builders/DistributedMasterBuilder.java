@@ -361,8 +361,7 @@ public class DistributedMasterBuilder extends Builder {
         if (remoteResults != null) {
 
             for (int i = 0; i < remoteResults.length; i++) {
-                getRemoteResult(agent, workDir, projectName,
-                        remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
+                getRemoteResult(agent, workDir, projectName, remoteResults[i]);
             }
         }
 
@@ -408,24 +407,22 @@ public class DistributedMasterBuilder extends Builder {
      * @param agent build agent
      * @param workDir working dir for temp files
      * @param projectName project name being built
-     * @param remoteResultIdx index number of the remote result to retrieve
-     * @param masterDestDir destination directory on master into which to expand the result files.
+     * @param remoteResult remoteResult to retrieve from Agent
      * @throws RemoteException if a remote call fails
      */
     public static void getRemoteResult(final BuildAgentService agent, final File workDir, final String projectName,
-                                       final int remoteResultIdx, final File masterDestDir)
+                                       final RemoteResult remoteResult)
             throws RemoteException {
 
         final String resultsType = PropertiesHelper.RESULT_TYPE_DIR;
 
-        if (agent.remoteResultExists(remoteResultIdx)) {
+        if (agent.remoteResultExists(remoteResult.getIdx())) {
 
-            final byte[] remoteResultBytes = agent.retrieveRemoteResult(remoteResultIdx);
+            final byte[] remoteResultBytes = agent.retrieveRemoteResult(remoteResult.getIdx());
 
-            extractBytesToMaster(workDir, projectName, resultsType, remoteResultBytes, masterDestDir);
+            extractBytesToMaster(workDir, projectName, resultsType, remoteResultBytes, remoteResult.getMasterDir());
         } else {
-            final String message = projectName + ": No results returned for remote result " + resultsType
-                    + ", idx: " + remoteResultIdx;
+            final String message = projectName + ": Nothing returned for remote result: " + remoteResult;
             LOG.info(message);
         }
     }

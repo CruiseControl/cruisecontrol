@@ -317,8 +317,7 @@ public class InteractiveBuildUtility {
             final RemoteResult[] remoteResults = distributedBuildMaster.getRemoteResultsInfo();
             if (remoteResults != null) {
                 for (int i = 0; i < remoteResults.length; i++) {
-                    DistributedMasterBuilder.getRemoteResult(agent, currentDir, "projectInteractive",
-                            remoteResults[i].getIdx(), remoteResults[i].getMasterDir());
+                    DistributedMasterBuilder.getRemoteResult(agent, currentDir, "projectInteractive", remoteResults[i]);
                 }
             }
             agent.clearOutputFiles();
