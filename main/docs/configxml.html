@@ -2070,7 +2070,7 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-      </div>
+        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -2624,7 +2624,7 @@ password=P@ssW0rd!
             </tr>
             </tbody>
         </table>
-      </div>
+        </div>
 
 	  <div class="elementdocumentation">
 				<a class="toplink" href="#top">top</a>
@@ -2962,7 +2962,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>0 .. *</td>
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
             </tr>
-             <tr>
+            <tr>
                 <td><a href="#git">&lt;git&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Checks for changes in a git repository.</td>
@@ -4620,15 +4620,20 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>The version label for the PVCS builder to check against. Example: pvcsVersionLabel="SampleVersionLabel"</td>
             </tr>
             <tr>
+                <td>pvcspromotiongroup</td>
+                <td>No</td>
+                <td>The promotion group for the PVCS builder to check against. Example: pvcspromotiongroup="SampleGroup"</td>
+            </tr>
+            <tr>
                 <td>outdateformat</td>
                 <td>No (defaults to "MMM dd yyyy HH:mm:ss")</td>
                 <td>The format to use to parse the LastModified entry as
-                produced by your pvcs system (See vlog.txt for format)</td>
+                produced by your pvcs system</td>
             </tr>
             <tr>
                 <td>indateformat</td>
-                <td>No (defaults to "MM/dd/yyyy/HH:mm")</td>
-                <td>The format used to parse the lastbuild date.</td>
+                <td>No (defaults to "MM/dd/yyyy hh:mm:ss aa")</td>
+                <td>The format used to format the lastbuild date for pvcs commands.</td>
             </tr>
             <tr>
                 <td>property</td>
@@ -6318,7 +6323,7 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Builds the project using NAnt.</td>
             </tr>
-	        <tr>
+	    <tr>
                 <td><a href="#phing">&lt;phing&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Builds the project using Phing.</td>
@@ -8751,14 +8756,14 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>url</td>
                 <td>Yes</td>
                 <td>The URL to connect to. Must be of the HTTP protocol.</td>
-            </tr>
+                                </tr>
             <tr>
                 <td>requestMethod</td>
                 <td>Yes</td>
                 <td>HTTP request method. POST, GET etc.</td>
             </tr>
-            </tbody>
-        </table>
+                            </tbody>
+                        </table>
 
         <h3>Child Elements</h3>
         <table class="documentation">
@@ -8776,8 +8781,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Sets an HTTP attribute-value parameter. If the request method is GET, the attribute-value pairs are
                     added to the URL string. Otherwise they are included in the message body. This child element is optional and is a
                     <a href="#namedxpathawarechildattributes">Named XPath Aware Child</a>. Look there for attribute details.
-                </td>
-              </tr>
+                    </td>
+                </tr>
             </tbody>
         </table>
         </div>
