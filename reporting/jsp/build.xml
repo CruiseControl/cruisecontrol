@@ -61,8 +61,6 @@
 	<property name="checkstyle.config" value="../../common/checkstyle.xml"/>
     <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.3.jar"/>
 
-    <property name="simian.jar" value="${lib}/simian-2.2.14.jar"/>
-
     <import file="../../common/checkstyle-build.xml"/>
 
     <path id="project.classpath" >
@@ -254,7 +252,7 @@
 
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
 
-    <target name="all" depends="init,compile,-checkstyle,check-duplication,test,war, jsp-precompile"
+    <target name="all" depends="init,compile,-checkstyle,test,war, jsp-precompile"
             description="Performs a build, runs tests, and builds war" />
     <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
 
