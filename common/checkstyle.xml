@@ -119,7 +119,7 @@
         <!-- <module name="ParameterAssignment" />  -->
         <!-- TODO: Review -->
         <module name="ReturnCount">
-            <property name="max" value="6" />
+            <property name="max" value="7" />
         </module>
         <module name="SimplifyBooleanExpression" />
         <module name="SimplifyBooleanReturn" />
@@ -137,7 +137,7 @@
         <module name="HideUtilityClassConstructor" />
         <module name="MutableException" />
         <module name="ThrowsCount">
-            <property name="max" value="4" />
+            <property name="max" value="8" />
         </module>
 
         <!-- Metrics -->
