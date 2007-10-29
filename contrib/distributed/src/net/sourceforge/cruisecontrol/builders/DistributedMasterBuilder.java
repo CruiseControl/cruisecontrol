@@ -286,21 +286,7 @@ public class DistributedMasterBuilder extends Builder {
                     buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps,
                             progressRemote, remoteResults);
                 } finally {
-                    if (exporter != null) {
-                        int count = 0;
-                        while (!exporter.unexport(false) && count < 10) {
-                            LOG.info("Failed to unexport ProgressRemote, retries: " + count);
-                            // wait a bit and try again
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                LOG.error("Interrupted while unexporting ProgressRemote");
-                            }
-                            count++;
-                        }
-                        // force unexport, even if remote calls are pending
-                        exporter.unexport(true);
-                    }
+                    unexportProgressRemote(exporter);
                 }
 
                 final File rootDirCanon;
@@ -340,6 +326,24 @@ public class DistributedMasterBuilder extends Builder {
                 System.err.println(message + " - " + e.getMessage());
             }
             throw new CruiseControlException(message, e);
+        }
+    }
+
+    private void unexportProgressRemote(final Exporter exporter) {
+        if (exporter != null) {
+            int count = 0;
+            while (!exporter.unexport(false) && count < 10) {
+                LOG.info("Failed to unexport ProgressRemote, retries: " + count);
+                // wait a bit and try again
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOG.error("Interrupted while unexporting ProgressRemote");
+                }
+                count++;
+            }
+            // force unexport, even if remote calls are pending
+            exporter.unexport(true);
         }
     }
 

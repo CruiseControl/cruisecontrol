@@ -148,26 +148,7 @@ public class BuildAgentEntryOverrideUI extends JDialog {
 
         atnSave = new AbstractAction("Save") {
             public void actionPerformed(ActionEvent e) {
-                final Properties props = new Properties();
-                String name;
-                String value;
-                for (int i = 0; i < mdlTable.getRowCount(); i++) {
-                    name = (String) mdlTable.getValueAt(i, COL_NAME);
-                    value = (String) mdlTable.getValueAt(i, COL_VALUE);
-                    if (name != null && value != null) {
-                        props.put(name, value);
-                    }
-                }
-                try {
-                    agent.setEntryOverrides(SearchablePropertyEntries.getPropertiesAsEntryArray(props));
-                } catch (RemoteException e1) {
-                    final String msg = "Error saving entry overrides.";
-                    LOG.error(msg, e1);
-                    JOptionPane.showMessageDialog(BuildAgentEntryOverrideUI.this, msg + "\n\n" + e1.getMessage(),
-                            "Error Saving Changes", JOptionPane.ERROR_MESSAGE);
-                    throw new RuntimeException(msg, e1);
-                }
-                atnSave.setEnabled(false);
+                doSave(mdlTable, agent);
             }
         };
         atnSave.setEnabled(false);
@@ -203,6 +184,29 @@ public class BuildAgentEntryOverrideUI extends JDialog {
         pack();
         setLocationRelativeTo(owner);
         setVisible(true);
+    }
+
+    private void doSave(final PropertyTableModel mdlTable, final BuildAgentService agent) {
+        final Properties props = new Properties();
+        String name;
+        String value;
+        for (int i = 0; i < mdlTable.getRowCount(); i++) {
+            name = (String) mdlTable.getValueAt(i, COL_NAME);
+            value = (String) mdlTable.getValueAt(i, COL_VALUE);
+            if (name != null && value != null) {
+                props.put(name, value);
+            }
+        }
+        try {
+            agent.setEntryOverrides(SearchablePropertyEntries.getPropertiesAsEntryArray(props));
+        } catch (RemoteException e1) {
+            final String msg = "Error saving entry overrides.";
+            LOG.error(msg, e1);
+            JOptionPane.showMessageDialog(this, msg + "\n\n" + e1.getMessage(),
+                    "Error Saving Changes", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException(msg, e1);
+        }
+        atnSave.setEnabled(false);
     }
 
     private void doExit() {

@@ -290,31 +290,35 @@ public final class BuildAgentUtility {
             });
             new Thread("BuildAgentUtility refreshAgentList Thread") {
                 public void run() {
-                    try {
-                        final List tmpList = new ArrayList();
-                        final String agentInfoAll = buildAgentUtility.getAgentInfoAll(tmpList);
-                        final ServiceItem[] serviceItems
-                                = (ServiceItem[]) tmpList.toArray(new ServiceItem[tmpList.size()]);
-                        final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
-                                ComboItemWrapper.wrapArray(serviceItems));
-                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
-                            public void run() {
-                                UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
-                                cmbAgents.setModel(comboBoxModel);
-                            }
-                        });
-                        setInfo(agentInfoAll);
-                    } finally {
-                        SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.enable Thread") {
-                            public void run() {
-                                btnRefresh.setEnabled(true);
-                                btnInvokeOnAll.setEnabled(true);
-                                cmbAgents.setEnabled(true);
-                            }
-                        });
-                    }
+                    doRefreshAgentList();
                 }
             } .start();
+        }
+
+        private void doRefreshAgentList() {
+            try {
+                final List tmpList = new ArrayList();
+                final String agentInfoAll = buildAgentUtility.getAgentInfoAll(tmpList);
+                final ServiceItem[] serviceItems
+                        = (ServiceItem[]) tmpList.toArray(new ServiceItem[tmpList.size()]);
+                final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
+                        ComboItemWrapper.wrapArray(serviceItems));
+                SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
+                    public void run() {
+                        UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
+                        cmbAgents.setModel(comboBoxModel);
+                    }
+                });
+                setInfo(agentInfoAll);
+            } finally {
+                SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.enable Thread") {
+                    public void run() {
+                        btnRefresh.setEnabled(true);
+                        btnInvokeOnAll.setEnabled(true);
+                        cmbAgents.setEnabled(true);
+                    }
+                });
+            }
         }
 
         private void exitForm() {
