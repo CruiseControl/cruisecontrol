@@ -93,25 +93,7 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
         atnEditEntries = new AbstractAction("Entries") {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    final BuildAgentService agentService = buildAgent.getService();
-                    final BuildAgentEntryOverrideUI ui
-                            = new BuildAgentEntryOverrideUI(BuildAgentUI.this, agentService,
-                                    agentService.getMachineName() + ": " + buildAgent.getServiceID());
-
-                    ui.addWindowListener(new WindowAdapter() {
-                        public void windowClosing(final WindowEvent evt) {
-                            atnEditEntries.setEnabled(true);
-                        }
-                    });
-
-                    atnEditEntries.setEnabled(false);
-                } catch (RemoteException e1) {
-                    final String msg = "An error occurred while editing entry overrides: ";
-                    LOG.error(msg, e1);
-                    JOptionPane.showMessageDialog(BuildAgentUI.this, msg + e1.getMessage(),
-                            "Error Editing Entry Overrides", JOptionPane.ERROR_MESSAGE);
-                }
+                doEditEntries();
             }
         };
         final JButton btnEntries = new JButton(atnEditEntries);
@@ -129,6 +111,28 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         PreferencesHelper.applyWindowInfo(this);
 
         setVisible(true);
+    }
+
+    private void doEditEntries() {
+        try {
+            final BuildAgentService agentService = buildAgent.getService();
+            final BuildAgentEntryOverrideUI ui
+                    = new BuildAgentEntryOverrideUI(this, agentService,
+                            agentService.getMachineName() + ": " + buildAgent.getServiceID());
+
+            ui.addWindowListener(new WindowAdapter() {
+                public void windowClosing(final WindowEvent evt) {
+                    atnEditEntries.setEnabled(true);
+                }
+            });
+
+            atnEditEntries.setEnabled(false);
+        } catch (RemoteException e1) {
+            final String msg = "An error occurred while editing entry overrides: ";
+            LOG.error(msg, e1);
+            JOptionPane.showMessageDialog(BuildAgentUI.this, msg + e1.getMessage(),
+                    "Error Editing Entry Overrides", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 
@@ -168,26 +172,30 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         // it's also good to wait a bit for the agent info to be updated...
         new Thread("AgentUI updateAgentInfoUI-data") {
             public void run() {
-                String agentInfo = "";
-                if (buildAgentService != null) {
-                    try {
-                        agentInfo = buildAgentService.asString();
-                    } catch (RemoteException e) {
-                        agentInfo = e.getMessage();
-                    }
-                }
-                final String agentText = "Build Agent: " + buildAgent.getServiceID() + "\n"
-                        + agentInfo
-                        + MulticastDiscovery.toStringEntries(buildAgent.getEntries());
-
-                // only update UI on event dispatch thread,
-                SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
-                        public void run() {
-                            txaAgentInfo.setText(agentText);
-                        }
-                });
+                doUpdateAgentInfoUI(buildAgentService);
             }
         } .start();
+    }
+
+    private void doUpdateAgentInfoUI(final BuildAgentService buildAgentService) {
+        String agentInfo = "";
+        if (buildAgentService != null) {
+            try {
+                agentInfo = buildAgentService.asString();
+            } catch (RemoteException e) {
+                agentInfo = e.getMessage();
+            }
+        }
+        final String agentText = "Build Agent: " + buildAgent.getServiceID() + "\n"
+                + agentInfo
+                + MulticastDiscovery.toStringEntries(buildAgent.getEntries());
+
+        // only update UI on event dispatch thread,
+        SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
+                public void run() {
+                    txaAgentInfo.setText(agentText);
+                }
+        });
     }
 
 

@@ -1012,41 +1012,49 @@ public class BuildAgentServiceImplTest extends TestCase {
     
     private static final String MSG_BUILDER_VALIDATE_FAIL = "Unit Test forced builder.validate() failure.";
 
-    private static MockBuilder createMockBuilder(final boolean isValidateFailure, final RemoteResult[] remoteResults) {
+    private static class CCDistMockChildBuilder extends MockBuilder {
+        final boolean isValidateFailure;
+        final RemoteResult[] remoteResults;
 
-        return new MockBuilder("testCCDistMockChildBuilder") {
+        public CCDistMockChildBuilder(final boolean isValidateFailure, final RemoteResult[] remoteResults) {
+            super("testCCDistMockChildBuilder");
+            this.isValidateFailure = isValidateFailure;
+            this.remoteResults = remoteResults;
+        }
 
-            public void validate() throws CruiseControlException {
-                super.validate();
-                if (isValidateFailure) {
-                    throw new CruiseControlException(MSG_BUILDER_VALIDATE_FAIL);
-                }
+        public void validate() throws CruiseControlException {
+            super.validate();
+            if (isValidateFailure) {
+                throw new CruiseControlException(MSG_BUILDER_VALIDATE_FAIL);
             }
+        }
 
-            public Element build(Map properties, Progress progress) {
-                final String projectName = (String) properties.get(PropertiesHelper.PROJECT_NAME);
+        public Element build(Map properties, Progress progress) {
+            final String projectName = (String) properties.get(PropertiesHelper.PROJECT_NAME);
 
-                final boolean isBuildFailure = TEST_PROJECT_FAIL.equals(projectName);
+            final boolean isBuildFailure = TEST_PROJECT_FAIL.equals(projectName);
 
-                final Element retVal = super.build(properties, progress);
+            final Element retVal = super.build(properties, progress);
 
-                // create a file in the expected dirs
-                createExpectedBuildArtifact(new File("logs/" + projectName + "/TEST-bogustestclassSuccess.xml"));
-                if (!isBuildFailure) {
-                    createExpectedBuildArtifact(new File("output/" + projectName + "/testoutputSuccess"));
+            // create a file in the expected dirs
+            createExpectedBuildArtifact(new File("logs/" + projectName + "/TEST-bogustestclassSuccess.xml"));
+            if (!isBuildFailure) {
+                createExpectedBuildArtifact(new File("output/" + projectName + "/testoutputSuccess"));
 
-                    for (int i = 0; i < remoteResults.length; i++) {
-                        // skip artifact creation for empty RemoteResult test
-                        if (!REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].equals(remoteResults[i])) {
-                            createExpectedBuildArtifact(
-                                    new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
-                        }
+                for (int i = 0; i < remoteResults.length; i++) {
+                    // skip artifact creation for empty RemoteResult test
+                    if (!REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].equals(remoteResults[i])) {
+                        createExpectedBuildArtifact(
+                                new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
                     }
                 }
-
-                return retVal;
             }
-        };
+
+            return retVal;
+        }
+    }
+    private static MockBuilder createMockBuilder(final boolean isValidateFailure, final RemoteResult[] remoteResults) {
+        return new CCDistMockChildBuilder(isValidateFailure, remoteResults);
     }
 
     private static void createExpectedBuildArtifact(File buildProducedFile) {

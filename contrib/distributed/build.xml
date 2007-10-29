@@ -89,8 +89,6 @@
     <property name="checkstyle.config" value="${basedir}/../../common/checkstyle.xml"/>
     <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-4.3.jar" />
 
-    <property name="simian.jar" value="${dir.main.lib}/simian-2.2.14.jar"/>
-
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
 
@@ -192,7 +190,7 @@
         <ant antfile="${dir.main}/build.xml" dir="${dir.main}" target="jar" inheritAll="false"/>
     </target>
 
-    <target name="build" depends="buildMainIfMissing, clean, compile-test, checkstyle, check-duplication, test, jar, validate-html"/>
+    <target name="build" depends="buildMainIfMissing, clean, compile-test, checkstyle, test, jar, validate-html"/>
 
     <target name="jar" depends="compile, jar-masterbuilder, jar-agent, zip-agent, jar-util"/>
 
@@ -435,14 +433,6 @@
             </report>
         </emma>
         <echo message="View EMMA's HTML report at ${emma.html.report}" />
-    </target>
-
-    <target name="check-duplication" description="Check for duplicated code">
-        <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
-        <!-- Switch this to true with a threshold once we deal with current duplication -->
-        <simian failOnDuplication="false">
-            <fileset dir="${src}" includes="**/*.java" />
-        </simian>
     </target>
 
     <target name="validate-html">
