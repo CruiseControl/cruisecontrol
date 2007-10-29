@@ -328,9 +328,11 @@ public class Project implements Serializable, Runnable {
     void waitForNextBuild() throws InterruptedException {
         long waitTime = getTimeToNextBuild(new Date());
         if (needToWaitForNextBuild(waitTime) && !buildForced) {
-            info("next build in " + DateUtil.formatTime(waitTime));
+            final String msg = "next build in " + DateUtil.formatTime(waitTime);
+            info(msg);
             synchronized (waitMutex) {
                 setState(ProjectState.WAITING);
+                progress.setValue(msg);
                 waitMutex.wait(waitTime);
             }
         }
