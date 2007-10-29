@@ -77,7 +77,7 @@ reporting
 ======================
 
 * Fix "Building (since)" time on build summary page to show start of build time (instead of last progress message update time). Fix suggested by EJ Ciramella.
-* Show progress message as tooltip over Status cells on build summary page.
+* Show progress message as tooltip over Status cells on build summary page while building. Also show time until next build while waiting.
 
 
 CruiseControl Release Notes - 2.7.1
