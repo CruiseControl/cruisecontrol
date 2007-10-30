@@ -60,7 +60,6 @@ import javax.management.QueryExp;
 import javax.management.ReflectionException;
 
 public class MBeanServerErrorConnectionStub implements MBeanServerConnection {
-    private String buildStatus = "waiting for next time to build";
 
     public static final String ERROR_MESSAGE = "Failed to find error message";
 
@@ -69,8 +68,7 @@ public class MBeanServerErrorConnectionStub implements MBeanServerConnection {
     }
 
     public Object invoke(ObjectName objName, String cmd, Object[] params, String[] signatures) {
-        buildStatus = "now building since 20070420211341";
-        return buildStatus;
+        return "now building since 20070420211341";
     }
 
     public void addNotificationListener(ObjectName name, NotificationListener listener,
@@ -86,14 +84,14 @@ public class MBeanServerErrorConnectionStub implements MBeanServerConnection {
     }
 
     public ObjectInstance createMBean(String className, ObjectName name)
-            throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            throws ReflectionException, InstanceAlreadyExistsException,
             MBeanException, NotCompliantMBeanException, IOException {
 
         return null;
     }
 
     public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName)
-            throws ReflectionException, InstanceAlreadyExistsException, MBeanRegistrationException,
+            throws ReflectionException, InstanceAlreadyExistsException,
             MBeanException, NotCompliantMBeanException, InstanceNotFoundException, IOException {
 
         return null;
@@ -101,14 +99,14 @@ public class MBeanServerErrorConnectionStub implements MBeanServerConnection {
 
     public ObjectInstance createMBean(String className, ObjectName name, Object[] params,
             String[] signature) throws ReflectionException, InstanceAlreadyExistsException,
-            MBeanRegistrationException, MBeanException, NotCompliantMBeanException, IOException {
+            MBeanException, NotCompliantMBeanException, IOException {
 
         return null;
     }
 
     public ObjectInstance createMBean(String className, ObjectName name, ObjectName loaderName,
             Object[] params, String[] signature) throws ReflectionException,
-            InstanceAlreadyExistsException, MBeanRegistrationException, MBeanException,
+            InstanceAlreadyExistsException, MBeanException,
             NotCompliantMBeanException, InstanceNotFoundException, IOException {
 
         return null;

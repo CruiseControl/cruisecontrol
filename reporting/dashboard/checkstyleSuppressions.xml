@@ -5,4 +5,7 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 
 <suppressions>
+    <!-- added to work with checkstyle duplication rule changes, should probably find a better solution. -->
+    <suppress checks="StrictDuplicateCode" files="MBeanServerErrorConnectionStub.java"/>
+
 </suppressions>
