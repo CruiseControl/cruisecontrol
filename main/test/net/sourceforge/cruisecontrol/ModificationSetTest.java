@@ -41,6 +41,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -65,6 +66,7 @@ public class ModificationSetTest extends TestCase {
             return value;
         }
     }
+
     private final MockProgress mockProgress = new MockProgress();
 
     private ModificationSet modSet;
@@ -72,10 +74,6 @@ public class ModificationSetTest extends TestCase {
     protected void setUp() throws Exception {
         modSet = new ModificationSet();
         modSet.setQuietPeriod(0);
-    }
-
-    protected void tearDown() throws Exception {
-        modSet = null;
     }
 
     public void testIsLastModificationInQuietPeriod() throws ParseException {
@@ -149,8 +147,8 @@ public class ModificationSetTest extends TestCase {
      * @deprecated Tests deprecated method, remove when method is removed.
      */
     public void testProgressNull() throws Exception {
-        //@todo Tests deprecated method, remove when method is removed.
-        
+        // @todo Tests deprecated method, remove when method is removed.
+
         final Date now = new Date();
 
         final MockSourceControl mock1 = new MockSourceControl();
@@ -201,7 +199,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-                                //mock source controls don't care about the date
+        // mock source controls don't care about the date
         final Element modSetResults = modSet.getModifications(new Date(), mockProgress);
 
         DateFormat formatter = DateFormatFactory.getDateFormat();
@@ -218,15 +216,33 @@ public class ModificationSetTest extends TestCase {
         }
 
         XMLOutputter outputter = new XMLOutputter();
-        assertEquals("XML data differ",
-                outputter.outputString(modificationsElement),
-                outputter.outputString(modSetResults));
+        assertEquals("XML data differ", outputter.outputString(modificationsElement), outputter
+                .outputString(modSetResults));
+    }
+
+    public void testGetModificationsWillSetTimeOfCheckBasedOnSourceControlNotCurrentDateTime() throws Exception {
+        Calendar calendar = Calendar.getInstance();
+        Date now = calendar.getTime();
+
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
+        Date modified = calendar.getTime();
+
+        assertFalse(now.equals(modified));
+
+        MockSourceControl sourceControl = new MockSourceControl();
+        sourceControl.setType(1);
+        sourceControl.setModifiedDate(modified);
+
+        modSet.add(sourceControl);
+        modSet.getModifications(now, mockProgress);
+
+        assertEquals(modified, modSet.getTimeOfCheck());
     }
 
     /**
-     * This test will give modificationset two different types of
-     * modifications. One regular, based on the object, and one with Element data.
-     * Uses inline sourcecontrol implementation instead of mock.
+     * This test will give modificationset two different types of modifications.
+     * One regular, based on the object, and one with Element data. Uses inline
+     * sourcecontrol implementation instead of mock.
      */
     public void testGetMixedModifications() throws ParseException {
         DateFormat formatter = DateFormatFactory.getDateFormat();
@@ -279,7 +295,10 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); // mock source
+        // controls don't
+        // care about the
+        // date
 
         Hashtable table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -297,7 +316,10 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); // mock source
+        // controls don't
+        // care about the
+        // date
 
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
@@ -312,7 +334,10 @@ public class ModificationSetTest extends TestCase {
         mock1.setProperty("property");
 
         modSet.add(mock1);
-        modSet.getModifications(new Date(), mockProgress); //mock source controls don't care about the date
+        modSet.getModifications(new Date(), mockProgress); // mock source
+        // controls don't
+        // care about the
+        // date
         table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
         assertEquals("Properties should should have 1 entry.", 1, table.size());
@@ -340,23 +365,13 @@ public class ModificationSetTest extends TestCase {
         }
     }
 
-    /**
-     * @deprecated
-     */
-    public void testSetRequireModification() {
-        modSet.getModifications(new Date(), mockProgress);
-        assertFalse(modSet.isModified());
-        modSet.setRequireModification(false);
-        assertTrue(modSet.isModified());
-    }
-
     public void testSetIgnoreFiles() {
 
         final String correctPattern = "*.txt,dir1/*/file*.txt";
         try {
             modSet.setIgnoreFiles(correctPattern);
         } catch (CruiseControlException e) {
-            fail ("Exception while setting pattern");
+            fail("Exception while setting pattern");
         }
 
         final List globPatterns = modSet.getIgnoreFiles();
@@ -393,18 +408,18 @@ public class ModificationSetTest extends TestCase {
         modifications.add(mod3);
 
         modSet.filterIgnoredModifications(modifications);
-        assertEquals ("No modification should have been filtered out", 3, modifications.size());
+        assertEquals("No modification should have been filtered out", 3, modifications.size());
 
         // Now set a filter
         modSet.setIgnoreFiles("dir2/file3,di?1/f*3");
         modSet.filterIgnoredModifications(modifications);
-        assertEquals ("No modification have been filtered out", 2, modifications.size());
+        assertEquals("No modification have been filtered out", 2, modifications.size());
 
         final List expectedModifications = new ArrayList();
         expectedModifications.add(mod1);
         expectedModifications.add(mod2);
 
-        assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
+        assertEquals("The wrong modification has been filtered out", expectedModifications, modifications);
     }
 
     public void testFilterIgnoredFilesInMultipleSubdirectories() throws CruiseControlException, ParseException {
@@ -438,11 +453,10 @@ public class ModificationSetTest extends TestCase {
         // Now set a filter
         modSet.setIgnoreFiles("*/file1");
         modSet.filterIgnoredModifications(modifications);
-        assertEquals (1, modifications.size());
+        assertEquals(1, modifications.size());
 
         assertEquals(mod3, modifications.get(0));
     }
-
 
     /**
      * Tests ignoring files when multiple files exist in the modification sets.
@@ -479,12 +493,12 @@ public class ModificationSetTest extends TestCase {
 
         modSet.setIgnoreFiles("dir1/ignore*");
         modSet.filterIgnoredModifications(modifications);
-        assertEquals ("Incorrect number of modifications were filtered out", 2, modifications.size());
+        assertEquals("Incorrect number of modifications were filtered out", 2, modifications.size());
 
         final List expectedModifications = new ArrayList();
         expectedModifications.add(mod2);
         expectedModifications.add(mod3);
 
-        assertEquals ("The wrong modification has been filtered out", expectedModifications, modifications);
+        assertEquals("The wrong modification has been filtered out", expectedModifications, modifications);
     }
 }

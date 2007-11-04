@@ -63,6 +63,7 @@ Mercurial Source Control & Bootstrapper
 ModificationSet
 ----------------------
 * Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
+* Update timeOfCheck to reflect latest date from Modifications to handle synchronisation differences between the build server and the source control repository (CC-544). Reported by Eric Melin. Patch by Brian Sperlongano.
 
 PVCS
 ----------------------
