@@ -42,7 +42,7 @@ public class SVNLabelIncrementer implements LabelIncrementer {
             }
             result = labelPrefix + getSeparator() + revisionNumber;
 
-            if (oldLabel.contains(result)) {
+            if (oldLabel.indexOf(result) > -1) {
                 int lastSeparator = oldLabel.lastIndexOf(getSeparator());
                 int firstSeparator = oldLabel.indexOf(getSeparator());
                 int lastPart = 1;
