@@ -46,10 +46,9 @@ import org.apache.log4j.Logger;
 import java.io.File;
 
 /**
- * The SVNBootstrapper will handle updating a single file from Subversion
- * before the build begins.
+ * The SVNBootstrapper will handle updating a single file from Subversion before the build begins.
  *
- * @see    <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
+ * @see <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
  * @author <a href="etienne.studer@canoo.com">Etienne Studer</a>
  */
 public class SVNBootstrapper implements Bootstrapper {
@@ -62,7 +61,8 @@ public class SVNBootstrapper implements Bootstrapper {
     private String password;
 
     /**
-     * @param fileName the file to update from the Subversion repository.
+     * @param fileName
+     *            the file to update from the Subversion repository.
      */
     public void setFile(String fileName) {
         this.fileName = fileName;
@@ -71,60 +71,55 @@ public class SVNBootstrapper implements Bootstrapper {
     /**
      * Sets the local working copy to use when making calls to Subversion.
      *
-     * @param localWorkingCopy  String indicating the relative or absolute path
-     *                          to the local working copy of the Subversion
-     *                          repository on which to execute the update command.
+     * @param localWorkingCopy
+     *            String indicating the relative or absolute path to the local working copy of the Subversion repository
+     *            on which to execute the update command.
      */
     public void setLocalWorkingCopy(String localWorkingCopy) {
         this.localWorkingCopy = localWorkingCopy;
     }
 
     /**
-     * @param userName the username for authentication.
+     * @param userName
+     *            the username for authentication.
      */
     public void setUsername(String userName) {
         this.userName = userName;
     }
 
     /**
-     * @param password the password for authentication.
+     * @param password
+     *            the password for authentication.
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
     /**
-     * This method validates that at least the filename or the local working
-     * copy location has been specified.
+     * This method validates that at least the filename or the local working copy location has been specified.
      *
-     * @throws CruiseControlException  Thrown when the repository location and
-     *                                 the local working copy location are both
-     *                                 null
+     * @throws CruiseControlException
+     *             Thrown when the repository location and the local working copy location are both null
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(fileName != null || localWorkingCopy != null,
-            "At least 'filename' or 'localWorkingCopy' is a "
-                    + "required attribute on the Subversion bootstrapper task");
+                "At least 'filename' or 'localWorkingCopy' is a "
+                        + "required attribute on the Subversion bootstrapper task");
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
             ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
-                "'localWorkingCopy' must be an existing directory. Was"
-                + workingDir.getAbsolutePath());
+                    "'localWorkingCopy' must be an existing directory. Was" + workingDir.getAbsolutePath());
         }
     }
 
     /**
      * Update the specified file from the subversion repository.
+     *
      * @throws CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
-        try {
-            Commandline commandLine = buildUpdateCommand();
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing svn update command", e);
-        }
+        buildUpdateCommand().executeAndWait(LOG);
     }
 
     /**
@@ -133,8 +128,10 @@ public class SVNBootstrapper implements Bootstrapper {
      * For example:
      *
      * 'svn update --non-interactive filename'
+     *
      * @return the command line for the svn update command
-     * @throws CruiseControlException if the working directory is not valid.
+     * @throws CruiseControlException
+     *             if the working directory is not valid.
      */
     Commandline buildUpdateCommand() throws CruiseControlException {
         Commandline command = new Commandline();

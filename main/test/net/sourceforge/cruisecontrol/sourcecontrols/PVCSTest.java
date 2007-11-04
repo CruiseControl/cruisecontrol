@@ -4,11 +4,11 @@
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  *     + Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *
@@ -67,10 +67,6 @@ public class PVCSTest extends TestCase {
         pvcs = new PVCS();
     }
 
-    public void tearDown() {
-        pvcs = null;
-    }
-
     public void testValidate() {
         try {
             pvcs.validate();
@@ -95,8 +91,8 @@ public class PVCSTest extends TestCase {
         assertEquals("Wrong pvcs bin setting w/out bin set.", testExe, pvcs.getExecutable(testExe));
 
         pvcs.setPvcsbin("mybindir");
-        assertEquals("Wrong pvcs bin setting w/ bin set.", "mybindir" + File.separator + testExe,
-                pvcs.getExecutable(testExe));
+        assertEquals("Wrong pvcs bin setting w/ bin set.", "mybindir" + File.separator + testExe, pvcs
+                .getExecutable(testExe));
     }
 
     public void testBuildExecCommandWithVersionLabel() {
@@ -119,8 +115,8 @@ public class PVCSTest extends TestCase {
 
         Commandline ccCommand = pvcs.buildExecCommand("11/23/2004 08:00AM", "11/23/2004 01:00PM");
         String expectedCommand = pvcs.getExecutable("pcli") + " " + "run -ns -q vlog "
-                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" "
-                + "-prC:/PVCS-Repos/TestProject/pvcs " + "-z /TestProject";
+                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" " + "-prC:/PVCS-Repos/TestProject/pvcs "
+                + "-z /TestProject";
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toString());
     }
 
@@ -130,8 +126,8 @@ public class PVCSTest extends TestCase {
 
         Commandline ccCommand = pvcs.buildExecCommand("11/23/2004 08:00AM", "11/23/2004 01:00PM");
         String expectedCommand = pvcs.getExecutable("pcli") + " " + "run -ns -q vlog "
-                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" "
-                + "-prC:/PVCS-Repos/TestProject/pvcs " + "-z /TestProject";
+                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" " + "-prC:/PVCS-Repos/TestProject/pvcs "
+                + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toString());
     }
@@ -142,8 +138,8 @@ public class PVCSTest extends TestCase {
 
         Commandline ccCommand = pvcs.buildExecCommand("11/23/2004 08:00AM", "11/23/2004 01:00PM");
         String expectedCommand = pvcs.getExecutable("pcli") + " " + "run -ns -q vlog "
-                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" "
-                + "-prC:/PVCS-Repos/TestProject/pvcs " + "-z /TestProject";
+                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" " + "-prC:/PVCS-Repos/TestProject/pvcs "
+                + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toString());
     }
@@ -155,8 +151,8 @@ public class PVCSTest extends TestCase {
 
         Commandline ccCommand = pvcs.buildExecCommand("11/23/2004 08:00AM", "11/23/2004 01:00PM");
         String expectedCommand = pvcs.getExecutable("pcli") + " " + "run -ns -q vlog "
-                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" "
-                + "\"-prC:/PVCS-Repos/Test Project/pvcs\" " + "-z /TestProject";
+                + "\"-ds11/23/2004 08:00AM\" \"-de11/23/2004 01:00PM\" " + "\"-prC:/PVCS-Repos/Test Project/pvcs\" "
+                + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toString());
     }
@@ -169,8 +165,7 @@ public class PVCSTest extends TestCase {
         Commandline ccCommand = pvcs.buildExecCommand("11/23/2004 08:00AM", "11/23/2004 01:00PM");
         String expectedCommand = pvcs.getExecutable("pcli") + " " + "run -ns -q vlog "
                 + "-idTestUser \"-ds11/23/2004 08:00AM\" "
-                + "\"-de11/23/2004 01:00PM\" -prC:/PVCS-Repos/TestProject/pvcs "
-                + "-z /TestProject";
+                + "\"-de11/23/2004 01:00PM\" -prC:/PVCS-Repos/TestProject/pvcs " + "-z /TestProject";
 
         assertEquals("Wrong PVCS command generated!", expectedCommand, ccCommand.toString());
     }
@@ -179,13 +174,13 @@ public class PVCSTest extends TestCase {
         Calendar cal = Calendar.getInstance();
         cal.set(2004, 11, 23);
         Date date = cal.getTime();
-        PvcsStreamConsumer consumer = new PvcsStreamConsumer(date, new SimpleDateFormat(
-                "MMM dd yyyy HH:mm:ss"), "Services", "-arc");
+        PvcsStreamConsumer consumer = new PvcsStreamConsumer(date, new SimpleDateFormat("MMM dd yyyy HH:mm:ss"),
+                "Services", "-arc");
 
         BufferedReader brIn;
         try {
-            brIn = new BufferedReader(new FileReader(new File(new URI(getClass().getResource(
-                    "vlog.txt").toExternalForm()))));
+            brIn = new BufferedReader(new FileReader(new File(new URI(getClass().getResource("vlog.txt")
+                    .toExternalForm()))));
             String line;
             while ((line = brIn.readLine()) != null) {
                 consumer.consumeLine(line);
@@ -200,21 +195,19 @@ public class PVCSTest extends TestCase {
         Modification mod1 = (Modification) mods.get(0);
         assertEquals("Initial revision", mod1.comment);
         Modification mod2 = (Modification) mods.get(1);
-        assertEquals("Add code for " + System.getProperty("line.separator") + "Sections",
-                mod2.comment);
+        assertEquals("Add code for " + System.getProperty("line.separator") + "Sections", mod2.comment);
 
     }
 
     public void testProperty() throws IOException, InterruptedException {
         pvcs = new PVCS() {
-            protected void executeCommandline(Commandline command, PvcsStreamConsumer consumer)
-                    throws IOException, InterruptedException {
+            protected void executeCommandline(Commandline command, PvcsStreamConsumer consumer) {
                 // do nothing
             }
         };
         Date lastBuild = new Date();
-        PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, new SimpleDateFormat(
-                "MMM dd yyyy HH:mm:ss"), "C:/PVCS-Repos/TestProject/pvcs", "-arc") {
+        PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, new SimpleDateFormat("MMM dd yyyy HH:mm:ss"),
+                "C:/PVCS-Repos/TestProject/pvcs", "-arc") {
             public List getModificationList() {
                 List mods = new ArrayList();
                 mods.add("modification");

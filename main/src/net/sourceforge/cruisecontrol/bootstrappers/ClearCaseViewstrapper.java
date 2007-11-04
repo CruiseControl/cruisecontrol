@@ -86,23 +86,13 @@ public class ClearCaseViewstrapper implements Bootstrapper {
      * start the specified view and VOBs.
      */
     public void bootstrap() throws CruiseControlException {
-        Commandline commandLine = buildStartViewCommand();
-        try {
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing ClearCase startview command", e);
-        }
+        buildStartViewCommand().executeAndWait(LOG);
 
         // have we got some VOBs to mount
         if (voblist != null) {
             String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
-                commandLine = buildMountVOBCommand(vobs[i]);
-                try {
-                    commandLine.executeAndWait(LOG);
-                } catch (Exception e) {
-                    throw new CruiseControlException("Error executing ClearCase mount command", e);
-                }
+                buildMountVOBCommand(vobs[i]).executeAndWait(LOG);
             }
         }
     }

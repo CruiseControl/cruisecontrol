@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -60,7 +59,7 @@ import org.apache.log4j.Logger;
 
 /**
  * This class implements the SourceControlElement methods for a PVCS repository.
- * 
+ *
  * @author <a href="mailto:Richard.Wagner@alltel.com">Richard Wagner </a>
  * @version $Id$
  */
@@ -84,8 +83,7 @@ public class PVCS implements SourceControl {
         private final StringBuffer string = new StringBuffer();
         private boolean waitingForNextValidStart = false;
 
-        public PvcsStreamConsumer(final Date lastBuild, DateFormat format, final String proj,
-                String suffix) {
+        public PvcsStreamConsumer(final Date lastBuild, DateFormat format, final String proj, String suffix) {
             super();
             this.proj = proj;
             this.lastBuild = lastBuild;
@@ -121,9 +119,9 @@ public class PVCS implements SourceControl {
                 // we're in this state after we've got the last useful line
                 // from the previous item, but haven't yet started a new one
                 // -- we should just skip these lines till we start a new one
-                //return
-                //            } else if (line.startsWith("Workfile:")) {
-                //                modification.createModifiedFile(line.substring(18), null);
+                // return
+                // } else if (line.startsWith("Workfile:")) {
+                // modification.createModifiedFile(line.substring(18), null);
             } else if (line.startsWith("Archive created:")) {
                 try {
                     String createdDate = line.substring(18);
@@ -176,10 +174,9 @@ public class PVCS implements SourceControl {
                 if (modification.comment == null || modification.comment.length() == 0) {
                     modification.comment = line;
                 } else if (!isEndOfCommentsLine) {
-                    modification.comment = modification.comment
-                            + System.getProperty("line.separator") + line;
+                    modification.comment = modification.comment + System.getProperty("line.separator") + line;
                 } else {
-                    //  then set indicator to ignore future lines till next new
+                    // then set indicator to ignore future lines till next new
                     // item
                     modificationList.add(modification);
                     waitingForNextValidStart = true;
@@ -242,15 +239,14 @@ public class PVCS implements SourceControl {
     private String pvcsVersionLabel;
 
     /**
-     * Returns the command to be ran to check for repository changes run -ns -q
-     * vlog -idSomeUser "-ds11/23/2004 08:00:00 AM" "-de11/23/2004 01:00:00 PM"
-     * "-prC:/PVCS-Repos/TestProject" "-vTest Version Label" -z /TestProject
-     * 
+     * Returns the command to be ran to check for repository changes run -ns -q vlog -idSomeUser "-ds11/23/2004 08:00:00
+     * AM" "-de11/23/2004 01:00:00 PM" "-prC:/PVCS-Repos/TestProject" "-vTest Version Label" -z /TestProject
+     *
      * @return the command to be executed to check for repository changes
      */
     Commandline buildExecCommand(String lastBuild, String now) {
         Commandline command = new Commandline();
-        //command.useSafeQuoting(false);
+        // command.useSafeQuoting(false);
         command.setExecutable(getExecutable(PCLI));
         command.createArgument("run");
         command.createArgument("-ns");
@@ -278,8 +274,7 @@ public class PVCS implements SourceControl {
         return command;
     }
 
-    protected void executeCommandline(Commandline command, PvcsStreamConsumer consumer)
-            throws IOException, InterruptedException {
+    protected void executeCommandline(Commandline command, PvcsStreamConsumer consumer) throws CruiseControlException {
         LOG.info("Running command: " + command);
         CommandExecutor executor = new CommandExecutor(command, LOG);
         executor.setOutputConsumer(consumer);
@@ -307,22 +302,22 @@ public class PVCS implements SourceControl {
     }
 
     /**
-     * Returns an {@link java.util.List List}of {@link Modification}s
-     * detailing all the changes between now and the last build.
-     * 
-     * @param lastBuild the last build time
-     * @param now time now, or time to check
-     * @return the list of modifications, an empty (not null) list if no
-     *         modifications or if developer had checked in files since
-     *         quietPeriod seconds ago.
-     * 
-     * Note: Internally uses external filesystem for files
-     * CruiseControlPVCS.pcli, files.tmp, vlog.txt
+     * Returns an {@link java.util.List List}of {@link Modification}s detailing all the changes between now and the
+     * last build.
+     *
+     * @param lastBuild
+     *            the last build time
+     * @param now
+     *            time now, or time to check
+     * @return the list of modifications, an empty (not null) list if no modifications or if developer had checked in
+     *         files since quietPeriod seconds ago.
+     *
+     * Note: Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
      */
     public List getModifications(Date lastBuild, Date now) {
 
-        PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, this.outDateFormat,
-                pvcsProject, this.archiveFileSuffix);
+        PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, this.outDateFormat, pvcsProject,
+                this.archiveFileSuffix);
         List modificationList = getModifications(lastBuild, now, consumer);
 
         return modificationList;
@@ -361,7 +356,7 @@ public class PVCS implements SourceControl {
 
     /**
      * Get name of the PVCS bin directory
-     * 
+     *
      * @return String
      */
     public String getPvcsbin() {
@@ -393,8 +388,9 @@ public class PVCS implements SourceControl {
 
     /**
      * Specifies the location of the PVCS bin directory
-     * 
-     * @param bin Specifies the location of the PVCS bin directory
+     *
+     * @param bin
+     *            Specifies the location of the PVCS bin directory
      */
     public void setPvcsbin(String bin) {
         this.pvcsbin = bin;

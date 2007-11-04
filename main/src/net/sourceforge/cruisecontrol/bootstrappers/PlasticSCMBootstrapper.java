@@ -46,8 +46,8 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 
 /**
- * Simply updates the current workspace. Accepts specify branch/repository for
- * the update operation. Do the update forced is an option (false by default).
+ * Simply updates the current workspace. Accepts specify branch/repository for the update operation. Do the update
+ * forced is an option (false by default).
  *
  * @author <a href="mailto:rdealba@codicesoftware.com">Ruben de Alba</a>
  */
@@ -65,18 +65,19 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
      * Selects a workspace
      *
      * @param wkspath
-     *          the path of the workspace to work in, in the local filesystem
+     *            the path of the workspace to work in, in the local filesystem
      */
     public void setWkspath(String wkspath) {
         this.wkspath = wkspath;
     }
+
     /**
      * Selects a branch
      *
      * @param branch
-     *          the branch from which to get the source.
+     *            the branch from which to get the source.
      */
-    public void setBranch (String branch) {
+    public void setBranch(String branch) {
         this.branch = branch;
     }
 
@@ -84,13 +85,13 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
      * Selects a repository
      *
      * @param repository
-     *          the repository from which to get the source
-     */    
+     *            the repository from which to get the source
+     */
     public void setRepository(String repository) {
         this.repository = repository;
     }
-    
-    public void setPathtoupdate (String pathtoupdate) {
+
+    public void setPathtoupdate(String pathtoupdate) {
         this.pathtoupdate = pathtoupdate;
     }
 
@@ -98,47 +99,39 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
      * Enables/disables the forced update
      *
      * @param forced
-     *          if true, "cm update" is run whith the "--forced" option
+     *            if true, "cm update" is run whith the "--forced" option
      */
-    public void setForced (boolean forced) {
+    public void setForced(boolean forced) {
         this.forced = forced;
-    } 
-    
+    }
+
     /**
      * Update the workspace.
      */
     public void bootstrap() throws CruiseControlException {
-        Commandline commandLine;
-
-        try {
-            if (branch != null) {
-                commandLine = buildSwitchToBranchCommand();
-                commandLine.executeAndWait(LOG); 
-            }      
-            commandLine = buildUpdateCommand();
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error updating PlasticSCM workspace", e);
+        if (branch != null) {
+            buildSwitchToBranchCommand().executeAndWait(LOG);
         }
+
+        buildUpdateCommand().executeAndWait(LOG);
     }
 
     /**
      * Validate the attributes.
      */
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet (wkspath, "wkspath", this.getClass());
+        ValidationHelper.assertIsSet(wkspath, "wkspath", this.getClass());
 
         File workingDir = new File(wkspath);
-        ValidationHelper.assertTrue(workingDir.exists(),
-                    "'wkspath' must be an existing directory. Was <" + wkspath + ">");
+        ValidationHelper.assertTrue(workingDir.exists(), "'wkspath' must be an existing directory. Was <" + wkspath
+                + ">");
         ValidationHelper.assertTrue(workingDir.isDirectory(),
-                    "'wkspath' must be an existing directory, not a file. Was <"
-                    + wkspath + ">");
-        
+                "'wkspath' must be an existing directory, not a file. Was <" + wkspath + ">");
+
         if (repository != null) {
-             ValidationHelper.assertIsDependentSet(repository, "repository", branch, "branch", this.getClass());
+            ValidationHelper.assertIsDependentSet(repository, "repository", branch, "branch", this.getClass());
         }
-    }         
+    }
 
     /**
      * Build the Plastic SCM update command.
@@ -149,7 +142,7 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
         commandLine.setExecutable("cm");
 
         commandLine.createArgument("update");
-        
+
         if (pathtoupdate != null) {
             commandLine.createArgument(pathtoupdate);
         } else {
@@ -160,11 +153,11 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
         }
         return commandLine;
     }
+
     /**
      * Build the Plastic SCM switchtobranch command.
      */
-    protected Commandline buildSwitchToBranchCommand() throws CruiseControlException 
-    {
+    protected Commandline buildSwitchToBranchCommand() throws CruiseControlException {
         Commandline commandLine = new Commandline();
         commandLine.setWorkingDirectory(wkspath);
         commandLine.setExecutable("cm");
@@ -176,6 +169,6 @@ public class PlasticSCMBootstrapper implements Bootstrapper {
         }
         commandLine.createArgument("--noupdate");
         return commandLine;
-    }    
+    }
 
 }

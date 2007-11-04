@@ -36,8 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import java.io.IOException;
-
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
@@ -149,14 +147,7 @@ public class P4Bootstrapper implements Bootstrapper {
         return cmd;
     }
 
-    // TODO: Refactor this into a class. Then we can mock it and unit test bootstrap()
     private void executeCommandLine(Commandline commandline) throws CruiseControlException {
-        try {
-            commandline.executeAndWait(LOG);
-        } catch (IOException e) {
-            throw new CruiseControlException("Problem trying to execute command line process", e);
-        } catch (InterruptedException e) {
-            throw new CruiseControlException("Problem trying to execute command line process", e);
-        }
+        commandline.executeAndWait(LOG);
     }
 }

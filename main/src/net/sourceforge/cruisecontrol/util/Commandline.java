@@ -98,11 +98,10 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- * Commandline objects help handling command lines specifying processes to
- * execute.
+ * Commandline objects help handling command lines specifying processes to execute.
  *
- * The class can be used to define a command line as nested elements or as a
- * helper to define a command line by an application.
+ * The class can be used to define a command line as nested elements or as a helper to define a command line by an
+ * application.
  * <p>
  * <code>
  * &lt;someelement&gt;<br>
@@ -112,9 +111,8 @@ import java.util.Vector;
  * &nbsp;&nbsp;&nbsp;&nbsp;&lt;argument value="argument 4" /&gt;<br>
  * &nbsp;&nbsp;&lt;/acommandline&gt;<br>
  * &lt;/someelement&gt;<br>
- * </code>
- * The element <code>someelement</code> must provide a method
- * <code>createAcommandline</code> which returns an instance of this class.
+ * </code> The element <code>someelement</code> must provide a method <code>createAcommandline</code> which returns
+ * an instance of this class.
  *
  * @author thomas.haas@softwired-inc.com
  * @author <a href="mailto:stefan.bodewig@epost.de">Stefan Bodewig</a>
@@ -160,7 +158,7 @@ public class Commandline implements Cloneable {
     }
 
     protected File getWorkingDir() {
-      return workingDir;
+        return workingDir;
     }
 
     /**
@@ -172,7 +170,8 @@ public class Commandline implements Cloneable {
         /**
          * Sets a single commandline argument.
          *
-         * @param value a single commandline argument.
+         * @param value
+         *            a single commandline argument.
          */
         public void setValue(String value) {
             parts = new String[] { value };
@@ -181,7 +180,8 @@ public class Commandline implements Cloneable {
         /**
          * Line to split into several commandline arguments.
          *
-         * @param line line to split into several commandline arguments
+         * @param line
+         *            line to split into several commandline arguments
          */
         public void setLine(String line) {
             if (line == null) {
@@ -195,13 +195,13 @@ public class Commandline implements Cloneable {
         }
 
         /**
-         * Sets a single commandline argument to the absolute filename
-         * of the given file.
+         * Sets a single commandline argument to the absolute filename of the given file.
          *
-         * @param value a single commandline argument.
+         * @param value
+         *            a single commandline argument.
          */
         public void setFile(File value) {
-            parts = new String[] { value.getAbsolutePath()};
+            parts = new String[] { value.getAbsolutePath() };
         }
 
         /**
@@ -231,8 +231,9 @@ public class Commandline implements Cloneable {
         /**
          * Return the number of arguments that preceeded this marker.
          *
-         * <p>The name of the executable - if set - is counted as the
-         * very first argument.</p>
+         * <p>
+         * The name of the executable - if set - is counted as the very first argument.
+         * </p>
          */
         public int getPosition() {
             if (realPos == -1) {
@@ -250,9 +251,10 @@ public class Commandline implements Cloneable {
     /**
      * Creates an argument object.
      *
-     * <p>Each commandline object has at most one instance of the
-     * argument class.  This method calls
-     * <code>this.createArgument(false)</code>.</p>
+     * <p>
+     * Each commandline object has at most one instance of the argument class. This method calls
+     * <code>this.createArgument(false)</code>.
+     * </p>
      *
      * @see #createArgument(boolean)
      * @return the argument object.
@@ -264,11 +266,12 @@ public class Commandline implements Cloneable {
     /**
      * Creates an argument object and adds it to our list of args.
      *
-     * <p>Each commandline object has at most one instance of the
-     * argument class.</p>
+     * <p>
+     * Each commandline object has at most one instance of the argument class.
+     * </p>
      *
-     * @param insertAtStart if true, the argument is inserted at the
-     * beginning of the list of args, otherwise it is appended.
+     * @param insertAtStart
+     *            if true, the argument is inserted at the beginning of the list of args, otherwise it is appended.
      */
     public Argument createArgument(boolean insertAtStart) {
         Argument argument = new Argument();
@@ -290,14 +293,13 @@ public class Commandline implements Cloneable {
     }
 
     /**
-     * Same as calling createArgument twice in a row, but can be used to make
-     * more obvious a relationship between to command line arguments, like "-folder c:\myfolder".
+     * Same as calling createArgument twice in a row, but can be used to make more obvious a relationship between to
+     * command line arguments, like "-folder c:\myfolder".
      */
     public void createArguments(String first, String second) {
         createArgument(first);
         createArgument(second);
     }
-
 
     /**
      * Sets the executable to run.
@@ -306,8 +308,7 @@ public class Commandline implements Cloneable {
         if (executable == null || executable.length() == 0) {
             return;
         }
-        this.executable =
-            executable.replace('/', File.separatorChar).replace('\\', File.separatorChar);
+        this.executable = executable.replace('/', File.separatorChar).replace('\\', File.separatorChar);
     }
 
     public String getExecutable() {
@@ -335,8 +336,7 @@ public class Commandline implements Cloneable {
     }
 
     /**
-     * Returns all arguments defined by <code>addLine</code>,
-     * <code>addValue</code> or the argument object.
+     * Returns all arguments defined by <code>addLine</code>, <code>addValue</code> or the argument object.
      */
     public String[] getArguments() {
         Vector result = new Vector(arguments.size() * 2);
@@ -369,12 +369,13 @@ public class Commandline implements Cloneable {
     /**
      * Put quotes around the given String if necessary.
      *
-     * <p>If the argument doesn't include spaces or quotes, return it
-     * as is. If it contains double quotes, use single quotes - else
-     * surround the argument by double quotes.</p>
+     * <p>
+     * If the argument doesn't include spaces or quotes, return it as is. If it contains double quotes, use single
+     * quotes - else surround the argument by double quotes.
+     * </p>
      *
-     * @exception CruiseControlException if the argument contains both, single
-     *                           and double quotes.
+     * @exception CruiseControlException
+     *                if the argument contains both, single and double quotes.
      */
     public static String quoteArgument(String argument) throws CruiseControlException {
         if (argument.indexOf("\"") > -1) {
@@ -437,34 +438,34 @@ public class Commandline implements Cloneable {
         while (tok.hasMoreTokens()) {
             String nextTok = tok.nextToken();
             switch (state) {
-                case inQuote :
-                    if ("\'".equals(nextTok)) {
-                        state = normal;
-                    } else {
-                        current.append(nextTok);
+            case inQuote:
+                if ("\'".equals(nextTok)) {
+                    state = normal;
+                } else {
+                    current.append(nextTok);
+                }
+                break;
+            case inDoubleQuote:
+                if ("\"".equals(nextTok)) {
+                    state = normal;
+                } else {
+                    current.append(nextTok);
+                }
+                break;
+            default:
+                if ("\'".equals(nextTok)) {
+                    state = inQuote;
+                } else if ("\"".equals(nextTok)) {
+                    state = inDoubleQuote;
+                } else if (" ".equals(nextTok)) {
+                    if (current.length() != 0) {
+                        v.addElement(current.toString());
+                        current.setLength(0);
                     }
-                    break;
-                case inDoubleQuote :
-                    if ("\"".equals(nextTok)) {
-                        state = normal;
-                    } else {
-                        current.append(nextTok);
-                    }
-                    break;
-                default :
-                    if ("\'".equals(nextTok)) {
-                        state = inQuote;
-                    } else if ("\"".equals(nextTok)) {
-                        state = inDoubleQuote;
-                    } else if (" ".equals(nextTok)) {
-                        if (current.length() != 0) {
-                            v.addElement(current.toString());
-                            current.setLength(0);
-                        }
-                    } else {
-                        current.append(nextTok);
-                    }
-                    break;
+                } else {
+                    current.append(nextTok);
+                }
+                break;
             }
         }
 
@@ -497,7 +498,8 @@ public class Commandline implements Cloneable {
     }
 
     /**
-     * Clear out the whole command line.  */
+     * Clear out the whole command line.
+     */
     public void clear() {
         executable = null;
         arguments.removeAllElements();
@@ -513,9 +515,10 @@ public class Commandline implements Cloneable {
     /**
      * Return a marker.
      *
-     * <p>This marker can be used to locate a position on the
-     * commandline - to insert something for example - when all
-     * parameters have been set.</p>
+     * <p>
+     * This marker can be used to locate a position on the commandline - to insert something for example - when all
+     * parameters have been set.
+     * </p>
      */
     public Marker createMarker() {
         return new Marker(arguments.size());
@@ -535,20 +538,16 @@ public class Commandline implements Cloneable {
     }
 
     /**
-     * Enables and disables safe quoting when executing a command.
-     * When enabled:
-     *   Quotes any arguments that need it when executing command.
-     *   This should handle filenames with spaces, but may fall
-     *   over if the arguments already have quoting within them.
-     * When disables:
-     *   Arguments are passed as is.
+     * Enables and disables safe quoting when executing a command. When enabled: Quotes any arguments that need it when
+     * executing command. This should handle filenames with spaces, but may fall over if the arguments already have
+     * quoting within them. When disables: Arguments are passed as is.
      */
     public void useSafeQuoting(boolean safe) {
         safeQuoting = safe;
     }
 
     /**
-     * Sets exeuction directory
+     * Sets execution directory
      */
     public void setWorkingDir(File workingDir) throws CruiseControlException {
         checkWorkingDir(workingDir);
@@ -560,11 +559,10 @@ public class Commandline implements Cloneable {
     private void checkWorkingDir(File dir) throws CruiseControlException {
         if (dir != null) {
             if (!dir.exists()) {
-                throw new CruiseControlException(
-                    "Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
+                throw new CruiseControlException("Working directory \"" + dir.getAbsolutePath() + "\" does not exist!");
             } else if (!dir.isDirectory()) {
-                throw new CruiseControlException(
-                    "Path \"" + dir.getAbsolutePath() + "\" does not specify a directory.");
+                throw new CruiseControlException("Path \"" + dir.getAbsolutePath() + "\" does not specify a "
+                        + "directory.");
             }
         }
     }
@@ -591,9 +589,7 @@ public class Commandline implements Cloneable {
             }
 
         } else {
-            LOG.debug(msgCommandInfo
-                    + " in directory "
-                    + workingDir.getAbsolutePath());
+            LOG.debug(msgCommandInfo + " in directory " + workingDir.getAbsolutePath());
             if (safeQuoting) {
                 process = runtime.exec(getCommandline(), null, workingDir);
             } else {
@@ -608,10 +604,11 @@ public class Commandline implements Cloneable {
 
     /**
      * Executes the command and wait for it to finish.
-     * @param log where the output and error streams are logged
-     * @return the process' exit value
+     *
+     * @param log
+     *            where the output and error streams are logged
      */
-    public int executeAndWait(Logger log) throws IOException, InterruptedException {
-        return new CommandExecutor(this, log).executeAndWait();
+    public void executeAndWait(Logger log) throws CruiseControlException {
+        new CommandExecutor(this, log).executeAndWait();
     }
 }

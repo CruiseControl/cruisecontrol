@@ -36,13 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.io.IOException;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+
 import org.apache.log4j.Logger;
 
 /**
- * Class for executing a <code>Commandline</code>.
- * It setups an extra thread to consume stderr and blocks until the process and
- * the extra thread has finished.
+ * Class for executing a <code>Commandline</code>. It setups an extra thread to consume stderr and blocks until the
+ * process and the extra thread has finished.
  */
 public class CommandExecutor {
     private static final Logger LOG = Logger.getLogger(CommandExecutor.class);
@@ -68,7 +68,9 @@ public class CommandExecutor {
 
     /**
      * Sends the process' error stream (stderr) to a log as warnings.
-     * @param log where to log the error stream.
+     *
+     * @param log
+     *            where to log the error stream.
      */
     public void logErrorStreamTo(Logger log) {
         error = StreamLogger.getWarnLogger(log);
@@ -76,7 +78,9 @@ public class CommandExecutor {
 
     /**
      * Sends the process' output stream (stdout) to a log as info.
-     * @param log where to log the output stream.
+     *
+     * @param log
+     *            where to log the output stream.
      */
     public void logOutputStreamTo(Logger log) {
         output = StreamLogger.getInfoLogger(log);
@@ -84,7 +88,9 @@ public class CommandExecutor {
 
     /**
      * Sends the process' output stream (stdout) to a {@link StreamConsumer}.
-     * @param outConsumer consumes the process's output stream.
+     *
+     * @param outConsumer
+     *            consumes the process's output stream.
      */
     public void setOutputConsumer(StreamConsumer outConsumer) {
         output = outConsumer;
@@ -92,13 +98,22 @@ public class CommandExecutor {
 
     /**
      * Executes the command and wait for the process to finish.
-     * @return the process' exit value
+     *
+     * @throws CruiseControlException
+     *             for non-zero exit codes
      */
-    public int executeAndWait() throws IOException, InterruptedException {
-        int exitValue = Processes.waitFor(command.execute(), output, error);
-        if (exitValue != 0) {
-            LOG.warn(command.getExecutable() + " process exited with error code " + exitValue);
+    public void executeAndWait() throws CruiseControlException {
+        LOG.debug("Executing " + command.getExecutable());
+
+        int exitValue = -1;
+        try {
+            exitValue = Processes.waitFor(command.execute(), output, error);
+        } catch (Exception e) {
+            throw new CruiseControlException(command.getExecutable() + " failed with exception", e);
         }
-        return exitValue;
+
+        if (exitValue != 0) {
+            throw new CruiseControlException(command.getExecutable() + " process exited with error code " + exitValue);
+        }
     }
 }

@@ -40,7 +40,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -73,6 +72,7 @@ public class P4Test extends TestCase {
         public MockP4(long offset) {
             this.timeOffset = offset;
         }
+
         protected long calculateServerTimeOffset() {
             return timeOffset;
         }
@@ -108,7 +108,7 @@ public class P4Test extends TestCase {
         }
     }
 
-    public void testBuildChangesCommand() throws ParseException {
+    public void testBuildChangesCommand() throws Exception {
         P4 p4 = new MockP4(0);
         p4.setView("foo");
 
@@ -118,15 +118,15 @@ public class P4Test extends TestCase {
 
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
-        cmd.append(args[ 0 ]);
+        cmd.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[ i ]);
+            cmd.append(" " + args[i]);
         }
 
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
     }
 
-    public void testBuildChangesCommand_Unix() throws ParseException {
+    public void testBuildChangesCommand_Unix() throws Exception {
         P4 p4 = new MockP4(0);
         p4.setView("foo");
 
@@ -136,9 +136,9 @@ public class P4Test extends TestCase {
 
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
-        cmd.append(args[ 0 ]);
+        cmd.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[ i ]);
+            cmd.append(" " + args[i]);
         }
 
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
@@ -161,93 +161,75 @@ public class P4Test extends TestCase {
     }
 
     public void testParseChangelists() throws IOException {
-        BufferedInputStream input =
-                new BufferedInputStream(loadTestLog("p4_changes.txt"));
+        BufferedInputStream input = new BufferedInputStream(loadTestLog("p4_changes.txt"));
 
         P4 p4 = new P4();
         String[] changelists = p4.parseChangelistNumbers(input);
         input.close();
         assertNotNull("No changelists returned", changelists);
-        assertEquals("Returned wrong number of changelists",
-                4,
-                changelists.length);
-        String[] expectedChangelists = new String[]{"14", "12", "11"};
+        assertEquals("Returned wrong number of changelists", 4, changelists.length);
+        String[] expectedChangelists = new String[] { "14", "12", "11" };
         for (int i = 0; i < expectedChangelists.length; i++) {
-            assertEquals("Returned wrong changelist number",
-                    expectedChangelists[ i ],
-                    changelists[ i ]);
+            assertEquals("Returned wrong changelist number", expectedChangelists[i], changelists[i]);
         }
     }
 
-    public void testParseChangeDescriptions() throws IOException, MalformedPatternException {
-        BufferedInputStream input =
-                new BufferedInputStream(loadTestLog("p4_describe.txt"));
+    public void testParseChangeDescriptions() throws Exception {
+        BufferedInputStream input = new BufferedInputStream(loadTestLog("p4_describe.txt"));
 
         P4 p4 = new P4();
         p4.setCorrectForServerTime(false);
         List changelists = p4.parseChangeDescriptions(input);
         input.close();
-        assertEquals("Returned wrong number of changelists",
-                3,
-                changelists.size());
+        assertEquals("Returned wrong number of changelists", 3, changelists.size());
 
-        assertEquals("Wrong description",
-                "Fixed support for db2. This is now the default database shipped"
+        assertEquals("Wrong description", "Fixed support for db2. This is now the default database shipped"
                 + " with HPDoc. For now that is. Still has to be tested on"
                 + " PostgreSQL to see that it is still working there. The sea rch"
                 + " mechanism is also upgraded to now ALMOST support AND/OR"
                 + " expressions. There are thoughtsabout this, but not yet implemented (however prepared for)",
-                ((Modification) changelists.get(0))
-                .comment);
-        checkModifications((Modification) changelists.get(0),
-                "//depot/hpdoc/main", 33);
+                ((Modification) changelists.get(0)).comment);
+        checkModifications((Modification) changelists.get(0), "//depot/hpdoc/main", 33);
 
-        assertEquals("Wrong description",
-                "ok, tests running smooth. Checking in mostly for backup. Not"
+        assertEquals("Wrong description", "ok, tests running smooth. Checking in mostly for backup. Not"
                 + " finished yet. CIMD is comming on great and I'm starting to see a framework developing.",
-                ((Modification) changelists.get(1))
-                .comment);
-        checkModifications((Modification) changelists.get(1),
-                "//depot/k4j/main", 65);
-        assertEquals("Wrong description",
-                "Testing ..\nSome ..\nLinebreaks.",
-                ((Modification) changelists.get(2))
-                .comment);
+                ((Modification) changelists.get(1)).comment);
+        checkModifications((Modification) changelists.get(1), "//depot/k4j/main", 65);
+        assertEquals("Wrong description", "Testing ..\nSome ..\nLinebreaks.",
+                ((Modification) changelists.get(2)).comment);
         checkModifications((Modification) changelists.get(2), "", 0);
-        //        XMLOutputter outputter = new XMLOutputter();
-        //        for (Iterator iterator = changelistElements.iterator(); iterator.hasNext();) {
-        //            Element element = (Element) iterator.next();
-        //  Use next lines if you want to see the output of the run. This is what is inserted into the logs.
-        //            outputter.setNewlines(true);
-        //            outputter.setIndent(true);
-        //            System.out.println(outputter.outputString(element));
-        //        }
+        // XMLOutputter outputter = new XMLOutputter();
+        // for (Iterator iterator = changelistElements.iterator();
+        // iterator.hasNext();) {
+        // Element element = (Element) iterator.next();
+        // Use next lines if you want to see the output of the run. This is what
+        // is inserted into the logs.
+        // outputter.setNewlines(true);
+        // outputter.setIndent(true);
+        // System.out.println(outputter.outputString(element));
+        // }
     }
 
     /**
      * Check that all modifications match expected values.
      *
-     * @param modification The modification to be checked
-     * @param depotPrefix  The prefix all filenames are expected
-     *                     to start with.
-     * @param modCount     The expected number of files changes in
-     *                     this modification.
+     * @param modification
+     *            The modification to be checked
+     * @param depotPrefix
+     *            The prefix all filenames are expected to start with.
+     * @param modCount
+     *            The expected number of files changes in this modification.
      */
-    public void checkModifications(Modification modification,
-            String depotPrefix, int modCount) throws MalformedPatternException {
+    public void checkModifications(Modification modification, String depotPrefix, int modCount)
+            throws MalformedPatternException {
         List changeList = modification.files;
         assertEquals("Wrong number of entries", modCount, changeList.size());
         for (Iterator i = changeList.iterator(); i.hasNext();) {
-            Modification.ModifiedFile file
-                    = (Modification.ModifiedFile) i.next();
-            assertTrue("Filename doesn't start with prefix " + depotPrefix,
-                    file.fileName.startsWith(depotPrefix));
-            assertEquals("Filename has # at bad index", -1,
-                    file.fileName.indexOf("#"));
-            assertTrue("Revision doesn't match regexp ^\\d+$: " + file.revision,
-                    matches(file.revision, "^\\d+$"));
-            assertTrue("Unknown action type: " + file.action,
-                    matches(file.action, "(edit|add)"));
+            Modification.ModifiedFile file = (Modification.ModifiedFile) i.next();
+            assertTrue("Filename doesn't start with prefix " + depotPrefix, file.fileName.startsWith(depotPrefix));
+            assertEquals("Filename has # at bad index", -1, file.fileName.indexOf("#"));
+            assertTrue("Revision doesn't match regexp ^\\d+$: " + file.revision, matches(file.revision, "^\\d+$"));
+            assertTrue("Unknown action type: " + file.action, matches(file.action, "(edit|add)"));
         }
     }
 
@@ -255,7 +237,7 @@ public class P4Test extends TestCase {
         BufferedInputStream input = new BufferedInputStream(loadTestLog("p4_info.txt"));
 
         Calendar cal = Calendar.getInstance();
-        //this date is encoded in p4_info.txt.  Note month is indexed from 0
+        // this date is encoded in p4_info.txt. Note month is indexed from 0
         cal.set(2005, 6, 29, 20, 39, 06);
         long p4ServerTime = cal.getTime().getTime();
         long ccServerTime = System.currentTimeMillis();
@@ -265,32 +247,32 @@ public class P4Test extends TestCase {
         new StreamPumper(input, serverInfo).run();
         long offset = serverInfo.getOffset();
 
-        //Need to accept some difference in the expected offset and the actual
-        //offset, because the test takes some time to run.  To be safe, we'll
-        //allow up to 1 minute of variability in the offset value.
+        // Need to accept some difference in the expected offset and the actual
+        // offset, because the test takes some time to run. To be safe, we'll
+        // allow up to 1 minute of variability in the offset value.
         long maxOffset = 1000 * 60;
         long offsetDifference = Math.abs(offset - expectedOffset);
 
-        assertTrue("Server time offset wasn't calculated accurately.  Expected "
-                + expectedOffset + " but got " + offset + ".  Maximum allowed"
-                + "difference in these values is " + maxOffset
-                + ".  P4 server time (from test input) is " + p4ServerTime
-                + "; CC server time is " + ccServerTime, offsetDifference < maxOffset);
+        assertTrue("Server time offset wasn't calculated accurately.  Expected " + expectedOffset + " but got "
+                + offset + ".  Maximum allowed" + "difference in these values is " + maxOffset
+                + ".  P4 server time (from test input) is " + p4ServerTime + "; CC server time is " + ccServerTime,
+                offsetDifference < maxOffset);
     }
 
     public boolean matches(String str, String pattern) throws MalformedPatternException {
         return new Perl5Matcher().matches(str, new Perl5Compiler().compile(pattern));
     }
 
-    //    public void testGetModifications() throws Exception {
+    // public void testGetModifications() throws Exception {
     //
-    //        // REAL TEST IF YOU NEED IT
-    //        P4 p4 = new P4();
-    //        p4.setView("//depot/...");
-    //        List changelists = p4.getModifications(new Date(0), new Date(), 0);
-    //        assertEquals("Returned wrong number of changelists", 3, changelists.size());
+    // // REAL TEST IF YOU NEED IT
+    // P4 p4 = new P4();
+    // p4.setView("//depot/...");
+    // List changelists = p4.getModifications(new Date(0), new Date(), 0);
+    // assertEquals("Returned wrong number of changelists", 3,
+    // changelists.size());
     //
-    //    }
+    // }
 
     public static void main(String[] args) {
         junit.textui.TestRunner.run(P4Test.class);
