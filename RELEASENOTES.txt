@@ -68,6 +68,10 @@ PVCS
 ----------------------
 * Add support to check for changes against promotion group (CC-717); make thread-safe (CC-583); fix quoting (CC-655).  Patch by Shane Genschaw.
 
+SVNLabelIncrementer
+----------------------
+* New label incrementer to update label based on SVN revision number (CC-716).  Submitted by Ketan Padegaonkar.
+
 Documentation
 ======================
 * Add missing docs for "timeout" attributes on Maven and Maven2 builders.

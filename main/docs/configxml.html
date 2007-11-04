@@ -140,7 +140,7 @@
 <a href="#harvest">&lt;harvest&gt;</a>
 <a href="#harvestbootstrapper">&lt;harvestbootstrapper&gt;</a>
 <a href="#htmlemail">&lt;htmlemail&gt;</a>
-<a href="#http">&lt;http&gt;</a> 
+<a href="#http">&lt;http&gt;</a>
 <a href="#httpfile">&lt;httpfile&gt;</a>
 <a href="#include.projects">&lt;include.projects&gt;</a>
 <a href="#jabber">&lt;jabber&gt;</a>
@@ -334,7 +334,7 @@
          <a href="#execute">&lt;execute/&gt;</a>
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
          <a href="#htmlemail">&lt;htmlemail/&gt;</a>
-         <a href="#http">&lt;http&gt;</a> 
+         <a href="#http">&lt;http&gt;</a>
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#onfailure">&lt;onfailure/&gt;</a>
          <a href="#onsuccess">&lt;onsuccess/&gt;</a>
@@ -9996,6 +9996,43 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>propertyname</td>
                 <td>Yes</td>
                 <td>the name of the property to read for the value of the label.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h4>SVNLabelIncrementer</h4>
+
+        <p>Returns a value for the label based on the SVN revision number.</p>
+
+        <h5>Attributes</h5>
+
+        <pre>
+&lt;plugin&nbsp;name="labelincrementer"
+        classname="net.sourceforge.cruisecontrol.labelincrementers.SVNLabelIncrementer"/&gt;</pre>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>workingcopypath</td>
+                <td>No (defaults to <code>.</code>)</td>
+                <td>Path to the SVN working copy</td>
+            </tr>
+            <tr>
+                <td>labelprefix</td>
+                <td>No (defaults to <code>svn</code>)</td>
+                <td>Prefix for the label</td>
+            </tr>
+            <tr>
+                <td>separator</td>
+                <td>No (defaults to <code>.</code>)</td>
+                <td>The separator to use between label and build count</td>
             </tr>
             </tbody>
         </table>
