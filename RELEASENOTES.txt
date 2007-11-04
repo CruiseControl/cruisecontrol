@@ -54,7 +54,7 @@ Git Source Control & Bootstrapper
 
 Http Publisher
 ----------------------
-* New publisher to publish to via Http post, get, etc (CC-688). Contributed by Jonathan Gerrish.
+* New publisher to publish to via HTTP POST, GET, etc (CC-688). Contributed by Jonathan Gerrish.
 
 Mercurial Source Control & Bootstrapper
 ----------------------
@@ -79,10 +79,9 @@ Documentation
 
 reporting
 ======================
-
 * Fix "Building (since)" time on build summary page to show start of build time (instead of last progress message update time). Fix suggested by EJ Ciramella.
 * Show progress message as tooltip over Status cells on build summary page while building. Also show time until next build while waiting.
-
+* Added AbstractXslOutputWidget to support writing widgets for arbitrary XSL.  Also provide AntOutputWidget that shows Ant output. (CC-718) Submitted by Ketan Padegaonkar.
 
 CruiseControl Release Notes - 2.7.1
 
