@@ -56,7 +56,7 @@ import org.jdom.Element;
 
 /**
  * Set of modifications collected from included SourceControls
- * 
+ *
  * @see SourceControl
  */
 public class ModificationSet implements Serializable {
@@ -91,7 +91,7 @@ public class ModificationSet implements Serializable {
 
     /**
      * Set the list of Glob-File-Patterns to be ignored
-     * 
+     *
      * @param filePatterns
      *            a comma separated list of glob patterns. "*" and "?" are valid wildcards example: "?razy-*-.txt,*.jsp"
      * @throws CruiseControlException
@@ -176,7 +176,7 @@ public class ModificationSet implements Serializable {
 
     /**
      * Returns a Hashtable of name-value pairs representing any properties set by the SourceControl.
-     * 
+     *
      * @return Hashtable of properties.
      */
     public Hashtable getProperties() {
@@ -248,7 +248,7 @@ public class ModificationSet implements Serializable {
                     progress.setValue(MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP
                             + (timeToSleep / 1000) + " secs");
                 }
-                
+
                 try {
                     Thread.sleep(timeToSleep);
                 } catch (InterruptedException e) {
@@ -256,6 +256,13 @@ public class ModificationSet implements Serializable {
                 }
             }
         } while (isLastModificationInQuietPeriod(timeOfCheck, modifications));
+
+
+        //Overrides timeOfCheck with the source control's last checkin stamp
+        long timeCheckOverride = getLastModificationMillis(modifications);
+        if (timeCheckOverride > 0) {
+                    timeOfCheck = new Date(timeCheckOverride);
+        }
 
         return modificationsElement;
     }
@@ -285,11 +292,11 @@ public class ModificationSet implements Serializable {
 
     private boolean isIgnoredModification(Modification modification) {
         boolean foundAny = false;
-        
+
         // Go through all the files in the modification. If all are ignored, ignore this modification.
         for (final Iterator modFileIter = modification.getModifiedFiles().iterator(); modFileIter.hasNext();) {
             final Modification.ModifiedFile modFile = (Modification.ModifiedFile) modFileIter.next();
-            
+
             File file;
             if (modFile.folderName == null) {
                 if (modification.getFileName() == null) {

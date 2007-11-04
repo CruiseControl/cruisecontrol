@@ -211,7 +211,7 @@ public class Project implements Serializable, Runnable {
             Date now = new Date();
             if (projectConfig.getModificationSet() != null
                     && projectConfig.getModificationSet().getTimeOfCheck() != null) {
-                
+
                 now = projectConfig.getModificationSet().getTimeOfCheck();
             }
 
@@ -391,6 +391,9 @@ public class Project implements Serializable, Runnable {
     }
 
     /**
+     * Return modifications since the last build.  timeOfCheck will be updated according to the last modification to
+     * account for time synchronisation issues.
+     *
      * @param buildWasForced true if the build was forced
      * @return Element jdom element containing modification information
      */
@@ -713,10 +716,10 @@ public class Project implements Serializable, Runnable {
         buildProperties.put("projectname", name);
 
         buildProperties.put("label", label);
-        
+
         // TODO: Shouldn't have CVS specific properties here
         buildProperties.put("cvstimestamp", CVSDateUtil.formatCVSDate(now));
-        
+
         buildProperties.put("cctimestamp", DateUtil.getFormattedTime(now));
         buildProperties.put("cclastgoodbuildtimestamp", getLastSuccessfulBuild());
         buildProperties.put("cclastbuildtimestamp", getLastBuild());
@@ -832,7 +835,7 @@ public class Project implements Serializable, Runnable {
             waitMutex.notifyAll();
         }
         synchronized (scheduleMutex) {
-            scheduleMutex.notifyAll();            
+            scheduleMutex.notifyAll();
         }
     }
 
