@@ -60,45 +60,38 @@ public class MercurialBootstrapper implements Bootstrapper {
     /**
      * Sets the local working copy to use when making calls to Mercurial.
      *
-     * @param localWorkingCopy  String indicating the relative or absolute path
-     *                          to the local working copy of the Mercurial
-     *                          repository on which to execute the update command.
+     * @param localWorkingCopy
+     *            String indicating the relative or absolute path to the local working copy of the Mercurial repository
+     *            on which to execute the update command.
      */
     public void setLocalWorkingCopy(String localWorkingCopy) {
         this.localWorkingCopy = localWorkingCopy;
     }
 
     /**
-     * This method validates that at least the filename or the local working
-     * copy location has been specified.
+     * This method validates that at least the filename or the local working copy location has been specified.
      *
-     * @throws net.sourceforge.cruisecontrol.CruiseControlException  Thrown when the repository location and
-     *                                 the local working copy location are both
-     *                                 null
+     * @throws net.sourceforge.cruisecontrol.CruiseControlException
+     *             Thrown when the repository location and the local working copy location are both null
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(localWorkingCopy != null,
-            "'localWorkingCopy' is a required attribute on the Mercurial bootstrapper task");
+                "'localWorkingCopy' is a required attribute on the Mercurial bootstrapper task");
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
             ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
-                "'localWorkingCopy' must be an existing directory. Was"
-                + workingDir.getAbsolutePath());
+                    "'localWorkingCopy' must be an existing directory. Was" + workingDir.getAbsolutePath());
         }
     }
 
     /**
      * Update from the mercurial repository.
+     *
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
-        try {
-            Commandline commandLine = buildPullUpdateCommand();
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing mercurial pull update command", e);
-        }
+        buildPullUpdateCommand().executeAndWait(LOG);
     }
 
     /**
@@ -107,8 +100,10 @@ public class MercurialBootstrapper implements Bootstrapper {
      * For example:
      *
      * 'hg pull -u'
+     *
      * @return the command line for the mercurial pull update command
-     * @throws net.sourceforge.cruisecontrol.CruiseControlException if the working directory is not valid.
+     * @throws net.sourceforge.cruisecontrol.CruiseControlException
+     *             if the working directory is not valid.
      */
     Commandline buildPullUpdateCommand() throws CruiseControlException {
         Commandline command = new Commandline();

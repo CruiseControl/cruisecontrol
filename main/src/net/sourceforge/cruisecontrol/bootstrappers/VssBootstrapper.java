@@ -36,16 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
+import java.io.File;
+
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.EnvCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class VssBootstrapper implements Bootstrapper {
 
@@ -59,15 +58,7 @@ public class VssBootstrapper implements Bootstrapper {
     private String login;
 
     public void bootstrap() throws CruiseControlException {
-        try {
-            generateCommandLine().executeAndWait(LOG);
-        } catch (IOException ex) {
-            LOG.warn("exception trying to exec ss.exe", ex);
-            throw new CruiseControlException(ex);
-        } catch (InterruptedException ex) {
-            LOG.warn("interrupted during get", ex);
-            throw new CruiseControlException(ex);
-        }
+        generateCommandLine().executeAndWait(LOG);
     }
 
     public void validate() throws CruiseControlException {
@@ -75,11 +66,11 @@ public class VssBootstrapper implements Bootstrapper {
                 "VssBootstrapper has required attributes vssPath and localDirectory");
 
         File localDirForFile = new File(localDirectory);
-        ValidationHelper.assertTrue(localDirForFile.exists(),
-            "file path attribute value " + localDirectory + " must specify an existing directory.");
+        ValidationHelper.assertTrue(localDirForFile.exists(), "file path attribute value " + localDirectory
+                + " must specify an existing directory.");
 
-        ValidationHelper.assertTrue(localDirForFile.isDirectory(),
-            "file path attribute value " + localDirectory + " must specify an existing directory, not a file.");
+        ValidationHelper.assertTrue(localDirForFile.isDirectory(), "file path attribute value " + localDirectory
+                + " must specify an existing directory, not a file.");
 
         setLocalDirectory(localDirForFile.getAbsolutePath());
     }
@@ -95,6 +86,7 @@ public class VssBootstrapper implements Bootstrapper {
         executable += "ss.exe";
         return executable;
     }
+
     Commandline generateCommandLine() {
         EnvCommandline command = new EnvCommandline();
         command.setExecutable(getExecutable());
@@ -120,15 +112,19 @@ public class VssBootstrapper implements Bootstrapper {
 
     /**
      * Required.
-     * @param vssPath fully qualified VSS path to the file ($/Project/subproject/filename.ext)
+     *
+     * @param vssPath
+     *            fully qualified VSS path to the file ($/Project/subproject/filename.ext)
      */
     public void setVssPath(String vssPath) {
         this.vssPath = vssPath;
     }
 
-    /***
+    /**
      * Optional.
-     * @param ssDir Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
+     *
+     * @param ssDir
+     *            Path to the directory containing ss.exe. Assumes that ss.exe is in the path by default.
      */
     public void setSsDir(String ssDir) {
         this.ssDir = ssDir;
@@ -136,7 +132,9 @@ public class VssBootstrapper implements Bootstrapper {
 
     /**
      * Optional.
-     * @param serverPath The path to the directory containing the srcsafe.ini file.
+     *
+     * @param serverPath
+     *            The path to the directory containing the srcsafe.ini file.
      */
     public void setServerPath(String serverPath) {
         this.serverPath = serverPath;
@@ -144,7 +142,9 @@ public class VssBootstrapper implements Bootstrapper {
 
     /**
      * Required.
-     * @param localDirectory fully qualified path for the destination directory (c:\directory\subdirectory\)
+     *
+     * @param localDirectory
+     *            fully qualified path for the destination directory (c:\directory\subdirectory\)
      */
     public void setLocalDirectory(String localDirectory) {
         this.localDirectory = localDirectory;
@@ -152,7 +152,9 @@ public class VssBootstrapper implements Bootstrapper {
 
     /**
      * Optional.
-     * @param login vss login information in the form username,password\
+     *
+     * @param login
+     *            vss login information in the form username,password\
      */
     public void setLogin(String login) {
         this.login = login;

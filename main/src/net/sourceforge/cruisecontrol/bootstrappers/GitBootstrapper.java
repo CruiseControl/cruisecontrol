@@ -46,8 +46,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 
 /**
- * The GitBootstrapper will handle updating a git repository before the build
- * begins.
+ * The GitBootstrapper will handle updating a git repository before the build begins.
  *
  * @see <a href="http://git.or.cz/">git.or.cz</a>
  * @author <a href="rschiele@gmail.com">Robert Schiele</a>
@@ -60,51 +59,40 @@ public class GitBootstrapper implements Bootstrapper {
     /**
      * Sets the local working copy to use when making calls to git.
      *
-     * @param d String indicating the relative or absolute path to the local
-     * working copy of the git repository on which to execute the pull
-     * command.
+     * @param d
+     *            String indicating the relative or absolute path to the local working copy of the git repository on
+     *            which to execute the pull command.
      */
     public void setLocalWorkingCopy(String d) {
         lwc = d;
     }
 
     /**
-     * This method validates that the local working copy location has been
-     * specified.
+     * This method validates that the local working copy location has been specified.
      *
-     * @throws CruiseControlException Thrown when the local working copy
-     * location is null
+     * @throws CruiseControlException
+     *             Thrown when the local working copy location is null
      */
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertTrue(lwc != null,
-                                    "'localWorkingCopy' is a required "
-                                    + "attribute on the Git bootstrapper "
-                                    + "task");
-        
+        ValidationHelper.assertTrue(lwc != null, "'localWorkingCopy' is a required "
+                + "attribute on the Git bootstrapper " + "task");
+
         final File wd = new File(lwc);
-        ValidationHelper.assertTrue(wd.exists() && wd.isDirectory(),
-                                    "'localWorkingCopy' must be an existing "
-                                    + "directory. Was" + wd.getAbsolutePath());
+        ValidationHelper.assertTrue(wd.exists() && wd.isDirectory(), "'localWorkingCopy' must be an existing "
+                + "directory. Was" + wd.getAbsolutePath());
     }
 
     /**
      * Update the git repository.
+     *
      * @throws CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
         final Commandline cmd = new Commandline();
         cmd.setExecutable("git");
-            
-        try {
-            cmd.setWorkingDirectory(lwc);
-            
-            cmd.createArgument("pull");
-            
-            LOG.debug("GitBootstrapper: Executing command = " + cmd);
-            cmd.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new
-                CruiseControlException("Error executing git pull command", e);
-        }
+        cmd.setWorkingDirectory(lwc);
+        cmd.createArgument("pull");
+
+        cmd.executeAndWait(LOG);
     }
 }

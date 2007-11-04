@@ -43,20 +43,17 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import org.apache.log4j.Logger;
 
 /**
- * Since we rely on our build.xml to handle updating our source code, there has
- * always been a problem with what happens when the build.xml file itself
- * changes.  Previous workarounds have included writing a wrapper build.xml that
- * will check out the "real" build.xml.  This class is a substitute for that
- * practice.
+ * Since we rely on our build.xml to handle updating our source code, there has always been a problem with what happens
+ * when the build.xml file itself changes. Previous workarounds have included writing a wrapper build.xml that will
+ * check out the "real" build.xml. This class is a substitute for that practice.
  *
- * The SnapshotCMBootstrapper will handle updating a single file from
- * SnapshotCM before the build begins.
+ * The SnapshotCMBootstrapper will handle updating a single file from SnapshotCM before the build begins.
  *
  * Usage:
  *
- *     &lt;snapshotcmbootstrapper file="" /&gt;
+ * &lt;snapshotcmbootstrapper file="" /&gt;
  *
- *  @author patrick.conant@hp.com
+ * @author patrick.conant@hp.com
  */
 public class SnapshotCMBootstrapper implements Bootstrapper {
 
@@ -64,27 +61,21 @@ public class SnapshotCMBootstrapper implements Bootstrapper {
     private static final Logger LOG = Logger.getLogger(SnapshotCMBootstrapper.class);
 
     /**
-     *  Reference to the file to bootstrap.
+     * Reference to the file to bootstrap.
      */
     private String filename;
-
 
     public void setFile(String name) {
         filename = name;
     }
 
     /**
-     *  Update the specified file.
+     * Update the specified file.
+     *
      * @throws CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
-        Commandline commandLine = buildUpdateCommand();
-
-        try {
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing SnapshotCM update command", e);
-        }
+        buildUpdateCommand().executeAndWait(LOG);
     }
 
     public void validate() throws CruiseControlException {

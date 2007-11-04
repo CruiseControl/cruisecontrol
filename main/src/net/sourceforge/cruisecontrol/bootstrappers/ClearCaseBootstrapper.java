@@ -69,13 +69,7 @@ public class ClearCaseBootstrapper implements Bootstrapper {
      * Update the specified file.
      */
     public void bootstrap() throws CruiseControlException {
-        Commandline commandLine = buildUpdateCommand();
-
-        try {
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing ClearCase update", e);
-        }
+        buildUpdateCommand().executeAndWait(LOG);
     }
 
     public void validate() throws CruiseControlException {

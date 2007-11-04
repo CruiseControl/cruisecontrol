@@ -70,18 +70,12 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- * This class implements the SourceControlElement methods for a P4 depot. The
- * call to CVS is assumed to work without any setup. This implies that if the
- * authentication type is pserver the call to cvs login should be done prior to
- * calling this class.
- * <p/>
- * P4Element depends on the optional P4 package delivered with Ant v1.3. But
- * since it probably doesn't make much sense using the P4Element without other
- * P4 support it shouldn't be a problem.
- * <p/>
- * P4Element sets the property ${p4element.change} with the latest changelist
- * number or the changelist with the latest date. This should then be passed
- * into p4sync or other p4 commands.
+ * This class implements the SourceControlElement methods for a P4 depot. The call to CVS is assumed to work without any
+ * setup. This implies that if the authentication type is pserver the call to cvs login should be done prior to calling
+ * this class. <p/> P4Element depends on the optional P4 package delivered with Ant v1.3. But since it probably doesn't
+ * make much sense using the P4Element without other P4 support it shouldn't be a problem. <p/> P4Element sets the
+ * property ${p4element.change} with the latest changelist number or the changelist with the latest date. This should
+ * then be passed into p4sync or other p4 commands.
  *
  * @author <a href="mailto:niclas.olofsson@ismobile.com">Niclas Olofsson - isMobile.com</a>
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -102,10 +96,8 @@ public class P4 implements SourceControl {
     private boolean correctForServerTime = true;
     private boolean useP4Email = true;
 
-    private final SimpleDateFormat p4RevisionDateFormatter =
-            new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
+    private final SimpleDateFormat p4RevisionDateFormatter = new SimpleDateFormat("yyyy/MM/dd:HH:mm:ss");
     private final SourceControlProperties properties = new SourceControlProperties();
-
 
     private static final String SERVER_DATE = "Server date: ";
     private static final String P4_SERVER_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss";
@@ -131,10 +123,8 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * Indicates whether to correct for time differences between the p4
-     * server and the CruiseControl server.  Setting the flag to "true"
-     * will correct for both time zone differences and for non-synchronized
-     * system clocks.
+     * Indicates whether to correct for time differences between the p4 server and the CruiseControl server. Setting the
+     * flag to "true" will correct for both time zone differences and for non-synchronized system clocks.
      */
     public void setCorrectForServerTime(boolean flag) {
         correctForServerTime = flag;
@@ -143,7 +133,8 @@ public class P4 implements SourceControl {
     /**
      * Sets if the Email address for the user should be retrieved from Perforce.
      *
-     * @param flag true to retrieve email addresses from perforce.
+     * @param flag
+     *            true to retrieve email addresses from perforce.
      */
     public void setUseP4Email(boolean flag) {
         useP4Email = flag;
@@ -152,7 +143,7 @@ public class P4 implements SourceControl {
     public void setProperty(String propertyName) {
         properties.assignPropertyName(propertyName);
     }
-    
+
     public Map getProperties() {
         return properties.getPropertiesAndReset();
     }
@@ -166,15 +157,15 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * Get a List of modifications detailing all the changes between now and
-     * the last build. Return this as an element. It is not necessary for
-     * sourcecontrols to actually do anything other than returning a chunk
-     * of XML data back.
+     * Get a List of modifications detailing all the changes between now and the last build. Return this as an element.
+     * It is not necessary for sourcecontrols to actually do anything other than returning a chunk of XML data back.
      *
-     * @param lastBuild time of last build
-     * @param now       time this build started
-     * @return a list of XML elements that contains data about the modifications
-     *         that took place. If no changes, this method returns an empty list.
+     * @param lastBuild
+     *            time of last build
+     * @param now
+     *            time this build started
+     * @return a list of XML elements that contains data about the modifications that took place. If no changes, this
+     *         method returns an empty list.
      */
     public List getModifications(Date lastBuild, Date now) {
         List mods = new ArrayList();
@@ -191,13 +182,11 @@ public class P4 implements SourceControl {
         if (!mods.isEmpty()) {
             properties.modificationFound();
         }
-        
+
         return mods;
     }
 
-    private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers)
-            throws IOException, InterruptedException {
-
+    private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers) throws Exception {
         Commandline command = buildDescribeCommand(changelistNumbers);
         Process p = command.execute();
 
@@ -221,12 +210,12 @@ public class P4 implements SourceControl {
     /**
      * Get the Email Address of the users who submitted the change lists.
      *
-     * @param mods List of P4Modification structures
+     * @param mods
+     *            List of P4Modification structures
      * @throws IOException
      * @throws InterruptedException
      */
-    private void getEmailAddresses(List mods) throws IOException,
-            InterruptedException {
+    private void getEmailAddresses(List mods) throws IOException, InterruptedException {
         Iterator iter = mods.iterator();
         Map users = new HashMap();
 
@@ -249,13 +238,13 @@ public class P4 implements SourceControl {
     /**
      * Get the Email Address for the given P4 User
      *
-     * @param username Perforce user name
+     * @param username
+     *            Perforce user name
      * @return User Email address if available
      * @throws IOException
      * @throws InterruptedException
      */
-    private String getUserEmailAddress(String username) throws IOException,
-            InterruptedException {
+    private String getUserEmailAddress(String username) throws IOException, InterruptedException {
         String emailaddr = null;
 
         Commandline command = buildUserCommand(username);
@@ -264,13 +253,11 @@ public class P4 implements SourceControl {
 
         logErrorStream(p.getErrorStream());
         InputStream p4Stream = p.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                p4Stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p4Stream));
 
         // Find first Changelist item if there is one.
         String line;
-        while ((line = readToNotPast(reader, "info: Email:",
-                "I really don't care")) != null) {
+        while ((line = readToNotPast(reader, "info: Email:", "I really don't care")) != null) {
             StringTokenizer st = new StringTokenizer(line);
 
             try {
@@ -290,9 +277,7 @@ public class P4 implements SourceControl {
         return (emailaddr);
     }
 
-    private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now)
-            throws IOException, InterruptedException {
-
+    private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now) throws Exception {
         Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
         Process p = command.execute();
 
@@ -334,18 +319,14 @@ public class P4 implements SourceControl {
         if (line == null) {
             throw new IOException("Error reading P4 stream: Unexpected EOF reached");
         }
-        String[] changelistNumbers = new String[ 0 ];
+        String[] changelistNumbers = new String[0];
         return (String[]) changelists.toArray(changelistNumbers);
     }
 
-    protected List parseChangeDescriptions(InputStream is) throws IOException {
-        
+    protected List parseChangeDescriptions(InputStream is) throws Exception {
         int serverOffset = 0;
         if (correctForServerTime) {
-            try {
-                serverOffset = (int) calculateServerTimeOffset();
-            } catch (InterruptedException e) {
-            }
+            serverOffset = (int) calculateServerTimeOffset();
         }
 
         ArrayList changelists = new ArrayList();
@@ -390,12 +371,11 @@ public class P4 implements SourceControl {
 
             reader.readLine(); // get past a 'text:'
             StringBuffer descriptionBuffer = new StringBuffer();
+
             // Use this since we don't want the final (empty) line
             String previousLine = null;
-            while ((line = reader.readLine()) != null
-                    && line.startsWith("text:")
-                    && !line.startsWith("text: Affected files ...")) {
-
+            line = reader.readLine();
+            while (line != null && line.startsWith("text:") && !line.startsWith("text: Affected files ...")) {
                 if (previousLine != null) {
                     if (descriptionBuffer.length() > 0) {
                         descriptionBuffer.append('\n');
@@ -405,11 +385,10 @@ public class P4 implements SourceControl {
                 try {
                     previousLine = line.substring(5).trim();
                 } catch (Exception e) {
-                    LOG.error("Error parsing Perforce description, line that caused problem was: ["
-                            + line
-                            + "]");
+                    LOG.error("Error parsing Perforce description, line that caused problem was: [" + line + "]");
                 }
 
+                line = reader.readLine();
             }
 
             changelist.comment = descriptionBuffer.toString();
@@ -417,14 +396,15 @@ public class P4 implements SourceControl {
             // Ok, read affected files if there are any.
             if (line != null) {
                 reader.readLine(); // read past next 'text:'
-                while ((line = readToNotPast(reader, "info1:", "text:")) != null
-                        && line.startsWith("info1:")) {
 
+                line = readToNotPast(reader, "info1:", "text:");
+                while (line != null && line.startsWith("info1:")) {
                     String fileName = line.substring(7, line.lastIndexOf("#"));
                     Modification.ModifiedFile affectedFile = changelist.createModifiedFile(fileName, null);
                     affectedFile.action = line.substring(line.lastIndexOf(" ") + 1);
-                    affectedFile.revision =
-                            line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
+                    affectedFile.revision = line.substring(line.lastIndexOf("#") + 1, line.lastIndexOf(" "));
+
+                    line = readToNotPast(reader, "info1:", "text:");
                 }
             }
             changelists.add(changelist);
@@ -441,46 +421,34 @@ public class P4 implements SourceControl {
 
     /**
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
+     *
+     * @throws CruiseControlException
      */
-    public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows) {
+    public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows)
+            throws CruiseControlException {
 
-        //If the Perforce server time is different from the CruiseControl
+        // If the Perforce server time is different from the CruiseControl
         // server time, correct the parameter dates for the difference.
         if (correctForServerTime) {
-            try {
-                int offset = (int) calculateServerTimeOffset();
-                Calendar cal = Calendar.getInstance();
+            int offset = (int) calculateServerTimeOffset();
+            Calendar cal = Calendar.getInstance();
 
-                cal.setTime(lastBuildTime);
-                cal.add(Calendar.MILLISECOND, offset);
-                lastBuildTime = cal.getTime();
+            cal.setTime(lastBuildTime);
+            cal.add(Calendar.MILLISECOND, offset);
+            lastBuildTime = cal.getTime();
 
-                cal.setTime(now);
-                cal.add(Calendar.MILLISECOND, offset);
-                now = cal.getTime();
-
-            } catch (IOException ioe) {
-                LOG.error("Unable to execute \'p4 info\' to get server time: "
-                        + ioe.getMessage()
-                        + "\nProceeding without time offset value.");
-            } catch (InterruptedException iex) {
-                LOG.error("Interrupted while executing \'p4 info\' to get server time: "
-                        + iex.getMessage()
-                        + "\nProceeding without time offset value.");
-            }
+            cal.setTime(now);
+            cal.add(Calendar.MILLISECOND, offset);
+            now = cal.getTime();
         } else {
             LOG.debug("No server time offset determined.");
         }
-
 
         Commandline commandLine = buildBaseP4Command();
 
         commandLine.createArgument("changes");
         commandLine.createArguments("-s", "submitted");
-        commandLine.createArgument(p4View
-                + "@"
-                + p4RevisionDateFormatter.format(lastBuildTime)
-                + ",@"
+        commandLine.createArgument(p4View + "@" + p4RevisionDateFormatter.format(lastBuildTime) + ",@"
                 + p4RevisionDateFormatter.format(now));
 
         return commandLine;
@@ -492,7 +460,7 @@ public class P4 implements SourceControl {
     public Commandline buildDescribeCommand(String[] changelistNumbers) {
         Commandline commandLine = buildBaseP4Command();
 
-        //        execP4Command("describe -s " + changeNumber.toString(),
+        // execP4Command("describe -s " + changeNumber.toString(),
 
         commandLine.createArgument("describe");
         commandLine.createArgument("-s");
@@ -516,14 +484,14 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * Calculate the difference in time between the Perforce server and the
-     * CruiseControl server.  A negative time difference indicates that the
-     * Perforce server time is later than CruiseControl server (e.g. Perforce
-     * in New York, CruiseControl in San Francisco).  A positive offset
-     * indicates that the Perforce server time is before the CruiseControl
-     * server.
+     * Calculate the difference in time between the Perforce server and the CruiseControl server. A negative time
+     * difference indicates that the Perforce server time is later than CruiseControl server (e.g. Perforce in New York,
+     * CruiseControl in San Francisco). A positive offset indicates that the Perforce server time is before the
+     * CruiseControl server.
+     *
+     * @throws CruiseControlException
      */
-    protected long calculateServerTimeOffset() throws IOException, InterruptedException {
+    protected long calculateServerTimeOffset() throws CruiseControlException {
         ServerInfoConsumer serverInfo = new ServerInfoConsumer();
         CommandExecutor executor = new CommandExecutor(buildInfoCommand());
         executor.logErrorStreamTo(LOG);
@@ -569,21 +537,17 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * This is a modified version of the one in the CVS element. I found it far
-     * more useful if you actually return either or, because otherwise it would
-     * be darn hard to use in places where I actually need the notPast line.
-     * Or did I misunderstand something?
+     * This is a modified version of the one in the CVS element. I found it far more useful if you actually return
+     * either or, because otherwise it would be darn hard to use in places where I actually need the notPast line. Or
+     * did I misunderstand something?
      */
-    private String readToNotPast(BufferedReader reader, String beginsWith, String notPast)
-            throws IOException {
+    private String readToNotPast(BufferedReader reader, String beginsWith, String notPast) throws IOException {
 
         String nextLine = reader.readLine();
 
         // (!A && !B) || (!A && !C) || (!B && !C)
         // !A || !B || !C
-        while (!(nextLine == null
-                || nextLine.startsWith(beginsWith)
-                || nextLine.startsWith(notPast))) {
+        while (!(nextLine == null || nextLine.startsWith(beginsWith) || nextLine.startsWith(notPast))) {
             nextLine = reader.readLine();
         }
         return nextLine;
@@ -638,8 +602,7 @@ public class P4 implements SourceControl {
     protected static class ServerInfoConsumer implements StreamConsumer {
         private boolean found;
         private long offset;
-        private final SimpleDateFormat p4ServerDateFormatter =
-                new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
+        private final SimpleDateFormat p4ServerDateFormatter = new SimpleDateFormat(P4_SERVER_DATE_FORMAT);
 
         private Date ccServerTime = new Date();
 
@@ -653,15 +616,13 @@ public class P4 implements SourceControl {
 
             if (line.startsWith(SERVER_DATE)) {
                 try {
-                    String dateString = line.substring(SERVER_DATE.length(),
-                            SERVER_DATE.length() + P4_SERVER_DATE_FORMAT.length());
+                    String dateString = line.substring(SERVER_DATE.length(), SERVER_DATE.length()
+                            + P4_SERVER_DATE_FORMAT.length());
                     p4ServerTime = p4ServerDateFormatter.parse(dateString);
                     offset = p4ServerTime.getTime() - ccServerTime.getTime();
                     found = true;
                 } catch (ParseException pe) {
-                    LOG.error("Unable to parse p4 server time from line \'"
-                            + line
-                            + "\'.  " + pe.getMessage()
+                    LOG.error("Unable to parse p4 server time from line \'" + line + "\'.  " + pe.getMessage()
                             + "; Proceeding without time offset.");
                 }
             }

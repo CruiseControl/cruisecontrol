@@ -46,18 +46,15 @@ import org.apache.log4j.Logger;
 import java.io.File;
 
 /**
- * Since we rely on our build.xml to handle updating our source code, there has
- * always been a problem with what happens when the build.xml file itself
- * changes.  Previous workarounds have included writing a wrapper build.xml that
- * will check out the "real" build.xml.  This class is a substitute for that
- * practice.
+ * Since we rely on our build.xml to handle updating our source code, there has always been a problem with what happens
+ * when the build.xml file itself changes. Previous workarounds have included writing a wrapper build.xml that will
+ * check out the "real" build.xml. This class is a substitute for that practice.
  *
- * The CVSBootstrapper will handle updating a single file from CVS before the
- * build begins.
+ * The CVSBootstrapper will handle updating a single file from CVS before the build begins.
  *
  * Usage:
  *
- *     &lt;cvsbootstrapper cvsroot="" file=""/&gt;
+ * &lt;cvsbootstrapper cvsroot="" file=""/&gt;
  *
  */
 public class CVSBootstrapper implements Bootstrapper {
@@ -82,39 +79,35 @@ public class CVSBootstrapper implements Bootstrapper {
     /**
      * Sets the local working copy to use when making calls to CVS.
      *
-     *@param local String relative or absolute path to the local
-     *      working copy of the CVS module which contains the target file.
+     * @param local
+     *            String relative or absolute path to the local working copy of the CVS module which contains the target
+     *            file.
      */
     public void setLocalWorkingCopy(String local) {
         localWorkingCopy = local;
     }
 
     /**
-     *  Update the specified file.
+     * Update the specified file.
+     *
      * @throws CruiseControlException
      */
     public void bootstrap() throws CruiseControlException {
-        try {
-            Commandline commandLine = buildUpdateCommand();
-            commandLine.executeAndWait(LOG);
-        } catch (Exception e) {
-            throw new CruiseControlException("Error executing CVS update command", e);
-        }
+        buildUpdateCommand().executeAndWait(LOG);
     }
 
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(filename != null || cvsroot != null || localWorkingCopy != null,
-            "at least one of 'file', 'cvsroot' or 'localworkingcopy' is required as an attribute for CVSBootstrapper");
+                "at least one of 'file', 'cvsroot' or 'localworkingcopy' is required as an attribute for "
+                        + "CVSBootstrapper");
 
         if (localWorkingCopy != null) {
             File workingDir = new File(localWorkingCopy);
 
-            ValidationHelper.assertTrue(workingDir.exists(),
-                        "'localWorkingCopy' must be an existing directory. Was <"
-                        + localWorkingCopy + ">");
+            ValidationHelper.assertTrue(workingDir.exists(), "'localWorkingCopy' must be an existing directory. Was <"
+                    + localWorkingCopy + ">");
             ValidationHelper.assertTrue(workingDir.isDirectory(),
-                        "'localWorkingCopy' must be an existing directory, not a file. Was <"
-                        + localWorkingCopy + ">");
+                    "'localWorkingCopy' must be an existing directory, not a file. Was <" + localWorkingCopy + ">");
         }
 
         if (compression != null) {
@@ -133,7 +126,7 @@ public class CVSBootstrapper implements Bootstrapper {
         commandLine.setExecutable("cvs");
 
         if (compression != null) {
-            commandLine.createArgument("-z" + compression);    
+            commandLine.createArgument("-z" + compression);
         }
 
         if (cvsroot != null) {
@@ -162,15 +155,16 @@ public class CVSBootstrapper implements Bootstrapper {
     }
 
     public void setOverwriteChanges(boolean overwrite) {
-      overwriteChanges = overwrite;
+        overwriteChanges = overwrite;
     }
 
     /**
      * Sets the compression level used for the call to cvs, corresponding to the "-z" command line parameter. When not
      * set, the command line parameter is NOT included.
-     * 
-     * @param level Valid levels are 1 (high speed, low compression) to 9 (low speed, high compression), or 0
-     * to disable compression.
+     *
+     * @param level
+     *            Valid levels are 1 (high speed, low compression) to 9 (low speed, high compression), or 0 to disable
+     *            compression.
      */
     public void setCompression(String level) {
         compression = level;

@@ -33,6 +33,10 @@ CMSynergy
 ----------------------
 * Improved modification query for Telelogic Synergy using "useBindTime" (CC-691). Contributed by Jan Koops.
 
+Commandline
+----------------------
+* Commandline and therefore all Bootstrappers will now throw a CruiseControlException if processes return a non-zero exit code instead of just logging and continuing.  Triggered by CC-619, CC-449, and CC-450.
+
 CompositeBuilder
 ----------------------
 * Document builder attributes of <composite> builder. Reported by Mark Kefauver and EJ Ciramella.
