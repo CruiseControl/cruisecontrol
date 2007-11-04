@@ -60,8 +60,10 @@ public final class DataUtils {
 
     public static final String PASSING_BUILD_LBUILD_0_XML = "log20051209122103Lbuild.489.xml";
 
-    public static final String TESTSUITE_IN_BUILD_LBUILD =
-            "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
+    public static final String TESTSUITE_IN_BUILD_LBUILD = "net.sourceforge.cruisecontrol.sampleproject.connectfour."
+            + "PlayingStandTest";
+
+    public static final String CC_HOME = "arbitrary_cc_home";
 
     public static final String LOGFILE_OF_PROJECT2 = "log20060703155722.xml";
 
@@ -227,4 +229,7 @@ public final class DataUtils {
         return getData(DASHBOARD_XML_FOR_SELENIUM);
     }
 
+    public static File getCCRoot() throws Exception {
+        return getData(CC_HOME);
+    }
 }
