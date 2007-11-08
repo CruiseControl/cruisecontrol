@@ -50,7 +50,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class AbstractXslOutputWidgetTest extends TestCase {
     public void testShouldBeAbleToGetLogFileAndReturnParsedContent() throws Exception {
-        AbstractXslOutputWidget service = new AbstractXslOutputWidget() {
+        final AbstractXslOutputWidget service = new AbstractXslOutputWidget() {
 
             protected String getXslPath() {
                 return "xsl/ant.xsl";
@@ -60,14 +60,26 @@ public class AbstractXslOutputWidgetTest extends TestCase {
                 return null;
             }
         };
-        Map params = new HashMap();
-        File antLogAsFile = DataUtils.getFailedBuildLbuildAsFile();
+        final Map params = new HashMap();
+        final File antLogAsFile = DataUtils.getFailedBuildLbuildAsFile();
         assertTrue(antLogAsFile.exists());
         params.put(Widget.PARAM_BUILD_LOG_FILE, antLogAsFile);
         params.put(Widget.PARAM_CC_ROOT, DataUtils.getCCRoot());
-        String output = (String) service.getOutput(params);
-        assertTrue(StringUtils.contains(output, "Build Failed"));
-        assertTrue(StringUtils.contains(output, "<td class=\"error\" nowrap=\"yes\">Cannot find something</td>"));
-        assertTrue(StringUtils.contains(output, "This is my stacktrace"));
+        final String output = (String) service.getOutput(params);
+        assertContains(output, "Build Failed");
+
+        // 1.4 parser seems to order tags differently...
+        if (Double.parseDouble(System.getProperty("java.specification.version")) <= 1.4) {
+            assertContains(output, "<td nowrap=\"yes\" class=\"error\">Cannot find something</td>");
+        } else {
+            assertContains(output, "<td class=\"error\" nowrap=\"yes\">Cannot find something</td>");
+        }
+
+        assertContains(output, "This is my stacktrace");
+    }
+
+    private static void assertContains(final String output, final String textToFind) {
+        assertTrue("Output did not contain expected string: \n\n" + textToFind + " \n\noutput: \n\n" + output,
+                StringUtils.contains(output, textToFind));
     }
 }
