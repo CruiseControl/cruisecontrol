@@ -73,6 +73,8 @@ public class ModificationSet implements Serializable {
     private Date timeOfCheck;
     private final DateFormat formatter = DateFormatFactory.getDateFormat();
 
+    static final int TIMECHECKOVERRIDE_FUDGE_MILLIS = ONE_SECOND;
+
     /**
      * File-Patterns (as org.apache.oro.io.GlobFilenameFilter) to be ignored
      */
@@ -261,7 +263,9 @@ public class ModificationSet implements Serializable {
         //Overrides timeOfCheck with the source control's last checkin stamp
         long timeCheckOverride = getLastModificationMillis(modifications);
         if (timeCheckOverride > 0) {
-                    timeOfCheck = new Date(timeCheckOverride);
+            timeOfCheck = new Date(timeCheckOverride
+                    // add a fudge factor to prevent constant rebuilding if sourcecontrol mod date has no millis
+                    + TIMECHECKOVERRIDE_FUDGE_MILLIS);
         }
 
         return modificationsElement;

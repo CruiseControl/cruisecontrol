@@ -236,7 +236,8 @@ public class ModificationSetTest extends TestCase {
         modSet.add(sourceControl);
         modSet.getModifications(now, mockProgress);
 
-        assertEquals(modified, modSet.getTimeOfCheck());
+        assertEquals(new Date(modified.getTime() + ModificationSet.TIMECHECKOVERRIDE_FUDGE_MILLIS),
+                modSet.getTimeOfCheck());
     }
 
     /**
