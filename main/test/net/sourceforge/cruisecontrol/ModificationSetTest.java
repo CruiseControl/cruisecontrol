@@ -41,7 +41,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -218,26 +217,6 @@ public class ModificationSetTest extends TestCase {
         XMLOutputter outputter = new XMLOutputter();
         assertEquals("XML data differ", outputter.outputString(modificationsElement), outputter
                 .outputString(modSetResults));
-    }
-
-    public void testGetModificationsWillSetTimeOfCheckBasedOnSourceControlNotCurrentDateTime() throws Exception {
-        Calendar calendar = Calendar.getInstance();
-        Date now = calendar.getTime();
-
-        calendar.add(Calendar.HOUR_OF_DAY, 1);
-        Date modified = calendar.getTime();
-
-        assertFalse(now.equals(modified));
-
-        MockSourceControl sourceControl = new MockSourceControl();
-        sourceControl.setType(1);
-        sourceControl.setModifiedDate(modified);
-
-        modSet.add(sourceControl);
-        modSet.getModifications(now, mockProgress);
-
-        assertEquals(new Date(modified.getTime() + ModificationSet.TIMECHECKOVERRIDE_FUDGE_MILLIS),
-                modSet.getTimeOfCheck());
     }
 
     /**
