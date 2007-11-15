@@ -108,19 +108,17 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         final Date date = new Date();
         // add a ProjectState string to the status text file
         checkResultForState(fileName, ProjectState.BUILDING);
-        final String expectedStateText = getExpectedStateText(date, ProjectState.BUILDING);
+        final String expectedPrefix = getExpectedStateText(date, ProjectState.BUILDING)
+                + "\n" + expectedProgressMsgPrefix;
 
         testMsg = "test msg2";
-        checkResultForProgress(fileName, testMsg, expectedStateText + "\n" + expectedProgressMsgPrefix + testMsg,
-                project, progress);
+        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
 
         testMsg = "";
-        checkResultForProgress(fileName, testMsg, expectedStateText + "\n" + expectedProgressMsgPrefix + testMsg,
-                project, progress);
+        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
 
         testMsg = null;
-        checkResultForProgress(fileName, testMsg, expectedStateText + "\n" + expectedProgressMsgPrefix + testMsg,
-                project, progress);
+        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
     }
 
     private void checkResultForProgress(final String fileName, final String msgProgress,
