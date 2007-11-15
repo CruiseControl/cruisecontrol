@@ -148,10 +148,13 @@ public final class AntProgressLoggerInstaller {
         if (extPath.exists()) {
             extPath.delete();
         } else {
-            // @todo Replace if CruiseControl jar is ever added to installer classpath
-            //if (!Util.doMkDirs(extPath.getParentFile())) {
-            if (!doMkDirs(extPath.getParentFile())) {
-                throw new RuntimeException("Error creating install dir: " + extPath.getParentFile().getAbsolutePath());
+            final File extDir = extPath.getParentFile();
+            if (!extDir.exists()) {
+                // @todo Replace if CruiseControl jar is ever added to installer classpath
+                //if (!Util.doMkDirs(extDir)) {
+                if (!doMkDirs(extDir)) {
+                    throw new RuntimeException("Error creating install dir: " + extDir.getAbsolutePath());
+                }
             }
         }
         log("extPath: " + extPath.getAbsolutePath());
