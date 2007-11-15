@@ -102,6 +102,25 @@ public final class FilesystemUtils {
             count++;
         } while (!file.exists() && count < 3);
 
+        // another attempt to workaround the above bugs, using approach similar to that of Ant MkDirs taskdef
+        // see Util.doMkDirs()
+        if (!file.exists()) {
+            try {
+                Thread.sleep(10);
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    lastIOException = e;
+                }
+            } catch (InterruptedException ex) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    lastIOException = e;
+                }
+            }
+        }
+
         if (!file.exists()) {
             if (lastIOException != null) {
                 throw new RuntimeException("Error creating file: " + file.getAbsolutePath(), lastIOException);
