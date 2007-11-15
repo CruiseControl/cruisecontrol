@@ -665,16 +665,6 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     }
 
 
-    /**
-     * For unit testing only. Normally only passed in via
-     * {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])}.
-     * @param remoteResults array of remoteResults to attempt to retrieve.
-     */
-    void setRemoteResults(final RemoteResult[] remoteResults) {
-        this.remoteResults = remoteResults;
-    }
-
-
     public boolean resultsExist(final String resultsType) throws RemoteException {
         if (resultsType.equals(PropertiesHelper.RESULT_TYPE_LOGS)) {
             return recursiveFilesExist(logDir);
@@ -853,6 +843,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 // claim agent so no new build can start
                 claim();
             }
+            // set project name to informative message in case agent is found while restarting
+            projectName = "executingAgentRestart";
         }
 
         final URL codeBaseURL = basicService.getCodeBase();
@@ -885,6 +877,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 // claim agent so no new build can start
                 claim();
             }
+            // set project name to informative message in case agent is found while shutting down
+            projectName = "executingAgentKill";
         }
         BuildAgent.kill();
         doKillExecuted = true;
