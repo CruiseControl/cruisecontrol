@@ -40,6 +40,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.MainArgs;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
@@ -159,7 +160,7 @@ public class MainTest extends TestCase {
             String[] missingValue = new String[] { "-webapppath" };
             String[] invalidArgs = new String[] { "-webapppath", "does_not_exist" };
 
-            if (!webinfDir.mkdirs()) {
+            if (!Util.doMkDirs(webinfDir)) {
                 throw new Exception("Could not create test webapp dir");
             }
             webappDir.deleteOnExit();

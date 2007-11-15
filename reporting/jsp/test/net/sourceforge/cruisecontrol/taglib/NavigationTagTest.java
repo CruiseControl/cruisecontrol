@@ -51,6 +51,7 @@ import javax.servlet.jsp.tagext.Tag;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.mock.MockBodyContent;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
@@ -74,7 +75,7 @@ public class NavigationTagTest extends TestCase {
 
         logDir = new File("testresults/NavigationTagTest");
         if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdirs());
+            assertTrue("Failed to create test result dir", Util.doMkDirs(logDir));
         }
         final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
         servletConfig.setInitParameter("logDir", logDir.getAbsolutePath());

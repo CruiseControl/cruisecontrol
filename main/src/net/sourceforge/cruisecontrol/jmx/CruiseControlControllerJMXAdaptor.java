@@ -150,7 +150,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
 
         try {
             // ensure the file exists
-            theConfigFile.mkdirs();
+            Util.doMkDirs(theConfigFile);
             theConfigFile.createNewFile();
 
             IO.write(theConfigFile, contents);

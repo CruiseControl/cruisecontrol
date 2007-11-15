@@ -28,6 +28,7 @@ import net.sourceforge.cruisecontrol.builders.CompositeBuilder;
 import net.sourceforge.cruisecontrol.builders.AntScript;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import javax.jnlp.UnavailableServiceException;
 
@@ -610,15 +611,15 @@ public class BuildAgentServiceImplTest extends TestCase {
         testFileSub.deleteOnExit();
         
         try {
-            testDir.mkdirs();
+            Util.doMkDirs(testDir);
             assertFalse("Existant, empty base dir should show empty", 
                     BuildAgentServiceImpl.recursiveFilesExist(testDir));
             
-            testDirSub.mkdirs();
+            Util.doMkDirs(testDirSub);
             assertFalse("Existant, empty base dir, empty sub dir should show empty", 
                     BuildAgentServiceImpl.recursiveFilesExist(testDir));            
             
-            testDirSubSub.mkdirs();
+            Util.doMkDirs(testDirSubSub);
             assertFalse("Existant, empty base dir, empty sub, empty sub 2 should show empty", 
                     BuildAgentServiceImpl.recursiveFilesExist(testDir));            
             
@@ -647,10 +648,10 @@ public class BuildAgentServiceImplTest extends TestCase {
                         : TEST_PROJECT_SUCCESS)); // use default dir since no property is set
 
         testDirResult.deleteOnExit();
-        testDirResult.mkdirs();
+        Util.doMkDirs(testDirResult);
 
         REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().deleteOnExit();
-        REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().mkdirs();
+        Util.doMkDirs(REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir());
 
         final Map distributedAgentProps = new HashMap();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
@@ -703,7 +704,7 @@ public class BuildAgentServiceImplTest extends TestCase {
                         : TEST_PROJECT_SUCCESS)); // use default dir since no property is set
         
         testDirResult.deleteOnExit();
-        testDirResult.mkdirs();
+        Util.doMkDirs(testDirResult);
 
         final Map distributedAgentProps = new HashMap();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
@@ -725,7 +726,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         // in sub dirs.
         try {
             assertResultsExistByType(null, false, resultType, agentImpl);
-            testDirResultSubSub.mkdirs();
+            Util.doMkDirs(testDirResultSubSub);
             assertResultsExistByType("Result dir with no files, only subdirs, should be considered empty", false,
                     resultType, agentImpl);
 
@@ -778,7 +779,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     public void testRetrieveResultsWithAgentLogDir() throws Exception {
         final File testLogDir = new File(DIR_LOGS, "myTestLogDir");
         testLogDir.deleteOnExit();
-        testLogDir.mkdirs();
+        Util.doMkDirs(testLogDir);
 
         final Map distributedAgentProps = new HashMap();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
@@ -805,7 +806,7 @@ public class BuildAgentServiceImplTest extends TestCase {
             // before unit tests are run, and hence no test log files have been created yet 
             // in sub dirs.
             assertFalse(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
-            testLogSubSubDir.mkdirs();
+            Util.doMkDirs(testLogSubSubDir);
             assertFalse("Result dir with no files, only subdirs, should be considered empty",
                     agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             agentImpl.prepareLogsAndArtifacts();
@@ -1059,7 +1060,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static void createExpectedBuildArtifact(File buildProducedFile) {
         if (!buildProducedFile.getParentFile().exists()) {
-            buildProducedFile.getParentFile().mkdirs();
+            Util.doMkDirs(buildProducedFile.getParentFile());
         }
         try {
             if (!buildProducedFile.exists()) {

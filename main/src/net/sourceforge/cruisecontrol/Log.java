@@ -52,6 +52,7 @@ import java.util.List;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Content;
@@ -196,7 +197,7 @@ public class Log implements Serializable {
         if (!logDirectory.exists()) {
             LOG.info("log directory specified in config file does not exist; creating: "
                     + logDirectory.getAbsolutePath());
-            if (!logDirectory.mkdirs()) {
+            if (!Util.doMkDirs(logDirectory)) {
                 throw new CruiseControlException("Can't create log directory specified in config file: "
                         + logDirectory.getAbsolutePath());
             }

@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.transform.JDOMSource;
@@ -165,7 +166,7 @@ public class XSLTLogPublisher implements Publisher {
         //Make sure that the directory exists and is a directory
         //Attempt to create an empty directory if necessary
         File dir = new File(directory);
-        dir.mkdirs();
+        Util.doMkDirs(dir);
         if (!dir.isDirectory()) {
             throw new CruiseControlException(
                     "Unable to locate or create the output directory (" + directory + "): Failed to publish log file.");

@@ -46,6 +46,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Element;
 
@@ -392,12 +393,12 @@ public class AntBuilderTest extends TestCase {
 
         final File originalDir = new File(originalDirName);
         final File originalLog = new File(originalDir, logName);
-        originalDir.mkdirs();
+        Util.doMkDirs(originalDir);
         originalLog.createNewFile();
 
         final File saveDir = new File(saveDirName);
         final File savedLog = new File(saveDir, logName);
-        saveDir.mkdirs();
+        Util.doMkDirs(saveDir);
         savedLog.delete();
 
         builder.saveAntLog(originalLog);

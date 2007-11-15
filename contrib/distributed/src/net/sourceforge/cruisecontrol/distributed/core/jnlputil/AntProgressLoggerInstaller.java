@@ -114,6 +114,30 @@ public final class AntProgressLoggerInstaller {
         return new File(path, AntScript.LIBNAME_PROGRESS_LOGGER);
     }
 
+    /**
+     * Attempt to fix possible race condition when creating directories on
+     * WinXP, also Windows2000. If the mkdirs does not work, wait a little and
+     * try again.
+     * Taken from Ant Mkdir taskdef.
+     *
+     * @param f the path for which directories are to be created
+     * @return <code>true</code> if and only if the directory was created,
+     *         along with all necessary parent directories; <code>false</code>
+     *         otherwise
+     */
+    private static boolean doMkDirs(File f) {
+        // @todo Remove this method if CruiseControl jar is ever added to installer classpath
+        if (!f.mkdirs()) {
+            try {
+                Thread.sleep(10);
+                return f.mkdirs();
+            } catch (InterruptedException ex) {
+                return f.mkdirs();
+            }
+        }
+        return true;
+    }
+
 
     private static void install() {
 
@@ -124,7 +148,11 @@ public final class AntProgressLoggerInstaller {
         if (extPath.exists()) {
             extPath.delete();
         } else {
-            extPath.getParentFile().mkdirs();
+            // @todo Replace if CruiseControl jar is ever added to installer classpath
+            //if (!Util.doMkDirs(extPath.getParentFile())) {
+            if (!doMkDirs(extPath.getParentFile())) {
+                throw new RuntimeException("Error creating install dir: " + extPath.getParentFile().getAbsolutePath());
+            }
         }
         log("extPath: " + extPath.getAbsolutePath());
         

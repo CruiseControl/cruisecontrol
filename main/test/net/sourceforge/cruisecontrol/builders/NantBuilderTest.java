@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.MockProcess;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Attribute;
 import org.jdom.CDATA;
@@ -334,12 +335,12 @@ public class NantBuilderTest extends TestCase {
 
         final File originalDir = new File(originalDirName);
         final File originalLog = new File(originalDir, logName);
-        originalDir.mkdirs();
+        Util.doMkDirs(originalDir);
         originalLog.createNewFile();
 
         final File saveDir = new File(saveDirName);
         final File savedLog = new File(saveDir, logName);
-        saveDir.mkdirs();
+        Util.doMkDirs(saveDir);
         savedLog.delete();
 
         builder.saveNantLog(originalLog);

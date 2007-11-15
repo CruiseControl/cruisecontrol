@@ -52,6 +52,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.log4j.Logger;
+import net.sourceforge.cruisecontrol.util.Util;
 
 public final class ZipUtil {
 
@@ -231,12 +232,12 @@ public final class ZipUtil {
         try {
             final File file = new File(rootDirName, entry.getName());
             if (entry.isDirectory()) {
-                file.mkdirs();
+                Util.doMkDirs(file);
             } else {
                 is = zipFile.getInputStream(entry);
                 inStream = new BufferedInputStream(is);
                 final File dir = new File(file.getParent());
-                dir.mkdirs();
+                Util.doMkDirs(dir);
                 outStream = new FileOutputStream(file);
                 bufferedOutStream = new BufferedOutputStream(outStream);
 

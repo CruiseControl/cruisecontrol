@@ -98,25 +98,27 @@ public final class Util {
      *            The <code>File</code> from which to load the properties
      * @return A <code>Properties</code> object which contains all properties
      *         defined in the file.
-     * @throws CruiseControlException
-     * @throws IOException
+     * @throws CruiseControlException wraps FileNotFoundException
+     * @throws IOException if properties fail to load
      */
     public static Properties loadPropertiesFromFile(File file)
             throws CruiseControlException, IOException {
         Properties properties = new Properties();
 
         // Load the properties from file
-        BufferedInputStream bis = null;
+
         try {
-            bis = new BufferedInputStream(new FileInputStream(file));
-            properties.load(bis);
+            final BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            try {
+                properties.load(bis);
+            } finally {
+                IO.close(bis);
+            }
         } catch (FileNotFoundException e) {
             throw new CruiseControlException(
                     "Could not load properties from file "
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
-        } finally {
-            IO.close(bis);
         }
 
         return properties;
@@ -135,29 +137,33 @@ public final class Util {
      * @param file
      *            The properties file to which the properties will be written.
      *
-     * @throws CruiseControlException
-     * @throws IOException
+     * @throws CruiseControlException wraps FileNotFoundException
+     * @throws IOException if properties fail to store
      */
     public static void storePropertiesToFile(Properties properties,
             String header, File file) throws CruiseControlException,
             IOException {
-        BufferedOutputStream bos = null;
 
         try {
-            bos = new BufferedOutputStream(new FileOutputStream(file));
-            properties.store(bos, header);
+            final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+            try {
+                properties.store(bos, header);
+            } finally {
+                IO.close(bos);
+            }
         } catch (FileNotFoundException e) {
             throw new CruiseControlException(
                     "Could not store properties to file "
                             + file.getAbsolutePath() + ". It does not exist.",
                     e);
-        } finally {
-            IO.close(bos);
         }
     }
 
     /**
      * Return the content of the file specified by its path into a <code>String</code>
+     * @param fileName the file to read
+     * @return the content of the file specified by its path into a <code>String</code>
+     * @throws IOException if io error occurs
      */
     public static String readFileToString(String fileName) throws IOException {
         StringBuffer out = new StringBuffer();
@@ -166,26 +172,31 @@ public final class Util {
     }
 
     public static String readFileToString(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuffer result = new StringBuffer();
+        final BufferedReader reader = new BufferedReader(new FileReader(file));
+        final StringBuffer result = new StringBuffer();
 
-        String s = reader.readLine();
-        while (s != null) {
-            result.append(s.trim());
-            s = reader.readLine();
+        try {
+            String s = reader.readLine();
+            while (s != null) {
+                result.append(s.trim());
+                s = reader.readLine();
+            }
+        } finally {
+            reader.close();
         }
-        reader.close();
 
         return result.toString();
     }
 
     /**
      * Append the content of the file specified by its path into a <code>StringBuffer</code>
+     * @param fileName file who's content is to be appeneded
+     * @param out buffer onto which to append the file content
+     * @throws IOException if io error occurs
      */
     public static void appendFileToBuffer(String fileName, StringBuffer out) throws IOException {
-        FileReader fr = null;
+        final FileReader fr = new FileReader(fileName);
         try {
-            fr = new FileReader(fileName);
             char[] buff = new char[4096];
             int size = fr.read(buff, 0, 4096);
             while (size > 0) {
@@ -195,5 +206,28 @@ public final class Util {
         } finally {
             IO.close(fr);
         }
+    }
+
+    /**
+     * Attempt to fix possible race condition when creating directories on
+     * WinXP, also Windows2000. If the mkdirs does not work, wait a little and
+     * try again.
+     * Taken from Ant Mkdir taskdef.
+     *
+     * @param f the path for which directories are to be created
+     * @return <code>true</code> if and only if the directory was created,
+     *         along with all necessary parent directories; <code>false</code>
+     *         otherwise
+     */
+    public static boolean doMkDirs(File f) {
+        if (!f.mkdirs()) {
+            try {
+                Thread.sleep(10);
+                return f.mkdirs();
+            } catch (InterruptedException ex) {
+                return f.mkdirs();
+            }
+        }
+        return true;
     }
 }
