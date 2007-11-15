@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.7.2-dev
 
+general
+======================
+* use Util.doMkDirs() instead of File.mkdirs() to fix possible race condition when creating directories on WinXP, also Windows2000.
+
 contrib
 ======================
 

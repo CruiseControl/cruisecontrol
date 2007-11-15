@@ -46,6 +46,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.config.XMLConfigManager;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  *
@@ -61,7 +62,7 @@ public final class CruiseControlControllerTest extends TestCase {
     private CruiseControlController ccController;
 
     protected void setUp() throws Exception {
-        dir.mkdirs();
+        Util.doMkDirs(dir);
         ccController = new CruiseControlController();
         ensureFileDoesntExist(configFile);
         ensureFileDoesntExist(configFile2);

@@ -63,7 +63,7 @@ public final class CurrentBuildFileWriter {
         File file = new File(fileName);
         File dir = file.getParentFile();
         if (dir != null && !dir.isDirectory()) {
-            ValidationHelper.assertTrue(dir.mkdirs(), "directory for file " + fileName
+            ValidationHelper.assertTrue(Util.doMkDirs(dir), "directory for file " + fileName
                     + " doesn't exist and couldn't be created.");
         }
     }

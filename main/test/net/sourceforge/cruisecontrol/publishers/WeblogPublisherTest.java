@@ -48,6 +48,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  * Unit tests for
@@ -463,7 +464,7 @@ public class WeblogPublisherTest extends TestCase {
     private File createTempDir() {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         tempDir = new File(tempDir, "tempdir_" + (counter++));
-        tempDir.mkdirs();
+        Util.doMkDirs(tempDir);
         tempDir.deleteOnExit();
         filesToDelete.add(tempDir);
         return tempDir;

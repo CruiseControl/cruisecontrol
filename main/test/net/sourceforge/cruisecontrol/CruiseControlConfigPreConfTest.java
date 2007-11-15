@@ -68,7 +68,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
 
         final File testLogsDir = new File(TestUtil.getTargetDir(), "logs");
         // Pre-create parent "logs" dir to minimize chance of error creating project-log dir on Winz
-        testLogsDir.mkdirs();
+        Util.doMkDirs(testLogsDir);
         config = new CruiseControlConfig(rootElement);
         filesToDelete.add(testLogsDir);
     }

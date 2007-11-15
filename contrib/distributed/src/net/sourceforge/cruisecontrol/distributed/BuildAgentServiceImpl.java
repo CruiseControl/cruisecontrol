@@ -65,6 +65,7 @@ import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 import net.sourceforge.cruisecontrol.distributed.core.jnlputil.AntProgressLoggerInstaller;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
@@ -596,7 +597,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
     private static void ensureDirExists(final File fileResultDir) {
         if (!fileResultDir.exists()) {
-            if (!fileResultDir.mkdirs()) {
+            if (!Util.doMkDirs(fileResultDir)) {
                 final String msg = "Error creating Agent result dir: " + fileResultDir.getAbsolutePath();
                 LOG.error(msg);
                 throw new RuntimeException(msg);

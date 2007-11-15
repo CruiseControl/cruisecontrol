@@ -42,6 +42,7 @@ import java.net.Socket;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Util;
 
 public class EmbeddedJettyServerTest extends TestCase {
 
@@ -61,7 +62,7 @@ public class EmbeddedJettyServerTest extends TestCase {
         filesToDelete.add(webappDir);
         filesToDelete.add(webinfDir);
 
-        if (!webinfDir.mkdirs()) {
+        if (!Util.doMkDirs(webinfDir)) {
             throw new RuntimeException("Unable to create directory path: " + webinfDir.getAbsolutePath());
         }
 

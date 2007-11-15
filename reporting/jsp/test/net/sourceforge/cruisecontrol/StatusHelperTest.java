@@ -43,6 +43,7 @@ import java.util.Locale;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  * User: jfredrick Date: Jan 31, 2004 Time: 5:18:43 PM
@@ -85,11 +86,7 @@ public class StatusHelperTest extends TestCase {
             logDir.delete();
         }
         if (!logDir.isDirectory()) {
-            if (!logDir.getParentFile().exists()) {
-                // Pre-create parent dir to minimize chance of error creating project-log dir on Winz
-                logDir.getParentFile().mkdirs();
-            }
-            assertTrue("Failed to create test result dir " + logDir.getAbsolutePath(), logDir.mkdirs());
+            assertTrue("Failed to create test result dir " + logDir.getAbsolutePath(), Util.doMkDirs(logDir));
             filesToDelete.add(logDir);
         }
 

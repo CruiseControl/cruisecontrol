@@ -47,6 +47,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletRequest;
+import net.sourceforge.cruisecontrol.util.Util;
 
 public class NavigationCountTagTest extends TestCase {
     private NavigationCountTag tag;
@@ -65,7 +66,7 @@ public class NavigationCountTagTest extends TestCase {
 
         logDir = new File("testresults/NavigationTagTest");
         if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdirs());
+            assertTrue("Failed to create test result dir", Util.doMkDirs(logDir));
         }
         final MockServletConfig servletConfig = (MockServletConfig) pageContext.getServletConfig();
         servletConfig.setInitParameter("logDir", logDir.getAbsolutePath());
