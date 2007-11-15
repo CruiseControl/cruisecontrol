@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.taglib;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.LogFile;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.mock.MockPageContext;
 import net.sourceforge.cruisecontrol.mock.MockServletConfig;
 import net.sourceforge.cruisecontrol.mock.MockServletContext;
@@ -64,7 +65,7 @@ public class XSLTagTest extends TestCase {
     protected void setUp() throws Exception {
         logDir = new File("testresults/");
         if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdir());
+            assertTrue("Failed to create test result dir", Util.doMkDirs(logDir));
         }
         log1 = new File(logDir, "log20040903010203.xml");
         log2 = new File(logDir, "log20040905010203.xml");
