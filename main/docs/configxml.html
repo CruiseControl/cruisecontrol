@@ -172,6 +172,7 @@
 <a href="#property">&lt;property&gt;</a>
 <a href="#publishers">&lt;publishers&gt;</a>
 <a href="#pvcs">&lt;pvcs&gt;</a>
+<a href="#rake">&lt;rake&gt;</a>
 <a href="#rss">&lt;rss&gt;</a>
 <a href="#sametimeannouncement">&lt;sametimeannouncement&gt;</a>
 <a href="#schedule">&lt;schedule&gt;</a>
@@ -313,6 +314,7 @@
          <a href="#pause">&lt;pause/&gt;</a>
          <a href="#nant">&lt;nant/&gt;</a>
          <a href="#phing">&lt;phing/&gt;</a>
+         <a href="#rake">&lt;rake/&gt;</a>
          <a href="#exec">&lt;exec/&gt;</a>
          <a href="#composite">&lt;composite/&gt;</a>
       &lt;/schedule&gt;
@@ -5559,6 +5561,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>0 .. *</td>
                 <td>Builds the project using Phing.</td>
             </tr>
+	        <tr>
+                <td><a href="#rake">&lt;rake&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Rake.</td>
+            </tr>
             <tr>
                 <td><a href="#exec">&lt;exec&gt;</a></td>
                 <td>0 .. *</td>
@@ -6323,10 +6330,15 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Builds the project using NAnt.</td>
             </tr>
-	    <tr>
+	        <tr>
                 <td><a href="#phing">&lt;phing&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Builds the project using Phing.</td>
+            </tr>
+	        <tr>
+                <td><a href="#rake">&lt;rake&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Rake.</td>
             </tr>
             <tr>
                 <td><a href="#exec">&lt;exec&gt;</a></td>
@@ -6580,6 +6592,7 @@ endlocal</pre>
         </ol>
         </div>
 
+
 <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
 		<h2><a name="phing">&lt;phing&gt;</a></h2>
@@ -6776,6 +6789,99 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </li>
         </ol>
       </div>
+
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="rake">&lt;rake&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;rake&gt;</pre>
+        </div>
+
+        <p>Specifies a Ruby Rake build to be run at a given time or build number.
+        For instance, we can run a clean build every 5 builds, or run more
+        comprehensive (and time intensive) system tests every 10 builds.  We
+        can also schedule an official build to run every night at midnight,
+        if we so desire.</p>
+
+        <p>When a build runs, Rake is invoked in a separate Java process.</p>
+
+        <p>The standard CruiseControl <a href="#buildproperties">properties
+        passed to builders</a> are available from within the rake build.</p>
+
+        <h3><a name="rake-attributes">Attributes</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>buildfile</td>
+                <td>No (defaults to rakefile.rb)</td>
+                <td>Path to Rake build file. If the rakefile is not found in the current directory,
+                rake will search parent directories for a match. The directory where the
+                Rakefile is found will become the current directory for the actions executed
+                in the Rakefile</td>
+            </tr>
+            <tr>
+                <td>target</td>
+                <td>No</td>
+                <td>Rake target(s) to run. Default is "", or the default target
+                for the rake file.</td>
+            </tr>
+            <tr>
+                <td>multiple</td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr>
+                <td>day</td>
+                <td>No</td>
+                <td>Valid values are (case-insensitive) the English names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            <tr>
+                <td>workingDir</td>
+                <td>No</td>
+                <td>Will invoke rake in the specified directory. The directory can
+                be relative (to the cruisecontrol current working directory) or absolute.</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Rake build will be halted if it continues longer than the
+                specified timeout. Value in seconds.</td>
+            </tr>
+            <tr>
+                <td>showProgress</td>
+                <td>No  (defaults to true)</td>
+                <td>If true or omitted, this builder will provide progress messages.
+                    If false, no progress messages will be shown. If any parent showProgress is false,
+                    then no progress will be shown, regardless of this builder's settings.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>

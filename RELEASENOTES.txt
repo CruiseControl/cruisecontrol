@@ -84,6 +84,7 @@ Documentation
 ======================
 * Add missing docs for "timeout" attributes on Maven and Maven2 builders.
 * Fix old reference to launch via cruisecontrol.jar (replace with cruisecontrol-launcher.jar) in gettingstartedsroucedist.html. Reported by Xeno Campanoli
+* Add documentation for the Rake Builder (which has existed for some time, but had no docs).
 
 reporting
 ======================
