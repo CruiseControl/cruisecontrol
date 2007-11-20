@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,20 +30,20 @@ public class BuildStatusTest extends TestCase {
 
     private File logDir;
 
-    private TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
     protected void setUp() throws Exception {
         // make base log dir
         logDir = new File("testresults/");
         if (!logDir.exists()) {
-            assertTrue("Failed to create test result dir", logDir.mkdir());
+            assertTrue("Failed to create test result dir", Util.doMkDirs(logDir));
             filesToDelete.add(logDir);
         }
 
         // make multi project log dir
         File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
-            assertTrue("Failed to create project log dir", projectLogDir.mkdir());
+            assertTrue("Failed to create project log dir", Util.doMkDirs(projectLogDir));
             filesToDelete.add(logDir);
         }
 
@@ -120,7 +121,7 @@ public class BuildStatusTest extends TestCase {
         assertEquals("html:" + msg, expected, actual);
     }
 
-    private void prepareFile(File file, String body) throws IOException, CruiseControlException {
+    private void prepareFile(File file, String body) throws CruiseControlException {
         IO.write(file, body);
         filesToDelete.add(file);
     }
