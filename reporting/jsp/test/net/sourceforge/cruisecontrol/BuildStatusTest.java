@@ -6,7 +6,6 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
