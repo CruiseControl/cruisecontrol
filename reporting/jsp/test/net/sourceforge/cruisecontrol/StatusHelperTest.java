@@ -93,7 +93,8 @@ public class StatusHelperTest extends TestCase {
         // make multi project log dir
         File projectLogDir = new File(logDir, PROJECT_NAME + "/");
         if (!projectLogDir.exists()) {
-            assertTrue("Failed to create project log dir: " + projectLogDir.getAbsolutePath(), projectLogDir.mkdir());
+            assertTrue("Failed to create project log dir: " + projectLogDir.getAbsolutePath(), 
+                    Util.doMkDirs(projectLogDir));
             filesToDelete.add(logDir);
         }
 
