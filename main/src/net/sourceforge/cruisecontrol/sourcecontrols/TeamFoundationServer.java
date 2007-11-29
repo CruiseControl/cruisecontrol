@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,7 +48,7 @@ public class TeamFoundationServer implements SourceControl {
     private String tfPath = "tf";
     private String options;
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * The main getModification method called by the build loop. Responsible for
@@ -62,13 +61,8 @@ public class TeamFoundationServer implements SourceControl {
     public List getModifications(Date lastBuild, Date now) {
 
         List modifications = new ArrayList();
-        Commandline command;
-        try {
-            command = buildHistoryCommand(lastBuild, now);
-        } catch (CruiseControlException e) {
-            LOG.error("Error building history command", e);
-            return modifications;
-        }
+        final Commandline command = buildHistoryCommand(lastBuild, now);
+
         try {
             modifications = execHistoryCommand(command, lastBuild);
         } catch (Exception e) {
@@ -81,10 +75,10 @@ public class TeamFoundationServer implements SourceControl {
 
     /**
      * Populate the source control properties.  As well as detecting if modifications found
-     * and it any deletion is found, also put the maximum changeset found in the modification list.
+     * and if any deletion is found, also put the maximum changeset found in the modification list.
      * The changeset ID represents the state of the repository at the time the modifications were
      * detected and therefore can be used in a subsquent get, label etc to ensure consistency.
-     * @param modifications
+     * @param modifications the list of modifications reported by TFS
      */
     void fillPropertiesIfNeeded(List modifications) {
         if (!modifications.isEmpty()) {
@@ -116,7 +110,7 @@ public class TeamFoundationServer implements SourceControl {
      * <a href="http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx">
      * http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx </a>
      */
-    Commandline buildHistoryCommand(Date lastBuild, Date now) throws CruiseControlException {
+    Commandline buildHistoryCommand(Date lastBuild, Date now)  {
 
         Commandline command = new Commandline();
         command.setExecutable(tfPath);
@@ -163,20 +157,19 @@ public class TeamFoundationServer implements SourceControl {
     /**
      * Helper method to send stderr from the tf command to CruiseControl stderr
      */
-    private Thread logErrorStream(Process p) {
+    private void logErrorStream(Process p) {
         Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
         stderr.start();
-        return stderr;
     }
 
     /**
      * Parse the result stream. Delegates to the TFSHistoryParser.parse method.
      */
     private List parseStream(InputStream tfStream, Date lastBuild)
-            throws IOException, ParseException, UnsupportedEncodingException {
+            throws IOException, ParseException {
         
         InputStreamReader reader = new InputStreamReader(tfStream, "UTF-8");
-        return TFHistoryParser.parse(reader);
+        return TFHistoryParser.parse(reader, lastBuild);
     }
 
     /**
@@ -235,7 +228,7 @@ public class TeamFoundationServer implements SourceControl {
         /**
          * Parse the passed stream of data from the command line.
          */
-        static List parse(Reader reader) throws IOException, ParseException {
+        static List parse(Reader reader, Date lastBuild) throws IOException, ParseException {
             ArrayList modifications = new ArrayList();
             StringBuffer buffer = new StringBuffer();
 
@@ -248,7 +241,7 @@ public class TeamFoundationServer implements SourceControl {
                 if (line.startsWith(CHANGESET_SEPERATOR)) {
                     if (linecount > 1) {
                         // We are starting a new changeset.
-                        modifications.addAll(parseChangeset(buffer.toString()));
+                        modifications.addAll(parseChangeset(buffer.toString(), lastBuild));
                         buffer.setLength(0);
                     }
                 } else {
@@ -257,7 +250,7 @@ public class TeamFoundationServer implements SourceControl {
             }
 
             // Add the last changeset
-            modifications.addAll(parseChangeset(buffer.toString()));
+            modifications.addAll(parseChangeset(buffer.toString(), lastBuild));
 
             return modifications;
         }
@@ -266,7 +259,7 @@ public class TeamFoundationServer implements SourceControl {
          * Parse the changeset data and convert into a list of CruiseControl
          * modifications.
          */
-        static ArrayList parseChangeset(String data) throws ParseException {
+        static ArrayList parseChangeset(String data, Date lastBuild) throws ParseException {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Parsing Changeset Data:\n" + data);
             }
@@ -278,9 +271,12 @@ public class TeamFoundationServer implements SourceControl {
                 String revision = m.group(1);
                 String userName = m.group(2);
 
-                // Date - use the old Date.parse method because it
-                // does a good job at guessing dates outputed by .Net
                 Date modifiedTime = parseDate(m.group(3));
+                
+                // CC-735.  Ignore changesets that occured before the specified lastBuild.
+                if (modifiedTime.compareTo(lastBuild) < 0) {
+                    return new ArrayList();
+                }
 
                 // Remove the indentation from the comment
                 String comment = m.group(4).replaceAll("\n  ", "\n");

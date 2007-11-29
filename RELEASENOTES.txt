@@ -80,6 +80,10 @@ SVNLabelIncrementer
 ----------------------
 * New label incrementer to update label based on SVN revision number (CC-716).  Submitted by Ketan Padegaonkar.
 
+TeamFoundationServer source control
+----------------------
+* Fix compatibility with Microsoft Visual Studio Team Foundation Server 2008 (CC-735). Submitted by Martin Woodward.
+
 Documentation
 ======================
 * Add missing docs for "timeout" attributes on Maven and Maven2 builders.
