@@ -26,7 +26,9 @@ public class TeamFoundationServerTest extends TestCase {
     private TeamFoundationServer tfs;
 
     private Locale originalLocal;
-
+    
+    private Date minDate;
+    
     private static final String CHANGESET_DATA = "Changeset: 1645\n"
             + "User: martin\n"
             + "Date: 13 December 2006 21:51:50\n"
@@ -81,6 +83,9 @@ public class TeamFoundationServerTest extends TestCase {
         tfs = new TeamFoundationServer();
         tfs.setServer("http://tfsserver:8080");
         tfs.setProjectPath("$/TeamProjectName/path");
+        
+        // Set up a default date to be used for the lastBuild date when
+        minDate = (new GregorianCalendar(1976, 3, 10)).getTime();
     }
 
     /*
@@ -207,7 +212,7 @@ public class TeamFoundationServerTest extends TestCase {
     }
 
     public void testParseChangesetGetItems() throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_MULTI_ITEM);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_MULTI_ITEM, minDate);
 
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -229,7 +234,7 @@ public class TeamFoundationServerTest extends TestCase {
     }
 
     public void testParseTeampriseChangeset() throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_TEAMPRISE);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(CHANGESET_DATA_TEAMPRISE, minDate);
 
         assertNotNull(list);
         assertEquals(3, list.size());
@@ -248,9 +253,8 @@ public class TeamFoundationServerTest extends TestCase {
                 + "  Security Reviewer:\r\n" + "\r\n";
 
         Reader reader = new StringReader(tfOutput);
-        List list = null;
         try {
-            list = TeamFoundationServer.TFHistoryParser.parse(reader);
+            TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
         } catch (ParseException e) {
             assertEquals("Parse error.", e.getMessage().substring(0, "Parse error.".length()));
             return;
@@ -262,11 +266,34 @@ public class TeamFoundationServerTest extends TestCase {
         String tfOutput = "No history entries were found for the item and version combination specified." + "\r\n";
 
         Reader reader = new StringReader(tfOutput);
-        List list = TeamFoundationServer.TFHistoryParser.parse(reader);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
 
         assertNotNull(list);
         assertEquals(0, list.size());
     }
+    
+    public void testTFS2008Bug() throws IOException, ParseException {
+        // CC-735: Compatibility with TFS2008.
+        // TFS2008 RTM has an issue whereby it will return the latest changeset from a query history
+        // call even when that change happened before the date range passed in the query.        
+        // We must therefore check that any returned changesets happened in the window
+        // of time that interests us (i.e. occurred after or equal to our search start date)
+        
+        String tfOutput = "-----------------------------------------------------"
+            + "----------------------------------------------\r\n" + "Changeset: 29\r\n" + "User: ptakale_cp\r\n"
+            + "Date: 11 May 2006 20:23:37\r\n" + "\r\n" + "Comment:\r\n" + "  Upgraded to VS8\r\n" + "\r\n"
+            + "Items:\r\n" + "  edit $/TestProject7/WindowsApplication1.sln\r\n"
+            + "  edit $/TestProject7/WindowsApplication1/WindowsApplication1.vbproj.user\r\n"
+            + "  edit $/TestProject7/WindowsApplication1/WindowsApplication1.vbproj\r\n" + "\r\n";
+
+        Date lastBuildDate = (new GregorianCalendar(2007, 1, 1)).getTime();
+            
+        Reader reader = new StringReader(tfOutput);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, lastBuildDate);
+
+        assertNotNull(list);
+        assertEquals(0, list.size());
+    }    
 
     public void testFullParseFromCodePlex() throws IOException, ParseException {
         // A bit of overkill this, but testing parsing routine on real live data
@@ -294,7 +321,7 @@ public class TeamFoundationServerTest extends TestCase {
                 + "Items:\r\n" + "  add $/TestProject7\r\n" + "\r\n";
 
         Reader reader = new StringReader(tfOutput);
-        List list = TeamFoundationServer.TFHistoryParser.parse(reader);
+        List list = TeamFoundationServer.TFHistoryParser.parse(reader, minDate);
 
         assertNotNull(list);
         assertEquals(11, list.size());
@@ -322,7 +349,7 @@ public class TeamFoundationServerTest extends TestCase {
      * @throws ParseException
      */
     private Modification parseChangeset(String data) throws ParseException {
-        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(data);
+        List list = TeamFoundationServer.TFHistoryParser.parseChangeset(data, minDate);
 
         assertNotNull(list);
         assertTrue(list.get(0) instanceof Modification);
