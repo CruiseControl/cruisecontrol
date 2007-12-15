@@ -23,6 +23,9 @@ public class CompositeBuilder extends Builder {
     private final List builders = new ArrayList();
 
     private long startTime = 0;
+    private long timeoutSeconds = ScriptRunner.NO_TIMEOUT;
+    private boolean isTimedOut;
+
 
     private long childStartTime = 0;
 
@@ -35,10 +38,21 @@ public class CompositeBuilder extends Builder {
     }
 
     private void endBuild(Element buildResult) {
+        if (isTimedOut) {
+            LOG.warn("Composite Build timeout timer of " + timeoutSeconds + " seconds has expired");
+            buildResult.setAttribute("error", "build timeout");
+        }
+
         long endTime = System.currentTimeMillis();
         buildResult.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
     }
 
+    private void checkTimedOut() {
+        if (timeoutSeconds != ScriptRunner.NO_TIMEOUT
+                && (System.currentTimeMillis() - startTime) > (timeoutSeconds * 1000L)) {
+            isTimedOut = true;
+        }
+    }
 
     private void startChild() {
         childStartTime = System.currentTimeMillis();
@@ -138,7 +152,7 @@ public class CompositeBuilder extends Builder {
         final int totalBuilders = builders.size();
 
         startBuild();
-        while (iter.hasNext() & !errorOcurred) {
+        while (iter.hasNext() & !errorOcurred & !isTimedOut) {
 
             i++;
             final String buildlogMsgPrefix = "composite build " + i + " of " + totalBuilders;
@@ -151,6 +165,7 @@ public class CompositeBuilder extends Builder {
             final Element buildResult = builder.build(properties, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult,
                     buildlogMsgPrefix, builder, childStartTime);
+            checkTimedOut();
         }
         endBuild(compositeBuildResult);
 
@@ -170,7 +185,7 @@ public class CompositeBuilder extends Builder {
         final int totalBuilders = builders.size();
 
         startBuild();
-        while (iter.hasNext() & !errorOcurred) {
+        while (iter.hasNext() & !errorOcurred & !isTimedOut) {
 
             i++;
             final String buildlogMsgPrefix = "composite build " + i + " of " + totalBuilders;
@@ -183,6 +198,7 @@ public class CompositeBuilder extends Builder {
             final Element buildResult = builder.buildWithTarget(properties, target, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult,
                     buildlogMsgPrefix, builder, childStartTime);
+            checkTimedOut();
         }
         endBuild(compositeBuildResult);
 
@@ -205,5 +221,13 @@ public class CompositeBuilder extends Builder {
     /** @return array of the builders in this composite. */
     public Builder[] getBuilders() {
         return (Builder[]) builders.toArray(new Builder[builders.size()]);
+    }
+
+
+    /**
+     * @param timeout The timeout (in seconds) to set.
+     */
+    public void setTimeout(long timeout) {
+        this.timeoutSeconds = timeout;
     }
 }
