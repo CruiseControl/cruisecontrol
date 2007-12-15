@@ -47,6 +47,7 @@ CompositeBuilder
 * Change composite builder to use same technique as Project to detect build errors (in the build log, the "build" tag has an "error" attribute).
 * Insert composite builder info into build log for each child builder.
 Todo: Rearranging these elements (even nesting childLog elements?), might allow display of these child buider info elements in reporting apps.
+* Implement (and document) "timeout" attribute.
 
 Configuration documentation generation
 ----------------------

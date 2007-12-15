@@ -37,11 +37,13 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest;
+import net.sourceforge.cruisecontrol.Progress;
 
 import org.jdom.Element;
 
@@ -250,4 +252,94 @@ public class CompositeBuilderTest extends TestCase {
         builder.add(mock2);
         assertEquals(2, builder.getBuilders().length);
     }
+
+
+    private void assertBuildTimeoutSuccess() throws CruiseControlException {
+        final long startTime = System.currentTimeMillis();
+        final Element buildElement = builder.build(null, null);
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        assertNull(buildElement.getAttributeValue("error"));
+    }
+    private void assertBuildWithTargetTimeoutSuccess() throws CruiseControlException {
+        final long startTime = System.currentTimeMillis();
+        final Element buildElement = builder.buildWithTarget(null, null, null);
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        assertNull(buildElement.getAttributeValue("error"));
+    }
+
+    public void testNoBuildTimeout() throws Exception {
+        // test build
+        builder = new CompositeBuilder();
+        final MockBuilder mock1 = new MockBuilder("builder1-noTimeout");
+        builder.add(mock1);
+        assertBuildTimeoutSuccess();
+
+        // test buildWithTarget
+        builder = new CompositeBuilder();
+        builder.add(mock1);
+        assertBuildWithTargetTimeoutSuccess();
+    }
+
+    public void testBuildTimeoutWithNoTimeout() throws Exception {
+        // test build
+        builder = new CompositeBuilder();
+        // test with timeout
+        final int timeoutSecs = 1;
+        builder.setTimeout(timeoutSecs);
+        final MockBuilder mock1 = new MockBuilder("builder1-timeout");
+        builder.add(mock1);
+        assertBuildTimeoutSuccess();
+
+        // test buildWithTarget
+        builder = new CompositeBuilder();
+        // test with timeout
+        builder.setTimeout(timeoutSecs);
+        builder.add(mock1);
+        assertBuildWithTargetTimeoutSuccess();
+    }
+
+    private void assertBuildTimeoutError() throws CruiseControlException {
+        final long startTime = System.currentTimeMillis();
+        final Element buildElement = builder.build(null, null);
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+    }
+    private void assertBuildWithTargetTimeoutError() throws CruiseControlException {
+        final long startTime = System.currentTimeMillis();
+        final Element buildElement = builder.buildWithTarget(null, null, null);
+        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+    }
+
+    public void testBuildTimeoutWithTimeout() throws Exception {
+        // test build
+        builder = new CompositeBuilder();
+        // test with timeout
+        final int timeoutSecs = 1;
+        builder.setTimeout(timeoutSecs);
+        final MockBuilder mock1 = new MockBuilder("builder1-timeout") {
+            public Element build(final Map properties, final Progress progress) {
+                final Element result = super.build(properties, progress);
+
+                // wait for longer than timeout
+                try {
+                    Thread.sleep((timeoutSecs * 1000L) + 1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                return result;
+            }
+        };
+        builder.add(mock1);
+        assertBuildTimeoutError();
+
+        // test buildWithTarget
+        builder = new CompositeBuilder();
+        // test with timeout
+        builder.setTimeout(timeoutSecs);
+        builder.add(mock1);
+        assertBuildWithTargetTimeoutError();
+    }
+
 } // CompositeBuilderTest
