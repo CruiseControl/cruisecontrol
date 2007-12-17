@@ -19,10 +19,6 @@
               lines="348"/>
 
     <suppress checks="InnerAssignment"
-              files="Maven2SnapshotDependency.java"
-              lines="340,362"/>
-
-    <suppress checks="InnerAssignment"
               files="P4.java"
               lines="395,420"/>
 

@@ -80,7 +80,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
     /** enable logging for this class */
     private static final Logger LOG = Logger.getLogger(Maven2SnapshotDependency.class);
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
     private List modifications;
     private File pomFile;
     private String user;
@@ -91,18 +91,18 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
 
     /**
-     * Set the root folder of the directories that we are going to scan
+     * @param s the pom.xml file who's snapshot dependencies we are going to scan
      */
     public void setPomFile(String s) {
         pomFile = new File(s);
     }
 
     /**
-     * Set the path for the local Maven repository.
+     * @param s the path for the local Maven repository.
      * Normally, this is not set in order to use the default location: user.home/.m2/repository.
      */
     //@todo Make "public" when maven embedder honors alignWithUserInstallation
-    void setLocalRepository(String s) throws CruiseControlException {
+    void setLocalRepository(String s) {
         if (s != null) {
             localRepoDir = new File(s);
         } else {
@@ -111,7 +111,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
     /**
-     * Set the username listed with changes found in binary dependencies
+     * @param s the username listed with changes found in binary dependencies
      */
     public void setUser(String s) {
         user = s;
@@ -177,6 +177,9 @@ public class Maven2SnapshotDependency  implements SourceControl {
     /**
      * Add a Modification to the list of modifications. All modifications are
      * listed as "change" or "missing" if not in local repo.
+     * @param dependency snapshot detected as modified
+     * @param changeType modification type ("change" or "missing")
+     * @param comment constant note according to changeType
      */
     private void addRevision(File dependency, String changeType, String comment) {
         Modification newMod = new Modification("maven2");
@@ -278,7 +281,8 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
     /**
-     * Parse the Maven pom file, and return snapshot artifact info populated with dependencies to be checked
+     * Parse the Maven pom file, and return snapshot artifact info populated with dependencies to be checked.
+     * @return return snapshot artifact info populated with dependencies to be checked
      */
     ArtifactInfo[] getSnapshotInfos() {
 
@@ -318,7 +322,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
             }
 
 
-            return (ArtifactInfo[]) artifactInfos.toArray(new ArtifactInfo[]{});
+            return (ArtifactInfo[]) artifactInfos.toArray(new ArtifactInfo[artifactInfos.size()]);
 
         } finally {
             try {
@@ -334,14 +338,16 @@ public class Maven2SnapshotDependency  implements SourceControl {
         // handle parents and grandparents...
         if (projectWithDependencies != null) {
 
-            Artifact parentArtifact;
             MavenProject currMvnProject = projectWithDependencies;
 
-            while ((parentArtifact = currMvnProject.getParentArtifact()) != null
+            Artifact parentArtifact = currMvnProject.getParentArtifact();
+            while ((parentArtifact != null)
                     && parentArtifact.isSnapshot()) {
 
                 addArtifactInfo(artifactInfos, parentArtifact, ArtifactInfo.ART_TYPE_PARENT, localRepoBaseDir);
                 currMvnProject = currMvnProject.getParent();
+
+                parentArtifact = currMvnProject.getParentArtifact();
             }
 
         } else {
@@ -356,10 +362,10 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
             if (mavenProject != null) {
 
-                Artifact artifact;
                 MavenProject currMvnProject = mavenProject;
 
-                while ((artifact = currMvnProject.getParentArtifact()) != null
+                Artifact artifact = currMvnProject.getParentArtifact();
+                while ((artifact != null)
                         && (artifact.getVersion().endsWith(Artifact.SNAPSHOT_VERSION) || artifact.isSnapshot())
                         ) {
 
@@ -368,6 +374,8 @@ public class Maven2SnapshotDependency  implements SourceControl {
                     resolveArtifact(embedder, artifact, mavenProject, embedder.getLocalRepository());
 
                     currMvnProject = currMvnProject.getParent();
+
+                    artifact = currMvnProject.getParentArtifact();
                 }
             }
         }
@@ -422,7 +430,11 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
 
-    /** Filter out non-SNAPSHOT artifacts. */
+    /**
+     * Filter out non-SNAPSHOT artifacts.
+     * @param artifacts all project artifacts, including non-SNAPSHOTS
+     * @return a set of artifacts containing only SNAPSHOTs
+     */
     private static Set getSnaphotArtifacts(final Set artifacts) {
 
         final Set retVal = new HashSet();
@@ -440,7 +452,11 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
 
-    /** Doesn't handle transitive deps, nor actually download anything so far */
+    /**
+     * Doesn't handle transitive deps, nor actually download anything so far.
+     * @param embedder the maven embedder used to read the pomFile
+     * @return a set of artifacts containing only SNAPSHOTs
+     */
     private Set getSnapshotArtifactsManually(final MavenEmbedder embedder) {
 
         final MavenProject mavenProject;
@@ -524,7 +540,11 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
 
-    /** Check for newer timestamps */
+    /**
+     * Check for newer timestamps, add modification if change detected.
+     * @param artifactInfo artifact data to be compared against the last build date to determine if modified
+     * @param lastBuild the last build date
+     */
     private void checkFile(final ArtifactInfo artifactInfo, long lastBuild) {
         final File file = artifactInfo.localRepoFile;
         LOG.debug("Checking artifact: " + artifactInfo.getArtifact());
