@@ -260,7 +260,21 @@ public class DistributedMasterBuilderTest extends TestCase {
             }
             // use javaHome env var to find java
             if (getJavaHome() != null) {
-                javaExecutable = getJavaHome() + File.separator + "bin" + File.separator + javaExecFilename;
+                File checkExists = new File(getJavaHome() + File.separator + "bin" + File.separator + javaExecFilename);
+                if (checkExists.exists()) {
+                    javaExecutable =  checkExists.getAbsolutePath();
+                } else {
+                    // maybe JAVA_HOME env var is bad, try sys prop of current vm
+                    LOG.warn("Is JAVA_HOME valid? Unit Test couldn't find: " + checkExists.getAbsolutePath());
+                    checkExists = new File(System.getProperty("java.home")
+                            + File.separator + "bin" + File.separator + javaExecFilename);
+                    if (checkExists.exists()) {
+                        javaExecutable = checkExists.getAbsolutePath();
+                    } else {
+                        LOG.warn("Unit Test couldn't find java. Might work if java is on the path? Here goes...");
+                        javaExecutable = javaExecFilename;
+                    }
+                }
             } else {
                 final String msg
                         = "Unit Test couldn't find JAVA_HOME env var. Maybe java/bin is in the path? Here goes...";
