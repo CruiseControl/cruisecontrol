@@ -473,7 +473,7 @@
 	</target>
 
     <target name="test-one" depends="compile-test, setupTestEntry" description="Executes one distributed unit test" if="testcase">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" ><!--dir="${target}" -->
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath>
                 <path refid="ccdist.project.runtime.classpath" />
             </classpath>
