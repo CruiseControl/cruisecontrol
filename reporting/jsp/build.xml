@@ -139,17 +139,25 @@
         </checkstyle-macro>
     </target>
 
+    <macrodef name="compile-macro">
+        <attribute name="destdir" default="${classes}" />
+        <attribute name="srcdir" default="${src}" />
+        <attribute name="classpathref" default="project.runtime.classpath" />
+        <element name="nested" implicit="true" optional="true" />
+        <sequential>
+            <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4" classpathref="@{classpathref}" srcdir="@{srcdir}">
+                <nested />
+            </javac>
+        </sequential>
+    </macrodef>
+
     <target name="compile" depends="init">
-        <javac srcdir="${src}" destdir="${classes}" debug="true" source="1.4" target="1.4">
-            <classpath refid="project.runtime.classpath" />
-        </javac>
+        <compile-macro/>
     </target>
 
     <target name="compile-test" depends="compile"
         description="Compile test code">
-        <javac srcdir="${test}" destdir="${test.classes}" debug="true" source="1.4" target="1.4">
-            <classpath refid="project.runtime.classpath"/>
-        </javac>
+        <compile-macro srcdir="${test}" destdir="${test.classes}"/>
     </target>
 
     <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
