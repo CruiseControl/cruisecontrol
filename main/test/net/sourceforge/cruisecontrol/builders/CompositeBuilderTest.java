@@ -322,8 +322,8 @@ public class CompositeBuilderTest extends TestCase {
                 final Element result = super.build(properties, progress);
 
                 // wait for longer than timeout
-                try {
-                    Thread.sleep((timeoutSecs * 1000L) + 1);
+                try {                               // + 1 works on linux, not on winz 
+                    Thread.sleep((timeoutSecs * 1000L) + 100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
