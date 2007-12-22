@@ -15,7 +15,12 @@
         <all-permissions/>
     </security>
     <resources>
+
         <j2se version="1.5+"/>
+        <!-- example settings used when agent requires lots-o-memory, like for some maven2 reporting plugins
+        <j2se version="1.5+" initial-heap-size="512m" max-heap-size="1024m" java-vm-args="-XX:MaxPermSize=512m"/>
+        -->
+
         <jar href="lib/cc-agent.jar" main="true"/>
         <jar href="conf/cc-agent-conf.jar"/>
         <jar href="lib/ccdist-buildAgentService.jar"/>
@@ -24,8 +29,12 @@
         <jar href="lib/cruisecontrol.jar"/>
 
         <jar href="lib/jakarta-oro-2.0.8.jar"/>
+
         <jar href="lib/jdom.jar"/>
+
         <jar href="lib/log4j.jar"/>
+        <jar href="lib/mail.jar"/> <!-- for cases where SMTPAppender is used in log4j.properties -->
+        <jar href="lib/activation.jar"/> <!-- for cases where SMTPAppender is used in log4j.properties -->
 
         <jar href="lib/xml-apis-2.8.0.jar"/>
         <jar href="lib/xercesImpl-2.8.0.jar"/>
