@@ -558,7 +558,7 @@ public class BuildAgent implements DiscoveryListener,
            try {
                KEEP_ALIVE.wait();
            } catch (InterruptedException e) {
-               LOG.error("Keep Alive wait interrupted", e);
+               LOG.info("Keep Alive wait interrupted", e);
             } finally {
                 buildAgent.terminate();
            }
