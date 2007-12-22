@@ -111,6 +111,9 @@
     <!-- commonly reused libs from main/lib -->
     <patternset id="ps.main.lib-common">
         <include name="log4j*.jar" />
+        <include name="mail*.jar" /> <!-- for cases where SMTPAppender is used in log4j.properties --> 
+        <include name="activation*.jar" /> <!-- for cases where SMTPAppender is used in log4j.properties -->
+        
         <include name="jdom*.jar" />
     </patternset>
 
