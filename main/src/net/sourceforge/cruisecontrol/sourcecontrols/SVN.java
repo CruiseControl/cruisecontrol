@@ -377,12 +377,11 @@ public class SVN implements SourceControl {
 
         final Process p = command.execute();
 
-        logErrorStream(p);
-        final InputStream svnStream = p.getInputStream();
+        final Thread stderr = logErrorStream(p);
+        final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), "UTF8"));
 
         final HashMap directories = new HashMap();
-        final BufferedReader reader = new BufferedReader(
-            new InputStreamReader(svnStream, "UTF8"));
         try {
             String line;
             String currentDir = null;
@@ -404,45 +403,55 @@ public class SVN implements SourceControl {
             }
 
             p.waitFor();
-            p.getInputStream().close();
-            p.getOutputStream().close();
-            p.getErrorStream().close();
-
-            return directories;
+            stderr.join();
         } finally {
             reader.close();
+            IO.close(p);
         }
+
+        return directories;
     }
 
     private static List execHistoryCommand(Commandline command, Date lastBuild,
                                     String externalPath)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread stderr = logErrorStream(p);
-        InputStream svnStream = p.getInputStream();
-        List modifications = parseStream(svnStream, lastBuild, externalPath);
+        final Thread stderr = logErrorStream(p);
+        final InputStreamReader reader = new InputStreamReader(p.getInputStream(), "UTF-8");
 
-        p.waitFor();
-        stderr.join();
-        IO.close(p);
+        final List modifications;
+        try {
+            modifications = SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
+
+            p.waitFor();
+            stderr.join();
+        } finally {
+            reader.close();
+            IO.close(p);
+        }
 
         return modifications;
     }
 
-    private String execInfoCommand(Commandline command) throws CruiseControlException {
+    private String execInfoCommand(final Commandline command) throws CruiseControlException {
         try {
-            Process p = command.execute();
+            final Process p = command.execute();
     
-            Thread stderr = logErrorStream(p);
-            InputStream svnStream = p.getInputStream();
-            InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
-            String revision = SVNInfoXMLParser.parse(reader);
-    
-            p.waitFor();
-            stderr.join();
-            IO.close(p);
+            final Thread stderr = logErrorStream(p);
+            final InputStream svnStream = p.getInputStream();
+            final InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
+            final String revision;
+            try {
+                revision = SVNInfoXMLParser.parse(reader);
+
+                p.waitFor();
+                stderr.join();
+            } finally {
+                reader.close();
+                IO.close(p);
+            }
     
             return revision;
         } catch (IOException e) {
@@ -455,21 +464,9 @@ public class SVN implements SourceControl {
     }
 
     private static Thread logErrorStream(Process p) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
         stderr.start();
         return stderr;
-    }
-
-    private static List parseStream(InputStream svnStream, Date lastBuild,
-                             String externalPath)
-        throws JDOMException, IOException, ParseException {
-
-        final InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
-        try {
-            return SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
-        } finally {
-            reader.close();
-        }
     }
 
     void fillPropertiesIfNeeded(List modifications) {
@@ -630,11 +627,10 @@ public class SVN implements SourceControl {
     
     static final class SVNInfoXMLParser {
         private SVNInfoXMLParser() { }
-        public static String parse(Reader reader) throws JDOMException, IOException {
-            SAXBuilder builder = new SAXBuilder(false);
-            Document document = builder.build(reader);
-            String revisionNumber = document.getRootElement().getChild("entry").getAttribute("revision").getValue();
-            return revisionNumber;
+        public static String parse(final Reader reader) throws JDOMException, IOException {
+            final SAXBuilder builder = new SAXBuilder(false);
+            final Document document = builder.build(reader);
+            return document.getRootElement().getChild("entry").getAttribute("revision").getValue();
         }
         
     }
