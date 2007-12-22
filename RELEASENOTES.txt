@@ -93,7 +93,7 @@ Documentation
 
 reporting
 ======================
-* Fix "Building (since)" time on build summary page to show start of build time (instead of last progress message update time). Fix suggested by EJ Ciramella.
+* Fix "Building (since)" time on build summary page to show start of build time (instead of last progress message update time). (CC-740) Fix suggested by EJ Ciramella.
 * Show progress message as tooltip over Status cells on build summary page while building. Also show time until next build while waiting.
 * Added AbstractXslOutputWidget to support writing widgets for arbitrary XSL.  Also provide AntOutputWidget that shows Ant output. (CC-718) Submitted by Ketan Padegaonkar.
 
