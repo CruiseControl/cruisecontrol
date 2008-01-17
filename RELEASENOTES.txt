@@ -8,6 +8,10 @@ general
 ======================
 * use Util.doMkDirs() instead of File.mkdirs() to fix possible race condition when creating directories on WinXP, also Windows2000.
 
+cc-config
+======================
+* Update bundled cc-config to version 1.7.2.
+
 contrib
 ======================
 
