@@ -83,7 +83,7 @@ public class BuildAgentTest extends TestCase {
             if (retryCount > 0) {
                 LOG.info("\tFind agent unit test retry " + retryCount + "...Entries: "
                         + MulticastDiscovery.toStringEntries(entries));
-                Thread.sleep(1000); // wait a bit before retrying
+                Thread.sleep(1000 + (250 * retryCount)); // wait a bit before retry, longer for subsequent retries
             }
 
             result = reg.lookup(new ServiceTemplate(null,
