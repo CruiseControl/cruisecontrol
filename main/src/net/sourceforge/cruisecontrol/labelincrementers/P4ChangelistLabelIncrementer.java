@@ -496,32 +496,27 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     protected void parseStream(InputStream stream, P4CmdParser parser)
             throws IOException {
         String line;
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         while ((line = reader.readLine()) != null) {
             if (line.startsWith("error:")) {
-                throw new IOException(
-                        "Error reading P4 stream: P4 says: " + line);
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
             } else if (line.startsWith("exit: 0")) {
-                System.err.println("p4cmd: Found exit 0");
+                LOG.debug("p4cmd: Found exit 0");
                 break;
             } else if (line.startsWith("exit:")) {
                 // not an exit code of 0
-                System.err.println("p4cmd: Found exit " + line);
-                throw new IOException(
-                        "Error reading P4 stream: P4 says: " + line);
+                LOG.error("p4cmd: Found exit " + line);
+                throw new IOException("Error reading P4 stream: P4 says: " + line);
             } else if (line.startsWith("warning:")) {
                 parser.warning(line.substring(8));
-            } else if (line.startsWith("info:")
-                    || line.startsWith("info1:")) {
+            } else if (line.startsWith("info:") || line.startsWith("info1:")) {
                 parser.info(line.substring(5));
             } else if (line.startsWith("text:")) {
                 parser.text(line.substring(5));
             }
         }
         if (line == null) {
-            throw new IOException(
-                    "Error reading P4 stream: Unexpected EOF reached");
+            throw new IOException("Error reading P4 stream: Unexpected EOF reached");
         }
     }
 
