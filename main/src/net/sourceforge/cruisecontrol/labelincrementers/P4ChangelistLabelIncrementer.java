@@ -134,17 +134,12 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     }
 
     /**
-     * Verify that the label specified is a valid label.  In this case a valid
-     * label contains at least one separator character, and an integer after the last
-     * occurrence of the separator character.
+     * Verify that the label specified -- the previous label -- is a valid label.
+     * In this case any label is valid because the next label will not be based on
+     * previous label but on information from Perforce.
      */
     public boolean isValidLabel(String label) {
-        try {
-            Integer.parseInt(label);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return true;
     }
 
     /**

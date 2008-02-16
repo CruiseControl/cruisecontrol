@@ -341,6 +341,10 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
                 ((NameEntry) ex.next()).getName());
     }
 
+    public void testIsValidLabel() {
+        P4ChangelistLabelIncrementer inc = new P4ChangelistLabelIncrementer();
+        assertTrue(inc.isValidLabel("anything should be 'valid' and return true"));
+    }
 
     private String concatCommand(Commandline cmdLine) {
         String[] args = cmdLine.getCommandline();
