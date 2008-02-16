@@ -433,6 +433,13 @@ public class ProjectTest extends TestCase {
         project.setBuildForced(true);
         assertNotNull(project.getModifications(true));
     }
+    
+    public void testGetModifications_NoModificationElementAndRequireModificationsFalse() {
+        assertNull(project.getModifications(false));
+        projectConfig.setRequiremodification(false);
+        project.init();
+        assertNotNull(project.getModifications(false));        
+    }
 
     public void testGetModifications_requireModificationsTrue() {
         MockModificationSet modSet = new MockModificationSet();

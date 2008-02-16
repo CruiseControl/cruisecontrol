@@ -408,6 +408,10 @@ public class Project implements Serializable, Runnable {
                 info("no modification set but build was forced");
                 return new Element("modifications");
             }
+            if (!requiremodification) {
+                info("no modification set but no modifications required");
+                return new Element("modifications");
+            }
             return null;
         }
 

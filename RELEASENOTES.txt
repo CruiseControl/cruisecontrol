@@ -78,6 +78,10 @@ ModificationSet
 ----------------------
 * Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
 
+Project
+----------------------
+* Allow no <modificationset> and requiremodifications="false"
+
 PVCS
 ----------------------
 * Add support to check for changes against promotion group (CC-717); make thread-safe (CC-583); fix quoting (CC-655).  Patch by Shane Genschaw.
