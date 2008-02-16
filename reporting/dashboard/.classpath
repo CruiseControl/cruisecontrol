@@ -58,9 +58,9 @@
 	<classpathentry kind="lib" path="lib/mx4j-remote.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j-tools.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.8.1.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.5.0_12"/>
-	<classpathentry kind="lib" path="/home/khu/workspace/ccebranch/cruisecontrol/main/dist/cruisecontrol.jar"/>
 	<classpathentry kind="lib" path="lib/commons-beanutils-core-1.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/commons-digester-1.8.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/cc-main/dist/cruisecontrol.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
