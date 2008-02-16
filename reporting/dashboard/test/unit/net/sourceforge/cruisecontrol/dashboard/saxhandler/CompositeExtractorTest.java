@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.util.Arrays;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -63,8 +65,7 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         handler1.expects(once()).method("canStop").will(returnValue(false));
 
         CompositeExtractor handler =
-                new CompositeExtractor(new SAXBasedExtractor[] {
-                        (SAXBasedExtractor) handler1.proxy(), (SAXBasedExtractor) handler2.proxy()});
+                new CompositeExtractor(extractors(handler1, handler2));
 
         handler.characters(null, 0, 2);
     }
@@ -77,9 +78,7 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         extractor2.expects(once()).method("report").with(ANYTHING);
 
         CompositeExtractor handler =
-                new CompositeExtractor(new SAXBasedExtractor[] {
-                        (SAXBasedExtractor) extractor1.proxy(),
-                        (SAXBasedExtractor) extractor2.proxy()});
+                new CompositeExtractor(extractors(extractor1, extractor2));
 
         handler.report(null);
     }
@@ -95,8 +94,7 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         handler2.expects(once()).method("canStop").will(returnValue(true));
 
         CompositeExtractor handler =
-                new CompositeExtractor(new SAXBasedExtractor[] {
-                        (SAXBasedExtractor) handler1.proxy(), (SAXBasedExtractor) handler2.proxy()});
+                new CompositeExtractor(extractors(handler1, handler2));
 
         try {
             handler.characters(null, 0, 2);
@@ -110,13 +108,19 @@ public class CompositeExtractorTest extends MockObjectTestCase {
         File logXml = DataUtils.getConfigXmlAsFile();
         SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
         CompositeExtractor extractor =
-                new CompositeExtractor(new SAXBasedExtractor[] {new ExtractorStub()});
+                new CompositeExtractor(Arrays.asList(new SAXBasedExtractor[] {new ExtractorStub()}));
 
         parser.parse(logXml, extractor);
         Map result = new HashMap();
         extractor.report(result);
 
         assertTrue(((Boolean) result.get("allCallbackWereCalled")).booleanValue());
+    }
+
+    private List extractors(final Mock handler1, final Mock handler2) {
+        SAXBasedExtractor[] extractors = new SAXBasedExtractor[]{
+                (SAXBasedExtractor) handler1.proxy(), (SAXBasedExtractor) handler2.proxy()};
+        return Arrays.asList(extractors);
     }
 
     private static class ExtractorStub extends SAXBasedExtractor {

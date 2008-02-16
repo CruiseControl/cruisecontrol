@@ -42,7 +42,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
+import net.sourceforge.cruisecontrol.Modification;
 
 public class ModificationSetTest extends TestCase {
 
@@ -63,23 +63,22 @@ public class ModificationSetTest extends TestCase {
 
         Iterator iterator = modifications.iterator();
         Modification firstChangeSet = (Modification) iterator.next();
-        assertEquals(ToStringBuilder.reflectionToString(firstChangeSet), firstChangeSet.toString());
 
-        assertEquals("cvs", firstChangeSet.getType());
-        assertEquals(initialCheckinComment, firstChangeSet.getComment());
+        assertEquals("cvs", firstChangeSet.type);
+        assertEquals(initialCheckinComment, firstChangeSet.comment);
 
         List files = firstChangeSet.getModifiedFiles();
         assertEquals(2, files.size());
 
-        ModifiedFile firstFile = (ModifiedFile) files.get(0);
-        ModifiedFile secondFile = (ModifiedFile) files.get(1);
+        Modification.ModifiedFile firstFile = (Modification.ModifiedFile) files.get(0);
+        Modification.ModifiedFile secondFile = (Modification.ModifiedFile) files.get(1);
 
-        assertEquals("somefile.xml", firstFile.getFilename());
-        assertEquals("1.2", firstFile.getRevision());
-        assertEquals(ModificationAction.ADD, firstFile.getAction());
+        assertEquals("somefile.xml", firstFile.fileName);
+        assertEquals("1.2", firstFile.revision);
+        assertEquals(ModificationAction.ADD, ModificationAction.fromDisplayName(firstFile.action));
 
-        assertEquals("anotherfile.xml", secondFile.getFilename());
-        assertEquals("1.3", secondFile.getRevision());
-        assertEquals(ModificationAction.MODIFIED, secondFile.getAction());
+        assertEquals("anotherfile.xml", secondFile.fileName);
+        assertEquals("1.3", secondFile.revision);
+        assertEquals(ModificationAction.MODIFIED, ModificationAction.fromDisplayName(secondFile.action));
     }
 }

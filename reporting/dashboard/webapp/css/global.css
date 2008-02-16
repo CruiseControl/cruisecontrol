@@ -37,7 +37,7 @@
 
 /* Uses icons from http://www.famfamfam.com/lab/icons/silk/ */
 
-body {
+body, pre, code {
 	font-family : verdana, arial, geneva, helvetica, sans-serif;
 }
 
@@ -171,4 +171,41 @@ div.clear {
 	line-height : 1px;
 	height : 1px;
 	overflow : hidden;
+}
+
+.control_panel a {
+    margin-left: 0.2em;
+}
+
+
+.wrap_pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+caption {
+    width : 80%;
+    margin-left:0;
+    margin-right:0;
+}
+
+.block {
+  display:block;
+}
+
+#warning {
+    margin-bottom: 5px;
+}
+
+#warning_content {
+    background-color: lightgoldenrodyellow;
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    background-image: url("../images/icon-warning-small.gif");
+    padding-left: 35px;
+    font-size: small;
+    font-weight: bold;
 }

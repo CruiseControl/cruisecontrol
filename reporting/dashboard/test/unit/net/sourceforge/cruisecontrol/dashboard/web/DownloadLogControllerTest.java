@@ -40,8 +40,10 @@ import java.io.File;
 
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 import org.jmock.Mock;
@@ -67,9 +69,10 @@ public class DownloadLogControllerTest extends MockObjectTestCase {
         request.setMethod("GET");
         request.setRequestURI("/download/log/project1/" + LOG_FILE);
         configurationMock =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {null});
-        controller = new DownloadController((Configuration) configurationMock.proxy());
+            mock(ConfigurationService.class, new Class[] {EnvironmentService.class,
+                DashboardXmlConfigService.class, BuildLoopQueryService.class}, new Object[] {null,
+                null, null});
+        controller = new DownloadController((ConfigurationService) configurationMock.proxy());
     }
 
     private MockHttpServletRequest getRequest() {

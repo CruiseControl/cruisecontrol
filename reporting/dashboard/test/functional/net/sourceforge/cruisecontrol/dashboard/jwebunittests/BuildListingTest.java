@@ -36,13 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 public class BuildListingTest extends BaseFunctionalTest {
-
-    protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
-    }
 
     public void testShouldListAllBuildsOfProject() throws Exception {
         tester.beginAt("/project/list/all/project1");

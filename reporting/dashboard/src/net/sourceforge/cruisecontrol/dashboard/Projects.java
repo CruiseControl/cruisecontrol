@@ -37,57 +37,23 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.Set;
 
-import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
-import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
+import net.sourceforge.cruisecontrol.dashboard.utils.functors.CCProjectFolderFilter;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class Projects {
     private File logRoot;
 
-    private DashboardConfig cruiseControlConfig;
-
     private File artifacts;
 
-    private File projectsRoot;
+    private String[] projectNames;
 
-    public Projects(File projectsRoot, File logRoot, File artifacts,
-            DashboardConfig cruiseControlConfig) throws ConfigurationException {
-        setLogRoot(logRoot);
-        setArtifactsRoot(artifacts);
-        setProjectsRoot(projectsRoot);
-        this.cruiseControlConfig = cruiseControlConfig;
-    }
-
-    private void setProjectsRoot(File projectsRoot) throws ConfigurationException {
-        if (projectsRoot == null) {
-            throw new ConfigurationException("Failed to find the projects root in " + projectsRoot);
-        } else {
-            this.projectsRoot = projectsRoot;
-        }
-    }
-
-    private void setArtifactsRoot(File artifacts) throws ConfigurationException {
-        if (artifacts == null) {
-            throw new ConfigurationException("Failed to find the artifacts root in " + artifacts);
-        } else {
-            this.artifacts = artifacts;
-        }
-    }
-
-    private void setLogRoot(File logRoot) throws ConfigurationException {
-        if (logRoot == null || !logRoot.exists()) {
-            throw new ConfigurationException("Failed to find the log root in " + logRoot);
-        } else {
-            this.logRoot = logRoot;
-        }
-    }
-
-    public boolean hasProject(String projectName) {
-        return cruiseControlConfig.getProjectNames().contains(projectName);
+    public Projects(File logRoot, File artifacts, String[] projectNames) {
+        this.projectNames = projectNames;
+        this.logRoot = logRoot;
+        this.artifacts = artifacts;
     }
 
     public File getArtifactRoot(String projectName) {
@@ -98,20 +64,22 @@ public class Projects {
         return new File(logRoot, projectName);
     }
 
-    public File getSourceCodeRoot(String projectName) {
-        return new File(projectsRoot, projectName);
-    }
-
     public File getLogRoot() {
         return logRoot;
     }
 
-    public File[] getProjectNames() {
-        Set projectNames = cruiseControlConfig.getProjectNames();
-        File[] projects = new File[projectNames.size()];
-        int i = 0;
-        for (Iterator iter = projectNames.iterator(); iter.hasNext();) {
-            projects[i++] = getLogRoot((String) iter.next());
+    public File[] getProjectsFromFileSystem() {
+        return getLogRoot().listFiles(new CCProjectFolderFilter());
+    }
+
+    public boolean hasProject(String projectName) {
+        return ArrayUtils.indexOf(projectNames, projectName) > -1;
+    }
+
+    public File[] getProjectsRegistedInBuildLoop() {
+        File[] projects = new File[projectNames.length];
+        for (int j = 0; j < projectNames.length; j++) {
+            projects[j] = getLogRoot(projectNames[j]);
         }
         return projects;
     }

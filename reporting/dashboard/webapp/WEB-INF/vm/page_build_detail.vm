@@ -5,28 +5,31 @@
 #parse("partial/partial_head.vm")
 <link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_detail_summary.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/sub_tab.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 <link href="$req.getContextPath()/css/build_detail.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-#set($projectName=$build.build.getProjectName())
-#if ($status.toLowerCase() == 'passed' || $status.toLowerCase() == 'failed')
-<title>Project $build.build.getProjectName() - Build $build.build.getBuildDate()</title>
-#else
-<title>Project $projectName - $status.toLowerCase()</title>
-#end
+<link href="$req.getContextPath()/css/toolkit.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/transparent_message.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+
+#set($projectName=$buildCmd.build.getProjectName())
+#set($previousResult=$buildCmd.build.getPreviousBuildResult().getStatus().toLowerCase())
+<title>Project $projectName - Build $buildCmd.build.getBuildDate()</title>
 </head>
 <body>
     <div id="doc3" class="yui-t7">
            #parse('menu/menu_builds.vm')
-           <div id="bd">
-                <div class="yui-ge">
-                    <div class="yui-u first">
-                        <div class="maincol build_detail">
-                            #parse("build_detail/build_detail_${status.toLowerCase()}.vm")
+                   <div id="bd">
+                        <div class="yui-ge">
+                            <div class="yui-u first">
+                                #parse("partial/partial_warning.vm")
+                                <div class="maincol build_detail">
+                                    #parse("build_detail/build_detail_${previousResult}.vm")
+                                </div>
+                            </div>
+                            <div class="yui-u">
+                                #parse("build_detail/build_detail_partial_side_column.vm")
+                            </div>
                         </div>
                     </div>
-                    <div class="yui-u">
-                        #parse("build_detail/build_detail_partial_side_column.vm")
-                    </div>
-                </div>
             </div>
     </div>
 </body>

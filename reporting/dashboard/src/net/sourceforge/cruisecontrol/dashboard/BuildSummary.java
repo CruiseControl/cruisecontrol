@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -49,21 +49,16 @@ import net.sourceforge.cruisecontrol.dashboard.saxhandler.DurationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.ModificationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.SAXBasedExtractor;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public class BuildSummary implements Build {
-    private String label;
-
-    private String name;
-
-    private File buildLogFile;
+    private LogFile buildLogFile;
 
     private String projectName = "";
-
-    private ProjectBuildStatus status;
 
     private DateTime buildingSince;
 
@@ -71,34 +66,58 @@ public class BuildSummary implements Build {
 
     private static final Logger LOGGER = Logger.getLogger(BuildSummary.class);
 
-    public BuildSummary(String projectName, String name, String label, ProjectBuildStatus status,
-            String buildLogFilename) {
+    private final PreviousResult previousBuildResult;
+
+    private CurrentStatus currentStatus = CurrentStatus.DISCONTINUED;
+
+    private String serverName = "N/A";
+
+    private TimeConverter timeConverter = new TimeConverter();
+
+    /**
+     * No logfile available. Inactive build.
+     * @param projectName
+     */
+    public BuildSummary(String projectName) {
         this.projectName = projectName;
-        this.status = status;
-        this.label = label;
-        this.name = name;
-        this.status = status;
-        this.buildLogFile = new File(buildLogFilename);
+        this.previousBuildResult = PreviousResult.UNKNOWN;
+        this.buildLogFile = null;
+        this.currentStatus = CurrentStatus.WAITING;
     }
 
-    public String getName() {
-        return name;
+    public BuildSummary(String projectName, PreviousResult previousResult, String buildLogFilename) {
+        this.projectName = projectName;
+        this.previousBuildResult = previousResult;
+        this.buildLogFile = new LogFile(buildLogFilename);
+    }
+
+    /**
+     * Used for mocking out the timeConverter.
+     * @param timeConverter
+     */
+    void setTimeConverter(TimeConverter timeConverter) {
+        this.timeConverter = timeConverter;
+    }
+
+    public String getDateTime() {
+        return buildLogFile.getDateTime();
     }
 
     public boolean hasPassed() {
-        return status.equals(ProjectBuildStatus.PASSED);
+        return previousBuildResult.equals(PreviousResult.PASSED);
     }
 
     public String getLabel() {
-        return label;
-    }
-
-    public ProjectBuildStatus getStatus() {
-        return status;
+        return buildLogFile.getLabel();
     }
 
     public String getBuildLogFilename() {
         return buildLogFile.getName();
+    }
+
+    public String getBuildLogFileDateTime() {
+        String filename = buildLogFile.getName();
+        return filename.substring(3, 17);
     }
 
     public String getProjectName() {
@@ -106,7 +125,7 @@ public class BuildSummary implements Build {
     }
 
     public DateTime getBuildDate() {
-        return CCDateFormatter.format(getName(), "yyyy-MM-dd HH:mm.ss");
+        return CCDateFormatter.format(getDateTime(), "yyyy-MM-dd HH:mm.ss");
     }
 
     public DateTime getBuildingSince() {
@@ -114,11 +133,17 @@ public class BuildSummary implements Build {
     }
 
     public void updateStatus(String statusStr) {
-        ProjectBuildStatus newStatus = ProjectBuildStatus.getProjectBuildStatus(statusStr);
-        if (!newStatus.equals(ProjectBuildStatus.WAITING)) {
-            status = newStatus;
-            buildingSince = new DateTime(ProjectBuildStatus.getTimestamp(statusStr));
+        CurrentStatus newStatus = CurrentStatus.getProjectBuildStatus(statusStr);
+        this.currentStatus = newStatus;
+        if (!CurrentStatus.BUILDING.equals(this.currentStatus)) {
+            this.buildingSince = null;
         }
+    }
+
+    public void updateBuildSince(DateTime buildSince) {
+         if (CurrentStatus.BUILDING.equals(this.currentStatus)) {
+             this.buildingSince = buildSince;
+         }
     }
 
     public String getDuration() {
@@ -135,7 +160,8 @@ public class BuildSummary implements Build {
     private void parseLogFile(SAXBasedExtractor extractor) {
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-            saxParser.parse(buildLogFile, new CompositeExtractor(new SAXBasedExtractor[] {extractor}));
+            saxParser.parse(buildLogFile.getInputStream(), new CompositeExtractor(Arrays
+                    .asList(new SAXBasedExtractor[] {extractor})));
         } catch (ShouldStopParsingException se) {
             LOGGER.debug("Intentionally throwing exception to stop parsing " + se.getMessage());
         } catch (Exception e) {
@@ -156,7 +182,7 @@ public class BuildSummary implements Build {
     }
 
     public String toString() {
-        return this.getName();
+        return this.getDateTime();
     }
 
     public ModificationSet getModificationSet() {
@@ -168,5 +194,33 @@ public class BuildSummary implements Build {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public CurrentStatus getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public boolean isInactive() {
+        return !CurrentStatus.BUILDING.equals(currentStatus)
+                && PreviousResult.UNKNOWN.equals(previousBuildResult);
+    }
+
+    public PreviousResult getPreviousBuildResult() {
+        return previousBuildResult == null ? PreviousResult.UNKNOWN : previousBuildResult;
+    }
+
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    public String getConvertedTime() {
+        if (buildLogFile == null) {
+            return "waiting for first build...";
+        }
+        return this.timeConverter.getConvertedTime(getBuildDate().toDate());
     }
 }

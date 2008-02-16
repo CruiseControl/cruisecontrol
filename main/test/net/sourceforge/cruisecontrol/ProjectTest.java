@@ -99,7 +99,7 @@ public class ProjectTest extends TestCase {
         // minimize logging to the console during test runs
         Logger.getLogger(Project.class).setLevel(Level.ALL);
         LOG.getLoggerRepository().setThreshold(Level.ALL);
-        
+
         filesToDelete.delete();
     }
 
@@ -127,7 +127,7 @@ public class ProjectTest extends TestCase {
         File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
         filesToDelete.add(logDir);
-        final String myProjectName = "myproject"; 
+        final String myProjectName = "myproject";
         log.setProjectName(myProjectName);
         filesToDelete.add(new File(TestUtil.getTargetDir(), myProjectName + ".ser"));
         log.setDir(logDir.getAbsolutePath());
@@ -316,24 +316,24 @@ public class ProjectTest extends TestCase {
         project.init();
         project.build();
     }
-    
+
     /*
      * This test simulates what happens when there are multiple build threads
-     * and the config.xml gets reloaded while a project is building. This was 
+     * and the config.xml gets reloaded while a project is building. This was
      * causing NPEs but has now been fixed.
      */
     public void testBuildWithNewProjectConfigDuringBuild() throws CruiseControlException {
         projectConfig = new ProjectConfig() {
             Project readProject(String projectName) {
                 return project;
-            } 
+            }
         };
         final String testProjectForNewConfigDuringBuild = "TestProjectForGettingNewProjectConfigDuringBuild";
         projectConfig.setName(testProjectForNewConfigDuringBuild);
         filesToDelete.add(new File(TestUtil.getTargetDir(), testProjectForNewConfigDuringBuild + ".ser"));
         projectConfig.add(new DefaultLabelIncrementer());
         projectConfig.configureProject();
-        
+
         Schedule schedule = new Schedule();
         schedule.add(new MockBuilderChangesProjectConfig(projectConfig));
         projectConfig.add(schedule);
@@ -343,7 +343,7 @@ public class ProjectTest extends TestCase {
         project.start();
         project.setBuildForced(true);
         project.init();
-        project.build();        
+        project.build();
     }
 
     public void testBadLabel() {
@@ -413,7 +413,7 @@ public class ProjectTest extends TestCase {
 
     public void testGetModifications() {
         MockModificationSet modSet = new MockModificationSet();
-        Element modifications = modSet.getModifications(null, null);
+        Element modifications = modSet.retrieveModificationsAsElement(null, null);
         projectConfig.add(modSet);
         project.init();
 

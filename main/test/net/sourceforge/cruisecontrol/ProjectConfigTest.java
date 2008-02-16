@@ -36,7 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import java.io.File;
@@ -110,7 +114,24 @@ public class ProjectConfigTest extends TestCase {
         assertTrue(project.getBuildForced());
     }
 
+    public void testShouldBeAbleToGetCommitMessage() throws Exception {
+        MockModificationSet modificationSet = new MockModificationSet();
+        config.add(new DefaultLabelIncrementer());
+        config.add(modificationSet);
+        config.configureProject();
+        List modifications = config.getModifications();
+
+        assertEquals(2, modifications.size());
+        for (int i = 0; i < 2; i++) {
+            Modification modification = (Modification) modifications.get(i);
+            assertEquals("user" + i, modification.userName);
+            assertEquals("comment" + i, modification.comment);
+        }
+        assertTrue(modificationSet.getCurrentModificationsWasCalled);
+    }
+
     private static class MockBootstrappers extends ProjectConfig.Bootstrappers {
+
         private boolean validateWasCalled = false;
 
         public void validate() throws CruiseControlException {
@@ -120,10 +141,13 @@ public class ProjectConfigTest extends TestCase {
         public boolean validateWasCalled() {
             return validateWasCalled;
         }
+
     }
 
     private static class MockModificationSet extends ModificationSet {
+
         private boolean validateWasCalled = false;
+        private boolean getCurrentModificationsWasCalled = false;
 
         public void validate() throws CruiseControlException {
             validateWasCalled = true;
@@ -132,9 +156,25 @@ public class ProjectConfigTest extends TestCase {
         public boolean validateWasCalled() {
             return validateWasCalled;
         }
+
+        public List getCurrentModifications() {
+            getCurrentModificationsWasCalled  = true;
+            List modications = new ArrayList();
+            Modification modification = new Modification();
+            modification.userName = "user0";
+            modification.comment = "comment0";
+            modications.add(modification);
+            modification = new Modification();
+            modification.userName = "user1";
+            modification.comment = "comment1";
+            modications.add(modification);
+            return modications;
+        }
+
     }
 
     private static class MockListeners extends ProjectConfig.Listeners {
+
         private boolean validateWasCalled = false;
 
         public void validate() throws CruiseControlException {
@@ -144,9 +184,11 @@ public class ProjectConfigTest extends TestCase {
         public boolean validateWasCalled() {
             return validateWasCalled;
         }
+
     }
 
     private static class MockPublishers extends ProjectConfig.Publishers {
+
         private boolean validateWasCalled = false;
 
         public void validate() throws CruiseControlException {
@@ -156,9 +198,11 @@ public class ProjectConfigTest extends TestCase {
         public boolean validateWasCalled() {
             return validateWasCalled;
         }
+
     }
 
     private static class MockLog extends Log {
+
         private boolean validateWasCalled = false;
 
         public void validate() throws CruiseControlException {
@@ -168,5 +212,7 @@ public class ProjectConfigTest extends TestCase {
         public boolean validateWasCalled() {
             return validateWasCalled;
         }
+
     }
+
 }

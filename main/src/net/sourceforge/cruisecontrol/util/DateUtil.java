@@ -40,12 +40,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import org.apache.log4j.Logger;
+import org.apache.tools.ant.util.DateUtils;
 
 public final class DateUtil {
+
+    public static final SimpleDateFormat ISO8601_DATE_FORMATTER;
 
     private static final Logger LOG = Logger.getLogger(DateUtil.class);
 
@@ -56,6 +60,13 @@ public final class DateUtil {
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     public static final String SIMPLE_DATE_FORMAT = "yyyyMMddHHmmss";
+
+    private static final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat(SIMPLE_DATE_FORMAT);
+    
+    static {
+        ISO8601_DATE_FORMATTER = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
+        ISO8601_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT -0:00"));
+    }
 
     private DateUtil() {
     }
@@ -144,7 +155,7 @@ public final class DateUtil {
         if (date == null) {
             return null;
         }
-        return new SimpleDateFormat(SIMPLE_DATE_FORMAT).format(date);
+        return SIMPLE_DATE_FORMATTER.format(date);
     }
 
     public static Date parseFormattedTime(String timeString, String description) throws CruiseControlException {
@@ -154,7 +165,7 @@ public final class DateUtil {
             throw new IllegalArgumentException("Null date string for " + description);
         }
         try {
-            date = new SimpleDateFormat(SIMPLE_DATE_FORMAT).parse(timeString);
+            date = SIMPLE_DATE_FORMATTER.parse(timeString);
         } catch (ParseException e) {
             LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
@@ -171,5 +182,16 @@ public final class DateUtil {
         long minutes = (timeSeconds / 60);
         long seconds = timeSeconds - (minutes * 60);
         return minutes + " minute(s) " + seconds + " second(s)";
+    }
+
+    public static Date parseIso8601(String timestamp) throws ParseException {
+        return ISO8601_DATE_FORMATTER.parse(timestamp);
+    }
+    
+    public static String formatIso8601(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return DateUtils.format(date, DateUtils.ISO8601_DATETIME_PATTERN);
     }
 }

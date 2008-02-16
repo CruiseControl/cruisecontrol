@@ -40,11 +40,18 @@ import java.text.SimpleDateFormat;
 
 import junit.framework.TestCase;
 import junitx.util.PrivateAccessor;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 public class CCDateFormatterTest extends TestCase {
     public void testShouldGetDateStringInHumanBeingReadingStyleWithGMTOffset() throws Throwable {
         SimpleDateFormat dateFormatter = (SimpleDateFormat) PrivateAccessor
                 .invoke(CCDateFormatter.class, "getDateFormatterWithTimeZone", null, null);
         assertEquals("d MMM yyyy HH:mm 'GMT' Z", dateFormatter.toPattern());
+    }
+
+    public void testFormatISO8601PatternDateTime() throws Exception {
+        DateTime dateTime = new DateTime(2007, 11, 12, 13, 10, 10, 00, DateTimeZone.forOffsetHours(0));
+        assertEquals(dateTime, CCDateFormatter.iso8601("2007-11-12T13:10:10"));
     }
 }

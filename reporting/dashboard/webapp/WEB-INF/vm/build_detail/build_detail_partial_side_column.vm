@@ -10,19 +10,21 @@
 #end
 
 <div class="sidecol">
-    <p class="sidecol_header"><span>Latest Builds</span>
-		<a id="${projectName}_all_builds"href="$req.getContextPath()/project/list/all/$projectName" title="All builds"><img src="$req.getContextPath()/images/icon-view-all-builds.gif" width="20" height="20" alt="View all builds" /></a>
+    <p class="sidecol_header round_top"><span>Latest Builds</span>
+		<a id="${projectName}_all_builds" href="$req.getContextPath()/project/list/all/$projectName" title="All builds"><img src="$req.getContextPath()/images/icon-view-all-builds.gif" width="20" height="20" alt="View all builds" /></a>
 		<a id="${projectName}_all_successful_builds" href="$req.getContextPath()/project/list/passed/$projectName" title="All successful builds"><img src="$req.getContextPath()/images/icon-all-successful-builds.gif" width="20" height="20" alt="View all successful builds" /></a>
 	</p>
     <ul class="buildlist">
-        #foreach( $buildSummary in $summaries )
-            <li class="$buildSummary.getCssClassName()">
-            #if ($buildSummary.build.buildLogFilename.endsWith(".xml.gz"))
-                <div title="This log is zipped and cannot currently be viewed via the Dashboard">$buildSummary.getDateStringInHumanBeingReadingStyle() $!buildSummary.build.label</div>
-            #else
-                <a href="$req.getContextPath()/build/detail/$projectName/$buildSummary.build.buildLogFilename">$buildSummary.getDateStringInHumanBeingReadingStyle() $!buildSummary.build.label</a>
-            #end
+        #foreach( $historicalBuild in $historicalBuildCmds )
+            <li id="build_list_${velocityCount}">
+                <a href="$req.getContextPath()/tab/build/detail/$projectName/$historicalBuild.build.buildLogFileDateTime">$historicalBuild.build.getConvertedTime() $!historicalBuild.build.label</a>
             </li>
         #end
     </ul>
+    #foreach( $historicalBuild in $historicalBuildCmds )
+        <script type="text/javascript">
+            json_to_css.update_build_list(eval(${historicalBuild.toJsonString()}), ${velocityCount})
+        </script>
+    #end
+
 </div>

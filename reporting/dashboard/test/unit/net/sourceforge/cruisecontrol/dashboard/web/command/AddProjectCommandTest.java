@@ -48,4 +48,16 @@ public class AddProjectCommandTest extends TestCase {
         assertEquals("url", ((Map) map.get("result")).get("field"));
         assertEquals("svn: . is not working directory.", ((Map) map.get("result")).get("response"));
     }
+    public void testShouldEscapeDoubleQuote() throws Exception {
+        AddProjectCommand invalidConnection = new AddProjectCommand();
+        Map map = invalidConnection.toJsonMap(false, "url", "\"");
+        assertEquals("\\\"", ((Map) map.get("result")).get("response"));
+    }
+
+    public void testShouldEscapeBackSlash() throws Exception {
+        AddProjectCommand invalidConnection = new AddProjectCommand();
+        Map map = invalidConnection.toJsonMap(false, "url", "\\");
+        assertEquals("\\\\", ((Map) map.get("result")).get("response"));
+    }
+
 }

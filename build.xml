@@ -12,7 +12,7 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip, win-installer" description="Create release artifacts (zip, bin, installer)"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, update-zip, win-installer" description="Create release artifacts (zip, bin, installer)"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
@@ -36,6 +36,7 @@
             <property name="cruise.build.jmxport" value="8000"/>
         </ant>
         <ant inheritAll="false" dir="reporting/dashboard" target="dist" >
+            <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
     </target>
 
@@ -170,12 +171,17 @@
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
-            <zipfileset src="target/cc-config/dist/cc-configuration.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config"/>   
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
         </zip>
     </target>
 
-    <target name="prep-cc-config">
+    <target name="update-zip" unless="test.skip">
+         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" update="true">
+            <zipfileset src="target/cc-config/dist/cc-configuration.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config" />
+	 </zip>
+    </target>
+
+    <target name="prep-cc-config" unless="test.skip">
         <mkdir dir="target"/>
         <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" proxyUser="${http.proxyUser}" proxyPassword="${http.proxyPassword}"/>
         <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_1.7.2.zip" dest="${java.io.tmpdir}/cc-config.zip" verbose="on" usetimestamp="true"/>
@@ -197,7 +203,7 @@
         </condition>
     </target>
 
-    <target name="win-installer" depends="check-win-installer, bin-zip" if="should-create-win-installer" description="Create win installer">
+    <target name="win-installer" depends="check-win-installer, bin-zip, update-zip" if="should-create-win-installer" description="Create win installer">
         <property name="win-installer-stage" location="target/windows-install"/>
         <mkdir dir="${win-installer-stage}"/>
         <unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>

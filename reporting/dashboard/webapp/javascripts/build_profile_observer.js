@@ -34,35 +34,140 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+var ConfigPanelActivator = Class.create();
+var ForceBuildActivator = Class.create();
+var AllBuildsActivator = Class.create();
+var AllPassedBuildsActivator = Class.create();
+var ContentUpdater = Class.create();
 var BuildProfileObserver = Class.create(); 
 
-BuildProfileObserver.prototype = Object.extend(new BuildBaseObserver(), {
+ConfigPanelActivator.prototype = {
+	initialize : function(build_profile) {
+		this.build_profile = build_profile;
+	},
+	activateOrInactivate : function(is_disabled, json) {
+		if (!this.need_change(is_disabled, json)) return;
+
+		if (is_disabled) {
+			$(json.building_info.project_name + '_config_panel').removeClassName("config_panel_disabled");
+			$(json.building_info.project_name + '_config_panel').addClassName("config_panel_enabled");
+		} else {
+			$(json.building_info.project_name + '_config_panel').removeClassName("config_panel_enabled");
+			$(json.building_info.project_name + '_config_panel').addClassName("config_panel_disabled");
+		}
+
+		this.build_profile.create_config_panel_link($(json.building_info.project_name + '_config_panel'));
+	},
+	need_change : function(is_disabled, json) {
+		return !!(is_disabled ^ is_discontinued(json))
+	}
+}
+
+ForceBuildActivator.prototype = {
+	initialize : function(build_profile) {
+		this.build_profile = build_profile;
+	},
+	activateOrInactivate : function(is_disabled, json) {
+		if (!this.need_change(is_disabled, json)) return;
+		if (is_disabled) {
+			$(json.building_info.project_name + '_forcebuild').removeClassName("force_build_disabled");
+			$(json.building_info.project_name + '_forcebuild').addClassName("force_build_enabled");
+		} else {
+			$(json.building_info.project_name + '_forcebuild').removeClassName("force_build_enabled");
+			$(json.building_info.project_name + '_forcebuild').addClassName("force_build_disabled");
+		}
+		this.build_profile.create_force_build_link($(json.building_info.project_name + '_forcebuild'));
+	},
+	need_change : function(is_disabled, json) {
+		return !!(is_disabled ^ should_forcebuild_be_disabled(json))
+	}
+}
+
+
+var BaseBuildsActivator = Class.create();
+
+BaseBuildsActivator.prototype = {
+	initialize : function(build_profile) {
+		this.build_profile = build_profile;
+	},
+	need_change : function(is_disabled, json) {
+		var should_be_disabled = is_inactive(json);
+		return !!(is_disabled ^ should_be_disabled)
+	}
+}
+
+AllBuildsActivator.prototype = Object.extend(new BaseBuildsActivator(), {
+	activateOrInactivate : function(is_disabled, json) {
+		if (!this.need_change(is_disabled, json)) return;
+		this.build_profile.create_all_builds_link($(json.building_info.project_name + '_all_builds'));
+	}
+});
+
+AllPassedBuildsActivator.prototype = Object.extend(new BaseBuildsActivator(), {
+	activateOrInactivate : function(is_disabled, json) {
+		if (!this.need_change(is_disabled, json)) return;
+		this.build_profile.create_all_successful_builds_link($(json.building_info.project_name + '_all_successful_builds'));
+	}
+});
+
+ContentUpdater.prototype = {
 	initialize : function() {
 	},
-	notify : function(json) {
-		this.activate(json);
-	    var profile_id = json.building_info.project_name + '_profile'
-	    clean_active_css_class_on_element(profile_id)
-	   	Element.addClassName($(profile_id), json.building_info.css_class_name)
-	
-	    var project_build_date = json.building_info.project_name + '_build_date';
-	    $(project_build_date).innerHTML = " at " + json.building_info.latest_build_date;
-	    var project_build_detail = json.building_info.project_name + '_build_detail';
-	    $(project_build_detail).href =   new BuildBaseObserver().get_link(json);
+	update : function (json, link) {
+        var project_build_date = json.building_info.project_name + '_build_date';
+        $(project_build_date).update(json.building_info.latest_build_date);
+
+        var project_previous_result_text = json.building_info.project_name + '_previous_result_text';
+        var previous_text = this.previousResultText(json)
+        $(project_previous_result_text).update(previous_text);
+
+        var project_build_detail = json.building_info.project_name + '_build_detail';
+    	$(project_build_detail).href =  link;
+   },
+   previousResultText : function(json) {
+       if (is_previous_unknown(json)) return "";
+       var previous_result = json.building_info.previous_result.toLowerCase();
+       //TODO spike why IE needs extra nbsp; to make word-spacing work?
+       previous_result  += Prototype.Browser.IE ? "&nbsp;" : "";
+       if (is_discontinued(json)) {
+           return "last " + previous_result;
+       } else {
+           return previous_result;
+       }
+   }
+}
+
+
+BuildProfileObserver.prototype = Object.extend(new BuildBaseObserver(), {
+	profile : null,
+	initialize : function() {
+		this.profile = new BuildProfile();
+		this.config_panel_activator = new ConfigPanelActivator(this.profile);
+		this.force_build_activator = new ForceBuildActivator(this.profile);
+		this.all_builds_activator = new AllBuildsActivator(this.profile);
+		this.all_passed_builds_activator = new AllPassedBuildsActivator(this.profile);
+		this.content_updater = new ContentUpdater();
 	},
-	activate: function(json) {
-		var profile_id = json.building_info.project_name + '_profile';
-		
-		if(!$(profile_id).hasClassName("inactive")) return;
-	    $(json.building_info.project_name + '_forcebuild').onclick = function() {new BuildProfile().force_build(this)};
-		var img =  $(json.building_info.project_name + '_forcebuild').immediateDescendants()[0];
-		if (img) {
-			img.src = context_path('images/icon-force-build.gif');
-			img.title = "Force build";
-			img.alt = "Force build";
+	notify : function(jsonArray) {
+		for (var i = 0; i < jsonArray.length; i++) {
+			if (!jsonArray[i]) return;
+			this._notify(jsonArray[i]);		
 		}
-		$(json.building_info.project_name + '_config_panel').onclick = function() {new Toolkit().show('toolkit_' + json.building_info.project_name)};
-	    $(json.building_info.project_name + '_all_builds').href = context_path('project/list/all/' + json.building_info.project_name);
-	    $(json.building_info.project_name + '_all_successful_builds').href = context_path('project/list/passed/' + json.building_info.project_name);
+	},
+	_notify : function(json) {
+	    var profile_id = json.building_info.project_name + '_profile';
+		if (!$(profile_id)) return;
+
+		var is_force_build_disabled   = $(json.building_info.project_name + '_forcebuild').hasClassName("force_build_disabled");
+		var is_config_panel_disabled  = $(json.building_info.project_name + '_config_panel').hasClassName("config_panel_disabled");
+		var is_inactive_before_update = $(profile_id).hasClassName("inactive");
+
+        json_to_css.update_profile(json);
+
+		this.config_panel_activator.activateOrInactivate(is_config_panel_disabled, json);
+		this.force_build_activator.activateOrInactivate(is_force_build_disabled, json);
+		this.all_builds_activator.activateOrInactivate(is_inactive_before_update, json);
+		this.all_passed_builds_activator.activateOrInactivate(is_inactive_before_update, json);
+		this.content_updater.update(json, this.get_link(json));
 	}
 })

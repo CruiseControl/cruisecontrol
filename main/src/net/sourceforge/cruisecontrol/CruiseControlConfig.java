@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.config.SystemPlugin;
@@ -80,6 +81,7 @@ public class CruiseControlConfig {
         KNOWN_ROOT_CHILD_NAMES.add("property");
         KNOWN_ROOT_CHILD_NAMES.add("plugin");
         KNOWN_ROOT_CHILD_NAMES.add("system");
+        KNOWN_ROOT_CHILD_NAMES.add("dashboard");
     }
 
     private Map rootProperties = new HashMap();
@@ -141,6 +143,9 @@ public class CruiseControlConfig {
         for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext();) {
             handleIncludedProjects((Element) i.next());
         }
+        for (Iterator i = ccElement.getChildren("dashboard").iterator(); i.hasNext(); ) {
+            handleDashboard((Element) i.next());
+        }
 
         // other childNodes must be projects or the <system> node
         for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
@@ -182,6 +187,15 @@ public class CruiseControlConfig {
         } catch (CruiseControlException e) {
             LOG.error("Exception including file " + path, e);
         }
+    }
+
+    private void handleDashboard(Element dashboardElement) throws CruiseControlException {
+        DashboardConfigurationPlugin dashboard =
+                (DashboardConfigurationPlugin) new ProjectXMLHelper(rootProperties, getRootPlugins())
+                        .configurePlugin(dashboardElement, FAIL_UPON_MISSING_PROPERTY);
+        dashboard.setController(controller);
+        dashboard.validate();
+        dashboard.startPostingToDashboard();
     }
 
     private boolean isProject(String nodeName) throws CruiseControlException {

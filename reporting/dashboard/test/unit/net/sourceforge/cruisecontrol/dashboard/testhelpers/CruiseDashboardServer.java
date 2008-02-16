@@ -36,11 +36,17 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.testhelpers;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServlet;
+
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.deployer.WebAppDeployer;
-import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.thread.BoundedThreadPool;
+import org.mortbay.jetty.servlet.ServletHolder;
+import org.mortbay.jetty.webapp.WebAppContext;
 import org.springframework.util.Assert;
 
 public class CruiseDashboardServer {
@@ -49,6 +55,7 @@ public class CruiseDashboardServer {
     private String warPath;
 
     private Server jettyServer;
+
     private static final int PORT = 9090;
 
     public CruiseDashboardServer() {
@@ -68,20 +75,20 @@ public class CruiseDashboardServer {
 
     private void init() {
         Assert.notNull(warPath);
-        BoundedThreadPool threadPool = new BoundedThreadPool();
         SelectChannelConnector connector = new SelectChannelConnector();
         connector.setPort(PORT);
-
-        ContextHandlerCollection contextHandlerCollection = new ContextHandlerCollection();
-        WebAppDeployer deployer = new WebAppDeployer();
-        deployer.setContexts(contextHandlerCollection);
-        deployer.setWebAppDir(this.warPath);
-        deployer.setExtract(true);
-
-        jettyServer.setThreadPool(threadPool);
         jettyServer.addConnector(connector);
-        jettyServer.setHandler(contextHandlerCollection);
-        jettyServer.addLifeCycle(deployer);
+
+        WebAppContext wac = new WebAppContext();
+        wac.setContextPath("/dashboard");
+        wac.setWar(this.warPath + "/dashboard.war");
+        
+        
+        ServletHolder holder = new ServletHolder();
+        holder.setServlet(new StopTestingServerServlet(jettyServer));
+        wac.addServlet(holder, "/jetty/stop");
+        jettyServer.setHandler(wac);
+        jettyServer.setStopAtShutdown(true);
     }
 
     public void stop() throws Exception {
@@ -91,5 +98,21 @@ public class CruiseDashboardServer {
     public static void main(String[] strings) throws Exception {
         CruiseDashboardServer server = new CruiseDashboardServer(DEFAULT_WEBAPP_PATH);
         server.start();
+    }
+
+    public class StopTestingServerServlet extends HttpServlet {
+        private static final long serialVersionUID = 1801708603191297219L;
+        private final Server stoppingServer;
+        public StopTestingServerServlet(Server jettyServer) {
+            stoppingServer = jettyServer;
+        }
+        public void service(ServletRequest request, ServletResponse response) 
+                throws ServletException, IOException {
+            try {
+                stoppingServer.stop();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

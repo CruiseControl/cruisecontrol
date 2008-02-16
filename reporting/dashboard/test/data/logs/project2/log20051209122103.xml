@@ -40,7 +40,7 @@
 <cruisecontrol>
     <modifications>
         <modification type="cvs">
-            <file action="modified">
+            <file action="added">
                 <revision>1.2</revision>
                 <filename>build.xml</filename>
             </file>
@@ -54,6 +54,17 @@
             <file action="modified">
                 <revision>1.2</revision>
                 <filename>cc-build.xml</filename>
+            </file>
+            <date>12/21/2006 10:57:34</date>
+            <user>readcb</user>
+            <comment><![CDATA[project name changed to cache]]></comment>
+            <revision>1.2</revision>
+            <email>Chris.Read@rbos.com</email>
+        </modification>
+        <modification type="cvs">
+            <file action="deleted">
+                <revision>1.2</revision>
+                <filename>cc-build-deleted.xml</filename>
             </file>
             <date>12/21/2006 10:57:34</date>
             <user>readcb</user>

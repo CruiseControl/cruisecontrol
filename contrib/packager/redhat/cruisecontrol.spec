@@ -35,7 +35,6 @@ Subversion packages for RHEL can be found at http://dag.wieers.com/rpm/packages/
 /etc/init.d/cruisecontrol
 /etc/default/cruisecontrol
 /etc/cruisecontrol/cruisecontrol.xml
-/var/run/cruisecontrol.pid
 /var/spool/cruisecontrol/cc.pid
 /var/spool/cruisecontrol/log4j.properties
 /var/spool/cruisecontrol/projects/

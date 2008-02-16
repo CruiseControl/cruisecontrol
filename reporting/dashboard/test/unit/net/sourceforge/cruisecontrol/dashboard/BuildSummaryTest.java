@@ -36,44 +36,105 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.joda.time.DateTime;
 
-public class BuildSummaryTest extends TestCase {
-    private Build buildSummary;
+public class BuildSummaryTest extends MockObjectTestCase {
+    private BuildSummary buildSummary;
+    private static final String PASSING_LOGFILE = DataUtils.PASSING_BUILD_LBUILD_0_XML;
+    private Mock timeConverterMock;
 
     protected void setUp() throws Exception {
-        String date = "2005-12-09 12:21.10";
-        buildSummary = new BuildSummary("", date, null, ProjectBuildStatus.PASSED, "");
+        timeConverterMock = mock(TimeConverter.class);
+        buildSummary = createPassingBuildSummary("");
     }
 
     public void testShouldBeAbleToUpdateStatusWithJMXReturnStatus() {
-        assertFalse(ProjectBuildStatus.BUILDING.equals(buildSummary.getStatus()));
-        buildSummary.updateStatus("now building since 20070420174744");
-        assertEquals(ProjectBuildStatus.BUILDING, buildSummary.getStatus());
-        assertEquals(CCDateFormatter.format("2007-04-20 17:47:44", "yyyy-MM-dd HH:mm:ss"), buildSummary
-                .getBuildingSince());
+        assertFalse(CurrentStatus.BUILDING.equals(buildSummary.getCurrentStatus()));
+        buildSummary.updateStatus("now building");
+        assertEquals(CurrentStatus.BUILDING, buildSummary.getCurrentStatus());
     }
 
     public void testShouldReturnBuildingAsStatusWhenTheStatusIsNotWaiting() {
-        assertFalse(ProjectBuildStatus.BUILDING.equals(buildSummary.getStatus()));
+        assertFalse(CurrentStatus.BUILDING.equals(buildSummary.getCurrentStatus()));
         buildSummary.updateStatus("checking for modifications");
-        assertEquals(ProjectBuildStatus.MODIFICATIONSET, buildSummary.getStatus());
+        assertEquals(CurrentStatus.MODIFICATIONSET, buildSummary.getCurrentStatus());
     }
 
     public void testShouldCompareTheProjectNameIgnoreCase() throws Exception {
-        Build buildSummary1 = new BuildSummary("project1", "", "", ProjectBuildStatus.PASSED, "");
-        Build buildSummary2 = new BuildSummary("Project2", "", "", ProjectBuildStatus.PASSED, "");
+        Build buildSummary1 = createPassingBuildSummary("project1");
+        Build buildSummary2 = createPassingBuildSummary("Project2");
         assertTrue(buildSummary1.compareTo(buildSummary2) < 0);
     }
 
     public void testShouldCompareTheOriginalProjectNameIfTheyAreEqualsIngoreCase() throws Exception {
-        Build buildSummary1 = new BuildSummary("project1", "", "", ProjectBuildStatus.PASSED, "");
-        Build buildSummary2 = new BuildSummary("Project1", "", "", ProjectBuildStatus.PASSED, "");
+        Build buildSummary1 = createPassingBuildSummary("project1");
+        Build buildSummary2 = createPassingBuildSummary("Project1");
         assertTrue(buildSummary1.compareTo(buildSummary2) > 0);
     }
 
     public void testShouldReturn0SecondAsDefaultDuration() throws Exception {
         assertEquals("0 second", buildSummary.getDuration());
     }
+
+    public void testShouldInvokeTheTimeConverter() throws Exception {
+        String projectName = "Project1";
+        buildSummary = createPassingBuildSummary(projectName);
+        timeConverterMock.expects(once()).method("getConvertedTime").with(eq(buildSummary.getBuildDate().toDate()));
+        buildSummary.getConvertedTime();
+    }
+
+    public void testShouldReturnWaitingForFirstBuildWhenNoLogFileSpecified() throws Exception {
+        BuildSummary summary = new BuildSummary("Project1");
+        assertEquals("waiting for first build...", summary.getConvertedTime());
+    }
+
+    private BuildSummary createPassingBuildSummary(String projectName) {
+        BuildSummary summary = new BuildSummary(projectName, PreviousResult.PASSED, PASSING_LOGFILE);
+        summary.setTimeConverter((TimeConverter) timeConverterMock.proxy());
+        return summary;
+    }
+
+    public void testShouldDefaultToNAWhenNoServernameSet() throws Exception {
+        BuildSummary summary = new BuildSummary("Project1", PreviousResult.PASSED, PASSING_LOGFILE);
+        assertEquals("N/A", summary.getServerName());
+    }
+
+    public void testShouldUpdateBuildSinceWhenItIsBuilding() throws Exception {
+        BuildSummary summary = new BuildSummary("Project1", PreviousResult.PASSED, PASSING_LOGFILE);
+        DateTime expectedDateTime = new DateTime();
+        summary.updateStatus(CurrentStatus.BUILDING.getCruiseStatus());
+        assertEquals(CurrentStatus.BUILDING, summary.getCurrentStatus());
+        summary.updateBuildSince(expectedDateTime);
+        assertEquals(expectedDateTime, summary.getBuildingSince());
+    }
+
+    public void testShouldUpdateBuildSinceToNullWhenCurrentStatusIsNotBuildingAndBuildSinceIsNotNull()
+            throws Exception {
+        BuildSummary summary = new BuildSummary("Project1", PreviousResult.PASSED, PASSING_LOGFILE);
+        DateTime expectedDateTime = new DateTime();
+        summary.updateStatus(CurrentStatus.BUILDING.getCruiseStatus());
+        summary.updateBuildSince(expectedDateTime);
+        assertNotNull(summary.getBuildingSince());
+        summary.updateStatus(CurrentStatus.WAITING.getCruiseStatus());
+        assertNull(summary.getBuildingSince());
+    }
+
+    public void testShouldNotUpdateBuildSinceWhenItIsNotBuilding() throws Exception {
+        BuildSummary inactiveSummary = new BuildSummary("Project1");
+        DateTime expectedDateTime = new DateTime();
+        inactiveSummary.updateBuildSince(expectedDateTime);
+        assertNull(inactiveSummary.getBuildingSince());
+    }
+
+    public void testShouldBeAbleToExtractLogFileDateTime() throws Exception {
+        BuildSummary summary = new BuildSummary("Project1", PreviousResult.PASSED, "log20051209122103Lbuild.489.xml");
+        assertEquals("20051209122103", summary.getBuildLogFileDateTime());
+        summary = new BuildSummary("Project1", PreviousResult.PASSED, "log20051209122103Lbuild.489.xml.gz");
+        assertEquals("20051209122103", summary.getBuildLogFileDateTime());
+    }
+
 }

@@ -38,49 +38,88 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 import org.apache.commons.lang.StringUtils;
 
 public class RSSBuildSummaryAdapterTest extends TestCase {
+    private static final String PASSING_LOGFILE = DataUtils.PASSING_BUILD_LBUILD_0_XML;
+    private static final String FAILED_LOGFILE = DataUtils.FAILING_BUILD_XML;
+
     public void testShouldConvertPassedToBuildSucceed() throws Exception {
-        BuildSummary summary = new BuildSummary("", "2007-04-03 12:52.49", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary = new BuildSummary("", PreviousResult.PASSED, PASSING_LOGFILE);
         RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
-        assertEquals("passed", adapter.getStatus());
+        assertEquals(summary.getPreviousBuildResult().getStatus().toLowerCase(), adapter.getStatus());
     }
 
     public void testShouldConvertFailedToBuildFailed() throws Exception {
-        BuildSummary summary = new BuildSummary("", "2007-04-03 12:52.49", "", ProjectBuildStatus.FAILED, "");
+        BuildSummary summary = new BuildSummary("", PreviousResult.FAILED, FAILED_LOGFILE);
         RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
-        assertEquals("FAILED", adapter.getStatus());
+        assertEquals(summary.getPreviousBuildResult().getStatus().toUpperCase(), adapter.getStatus());
     }
 
     public void testShouldConvertDateIntoCruiseControlRSSFormate() throws Exception {
-        BuildSummary summary = new BuildSummary("", "2007-04-03 12:52.49", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary = new BuildSummary("", PreviousResult.PASSED, PASSING_LOGFILE);
         String expected = CCDateFormatter.format(summary.getBuildDate(), "EEE, dd MMM yyyy HH:mm:ss Z");
         RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
         assertEquals(expected, adapter.getPubDate());
     }
 
     public void testShouldReturnXmlIncludeNecessaryInfomationForFailedBuild() throws Exception {
-        BuildSummary summary = new BuildSummary("connectfour", "2007-04-03 12:52.49", "", ProjectBuildStatus.FAILED,
-                "");
-        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("http://localhost:8080/dashboard/", summary);
+        BuildSummary summary =
+                new BuildSummary("connectfour", PreviousResult.FAILED, FAILED_LOGFILE);
+        RSSBuildSummaryAdapter adapter =
+                new RSSBuildSummaryAdapter("http://localhost:8080/dashboard/", summary);
         String xml = adapter.toXml();
         String expected = CCDateFormatter.format(summary.getBuildDate(), "EEE, dd MMM yyyy HH:mm:ss Z");
         assertTrue(StringUtils.contains(xml, "<title>connectfour FAILED " + expected + "</title>"));
         assertTrue(StringUtils.contains(xml, "<description>Build FAILED</description>"));
         assertTrue(StringUtils.contains(xml, "<pubDate>" + expected + "</pubDate>"));
-        assertTrue(StringUtils.contains(xml, "<link>http://localhost:8080/dashboard/build/detail/connectfour</link>"));
+        assertTrue(StringUtils.contains(xml,
+                "<link>http://localhost:8080/dashboard/tab/build/detail/connectfour</link>"));
     }
 
     public void testShouldReturnXmlIncludeNecessaryInfomationForPassedBuild() throws Exception {
-        BuildSummary summary = new BuildSummary("connectfive", "2007-04-03 12:52.49", "", ProjectBuildStatus.PASSED,
-                "");
-        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("http://localhost:8080/dashboard", summary);
+        BuildSummary summary =
+                new BuildSummary("connectfive", PreviousResult.PASSED, PASSING_LOGFILE);
+        RSSBuildSummaryAdapter adapter =
+                new RSSBuildSummaryAdapter("http://localhost:8080/dashboard", summary);
         String xml = adapter.toXml();
         assertTrue(StringUtils.contains(xml, "<title>connectfive passed"));
         assertTrue(StringUtils.contains(xml, "<description>Build passed</description>"));
+    }
+
+    public void testShouldNotReturnPubDateWhenProjectIsInactive() throws Exception {
+            BuildSummary summary =
+                    new BuildSummary("connectfive", PreviousResult.PASSED, PASSING_LOGFILE) {
+                        public PreviousResult getPreviousBuildResult() {
+                            return PreviousResult.UNKNOWN;
+                        }
+                    };
+
+        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("localost", summary);
+        assertEquals("", adapter.getPubDate());
+    }
+
+    public void testShouldReturnPubDateWhenProjectIsActive() throws Exception {
+        BuildSummary summary = new BuildSummary("", PreviousResult.PASSED, PASSING_LOGFILE);
+        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
+        assertEquals(CCDateFormatter.format(summary.getBuildDate(),
+                "EEE, dd MMM yyyy HH:mm:ss Z"), adapter.getPubDate());
+    }
+
+
+    public void testShouldReturnCruiseControlCompatibleStatusForPassedBuild() throws Exception {
+        BuildSummary summary = new BuildSummary("", PreviousResult.PASSED, PASSING_LOGFILE);
+        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
+        assertEquals("passed", adapter.getStatus());
+    }
+    
+    public void testShouldReturnCruiseControlCompatibleStatusForFailedBuild() throws Exception {
+        BuildSummary summary = new BuildSummary("", PreviousResult.FAILED, PASSING_LOGFILE);
+        RSSBuildSummaryAdapter adapter = new RSSBuildSummaryAdapter("", summary);
+        assertEquals("FAILED", adapter.getStatus());
     }
 }

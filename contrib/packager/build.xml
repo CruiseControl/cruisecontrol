@@ -159,7 +159,6 @@
         <mkdir dir="${build.dir}/var/cache/cruisecontrol"/>
         <mkdir dir="${build.dir}/var/run"/>
         <touch file="${build.dir}/var/spool/cruisecontrol/cc.pid"/>
-        <symlink link="${build.dir}/var/run/cruisecontrol.pid" resource="/var/spool/cruisecontrol/cc.pid"/>
 
         <unzip src="${cruisecontrol.reporting.webapp}" dest="${install.webapps}/cruisecontrol"/>
         <unzip src="${cruisecontrol.dashboard.webapp}" dest="${install.webapps}/dashboard"/>
@@ -184,6 +183,7 @@
             <arg value="a+x"/>
             <arg value="${build.dir}/DEBIAN/postinst"/>
             <arg value="${build.dir}/DEBIAN/prerm"/>
+            <arg value="${build.dir}/DEBIAN/postrm"/>
         </exec>
         <exec executable="dpkg" failonerror="true">
             <arg value="-b"/>

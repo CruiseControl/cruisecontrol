@@ -1,0 +1,27 @@
+	<div class="projects_summary_holder">
+    	 <div class="title round_top"><span>Summary</span></div>
+         <div class="projects_summary">
+		   <div class="entry_set">
+            <div class="info total"  id="statistics_total">$projectStatistics.total() project build(s)</div>
+            <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
+            <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
+            <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
+            <div class="info discontinued" id="statistics_discontinued">$projectStatistics.discontinued() project(s) discontinued</div>
+            <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
+            <div class="clear"> &nbsp; </div>
+            <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
+           </div>
+           <div class="clear"> &nbsp; </div>
+         </div>
+         <div class="clear"> &nbsp; </div>
+    </div>
+    <div class="tools_bar_holder">
+                <div class="title actions_bar round_top"><span>Tools</span></div>
+                <div class="projects_summary actions_bar">
+                   <div id="rss_feed_for_all" class="entry"><a href="$req.getContextPath()/rss.xml" title="RSS Feed">RSS Feed</a></div>
+                   <div id="cctray" class="entry"><a href="$req.getContextPath()/cctray.xml" title="CCTray">for CCTray</a></div>
+                   <div id="cc-config" class="entry"><a href="/cc-config/cruisecontrol-gui.jnlp" title="CC-Config">for CC-Config</a></div>
+                <div class="clear"> &nbsp; </div>
+               </div>
+    </div>
+    <div class="clear"> &nbsp; </div>

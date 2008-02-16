@@ -1,27 +1,50 @@
-
-<div class="round_corner $build.cssClassName">
+#set($projectName = $buildCmd.build.projectName)
+<script type="text/javascript">
+Timer.LABEL_REMAINING = "Remaining:";
+Timer.LABEL_ELAPSED = "Elapsed:";
+Timer.LABEL_LONGER_BY = "Longer by:";
+var logRoot = "$esc.javascript(${logRoot})";
+</script>
+<div class="round_corner" id="build_detail_summary_container">
     <div class="build_detail_summary">
-            <h3>${projectName} is now <span class='build_status'>${status.toLowerCase()}</span></h3>
+            <div class="control_panel" style="display:none">
+                <a id="${projectName}_forcebuild" class="force_build_link #if ($forceBuildEnabled) force_build_enabled #else force_build_disabled #end"></a>
+                <a id="${projectName}_config_panel" class="config_panel_link config_panel_enabled"></a>
+            </div>
+            <h3>${projectName} is now <span class='build_status'>${buildCmd.getViewableStatus()}</span></h3>
+            #parse("partial/partial_toolkit.vm")
             <ul class="summary">
-                <li><strong>Building since:</strong> $buildSince</li>
-                <li><strong>Elapsed time:</strong> <span id="${projectName}_time_elapsed"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
-                <li><strong>Last successful build:</strong> $durationToSuccessfulBuild</li>
-                <li><strong>Remaining time:</strong> <span id="${projectName}_time_remaining"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span></li>
+                <li><span class="header">Building since:</span> $buildSince</li>
+                <li class="timer_area">
+                    <span class="header" id="${projectName}_time_elapsed_lable">Elapsed:</span>
+                    <span id="${projectName}_time_elapsed"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span>
+                </li>
+                <li>
+                    <span class="header">Previous successful build:</span> $durationToSuccessfulBuild
+                </li>
+                <li class="timer_area">
+                    #if ($buildDuration != "0 second")
+                          <span class="header" id="${projectName}_time_remaining_lable">Remaining:</span>
+                          <span id="${projectName}_time_remaining"><img src="$req.getContextPath()/images/yellow-wait.gif"/></span>
+                    #end
+                </li>
             </ul>
             <div class="clear">&nbsp;</div>
     </div>
 </div>
-
+<script type="text/javascript">
+json_to_css.update_build_detail_header(eval(${buildCmd.toJsonString()}));
+</script>
 <div class="build_detail_container">
     
-    <div class="build_detail_container_menu">
+    <div class="sub_tab_container_menu">
         <ul>
-            <li onclick='build_detail_toggle_tab_content(this)' class="current_tab"><a><span>Build Output</span></a></li>
-            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
+            <li class="current_tab tab_toggle"><a><span>Build Output</span></a></li>
+            <li class="tab_toggle"><a><span>Modifications</span></a></li>
         </ul>
     </div>
     
-    <div class="build_detail_container_content">
+    <div class="sub_tab_container_content">
     
         #set($buildoutput_extra_attrs="")
         #parse("build_detail/build_detail_partial_buildoutput.vm")
@@ -33,26 +56,13 @@
     
 </div>
     
-<script>
-    var executer = new BuildDetailExecuter();
-    new Ajax.Request(context_path('getProjectBuildStatus.ajax'), {
-        asynchronous: 1,
-        method:'GET',
-        onSuccess: function(transport) {
-			var json = transport.responseText
-			json = json ? eval('(' + json + ')') : null
-            BuildDetailExecuter.ajax_periodical_refresh_active_build_executer_oncomplete(json, '$build.build.projectName')
-        }
-    });
-    new Ajax.Request(context_path('getCommitMessage.ajax?project=$build.build.projectName'), {
-        asynchronous: 1,
-        method:'GET',
-        onSuccess: function(transport) {
-			var json = transport.responseText
-			json = json ? eval('(' + json + ')') : null
-            executer.ajax_refresh_active_build_commit_message(json)
-        }
-    });
-    executer.ajax_periodical_refresh_active_build_executer('$projectName');
-    executer.ajax_periodical_refresh_active_build_output_executer('$build.build.projectName');
+<script type="text/javascript">
+    #set($escaped_project_name = $esc.javascript(${projectName}))
+    var observer = new BuildDetailObserver('$escaped_project_name');
+    dashboard_periodical_executer.register(observer);
+    observer.update_live_output();
+    new LiveModificationExecuter('$escaped_project_name').live_modification();
 </script>
+
+#parse("partial/partial_flash_message.vm")
+

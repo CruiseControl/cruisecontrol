@@ -36,63 +36,87 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import java.io.File;
+import java.util.HashMap;
+
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
 
 public class ConfigInterceptorTest extends MockObjectTestCase {
     private MockHttpServletRequest request;
 
-    private MockHttpServletResponse reponse;
+    private MockHttpServletResponse response;
 
     private Mock mockConfiguration;
 
-    private Configuration configurationMock;
+    private ConfigurationService configurationMock;
 
     private ConfigInterceptor interceptor;
+    private ModelAndView modelAndView;
 
     protected void setUp() throws Exception {
         request = new MockHttpServletRequest();
-        reponse = new MockHttpServletResponse();
+        response = new MockHttpServletResponse();
         mockConfiguration =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService(),
-                                new DashboardConfigService[] {}))});
-        configurationMock = (Configuration) mockConfiguration.proxy();
+                mock(ConfigurationService.class, new Class[] {EnvironmentService.class,
+                        DashboardXmlConfigService.class, BuildLoopQueryService.class}, new Object[] {null,
+                        null, null});
+        configurationMock = (ConfigurationService) mockConfiguration.proxy();
         interceptor = new ConfigInterceptor(configurationMock);
+        modelAndView = new ModelAndView("model", new HashMap());
     }
 
-    public void testShouldReturnFalseWhenTheCruiseLogIsEmtpty() throws Exception {
-        request.setRequestURI("not");
-        mockConfiguration.expects(once()).method("getCruiseConfigLocation").will(returnValue(null));
-        boolean result = interceptor.preHandle(request, reponse, null);
-        assertFalse(result);
-        assertEquals("/admin/config", reponse.getRedirectedUrl());
+    public void testShouldSetHasDashboardConfigToFalseWhenTheDashboardConfigLocationIsEmpty() throws Exception {
+        expectsIsForceBuildEnabledCalled(true);
+        expectsGetDashboardConfigLocationCalled(null);
+        interceptor.postHandle(request, response, null, modelAndView);
+        assertEquals("false", modelAndView.getModel().get(ConfigInterceptor.HAS_DASHBOARD_CONFIG_KEY));
     }
 
-    public void testShouldReturnTrueWhenURLIsUpdateConfigXmlLocation() throws Exception {
-        mockConfiguration.expects(once()).method("getCruiseConfigLocation").will(returnValue(null));
-        mockConfiguration.expects(once()).method("getCruiseConfigLocation").will(returnValue(null));
-        request.setRequestURI("admin/config/setup");
-        boolean result = interceptor.preHandle(request, reponse, null);
-        assertTrue(result);
-        request.setRequestURI("admin/config");
-        result = interceptor.preHandle(request, reponse, null);
-        assertTrue(result);
+    public void testShouldSetHasDashboardConfigToFalseWhenTheDashboardConfigLocationIsInvalid() throws Exception {
+        expectsIsForceBuildEnabledCalled(true);
+        expectsGetDashboardConfigLocationCalled("not.exist");
+        interceptor.postHandle(request, response, null, modelAndView);
+        assertEquals("false", modelAndView.getModel().get(ConfigInterceptor.HAS_DASHBOARD_CONFIG_KEY));
     }
 
-    public void testShouldReturnTrueWhenTheCruiseLogIsNotEmtpty() throws Exception {
-        mockConfiguration.expects(once()).method("getCruiseConfigLocation").will(returnValue("not empty"));
-        boolean result = interceptor.preHandle(request, reponse, null);
-        assertTrue(result);
-        assertNull(reponse.getRedirectedUrl());
+    public void testShouldSetHasDashboardConfigToTrueWhenTheCruiseLogIsNotEmpty() throws Exception {
+        File tempFile = DataUtils.createTempFile("config", "file");
+        expectsIsForceBuildEnabledCalled(true);
+        expectsGetDashboardConfigLocationCalled(tempFile.getPath());
+        interceptor.postHandle(request, response, null, modelAndView);
+        assertEquals("true", modelAndView.getModel().get(ConfigInterceptor.HAS_DASHBOARD_CONFIG_KEY));
+    }
+
+    public void testShouldSetGlobalForceBuildEnabledToTrueWhenForceBuildEnabled() throws Exception {
+        expectsIsForceBuildEnabledCalled(true);
+        expectsGetDashboardConfigLocationCalled(null);
+        interceptor.postHandle(request, response, null, modelAndView);
+        assertEquals("true", modelAndView.getModel().get(ConfigInterceptor.FORCE_BUILD_ENABLED_KEY));
+    }
+
+    public void testShouldSetGlobalForceBuildEnabledToFalseWhenForceBuildDisabled() throws Exception {
+        expectsIsForceBuildEnabledCalled(false);
+        expectsGetDashboardConfigLocationCalled(null);
+        interceptor.postHandle(request, response, null, modelAndView);
+        assertEquals("false", modelAndView.getModel().get(ConfigInterceptor.FORCE_BUILD_ENABLED_KEY));
+    }
+
+    private void expectsIsForceBuildEnabledCalled(boolean returnValue) {
+        mockConfiguration.expects(once()).method("isForceBuildEnabled").will(returnValue(returnValue));
+    }
+
+    private void expectsGetDashboardConfigLocationCalled(String returnValue) {
+        mockConfiguration.expects(once()).method("getDashboardConfigLocation").will(returnValue(returnValue));
     }
 
 }

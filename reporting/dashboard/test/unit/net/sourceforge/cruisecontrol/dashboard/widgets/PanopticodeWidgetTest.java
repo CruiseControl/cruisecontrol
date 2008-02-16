@@ -53,9 +53,9 @@ public class PanopticodeWidgetTest extends TestCase {
         properties.put(Widget.PARAM_PJT_NAME, "project1");
         String output = (String) panopitocide.getOutput(properties);
         assertTrue(output, StringUtils.contains(output,
-                "dashboard/build/download/artifacts/project1/log200705030201.xml/interactive-coverage-treemap.svg"));
+            "dashboard/tab/build/download/artifacts/project1/log200705030201.xml/interactive-coverage-treemap.svg"));
         assertTrue(output, StringUtils.contains(output,
-                "dashboard/build/download/artifacts/project1/log200705030201.xml/interactive-complexity-treemap.svg"));
+            "dashboard/tab/build/download/artifacts/project1/log200705030201.xml/interactive-complexity-treemap.svg"));
 
     }
 }

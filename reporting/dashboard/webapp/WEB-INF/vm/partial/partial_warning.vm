@@ -1,0 +1,6 @@
+#if($has_dashboard_config == "false")
+<div id="warning">
+    <div id="warning_content" class="round_corner">Configuration file does not exist! Some features may not be available. 
+    Please set "dashboard.config" system property to the current location of dashboard-config.xml.</div>
+</div>
+#end

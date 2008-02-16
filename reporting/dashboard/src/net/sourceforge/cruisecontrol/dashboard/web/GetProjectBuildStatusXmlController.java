@@ -36,35 +36,34 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-
+import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
 
-public class GetProjectBuildStatusXmlController extends MultiActionController {
-    private BuildSummariesService buildSummariesService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
-    private CruiseControlJMXService cruiseControlJMXService;
+public class GetProjectBuildStatusXmlController extends MultiActionController {
+    private LatestBuildSummariesService buildSummariesService;
+
+    private BuildLoopQueryService buildLoopQueryService;
 
     private final BuildSummaryUIService uiService;
 
-    public GetProjectBuildStatusXmlController(BuildSummariesService buildSummarySerivce,
-            CruiseControlJMXService cruiseControlJMXService, BuildSummaryUIService uiService) {
+    public GetProjectBuildStatusXmlController(LatestBuildSummariesService buildSummarySerivce,
+                                              BuildLoopQueryService buildLoopQueryService,
+                                              BuildSummaryUIService uiService) {
         super();
         this.buildSummariesService = buildSummarySerivce;
-        this.cruiseControlJMXService = cruiseControlJMXService;
+        this.buildLoopQueryService = buildLoopQueryService;
         this.uiService = uiService;
-        this.setSupportedMethods(new String[] {"GET"});
+        this.setSupportedMethods(new String[]{"GET"});
     }
 
     public ModelAndView cctray(HttpServletRequest req, HttpServletResponse resp) throws Exception {
@@ -72,8 +71,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
         PrintWriter writer = resp.getWriter();
         writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         writer.println("<Projects>");
-        writer.println(uiService.toXml(buildSummariesService.getLatestOfProjects(), cruiseControlJMXService
-                .getAllProjectsStatus(), getBaseURL(req), "cctray"));
+        writer.println(uiService.toXml(buildSummariesService.getLatestOfProjects(), getBaseURL(req), "cctray"));
         writer.println("</Projects>");
         return null;
     }
@@ -90,8 +88,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
         writer.println("</link>");
         writer.println("  <description>Summary of the project build results.</description>");
         writer.println("  <language>en-us</language>");
-        writer.println(uiService.toXml(getLatestSummariesForRSS(req), cruiseControlJMXService
-                .getAllProjectsStatus(), getBaseURL(req), "rss"));
+        writer.println(uiService.toXml(getLatestSummariesForRSS(req), getBaseURL(req), "rss"));
         writer.println("</channel>");
         writer.println("</rss>");
         return null;
@@ -101,7 +98,7 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
         String projectName = req.getParameter("projectName");
         List result = new ArrayList();
         if (StringUtils.isNotEmpty(projectName)) {
-            result.add(buildSummariesService.getLatest(projectName));
+            result.add(buildSummariesService.getLatestProject(projectName));
         } else {
             result.addAll(buildSummariesService.getLatestOfProjects());
         }

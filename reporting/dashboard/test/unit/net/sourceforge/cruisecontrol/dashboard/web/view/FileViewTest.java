@@ -71,23 +71,44 @@ public class FileViewTest extends MockObjectTestCase {
         File file = DataUtils.createTempFile("file", "txt");
         Map model = new HashMap();
         model.put("targetFile", file);
-        mockServletContext.expects(once()).method("getMimeType").will(returnValue("text/plain"));
+        mockServletContext.expects(once()).method("getMimeType").will(
+                returnValue("text/plain"));
         view.render(model, mockRequest, mockResponse);
         assertEquals("text/plain", mockResponse.getContentType());
         assertEquals(0, mockResponse.getContentLength());
     }
+
     public void testShouldSupportSVG() throws Exception {
         File file = DataUtils.createTempFile("coverage", ".svg");
         Map model = new HashMap();
         model.put("targetFile", file);
-        mockServletContext.expects(never()).method("getMimeType").will(returnValue("text/plain"));
+        mockServletContext.expects(never()).method("getMimeType").will(
+                returnValue("text/plain"));
         view.render(model, mockRequest, mockResponse);
         assertEquals("image/svg+xml", mockResponse.getContentType());
         assertEquals(0, mockResponse.getContentLength());
-    }    
-    
+    }
 
     public void testDefaultContentTypeShouldBeTextPlain() throws Exception {
         assertEquals("application/octet-stream", view.getContentType());
+    }
+
+    public void testShouldSetContentDispositionForBigFile() throws Exception {
+        File file = new MockFile(DataUtils.createTempFile("file", ".svg"));
+        Map model = new HashMap();
+        model.put("targetFile", file);
+        view.render(model, mockRequest, mockResponse);
+        assertEquals("attachment; filename=" + file.getName(), mockResponse
+                .getHeader("Content-Disposition"));
+    }
+
+    private static class MockFile extends File {
+        public MockFile(File realFile) {
+            super(realFile.getPath());
+        }
+
+        public long length() {
+            return FileView.DOWNLOAD_THRESHHOLD + 1;
+        }
     }
 }

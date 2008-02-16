@@ -38,19 +38,23 @@ var ToolTipObserver = Class.create();
 
 ToolTipObserver.prototype = {
 	initialize : function() {},
-	notify : function(json) {
-		var projectName = json.building_info.project_name
-		var tool_tip_id_prefix = 'tooltip_' + projectName
-		$(tool_tip_id_prefix).className='';
-		Element.addClassName($(tool_tip_id_prefix), 'tooltip')
-		Element.addClassName($(tool_tip_id_prefix), 'tooltip_' + json.building_info.css_class_name)
-		
-		var buildStatus = json.building_info.building_status
-		$(tool_tip_id_prefix + '_name').update(projectName);
-		$$WordBreaker.word_break($(tool_tip_id_prefix + '_name'));
-		$(tool_tip_id_prefix + '_status').update("Status: " + buildStatus);
-		if(buildStatus.toLowerCase() != 'inactive'){
-		    $(tool_tip_id_prefix + '_date').innerHTML = "Date: " + json.building_info.latest_build_date
+	notify : function(jsonArray) {
+		for (var i = 0; i < jsonArray.length; i++) {
+			if (!jsonArray[i]) return;
+			this._notify(jsonArray[i]);
+		}
+	},
+	_notify : function(json) {
+		var projectName = json.building_info.project_name;
+		var tool_tip_id_prefix = 'tooltip_' + projectName;
+        if (!$(tool_tip_id_prefix)) return;
+        json_to_css.update_tooltip(json);
+		$(tool_tip_id_prefix + '_current_status').update(json.building_info.current_status);
+		$(tool_tip_id_prefix + '_previous_result').update(json.building_info.previous_result);
+
+		if(!is_inactive(json)){
+		    $(tool_tip_id_prefix + '_date').update(json.building_info.latest_build_date)
 		}
 	}
 }
+

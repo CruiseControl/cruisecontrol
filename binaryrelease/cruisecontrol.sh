@@ -74,5 +74,5 @@ fi
 
 EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -jar $LAUNCHER $@ -jmxport 8000 -webport 8080 -rmiport 1099"
 echo $EXEC
-$EXEC &
+$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder "-Dcc.library.dir=$LIBDIR" -jar "$LAUNCHER" $@ -jmxport 8000 -webport 8080 -rmiport 1099 &
 echo $! > cc.pid

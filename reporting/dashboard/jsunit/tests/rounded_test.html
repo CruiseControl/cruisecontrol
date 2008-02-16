@@ -81,7 +81,7 @@ function test_should_invoke_remove_corner_and_rounded_when_invoke_rerounded() {
 	this.insideColor = function(){}
 	assertFalse(called_rounded)
 	assertFalse(called_removed_corners)
-    reround()
+    reround($('project1_bar'))
 	assertTrue(called_rounded) 
 	assertTrue(called_removed_corners)
 }

@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
+import net.sourceforge.cruisecontrol.Modification;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -48,13 +50,15 @@ public class ModificationSet {
         ModificationKey key = new ModificationKey(comment, user);
         Modification modification = null;
         if (!store.containsKey(key)) {
-            modification = new Modification(type, user, comment);
+            modification = new Modification();
+            modification.type = type;
+            modification.userName = user;
+            modification.comment = comment;
             store.put(key, modification);
         } else {
             modification = (Modification) store.get(key);
         }
-        ModifiedFile file = new ModifiedFile(revision, filename, action);
-        modification.addModifiedFiles(file);
+        modification.files.add(new Modification.ModifiedFile(filename, revision, "", action.toString()));
     }
 
     public Collection getModifications() {

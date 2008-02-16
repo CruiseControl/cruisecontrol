@@ -37,66 +37,155 @@
 
 var BuildProfile = Class.create();
 
-BuildProfile.prototype = {
-	_me : null,
-	initialize   : function(){
-		_me = this;
-	},
-	force_build_enabled : {
+BuildProfile.FORCE_BUILD =
+{ 
+	width: '20',
+	height: '20',
+	active : {
 		on_click : function() {new BuildProfile().force_build(this)},
-		href : "javascript:void(0)",
+		href : function(element) {return "javascript:void(0)"},
 		src : 'images/icon-force-build.gif',
 		text : "Force build"
 	},
-	force_build_disabled : {
+
+	inactive: {
 		on_click : Prototype.emptyFunction,
-		href : null,
+		href : function(element) {return "javascript:void(0)"},
 		src : 'images/icon-force-build-grey.gif',
 		text : "Force build (disabled)"
-	},
-	create_links : function() {
-		var _profile = this;
-		$$('.force_build_link').each(function(element) {
-			var forceBuild = _me.choose_force_build(element);
-			element.onclick = forceBuild.on_click;
-			var img = _me.create_img(forceBuild.src, forceBuild.text);
-			element.appendChild(img);
-			if (forceBuild.href) {
-				element.href = forceBuild.href; 
-			}
-		})
-	},
-	create_img : function(imgSrc, text) {
-		var img = document.createElement("img");
-		img.width = '20';
-		img.height = '20';
-		img.title = text;
-		img.alt = text;
-		img.src = context_path(imgSrc);
-		return img;
-	},
-	is_force_build_enabled : function(element) {
-		return element.hasClassName('force_build_enabled');
-	},
-	is_inactive : function(element) {
-		return _me.get_container(element).hasClassName('inactive');
-	},
-	get_container :function(link) {
-		return $(link.id.replace("_forcebuild", "_profile"));
-	},
-	choose_force_build : function(element) {
-		if (_me.is_force_build_enabled(element) && !_me.is_inactive(element)) {
-			return _me.force_build_enabled;
-		} else {
-			return _me.force_build_disabled;
-		}		
-	},
-	force_build : function(elem) {
-		if (!elem) return;
-	    var pars = 'projectName=' + elem.id.replace("_forcebuild", "");
-		new TransparentMenu('trans_message',{afterElement: _me.get_container(elem), displayMode:'now', hideDelay:3, hideMode:'timeout', top:2, left:null})
-	    new Ajax.Request('forcebuild.ajax', { method: 'GET', parameters: pars });
 	}
 }
 
-Event.observe(window, 'load', function() {new BuildProfile().create_links()});
+BuildProfile.CONFIG_PANEL =
+{
+	width: '35',
+	height: '20',
+	active : {
+		on_click : function() {var toolkit_id = 'toolkit_' + this.id.replace("_config_panel", "");new Toolkit().show(toolkit_id)},
+		href : function(element) {return "javascript:void(0)"},
+		src : 'images/icon-config-dropdown.gif',
+		text : "Configure project"
+	},
+
+	inactive : {
+		on_click : Prototype.emptyFunction,
+		href : function(element) {return "javascript:void(0)"},
+		src : 'images/icon-config-dropdown-grey.gif',
+		text : "Configure project"
+	}
+}
+
+BuildProfile.ALL_BUILDS = {
+	width: '20',
+	height: '20',
+	active: {
+		on_click : Prototype.emptyFunction,
+		href : function(element) {return context_path("project/list/all/" + element.id.replace("_all_builds", ""))},
+		src : 'images/icon-view-all-builds.gif',
+		text : "All builds"
+	},
+	inactive: {
+		on_click : Prototype.emptyFunction,
+		href : function(element) {return "javascript:void(0)"},
+		src : 'images/icon-view-all-builds-grey.gif',
+		text : "All builds"
+	}
+}
+
+BuildProfile.ALL_SUCCESSFUL_BUILDS = {
+	width: '20',
+	height: '20',
+	active: {
+		on_click : Prototype.emptyFunction,
+		href : function(element) {return context_path("project/list/passed/" + element.id.replace('_all_successful_builds', ""))},
+		src : 'images/icon-all-successful-builds.gif',
+		text : "All successful builds"
+	},
+
+	inactive: {
+		on_click : Prototype.emptyFunction,
+		href : function(element) {return "javascript:void(0)"},	
+		src : 'images/icon-all-successful-builds-grey.gif',
+		text : "All successful builds"
+	}
+}
+
+BuildProfile.TARGET = ['.force_build_link', '.config_panel_link', '.all_builds_link', '.all_successful_builds_link'];
+
+BuildProfile.prototype = {
+	_me : null,
+	initialize   : function() {
+		_me = this;
+	},
+	create_links : function() {
+		$A(BuildProfile.TARGET).each(function (class_name) {
+				_me._create_individual_links(class_name);
+			}
+		);		
+	},
+	_create_individual_links: function(class_name) {
+	    $$(class_name).each(function(element) {
+			eval("_me.create_" + class_name.replace(".", "") + "(element)");
+		});
+	},
+    create_force_build_link : function(element) {
+        _me.create_link(element,BuildProfile.FORCE_BUILD, !_me.is_force_build_enabled(element));
+    },
+    create_config_panel_link : function(element) {
+        _me.create_link(element,BuildProfile.CONFIG_PANEL, !_me.is_config_panel_enabled(element));
+    },
+    create_all_builds_link : function(element) {
+        _me.create_link(element, BuildProfile.ALL_BUILDS, _me.is_inactive(element));
+    },
+	create_all_successful_builds_link : function(element) {
+        _me.create_link(element, BuildProfile.ALL_SUCCESSFUL_BUILDS, _me.is_inactive(element));
+    },
+	create_link : function(element, obj, is_inactive) {
+		var link_obj = is_inactive ?  obj.inactive : obj.active;
+		element.onclick = link_obj.on_click;
+		$(element).immediateDescendants().each(function(elem){$(elem).remove()})
+        var img = _me.create_img(link_obj.src, link_obj.text, obj.width, obj.height);
+        element.appendChild(img);
+        element.href = link_obj.href(element); 
+	},
+    create_img : function(imgSrc, text, width, height) {
+        var img = document.createElement("img");
+        img.width = width;
+        img.height = height;
+        img.title = text;
+        img.alt = text;
+        img.src = context_path(imgSrc);
+        return img;
+    },
+    is_force_build_enabled : function(element) {
+        return $(element).hasClassName('force_build_enabled');
+    },
+    is_config_panel_enabled : function(element) {
+       return $(element).hasClassName('config_panel_enabled');
+    },
+    is_inactive : function(element) {
+        return _me.get_container($(element)).hasClassName('inactive');
+    },
+    get_container :function(link) {
+        return link.ancestors()[0].ancestors()[0];
+    },
+    force_build : function(elem) {
+        if (!elem) return;
+        var pars = 'projectName=' + elem.id.replace("_forcebuild", "");
+        new Ajax.Updater($('trans_content'), context_path('forcebuild.ajax'), {
+            method: 'POST',
+            parameters: pars,
+            onSuccess: function() {
+                new TransMessage('trans_message', _me.get_container(elem), {type:TransMessage.TYPE_NOTICE});
+            },
+            onFailure: function() {
+                new TransMessage('trans_message', _me.get_container(elem), {type:TransMessage.TYPE_ERROR});
+            }
+        });
+    }
+}
+
+Event.observe(window, 'load', function() {
+    var profile = new BuildProfile();
+    profile.create_links();
+});

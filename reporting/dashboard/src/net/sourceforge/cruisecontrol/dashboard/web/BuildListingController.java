@@ -43,18 +43,18 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 
 import org.springframework.web.servlet.ModelAndView;
 
 public class BuildListingController extends BaseMultiActionController {
-    private final BuildSummariesService buildSummariesService;
+    private final HistoricalBuildSummariesService buildSummariesService;
 
     private final BuildSummaryUIService buildSummaryUIService;
 
-    public BuildListingController(BuildSummariesService buildSummariesService,
+    public BuildListingController(HistoricalBuildSummariesService buildSummariesService,
             BuildSummaryUIService buildSummaryUIService) {
         this.buildSummariesService = buildSummariesService;
         this.buildSummaryUIService = buildSummaryUIService;
@@ -63,19 +63,18 @@ public class BuildListingController extends BaseMultiActionController {
 
     public ModelAndView all(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List all = buildSummariesService.getAll(getProjectName(request));
-        return process(getProjectName(request), "page_all_builds", buildSummaryUIService
-                .transform(all, false));
+        return process(getProjectName(request), "page_all_builds", buildSummaryUIService.transform(all));
     }
 
     public ModelAndView passed(HttpServletRequest request, HttpServletResponse response) throws Exception {
         List allSucceed = buildSummariesService.getAllSucceed(getProjectName(request));
-        return process(getProjectName(request), "page_all_successful_builds", buildSummaryUIService
-                .transform(allSucceed, false));
+        return process(getProjectName(request), "page_all_successful_builds",
+                buildSummaryUIService.transform(allSucceed));
     }
 
     private ModelAndView process(String projectName, String viewname, List list) {
         Map model = new HashMap();
-        model.put("buildSummaries", list);
+        model.put("buildCmds", list);
         model.put("projectName", projectName);
         return new ModelAndView(viewname, model);
     }

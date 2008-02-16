@@ -36,92 +36,99 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigFileFactory;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
-import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
-
+import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GetCommitMessageControllerTest extends MockObjectTestCase {
     private MockHttpServletRequest request = new MockHttpServletRequest();
 
     private MockHttpServletResponse response = new MockHttpServletResponse();
 
-    private Mock jmxServiceMock =
-            mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                    new Object[] {null,
-                            new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
+    private Mock buildLoopQueryServiceMock =
+            mock(BuildLoopQueryService.class, 
+                 new Class[] {EnvironmentService.class, BuildInformationRepository.class},
+                 new Object[] {new EnvironmentService(new DashboardConfigService[] {}), null});
 
     private Mock dashboardConfigMock =
-            mock(DashboardXmlConfigService.class, new Class[] {SystemService.class},
-                    new Object[] {new SystemService()});
+            mock(DashboardXmlConfigService.class, new Class[] {DashboardConfigFileFactory.class},
+                    new Object[] {null});
 
     private GetCommitMessageController controller =
-            new GetCommitMessageController((CruiseControlJMXService) jmxServiceMock.proxy(),
+            new GetCommitMessageController((BuildLoopQueryService) buildLoopQueryServiceMock.proxy(),
                     (DashboardXmlConfigService) dashboardConfigMock.proxy());
 
     public void testJSONObjectTypeShouldBeArray() throws Exception {
-        jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
+        buildLoopQueryServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
                 returnValue(Arrays.asList(new ModificationKey[] {})));
         dashboardConfigMock.expects(never()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
         controller.handleRequest(request, response);
 
-        String json = (String) response.getContentAsString();
-        assertTrue(json.startsWith("["));
-        assertTrue(json.endsWith("]"));
+        String json = response.getContentAsString();
+        assertEquals("", json);
     }
 
     public void testShouldReturnEmptyArrayIfThereIsNoCommitMessages() throws Exception {
-        jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
+        buildLoopQueryServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
                 returnValue(Arrays.asList(new ModificationKey[] {})));
         dashboardConfigMock.expects(never()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
         controller.handleRequest(request, response);
 
-        String json = (String) response.getContentAsString();
-        assertEquals("[]", json);
+        String json = response.getContentAsString();
+        assertEquals("", json);
     }
 
     public void testJSONObjectShouldHasUserAndMessageProperty() throws Exception {
-        jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
-                returnValue(Arrays.asList(new ModificationKey[] {
-                        new ModificationKey("add new feature", "joe"),
-                        new ModificationKey("update build", "joe")})));
+        buildLoopQueryServiceMock.expects(once()).method("getCommitMessages").with(eq("project1")).will(
+                returnValue(Arrays.asList(new Modification[] {createModification("joe", "add new feature"),
+                        createModification("joe", "update build")})));
         dashboardConfigMock.expects(once()).method("getStoryTrackers").will(returnValue(new HashMap()));
         request.setParameter("project", "project1");
 
-        controller.handleRequest(request, response);
-
-        String json = (String) response.getContentAsString();
+        String json  = getResponse(controller.handleRequest(request, response));
         assertTrue(StringUtils.contains(json, "{"));
-        assertTrue(StringUtils.contains(json, "\"user\":\"joe\""));
-        assertTrue(StringUtils.contains(json, "\"comment\":\"update build\""));
-        assertTrue(StringUtils.contains(json, "\"comment\":\"add new feature\""));
-        assertTrue(StringUtils.contains(json, "}"));
+        assertTrue(StringUtils.contains(json, "user"));
+        assertTrue(StringUtils.contains(json, "joe"));
+        assertTrue(StringUtils.contains(json, "build"));
+    }
+
+    public Modification  createModification(String username, String comment) {
+        Modification m1 = new Modification();
+        m1.userName = username;
+        m1.comment = comment;
+        m1.modifiedTime = new Date();
+        return m1;
     }
 
     public void testShouldContainHyperlinkIfConfiguredStoryTracker() throws Exception {
-        jmxServiceMock.expects(once()).method("getCommitMessages").with(eq("project_with_story_tracker"))
+        buildLoopQueryServiceMock.expects(once()).method("getCommitMessages").with(eq("project_with_story_tracker"))
                 .will(
-                        returnValue(Arrays.asList(new ModificationKey[] {
-                                new ModificationKey("add new feature", "joe"),
-                                new ModificationKey("update build456", "joe")})));
+                        returnValue(Arrays.asList(new Modification[] {
+                                createModification("joe", "add new feature"),
+                                createModification("joe", "update build456")})));
         Map expectedMap = new HashMap();
         StoryTracker expectedStoryTracker =
                 new StoryTracker("project_with_story_tracker", "http://abc/", "build,bug");
@@ -129,13 +136,18 @@ public class GetCommitMessageControllerTest extends MockObjectTestCase {
         dashboardConfigMock.expects(once()).method("getStoryTrackers").will(returnValue(expectedMap));
         request.setParameter("project", "project_with_story_tracker");
 
-        controller.handleRequest(request, response);
-
-        String json = (String) response.getContentAsString();
+        String json = getResponse(controller.handleRequest(request, response));
         assertTrue(StringUtils.contains(json, "{"));
-        assertTrue(StringUtils.contains(json, "\"user\":\"joe\""));
-        assertTrue(json, StringUtils.contains(json, "\"comment\":\"update <a href='http://abc/456'>build456</a>"));
-        assertTrue(StringUtils.contains(json, "\"comment\":\"add new feature\""));
+        String escaped = StringEscapeUtils.escapeJavaScript("<a href=\"http://abc/456\">");
+        assertTrue(StringUtils.contains(json, escaped));
+        assertTrue(StringUtils.contains(json, "user"));
         assertTrue(StringUtils.contains(json, "}"));
+    }
+
+
+    private String getResponse(ModelAndView mov) throws Exception {
+        JsonView jsonView = (JsonView) mov.getView();
+        jsonView.render(mov.getModel(), request, response);
+        return response.getContentAsString();
     }
 }

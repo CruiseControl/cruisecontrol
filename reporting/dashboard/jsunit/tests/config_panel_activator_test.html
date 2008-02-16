@@ -1,0 +1,110 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+var activator;
+var orginial_need_change = 	ConfigPanelActivator.prototype.need_change;
+function setUp() {
+	activator = new ConfigPanelActivator(new BuildProfile());
+	$('project1_config_panel').className = "";
+	ConfigPanelActivator.prototype.need_change = orginial_need_change;
+}
+
+function test_should_return_false_when_button_is_enabled() {
+	var is_disabled = false;
+	assertFalse("do not need to activate since it is already activated before", activator.need_change(is_disabled, passed_json("project1")));
+}
+
+function test_should_return_false_when_button_is_disbled_and_current_json_is_still_discontinued() {
+	var is_disabled = true;
+	assertFalse("do not need to activate since status does not change", activator.need_change(is_disabled, discontinued_json("project1")));
+}
+
+function test_should_return_true_when_button_is_disabled_and_current_json_is_non_discontinued() {
+	var is_disabled = true;
+	assertTrue("need to activate since status changed to passed", activator.need_change(is_disabled, passed_json("project1")));
+	assertTrue("need to activate since status changed to failed", activator.need_change(is_disabled, failed_json("project1")));
+	assertTrue("need to activate since status changed to paused", activator.need_change(is_disabled, paused_json("project1")));
+	assertTrue("need to activate since status changed to building", activator.need_change(is_disabled, building_json("project1")));
+}
+
+function test_should_not_invoke_create_force_build_link_when_no_need_to_change() {
+	ConfigPanelActivator.prototype.need_change = function() {
+		return false;
+	}
+	var is_invoked = false;
+	BuildProfile.prototype.create_config_panel_link = function() {
+		is_invoked = true;
+	}
+
+	activator.activateOrInactivate(false, paused_json("project1"));
+	assertFalse("should not invoke", is_invoked);
+}
+
+function test_should_invoke_create_force_build_link_when_need_to_change() {
+	ConfigPanelActivator.prototype.need_change = function() {
+		return true;
+	}
+	var is_invoked = false;
+	BuildProfile.prototype.create_config_panel_link = function() {
+		is_invoked = true;
+	}
+
+	activator.activateOrInactivate(false, paused_json("project1"));
+	assertTrue("should invoke", is_invoked);
+}
+
+
+</script>
+</head>
+<body>
+<a id="project1_config_panel"></a>
+</body>
+</html>

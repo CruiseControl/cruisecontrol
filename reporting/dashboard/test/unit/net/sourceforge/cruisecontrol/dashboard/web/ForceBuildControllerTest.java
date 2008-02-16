@@ -36,41 +36,71 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.util.Map;
-
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub;
-
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.BuildLoopInformation;
+import org.jmock.cglib.MockObjectTestCase;
+import org.jmock.Mock;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.ModelAndView;
 
-public class ForceBuildControllerTest extends TestCase {
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class ForceBuildControllerTest extends MockObjectTestCase {
 
     private static final String PROJECT_NAME = "project";
 
-    private CruiseControlJMXService service;
+    private Mock buildLoopQueryService;
+    private Mock buildInformationRepository;
 
     private ForceBuildController controller;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
 
     protected void setUp() throws Exception {
-        service = new CruiseControlJMXServiceStub();
-        controller = new ForceBuildController(service);
-    }
+        System.setProperty("cruisecontrol.rmiport", "9090");
 
-    public void testShouldBeAbleToForceBuildUsingHtmlAdapter() throws Exception {
-        Map allProjectsStatus = service.getAllProjectsStatus();
-        String status = (String) allProjectsStatus.get(PROJECT_NAME);
-        MockHttpServletRequest request = this.getRequest();
-        controller.handleRequest(request, new MockHttpServletResponse());
-        String status2 = (String) allProjectsStatus.get(PROJECT_NAME);
-        assertFalse(status.equals(status2));
-    }
+        BuildLoopInformation.JmxInfo jmxinfo = new BuildLoopInformation.JmxInfo("cruise.example.com");
+        BuildLoopInformation buildLoopInfo = new BuildLoopInformation(new BuildLoopInformation.ProjectInfo[0], jmxinfo,
+                null, null);
 
-    private MockHttpServletRequest getRequest() {
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setMethod("GET");
+        buildLoopQueryService = mock(BuildLoopQueryService.class);
+        buildInformationRepository = mock(BuildInformationRepository.class);
+        buildInformationRepository.stubs().method("getBuildLoopInfo").with(eq(PROJECT_NAME))
+                .will(returnValue(buildLoopInfo));
+        controller = new ForceBuildController((BuildLoopQueryService) buildLoopQueryService.proxy(),
+                (BuildInformationRepository) buildInformationRepository.proxy());
+
+        request = new MockHttpServletRequest();
+        request.setMethod("POST");
         request.addParameter("projectName", PROJECT_NAME);
-        return request;
+
+        response = new MockHttpServletResponse();
+    }
+
+    public void testShouldForceBuildAndReturnMessage() throws Exception {
+        buildLoopQueryService.expects(atLeastOnce()).method("forceBuild").with(eq(PROJECT_NAME));
+
+        assertEquals("Your build is scheduled", render(controller.handleRequest(request, response)));
+        assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+    }
+
+    public void testOnFailureShouldReturnMessageWithServerAndPort() throws Exception {
+        buildLoopQueryService.expects(atLeastOnce()).method("forceBuild").with(eq(PROJECT_NAME))
+                .will(throwException(new IOException()));
+
+        assertEquals("Error communicating with build loop on: rmi://cruise.example.com:9090",
+                render(controller.handleRequest(request, response)));
+        assertEquals(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response.getStatus());
+    }
+
+    private String render(ModelAndView modelAndView) throws Exception {
+        View view = modelAndView.getView();
+        view.render(null, null, response);
+
+        return response.getContentAsString();
     }
 }

@@ -43,15 +43,15 @@ import org.apache.commons.lang.StringUtils;
 
 public class PanopticodeWidget implements Widget {
     private static final String VIEW_TEMPLATE =
-            "<div id='panopticode_summary'>" + "<h2>Code Coverage</h2>"
-                    + "<iframe src='$contextPath/build/download/artifacts/$project/$build/"
-                    + "interactive-coverage-treemap.svg' " + "width='100%' height='768px'>"
-                    + "</iframe>" + "<h2>Code Complexity</h2>"
-                    + "<iframe src='$contextPath/build/download/artifacts/$project/$build/"
-                    + "interactive-complexity-treemap.svg' "
+            "<div id='panopticode_summary' style='font-family: Arial, Verdana, sans-serif;'>" + "<h2>Code Coverage</h2>"
+                    + "<iframe src=\"$contextPath/tab/build/download/artifacts/$project/$build/"
+                    + "interactive-coverage-treemap.svg\" " + "width='100%' height='768px'>"
+                    + "</iframe>" + "<br/><br/><h2>Code Complexity</h2>"
+                    + "<iframe src=\"$contextPath/tab/build/download/artifacts/$project/$build/"
+                    + "interactive-complexity-treemap.svg\""
                     + "width='100%' height='768px'></iframe>" + "</div>";
 
-    public String getDisplayName() {
+    public String getDisplayName() {    
         return "Panopticode Summary";
     }
 

@@ -38,28 +38,31 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 import org.apache.commons.lang.StringUtils;
 
 public class CCTrayBuildSummaryAdapterTest extends TestCase {
 
     public void testShouldConvertPassedWaiting() throws Exception {
-        BuildSummary summary = new BuildSummary("", "project1", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary =
+                new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         assertEquals("Sleeping", adapter.getActivity());
         assertEquals("Success", adapter.getLastBuildStatus());
     }
 
     public void testShouldConvertPassedFailed() throws Exception {
-        BuildSummary summary = new BuildSummary("", "project1", "", ProjectBuildStatus.FAILED, "");
+        BuildSummary summary = new BuildSummary("project1", PreviousResult.FAILED, DataUtils.FAILING_BUILD_XML);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         assertEquals("Sleeping", adapter.getActivity());
         assertEquals("Failure", adapter.getLastBuildStatus());
     }
 
     public void testShouldConvertPassedBootstrapping() throws Exception {
-        BuildSummary summary = new BuildSummary("", "project1", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary =
+                new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         summary.updateStatus("bootstrapping");
         assertEquals("CheckingModifications", adapter.getActivity());
@@ -67,29 +70,33 @@ public class CCTrayBuildSummaryAdapterTest extends TestCase {
     }
 
     public void testShouldConvertCheckingModifications() throws Exception {
-        BuildSummary summary = new BuildSummary("", "project1", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary =
+                new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         summary.updateStatus("checking for modifications");
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         assertEquals("CheckingModifications", adapter.getActivity());
     }
 
     public void testShouldConvertBuilding() throws Exception {
-        BuildSummary summary = new BuildSummary("", "project1", "", ProjectBuildStatus.PASSED, "");
+        BuildSummary summary =
+                new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         summary.updateStatus("now building since 20070420170000");
         assertEquals("Building", adapter.getActivity());
     }
 
     public void testShouldProvideDateInCorrectFormat() throws Exception {
-        BuildSummary summary = new BuildSummary("", "2007-05-04 14:54.00", "", ProjectBuildStatus.PASSED, "");
+        String passingLogFile = "log20070504145400Lbuild.1.xml";
+        BuildSummary summary =
+                new BuildSummary("project1", PreviousResult.PASSED, passingLogFile);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("", summary);
         // TODO: We should really return the timzone, too
         assertEquals("2007-05-04T14:54:00", adapter.getLastBuildTime());
     }
 
     public void testShouldProvideXmlOnCCTrayFormate() throws Exception {
-        BuildSummary summary = new BuildSummary("project1", "2005-12-09 12:21.03", "build1", ProjectBuildStatus.PASSED,
-                "");
+        String passingLogFile = "log20051209122103Lbuild1.xml";
+        BuildSummary summary = new BuildSummary("project1", PreviousResult.PASSED, passingLogFile);
         CCTrayBuildSummaryAdapter adapter = new CCTrayBuildSummaryAdapter("http://localhost:8080/dashboard/",
                 summary);
         String xml = adapter.toXml();
@@ -99,7 +106,7 @@ public class CCTrayBuildSummaryAdapterTest extends TestCase {
         assertTrue(StringUtils.contains(xml, "lastBuildLabel=\"build1\""));
         assertTrue(StringUtils.contains(xml, "lastBuildTime=\"2005-12-09T12:21:03"));
         assertTrue(StringUtils.contains(xml,
-                "webUrl=\"http://localhost:8080/dashboard/build/detail/project1"));
+                "webUrl=\"http://localhost:8080/dashboard/tab/build/detail/project1"));
 
     }
 }

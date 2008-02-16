@@ -1,7 +1,7 @@
 package net.sourceforge.cruisecontrol.dashboard.widgets;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.sourceforge.cruisecontrol.dashboard.BuildMessage;
+import net.sourceforge.cruisecontrol.dashboard.LogFile;
 import net.sourceforge.cruisecontrol.dashboard.MessageLevel;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.BuildMessageExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.CompositeExtractor;
@@ -19,6 +20,7 @@ import net.sourceforge.cruisecontrol.dashboard.saxhandler.SAXBasedExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.StackTraceExtractor;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.xml.sax.SAXException;
 
 public class ErrorsAndWarningsMessagesWidget implements Widget {
@@ -26,8 +28,11 @@ public class ErrorsAndWarningsMessagesWidget implements Widget {
     private final SAXBasedExtractor extractor;
 
     public ErrorsAndWarningsMessagesWidget() {
-        this(new CompositeExtractor(new SAXBasedExtractor[] {new BuildMessageExtractor(),
-                new StackTraceExtractor()}));
+        this(new CompositeExtractor(Arrays.asList(handlers())));
+    }
+
+    private static SAXBasedExtractor[] handlers() {
+        return new SAXBasedExtractor[] {new BuildMessageExtractor(), new StackTraceExtractor()};
     }
 
     ErrorsAndWarningsMessagesWidget(SAXBasedExtractor extractor) {
@@ -52,44 +57,77 @@ public class ErrorsAndWarningsMessagesWidget implements Widget {
 
     private void parseLogfile(Map parameters) throws ParserConfigurationException, SAXException, IOException {
         SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-        saxParser.parse((File) parameters.get(Widget.PARAM_BUILD_LOG_FILE), extractor);
+        LogFile logFile = (LogFile) parameters.get(Widget.PARAM_BUILD_LOG_FILE);
+        saxParser.parse(logFile.getInputStream(), extractor);
     }
 
     private String parseMessage(Map props) {
-        List messages = (List) props.get(BuildMessageExtractor.KEY_MESSAGES);
-        String replaced = antError(props);
+        String replaced = buildError(props, HTML_TEMPLATE_START);
+        replaced = errorsAndWarnings((List) props.get(BuildMessageExtractor.KEY_MESSAGES), replaced);
         replaced = stacktrace(props, replaced);
-        return errorsAndWarnings(messages, replaced);
+        return replaced + "</div>";
     }
 
-    private String errorsAndWarnings(List messages, String replaced) {
+    private String errorsAndWarnings(List messages, String currentHtml) {
         StringBuffer sb = new StringBuffer();
         for (Iterator iter = messages.iterator(); iter.hasNext();) {
             BuildMessage message = (BuildMessage) iter.next();
             MessageLevel level = message.getLevel();
             if (MessageLevel.WARN.equals(level) || MessageLevel.ERROR.equals(level)) {
-                sb.append(message.getMessage()).append("<br>");
+                sb.append(message.getMessage()).append("<br/>");
             }
         }
-        String errors = StringUtils.defaultIfEmpty(sb.toString(), "No errors or warnings");
-        return StringUtils.replace(replaced, "$errors", errors);
+        String error = StringUtils.defaultIfEmpty(sb.toString(), "No errors or warnings");
+
+        String errorsAndWarningsHtml = StringUtils.replace(ERRORS_AND_WARNINGS_HTML, "$errors",
+                StringEscapeUtils.escapeHtml(error));
+        boolean hasErrorsOrWarnings = !StringUtils.isEmpty(sb.toString());
+        return currentHtml + makeToggleable(errorsAndWarningsHtml, "errors_and_warnings_element", hasErrorsOrWarnings);
     }
 
-    private String stacktrace(Map props, String replaced) {
-        return StringUtils.replace(replaced, "$stacktrace", getMessage(props,
-                StackTraceExtractor.KEY_STACKTRACE, "No stacktrace"));
+    private String makeToggleable(String htmlSnippet, String element, boolean shouldToggle) {
+        String className = shouldToggle
+               ? "class=\"collapsible_title title_message_collapsed\""
+               : "";
+        String style = shouldToggle
+                ? "style='display:none;'"
+                : "";
+        String nextElementClassName = shouldToggle
+        ? "class='collapsible_content'"
+                : "";
+        String newSnippet = htmlSnippet;
+        newSnippet = StringUtils.replace(newSnippet, "$className", className);
+        newSnippet = StringUtils.replace(newSnippet, "$style", style);
+        newSnippet = StringUtils.replace(newSnippet, "$nextElementClassName", nextElementClassName);
+        return newSnippet;
     }
 
-    private String antError(Map props) {
-        return StringUtils.replace(HTML_TEMPLATE, "$antError", getMessage(props,
-                StackTraceExtractor.KEY_ERROR, "No error message"));
+    private String stacktrace(Map props, String currentHtml) {
+        boolean hasStacktrace = !StringUtils.isEmpty(props.get(StackTraceExtractor.KEY_STACKTRACE).toString());
+        String stacktrace = StringUtils.replace(STACKTRACE_HTML, "$stacktrace",
+                getMessage(props, StackTraceExtractor.KEY_STACKTRACE, "No stacktrace"));
+        return currentHtml + makeToggleable(stacktrace, "stacktrace", hasStacktrace);
+    }
+
+    private String buildError(Map props, String currentHtml) {
+        String buildErrorMessage = StringUtils.replace(BUILD_ERROR_MESSAGE_HTML, "$buildError",
+                getMessage(props, StackTraceExtractor.KEY_ERROR, "No error message"));
+        return currentHtml + buildErrorMessage;
     }
 
     private String getMessage(Map props, String key, String defaultMsg) {
         return StringUtils.defaultIfEmpty(props.get(key).toString(), defaultMsg);
     }
 
-    private static final String HTML_TEMPLATE =
-            "<h2>Build Error Message</h2>$antError<h2>Errors and Warnings</h2>$errors<h2>Stacktrace</h2>$stacktrace";
+    private static final String HTML_TEMPLATE_START =
+        "<div>";
+    private static final String BUILD_ERROR_MESSAGE_HTML =
+        "<h2>Build Error Message</h2>$buildError<hr/>";
+    private static final String ERRORS_AND_WARNINGS_HTML =
+        "<h2 $className>Errors and Warnings</h2>"
+            + "<div id='errors_and_warnings_element' $nextElementClassName $style><pre>$errors</pre></div><hr/>";
+    private static final String STACKTRACE_HTML =
+        "<h2 $className>Stacktrace</h2>"
+            + "<div  $nextElementClassName $style><pre>$stacktrace</pre></div>";
 
 }

@@ -36,48 +36,60 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
-public class ActiveBuildPageTest extends SeleniumTestCase {
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
+import java.io.File;
+
+public class ActiveBuildPageTest extends SeleniumTestCase {
     public void testShouldShowElapsedTimeOnActiveBuildPage() throws Exception {
-        openAndWaiting("/dashboard/dashboard", 5);
-        selenium.click("//li[@id='builds']/a");
-        selenium.click("project1_forcebuild");
-        assertTrue(selenium.isTextPresent("Your build is scheduled"));
-        waitingForTextAppear(BUILDING_STARTED, FORCE_BUILD_DURATION);
-        selenium.click("project1_build_detail");
-        selenium.waitForPageToLoad("5000");
-        waitingForTextAppear("00:", 3 * AJAX_DURATION);
-        assertTrue(selenium.isTextPresent("project1 is now building"));
-        assertTrue(selenium.isTextPresent("project1"));
-        assertTrue(selenium.isTextPresent("joe"));
-        assertTrue(selenium.isTextPresent("Some random change"));
-        assertTrue(selenium.isTextPresent("dev"));
-        assertTrue(selenium.isTextPresent("Fixed the build"));
-        assertTrue(selenium.isTextPresent("project1 is now building"));
-        waitingForTextDisappear("now building", BUILD_DURATION);
-        assertTrue(selenium.getLocation().indexOf("build/detail/live/project1") > -1);
+        openBuildsPage();
+        forceBuildByClick("project1");
+        textShouldAppearInCertainTime("Your build is scheduled", FORCE_BUILD_DURATION);
+        textShouldAppearInCertainTime(BUILDING_STARTED, FORCE_BUILD_DURATION);
+
+        clickToOpenBuildDetailPageOf("project1");
+        textShouldAppearInCertainTime("00:", 3 * AJAX_DURATION);
+        shouldHaveCommitMessageInLiveBuild();
+        textShouldPresent("project1 is now building");
+        textShouldDisappearInCertainTime("now building", BUILD_DURATION);
+        assertTrue(user.getLocation().indexOf("build/detail/project1") > -1);
+    }
+
+    private void shouldHaveCommitMessageInLiveBuild() {
+        textShouldAppearInCertainTime("joe", LONG_TIME);
+        textShouldAppearInCertainTime("dev", LONG_TIME);
+        textShouldAppearInCertainTime("build.xml", LONG_TIME);
+        textShouldAppearInCertainTime("file1.txt", LONG_TIME);
+        textShouldAppearInCertainTime("file2.txt", LONG_TIME);
+        textShouldAppearInCertainTime("567", LONG_TIME);
+        textShouldAppearInCertainTime("123", LONG_TIME);
     }
 
     public void testShouldShowElapsedTimeOnMultipleActiveBuildPage() throws Exception {
-        openAndWaiting("/dashboard/dashboard", 5);
-        selenium.click("//li[@id='builds']/a");
-        selenium.click("project1_forcebuild");
-        selenium.click("project2_forcebuild");
-        selenium.click("cclive_forcebuild");
-        assertTrue(selenium.isTextPresent("Your build is scheduled"));
-        waitingForTextAppear("3 project(s) building", FORCE_BUILD_DURATION);
-        assertTrue(selenium.isTextPresent("40%"));
-        waitingForTextAppear("0 project(s) building", BUILD_DURATION);
+        openBuildsPage();
+        forceBuildByClick("project1");
+        forceBuildByClick("project2");
+        forceBuildByClick("cclive");
+        textShouldAppearInCertainTime("3 project(s) building", FORCE_BUILD_DURATION);
+        textShouldPresent("40%");
+        textShouldAppearInCertainTime("0 project(s) building", 60);
     }
 
     public void testShouldDisplayDefaultMessageWhenNoCommitMessage() throws Exception {
-        openAndWaiting("/dashboard/dashboard", 5);
-        selenium.click("//li[@id='builds']/a");
-        selenium.click("projectWithoutPublishers_forcebuild");
-        waitingForTextAppear(BUILDING_STARTED, FORCE_BUILD_DURATION);
-        selenium.click("projectWithoutPublishers_build_detail");
-        selenium.waitForPageToLoad("5000");
-        assertTrue(selenium.isTextPresent("Build forced, No new code is committed into repository"));
-        waitingForTextDisappear("now building", BUILD_DURATION);
+        openBuildsPage();
+        forceBuildByClick("projectWithoutPublishers");
+        textShouldAppearInCertainTime(BUILDING_STARTED, FORCE_BUILD_DURATION);
+
+        clickToOpenBuildDetailPageOf("projectWithoutPublishers");
+        textShouldAppearInCertainTime("No new code", 2 * AJAX_DURATION);
+        textShouldDisappearInCertainTime("now building", BUILD_DURATION);
+    }
+
+    public void testShouldDisplayErrorMessageWhenInactiveBuildFinishedAndDidNotGenerateAnyLog() throws Exception {
+        openBuildsPage();
+        forceBuildByClick("cc-live-2");
+        textShouldAppearInCertainTime(BUILDING_STARTED, FORCE_BUILD_DURATION);
+        clickToOpenBuildDetailPageOf("cc-live-2");
+        textShouldAppearInCertainTime("Failed to find log in ", LONG_TIME);
     }
 }

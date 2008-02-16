@@ -40,12 +40,9 @@ BuildBaseObserver.prototype = {
 	get_link : function (json) {
 	    if (!json)  return;
 	    if (!json.building_info) return;
-	    if (!json.building_info.building_status) return;
-	    if (json.building_info.building_status == 'Building') {
-	        return 'build/detail/live/' + json.building_info.project_name
-	    } else {
-	        return 'build/detail/' + json.building_info.project_name
-	    }
+	    if (!json.building_info.current_status) return;
+	    if (is_inactive(json)) return "javascript:void(0)";
+	    return 'build/detail/' + json.building_info.project_name
 	}
 }
 

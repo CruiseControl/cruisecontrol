@@ -1,6 +1,15 @@
-#if ($flash_message && $flash_message != "")
-    <div id="flash_message"class="transparent_message transparent_notice" style="">$flash_message</div>
-    <script>
-        setTimeout("$('flash_message').style.display='none'", "3000");
-    </script>
-#end
+<div id="trans_message" style="position:absolute;display:none">
+    <b class="rtop" style="display:block;background-color: transparent;">
+       <b class="r1"></b>
+       <b class="r2"></b>
+       <b class="r3"></b>
+       <b class="r4"></b>
+    </b>
+    <div class="transparent_message" id="trans_content"></div>
+    <b class="rbottom" style="display:block;background-color: transparent;">
+        <b class="r4"></b>
+        <b class="r3"></b>
+        <b class="r2"></b>
+        <b class="r1"></b>
+    </b>    
+</div>

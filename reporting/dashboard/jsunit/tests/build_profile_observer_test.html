@@ -49,71 +49,70 @@
 <script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
 <script language="JavaScript" type="text/javascript">
 var contextPath = "";
+var build_profile_observer;
+
 function setUp() {
-	have_called_stop = false;
-	$('project1_profile').className = "passed";
-	$('project1_forcebuild').innerHTML = '<img id="forcebuildImg" src="images/lightning.png" alt="Force build" title="Force build"/>';
+    Prototype.Browser.IE = false;
+   
+    build_profile_observer = new BuildProfileObserver();
+	$("project1_forcebuild").className="force_build_disabled";
+	$("project1_config_panel").className="config_panel_disabled";
+	$("project1_profile").className="inactive";
 }
 
-function test_should_contains_link_to_active_build_when_status_is_building() {
-	var json = building_json('project1', 'passed')
-	new BuildProfileObserver().notify(json);
-	assertTrue(Element.hasClassName($('project1_profile'), 'building_passed'));
-}
+function test_should_update_css_and_invoke_activators() {
+	var is_json_to_css_invoked = false;
+	JsonToCss.prototype.update_profile = function() {
+		is_json_to_css_invoked = true;
+	}
+	var is_config_panel_invoked = false;
+	ConfigPanelActivator.prototype.activateOrInactivate = function(is_disabled, json) {
+		assertTrue("config panel", is_disabled);
+		is_config_panel_invoked = true;
+	}
+	var is_force_build_invoked = false;
+	ForceBuildActivator.prototype.activateOrInactivate = function(is_disabled, json) {
+		assertTrue("force build", is_disabled);
+		is_force_build_invoked = true;
+	}
+	var is_all_builds_invoked = false;
+	AllBuildsActivator.prototype.activateOrInactivate = function(is_disabled, json) {
+		assertTrue("all builds", is_disabled);
+		is_all_builds_invoked = true;
+	}
+	var is_all_passed_builds_invoked = false;
+	AllPassedBuildsActivator.prototype.activateOrInactivate = function(is_disabled, json) {
+		assertTrue("all passed", is_disabled);
+		is_all_passed_builds_invoked = true;
+	}
+	var is_updater_invoked = false;
+	ContentUpdater.prototype.update = function() {
+		is_updater_invoked = true;
+	}
 
-function test_should_contains_link_to_project_details_when_status_is_not_building() {
-	var json = passed_json('project1')
-	new BuildProfileObserver().notify(json);
-	assertTrue($('project1_profile_box').innerHTML.indexOf('detail/project1') > 0)
-}
-
-
-function test_should_change_class_when_inactive_project_had_been_built() {
-	var json = inactive_json('project1')
-	new BuildProfileObserver().notify(json);
-	assertTrue(Element.hasClassName($('project1_profile'), 'inactive'));
-
-	json = passed_json('project1')
-	new BuildProfileObserver().notify(json);
-	assertTrue(Element.hasClassName($('project1_profile'), 'passed'));
-}
-
-function test_should_be_able_to_update_long_failed_class() {
-	$('project1_profile').className = 'failed_level_8'
-	json = passed_json('project1')
-	new BuildProfileObserver().notify(json);
-	assertTrue(Element.hasClassName($('project1_profile'), 'passed'));
-}
-
-
-function test_icon_should_be_updated_when_the_project_turned_active() {
-	$('project1_profile').className = "inactive";
-	var json = passed_json('project1')
-	new BuildProfileObserver().activate(json);
-	var img = $('forcebuildImg');
-	assertTrue(img.src, img.src.indexOf('/images/icon-force-build.gif') > -1);
-	assertEquals("Force build", img.title);
-	assertEquals("Force build", img.alt);
+	assertFalse("should not invoke json to css", is_json_to_css_invoked);
+	assertFalse("should not invoke config panel", is_config_panel_invoked);
+	assertFalse("should not invoke force build", is_force_build_invoked);
+	assertFalse("should not invoke all builds", is_all_builds_invoked);
+	assertFalse("should not invoke all passed builds", is_all_passed_builds_invoked);
+	assertFalse("should not invoke updater", is_updater_invoked);
 	
+	build_profile_observer._notify(passed_json("project1"));
+	
+	assertTrue("should invoke json to css", is_json_to_css_invoked);
+	assertTrue("should invoke config panel", is_config_panel_invoked);
+	assertTrue("should invoke force build", is_force_build_invoked);
+	assertTrue("should invoke all builds", is_all_builds_invoked);
+	assertTrue("should invoke all passed builds", is_all_passed_builds_invoked);
+	assertTrue("should invoke updater", is_updater_invoked);
 }
+
 </script>
 </head>
 <body>
-	<div id="project1_profile_box">
-	    <div id="project1_profile">
-			<div style="float:right">
-			    <a id="project1_all_builds"></a>
-	    		<a id="project1_all_successful_builds"> </a>
-			</div>
-			<div style="float:right;padding-right:2px;">
-			    <a id="project1_forcebuild" onclick='ajax_force_build("projectName", "project1")'></a>
-				<a id="project1_config_panel"></a>
-			</div>
-		   	<p style="padding:1px;"><strong><a id="project1_build_detail" href="buildDetail.html?filename=log20060704155710Lbuild.489.xml&project=project1">project1 passed</a>
-		   	<a id="project1_build_date" style="text-decoration: none;">at 12:21 on 9 Dec 2005</a></strong>
-   			<a><img src="images/flag_green.png" alt="Past successful builds" title="Past successful builds"/></a> |  <a href="projectDetail.html?project=project1" title="All Builds of Project project1"><img src="images/bricks.png"/></a></p>
-   			<span id="project1_time_elapse"></span>
-		</div>
-	</div>
+
+<a id="project1_profile"></a>
+<a id="project1_forcebuild"></a>
+<a id="project1_config_panel"></a>
 </body>
 </html>

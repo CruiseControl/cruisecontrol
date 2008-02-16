@@ -40,22 +40,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
 public class BuildSummaryStatisticsTest extends TestCase {
     private List list = new ArrayList();
 
     protected void setUp() throws Exception {
-        createBuildSummaryAndPutInMap("project1", ProjectBuildStatus.PASSED);
-        createBuildSummaryAndPutInMap("project2", ProjectBuildStatus.FAILED);
-        createBuildSummaryAndPutInMap("project3", ProjectBuildStatus.BUILDING);
-        createBuildSummaryAndPutInMap("project4", ProjectBuildStatus.FAILED);
-        createBuildSummaryAndPutInMap("project5", ProjectBuildStatus.INACTIVE);
-        createBuildSummaryAndPutInMap("project6", ProjectBuildStatus.INACTIVE);
-    }
-
-    private void createBuildSummaryAndPutInMap(String name, ProjectBuildStatus status) {
-        BuildSummary build1 = new BuildSummary(name, "2005-12-09 12:21.03", "build1", status, "log1");
-        list.add(build1);
+        createBuildSummaryAndPutInMap("project1", CurrentStatus.WAITING, PreviousResult.PASSED);
+        createBuildSummaryAndPutInMap("project2", CurrentStatus.WAITING, PreviousResult.FAILED);
+        createBuildSummaryAndPutInMap("project3", CurrentStatus.BUILDING, PreviousResult.FAILED);
+        createBuildSummaryAndPutInMap("project4", CurrentStatus.WAITING, PreviousResult.FAILED);
+        createBuildSummaryAndPutInMap("project5", CurrentStatus.WAITING, PreviousResult.UNKNOWN);
+        createBuildSummaryAndPutInMap("project6", CurrentStatus.WAITING, PreviousResult.UNKNOWN);
+        createBuildSummaryAndPutInMap("project7", CurrentStatus.DISCONTINUED, PreviousResult.FAILED);
     }
 
     public void testShouldReturnBeAbleToReturnHashContainsSummaryInfomation() {
@@ -64,7 +61,8 @@ public class BuildSummaryStatisticsTest extends TestCase {
         assertEquals(new Integer(1), statistics.building());
         assertEquals(new Integer(1), statistics.passed());
         assertEquals(new Integer(2), statistics.inactive());
-        assertEquals(new Integer(6), statistics.total());
+        assertEquals(new Integer(1), statistics.discontinued());
+        assertEquals(new Integer(4), statistics.total());
         assertEquals("25%", statistics.rate());
     }
 
@@ -76,6 +74,13 @@ public class BuildSummaryStatisticsTest extends TestCase {
         assertEquals(new Integer(0), statistics.inactive());
         assertEquals(new Integer(0), statistics.total());
         assertEquals("0%", statistics.rate());
+    }
+
+    private void createBuildSummaryAndPutInMap(String name, CurrentStatus status, PreviousResult result) {
+        String filename = DataUtils.PASSING_BUILD_LBUILD_0_XML;
+        BuildSummary build = new BuildSummary(name, result, filename);
+        build.updateStatus(status.getCruiseStatus());
+        list.add(build);
     }
 
 }

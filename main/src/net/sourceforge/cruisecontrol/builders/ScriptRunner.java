@@ -40,9 +40,9 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.File;
 import java.io.IOException;
 
-import net.sourceforge.cruisecontrol.BuildOutputBufferManager;
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.BuildOutputBuffer;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.CompositeConsumer;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -98,9 +98,10 @@ public class ScriptRunner  {
 
         commandline.setWorkingDir(workingDir);
 
-        BuildOutputBuffer buildOutputConsumer = BuildOutputBufferManager.INSTANCE.lookupOrCreate("");
+        File antBuilderOutput = new File(workingDir, "antBuilderOutput.log");
+        BuildOutputLogger buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(antBuilderOutput);
         buildOutputConsumer.clear();
-        
+
         Process p;
         int exitCode = -1;
 

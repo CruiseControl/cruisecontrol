@@ -59,7 +59,7 @@ function test_should_return_link_to_commit_message_when_status_is_not_building()
 
 function test_should_return_link_to_commit_message_when_status_is_building() {
 	var json = building_json('project1')
-    var expected = 'build/detail/live/' + json.building_info.project_name;
+    var expected = 'build/detail/' + json.building_info.project_name;
 	assertEquals(expected, new BuildBaseObserver().get_link(json));
 }
 

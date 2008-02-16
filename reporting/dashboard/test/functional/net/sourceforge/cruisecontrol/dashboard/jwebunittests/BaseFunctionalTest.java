@@ -36,20 +36,33 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
 import net.sourceforge.jwebunit.junit.WebTester;
+
+import org.apache.commons.lang.StringUtils;
+import org.cyberneko.html.parsers.DOMParser;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 public abstract class BaseFunctionalTest extends TestCase {
 
     public static final String BASE_URL = "http://localhost:9090/dashboard/";
+
     protected static final String CONFIG_FILE_LOCATION_FIELD_NAME = "configFileLocation";
+
     protected static final String SPECIFY_CONFIG_FILE_URL = "/admin/config";
+
     protected static final String SET_CONFIG_FILE_LOCATION_FORM = "specifyConfigLocation";
+
     public static final String SET_CONFIGRATION_FORM = "setConfigration";
+
     public static final String BUILD_LOG_LOCATION = "cruiseloglocation";
 
     protected WebTester tester;
@@ -66,6 +79,18 @@ public abstract class BaseFunctionalTest extends TestCase {
 
     }
 
+    protected void hasClassName(String htmlSource, String id, String className) throws Exception {
+        Document htmlDom = getHtmlDom(htmlSource);
+        String classNames = htmlDom.getElementById(id).getAttribute("class");
+        assertTrue(StringUtils.contains(classNames, className));
+    }
+
+    protected Document getHtmlDom(String htmlSource) throws Exception {
+        DOMParser parser = new DOMParser();
+        parser.parse(new InputSource(new ByteArrayInputStream(htmlSource.getBytes())));
+        return parser.getDocument();
+    }
+
     protected final String getJSONWithAjaxInvocation(final String path) throws Exception {
         //The reporting system will cache the result for 5 second, jmx stub only changed
         //status when getAllProjectStatus invoked, so wait for 6 second and ping
@@ -75,15 +100,13 @@ public abstract class BaseFunctionalTest extends TestCase {
         return tester.getPageSource();
     }
 
-    public void setConfigFileAndSubmitForm(String configFilePath) throws IOException {
-        tester.beginAt(SPECIFY_CONFIG_FILE_URL);
-        tester.setWorkingForm(SET_CONFIG_FILE_LOCATION_FORM);
-        tester.setTextField(CONFIG_FILE_LOCATION_FIELD_NAME, configFilePath);
-        tester.submit();
-    }
-
     protected void typeLogLocation() throws Exception {
         File logs = new File(DataUtils.getConfigXmlOfWebApp().getParentFile(), "logs");
         tester.setTextField(CONFIG_FILE_LOCATION_FIELD_NAME, logs.getAbsolutePath());
+    }
+
+    protected String convertedTime(String time) {
+        DateTime buildDateFromLogFileName = DateTimeFormat.forPattern("yyyyMMddHHmmss").parseDateTime(time);
+        return new TimeConverter().getConvertedTime(buildDateFromLogFileName.toDate());
     }
 }

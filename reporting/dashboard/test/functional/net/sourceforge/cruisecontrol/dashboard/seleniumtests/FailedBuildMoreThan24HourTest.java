@@ -120,25 +120,25 @@ public class FailedBuildMoreThan24HourTest extends SeleniumTestCase {
     }
 
     public void testChangeColorWhenFailedDateChanges() throws Exception {
-        selenium.open("/dashboard/dashboard");
-        assertClassName(failedLevel0,  "level_0");
-        assertClassName(failedLevel1,  "level_1");
-        assertClassName(failedLevel2,  "level_2");
-        assertClassName(failedLevel3,  "level_3");
-        assertClassName(failedLevel4,  "level_4");
-        assertClassName(failedLevel5,  "level_5");
-        assertClassName(failedLevel6,  "level_6");
-        assertClassName(failedLevel7,  "level_7");
-        assertClassName(failedLevel8,  "level_8");
+        openDashboardPage();
+        assertClassName(failedLevel0, "level_0");
+        assertClassName(failedLevel1, "level_1");
+        assertClassName(failedLevel2, "level_2");
+        assertClassName(failedLevel3, "level_3");
+        assertClassName(failedLevel4, "level_4");
+        assertClassName(failedLevel5, "level_5");
+        assertClassName(failedLevel6, "level_6");
+        assertClassName(failedLevel7, "level_7");
+        assertClassName(failedLevel8, "level_8");
         assertClassName(justSucceeded, "level_0");
-        assertClassName(justFailed,    "level_0");
+        assertClassName(justFailed, "level_0");
     }
 
     private void assertClassName(File file, String className) throws Exception {
         file.createNewFile();
         String textPresent =
-                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_level').className.indexOf('"
+                "selenium.browserbot.getCurrentWindow().document.getElementById('projectWithoutPublishers_level').className.indexOf('"
                         + className + "') >= 0";
-        selenium.waitForCondition(textPresent, "7000");
+        user.waitForCondition(textPresent, "20000");
     }
 }

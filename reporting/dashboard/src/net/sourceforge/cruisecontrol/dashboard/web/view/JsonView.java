@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.web.servlet.view.AbstractView;
 
 public class JsonView extends AbstractView {
@@ -59,7 +60,7 @@ public class JsonView extends AbstractView {
         writer.close();
     }
 
-    protected String renderJson(Map map) {
+    public String renderJson(Map map) {
         StringBuffer sb = new StringBuffer();
         if ((map.size() == 1) && (map.containsKey(RENDER_DIRECT))) {
             renderObject(map.get(RENDER_DIRECT), sb);
@@ -105,7 +106,11 @@ public class JsonView extends AbstractView {
     }
 
     private void renderAsString(Object value, StringBuffer sb) {
-        sb.append("\"").append(value).append("\"");
+        String valueStr = value == null ? "" : value.toString();
+        valueStr = StringUtils.replace(valueStr, "\n", "");
+        valueStr = StringUtils.replace(valueStr, "\t", "");
+        valueStr = StringUtils.replace(valueStr, "\r", "");
+        sb.append("\"").append(StringEscapeUtils.escapeJavaScript(valueStr)).append("\"");
     }
 
 }

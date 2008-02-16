@@ -36,22 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
-
+import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class BuildListingControllerTest extends MockObjectTestCase {
     private BuildListingController controller;
@@ -70,13 +68,14 @@ public class BuildListingControllerTest extends MockObjectTestCase {
         request.setMethod("GET");
         request.setRequestURI("/list/passed/project1");
         mockBuildSummaries =
-                mock(BuildSummariesService.class, new Class[] {Configuration.class,
-                        BuildSummaryService.class, CruiseControlJMXService.class}, new Object[] {null, null,
-                        null});
-        BuildSummariesService serivce = (BuildSummariesService) mockBuildSummaries.proxy();
+                mock(
+                        HistoricalBuildSummariesService.class, new Class[]{ConfigurationService.class,
+                        BuildSummaryService.class}, new Object[]{null, null});
+        HistoricalBuildSummariesService serivce = (HistoricalBuildSummariesService) mockBuildSummaries.proxy();
         mockBuildSummaryUIService =
-                mock(BuildSummaryUIService.class, new Class[] {BuildSummariesService.class,
-                        DashboardXmlConfigService.class}, new Object[] {null, null});
+                mock(
+                        BuildSummaryUIService.class, new Class[]{HistoricalBuildSummariesService.class,
+                        DashboardXmlConfigService.class}, new Object[]{null, null});
         controller =
                 new BuildListingController(serivce, (BuildSummaryUIService) mockBuildSummaryUIService.proxy());
     }
@@ -87,7 +86,7 @@ public class BuildListingControllerTest extends MockObjectTestCase {
         mockBuildSummaryUIService.expects(once()).method("transform").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.all(request, response);
         Map dataModel = mv.getModel();
-        assertEquals(0, ((List) dataModel.get("buildSummaries")).size());
+        assertEquals(0, ((List) dataModel.get("buildCmds")).size());
         assertEquals("project1", (String) dataModel.get("projectName"));
     }
 
@@ -97,7 +96,7 @@ public class BuildListingControllerTest extends MockObjectTestCase {
         mockBuildSummaryUIService.expects(once()).method("transform").will(returnValue(new ArrayList()));
         ModelAndView mv = controller.passed(request, response);
         Map dataModel = mv.getModel();
-        assertEquals(0, ((List) dataModel.get("buildSummaries")).size());
+        assertEquals(0, ((List) dataModel.get("buildCmds")).size());
         assertEquals("project1", (String) dataModel.get("projectName"));
     }
 }

@@ -15,13 +15,20 @@ function _round(node, bk, color, size){
 function round(selector){
 	var array = $A($$(selector));
 	array.each(function(node) {
-		_round(node, outsideColor(node), insideColor(node));
+		_round(node, outsideColor(node.parentNode), insideColor(node));
+	});
+}
+
+function round_top(selector){
+	var array = $A($$(selector));
+	array.each(function(node) {
+		AddTop(node, outsideColor(node.parentNode), insideColor(node));
 	});
 }
 
 function reround(node) {
 	remove_corners(node);
-	_round(node,outsideColor(node),insideColor(node));
+	_round(node,outsideColor(node.parentNode),insideColor(node));
 }
 
 function remove_corners(node) {
@@ -32,10 +39,36 @@ function remove_corners(node) {
 }
 
 function outsideColor(node){
-	return Element.getStyle(node.parentNode, 'background-color');
+	return getColor(node,
+		function(finishedNode) {
+			return finishedNode.tagName.toLowerCase() == 'body';
+		},
+		function(nextNode) {
+			return nextNode.parentNode;
+		}
+	);
 }
+
 function insideColor(node){
-	return Element.getStyle(node, 'background-color');
+	return getColor(node,
+		function(finishedNode) {
+			return finishedNode.immediateDescendants().size == 0;
+		},
+		function(nextNode) {
+			return nextNode.immediateDescendants()[0];
+		}
+	);
+}
+
+function getColor(node, finished, next) {
+	if (!node) return 'white';
+	if (finished(node)) return 'white';
+	var color = Element.getStyle(node, 'background-color');
+	//safari will return rgba(0,0,0,0) for the transparent color; 
+	if (color == null || color == "transparent" || color.indexOf("rgba") > -1) {
+		return getColor(next(node), finished, next);
+	}
+	return color;
 }
 
 function RoundedTop(selector,bk,color,size){
@@ -53,6 +86,11 @@ for(i=0;i<v.length;i++)
 }
 
 function AddTop(el,bk,color,size){
+if ($(el).hasClassName("dynamic_width")) {
+	$(el).setStyle({
+	  width: $(el.immediateDescendants()[0]).getDimensions().width
+	});
+};
 var i;
 var d=document.createElement("b");
 var cn="r";
@@ -60,6 +98,8 @@ var lim=4;
 if(size && size=="small"){ cn="rs"; lim=2}
 d.className="rtop";
 d.style.backgroundColor=bk;
+
+
 for(i=1;i<=lim;i++){
     var x=document.createElement("b");
     x.className=cn + i;
@@ -92,4 +132,8 @@ function getElementsBySelector(selector){
 
 Event.observe(window, 'load', function() {
   round(".round_corner");
+});
+
+Event.observe(window, 'load', function() {
+  round_top(".round_top");
 });

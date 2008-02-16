@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 
 import java.io.File;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
 
 public class DownLoadArtifactsCommand implements DownLoadFile {
     private String projectName;
@@ -47,9 +47,9 @@ public class DownLoadArtifactsCommand implements DownLoadFile {
 
     private String fileToBeDownloaded;
 
-    private final Configuration configuration;
+    private final ConfigurationService configuration;
 
-    public DownLoadArtifactsCommand(Configuration configuration) {
+    public DownLoadArtifactsCommand(ConfigurationService configuration) {
         this.configuration = configuration;
     }
 

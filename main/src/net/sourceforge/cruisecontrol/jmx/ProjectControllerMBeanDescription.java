@@ -57,6 +57,8 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         METHOD_DESCRIPTIONS.put("build", "Forces a build of the project");
         METHOD_DESCRIPTIONS.put("buildWithTarget", "Forces a build of the project using the given target");
         METHOD_DESCRIPTIONS.put("serialize", "Persists the state of the project to disk");
+        METHOD_DESCRIPTIONS.put("commitMessage", "Gets the commit message which"
+                 + " includes the user name and the message.");
     }
 
     private static final Map ATTR_DESCRIPTIONS;
@@ -93,8 +95,6 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
 
         ATTR_DESCRIPTIONS.put("BuildStartTime",
                               "Start Time of the last build, using the format 'yyyyMMddHHmmss'");
-        ATTR_DESCRIPTIONS.put("CommitMessage",
-                    "Gets the commit message which includes the user name and the message.");
     }
 
     public String getOperationDescription(Method method) {

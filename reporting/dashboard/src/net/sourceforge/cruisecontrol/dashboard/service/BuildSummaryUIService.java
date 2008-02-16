@@ -36,87 +36,102 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.sourceforge.cruisecontrol.dashboard.Build;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.command.CCTrayBuildSummaryAdapter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.RSSBuildSummaryAdapter;
 import net.sourceforge.cruisecontrol.dashboard.web.command.XmlAdapter;
-
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class BuildSummaryUIService {
-    private final BuildSummariesService buildSummariesService;
+    private final HistoricalBuildSummariesService historicalBuildSummariesService;
 
     private final DashboardXmlConfigService xmlConfigService;
 
-    public BuildSummaryUIService(BuildSummariesService buildSummariesService,
+    public BuildSummaryUIService(HistoricalBuildSummariesService historicalBuildSummariesService,
             DashboardXmlConfigService xmlConfigService) {
-        this.buildSummariesService = buildSummariesService;
+        this.historicalBuildSummariesService = historicalBuildSummariesService;
         this.xmlConfigService = xmlConfigService;
     }
 
-    public List transform(List buildSummaries, boolean uppdateCSS) {
+    public List transform(List buildSummaries) {
         List buildSummaryCommands = new ArrayList();
         for (Iterator iter = buildSummaries.iterator(); iter.hasNext();) {
-            buildSummaryCommands.add(transform((Build) iter.next(), uppdateCSS));
+            buildSummaryCommands.add(transform((Build) iter.next()));
         }
         return buildSummaryCommands;
     }
 
-    public BuildCommand transform(Build build, boolean updateCSS) {
+    public List transformWithLevel(List buildSummaries) {
+        List buildSummaryCommands = new ArrayList();
+        for (Iterator iter = buildSummaries.iterator(); iter.hasNext();) {
+            buildSummaryCommands.add(transformWithLevel((Build) iter.next()));
+        }
+        return buildSummaryCommands;
+    }
+
+    public BuildCommand transform(Build build) {
         final Map storyTrackers = xmlConfigService.getStoryTrackers();
         final String projectName = build.getProjectName();
-        BuildCommand command = new BuildCommand(build, (StoryTracker) storyTrackers.get(projectName));
-        if (updateCSS) {
-            updateCSS(command);
-        }
+        return new BuildCommand(build, (StoryTracker) storyTrackers.get(projectName));
+    }
+
+    public BuildCommand transformWithLevel(Build build) {
+        BuildCommand command = transform(build);
+        updateLevel(command);
         return command;
     }
 
-    private void updateCSS(BuildCommand command) {
-        ProjectBuildStatus status = command.getBuild().getStatus();
+    private void updateLevel(BuildCommand command) {
+        if (CurrentStatus.BUILDING.equals(command.getBuild().getCurrentStatus())) {
+            return;
+        }
+        PreviousResult previousResult = command.getBuild().getPreviousBuildResult();
         String projectName = command.getBuild().getProjectName();
-        if (ProjectBuildStatus.FAILED.equals(status)) {
+        if (PreviousResult.FAILED.equals(previousResult)) {
             Build earliesFailedBuild =
-                    buildSummariesService.getEaliestFailed(projectName, command.getBuild().getBuildDate());
+                    historicalBuildSummariesService.getEaliestFailed(projectName, command.getBuild().getBuildDate());
             command.updateCssLevel(earliesFailedBuild);
-        } else if (ProjectBuildStatus.PASSED.equals(status)) {
-            Build lastSucceed = buildSummariesService.getEarliestSucceeded(projectName, new DateTime());
+        } else if (PreviousResult.PASSED.equals(previousResult)) {
+            Build lastSucceed = historicalBuildSummariesService.getEarliestSucceeded(projectName, new DateTime());
             command.updateCssLevel(lastSucceed);
-        } else if (ProjectBuildStatus.BUILDING.equals(status)) {
-            command.updateBuildingCss(getLastBuildStatus(projectName));
         }
     }
 
-    public ProjectBuildStatus getLastBuildStatus(String projectName) {
-        Build latest = buildSummariesService.getLatest(projectName);
-        return latest == null ? ProjectBuildStatus.UNKNOWN : latest.getStatus();
+    public PreviousResult getLastBuildStatus(String projectName) {
+        Build latest = historicalBuildSummariesService.getLatest(projectName);
+        return latest == null ? PreviousResult.UNKNOWN : latest.getPreviousBuildResult();
     }
 
-    public String toXml(List buildSummaries, Map buildStatuses, String baseUrl, String type) {
+    public String toXml(List buildSummaries, String baseUrl, String type) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < buildSummaries.size(); i++) {
-            Build buildSummary = (Build) buildSummaries.get(i);
-            if (ProjectBuildStatus.INACTIVE.equals(buildSummary.getStatus())) {
+            BuildSummary buildSummary = (BuildSummary) buildSummaries.get(i);
+            if (PreviousResult.UNKNOWN.equals(buildSummary.getPreviousBuildResult())) {
                 continue;
             }
-            XmlAdapter adapter = null;
+            XmlAdapter adapter;
             if ("rss".endsWith(type)) {
                 adapter = new RSSBuildSummaryAdapter(baseUrl, buildSummary);
             } else {
                 adapter = new CCTrayBuildSummaryAdapter(baseUrl, buildSummary);
-                buildSummary.updateStatus((String) buildStatuses.get(buildSummary.getProjectName()));
             }
             sb.append(adapter.toXml());
         }
         return sb.toString();
     }
 
+    public String getLastBuildDuration(String projectName) {
+        Build latest = historicalBuildSummariesService.getLatest(projectName);
+        return latest == null ? "0 second" : latest.getDuration();
+    }
 }

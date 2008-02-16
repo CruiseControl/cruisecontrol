@@ -1,9 +1,5 @@
-#set($building_status="Inactive")
-#set($onforcebuild="")
 #set($project_name_href='javascript:void(0)')
-#set($build_date_text=' : Waiting for first build...')
-#set($success_build_href='javascript:void(0)')
-#set($all_build_href='javascript:void(0)')
-#set($onConfigPanel="")
+#set($build_date_text='waiting for first build...')
+#set($previous_result_text="")
 
 #parse ("latest_builds/latest_builds_profile_partial.vm")

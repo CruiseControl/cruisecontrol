@@ -35,6 +35,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
+.yui-ge.build_summary_page {
+	margin-top : 0;
+}
+
 .relative_box{
 	position:relative;
 }
@@ -46,109 +50,72 @@
     color : #030;
 }
 
-.passed .level_0 {
-    background-color: #51FF51;
-}
-.passed .level_1 {
-    background-color: #00FF00;
-}
-.passed .level_2 {
-    background-color: #00EE00;
-}
-.passed .level_3 {
-    background-color: #00CD00;
-}
-.passed .level_4 {
-    background-color: #009900;
-}
-.passed .level_5 {
-    background-color: #008b00;
-}
-.passed .level_6 {
-    background-color: #008000;
-}
-.passed .level_7 {
-    background-color: #006400;
-}
-.passed .level_8 {
-    background-color: #004F00;
-}
+
 
 .failed {
     background-color: #FFC2C9;
     color : #300;
 }
 
-.failed .level_0 {
-    background-color: #FF5A5A;
-}
-.failed .level_1 {
-    background-color: #FF4646;
-}
-.failed .level_2 {
-    background-color: #FF4141;
-}
-.failed .level_3 {
-    background-color: #FF3c3c;
-}
-.failed .level_4 {
-    background-color: #FF3737;
-}
-.failed .level_5 {
-    background-color: #FF2828;
-}
-.failed .level_6 {
-    background-color: #FF1d1d;
-}
-.failed .level_7 {
-    background-color: #F50000;
-}
-.failed .level_8 {
-    background-color: #ee0000;
+.inactive, .discontinued, .unknown {
+    background-color: #ccc;;
+    color : #666;
 }
 
 /* Only one grade of colour for building and inactive projects */
 
-.building_passed {
+.building_passed, .building_unknown {
     background-color: #B6FFB1;
     color : #030;
 }
 
-.building_passed .level_unknown {
-    background-color: #B6FFB1;
-	background-image: url( "../images/icon-build-previously-success-medium.gif" );
-	background-repeat: no-repeat;
-	background-position: center;
-    color : #030;
-}
-
-.building_failed, .building_unknown {
+.building_failed {
     background-color: #f9d861;
     color : #c30;
 }
 
-.building_unknown .level_unknown, .building_failed .level_unknown {
-	background-color: #f9d861;
-    background-image: url( "../images/icon-build-previously-failure-medium.gif" );
-	background-repeat: no-repeat;
-	background-position: center;
-	color : #c30;
+.modifications .user {
+    background-image: url( "../images/user.gif" );
+    background-repeat: no-repeat;
+    padding-left:15px;
+    font-weight: bold;
 }
 
 
-
-.inactive {
-    background-color: #ccc;
-    color : #666;
+#statistics_passed {
+	background : url( ../images/icon-success-medium.gif ) left center no-repeat;
 }
 
-.inactive .level_unknown {
-    background-color: #ccc;
-	color : #666;
+#statistics_failed {
+	background : url( ../images/icon-failure-medium.gif ) left center no-repeat;
 }
 
-.building .level_unknown {
-    background-color: #f9d861;	
-    color : #c30;
+#statistics_building {
+	background : url( ../images/icon-building-medium.gif ) left center no-repeat;
 }
 
+#statistics_inactive {
+	background : url( ../images/icon-inactive-medium.gif ) left center no-repeat;
+}
+
+#statistics_discontinued {
+	background : url( ../images/icon-discontinued-medium.gif ) left center no-repeat;
+}
+
+.projects_summary .info {
+	font-weight : bold;
+	border : 0px;
+}
+
+.projects_summary .rate {
+	font-size : 1em;
+}
+
+.tabContent {
+	clear : both;
+	background-color : #FFF;
+}
+
+.entry img {
+	margin-right : 5px;
+}

@@ -165,4 +165,80 @@
             </onsuccess>
         </publishers>
     </project>
+    <project name="'">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+    <project name="paused">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+    <project name="queuedPassed">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
+    <project name="queuedFailed">
+        <listeners>
+            <currentbuildstatuslistener file="logs/${project.name}/status.txt"/>
+        </listeners>
+        <bootstrappers>
+            <svnbootstrapper localWorkingCopy="projects/${project.name}"/>
+        </bootstrappers>
+        <modificationset>
+            <svn localWorkingCopy="projects/${project.name}"/>
+        </modificationset>
+        <schedule>
+            <ant buildfile="projects/${project.name}/build.xml"/>
+        </schedule>
+        <publishers>
+            <onsuccess>
+                <artifactspublisher dest="artifacts/${project.name}" file="projects/${project.name}/target/${project.name}.jar"/>
+            </onsuccess>
+        </publishers>
+    </project>
 </cruisecontrol>

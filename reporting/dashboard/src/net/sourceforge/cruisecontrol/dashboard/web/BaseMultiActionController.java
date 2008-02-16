@@ -38,11 +38,14 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
+
+import java.lang.reflect.Method;
 
 public class BaseMultiActionController extends MultiActionController {
     protected BindingResult bindObject(HttpServletRequest request, Object command) throws Exception {
@@ -57,5 +60,15 @@ public class BaseMultiActionController extends MultiActionController {
             }
         }
         return binder.getBindingResult();
+    }
+
+
+    protected Method getExceptionHandler(Throwable throwable) {
+        try {
+            return this.getClass().getMethod("handleError",
+                    new Class[]{HttpServletRequest.class, HttpServletResponse.class, Exception.class});
+        } catch (Exception e) {
+            return super.getExceptionHandler(throwable);
+        }
     }
 }

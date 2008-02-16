@@ -115,7 +115,12 @@ public class CruiseControlControllerAgent {
         } catch (Exception e) {
             LOG.error("Problem registering LoggerController for root-Logger", e);
         }
-
+        try {
+            ObjectName name = new ObjectName("CruiseControl Dashboard:name=posting");
+            server.registerMBean(new DashboardController(controller), name);
+        } catch (Exception e) {
+            LOG.error("Problem registering DashboardController for posting", e);
+        }
     }
 
     public void start() {
@@ -198,6 +203,8 @@ public class CruiseControlControllerAgent {
                 LOG.info("This CruiseControl instance is password protected");
                 httpAdaptor.setAuthenticationMethod("basic");
                 httpAdaptor.addAuthorization(user, password);
+                System.setProperty("jmx.http.username", user);
+                System.setProperty("jmx.http.password", password);
             }
         }
     }

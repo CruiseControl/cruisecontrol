@@ -1,0 +1,10 @@
+<div id="about" $about_extra_attrs>
+    <table>
+        <tr><td>CruiseControl Dashboard Version:</td><td class="value_column">#include("admin/page_admin_version.txt")</td></tr>
+        <tr><td>JVM version:</td><td class="value_column">${jvm_version}</td></tr>
+        <tr><td>OS Information:</td><td class="value_column">${os_info}</td></tr>
+        <tr><td>Shared log folder location:</td><td class="value_column">${logs_root}</td></tr>
+        <tr><td>Shared artifacts folder location:</td><td class="value_column">${artifacts_root}</td></tr>
+        <tr><td>Option to allow force build?</td><td class="value_column">${forcebuild_enabled}</td></tr>
+    </table>
+</div>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="buildloop">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="uuid" />
+        <xs:element ref="jmx" />
+        <xs:element ref="servername" />
+        <xs:element ref="timestamp" />
+        <xs:element ref="projects" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="buildstarttime">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="comment">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="files" type="xs:string" />
+
+  <xs:element name="httpurl">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="jmx">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="httpurl" />
+        <xs:element ref="rmiurl" />
+        <xs:element ref="username" />
+        <xs:element ref="password" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="modification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="type" />
+        <xs:element ref="username" />
+        <xs:element ref="comment" />
+        <xs:element ref="revision" />
+        <xs:element ref="files" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="modifications">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="modification" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="name">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="password">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="project">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="name" />
+        <xs:element ref="status" />
+        <xs:element ref="buildstarttime" />
+        <xs:element ref="modifications" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="projects">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="project" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="revision">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="rmiurl">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="servername">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="status">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="timestamp">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="type">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="username">
+    <xs:complexType mixed="true" />
+  </xs:element>
+
+  <xs:element name="uuid">
+    <xs:complexType mixed="true" />
+  </xs:element>
+</xs:schema>

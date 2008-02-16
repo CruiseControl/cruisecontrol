@@ -36,22 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 public class PanopticodeTest extends BaseFunctionalTest {
 
-    protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
-    }
-
     public void testShouldReturnSvgfileForProjectWithPanopticode() throws Exception {
-        tester.beginAt("build/download/artifacts/project space"
+        tester.beginAt("tab/build/download/artifacts/project space"
                 + "/log20051209122104Lbuild.467.xml/interactive-complexity-treemap.svg");
         tester.assertTextPresent("<svg");
     }
 
     public void testShouldShowMessageForProjectWithoutPanopticode() throws Exception {
-        tester.beginAt("build/download/artifacts/project1"
+        tester.beginAt("tab/build/download/artifacts/project1"
                 + "/log20051209122104.xml/interactive-complexity-treemap.svg");
         tester.assertTextPresent("File does not exist");
     }

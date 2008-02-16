@@ -1,0 +1,31 @@
+
+#set($projectName = $buildCmd.build.projectName)
+<div class="round_corner" id="build_detail_summary_container">
+    <div class="build_detail_summary">
+        <div class="control_panel">
+           <a id="${projectName}_forcebuild" class="force_build_link"></a>
+           <a id="${projectName}_config_panel" class="config_panel_link"></a>
+        </div>
+        <h3 >${projectName} $buildCmd.build.getPreviousBuildResult().getStatus().toLowerCase() ($buildCmd.build.getConvertedTime())</h3>
+		#parse("partial/partial_toolkit.vm")
+        <ul class="summary">
+		    <li><strong>Build Time:</strong> $buildCmd.dateStringInHumanBeingReadingStyle</li>
+		    <li><strong>Duration:</strong> $buildCmd.duration</li>
+			#if($buildCmd.build.getPreviousBuildResult().getStatus().toLowerCase() == "passed")
+				<li><strong>Build:</strong> $buildCmd.build.label</li>
+			#else
+		    	<li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>
+			#end
+        </ul>
+
+		<div class="clear">&nbsp;</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	json_to_css.update_build_detail_header(eval(${buildCmd.toJsonString()}))
+	json_to_css.update_config_panel(eval(${buildCmd.toJsonString()}))
+	json_to_css.update_force_build(eval(${buildCmd.toJsonString()}))
+</script>
+
+#parse("partial/partial_flash_message.vm")

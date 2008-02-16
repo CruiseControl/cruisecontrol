@@ -1,72 +1,79 @@
-<div id="tests" $tests_extra_attrs>
-    <div class="testsuite">
-		<h2>Test Suites</h2>
-	    <ul>
-	        #if( $build.build.testSuites.size() == 0)
-	            <p>No test cases found.</p>
-	        #end
-	        #foreach ($testSuite in $build.build.testSuites)
-		        <li>
-		            $testSuite.name <br/>
-		            Tests: $testSuite.numberOfTests, Failures: $testSuite.numberOfFailures, Errors:
-		            $testSuite.numberOfErrors, Duration: $testSuite.durationInSeconds
-		        </li>
-	        #end
-	    </ul>
-	</div>
+<div id="tests" class="widget" $tests_extra_attrs>
 
-    #if ($build.build.numberOfErrors > 0)
-	    <div class="errors">
-	         <h2>Test Errors</h2>
-	         #foreach ($suite in $build.build.testSuites)
+	<div>
+        <span id="expand_all" onclick="expand_all()">Expand All</span>
+        <span id="collapse_all" onclick="collapse_all()">Collapse All</span>
+    </div>
+
+    <div>
+        <h2 class="collapsible_title title_message_collapsed">Test Suites ($buildCmd.build.testSuites.size())</h2>
+        #if( $buildCmd.build.testSuites.size() == 0)
+            <p>No test cases found.</p>
+        #end
+        <div id="test_suites" class="collapsible_content" style="display:none;">
+            <ul>
+                #foreach ($testSuite in $buildCmd.build.testSuites)
+                    <li>
+                        $testSuite.name <br/>
+                        Tests: $testSuite.numberOfTests, Failures: $testSuite.numberOfFailures, Errors:
+                        $testSuite.numberOfErrors, Duration: $testSuite.durationInSeconds
+                    </li>
+                #end
+            </ul>
+        </div>
+    </div>
+    #if ($buildCmd.build.numberOfErrors > 0)
+        <hr/>
+        <br/>
+        <h2>Test Errors ($buildCmd.build.numberOfErrors)</h2>
+	    <div>
+	         #foreach ($suite in $buildCmd.build.testSuites)
 	            #if ($suite.numberOfErrors > 0)
-	                <div id="error_${suite.name}" name="error_${suite.name}">
-	                    <h3>$suite.name</h3>
-	                    <ul>
+                    <h3  class="collapsible_title title_message_collapsed">$suite.name ($suite.numberOfErrors)</h3>
+	                <div class="collapsible_content" style="display:none;">
+	                    <div>
 	                        #foreach ($erroredTest in $suite.errorTestCases)
-	                                <div id="error_${erroredTest.name}" name="error_${erroredTest.name}">
-	                                 <li>TestName: $erroredTest.name Duration: $erroredTest.duration
-	                                     <pre>
-	                                         <b id="${erroredTest.name}_error_msg">$esc.html($erroredTest.message)</b>
-	                                        <br>
-	                                        <div id="${erroredTest.name}_error_msgbody">$esc.html($erroredTest.messageBody)</div>
-	                                      </pre>
-	                                 </li>
-	                            </div>
+	                                <div id="error_${erroredTest.name}">
+    	                                <div>TestName: $erroredTest.name Duration: $erroredTest.duration
+	                                         <pre>
+	                                           <b>$esc.html($erroredTest.message)</b>
+                                                <br/>
+	                                           <span>$esc.html($erroredTest.messageBody)</span>
+	                                         </pre>
+	                                    </div>
+	                                </div>
 	                        #end
-	                    </ul>
+	                    </div>
 	                </div>
 	            #end
 	         #end
 	    </div>
 	#end
-    
-	#if ($build.build.numberOfFailures > 0)
-	    <div class="failures">
-	        <h2>Test Failures</h2>
-	        #foreach ($suite in $build.build.testSuites)
+
+	#if ($buildCmd.build.numberOfFailures > 0)
+    <hr/>
+    <br/>
+    <h2>Test Failures ($buildCmd.build.numberOfFailures)</h2>
+	    <div>
+	        #foreach ($suite in $buildCmd.build.testSuites)
 	            #if ($suite.numberOfFailures > 0)
-	                <div id="failed_${suite.name}" name="failed_${suite.name}">
-	                <h3>$suite.name</h3>
-	                <ul>
+                <h3  class="collapsible_title title_message_collapsed">$suite.name ($suite.numberOfFailures)</h3>
+                    <div class="collapsible_content" style="display:none;"><div>
 	                #foreach ($failingTest in $suite.failingTestCases)
-	                <div id="failed_${failingTest.name}" name="failed_${failingTest.name}">
-	                    <li>TestName: $failingTest.name  Duration: $failingTest.duration
-	                    <pre>
-	                        <b id="${failingTest.name}_failed_msg">$esc.html($failingTest.message)</b>
-	                        <br>
-	                        <div id="${failingTest.name}_failed_msgbody">$esc.html($failingTest.messageBody)</div>
-	                    </pre>
-	                    </li>
+	                <div >
+	                    <div>TestName: $failingTest.name  Duration: $failingTest.duration
+                            <pre>
+                                <b>$esc.html($failingTest.message)</b>
+                                <br/>
+                                <span>$esc.html($failingTest.messageBody)</span>
+                            </pre>
+	                    </div>
 	                </div>
 	                #end
-	                </ul>
+	                </div>
 	            </div>
 	        #end
 	    #end
 	    </div>
 	#end
-
-
-</div> 
-  
+</div>

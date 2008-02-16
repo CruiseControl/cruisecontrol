@@ -1,0 +1,31 @@
+#parse("tab/header.vm")
+<script type="text/javascript">
+	dashboard_periodical_executer.register(new MissingProjectObserver(), new BuildBarObserver(), new ToolTipObserver(), new StatisticsObserver());
+	Tooltip.showEvent = "mouseover";
+	Tooltip.hideEvent = "mouseout";
+</script>
+
+<div id="bd">
+    <div class="yui-ge build_summary_page" id="tabscontent">
+        <div id="tabContent1" class="yui-u first tabContent">
+        #parse("partial/partial_warning.vm")
+            <div class="round_corner">
+                <div id="statusbar" class="build_status_bar_container">
+                #foreach( $buildCmd in $buildCmds )
+                    #parse("latest_builds/latest_builds_bar_${buildCmd.getViewableStatus()}.vm")
+                #end
+                <div class="clear">&nbsp;</div>
+                </div>
+            </div>
+        </div>
+        <!-- project summary -->
+        <div id="project_summary_panel" class="project_summary_panel yui-u">
+            #parse("latest_builds/build_summary_panel_partial.vm")
+        </div>
+        <!-- end project summary -->
+    </div>
+    <!-- end tabs content -->
+</div>
+<!-- end bd -->
+#parse("partial/partial_flash_message.vm")
+#parse("tab/footer.vm")

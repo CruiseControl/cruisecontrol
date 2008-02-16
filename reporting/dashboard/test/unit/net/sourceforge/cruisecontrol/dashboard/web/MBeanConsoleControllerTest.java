@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -54,36 +54,29 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
 
     private MockHttpServletResponse response;
 
+    private Mock mockBuildloopQueryService;
+
     protected void setUp() throws Exception {
-        Mock mockEnvironmentService =
-                mock(EnvironmentService.class, new Class[] {SystemService.class,
-                        DashboardConfigService[].class}, new Object[] {new SystemService(),
-                        new DashboardConfigService[] {}});
-        controller = new MBeanConsoleController((EnvironmentService) mockEnvironmentService.proxy());
+        mockBuildloopQueryService =
+                mock(BuildLoopQueryService.class, new Class[] {EnvironmentService.class,
+                        BuildInformationRepository.class}, new Object[] {null, null});
+
+        controller = new MBeanConsoleController((BuildLoopQueryService) mockBuildloopQueryService.proxy());
         request = new MockHttpServletRequest();
         request.setMethod("GET");
         response = new MockHttpServletResponse();
-        mockEnvironmentService.expects(once()).method("getJmxPort").will(returnValue(8000));
     }
 
-    private void prepareRequest() {
-        request.setRequestURI("/admin/mx4j");
+    private void prepareRequest(String projectName) {
+        mockBuildloopQueryService.expects(once()).method("getJmxHttpUrl").with(eq(projectName)).will(
+                returnValue("http://myserver:83"));
+        request.setRequestURI("/admin/mx4j/" + projectName);
     }
 
-    private void prepareRequest(String pn) {
-        request.setRequestURI("/admin/mx4j/" + pn);
-    }
-
-    public void testShouldReturnJMXConsoleHttpPort() throws Exception {
-        prepareRequest();
-        ModelAndView mov = controller.server(request, response);
-        assertEquals("8000", mov.getModel().get("port"));
-    }
-
-    public void testContextPathShouldBeEmptyIfNoProjectNameSpecified() throws Exception {
-        prepareRequest();
-        ModelAndView mov = controller.server(request, response);
-        assertEquals("", mov.getModel().get("context"));
+    public void testShouldGetJmxHttpUrl() throws Exception {
+        prepareRequest("project1");
+        ModelAndView mov = controller.mbean(request, response);
+        assertEquals("http://myserver:83", mov.getModel().get("url"));
     }
 
     public void testShouldReturnContextPathForSpecificProject() throws Exception {
@@ -108,11 +101,5 @@ public class MBeanConsoleControllerTest extends MockObjectTestCase {
         prepareRequest("project name with space");
         ModelAndView mov = controller.mbean(request, response);
         assertEquals("project name with space", mov.getModel().get("projectName"));
-    }
-
-    public void testProjectNameShouldBeCruiseControlIfNoProjectNameSpecified() throws Exception {
-        prepareRequest();
-        ModelAndView mov = controller.server(request, response);
-        assertEquals("CruiseControl", mov.getModel().get("projectName"));
     }
 }

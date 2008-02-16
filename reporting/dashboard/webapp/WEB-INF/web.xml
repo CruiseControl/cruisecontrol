@@ -47,32 +47,12 @@
 
     <!--
     <context-param>
-      <param-name>cruisecontrol.config.file</param-name>
-      <param-value>absolute path here</param-value>
-    </context-param>
-    <context-param>
       <param-name>cruisecontrol.artifacts</param-name>
-      <param-value>absolute path here</param-value>
-    </context-param>
-    <context-param>
-      <param-name>cruisecontrol.projects</param-name>
       <param-value>absolute path here</param-value>
     </context-param>
     <context-param>
       <param-name>cruisecontrol.logdir</param-name>
       <param-value>absolute path here</param-value>
-    </context-param>
-    <context-param>
-      <param-name>cruisecontrol.jmxport</param-name>
-      <param-value>8000</param-value>
-    </context-param>
-    <context-param>
-      <param-name>cruisecontrol.rmiport</param-name>
-      <param-value>1099</param-value>
-    </context-param>
-    <context-param>
-      <param-name>cruisecontrol.config.editable</param-name>
-      <param-value>true</param-value>
     </context-param>
     <context-param>
       <param-name>cruisecontrol.config.forcebuild</param-name>
@@ -100,14 +80,26 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>spring-tabs</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>spring-exceptions</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
     <servlet-mapping>
-        <servlet-name>spring-pages</servlet-name>
-        <url-pattern>/dashboard</url-pattern>
+        <servlet-name>spring-tabs</servlet-name>
+        <url-pattern>/tab/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>spring-pages</servlet-name>
-        <url-pattern>/build/*</url-pattern>
+        <servlet-name>spring-tabs</servlet-name>
+        <url-pattern>/buildloop/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -118,6 +110,11 @@
     <servlet-mapping>
         <servlet-name>spring-pages</servlet-name>
         <url-pattern>/admin/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>spring-exceptions</servlet-name>
+        <url-pattern>/exceptions/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

@@ -1,0 +1,4 @@
+#set($project_name_href="$req.getContextPath()/tab/build/detail/$buildCmd.build.projectName")
+#set($previous_result_text="last ${buildCmd.build.previousBuildResult.status.toLowerCase()}")
+
+#parse ("latest_builds/latest_builds_profile_partial.vm")

@@ -8,11 +8,15 @@
             <currentbuildstatuslistener file="${cruise.working.dir}/logs/${project.name}/status.txt"/>
         </listeners>
 
+        <bootstrappers>
+            <svnbootstrapper LocalWorkingCopy="${cruise.working.dir}/projects/${project.name}"/>
+        </bootstrappers>
+
         <modificationset quietperiod="30">
             <svn LocalWorkingCopy="${cruise.working.dir}/projects/${project.name}"/>
         </modificationset>
 
-        <schedule interval="60">
+        <schedule interval="300">
             <ant antWorkingDir="${cruise.working.dir}/projects/${project.name}"
                 buildfile="build.xml"
                 />

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+if [ -f /etc/debian_version ]; then
+    update-rc.d cruisecontrol remove >/dev/nul || exit $?
+fi
+

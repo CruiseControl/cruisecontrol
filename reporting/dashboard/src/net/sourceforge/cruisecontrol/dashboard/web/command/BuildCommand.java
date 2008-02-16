@@ -42,19 +42,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.Build;
-import net.sourceforge.cruisecontrol.dashboard.Modification;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
-import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
 import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
+import net.sourceforge.cruisecontrol.dashboard.ViewableStatusHelper;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
 
 import org.joda.time.DateTime;
 
 public class BuildCommand {
     public static final String CSS_LEVEL = "level";
-
-    private static final String CSS_CLASS_NAME = "css_class_name";
 
     private Build build;
 
@@ -69,7 +69,6 @@ public class BuildCommand {
     public BuildCommand(Build build, StoryTracker storyTracker) {
         this.build = build;
         this.storyTracker = storyTracker;
-        jsonParams.put(CSS_CLASS_NAME, build.getStatus().getStatus().toLowerCase());
         jsonParams.put(CSS_LEVEL, "unknown");
     }
 
@@ -79,7 +78,6 @@ public class BuildCommand {
 
     public Collection getModifications() {
         Collection modificationCmds = new ArrayList();
-
         ModificationSet modificationSet = build.getModificationSet();
         if (modificationSet != null) {
             Collection modifications = modificationSet.getModifications();
@@ -88,9 +86,7 @@ public class BuildCommand {
                 modificationCmds.add(new ModificationCommand(modification, storyTracker));
             }
         }
-
         return modificationCmds;
-
     }
 
     public String getDateStringInHumanBeingReadingStyle() {
@@ -105,44 +101,43 @@ public class BuildCommand {
         jsonParams.put(CSS_LEVEL, String.valueOf(statusStandingLevel(last)));
     }
 
-    public String getCssClassName() {
-        return (String) jsonParams.get(CSS_CLASS_NAME);
-    }
-
     public String getLevel() {
         return (String) jsonParams.get(CSS_LEVEL);
     }
 
-    private long statusStandingLevel(Build lastSuccessful) {
-        Build baseBuild = lastSuccessful == null ? build : lastSuccessful;
-        long duration = (new DateTime().getMillis() - baseBuild.getBuildDate().getMillis());
-        return Math.min(duration / STATUS_STANDING_SECTION, 8);
+    public String getDuration() {
+        return build.getDuration() == null ? "Unknown" : build.getDuration();
     }
 
     public Map toJsonHash() {
-        jsonParams.put("building_status", build.getStatus().getStatus());
         jsonParams.put("project_name", build.getProjectName());
-        jsonParams.put("latest_build_date", getDateStringInHumanBeingReadingStyle());
-        if (ProjectBuildStatus.BUILDING.equals(build.getStatus())) {
+        jsonParams.put("latest_build_date", build.getConvertedTime());
+        jsonParams.put("current_status", build.getCurrentStatus().getStatus());
+        jsonParams.put("previous_result", build.getPreviousBuildResult().getStatus());
+        if (CurrentStatus.BUILDING.equals(build.getCurrentStatus())) {
             jsonParams.put("build_duration", build.getDuration());
-            jsonParams.put("latest_build_date", CCDateFormatter.getDateStringInHumanBeingReadingStyle(build
-                    .getBuildingSince()));
             jsonParams.put("build_time_elapsed", getElapsedTimeBuilding(new DateTime()));
         }
         return jsonParams;
     }
 
-    public void updateBuildingCss(ProjectBuildStatus lastStatus) {
-        String status;
-        if (ProjectBuildStatus.BUILDING.equals(build.getStatus())) {
-            status = "building_" + lastStatus.getStatus().toLowerCase();
-        } else {
-            status = build.getStatus().getStatus().toLowerCase();
-        }
-        jsonParams.put(CSS_CLASS_NAME, status);    
+    public String toJsonString() {
+        Map info = new HashMap();
+        info.put("building_info", this.toJsonHash());
+        return new JsonView().renderJson(info);
     }
 
-    public String getDuration() {
-        return build.getDuration() == null ? "Unknown" : build.getDuration();
+    public String getViewableStatus() {
+        return new ViewableStatusHelper().getVmStatus(build);
+    }
+
+    private long statusStandingLevel(Build lastSuccessful) {
+        Build baseBuild = lastSuccessful == null ? build : lastSuccessful;
+        long duration = (new DateTime().getMillis() - baseBuild.getBuildDate().getMillis());
+        if (duration > 0) {
+            return Math.min(duration / STATUS_STANDING_SECTION, 8);
+        } else {
+            return 0;
+        }
     }
 }

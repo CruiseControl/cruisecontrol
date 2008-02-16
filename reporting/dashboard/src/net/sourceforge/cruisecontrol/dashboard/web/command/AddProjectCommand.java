@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 public class AddProjectCommand {
     private String url = "";
 
@@ -84,7 +86,7 @@ public class AddProjectCommand {
         Map resultMap = new HashMap();
         resultMap.put("ok", succeeded ? "success" : "failure");
         resultMap.put("field", field);
-        resultMap.put("response", message.replaceAll("[\\r\\f]", ""));
+        resultMap.put("response", StringEscapeUtils.escapeJavaScript(message.replaceAll("[\\r\\f]", "")));
         Map jsonMap = new HashMap();
         jsonMap.put("result", resultMap);
         return jsonMap;

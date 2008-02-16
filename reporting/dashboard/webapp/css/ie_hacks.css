@@ -1,28 +1,19 @@
 html .yui-g .projects_summary {
-	height: 1%;
+	/*IE 6/7 hack to assign layout for the build profile*/
+    height: 1%;
 }
 
 #menu ul {
+    /*IE 6 hack to assign layout for the build profile*/
 	height: 1%;
 }
 
-#menu li {
-	width:15em;
-}
-
 .build_status_bar_container {
-	height:450px;
+	_height:450px;
 }
 
 .build_profile {
-	padding: 10px 3px 3px 42px;
+    _padding: 10px 3px 3px 42px;
+	/*IE 6/7 hack to assign layout for the build profile*/
     height:1%;
-}
-
-.sidecol {
-	margin-top: -14px;
-    padding: 1em;
-	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) left top repeat-x;
-    position:absolute;
-	margin-right: -5px;
 }

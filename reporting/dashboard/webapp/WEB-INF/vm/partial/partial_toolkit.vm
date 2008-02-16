@@ -1,0 +1,16 @@
+<div class="relative_box">
+    <div id="toolkit_${projectName}" class="toolkit_panel" style="display:none;">
+        <div class="toolkit_entry">
+            <span class="title wbrSensitive">${projectName}</span>
+            <span class="close" onclick="new Toolkit().hide('toolkit_${esc.javascript($projectName)}', event)">X</span>
+            <span class="clear"></span>
+        </div>
+        <div class="clear"></div>
+           <div class="toolkit_entry">
+            <a href="$req.getContextPath()/rss.xml?projectName=${projectName}" class="toolkit_rss">RSS</a>
+        </div>
+        <div class="toolkit_entry">
+            <a href="$req.getContextPath()/admin/mx4j/${projectName}" class="toolkit_jmx">JMX Console</a>
+        </div>
+    </div>
+</div>

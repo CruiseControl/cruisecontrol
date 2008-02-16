@@ -38,16 +38,20 @@
  ********************************************************************************/
  -->
  <dashboard>
- 	<buildloop
- 		home="c:\"
-    	configfile="config.xml"
-    	logsdir="logs"
-    	artifactsdir="artifacts"
-		projectsdir="projects"
-    	jmxport="8000"
-    	rmiport="1099"/>
-	<features allowforcebuild="true" alloweditconfig="true"/>
-	<trackingtool projectname="project1" baseurl="https://mingle05.thoughtworks.com/projects/project1/cards/" keywords="#,build,story,card"/>
-	<trackingtool projectname="project2" baseurl="https://mingle05.thoughtworks.com/projects/project2/cards/" keywords="#,build,story,card"/>
+     <buildloop
+        logsdir="logs"
+        artifactsdir="artifacts" />
+    <features allowforcebuild="true"/>
+    <trackingtool projectname="project1" baseurl="https://mingle05.thoughtworks.com/projects/project1/cards/" keywords="#,build,story,card"/>
+    <trackingtool projectname="project2" baseurl="https://mingle05.thoughtworks.com/projects/project2/cards/" keywords="#,build,story,card"/>
+    <subtabs>
+        <subtab class="com.not.exist.Class" />
+        <subtab class="net.sourceforge.cruisecontrol.dashboard.widgets.ErrorsAndWarningsMessagesWidget" />
+        <subtab class="net.sourceforge.cruisecontrol.dashboard.widgets.MergedCheckStyleWidget" />
+        <!--
+        <subtab class="net.sourceforge.cruisecontrol.dashboard.widgets.EmmaArtifactWidget" />
+        <subtab class="net.sourceforge.cruisecontrol.dashboard.widgets.PanopticodeWidget" />
+        -->
+    </subtabs>
  </dashboard>
  

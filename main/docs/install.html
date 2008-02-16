@@ -32,8 +32,8 @@
             </li>
             <li><a class="expandmenu" href="../../reporting/jsp/docs/index.html">results jsp</a></li>
             <li><a href="../../docs/dashboard.html">dashboard</a></li>
-            <li><a href="../../docs/widgets.html">widgets</a></li>
             <li><a class="expandmenu" href="../../docs/gettingstarted.html">getting started</a></li>
+            <li><a href="../../docs/buildgrid.html">build grid</a></li>
             <li><a href="configxml.html">config ref</a></li>
             <li><a href="../../docs/faq.html">faq</a></li>
             <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
@@ -46,7 +46,7 @@
     </div>
     <div class="content">
         <h1>Installation Instructions</h1>
-
+		<p>Note that this is a brief guide to installation from the source code. For basic CruiseControl installation, go to the <a href="../../docs/gettingstarted.html">Getting Started</a> page.</p>
         <h2>Installing the main build loop</h2>
 
         <ol>
@@ -91,16 +91,22 @@
                 <b>Executable jar.</b>   Type the following command:
                 <p><code>
                   java -jar dist/cruisecontrol.jar
-                </code><br/>
-                If you use this, make sure CruiseControl can find the classes it needs.
+                </code><br/><ul>
+                <li>If you use this, make sure CruiseControl can find the classes it needs.
                 If you don't know which classes this are, you should just use the script.
                 As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to
                 contain a Class-Path entry with all the jars needed, so using
-                java&nbsp;-jar should just work.<br/>
-                If you're using Java 1.5/5.0, you should also provide a system property
+                java&nbsp;-jar should just work.</li>
+                <li>If you're using Java 1.5/5.0, you should also provide a system property
                 to enable CruiseControl to use its own MX4J as JMX Server instead of the
                 JMX server that comes with the JVM: have a look at the startup scripts
-                for more details.</p>
+                for more details.</li>
+                <li>If you want CruiseControl to start up the reporting application using its
+                embedded Jetty server, be sure to add the flag <code>-webport</code> as an
+                argument. By default, the dashboard will be on port 8080. See the table
+                below for more information.</li>
+                </ul>
+                </p>
             </li>
         </ul>
 
@@ -172,12 +178,30 @@
                 <td>No</td>
                 <td>DEPRECATED: Use -jmxport instead.</td>
             </tr>
+            <tr>
+              <td>-dashboardurl&nbsp;<i>[dashboard&nbsp;url]</i></td>
+                <td>No</td>
+                <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
+            </tr>
+            <tr>
+              <td>-postinterval&nbsp;<i>[interval&nbsp;number]</i></td>
+                <td>No</td>
+                <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
+            </tr>
+            <tr>
+              <td>-postenabled&nbsp;<i>[true/false]</i></td>
+                <td>No</td>
+                <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
+            </tr>
           </tbody>
         </table>
 
         <p>If you specify the -jmxport and/or the -rmiport parameter, a JMX Server will be started
         which can be used to control CruiseControl (force project builds, monitor the state
         of projects, change the logging level used internally, etc.).</p>
+
+        <p>If you specify the -webport parameter, a web server will be started
+        with the CruiseControl reporting application.</p>
 
         <p>Note that all parameters all optional; if you want to start CruiseControl using the
         config.xml file in the current working directory and do not want to use JMX to

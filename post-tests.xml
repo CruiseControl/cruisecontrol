@@ -1,0 +1,81 @@
+<!-- build the release -->
+<project name="post-test" default="src-test">
+
+    <property file="build.properties" />
+
+    <!-- use a local variable to make sure that a script that would read the
+         properties file would still be capable of overidding this one -->
+    <property name="cc.release.label" value="${cc.version}" />
+    <property name="target.folder" value="target"/>
+    
+    <property name="cc.src.dist.path" value="${target.folder}/cruisecontrol-src-${cc.release.label}.zip" />
+    <property name="cc.bin.dist.path" value="${target.folder}/cruisecontrol-bin-${cc.release.label}.zip" />
+    <property name="cc.unziped.src.folder" value="${target.folder}/cruisecontrol-${cc.release.label}"/>
+    <property name="cc.unziped.bin.folder" value="${target.folder}/cruisecontrol-bin-${cc.release.label}"/>
+    
+    
+    <target name="checklabel">
+        <fail unless="cc.release.label" message="label is not defined." />
+    </target>
+
+    <target name="clean">
+        <delete dir="${cc.unziped.src.folder}" failonerror="false"/>
+    </target>
+        
+    <target name="unzip-src-dist" depends="clean">
+        <unzip src="${cc.src.dist.path}" dest="${target.folder}" />
+    </target>
+
+    <target name="build-src-dist" depends="unzip-src-dist">
+        <ant dir="${cc.unziped.src.folder}" target="bin-zip"/>
+    </target>
+    
+    <target name="src-test" depends="checklabel, build-src-dist">
+        <copy file="post-tests.xml" todir="${cc.unziped.src.folder}"/>
+        <ant antfile="post-tests.xml" dir="${cc.unziped.src.folder}" target="smoke-test"/>
+    </target>
+
+    <target name="unzip-bin-dist">
+        <unzip src="${cc.bin.dist.path}" dest="${target.folder}" />
+    </target>
+
+    <target name="smoke-test"  depends="unzip-bin-dist">
+        <parallel>
+            <daemons>
+                <antcall target="deploy-server" />
+            </daemons>
+            <sequential>
+                <waitfor maxwait="3" maxwaitunit="minute" checkevery="500">
+                    <and>
+                        <http url="http://localhost:7854/cruisecontrol" />
+                        <available file="${cc.unziped.bin.folder}/projects/connectfour/target/connectfour.jar" />
+                    </and>
+                </waitfor>
+
+                <antcall target="kill-server" />
+            </sequential>
+        </parallel>
+    </target>
+
+    
+    <target name="deploy-server">
+        <chmod file="${cc.unziped.bin.folder}/cruisecontrol.sh" perm="+x" />
+        <chmod file="${cc.unziped.bin.folder}/${apache.ant}/bin/ant" perm="+x" />
+
+        <exec dir="${cc.unziped.bin.folder}" executable="cmd.exe" os="Windows 95, Windows 98, Windows NT, Windows CE, Windows 2000, Windows XP">
+            <arg line="/c cruisecontrol.bat -webport 7854 -jmxport 7855 -rmiport 7856" />
+        </exec>
+
+        <exec dir="${cc.unziped.bin.folder}" executable="/bin/sh" os="Linux, Solaris, SunOS, Mac OS X">
+            <arg line="cruisecontrol.sh -webport 7854 -jmxport 7855 -rmiport 7856" />
+        </exec>
+    </target>
+
+    <target name="kill-server">
+        <waitfor maxwait="10" maxwaitunit="second" checkevery="500">
+            <not>
+                <http url="http://localhost:7855/invoke?operation=halt&amp;objectname=CruiseControl+Manager%3Aid%3Dunique" />
+            </not>
+        </waitfor>
+    </target>
+</project>

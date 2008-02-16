@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 
 import org.springframework.web.servlet.ModelAndView;
@@ -48,33 +48,21 @@ public class MBeanConsoleController extends BaseMultiActionController {
 
     private static final String MBEAN_ROOT = "mbean?objectname=CruiseControl Project:name=";
 
-    private final EnvironmentService envService;
+    private BuildLoopQueryService buildLoopQueryService;
 
-    public MBeanConsoleController(EnvironmentService envService) {
-        this.envService = envService;
+    public MBeanConsoleController(BuildLoopQueryService buildLoopQueryService) {
+        this.buildLoopQueryService = buildLoopQueryService;
         this.setSupportedMethods(new String[] {"GET"});
-    }
-
-    public ModelAndView server(HttpServletRequest request, HttpServletResponse response) {
-        ModelAndView mov = renderMbeanConsole(request);
-        mov.getModel().put("projectName", "CruiseControl");
-        mov.getModel().put("context", "");
-        return mov;
     }
 
     public ModelAndView mbean(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         String projectName = DashboardUtils.decode(url[url.length - 1]);
-        ModelAndView mov = renderMbeanConsole(request);
+        ModelAndView mov = new ModelAndView("page_mbean_console");
+        mov.getModel().put("url", String.valueOf(buildLoopQueryService.getJmxHttpUrl(projectName)));
         mov.getModel().put("projectName", projectName);
         mov.getModel().put("context", MBEAN_ROOT + projectName);
-        return mov;
-    }
-
-    private ModelAndView renderMbeanConsole(HttpServletRequest request) {
-        ModelAndView mov = new ModelAndView("page_mbean_console");
-        mov.getModel().put("port", String.valueOf(envService.getJmxPort()));
         return mov;
     }
 }

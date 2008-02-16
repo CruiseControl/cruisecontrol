@@ -41,67 +41,38 @@
 
 /* Where vendor-specific prefixes are used (as in -moz-border-radius) for rules in forthcoming specifications, the non-prefixed rule should also be included in anticipation of other user-agents supporting the same rule */
 
- .transparent_message {
-  width : 90%;
-  text-align: center;
-  font-size: 30px;
-  opacity:  0.8;
-  position: absolute;
-  border-radius : 10px;  
-  -moz-border-radius:10px;
+.transparent_message {
+    text-align: center;
+    font-size: 33px;
+}
+
+.r4 {
+    margin: 0pt 1px;
+}
+
+.r3 {
+    margin: 0pt 2px;
+}
+
+.r2 {
+    margin: 0pt 3px;
+}
+
+.r1 {
+    margin: 0pt 4px;
 }
 
 .transparent_error {
-  background: #FFA3A9;
-  border: 1px solid #750004;
+    background-color: #FFA3A9;
+    opacity: 0.8;
 }
-
-.transparent_error p {
-  color: #560109;
-}
-
-/* Below are the rules for the "Your build is scheduled" message on the build list page */
 
 .transparent_notice {
-  background-color: gold;
-  border-top: 1px solid gold;
-  border-bottom: 1px solid gold;  
-  margin: 10px;
+    background-color: gold;
+    opacity: 0.8;
 }
 
-.transparent_notice p {
-  color: #23571D;
-}
 
-/* Saving message for static form */
-#info_message {
-  position: absolute;
-  background: #FFF;
-  opacity:  0.7;
-}
-
-/* On the admin page the message is displayed inline, not on top of other elements */
-
-.transparent_message.admin {
-  width: 90%;
-  text-align: center center;
-  font-size: 12px;
-  -moz-border-radius:10px;
-  border-radius : 10px;
-  position:static;
-}
-
-.admin.transparent_notice {
-  margin: 0px 0px 0px 0px;
-}
-
-.transparent_message.cc_status {
-  font-size: 1.3em;
-  font-weight: bold;
-  text-align: left;
-  padding-left: 50px;
-  min-height : 2.6em;
-  line-height: 2.6em;
-  background : gold url( ../images/icon-failure-medium.gif ) 16px center no-repeat ;
-  position:static;
+#trans_content {
+    text-align:center;
 }

@@ -41,7 +41,7 @@ import java.io.File;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.binder.DownLoadLogBinder;
 import net.sourceforge.cruisecontrol.dashboard.web.binder.DownloadArtifactsBinder;
@@ -56,9 +56,9 @@ import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.servlet.ModelAndView;
 
 public class DownloadController extends BaseMultiActionController {
-    private Configuration configuration;
+    private ConfigurationService configuration;
 
-    public DownloadController(Configuration configuration) {
+    public DownloadController(ConfigurationService configuration) {
         this.configuration = configuration;
         this.setSupportedMethods(new String[] {"GET"});
         this.setValidators(new Validator[] {new DownLoadFileValidator()});

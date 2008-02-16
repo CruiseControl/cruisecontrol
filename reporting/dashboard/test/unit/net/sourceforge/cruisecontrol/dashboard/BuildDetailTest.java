@@ -44,89 +44,100 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
+import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
 
 import org.apache.commons.io.FileUtils;
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 
-public class BuildDetailTest extends TestCase {
+public class BuildDetailTest extends MockObjectTestCase {
 
     private BuildDetail build;
 
-    private Map defaultProps;
+    private LogFile defaultLogFile;
 
     protected void setUp() {
-        defaultProps = new HashMap();
-        defaultProps.put("logfile", new File("log20051209122103.xml"));
-        build = new BuildDetail(defaultProps);
+        defaultLogFile = new LogFile("log20051209122103.xml");
+        build = new BuildDetail(defaultLogFile);
     }
 
     public void testShouldBeComparedByDate() {
-        BuildDetail earlierBuild = new BuildDetail(defaultProps);
+        BuildDetail laterBuild = new BuildDetail(new LogFile("log21111209122103.xml"));
 
-        Map newprops = new HashMap();
-        newprops.put("logfile", new File("log21111209122103.xml"));
-        BuildDetail laterBuild = new BuildDetail(newprops);
-
-        assertEquals(0, earlierBuild.compareTo(earlierBuild));
-        assertEquals(-1, earlierBuild.compareTo(laterBuild));
-        assertEquals(1, laterBuild.compareTo(earlierBuild));
-        earlierBuild.compareTo(laterBuild);
+        assertEquals(0, build.compareTo(build));
+        assertEquals(-1, build.compareTo(laterBuild));
+        assertEquals(1, laterBuild.compareTo(build));
     }
 
     public void testCanGetNumberOfTestsFromBuild() {
-        BuildTestSuite suiteWithFiveTests = new BuildTestSuite(0.0f, 5, 0, "", 0);
-        BuildTestSuite suiteWithFourTests = new BuildTestSuite(0.0f, 4, 0, "", 0);
+        BuildTestSuite suiteWithFiveTests = new BuildTestSuite("", 0.0f);
+        suiteWithFiveTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFiveTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFiveTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFiveTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFiveTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        BuildTestSuite suiteWithFourTests = new BuildTestSuite("", 0.0f);
+        suiteWithFourTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFourTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFourTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
+        suiteWithFourTests.addTestCase(new BuildTestCase(null, null, null, null, null, null));
         List nineTests = new ArrayList();
         nineTests.add(suiteWithFiveTests);
         nineTests.add(suiteWithFourTests);
 
         Map props = new HashMap();
         props.put("testsuites", nineTests);
-        BuildDetail laterBuild = new BuildDetail(props);
+        BuildDetail laterBuild = new BuildDetail(defaultLogFile, props);
         assertEquals(9, laterBuild.getNumberOfTests());
     }
 
     public void testCanGetNumberOfFailedTests() {
-        BuildTestSuite suiteWithTwoFailures = new BuildTestSuite(0.0f, 5, 2, "", 0);
-        BuildTestSuite suiteWithOneFailure = new BuildTestSuite(0.0f, 4, 1, "", 0);
+        BuildTestSuite suiteWithTwoFailures = new BuildTestSuite("", 0.0f);
+        suiteWithTwoFailures.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.FAILED));
+        suiteWithTwoFailures.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.FAILED));
+        BuildTestSuite suiteWithOneFailure = new BuildTestSuite("", 0.0f);
+        suiteWithOneFailure.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.FAILED));
         List threeFailures = new ArrayList();
         threeFailures.add(suiteWithTwoFailures);
         threeFailures.add(suiteWithOneFailure);
 
         Map props = new HashMap();
         props.put("testsuites", threeFailures);
-        BuildDetail laterBuild = new BuildDetail(props);
+        BuildDetail laterBuild = new BuildDetail(defaultLogFile, props);
 
         assertEquals(3, laterBuild.getNumberOfFailures());
     }
 
     public void testCanGetNumberOfTestErrors() {
-        BuildTestSuite suiteWithTwoErrors = new BuildTestSuite(0.0f, 5, 0, "", 2);
-        BuildTestSuite suiteWithThreeErrors = new BuildTestSuite(0.0f, 4, 0, "", 3);
+        BuildTestSuite suiteWithTwoErrors = new BuildTestSuite("", 0.0f);
+        suiteWithTwoErrors.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.ERROR));
+        suiteWithTwoErrors.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.ERROR));
+        BuildTestSuite suiteWithThreeErrors = new BuildTestSuite("", 0.0f);
+        suiteWithThreeErrors.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.ERROR));
+        suiteWithThreeErrors.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.ERROR));
+        suiteWithThreeErrors.addTestCase(new BuildTestCase(null, null, null, null, null, BuildTestCaseResult.ERROR));
         List fiveErrors = new ArrayList();
         fiveErrors.add(suiteWithTwoErrors);
         fiveErrors.add(suiteWithThreeErrors);
 
         Map props = new HashMap();
         props.put("testsuites", fiveErrors);
-        BuildDetail laterBuild = new BuildDetail(props);
+        BuildDetail laterBuild = new BuildDetail(defaultLogFile, props);
 
         assertEquals(5, laterBuild.getNumberOfErrors());
     }
 
     public void testShouldReturnPassedAsStringWhenTheBuildPassed() {
-        Map props = new HashMap();
-        props.put("logfile", new File("log20001212050505Lbuild.2.xml"));
-        BuildDetail laterBuild = new BuildDetail(props);
-        assertEquals(ProjectBuildStatus.PASSED, laterBuild.getStatus());
+        LogFile laterLogFile = new LogFile("log20001212050505Lbuild.2.xml");
+        BuildDetail laterBuild = new BuildDetail(laterLogFile);
+        assertEquals(PreviousResult.PASSED, laterBuild.getPreviousBuildResult());
     }
 
     public void testShouldReturnPassedAsStringWhenTheBuildFailed() {
-        Map props = new HashMap();
-        props.put("logfile", new File("log20001212050505.xml"));
-        BuildDetail laterBuild = new BuildDetail(props);
-        assertEquals(ProjectBuildStatus.FAILED, laterBuild.getStatus());
+        LogFile laterLogFile = new LogFile("log20001212050505.xml");
+        BuildDetail laterBuild = new BuildDetail(laterLogFile);
+        assertEquals(PreviousResult.FAILED, laterBuild.getPreviousBuildResult());
     }
 
     public void testPluginOutputShouldBeInOrder() throws Exception {
@@ -149,9 +160,9 @@ public class BuildDetailTest extends TestCase {
         FilesystemUtils.createFile("p1.ear", artifactsDir);
 
         Map props = new HashMap();
-        props.put("logfile", new File("log20001212050505.xml"));
+        LogFile logFile = new LogFile("log20001212050505.xml");
         props.put("artifactfolder", artifactsRoot);
-        BuildDetail detail = new BuildDetail(props);
+        BuildDetail detail = new BuildDetail(logFile, props);
 
         assertEquals(3, detail.getArtifactFiles().size());
     }
@@ -170,9 +181,9 @@ public class BuildDetailTest extends TestCase {
         FilesystemUtils.createFile("p3.ear", subDir);
         FilesystemUtils.createFile("p4.ear", subDir);
         Map props = new HashMap();
-        props.put("logfile", new File("log20001212050505.xml"));
+        LogFile logFile = new LogFile("log20001212050505.xml");
         props.put("artifactfolder", artifactsRoot);
-        BuildDetail detail = new BuildDetail(props);
+        BuildDetail detail = new BuildDetail(logFile, props);
         List artifactNames = toFileNameList(detail.getArtifactFiles());
         assertEquals(4, artifactNames.size());
         assertTrue(artifactNames.contains("p2.war"));
@@ -181,12 +192,21 @@ public class BuildDetailTest extends TestCase {
         assertTrue(artifactNames.contains("subdir"));
     }
 
-    public List toFileNameList(List files) {
+    private List toFileNameList(List files) {
         List fileNames = new ArrayList();
         for (Iterator iter = files.iterator(); iter.hasNext();) {
             File file = (File) iter.next();
             fileNames.add(file.getName());
         }
         return fileNames;
+    }
+
+    public void testShouldInvokeTheTimeConverter() throws Exception {
+        Mock timeConverterMock = mock(TimeConverter.class);
+        BuildDetail laterBuild =
+                new BuildDetail(new LogFile("log21111209122103.xml"), new HashMap(),
+                        (TimeConverter) timeConverterMock.proxy());
+        timeConverterMock.expects(once()).method("getConvertedTime");
+        laterBuild.getConvertedTime();
     }
 }

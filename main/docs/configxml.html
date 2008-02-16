@@ -61,8 +61,8 @@
             <li><a class="expandmenu" href="index.html">build loop</a></li>
             <li><a class="expandmenu" href="../../reporting/jsp/docs/index.html">results jsp</a></li>
             <li><a href="../../docs/dashboard.html">dashboard</a></li>
-            <li><a href="../../docs/widgets.html">widgets</a></li>
             <li><a class="expandmenu" href="../../docs/gettingstarted.html">getting started</a></li>
+            <li><a href="../../docs/buildgrid.html">build grid</a></li>
             <li><p id="menuselected">config ref</p></li>
             <li><a href="../../docs/faq.html">faq</a></li>
             <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
@@ -125,6 +125,7 @@
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
 <a href="#darcs">&lt;darcs&gt;</a>
+<a href="#dashboard">&lt;dashboard&gt;</a>
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#email">&lt;email&gt;</a>
@@ -227,6 +228,7 @@
 <pre style="font-size: smaller;">
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
    <a href="#property">&lt;property/&gt;</a>
+   <a href="#dashboard">&lt;dashboard/&gt;</a>
    <a href="#include.projects">&lt;include.projects/&gt;</a>
    &lt;system&gt;
       &lt;configuration&gt;
@@ -409,6 +411,11 @@
                     <td><a href="#include.projects">&lt;include.projects&gt;</a></td>
                     <td>0 .. *</td>
                     <td>Add projects defined in other configuration files.</td>
+                </tr>
+                <tr>
+                    <td><a href="#dashboard">&lt;dashboard&gt;</a></td>
+                    <td>0 .. 1</td>
+                    <td>Configure dashboard related settings.</td>
                 </tr>
             </tbody>
         </table>
@@ -727,6 +734,45 @@
             </tr>
 	    </tbody>
 	</table>
+	</div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="dashboard">&lt;dashboard&gt;</a></h2>
+
+	<div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  &lt;dashboard&gt;</pre>
+        </div>
+
+	<p>The &lt;dashboard&gt; tag is used to set the configuration for build loop posting builds information to the dashboard.</p>
+
+	<p>If this element is not specified in config.xml, CruiseControl will first check <a href="install.html#startupcruisecontrol">command-line</a>. If neither of this set, then CruiseControl will use default.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>url</td>
+                <td>No</td>
+                <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
+            </tr>
+            <tr>
+                <td>postinterval</td>
+                <td>No</td>
+                <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
+            </tr>
+            </tbody>
+	    </table>
 	</div>
 
 	<div class="elementdocumentation">
@@ -2963,6 +3009,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td><a href="#forceonly">&lt;forceonly&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
+            </tr>
+             <tr>
+                <td><a href="#git">&lt;git&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Checks for changes in a git repository.</td>
             </tr>
             <tr>
                 <td><a href="#git">&lt;git&gt;</a></td>

@@ -110,7 +110,7 @@
                 <message priority="info">
                     <![CDATA[Compiling 10 source files to C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes]]></message>
                 <message priority="debug"><![CDATA[Using modern compiler]]></message>
-                <message priority="debug"><![CDATA[Compilation arguments:
+                <message priority="warn"><![CDATA[Compilation arguments:
 '-d'
 'C:\pdj\src\cruisecontrol\target\webtest\cruisecontrol-bin-2.4.0-dev\projects\connectfour\target\classes'
 '-classpath'
@@ -251,7 +251,7 @@ not part of the command.]]></message>
         <target name="all" time="0 seconds"/>
         <stacktrace><![CDATA[This is my stacktrace]]></stacktrace>
     </build>
-    <testsuite errors="1" failures="2" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
+    <testsuite errors="1" failures="3" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
                tests="10" time="0.109">
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
                   name="testFourConnected" time="0.016">
@@ -262,6 +262,10 @@ not part of the command.]]></message>
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testSomething" time="3.807">
       <failure message="Not the expected result" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Error during schema validation 
 	at junit.framework.Assert.fail(Assert.java:47)</failure>
+    </testcase>
+        <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testSomething" time="3.807">
+      <failure type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: Error during validation 
+	at junit.framework.Assert.fail(Assert.java:49)</failure>
     </testcase>
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest" name="testSomething" time="3.807">
     <failure message="expected:&lt;1&gt; but was:&lt;2&gt;" type="junit.framework.AssertionFailedError">junit.framework.AssertionFailedError: expected:&lt;1&gt; but was:&lt;2&gt;

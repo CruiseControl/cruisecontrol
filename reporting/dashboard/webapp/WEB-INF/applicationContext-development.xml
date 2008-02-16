@@ -41,7 +41,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
-    <bean id="jmxServiceStub" class="net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.CruiseControlJMXServiceStub"/>
-	<bean id="mockCruiseRuntime" class="net.sourceforge.cruisecontrol.dashboard.testhelpers.MockRuntime"/>
-
+    <bean id="jmxServiceStub" class="net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.BuildLoopQueryServiceStub">
+        <constructor-arg ref="envService"/>
+        <constructor-arg ref="buildInfoRepository"/>
+    </bean>
+	<bean id="mockForceBuildValidator" class="net.sourceforge.cruisecontrol.dashboard.testhelpers.MockForceBuildValidator">
+		<constructor-arg ref="envService"/>
+	</bean>
+	<bean id="buildLoopControllerFake" class="net.sourceforge.cruisecontrol.dashboard.testhelpers.BuildLoopControllerFake"/>
 </beans>
+

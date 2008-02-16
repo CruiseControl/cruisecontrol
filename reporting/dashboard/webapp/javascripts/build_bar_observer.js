@@ -36,22 +36,24 @@
  ********************************************************************************/
 var BuildBarObserver = Class.create();
 
-BuildBarObserver.CSS_LEVEL = 'level';
-
 BuildBarObserver.prototype = Object.extend(new BuildBaseObserver(), {
 	initialize : function() {},
-	notify : function(json) {
-		function renew_class_name(elementOrId, cssClass) {
-			var element = $(elementOrId);
-			clean_active_css_class_on_element(element);	
-			Element.addClassName(element, cssClass);
+	notify : function(jsonArray) {
+		for (var i = 0; i < jsonArray.length; i++) {
+			if (!jsonArray[i]) return;
+			this._notify(jsonArray[i]);		
 		}
-		var projectName = json.building_info.project_name;
-	    var bar = $(projectName + "_bar");
-	    renew_class_name(bar, json.building_info['css_class_name']);
-		var level = $(projectName + "_level");
-		renew_class_name(level, BuildBarObserver.CSS_LEVEL + '_'  + json.building_info[BuildBarObserver.CSS_LEVEL]);
-	    reround(level);
-	    $(projectName + "_bar_link").href = this.get_link(json);
+	},
+	_notify : function(json) {
+        var projectName = json.building_info.project_name;
+        json_to_css.update_bar(json);
+        json_to_css.update_level(json);
+        if (!is_inactive(json)) {
+	        $(projectName + "_bar_link").href = this.get_link(json);
+	        $(projectName + "_tooltip_link").href = this.get_link(json);
+        } else {
+	        $(projectName + "_bar_link").href     = "javascript:void(0)";
+	        $(projectName + "_tooltip_link").href = "javascript:void(0)";
+        }
 	}
 });

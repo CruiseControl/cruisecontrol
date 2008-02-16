@@ -42,6 +42,7 @@ import java.util.Locale;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -55,8 +56,13 @@ public final class CCDateFormatter {
 
     private static DateTimeFormatter yyyyMMddHHmmssPattern = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
+    private static DateTimeFormatter iso8601Pattern = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+
     private static SimpleDateFormat yyyyMMddHHmmssSimpleDateFormat =
         new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+
+    private static SimpleDateFormat iso8601SimpleDateFormat =
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
 
     private CCDateFormatter() {
     }
@@ -98,5 +104,14 @@ public final class CCDateFormatter {
 
     public static String getBuildDateFromLogFileName(String logFileName) {
         return logFileName.substring(DATE_START, DATE_END);
+    }
+
+    public static DateTime iso8601(String datetime) {
+        try {
+            return new DateTime(DateUtil.parseIso8601(datetime).getTime(),
+                    DateTimeZone.forOffsetHours(0));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

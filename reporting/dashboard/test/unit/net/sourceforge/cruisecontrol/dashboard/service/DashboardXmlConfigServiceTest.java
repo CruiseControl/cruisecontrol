@@ -1,75 +1,61 @@
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.io.File;
-import java.util.Map;
-
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.List;
+import java.util.Map;
+
 public class DashboardXmlConfigServiceTest extends MockObjectTestCase {
+
+    private static String dashboardConfig =
+            "<dashboard>\n"
+                    + " \t<buildloop\n"
+                    + " \t\thome=\"c:\\\"\n"
+                    + "    \tconfigfile=\"config.xml\"\n"
+                    + "    \tlogsdir=\"logs\"\n"
+                    + "    \tartifactsdir=\"artifacts\"\n"
+                    + "\t\tprojectsdir=\"projects\"\n"
+                    + "    \tjmxport=\"8000\"\n"
+                    + "    \trmiport=\"1099\"/>\n"
+                    + "\t<features allowforcebuild=\"true\"/>\n"
+                    + "\t<trackingtool projectname=\"project1\" baseurl=\"https://mingle05."
+                    + "thoughtworks.com/projects/project1/cards/\" keywords=\"#,build,story,card\"/>\n"
+                    + "\t<trackingtool projectname=\"project2\" baseurl=\"https://mingle05."
+                    + "thoughtworks.com/projects/project2/cards/\" keywords=\"#,build,story,card\"/>\n"
+                    + "<subtabs>\n"
+                    + "  <subtab class=\"net.sourceforge.cruisecontrol.dashboard.widgets.MergedCheckStyleWidget\" />\n"
+                    + "  <subtab class=\"net.sourceforge.cruisecontrol.dashboard.widgets.PanopticodeWidget\" />\n"
+                    + "  <subtab class=\"net.sourceforge.cruisecontrol.dashboard.widgets.EmmaArtifactWidget\" />\n"
+                    + "</subtabs>\n" + " </dashboard>";
+
     public void testShouldReturnBuildLoop() throws Exception {
-        File dashboardConfig = DataUtils.getDashboardConfig();
-        Mock mockSystemService = mock(SystemService.class);
-        mockSystemService.expects(once()).method("getProperty").with(eq("dashboard.config")).will(
-                returnValue(dashboardConfig.getAbsolutePath()));
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        DashboardXmlConfigService dashboardConfigService =
-                new DashboardXmlConfigService((SystemService) mockSystemService.proxy());
-        dashboardConfigService.afterPropertiesSet();
-        assertEquals("config.xml", dashboardConfigService.getConfigXml());
-        assertEquals("logs", dashboardConfigService.getLogsDir());
-        assertEquals("artifacts", dashboardConfigService.getArtifactsDir());
-        assertEquals("projects", dashboardConfigService.getProjectsDir());
-        assertEquals("8000", dashboardConfigService.getJMXPort());
-        assertEquals("1099", dashboardConfigService.getRMIPort());
-        assertEquals("true", dashboardConfigService.isForceBuildEnabled());
-        assertEquals("true", dashboardConfigService.isConfigFileEditable());
+        DashboardXmlConfigService c = buildConfigService();
+        c.afterPropertiesSet();
+        assertEquals("logs", c.getLogsDir());
+        assertEquals("artifacts", c.getArtifactsDir());
+        assertEquals("true", c.isForceBuildEnabled());
     }
 
     public void testShouldReturnInvalidIfCannotFindDashboardConfigFile() throws Exception {
-        Mock mockSystemService = mock(SystemService.class);
-        mockSystemService.expects(once()).method("getProperty").with(eq("dashboard.config")).will(
-                returnValue("I/Dont/Exist.xml"));
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
+        Mock mock = mock(DashboardConfigFileFactory.class);
+        mock.expects(once()).method("asStream").will(throwException(new FileNotFoundException("not found")));
         DashboardXmlConfigService dashboardConfigService =
-                new DashboardXmlConfigService((SystemService) mockSystemService.proxy());
+                new DashboardXmlConfigService((DashboardConfigFileFactory) mock.proxy());
         dashboardConfigService.afterPropertiesSet();
-        assertEquals("", dashboardConfigService.getConfigXml());
         assertEquals("", dashboardConfigService.getLogsDir());
         assertEquals("", dashboardConfigService.getArtifactsDir());
-        assertEquals("", dashboardConfigService.getProjectsDir());
-        assertEquals("", dashboardConfigService.getJMXPort());
-        assertEquals("", dashboardConfigService.getRMIPort());
         assertEquals("", dashboardConfigService.isForceBuildEnabled());
-        assertEquals("", dashboardConfigService.isConfigFileEditable());
     }
-
-    public void testShouldLoadDashboardConfigFileFromCCHome() throws Exception {
-        Mock mockSystemService = mock(SystemService.class);
-        mockSystemService.expects(once()).method("getProperty").with(eq("dashboard.config")).will(
-                returnValue("I/Dont/Exist.xml"));
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(false));
-        mockSystemService.expects(once()).method("getProperty").with(
-                eq(SystemPropertyConfigService.PROPS_CC_HOME)).will(returnValue("CC_HOME"));
-        DashboardXmlConfigService dashboardConfigService =
-                new DashboardXmlConfigService((SystemService) mockSystemService.proxy());
-        dashboardConfigService.afterPropertiesSet();
-    }
-    
 
     public void testShouldReturnStoryTrackers() throws Exception {
-        File dashboardConfig = DataUtils.getDashboardConfig();
-        Mock mockSystemService = mock(SystemService.class);
-        mockSystemService.expects(once()).method("getProperty").with(eq("dashboard.config")).will(
-                returnValue(dashboardConfig.getAbsolutePath()));
-        mockSystemService.expects(once()).method("isAbsolutePath").will(returnValue(true));
-        DashboardXmlConfigService dashboardConfigService =
-                new DashboardXmlConfigService((SystemService) mockSystemService.proxy());
-        dashboardConfigService.afterPropertiesSet();
-        Map storyTrackers = dashboardConfigService.getStoryTrackers();
+        DashboardXmlConfigService configService = buildConfigService();
+        configService.afterPropertiesSet();
+        Map storyTrackers = configService.getStoryTrackers();
         assertEquals(2, storyTrackers.size());
 
         assertTrue(storyTrackers.containsKey("project1"));
@@ -78,6 +64,48 @@ public class DashboardXmlConfigServiceTest extends MockObjectTestCase {
         StoryTracker cc = (StoryTracker) storyTrackers.get("project1");
         assertEquals("https://mingle05.thoughtworks.com/projects/project1/cards/", cc.getBaseUrl());
         assertEquals("#,build,story,card", cc.getKeywords());
+    }
 
+    public void testShouldReturnDashboardConfigurationFile() throws Exception {
+        File dashboardConfigFile = new File("dc.xml");
+        Mock mock = mock(DashboardConfigFileFactory.class);
+        mock.expects(once()).method("getDashboardConfigFileLocation").will(returnValue(dashboardConfigFile));
+        DashboardXmlConfigService configService =
+                new DashboardXmlConfigService((DashboardConfigFileFactory) mock.proxy());
+
+        assertEquals(dashboardConfigFile, configService.getConfigurationFile());
+    }
+
+    public void testShouldGetAllSubtabClasses() throws Exception {
+        DashboardXmlConfigService configService = buildConfigService();
+        configService.afterPropertiesSet();
+        List subTabClasses = configService.getSubTabClassNames();
+        assertEquals(3, subTabClasses.size());
+        assertTrue(
+                subTabClasses
+                        .contains("net.sourceforge.cruisecontrol.dashboard.widgets.MergedCheckStyleWidget"));
+        assertTrue(
+                subTabClasses
+                        .contains("net.sourceforge.cruisecontrol.dashboard.widgets.EmmaArtifactWidget"));
+        assertTrue(
+                subTabClasses
+                        .contains("net.sourceforge.cruisecontrol.dashboard.widgets.PanopticodeWidget"));
+    }
+
+    public void testShouldReturnEmptyListIfCOnfigurationIsInvalid() throws Exception {
+        Mock mock = mock(DashboardConfigFileFactory.class);
+        mock.expects(once()).method("asStream").will(returnValue(null));
+        DashboardXmlConfigService configService =
+                new DashboardXmlConfigService((DashboardConfigFileFactory) mock.proxy());
+
+        configService.afterPropertiesSet();
+        assertEquals(0, configService.getSubTabClassNames().size());
+    }
+
+    private DashboardXmlConfigService buildConfigService() {
+        Mock mock = mock(DashboardConfigFileFactory.class);
+        mock.expects(once()).method("asStream").will(
+                returnValue(new ByteArrayInputStream(dashboardConfig.getBytes())));
+        return new DashboardXmlConfigService((DashboardConfigFileFactory) mock.proxy());
     }
 }
