@@ -1,0 +1,24 @@
+<div id="configuration" class="admin_page" $configuration_extra_attrs>
+    <div id="tabContent1" class="tabContent">
+        <div id="container">
+            <div class="round_top"><h1><span>Configuration File Path</span></h1></div>
+            <div class="admin_holder">
+                <div class="info filepath">
+                    <div>
+                    	<span class="wbrSensitive">$!command.configFileLocation</span>
+                    </div>
+                    <div class="clear">&nbsp;</div>
+                </div>
+            </div>
+            <div class="round_top"><h1><span>Configuration File Content</span></h1></div>
+            <div class="admin_holder">
+                <div>
+                    <span class="error_message">$error_message</span>
+                    <pre class="wrap_pre">
+$esc.html(${command.configFileContent})
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

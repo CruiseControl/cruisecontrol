@@ -40,41 +40,42 @@ StatisticsObserver.prototype = {
 	notify : function(json) {
 		if (!json.length) return;
 	    if (json.length == 0) return; 
-		var statistics = $H({passed:0,failed:0,building:0})
+		var statistics = $H({passed:0,failed:0,building:0,inactive:0,discontinued:0})
 		for (var i = 0; i < json.length; i++) {
-			if (!json[i]) continue;
 	    	this.category(json[i], statistics);
 	    }
-		this.inactive_projects(statistics);
 		this.calculate(statistics);
 	  	this.update(statistics);
 	},
-	inactive_projects : function (statistics) {
-		statistics['inactive'] = $A($$('.inactive.bar')).size()
-	},
-	calculate : function (statistics) {
+	calculate : function (statistics, tag) {
 		var total = 0;
 		statistics.each(function(pair){
-			total += pair.value;
+			if (pair.key != "inactive" && pair.key != "discontinued" ) {
+				total += pair.value;
+			}
 		});
-		statistics['total'] = total;
-	    var rate = ((statistics['passed'] / (total - statistics['inactive'])) * 100).toFixed(0)
-		statistics['rate'] = isNaN(rate) ? "0%" : rate+"%";
+		statistics.set("total", total);
+	    var rate = ((statistics.get('passed') / total) * 100).toFixed(0);
+        statistics.set('rate', isNaN(rate) ? "0%" : rate+"%");
 		return statistics; 
 	},
 	category : function (json, statistics) {
 		if (!json) return;
 		if (!json.building_info) return;
-		if (!json.building_info.building_status) return;
-		var status = json.building_info.building_status.toLowerCase();
-		if (status == 'inactive') return;
-		statistics[status] +=  1;
+		if (!json.building_info.current_status) return;
+		var status = is_inactive(json) ? 'inactive' : json.building_info.current_status.toLowerCase();
+		if (status == 'building' || status == 'discontinued' || status == 'inactive') {
+			statistics.set(status, statistics.get(status) + 1);
+		} else {
+            var previous_result = json.building_info.previous_result.toLowerCase();
+            statistics.set(previous_result, statistics.get(previous_result) + 1);
+		}
 	},
 	update : function (statistics_infos) {
-		var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive'])
+		var infos = $A(['passed', 'failed', 'building', 'total', 'rate', 'inactive', 'discontinued'])
 		infos.each(function(info) {
 		    var statistic = $('statistics_' + info).innerHTML;
-			$('statistics_' + info).update(statistics_infos[info] + statistic.substring(statistic.indexOf(' ')));
+            $('statistics_' + info).update(statistics_infos.get(info) + statistic.substring(statistic.indexOf(' ')));
 		});
 	}
 }

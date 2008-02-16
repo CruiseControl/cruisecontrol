@@ -44,11 +44,6 @@
 /* Global common styles */
 @import url("global.css");
 
-/* Compact Dashboard and Build list layouts */
-@import url("dashboard.css");
-
 /* Top menu and tab bar */
 @import url("menu.css" );
 
-/* Transient message */
-@import url("transparent_message.css" );

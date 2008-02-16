@@ -156,7 +156,7 @@ public interface ProjectMBean {
     /**
      * @return the commit message includes the commiter and message
      */
-    public String[][] getCommitMessages();
+    public String[][] commitMessages();
 
     public String[] getBuildOutput(Integer firstLine);
 }

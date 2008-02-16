@@ -39,12 +39,16 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
 import net.sourceforge.cruisecontrol.launch.Launcher;
+import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
+import net.sourceforge.cruisecontrol.report.BuildLoopPostingConfiguration;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import net.sourceforge.cruisecontrol.web.EmbeddedJettyServer;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -77,6 +81,13 @@ public final class Main implements CruiseControlMain {
      */
     private static final int DEFAULT_WEB_PORT = 8080;
 
+    /**
+     * the default time interval used for http posting.
+     */
+    private static final int DEFAULT_INTERVAL = 5;
+    
+    private static final boolean DEFAULT_POSTING_ENABLED = true;
+    
     /**
      * Commandline entry point into the application.
      *
@@ -113,12 +124,13 @@ public final class Main implements CruiseControlMain {
             }
             controller = createController(args, versionProperties);
             if (shouldStartJmxAgent(args)) {
-                agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
-                        parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
-                agent.start();
+                startJmxAgent(args);
             }
             if (shouldStartEmbeddedServer(args)) {
                 startEmbeddedServer(args);
+            }
+            if (shouldPostDataToDashboard(args)) {
+                startPostingToDashboard(args);
             }
             parseCCName(args);
             controller.resume();
@@ -128,6 +140,12 @@ public final class Main implements CruiseControlMain {
             return false;
         }
         return true;
+    }
+
+    private void startJmxAgent(String[] args) {
+        agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
+                parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
+        agent.start();
     }
 
     private CruiseControlController createController(String[] args, Properties versionProperties)
@@ -196,6 +214,12 @@ public final class Main implements CruiseControlMain {
         System.out.println("                          application. default ./webapps/cruisecontrol");
         System.out.println("  -dashboard directory    location of the exploded WAR file for the dashboard");
         System.out.println("                          application. default ./webapps/dashboard");
+        System.out.println("  -postenabled enabled    switch of posting current build information to dashboard");
+        System.out.println("                          default is true");
+        System.out.println("  -dashboardurl url       the url for dashboard (used for posting build information)");
+        System.out.println("                          default is http://localhost:8080/dashboard");
+        System.out.println("  -postinterval interval  how frequently build information will be posted to dashboard");
+        System.out.println("                          default is 5 (in second).");
         System.out.println("  -ccname name            A logical name which will be displayed in the");
         System.out.println("                          Reporting Application's status page.");
         System.out.println("");
@@ -213,6 +237,16 @@ public final class Main implements CruiseControlMain {
         return theCCName;
     }
 
+    static boolean shouldPostDataToDashboard(String[] args) {
+        return parseHttpPostingEnabled(args) && BuildLoopMonitorRepository.getBuildLoopMonitor() == null;
+    }
+
+    public void startPostingToDashboard(String[] args) {
+        String url = parseDashboardUrl(args);
+        long interval = parseHttpPostingInterval(args);
+        BuildLoopMonitorRepository.cancelExistingAndStartNewPosting(controller,
+                new BuildLoopPostingConfiguration(url, interval));
+    }
 
     /**
      * Parse webport from arguments.
@@ -394,5 +428,25 @@ public final class Main implements CruiseControlMain {
     public void stop() {
         controller.pause();
         agent.stop();
+    }
+
+    public static String parseDashboardUrl(String[] args) {
+        int webport = parseWebPort(args);
+        if (webport == MainArgs.NOT_FOUND) {
+            webport = 8080;
+        }
+        return MainArgs.parseArgument(args, "dashboardurl", defaultDashboardUrl(webport), defaultDashboardUrl(8080));
+    }
+
+    private static String defaultDashboardUrl(int port) {
+        return "http://localhost:" + port + "/dashboard";
+    }
+
+    public static long parseHttpPostingInterval(String[] args) {
+        return MainArgs.parseInt(args, "postinterval", DEFAULT_INTERVAL, DEFAULT_INTERVAL);
+    }
+
+    public static boolean parseHttpPostingEnabled(String[] args) {
+        return MainArgs.parseBoolean(args, "postenabled", DEFAULT_POSTING_ENABLED, DEFAULT_POSTING_ENABLED);
     }
 }

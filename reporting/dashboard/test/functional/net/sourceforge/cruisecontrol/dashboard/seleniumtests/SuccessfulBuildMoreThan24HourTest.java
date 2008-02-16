@@ -131,7 +131,7 @@ public class SuccessfulBuildMoreThan24HourTest extends SeleniumTestCase {
     }
 
     public void testChangeColorWhenFailedDateChanges() throws Exception {
-        selenium.open("/dashboard/dashboard");
+        openDashboardPage();
         assertClassName(failed3DaysAgo, "level_8");
         assertClassName(passedLevel0, "level_0");
         assertClassName(passedLevel1, "level_1");
@@ -150,8 +150,8 @@ public class SuccessfulBuildMoreThan24HourTest extends SeleniumTestCase {
     private void assertClassName(File file, String className) throws Exception {
         file.createNewFile();
         String textPresent =
-                "parent.frames['myiframe'].document.getElementById('projectWithoutPublishers_level').className.indexOf('"
+                "selenium.browserbot.getCurrentWindow().document.getElementById('projectWithoutPublishers_level').className.indexOf('"
                         + className + "') >= 0";
-        selenium.waitForCondition(textPresent, "7000");
+        user.waitForCondition(textPresent, "15000");
     }
 }

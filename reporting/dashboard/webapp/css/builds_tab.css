@@ -1,0 +1,273 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+
+@import url("build_common.css");
+
+/* Common styles for each bar */
+.build_profile {
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    padding: 10px 3px 11px 42px;
+    line-height : 50px;
+    vertical-align:middle;
+    margin-bottom:1px;
+    margin-right : 10px;
+    z-index:0;
+}
+
+.yui-ge .build_status_bar_container {
+	padding : 0;
+	margin : 0;
+	background : none;
+}
+
+.yui-ge .first .build_status_bar_container {
+	background-color : #f1f0ec;
+}
+
+
+#tabContent2 b.r1, #tabContent2 b.r2, #tabContent2 b.r3, #tabContent2 b.r4 {
+	display : none;
+}
+
+.build_profile img {
+   vertical-align: middle;
+}
+
+.build_profile a.clickable_target, .build_profile span.no_decoration {
+	color : #030;
+	text-decoration : underline;
+}
+
+.inactive a.clickable_target, .inactive span.no_decoration, .inactive span.project_name {
+	color : #666;
+	cursor : default;
+	text-decoration : none;
+}
+
+
+div.timer span {
+	color : #C30;
+}
+
+/* Apply icons to bars as background images */
+
+.passed {
+    background-image: url( "../images/icon-success-medium.gif" );
+}
+
+.failed {
+    background-image: url( "../images/icon-failure-medium.gif" );
+}
+
+.building {
+    background-image: url( "../images/icon-building-medium.gif" );
+}
+
+.building_passed, .building_unknown {
+    background-image: url( "../images/icon-build-spinning-medium.gif" );
+}
+
+.building_failed {
+    background-image: url( "../images/icon-build-spinning-medium.gif" );
+}
+
+.inactive {
+    background-image: url( "../images/icon-inactive-medium.gif" );
+}
+
+.paused  {
+    background-image: url( "../images/icon-paused-medium.gif" );
+}
+
+.queued  {
+    background-image: url( "../images/icon-queued-medium.gif" );
+}
+
+.discontinued {
+    background-image: url("../images/icon-discontinued-medium.gif");
+}
+
+/* Icons on the right of the build bar */
+
+.control_panel {
+   float:right;
+}
+
+.description {
+    float:left;
+    word-spacing: 3px;
+}
+
+.timer {
+   clear:both;
+}
+
+.description .project_name {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.description a {
+  padding-left:2px;
+  padding-right:2px;
+}
+
+a.force_build_disabled, .discontinued .force_build_link,
+ .discontinued .config_panel_link,
+ .paused .force_build_link,
+ .inactive .all_builds_link,
+ .inactive .all_successful_builds_link {
+	cursor : default;
+}
+
+/*The icons in the tool panel of the dashboard page*/
+.tools_bar_holder {
+	width : 29%;
+	float : left;
+}
+
+.tools_bar_holder div.title, .tools_bar_holder div.projects_summary {
+	width : 100%;
+}
+
+.tools_bar_holder div.entry a {
+	display : block;
+	padding : 10px 10px 10px 40px;
+}
+
+#add_project a {
+	background : url( ../images/icon-add-project.gif ) 10px center no-repeat;
+}
+
+
+#rss_feed_for_all a {
+	background : url( ../images/rssicon_small.gif ) 10px center no-repeat;
+}
+
+#configure_panel a {
+	background : url( ../images/icon-configure-panel.gif ) 10px center no-repeat;
+}
+
+#cctray a {
+	background : url( ../images/cctrayicon_small.gif ) 10px center no-repeat;
+}
+
+#cc-config a {
+	background : url( ../images/cc-configicon_small.gif ) 10px center no-repeat;
+}
+
+/*For the summary panel*/
+.entry_set {
+	padding-left : 1em;
+}
+
+.entry_set .info {
+	background : none;
+	font-weight : normal;
+	padding : 10px 10px 10px 30px;
+	display : block;
+	width : 31%;
+	float : left;
+
+}
+.placeholder {
+	width : 19%;
+	float : left;
+}
+
+#statistics_total {
+	width : 19%;
+	float : left;
+    line-height:100px;
+}
+
+.project_summary_panel {
+	margin-right : 10px;
+	margin-top : 14px;
+}
+
+.entry {
+	width : 95%;
+	line-height : 200%;
+	background : none;
+}
+
+.projects_summary_holder {
+	float :left;
+	margin-right : 1%;
+	width : 70%;
+}
+
+.projects_summary {
+	background : #cfcec9;
+}
+
+#project_summary_panel .title {
+	font-weight : bold;
+	line-height : 200%;
+	background-color : #eee;
+}
+
+
+#project_summary_panel .title span {
+	padding : 5px 0 5px 10px;
+	display : block;
+}
+
+#statistics_rate {
+	padding-left : 0.3em;
+	font-weight : bold;
+	display : block;
+	clear:right;
+	float:right;
+	padding-top : 1.8em;
+	padding-bottom : 1em;
+	margin-right : 3em;
+}
+
+div.tabContent {
+	padding-top : 1px;
+}
+
+.timer_area {
+    word-spacing: 5px;
+}
+
+#warning {
+    margin-right: 10px;
+}

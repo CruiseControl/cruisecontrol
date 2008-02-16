@@ -36,9 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.service.ConfigXmlFileService;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import java.io.File;
+
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
@@ -56,39 +58,94 @@ public class AdminControllerTest extends MockObjectTestCase {
 
     private Mock configurationMock;
 
-    private Configuration configuration;
+    private ConfigurationService configuration;
 
     private AdminController controller;
+
+    private File logsRoot = new File("logs_root");
+
+    private File artifactsRoot = new File("artifacts_root");
+
+    private String expectedPath = "test/data/config.xml";
 
     protected void setUp() throws Exception {
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
-        configurationMock =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class}, new Object[] {null});
-        configuration = (Configuration) configurationMock.proxy();
-        controller =
-                new AdminController(configuration, new EnvironmentService(new SystemService(),
-                        new DashboardConfigService[] {}));
+        configurationMock = mock(ConfigurationService.class, new Class[] {
+                EnvironmentService.class, DashboardXmlConfigService.class,
+                BuildLoopQueryService.class },
+                new Object[] { null, null, null });
+        configuration = (ConfigurationService) configurationMock.proxy();
+        controller = new AdminController(configuration, new SystemService());
+
+        configurationMock.expects(once()).method("getLogsRoot").will(
+                returnValue(logsRoot));
+        configurationMock.expects(once()).method("getArtifactsRoot").will(
+                returnValue(artifactsRoot));
+        configurationMock.expects(once()).method("isForceBuildEnabled").will(
+                returnValue(true));
     }
 
     public void testViewNameShouldBeAdminWhenGetIt() throws Exception {
-        configurationMock.expects(once()).method("getCruiseConfigLocation");
+        configurationMock.expects(once()).method("getDashboardConfigLocation")
+        .will(returnValue(expectedPath));
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("page_admin", mov.getViewName());
     }
 
-    public void testShouldShowExistingConfigFileLocationAndContentIfItHasBeenSet() throws Exception {
-        String expectedPath = "test/data/config.xml";
-        configurationMock.expects(once()).method("getCruiseConfigLocation").will(returnValue(expectedPath));
+    public void testShouldShowExistingConfigFileLocationAndContentIfItHasBeenSet()
+            throws Exception {
+        configurationMock.expects(once()).method("getDashboardConfigLocation")
+        .will(returnValue(expectedPath));
         ModelAndView mov = controller.handleRequest(request, response);
-        ConfigurationCommand command = (ConfigurationCommand) mov.getModel().get("command");
+        ConfigurationCommand command = (ConfigurationCommand) mov.getModel()
+                .get("command");
         assertEquals(expectedPath, command.getConfigFileLocation());
-
     }
 
-    public void testShouldPutIsConfigurationEditableInputModel() throws Exception {
-        configurationMock.expects(once()).method("getCruiseConfigLocation");
+    public void testShouldHasDiagnosticsInformation() throws Exception {
+        configurationMock.expects(once()).method("getDashboardConfigLocation")
+        .will(returnValue(expectedPath));
+        Mock systemServiceMock = mock(SystemService.class);
+        SystemService systemService = (SystemService) systemServiceMock.proxy();
+        controller = new AdminController(configuration, systemService);
+        systemServiceMock.expects(once()).method("getJvmVersion").will(
+                returnValue("1.5"));
+        systemServiceMock.expects(once()).method("getOsInfo").will(
+                returnValue("Linux"));
         ModelAndView mov = controller.handleRequest(request, response);
-        assertNotNull(mov.getModel().get("isConfigFileEditable"));
+        assertEquals("1.5", mov.getModel().get("jvm_version"));
+        assertEquals("Linux", mov.getModel().get("os_info"));
+        assertEquals(logsRoot.getAbsolutePath(), mov.getModel().get("logs_root"));
+        assertEquals(artifactsRoot.getAbsolutePath(), mov.getModel().get("artifacts_root"));
+        assertEquals("Yes", mov.getModel().get("forcebuild_enabled"));
+    }
+    
+    public void testShouldShowErrorMessageWhenConfigFileIsNotSpecified() throws Exception {
+        configurationMock.expects(once()).method("getDashboardConfigLocation")
+        .will(returnValue(null));
+        Mock systemServiceMock = mock(SystemService.class);
+        SystemService systemService = (SystemService) systemServiceMock.proxy();
+        controller = new AdminController(configuration, systemService);
+        systemServiceMock.expects(once()).method("getJvmVersion").will(
+                returnValue("1.5"));
+        systemServiceMock.expects(once()).method("getOsInfo").will(
+                returnValue("Linux"));
+        ModelAndView mov = controller.handleRequest(request, response);
+        assertEquals("Configuration file is not specified!", mov.getModel().get("error_message"));
+    }
+    
+    public void testShouldShowErrorMessageWhenConfigFileDoesNotExist() throws Exception {
+        configurationMock.expects(once()).method("getDashboardConfigLocation")
+        .will(returnValue("not exist"));
+        Mock systemServiceMock = mock(SystemService.class);
+        SystemService systemService = (SystemService) systemServiceMock.proxy();
+        controller = new AdminController(configuration, systemService);
+        systemServiceMock.expects(once()).method("getJvmVersion").will(
+                returnValue("1.5"));
+        systemServiceMock.expects(once()).method("getOsInfo").will(
+                returnValue("Linux"));
+        ModelAndView mov = controller.handleRequest(request, response);
+        assertEquals(AdminController.ERROR_MESSAGE_NOT_EXIST, mov.getModel().get("error_message"));
     }
 }

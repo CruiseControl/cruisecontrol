@@ -36,98 +36,134 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.BuildLiveDetail;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildService;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.WidgetPluginService;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.DashboardUtils;
 import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
-
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import org.joda.time.DateTime;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.text.ParseException;
 
 public class BuildDetailController extends BaseMultiActionController {
     private BuildService buildService;
 
-    private final BuildSummariesService buildSummarySerivce;
+    private final HistoricalBuildSummariesService buildSummarySerivce;
 
     private final WidgetPluginService widgetPluginService;
 
     private BuildSummaryUIService buildSummaryUIService;
 
-    private CruiseControlJMXService jmxService;
+    private BuildLoopQueryService buildLoopQueryService;
 
-    public BuildDetailController(BuildService buildService, BuildSummariesService buildSummarySerivce,
-            WidgetPluginService widgetPluginService, BuildSummaryUIService buildSummaryUIService,
-            CruiseControlJMXService jmxService) {
+    public BuildDetailController(BuildService buildService,
+                                 HistoricalBuildSummariesService buildSummarySerivce,
+                                 WidgetPluginService widgetPluginService,
+                                 BuildSummaryUIService buildSummaryUIService,
+                                 BuildLoopQueryService buildLoopQueryService) {
         this.buildService = buildService;
         this.buildSummarySerivce = buildSummarySerivce;
         this.widgetPluginService = widgetPluginService;
         this.buildSummaryUIService = buildSummaryUIService;
-        this.jmxService = jmxService;
-        this.setSupportedMethods(new String[] {"GET"});
+        this.buildLoopQueryService = buildLoopQueryService;
+        this.setSupportedMethods(new String[]{"GET"});
     }
 
     public ModelAndView latest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         String projectName = DashboardUtils.decode(url[url.length - 1]);
-        Build latest = this.buildSummarySerivce.getLatest(projectName);
-        Build build = this.buildService.getBuild(projectName, latest.getBuildLogFilename());
-        return buildDetail(request, projectName, build);
+        if (isBuilding(projectName)) {
+            return live(projectName);
+        } else {
+            BuildSummary latest = this.buildSummarySerivce.getLatest(projectName);
+            BuildDetail build = this.buildService.getBuild(projectName, latest.getBuildLogFileDateTime());
+            loadAllWidgets(request, build);
+            return new ModelAndView("page_build_detail", buildDetail(projectName, build));
+        }
     }
 
     public ModelAndView history(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         String projectName = DashboardUtils.decode(url[url.length - 2]);
-        String logfileName = url[url.length - 1];
-        return buildDetail(request, projectName, buildService.getBuild(projectName, logfileName));
+        String yyyyMMddHHmmss = url[url.length - 1];
+        BuildDetail build = buildService.getBuild(projectName, yyyyMMddHHmmss);
+        loadAllWidgets(request, build);
+        return new ModelAndView("page_build_detail", buildDetail(projectName, build));
     }
 
-    public ModelAndView live(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView live(String projectName) throws Exception {
+        PreviousResult lastBuildStatus = buildSummaryUIService.getLastBuildStatus(projectName);
+        BuildLiveDetail build = buildService.getActiveBuild(projectName, lastBuildStatus);
+        Map model = buildDetail(projectName, build);
+        model.put("buildSince", buildStartTime(projectName));
+        model.put("buildDuration", buildSummaryUIService.getLastBuildDuration(projectName));
+        return new ModelAndView("page_building", model);
+    }
+
+    private String buildStartTime(String projectName) throws ParseException {
+        String buildStartTime = buildLoopQueryService.getProjectInfo(projectName).getBuildStartTime();
+        DateTime startTime = new DateTime(DateUtil.parseIso8601(buildStartTime));
+        return CCDateFormatter.getDateStringInHumanBeingReadingStyle(startTime);
+    }
+
+    private boolean isBuilding(String projectName) {
+        String buildStatus = getCurrentBuildStatus(projectName);
+        return CurrentStatus.BUILDING.equals(CurrentStatus.getProjectBuildStatus(buildStatus));
+    }
+
+    public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response,
+                                    Exception e) throws Exception {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
-        String projectName = DashboardUtils.decode(url[url.length - 1]);
-        String buildStatusStr = (String) jmxService.getAllProjectsStatus().get(projectName);
-        ProjectBuildStatus buildStatus = ProjectBuildStatus.getProjectBuildStatus(buildStatusStr);
-        if (!ProjectBuildStatus.BUILDING.equals(buildStatus)) {
-            return latest(request, response);
+        Map data = new HashMap();
+        String projectName = "";
+        String partial = "";
+        if (url.length == 6) {
+            partial = "projectlog";
+            projectName = DashboardUtils.decode(url[url.length - 2]);
+            data.put("log", url[url.length - 1]);
+        } else if (url.length == 5) {
+            partial = "project";
+            projectName = DashboardUtils.decode(url[url.length - 1]);
         } else {
-            return liveWithInformation(request, projectName, buildStatusStr);
+            partial = "noproject";
         }
+        data.put("projectName", projectName);
+        return new ModelAndView("forward:/exceptions/builddetail/" + partial, data);
     }
 
-    public ModelAndView liveWithInformation(HttpServletRequest request, String projectName,
-            String buildStatusStr) {
-        ModelAndView mov = buildDetail(request, projectName, buildService.getActiveBuild(projectName));
-        mov.getModel().put("lastStatus", buildSummaryUIService.getLastBuildStatus(projectName).getStatus());
-        mov.getModel().put(
-                "buildSince",
-                CCDateFormatter.getDateStringInHumanBeingReadingStyle(ProjectBuildStatus
-                        .getTimestamp(buildStatusStr)));
-        return mov;
-    }
-
-    private ModelAndView buildDetail(HttpServletRequest request, String projectName, Build build) {
-        HashMap contextProperties = new HashMap();
-        contextProperties.put(Widget.PARAM_WEB_CONTEXT_PATH, request.getContextPath());
-        widgetPluginService.mergePluginOutput((BuildDetail) build, contextProperties);
+    private Map buildDetail(String projectName, BuildDetail build) {
         Map model = new HashMap();
-        model.put("summaries", buildSummaryUIService.transform(buildSummarySerivce.getLastest25(projectName),
-                false));
-        model.put("build", buildSummaryUIService.transform(build, true));
-        model.put("status", build.getStatus().getStatus());
+        model.put("historicalBuildCmds", buildSummaryUIService.transform(buildSummarySerivce
+                .getLastest25(projectName)));
+        model.put("buildCmd", buildSummaryUIService.transformWithLevel(build));
         model.put("logfile", build.getBuildLogFilename());
         model.put("durationToSuccessfulBuild", buildSummarySerivce.getDurationFromLastSuccessfulBuild(
                 projectName, build.getBuildDate()));
-        return new ModelAndView("page_build_detail", model);
+        return model;
+    }
+
+
+    private String getCurrentBuildStatus(String projectName) {
+        return (String) buildLoopQueryService.getAllProjectsStatus().get(projectName);
+    }
+
+    private void loadAllWidgets(HttpServletRequest request, BuildDetail build) {
+        HashMap contextProperties = new HashMap();
+        contextProperties.put(Widget.PARAM_WEB_CONTEXT_PATH, request.getContextPath());
+        widgetPluginService.mergePluginOutput(build, contextProperties);
     }
 }

@@ -49,26 +49,17 @@
 				<ref bean="contentTypeInterceptor"/>
 				<ref bean="configInterceptor" />
 				<ref bean="flashMessageInterceptor" />
-				<ref bean="tabHighlightInterceptor" />
 				<ref bean="serverNameInterceptor" />
 			</list>
 		</property>
 		<property name="mappings">
 			<props>
-				<!--main/default page-->
-				<prop key="*">latestBuildsListingController</prop>
-				<!--build category-->
-				<prop key="/download/**">downloadController</prop>
-				<prop key="/detail/**">buildDetailController</prop>
 				<!--project category-->
 				<prop key="/list/**">buildListingController</prop>
 				<!--admin category-->
 				<prop key="/mx4j/**">mbeanConsoleController</prop>
-				<prop key="/config/update">updateConfigXmlContentController</prop>
-				<prop key="/config/setup">updateConfigXmlLocationController</prop>
 				<prop key="/config">adminController</prop>
-				<prop key="/action/add">addProjectController</prop>
-			</props>
+            </props>
 		</property>
 	</bean>
 
@@ -79,30 +70,14 @@
 	<bean id="configInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.ConfigInterceptor">
 		<constructor-arg ref="configuration" />
 	</bean>
-	<bean id="tabHighlightInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.TabHighlightInterceptor" />
-
 
     <!-- Controllers -->
 	<bean id="adminController" class="net.sourceforge.cruisecontrol.dashboard.web.AdminController">
         <constructor-arg ref="configuration"/>
-		<constructor-arg ref="envService"/>
-	</bean>
-	<bean id="updateConfigXmlContentController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlContentController">
-		<constructor-arg ref="configuration" />
-		<constructor-arg ref="envService" />
-	</bean>
-	<bean id="updateConfigXmlLocationController" class="net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlLocationController">
-		<constructor-arg ref="configuration" />
-		<constructor-arg ref="envService" />
-	</bean>
-	<bean id="addProjectController" class="net.sourceforge.cruisecontrol.dashboard.web.AddProjectController"/>
-	<bean id="latestBuildsListingController" class="net.sourceforge.cruisecontrol.dashboard.web.LatestBuildsListingController">
-		<constructor-arg ref="buildSummariesService" />
-		<constructor-arg ref="buildSummaryUIService" />
-		<constructor-arg ref="envService"/>
+        <constructor-arg ref="systemService"/>
 	</bean>
 	<bean id="buildListingController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildListingController">
-		<constructor-arg ref="buildSummariesService" />
+		<constructor-arg ref="historicalBuildSummariesService" />
 		<constructor-arg ref="buildSummaryUIService" />
 	    <property name="methodNameResolver" ref="buildListingResolver"/>
 	</bean>
@@ -114,52 +89,19 @@
 			    </value>
 		  </property>
 	</bean>
-	<bean id="buildDetailController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildDetailController">
-		<constructor-arg ref="buildService"/>
-		<constructor-arg ref="buildSummariesService"/>
-		<constructor-arg ref="widgetPluginService"/>
-		<constructor-arg ref="buildSummaryUIService"/>
-		<constructor-arg ref="${cruise.jmx.service.imp}"/>
-	    <property name="methodNameResolver" ref="projectDetailResolver"/>
-	</bean>
-	<bean id="projectDetailResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
-		  <property name="mappings">
-			    <value>
-			    	/detail/*=latest
-			        /detail/*/*=history
-			        /detail/live/*=live
-			    </value>
-		  </property>
-	</bean>
-
-
-	<bean id="downloadResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
-		  <property name="mappings">
-			    <value>
-			    	/download/log/**=log
-			        /download/artifacts/**=artifacts
-			    </value>
-		  </property>
-	</bean>
-
-	<bean id="downloadController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadController">
-		<constructor-arg ref="configuration" />
-	    <property name="methodNameResolver" ref="downloadResolver"/>
-	</bean>
 
 	<bean id="mbeanConsoleController" class="net.sourceforge.cruisecontrol.dashboard.web.MBeanConsoleController">
-		<constructor-arg ref="envService" />
+		<constructor-arg ref="${buildloop.query.service.impl}" />
 	    <property name="methodNameResolver" ref="mx4jResolver"/>
 	</bean>
 	<bean id="mx4jResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
 		  <property name="mappings">
 			    <value>
-			    	/mx4j=server
 			        /mx4j/*=mbean
 			    </value>
 		  </property>
 	</bean>
-    <!-- Views and resolvers -->
+
     <bean id="velocityConfig"
           class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
         <property name="resourceLoaderPath" value="/WEB-INF/vm" />
@@ -167,22 +109,18 @@
 
     <bean id="velocityViewResolver"
           class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
-		<property name="cache" value="true" />
-		<property name="prefix" value="" />
-		<property name="suffix" value=".vm" />
-		<property name="exposeSpringMacroHelpers" value="true" />
-		<property name="requestContextAttribute" value="req"/>
-		<property name="order" value="2" />
-		<property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
-	</bean>
+        <property name="cache" value="true" />
+        <property name="prefix" value="" />
+        <property name="suffix" value=".vm" />
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="requestContextAttribute" value="req"/>
+        <property name="order" value="2" />
+        <property name="toolboxConfigLocation" value="/WEB-INF/toolbox.xml" />
+    </bean>
 
-	<bean id="beanNameViewResolver"
+    <bean id="beanNameViewResolver"
           class="org.springframework.web.servlet.view.BeanNameViewResolver">
-		<property name="order" value="1" />
-	</bean>
-	<bean id="fileView" class="net.sourceforge.cruisecontrol.dashboard.web.view.FileView"/>
+        <property name="order" value="1" />
+    </bean>
 
-	<bean id="directoryView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DirectoryView">
-		<constructor-arg ref="templateRenderService"/>
-	</bean>
 </beans>

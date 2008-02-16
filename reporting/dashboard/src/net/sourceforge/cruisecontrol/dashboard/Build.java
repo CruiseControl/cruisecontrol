@@ -49,15 +49,15 @@ public interface Build extends Comparable {
 
     public String getLabel();
 
-    public String getName();
-
     public String getProjectName();
 
-    public ProjectBuildStatus getStatus();
+    public CurrentStatus getCurrentStatus();
+
+    public PreviousResult getPreviousBuildResult();
 
     public boolean hasPassed();
 
     public ModificationSet getModificationSet();
 
-    public void updateStatus(String statusStr);
+    public String getConvertedTime();
 }

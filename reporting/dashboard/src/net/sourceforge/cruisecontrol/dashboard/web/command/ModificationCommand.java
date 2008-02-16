@@ -36,13 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
-import net.sourceforge.cruisecontrol.dashboard.Modification;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
+import org.apache.commons.lang.StringEscapeUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ModificationCommand {
     private Modification modification;
@@ -55,7 +57,7 @@ public class ModificationCommand {
     }
 
     public String getComment() {
-        String comment = StringEscapeUtils.escapeHtml(modification.getComment());
+        String comment = StringEscapeUtils.escapeHtml(modification.comment);
         if (storyTracker == null) {
             return comment;
         }
@@ -63,7 +65,7 @@ public class ModificationCommand {
     }
 
     public ModificationKey getModificationKey() {
-        return modification.getModificationKey();
+        return new ModificationKey(modification.comment, modification.userName);
     }
 
     public List getModifiedFiles() {
@@ -71,10 +73,30 @@ public class ModificationCommand {
     }
 
     public String getType() {
-        return modification.getType();
+        return modification.type;
     }
 
     public String getUser() {
-        return modification.getUser();
+        return modification.userName;
+    }
+
+    public Map toJsonData() {
+        Map data = new HashMap();
+        data.put("type", modification.getType());
+        data.put("user", modification.getUserName());
+        data.put("comment", getComment());
+        data.put("modifiedtime", new Long(modification.getModifiedTime().getTime()));
+        ArrayList files = new ArrayList();
+        for (int i = 0; i < modification.files.size(); i++) {
+            Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(i);
+            Map fileMap = new HashMap();
+            fileMap.put("filename", file.getFileName());
+            fileMap.put("revision", file.getRevision());
+            fileMap.put("folder", file.getFolderName());
+            fileMap.put("action", file.getAction());
+            files.add(fileMap);
+        }
+        data.put("files", files);
+        return data;
     }
 }

@@ -72,7 +72,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.view;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map;
@@ -85,22 +84,27 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 public class FileView extends BaseFileView {
-    private static final int OUTPUT_BYTE_ARRAY_INITIAL_SIZE = 4096;
+
+    public static final int DOWNLOAD_THRESHHOLD = 4 * 1024 * 1024;
 
     public String getContentType() {
         return "application/octet-stream";
     }
 
-    private void handleFile(File file, HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    private void handleFile(File file, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
         String filename = file.getName();
+        long filesize = file.length();
         String mimeType = getMimeType(filename);
         response.setContentType(mimeType);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(OUTPUT_BYTE_ARRAY_INITIAL_SIZE);
-        IOUtils.copy(new FileInputStream(file), baos);
-        response.setContentLength(baos.size());
+        if (filesize > DOWNLOAD_THRESHHOLD) {
+            response.setHeader("Content-Disposition", "attachment; filename="
+                    + filename);
+        }
+
+        response.setContentLength((int) filesize);
         ServletOutputStream out = response.getOutputStream();
-        baos.writeTo(out);
+        IOUtils.copy(new FileInputStream(file), out);
         out.flush();
     }
 

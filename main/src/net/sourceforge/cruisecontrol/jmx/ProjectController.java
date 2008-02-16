@@ -49,7 +49,7 @@ import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 
-import net.sourceforge.cruisecontrol.BuildOutputBufferManager;
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Modification;
@@ -259,7 +259,7 @@ public class ProjectController extends NotificationBroadcasterSupport
      * @return All the commit messages associated with the "current" modification set as
      *  string[user name][commit message].
      */
-    public String[][] getCommitMessages() {
+    public String[][] commitMessages() {
         ModificationSet modificationSet = project.getProjectConfig().getModificationSet();
         List sourceControls = modificationSet.getSourceControls();
         Iterator iterator = sourceControls.iterator();
@@ -285,6 +285,6 @@ public class ProjectController extends NotificationBroadcasterSupport
      */
     public String[] getBuildOutput(Integer firstLine) {
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
-        return BuildOutputBufferManager.INSTANCE.lookupOrCreate("").retrieveLines(firstLine.intValue());
+        return  BuildOutputLoggerManager.INSTANCE.lookup().retrieveLines(firstLine.intValue());
     }
 }

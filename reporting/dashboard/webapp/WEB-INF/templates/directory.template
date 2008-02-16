@@ -1,3 +1,3 @@
-<li><span class="directory"><a onclick='BuildDetailExecuter.ajax_tree_navigator(this,"$url")'>$fileName</a></span></li>
+<li><span class="directory"><a onclick='BuildDetail.tree_navigator(this,"$url")'>$fileName</a></span></li>
 <div id="$id" style="display:none"></div>
 

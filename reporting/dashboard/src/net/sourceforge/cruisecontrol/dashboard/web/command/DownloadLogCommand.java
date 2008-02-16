@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 
 import java.io.File;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
 
 public class DownloadLogCommand implements DownLoadFile {
 
@@ -46,9 +46,9 @@ public class DownloadLogCommand implements DownLoadFile {
 
     private String logFile;
 
-    private final Configuration configuration;
+    private final ConfigurationService configuration;
 
-    public DownloadLogCommand(Configuration configuration) {
+    public DownloadLogCommand(ConfigurationService configuration) {
         this.configuration = configuration;
     }
 

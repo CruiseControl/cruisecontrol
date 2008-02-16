@@ -39,14 +39,12 @@
  -->
  <dashboard>
  	<buildloop
-		home=""
-      	configfile=""
 	    logsdir=""
-    	artifactsdir=""
-		projectsdir=""
-    	jmxport=""
-    	rmiport=""/>
-	<features allowforcebuild="true" alloweditconfig="true"/>
+      	    artifactsdir="" />
+	<features allowforcebuild=""/>
 	<trackingtool projectname="" baseurl="" keywords=""/>
- </dashboard>
+ 	<subtabs>
+	    <subtab class="net.sourceforge.cruisecontrol.dashboard.widgets.ErrorsAndWarningsMessagesWidget" />
+	</subtabs>
+</dashboard>
  

@@ -36,19 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
-import net.sourceforge.cruisecontrol.dashboard.Build;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 public class CCTrayBuildSummaryAdapter implements XmlAdapter {
 
-    private final Build summary;
+    private final BuildSummary summary;
 
     private String baseUrl;
 
     private String lastBuildStatus;
 
-    public CCTrayBuildSummaryAdapter(String baseUrl, Build summary) {
+    public CCTrayBuildSummaryAdapter(String baseUrl, BuildSummary summary) {
         this.summary = summary;
         this.baseUrl = baseUrl;
         this.lastBuildStatus = summary.hasPassed() ? "Success" : "Failure";
@@ -59,11 +59,11 @@ public class CCTrayBuildSummaryAdapter implements XmlAdapter {
     }
 
     public String getActivity() {
-        ProjectBuildStatus status = summary.getStatus();
-        if (status.equals(ProjectBuildStatus.BOOTSTRAPPING)
-                || status.equals(ProjectBuildStatus.MODIFICATIONSET)) {
+        CurrentStatus status = summary.getCurrentStatus();
+        if (status.equals(CurrentStatus.BOOTSTRAPPING)
+                || status.equals(CurrentStatus.MODIFICATIONSET)) {
             return "CheckingModifications";
-        } else if (status.equals(ProjectBuildStatus.BUILDING)) {
+        } else if (status.equals(CurrentStatus.BUILDING)) {
             return "Building";
         } else {
             return "Sleeping";
@@ -89,7 +89,7 @@ public class CCTrayBuildSummaryAdapter implements XmlAdapter {
                 quote(this.getLastBuildStatus())).append(" lastBuildLabel=").append(
                 quote(this.getLastBuildLabel())).append(" lastBuildTime=").append(
                 quote(this.getLastBuildTime())).append(" webUrl=").append(
-                quote(baseUrl + "build/detail/" + this.getName())).append(" />").append("\n");
+                quote(baseUrl + "tab/build/detail/" + this.getName())).append(" />").append("\n");
         return sb.toString();
     }
 

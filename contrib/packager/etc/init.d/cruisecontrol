@@ -25,7 +25,7 @@ if [ -f /etc/default/cruisecontrol ]; then
     . /etc/default/cruisecontrol
 fi
 
-CRUISE_PID=/var/run/cruisecontrol.pid
+CRUISE_PID=/var/spool/cruisecontrol/cc.pid
 CRUISE_SPOOL=/var/spool/cruisecontrol
 
 start() {
@@ -53,7 +53,7 @@ start() {
 }
 
 stop() {
-    if [ -f /var/run/cruisecontrol.pid ]; then
+    if [ -f $CRUISE_PID ]; then
         PID=`cat $CRUISE_PID`
     fi
 

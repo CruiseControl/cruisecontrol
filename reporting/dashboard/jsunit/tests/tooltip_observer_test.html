@@ -51,28 +51,40 @@
 <script language="JavaScript" type="text/javascript">
 var tooltip_observer;
 function setUp() {
-	json = passed_json('project1');
+	json = paused_json('project1');
+	$("tooltip_project1_name").update("project1")
 	json.building_info.latest_build_date = '2007-08-09 12:30:00';
 	json.building_info.build_time_elapsed = "100";
 	$('tooltip_project1_date').innerHTML = '2005-07-09 12:30:00';
 	tooltip_observer = new ToolTipObserver();
 }
+
+function tearDown() {
+	$("tooltip_project1_name").update("")
+	$("tooltip_project1_current_status").update("")
+	$("tooltip_project1_previous_result").update("");
+	$("tooltip_project1_date").update("");
+}
+
 function test_should_update_attributes_on_div() {
-	tooltip_observer.notify(json);
+	tooltip_observer._notify(json);
 	var div_class_names = $('tooltip_project1').classNames();
-	assertEquals(2, div_class_names.size())
+    assertEquals(3, div_class_names.size())
 	assertTrue(div_class_names.include('tooltip'))
 	assertTrue(div_class_names.include('tooltip_passed'))
-	assertEquals('Status: Passed', $('tooltip_project1_status').innerHTML)
-	assertEquals('Date: 2007-08-09 12:30:00', $('tooltip_project1_date').innerHTML)
+	assertTrue(div_class_names.include('paused'))
+	
+	assertEquals('Paused', $('tooltip_project1_current_status').innerHTML)
+	assertEquals('Passed', $('tooltip_project1_previous_result').innerHTML)
+	assertEquals('2007-08-09 12:30:00', $('tooltip_project1_date').innerHTML)
 }
 
 function test_should_not_update_the_date_of_inactive_project() {
 	json = inactive_json('project1')
 	json.building_info.latest_build_date = '2007-08-09 12:30:00';
 	json.building_info.build_time_elapsed = "100";
-	tooltip_observer.notify(json);
-	assertEquals('Status: Inactive', $('tooltip_project1_status').innerHTML)
+	tooltip_observer._notify(json);
+	assertEquals('Waiting', $('tooltip_project1_current_status').innerHTML)
 	assertEquals('2005-07-09 12:30:00', $('tooltip_project1_date').innerHTML)
 }
 
@@ -82,8 +94,9 @@ function test_should_not_update_the_date_of_inactive_project() {
 <div id="tooltip_project1" class='tooltip failed'>
     <b class="rtop"><b class="r1"></b><b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>
 	<div>
-		<div>project : <span id="tooltip_project1_name">project1</span></div>
-		<div><span id="tooltip_project1_status">failed</span></div>
+		<div>project : <span id="tooltip_project1_name"></span></div>
+		<div><span id="tooltip_project1_current_status"></span></div>
+		<div><span id="tooltip_project1_previous_result"></span></div>
 		<div><span id="tooltip_project1_date"></span></div>
 	</div>
     <b class="rbottom"><b class="r1"></b><b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b>

@@ -36,110 +36,36 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
-import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
 
-import org.joda.time.DateTime;
+import java.io.File;
 
 public class BuildSummaryService {
 
-    public Build createInactive(File logDirectory) {
-        DateTime dateTime = new DateTime();
-        String now = CCDateFormatter.yyyyMMddHHmmss(dateTime);
-        String name = CCDateFormatter.format(dateTime, "yyyy-MM-dd HH:mm.ss");
-        File file = new File(logDirectory, "log" + now + ".xml");
-        return new BuildSummary(logDirectory.getName(), name, "", ProjectBuildStatus.INACTIVE, file
-                .getAbsolutePath());
+    public BuildSummary createInactive(String projectName) {
+        return new BuildSummary(projectName);
     }
 
-    public Build createBuildSummary(File logFileXml) {
+    public BuildSummary createDiscontinued(File logXml) {
+        BuildSummary summary = createBuildSummary(logXml);
+        summary.updateStatus(CurrentStatus.DISCONTINUED.getCruiseStatus());
+        return summary;
+    }
+
+    public BuildSummary createBuildSummary(File logFileXml) {
         if (logFileXml == null) {
             return null;
         }
-        BuildMatcher buildMatcher = isPassedBuild(logFileXml);
-        Matcher matcher = buildMatcher.pattern().matcher(logFileXml.getName());
-        if (matcher.find()) {
-            Build summary = buildMatcher.callBack(matcher);
-            return summary;
-        }
-        return null;
+        return new BuildSummary(
+            logFileXml.getParentFile().getName(),
+            previousResult(logFileXml),
+            logFileXml.getAbsolutePath()
+        );
     }
 
-    private static final int YEAR_GROUP = 1;
-
-    private static final int MONTH_GROUP = 2;
-
-    private static final int DAY_GROUP = 3;
-
-    private static final int HOUR_GROUP = 4;
-
-    private static final int MINUTE_GROUP = 5;
-
-    private static final int SECOND_GROUP = 6;
-
-    private interface BuildMatcher {
-        public Build callBack(Matcher matcher);
-
-        public Pattern pattern();
-    }
-
-    private static class SuccessfulBuild implements BuildMatcher {
-        private File filename;
-
-        private static final Pattern SUCCESSFUL_BUILD_PATTERN =
-                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})L(.*)\\.xml(\\.gz)?$");
-
-        private static final int LABEL_GROUP = 7;
-
-        public SuccessfulBuild(File filename) {
-            this.filename = filename;
-        }
-
-        public Build callBack(Matcher matcher) {
-            String label = matcher.group(LABEL_GROUP);
-            return new BuildSummary(filename.getParentFile().getName(), getDateTime(matcher), label,
-                    ProjectBuildStatus.PASSED, filename.getAbsolutePath());
-        }
-
-        public Pattern pattern() {
-            return SUCCESSFUL_BUILD_PATTERN;
-        }
-    }
-
-    private static class FailedBuild implements BuildMatcher {
-        private File filename;
-
-        private static final Pattern FAILED_BUILD_PATTERN =
-                Pattern.compile("^log(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})(\\d{2})\\.xml(\\.gz)?$");
-
-        public FailedBuild(File filename) {
-            this.filename = filename;
-        }
-
-        public Build callBack(Matcher matcher) {
-            return new BuildSummary(filename.getParentFile().getName(), getDateTime(matcher), "",
-                    ProjectBuildStatus.FAILED, filename.getAbsolutePath());
-        }
-
-        public Pattern pattern() {
-            return FAILED_BUILD_PATTERN;
-        }
-    }
-
-    private static String getDateTime(Matcher matcher) {
-        return matcher.group(YEAR_GROUP) + "-" + matcher.group(MONTH_GROUP) + "-" + matcher.group(DAY_GROUP)
-                + " " + matcher.group(HOUR_GROUP) + ":" + matcher.group(MINUTE_GROUP) + "."
-                + matcher.group(SECOND_GROUP);
-    }
-
-    private static BuildMatcher isPassedBuild(File logfile) {
-        return logfile.getName().indexOf("L") > 0 ? (BuildMatcher) new SuccessfulBuild(logfile)
-                : (BuildMatcher) new FailedBuild(logfile);
+    private PreviousResult previousResult(File logfile) {
+        return logfile.getName().indexOf("L") > 0 ? PreviousResult.PASSED : PreviousResult.FAILED;
     }
 }

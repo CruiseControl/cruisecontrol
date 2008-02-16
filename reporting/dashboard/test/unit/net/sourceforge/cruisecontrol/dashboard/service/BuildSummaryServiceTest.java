@@ -36,50 +36,60 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.io.File;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.dashboard.Build;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
+
+import java.io.File;
 
 public class BuildSummaryServiceTest extends TestCase {
     private static final String LOG20060704155710_LBUILD_489_XML = "log20060704155710Lbuild.489.xml";
+
     private static final String LOG20060704155710_LBUILD_489_XML_GZ = "log20060704155710Lbuild.489.xml.gz";
 
     private static final String LOG20060704155710_XML = "log20060704155710.xml";
+
     private static final String LOG20060704155710_XML_GZ = "log20060704155710.xml.gz";
 
     public void testTheStatusIsInactiveWhenCreateNewBuildSummary() throws Exception {
-        Build summary = new BuildSummaryService().createInactive(new File("project1"));
+        Build summary = new BuildSummaryService().createInactive("project1");
         assertEquals("project1", summary.getProjectName());
-        assertEquals(ProjectBuildStatus.INACTIVE, summary.getStatus());
+        assertEquals(PreviousResult.UNKNOWN, summary.getPreviousBuildResult());
+        assertEquals(CurrentStatus.WAITING, summary.getCurrentStatus());
+        assertEquals("waiting for first build...", summary.getConvertedTime());
     }
 
     public void testShouldParseBuildSummaryWithLabelForPassingBuild() throws Exception {
-        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML));
+        BuildSummary actual =
+                new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML));
         assertEquals("build.489", actual.getLabel());
-        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals("2006-07-04 15:57.10", actual.getDateTime());
         assertEquals(LOG20060704155710_LBUILD_489_XML, actual.getBuildLogFilename());
     }
 
     public void testShouldParseBuildSummaryWithLabelForPassingGZipBuild() throws Exception {
-        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML_GZ));
+        BuildSummary actual =
+                new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_LBUILD_489_XML_GZ));
         assertEquals("build.489", actual.getLabel());
-        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals("2006-07-04 15:57.10", actual.getDateTime());
         assertEquals(LOG20060704155710_LBUILD_489_XML_GZ, actual.getBuildLogFilename());
     }
 
     public void testShouldParseBuildSummaryWithLabelForFailBuild() throws Exception {
-        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML));
+        BuildSummary actual =
+                new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML));
         assertEquals("", actual.getLabel());
-        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals("2006-07-04 15:57.10", actual.getDateTime());
         assertEquals(LOG20060704155710_XML, actual.getBuildLogFilename());
     }
 
     public void testShouldParseBuildSummaryWithLabelForFailGZipBuild() throws Exception {
-        Build actual = new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML_GZ));
+        BuildSummary actual =
+                new BuildSummaryService().createBuildSummary(new File("", LOG20060704155710_XML_GZ));
         assertEquals("", actual.getLabel());
-        assertEquals("2006-07-04 15:57.10", actual.getName());
+        assertEquals("2006-07-04 15:57.10", actual.getDateTime());
         assertEquals(LOG20060704155710_XML_GZ, actual.getBuildLogFilename());
     }
 

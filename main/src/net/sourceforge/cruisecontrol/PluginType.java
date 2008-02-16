@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
 import net.sourceforge.cruisecontrol.config.ConfigurationPlugin;
+import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
 import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.SystemPlugin;
@@ -64,6 +65,7 @@ public final class PluginType implements Serializable {
     public static final PluginType CRUISECONTROL = new PluginType("cruisecontrol", "");
     public static final PluginType DATE_FORMAT = new PluginType("dateformat", "project");
     public static final PluginType INCLUDE_PROJECTS = new PluginType("include.projects", "cruisecontrol");
+    public static final PluginType DASHBOARD_CONFIGURATION = new PluginType("dashboard", "cruisecontrol");
     public static final PluginType LABEL_INCREMENTER = new PluginType("labelincrementer", "project");
     public static final PluginType LISTENER = new PluginType("listener", "listeners");
     public static final PluginType LISTENERS = new PluginType("listeners", "project");
@@ -112,6 +114,7 @@ public final class PluginType implements Serializable {
             put(SourceControl.class, SOURCE_CONTROL);
             put(SystemPlugin.class, SYSTEM);
             put(ThreadsPlugin.class, THREADS);
+            put(DashboardConfigurationPlugin.class, DASHBOARD_CONFIGURATION);
         }
     };
 

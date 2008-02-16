@@ -36,12 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 public class RSSFeedTest extends BaseFunctionalTest {
-    protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
-    }
 
     public void testShouldReturnAllActiveProjectsInfomationOfRSS() throws Exception {
         tester.beginAt("rss.xml");

@@ -1,9 +1,10 @@
     <link href="$req.getContextPath()/css/main.css" rel="stylesheet" type="text/css"></link>
-	<!--[if lte IE 6]>
+	<!--[if lte IE 7]>
     	<link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link>
 	<![endif]-->
     <link href="$req.getContextPath()/css/niftyCorners.css" rel="stylesheet" type="text/css"></link>
-    <script>
-        contextPath = "$req.getContextPath()"
+    <script type="text/javascript">
+        var contextPath = "$req.getContextPath()"
+        var global_force_build_enabled = $global_force_build_enabled
     </script>
     <script src="$req.getContextPath()/compressed/all.js" type="text/javascript"></script>

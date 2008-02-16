@@ -52,6 +52,9 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
                 return "20070420061700";
             }
             
+            public boolean isPaused() {
+                return false;
+            }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
             public List getProjects() {
@@ -63,6 +66,69 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
         Map projectsStatus = adaptor.getAllProjectsStatus();
         assertEquals("now building since 20070420061700", projectsStatus.get("test"));
     }
+
+    public void testShouldReturnPausedAsStatus() throws Exception {
+        final ProjectConfig projectConfig = new ProjectConfig() {
+            private static final long serialVersionUID = 1L;
+
+            public String getName() {
+                return "test";
+            }
+
+            public String getStatus() {
+                return "waiting for next time to build";
+            }
+            
+            public String getBuildStartTime() {
+                return "20070420061700";
+            }
+            
+            public boolean isPaused() {
+                return true;
+            }
+        };
+        adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
+            public List getProjects() {
+                List list = new ArrayList();
+                list.add(projectConfig);
+                return list;
+            }
+        });
+        Map projectsStatus = adaptor.getAllProjectsStatus();
+        assertEquals("paused", projectsStatus.get("test"));        
+    }
+    
+    public void testShouldReturnBuildingAsStatusWhenProjectIsBuildingAndPaused() throws Exception {
+        final ProjectConfig projectConfig = new ProjectConfig() {
+            private static final long serialVersionUID = 1L;
+
+            public String getName() {
+                return "test";
+            }
+
+            public String getStatus() {
+                return "now building";
+            }
+            
+            public String getBuildStartTime() {
+                return "20070420061700";
+            }
+            
+            public boolean isPaused() {
+                return true;
+            }
+        };
+        adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
+            public List getProjects() {
+                List list = new ArrayList();
+                list.add(projectConfig);
+                return list;
+            }
+        });
+        Map projectsStatus = adaptor.getAllProjectsStatus();
+        assertEquals("now building since 20070420061700", projectsStatus.get("test"));        
+    }
+
 
     public void testShouldNotIncludeBuildStartTimeInWaitingStatus() throws Exception {
         final ProjectConfig projectConfig = new ProjectConfig() {
@@ -79,7 +145,10 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             public String getBuildStartTime() {
                 return "20070420061700";
             }
-            
+           
+            public boolean isPaused() {
+                return false;
+            }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
             public List getProjects() {

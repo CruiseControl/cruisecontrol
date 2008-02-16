@@ -54,109 +54,211 @@ var have_called_stop;
 function setUp() {
 	$('project1_profile').className = "";
 	$('project1_forcebuild').className = "force_build_link";
-	$('project1_forcebuild').innerHTML = "";
-	$('project1_forcebuild').href = null;
-	$('project1_forcebuild').onclick = null;
+	$('project1_config_panel').className = "config_panel_link";
+	$('project1_all_builds').className = "all_builds_link";
+	$('project1_all_successful_builds').className = "all_successful_builds_link";
+
+	function reset(element) {
+		element.innerHTML = "";
+		element.href = null;
+		element.onclick = null;
+	}
+	reset($('project1_forcebuild'));
+	reset($('project1_config_panel'));
+	reset($('project1_all_builds'));
+	reset($('project1_all_successful_builds'));
 	have_called_stop = false;
 }
 
-function test_should_add_inactive_image_when_project_is_active_and_force_build_disabled() {
+BuildProfile.prototype.create_force_build_links = function() {
+		_me._create_individual_links(BuildProfile.TARGET[0]);
+}
+
+BuildProfile.prototype.create_config_panel_links = function() {
+		_me._create_individual_links(BuildProfile.TARGET[1]);
+}
+
+BuildProfile.prototype.create_all_builds_links = function() {
+		_me._create_individual_links(BuildProfile.TARGET[2]);
+}
+BuildProfile.prototype.create_all_successful_builds = function() {
+		_me._create_individual_links(BuildProfile.TARGET[3]);
+}
+
+function test_should_add_inactive_image_when_force_build_disabled() {
 	$('project1_profile').addClassName("passed");
 	$('project1_forcebuild').addClassName("force_build_disabled");
 	var  buildProfile = new BuildProfile();
-	buildProfile.create_links();
+	buildProfile.create_force_build_links();
 
 	var img = $('project1_forcebuild').immediateDescendants()[0];
 	var expectedSrc = context_path("images/icon-force-build-grey.gif");
 	assertEquals('Force build (disabled)', img.alt);
 	assertEquals('Force build (disabled)', img.title);
-	assertEquals(20, img.width);
-	assertEquals(20, img.height);
+
   	assertTrue(img.src.indexOf(expectedSrc) > -1);
 }
-function test_should_add_active_image_when_project_is_active_and_force_build_enabled() {
+function test_should_add_active_image_when_force_build_enabled() {
 	$('project1_profile').addClassName("passed");
 	$('project1_forcebuild').addClassName("force_build_enabled");
 	var  buildProfile = new BuildProfile();
-	buildProfile.create_links();
+	buildProfile.create_force_build_links();
 
 	var img = $('project1_forcebuild').immediateDescendants()[0];
 	var expectedSrc = context_path("images/icon-force-build.gif");
 	assertEquals('Force build', img.alt);
 	assertEquals('Force build', img.title);
-	assertEquals(20, img.width);
-	assertEquals(20, img.height);
   	assertTrue(img.src.indexOf(expectedSrc) > -1);
 }
-function test_should_add_inactive_image_when_project_inactive() {
-	$('project1_profile').addClassName("inactive");
-	$('project1_forcebuild').addClassName("force_build_enabled");
-	var  buildProfile = new BuildProfile();
-	buildProfile.create_links();
 
-	var img = $('project1_forcebuild').immediateDescendants()[0];
-	var expectedSrc = context_path("images/icon-force-build-grey.gif");
-	assertEquals('Force build (disabled)', img.alt);
-	assertEquals('Force build (disabled)', img.title);
-	assertEquals(20, img.width);
-	assertEquals(20, img.height);
-  	assertTrue(img.src.indexOf(expectedSrc) > -1);
-}
-function test_should_enable_onclick_for_active_and_force_build_enabled() {
+function test_should_enable_onclick_when_force_build_enabled() {
 	$('project1_profile').addClassName("passed");
 	$('project1_forcebuild').addClassName("force_build_enabled");
 	var  buildProfile = new BuildProfile();
-	buildProfile.create_links();
-	
+	buildProfile.create_force_build_links();
+
 	var link = $('project1_forcebuild')
-	assertEquals(new BuildProfile().force_build_enabled.on_click, link.onclick);
+	assertEquals(BuildProfile.FORCE_BUILD.active.on_click, link.onclick);
 	assertEquals("javascript:void(0)", link.href);
 }
-function test_should_disable_onclick_for_active_and_force_build_disabled() {
+function test_should_disable_onclick_when_force_build_disabled() {
 	$('project1_profile').addClassName("passed");
 	$('project1_forcebuild').addClassName("force_build_disabled");
 	var  buildProfile = new BuildProfile();
-	buildProfile.create_links();
-	
+	buildProfile.create_force_build_links();
+
 	var link = $('project1_forcebuild')
 	assertEquals(Prototype.emptyFunction, link.onclick);
-	assertTrue("Should not set the href attribute on link", is_null(link.getAttribute("href")));
+	assertEquals("javascript:void(0)", link.getAttribute("href"));
 }
+
+
+function test_should_add_active_config_panel_img_when_config_panel_is_enabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_config_panel').addClassName("config_panel_enabled");
+
+	var  buildProfile = new BuildProfile();
+	buildProfile.create_config_panel_links();
+
+	var link = $('project1_config_panel');
+	assertEquals(BuildProfile.CONFIG_PANEL.active.on_click, link.onclick);
+	assertEquals("javascript:void(0)", link.getAttribute("href"));
+
+	var img = $('project1_config_panel').immediateDescendants()[0];
+
+	var expectedSrc = context_path("images/icon-config-dropdown.gif");
+
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
+function test_should_add_greyed_out_config_panel_img_when_config_panel_is_disabled() {
+	$('project1_profile').addClassName("passed");
+	$('project1_config_panel').addClassName("config_panel_disabled");
+
+	var  buildProfile = new BuildProfile();
+
+	buildProfile.create_config_panel_links();
+
+	var link = $('project1_config_panel');
+	assertEquals(BuildProfile.CONFIG_PANEL.inactive.on_click, link.onclick);
+	assertEquals("javascript:void(0)", link.getAttribute("href"));
+
+	var img = $('project1_config_panel').immediateDescendants()[0];
+	var expectedSrc = context_path("images/icon-config-dropdown-grey.gif");
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
+function test_should_add_inactive_all_builds_img_when_project_is_inactive() {
+	$('project1_profile').addClassName("inactive");
+	var  buildProfile = new BuildProfile();
+
+	buildProfile.create_all_builds_links();
+
+	var link = $('project1_all_builds');
+	assertEquals(Prototype.emptyFunction, link.onclick);
+
+	assertEquals("javascript:void(0)", link.getAttribute("href"));
+
+	var img = $('project1_all_builds').immediateDescendants()[0];
+
+	var expectedSrc = context_path("images/icon-view-all-builds-grey.gif");
+
+	assertEquals('All builds', img.alt);
+	assertEquals('All builds', img.title);
+
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
+function test_should_add_active_all_builds_img_when_project_is_active() {
+	$('project1_profile').addClassName("passed");
+	var  buildProfile = new BuildProfile();
+
+	buildProfile.create_all_builds_links();
+
+	var link = $('project1_all_builds');
+
+	assertEquals("localhost/project/list/all/project1", link.getAttribute("href"));
+
+	var img = $('project1_all_builds').immediateDescendants()[0];
+
+	var expectedSrc = context_path("images/icon-view-all-builds.gif");
+
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
+function test_should_add_inactive_all_successful_builds_img_when_project_is_inactive() {
+	$('project1_profile').addClassName("inactive");
+	var  buildProfile = new BuildProfile();
+
+	buildProfile.create_all_successful_builds();
+
+	var link = $('project1_all_successful_builds');
+	assertEquals(Prototype.emptyFunction, link.onclick);
+
+	assertEquals("javascript:void(0)", link.getAttribute("href"));
+
+	var img = $('project1_all_successful_builds').immediateDescendants()[0];
+
+	var expectedSrc = context_path("images/icon-all-successful-builds-grey.gif");
+
+	assertEquals('All successful builds', img.alt);
+	assertEquals('All successful builds', img.title);
+
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
+function test_should_add_active_all_successful_builds_img_when_project_is_active() {
+	$('project1_profile').addClassName("passed");
+	var  buildProfile = new BuildProfile();
+
+	buildProfile.create_all_successful_builds();
+
+	var link = $('project1_all_successful_builds');
+
+	assertEquals("localhost/project/list/passed/project1", link.getAttribute("href"));
+
+	var img = $('project1_all_successful_builds').immediateDescendants()[0];
+
+	var expectedSrc = context_path("images/icon-all-successful-builds.gif");
+
+  	assertTrue(img.src.indexOf(expectedSrc) > -1);
+}
+
 
 function is_null(str) {
     //to make the test in IE easier;
     return (str == null || str == "null" || str == "");
 }
 
-<!---->
-function test_should_NOT_update_links_if_previous_status_is_not_inactive() {
-	$('project1_profile').className = "passed"
-	var json = passed_json('project1')
-	new BuildProfileObserver().activate(json);
-	assertNull($('project1_forcebuild').onclick)
-}
-
-function test_should_update_links_if_previous_status_is_inactive() {
-	$('project1_profile').className = "build_profile inactive"
-	var json = building_json('project1');
-   	new BuildProfileObserver().activate(json);
-	var isFunctionExist = $('project1_forcebuild').onclick.toString().indexOf('force_build') > -1;
-	assertTrue(isFunctionExist);
-	assertEquals("localhost/project/list/all/project1", $('project1_all_builds').getAttribute('href'));
-	assertEquals("localhost/project/list/passed/project1", $('project1_all_successful_builds').getAttribute('href'));
-	isFunctionExist = $('project1_config_panel').onclick.toString().indexOf('new Toolkit') > -1;
-	assertTrue(isFunctionExist);
-}
-
 </script>
 </head>
 <body>
-	<div id="project1_profile">
-	    <div id="project1_profile">
+    <div id="project1_profile">
+    	<div id="control_panel">
 		    <a id="project1_forcebuild" ></a>
-            <a id="project1_config_panel"></a>
-            <a id="project1_all_builds" href=""></a>
-            <a id="project1_all_successful_builds" href=""></a>
+	        <a id="project1_config_panel"></a>
+	        <a id="project1_all_builds"></a>
+	        <a id="project1_all_successful_builds"></a>
 		</div>
 	</div>
 </body>

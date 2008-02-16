@@ -36,39 +36,26 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
 import net.sourceforge.cruisecontrol.dashboard.widgets.Widget;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.util.Iterator;
+import java.util.Map;
+
 public class WidgetPluginService {
-    private final Configuration configuration;
 
     private static Logger logger = Logger.getLogger(WidgetPluginService.class);
 
-    public WidgetPluginService(Configuration configuration) {
-        this.configuration = configuration;
-    }
+    private final DashboardXmlConfigService dashboardXmlConfigService;
 
-    private List lines() {
-        try {
-            return FileUtils.readLines(new File(configuration.getCCHome(), "widgets.cfg"));
-        } catch (Exception e) {
-            return new ArrayList();
-        }
+    public WidgetPluginService(DashboardXmlConfigService dashboardXmlConfigService) {
+        this.dashboardXmlConfigService = dashboardXmlConfigService;
     }
 
     public void mergePluginOutput(BuildDetail build, Map parameters) {
-        Iterator iterator = lines().iterator();
+        Iterator iterator = dashboardXmlConfigService.getSubTabClassNames().iterator();
         while (iterator.hasNext()) {
             try {
                 assemblePlugin(build, parameters, (String) iterator.next());
@@ -87,12 +74,10 @@ public class WidgetPluginService {
         Class clazz = Class.forName(className);
         Widget digesterService = (Widget) clazz.newInstance();
         mergeParameters(build, parameters);
-        build.addPluginOutput(digesterService.getDisplayName(), digesterService
-                .getOutput(parameters));
+        build.addPluginOutput(digesterService.getDisplayName(), digesterService.getOutput(parameters));
     }
 
     private void mergeParameters(BuildDetail build, Map parameters) {
-        parameters.put(Widget.PARAM_CC_ROOT, configuration.getCCHome());
         parameters.put(Widget.PARAM_PJT_NAME, build.getProjectName());
         parameters.put(Widget.PARAM_PJT_LOG_ROOT, build.getLogFolder());
         parameters.put(Widget.PARAM_BUILD_LOG_FILE, build.getLogFile());

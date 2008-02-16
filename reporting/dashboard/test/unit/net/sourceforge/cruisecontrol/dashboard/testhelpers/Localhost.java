@@ -36,8 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.testhelpers;
 
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigFileFactory;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.BuildLoopQueryServiceStub;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -55,15 +56,13 @@ public final class Localhost {
     }
 
     private Localhost() throws Exception {
-        System.setProperty(DashboardXmlConfigService.PROPS_CC_DASHBOARD_CONFIG, DataUtils
+        System.setProperty(DashboardConfigFileFactory.PROPS_CC_DASHBOARD_CONFIG, DataUtils
                 .getDashboardConfigXmlOfWebApp().getAbsolutePath());
         System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_LOG_DIR, DataUtils.getLogDirAsFile()
                 .getAbsolutePath());
-        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR, DataUtils
-                .getProjectDirAsFile().getAbsolutePath());
         System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR, DataUtils
                 .getArtifactsDirAsFile().getAbsolutePath());
-        System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FILE, DataUtils.getConfigXmlAsFile()
+        System.setProperty(BuildLoopQueryServiceStub.PROPS_CC_CONFIG_FILE, DataUtils.getConfigXmlAsFile()
                 .getAbsolutePath());
         System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED, "enabled");
         server = new Server(PORT);

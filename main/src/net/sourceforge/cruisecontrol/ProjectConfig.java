@@ -48,9 +48,9 @@ import java.util.List;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -131,14 +131,14 @@ public class ProjectConfig implements ProjectInterface {
      * Defines a name/value pair used in configuration.
      */
     public void add(DefaultPropertiesPlugin plugin) {
-      // currently only declared for documentation generation purposes
+        // currently only declared for documentation generation purposes
     }
 
     /**
      * Registers a classname with an alias.
      */
     public void add(PluginPlugin plugin) {
-      // currently only declared for documentation generation purposes
+        // currently only declared for documentation generation purposes
     }
 
     public void add(CCDateFormat dateFormat) {
@@ -412,5 +412,17 @@ public class ProjectConfig implements ProjectInterface {
 
     public String getBuildStartTime() {
         return project.getBuildStartTime();
+    }
+
+    public boolean isPaused() {
+        return project.isPaused();
+    }
+
+    public List getModifications() {
+        return getModificationSet().getCurrentModifications();
+    }
+
+    public boolean isInState(ProjectState state) {
+        return project.getState().equals(state);
     }
 }

@@ -1,19 +1,37 @@
-    <div id="${buildSummary.build.projectName}_bar" class="bar ${buildSummary.cssClassName}">
-	    <div id="${buildSummary.build.projectName}_level" class="round_corner level_${buildSummary.level}">
-         	<a href="$href" id="${buildSummary.build.projectName}_bar_link"></a>
+<div id="${buildCmd.build.projectName}_project_container">
+    <div id="${buildCmd.build.projectName}_bar" class="bar">
+	    <div id="${buildCmd.build.projectName}_level" class="round_corner level_${buildCmd.level}">
+         	<a href="$href" id="${buildCmd.build.projectName}_bar_link"></a>
 	    </div>
     </div>
-    <div id="tooltip_${buildSummary.build.projectName}" class='tooltip tooltip_${buildSummary.getCssClassName()}'>
+    <script type="text/javascript">
+    	json_to_css.update_bar(eval(${buildCmd.toJsonString()}))
+    </script>
+    <div id="tooltip_${buildCmd.build.projectName}" class='tooltip'>
             <div class="tooltip_header"></div>
             <div class="tooltip_content">
-                    <div class="title"><span id="tooltip_${buildSummary.build.projectName}_name" class="wbrSensitive">${buildSummary.build.projectName}</span></div>
-                    <div><span id="tooltip_${buildSummary.build.projectName}_status">Status: ${buildSummary.build.status}</span></div>
-                    #set($build_date="Date: ${buildSummary.getDateStringInHumanBeingReadingStyle()}")
-                    #if("Inactive" == ${buildSummary.build.status})
-                        #set($build_date="")
-                    #end                    
-                    <div><span id="tooltip_${buildSummary.build.projectName}_date">$build_date</span></div>
+    			<div class="section_top">
+    				<div class="project_name">
+	    					Project: <span id="tooltip_${buildCmd.build.projectName}_name" class="wbrSensitive">${buildCmd.build.projectName}</span>
+    				</div>
+					<div>
+						Server: <span id="tooltip_${buildCmd.build.projectName}_server_name" class="wbrSensitive">${buildCmd.build.serverName}</span>
+					</div>
+				</div> 
+    			<div class="section_middle">
+                    <div>Status: <span id="tooltip_${buildCmd.build.projectName}_current_status">${buildCmd.build.currentStatus.status}</span></div>
+                    <div>Last build result: <span id="tooltip_${buildCmd.build.projectName}_previous_result"> $buildCmd.build.previousBuildResult.status</span></div>
+                    #set($build_date="${buildCmd.build.getConvertedTime()}")
+                    <div>Last build date: <span id="tooltip_${buildCmd.build.projectName}_date">$build_date</span></div>
+    			</div>
+    			<div class="section_bottom">
+					<a id="${buildCmd.build.projectName}_tooltip_link" href="$href">Open Build</a>			
+	            </div> 
             </div> 
-            <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
     </div>
-    <script>new Tooltip('${buildSummary.build.projectName}_bar', 'tooltip_${buildSummary.build.projectName}')</script>
+    <script type="text/javascript">
+    	json_to_css.update_tooltip(eval(${buildCmd.toJsonString()}));
+    	#set($escaped_project_name = $esc.javascript($buildCmd.build.projectName))
+    	new Tooltip('${escaped_project_name}_bar', 'tooltip_${escaped_project_name}')
+    </script>
+</div>

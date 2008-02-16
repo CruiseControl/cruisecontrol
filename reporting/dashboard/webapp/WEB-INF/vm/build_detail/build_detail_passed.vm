@@ -1,28 +1,18 @@
-<div class="round_corner $build.getCssClassName()">
-    <div class="build_detail_summary">
-        <h3>$build.build.getProjectName() $build.build.status</h3>
-        <ul class="summary">
-            <li><strong>Build Time:</strong> $build.dateStringInHumanBeingReadingStyle</li>
-            <li><strong>Duration:</strong> $build.duration</li>
-            <li><strong>Build:</strong> $build.build.label</li>
-        </ul>
-        <div class="clear">&nbsp;</div>
-    </div>
-</div>
+#parse("build_detail/build_detail_partial_header.vm")
 
 <div class="build_detail_container">
     
-    <div class="build_detail_container_menu">
+    <div class="sub_tab_container_menu">
         <ul>
-            <li class="current_tab" onclick='build_detail_toggle_tab_content(this)'><a><span>Artifacts</span></a></li>
-            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Modifications</span></a></li>
-            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Build Log</span></a></li>
-            <li onclick='build_detail_toggle_tab_content(this)'><a><span>Tests</span></a></li>
+            <li class="current_tab tab_toggle"><a><span>Artifacts</span></a></li>
+            <li class="tab_toggle"><a><span>Modifications</span></a></li>
+            <li class="tab_toggle"><a><span>Build Log</span></a></li>
+            <li class="tab_toggle"><a><span>Tests</span></a></li>
             #parse('build_detail/build_detail_partial_widgets_tab.vm')
         </ul>
     </div>
     
-    <div class="build_detail_container_content">    
+    <div class="sub_tab_container_content">    
         
         #set($artifacts_extra_attrs="")
         #parse("build_detail/build_detail_partial_artifacts.vm")

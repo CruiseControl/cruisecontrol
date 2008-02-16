@@ -63,77 +63,82 @@ function setUp() {
 }
 
 function test_should_update_summary_infomation_accordingly() {
-	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
+	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', discontinued : '1',  total : 4, rate : '25.0%'})
 	statisticsObserver.update(hash);
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
 	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_discontinued').innerHTML));
 	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 }
 
 function test_should_not_show_NAN_when_there_is_no_any_active_builds() {
-	var hash = $H({passed : 0, failed : 0, building : 0, inactive : '1'})
-	statisticsObserver.calculate(hash);
-	assertEquals('0%', hash.rate);
+	var hash = $H({passed : 0, failed : 0, building : 0, inactive : '1', discontinued : '1'})
+    statisticsObserver.calculate(hash, true);
+	assertEquals('0%', hash.get("rate"));
 }
 
 function test_should_return_category_the_current_json_info() {
 	json = passed_json('project1')
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	var hash = $H({passed:0,failed:0,building:0,inactive:0, discontinued : 0})
 	statisticsObserver.category(json, hash);
-	assertEquals(1, hash['passed']);
+	assertEquals(1, hash.get('passed'));
 }
 
 function test_should_not_throw_any_exception() {
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	var hash = $H({passed:0,failed:0,building:0,inactive:0,discontinued:0})
 	statisticsObserver.category(null, hash);
-	assertEquals(0, hash['passed']);
+	assertEquals(0, hash.get('passed'));
 }
 
 function test_ignore_inactive() {
 	json = inactive_json('project1')
-	var hash = $H({passed:0,failed:0,building:0,inactive:0})
+	var hash = $H({passed:0,failed:0,building:0,inactive:0,discontinued:0})
 	statisticsObserver.category(json, hash);
-	assertEquals(0, hash['inactive']);
+	assertEquals(1, hash.get('inactive'));
+}
+
+function test_should_handle_discontinued() {
+	json = discontinued_json('project1')
+	var hash = $H({passed:0,failed:0,building:0,inactive:0,discontinued:0})
+	statisticsObserver.category(json, hash);
+	assertEquals(1, hash.get('discontinued'));
 }
 
 function test_should_return_hash_contains_statistics_infos() {
-	var hash = $H({passed:1, failed:1,building:1, inactive:1})
+	var hash = $H({passed:1, failed:1,building:1, inactive:1,discontinued:1})
 	statisticsObserver.calculate(hash);
-	assertEquals(1, hash['passed']);
-	assertEquals(1, hash['failed']);
-	assertEquals(1, hash['building']);
-	assertEquals(1, hash['inactive']);
-	assertEquals(4, hash['total']);
-	assertEquals('33%', hash['rate']);
+	assertEquals(1, hash.get('passed'));
+	assertEquals(1, hash.get('failed'));
+	assertEquals(1, hash.get('building'));
+	assertEquals(1, hash.get('inactive'));
+	assertEquals(1, hash.get('discontinued'));
+	assertEquals(3, hash.get('total'));
+	assertEquals('33%', hash.get('rate'));
 }
 
 function test_should_return_default_value_when_no_project_in_the_dashboard() {
-	var hash = statisticsObserver.calculate($H({passed:0,failed:0,building:0,inactive:0}))
-	assertEquals(0, hash['passed']);
-	assertEquals(0, hash['failed']);
-	assertEquals(0, hash['building']);
-	assertEquals(0, hash['total']);
-	assertEquals('0%', hash['rate']);
-}
-
-function test_should_return_amount_of_all_inactive_projects() {
-	var statistics = $H({})
-	statisticsObserver.inactive_projects(statistics);
-	assertEquals(1, statistics['inactive']);
+	var hash = statisticsObserver.calculate($H({passed:0,failed:0,building:0,inactive:0,discontinued:0}))
+	assertEquals(0, hash.get('passed'));
+	assertEquals(0, hash.get('failed'));
+	assertEquals(0, hash.get('building'));
+	assertEquals(0, hash.get('discontinued'));
+	assertEquals(0, hash.get('total'));
+	assertEquals('0%', hash.get('rate'));
 }
 
 
 function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_invoke_functions_if_json_is_empty() {
-	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', total : 4, rate : '25.0%'})
+	var hash = $H({passed : 1, failed : 2, building : 1, inactive : '0', discontinued : '1', total : 4, rate : '25.0%'})
 	statisticsObserver.update(hash);
 
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
 	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_discontinued').innerHTML));
 	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 	
@@ -142,6 +147,7 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_i
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_discontinued').innerHTML));
 	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
 	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
@@ -151,13 +157,14 @@ function test_ajax_periodical_refresh_dashboard_executer_oncomplete_should_NOT_i
 	assertEquals('1', getFirstWord($('statistics_passed').innerHTML));
 	assertEquals('2', getFirstWord($('statistics_failed').innerHTML));
 	assertEquals('1', getFirstWord($('statistics_building').innerHTML));
+	assertEquals('1', getFirstWord($('statistics_discontinued').innerHTML));
 	assertEquals('0', getFirstWord($('statistics_inactive').innerHTML));
 	assertEquals('4', getFirstWord($('statistics_total').innerHTML));
 	assertEquals('25.0%', getFirstWord($('statistics_rate').innerHTML));
 }
 
 function getFirstWord(sentence) {
-	return sentence.split(' ')[0];
+    return sentence.split(' ')[0];
 }
 
 </script>
@@ -170,6 +177,7 @@ function getFirstWord(sentence) {
                         <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
                         <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
                         <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
+                        <div class="info building" id="statistics_discontinued">$projectStatistics.building() project(s) building</div>
                         <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
                         <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
 </div>

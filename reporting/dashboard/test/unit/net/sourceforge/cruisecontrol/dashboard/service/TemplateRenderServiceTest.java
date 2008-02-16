@@ -36,12 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
+import junit.framework.TestCase;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.TestCase;
-
-import org.apache.commons.lang.StringUtils;
 
 public class TemplateRenderServiceTest extends TestCase {
 

@@ -41,120 +41,124 @@
 
 .tooltip {
 	position: absolute;
-	width: 200px;
-	margin-top: -115px;
+	width: 300px;
+	margin-top: -110px;
 	margin-left: -40px;
-	padding-top: 1px;
 }
 
 .tooltip .tooltip_content {
-	border-left:  1px solid #a49e9e;
-	border-right: 1px solid #a49e9e;
-    padding: 10px 10px 15px 40px ;
+	border:  1px solid #a49e9e;
+    padding: 0px 10px 15px 10px ;
+    /*min-height hack for IE*/
+	min-height:150px;
+    height:auto !important;
+  	height : 150px;
+}
+
+.tooltip .tooltip_content div div {
+    padding-left: 20px;
+    text-indent: -20px;
 }
 
 /* Draw rounded corners on tooltips - see niftyCorners.css */
-
-.tooltip .r1 {	
-	background : #a49e9e;
-	border-left:  2px solid #a49e9e;
-	border-right: 2px solid #a49e9e;	
-}
-
-.tooltip .r2, .tooltip .r3, .tooltip .r4 {
-	border-left:  1px solid #a49e9e;
-	border-right: 1px solid #a49e9e;	
-}
-
 .tooltip .tooltip_header {
-	height : 16px;
-	min-height : 16px;
+   height : 10px;
+   min-height : 10px;
+   position:relative;
+   top:1px;
 }
 
-/* Icons and colours for the four states of build */
+/* the icon for arrow */
 
-/* Passing builds */
-
-.tooltip.tooltip_passed .tooltip_header, .tooltip.tooltip_building_passed .tooltip_header {
-	background: url( '../images/tooltip-passed.gif' ) no-repeat top left;
+.tooltip_passed .tooltip_header, .tooltip_building_passed .tooltip_header,
+.tooltip_building_unknown .tooltip_header, .tooltip_building_unknown .tooltip_header {
+	background: url( '../images/tooltip-passed.gif' ) no-repeat bottom left;
 }
 
-.tooltip.tooltip_passed .r2, .tooltip.tooltip_passed .r3,  .tooltip.tooltip_passed .r4 {
-	background-color: #B6FFB1;
+.tooltip_failed .tooltip_header {
+	background: url( '../images/tooltip-failed.gif' ) no-repeat  bottom left;
 }
 
-.tooltip.tooltip_passed .tooltip_content {
-	background : #B6FFB1 url( ../images/icon-success-medium.gif ) no-repeat 7px 15px;
+.tooltip_building_failed .tooltip_header {
+	background: url( '../images/tooltip-building.gif' ) no-repeat  bottom left;
+}
+
+.tooltip_building_unknown .tooltip_header, .tooltip_unknown .tooltip_header, .paused .tooltip_header, .discontinued .tooltip_header, .inactive .tooltip_header {
+	background: url( '../images/tooltip-unknown.gif' ) no-repeat  bottom left;
+}
+
+/*sections global*/
+.section_top,.section_middle {
+	padding-top:3px; 
+	border-bottom : 1px dashed #000000;
+}
+
+.section_top span,.section_middle span {
+	line-height : 1.5em;
+}
+
+
+.section_top .project_name {
+	font-weight : bold;
+    padding-top : 3px;
+}
+.section_top div,.section_middle div, .section_bottom a {
+    margin-left:40px;
+}
+
+/*sections icons*/
+.section_top {
+    background-repeat : no-repeat;
+    background-position : 3px 17px;
+    padding-top:10px;
+}
+
+.tooltip_failed .section_top {
+	background-image : url( ../images/icon-failure-medium.gif );
+}
+
+.tooltip_passed .section_top {
+	background-image : url( ../images/icon-success-medium.gif );
+}
+
+.tooltip_building_passed .section_top , .tooltip_building_failed .section_top, .tooltip_building_unknown .section_top {
+	background-image : url( ../images/icon-build-spinning-medium.gif );
+}
+
+.discontinued .section_top {
+    background-image: url("../images/icon-discontinued-medium.gif");
+}
+
+.inactive .section_top {
+    background-image: url("../images/icon-inactive-medium.gif");
+}
+
+/*the color and fond of each status*/
+.tooltip_passed .tooltip_content {
+	background-color : #B6FFB1;
 	color : #030;
 }
 
-/* Failing builds */
-
-.tooltip.tooltip_failed .tooltip_header {
-	background: url( '../images/tooltip-failed.gif' ) no-repeat top left;
-}
-
-.tooltip.tooltip_failed .tooltip_content {
-	background : #FFC2C9 url( ../images/icon-failure-medium.gif ) no-repeat 7px 15px;
+.tooltip_failed .tooltip_content {
+	background-color : #FFC2C9;
 	color : #300;
 }
 
-.tooltip.tooltip_failed .r2, .tooltip.tooltip_failed .r3,  .tooltip.tooltip_failed .r4 {
-	background-color: #FFC2C9;
+.tooltip_building_passed .tooltip_content, .tooltip_building_unknown .tooltip_content {
+	background-color : #B6FFB1;
 }
 
-/* In-progress builds */
-
-.tooltip.tooltip_building_failed .tooltip_header, .tooltip.tooltip_building_unknown .tooltip_header {
-	background: url( '../images/tooltip-building.gif' ) no-repeat top left;
-}
-
-.tooltip.tooltip_building_passed .tooltip_content {
-	background : #B6FFB1 url(../images/icon-build-previously-success-medium.gif) no-repeat 7px 15px;
-}
-
-.tooltip.tooltip_building_passed .r2, .tooltip.tooltip_building_passed .r3,  .tooltip.tooltip_building_passed .r4 {
-	background-color: #B6FFB1;
-}
-
-.tooltip.tooltip_building_failed .tooltip_content, .tooltip.tooltip_building_unknown .tooltip_content {
-	background : #f9d861 url( ../images/icon-build-previously-failure-medium.gif ) no-repeat 7px 15px;
+.tooltip_building_failed .tooltip_content {
+	background-color : #f9d861;
 	color : #C30;
 }
 
-.tooltip.tooltip_building_failed .r2, .tooltip.tooltip_building_failed .r3,  .tooltip.tooltip_building_failed .r4,
-.tooltip.tooltip_building_unknown .r2, .tooltip.tooltip_building_unknown .r3,  .tooltip.tooltip_building_unknown .r4 {
-	background-color: #f9d861;
-}
-
-/* Inactive builds */
-
-.tooltip.tooltip_inactive .tooltip_header {
-	background: url( '../images/tooltip-unknown.gif' ) no-repeat top left;
-}
-
-.tooltip.tooltip_inactive .tooltip_content {
-	background : #ccc url( ../images/icon-inactive-medium.gif ) no-repeat 7px 15px;
+.tooltip_building_unknown .tooltip_content, .tooltip_unknown .tooltip_content, .paused .tooltip_content, .inactive .tooltip_content, .discontinued .tooltip_content {
+	background-color: #ccc;
 	color : #666;
 }
 
-.tooltip.tooltip_inactive .r2, .tooltip.tooltip_inactive .r3,  .tooltip.tooltip_inactive .r4 {
-	background-color: #ccc;
+div.inactive, div.discontinued {
+    background-color: transparent;
 }
 
-/* draw the bottom edge */
-
-.tooltip .rbottom {
-	background : none;
-}
-
-/* The whole tooltip will be a link so a tags within may be hidden */
-
-.tooltip a {
-	display: none;
-}
-
-.tooltip .title {
-	font-size: 1.2em;
-	font-weight: bold;
-}

@@ -60,8 +60,7 @@
 	background: url( '../images/tableftB.gif' ) no-repeat left -42px;
 	padding: 0 0 0 4px;
 	text-decoration: none;
-	position : relative;
-	top : 1px;	
+	white-space : nowrap;
 }
 
 .build_detail_container_menu a span {
@@ -123,25 +122,28 @@ div.maincol.build_detail {
     margin-top: -14px;
     padding: 1em;
 	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) left top repeat-x;
-}
-
-.sidecol p {
-	margin-left : 5px;
-	overflow:auto;
+    position:relative;
+    z-index:20;
 }
 
 /* Sliding doors used again to draw rounded corners on the sidebar heading */
+.sidecol .sidecol_header, .sidecol .buildlist {
+	margin : 2px 0px 0 0px;
+}
+
 
 .sidecol p.sidecol_header {
-	background : url( ../images/summary_panel_title_background.gif ) right top no-repeat;
-	padding : 0 5px 5px 0;
-	margin : 2px 5px;
+	background-color : #eee;
 	font-weight : bold;
 	height:30px;
+	padding-bottom: 5px;
+}
+
+.sidecol_header img {
+	margin : 0 5px 0 0;	
 }
 
 .sidecol p.sidecol_header span {
-	background : #e0dfd5 url( ../images/summary_panel_title_background.gif ) left top no-repeat;
 	padding-left : 5px;
 	padding-top : 5px;	
 	float:left;
@@ -155,33 +157,33 @@ div.maincol.build_detail {
 	margin-left : 0.2em;
 	position : relative;
 	top : 3px;
-	float:right;
 }
 
-.sidecol ul.buildlist a {
-	text-decoration : none;
-}
 
 /* The list of builds in the side column */
-
-ul.buildlist li {
-	padding : 5px 5px 5px 25px;
-	margin : 0 5px
+.buildlist li {
+	line-height:30px;
 }
 
-/* Set icons - colours are set in build_common.css */
+.buildlist a {
+	text-decoration : none;
+    padding-left : 30px;
+}
 
-ul.buildlist li.passed {
+.buildlist li.passed {
 	background-image : url( ../images/icon-success-small.gif );
 	background-position : 4px center;
 	background-repeat : no-repeat;
 }
 
-ul.buildlist li.failed {
+.buildlist li.failed {
 	background-image : url( ../images/icon-failure-small.gif );
 	background-position : 4px center;
 	background-repeat : no-repeat;
 }
+/* Set icons - colours are set in build_common.css */
+
+
 
 /* Status list in the summary bar at the top of the page */
 
@@ -197,6 +199,10 @@ ul.summary li {
     width: 47%;
 }
 
+ul.summary li strong {
+    font-weight:bold;
+}
+
 div.build_detail_container {
     padding: 0;
     width : 100%
@@ -207,58 +213,28 @@ div.build_detail_container_content {
 }
 
 /* Styles in tabbed report section below summary bar */
-
-.errors ul, .failures ul {
-    list-style: none;
+.widget {
+	list-style: none;
+	width:100%;
+    overflow-x:auto;
+    /*IE hack*/
+	min-height:300px;
+	height:auto !important;
+	height : 300px;
 }
 
-.errors pre, .failures pre, .stacktrace pre, .buildoutput pre{
-    height: 400px;
-	width : 100%;
-    overflow: scroll;
-}
-
-.messages {
-    font-family: "Courier", "Courier New", monospace;
-    overflow: auto;
-}
-
-.modifications .added {
-    padding-left: 22px;
-    background-image: url( "../images/table_add.gif" );
-    background-repeat: no-repeat;
-}
-
-.modifications .deleted {
-    padding-left: 22px;
-    background-image: url( "../images/table_delete.gif" );
-    background-repeat: no-repeat;
-}
-
-
-.modifications .modified {
-    padding-left: 22px;
-    background-image: url( "../images/table_edit.gif" );
-    background-repeat: no-repeat;
-}
-
-.modifications .user {
-    padding-left: 22px;
-    background-image: url( "../images/user.gif" );
-    background-repeat: no-repeat;
-    font-weight: bold;
-}
-
-.log, .artifacts{
-    margin-bottom: 1.5em;
-}
-.log .logfile {
+.widget .logfile {
     padding-left: 22px;
     background-image: url( "../images/script.gif" );
     background-repeat: no-repeat;
 }
 
-.artifacts .artifact {
+.tests li {
+    margin-bottom: 0.5em;
+}
+
+/*open/close directory in artifacts tab of build detail page*/
+.artifact {
     padding-left: 22px;
     background-image: url( "../images/file.gif" );
     background-repeat: no-repeat;
@@ -276,31 +252,43 @@ div.build_detail_container_content {
     background-repeat: no-repeat;
 }
 
-.tests {
-    list-style: none;
-    overflow: auto;
-    width : 90%;
+.collapsible_content, .title_message_expanded, .title_message_collapsed {
+	padding-left: 16px;
 }
 
-.testsuite {
-	list-style: none;
-    overflow: scroll;
-	height : 250px;
+.title_message_expanded {
+	background: url( '../images/arrow_open.jpg' ) no-repeat left;
 }
 
-.widget {
-	list-style: none;
-    overflow: scroll;
-	height : 250px;
-	width:100%;
+.title_message_collapsed {
+	background: url( '../images/arrow_closed.jpg' ) no-repeat left;
+}
+.collapsible_title {
+    cursor:pointer;
 }
 
-.modifications {
-	overflow: scroll;
-	height : 250px;
-	width: 100%;
+div.sub_tab_container_content {
+	padding : 1em;
 }
 
-.tests li {
-    margin-bottom: 0.5em;
+.modifications td {
+   padding-right: 10px;
+   text-align:left;
+}
+
+#expand_all, #collapse_all {
+	color: #7F7F7F;
+	font-size: 0.8em;
+    padding-left: 16px;
+    text-decoration: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+#expand_all {
+	background: url( '../images/all_open.gif' ) no-repeat left;
+}
+
+#collapse_all {
+	background: url( '../images/all_close.gif' ) no-repeat left;
 }

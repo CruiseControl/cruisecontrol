@@ -43,8 +43,8 @@ import junit.framework.TestResult;
 import junit.framework.TestSuite;
 import junitx.util.DirectorySuiteBuilder;
 import junitx.util.SimpleTestFilter;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
 import net.sourceforge.cruisecontrol.dashboard.service.SystemPropertyConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigFileFactory;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 
@@ -63,10 +63,10 @@ public final class AllSeleniumTests {
                             .getLogRootOfWebapp().getAbsolutePath());
                     System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_ARTIFACTS_DIR, DataUtils
                             .getArtifactRootOfWebapp().getAbsolutePath());
-                    System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_PROJECTS_DIR, DataUtils
-                            .getProjectsRootOfWebapp().getAbsolutePath());
-                    System.setProperty(DashboardXmlConfigService.PROPS_CC_DASHBOARD_CONFIG, DataUtils
-                            .getDashboardConfigForSelenium().getAbsolutePath());
+                    System.setProperty(DashboardConfigFileFactory.PROPS_CC_DASHBOARD_CONFIG, DataUtils
+                            .getDashboardConfig().getAbsolutePath());
+                    System.setProperty(SystemPropertyConfigService.PROPS_CC_CONFIG_FORCEBUILD_ENABLED,
+                            "enabled");
                     DataUtils.cloneCCHome();
                     SERVER.start();
                     super.run(arg0);
@@ -88,7 +88,7 @@ public final class AllSeleniumTests {
                         && arg0.endsWith("Test.class");
             }
         });
-        Test allTests = null;
+        Test allTests;
         try {
             allTests = builder.suite("target/classes/functionaltest");
             suite.addTest(allTests);

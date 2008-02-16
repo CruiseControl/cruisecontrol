@@ -1,12 +1,10 @@
-#foreach($pluginDisplayName in $build.build.getPluginOutputs().keySet())
-    <div id="$pluginDisplayName.toLowerCase()" class="widget" style="display:none">
-    #if($build.build.getPluginOutputs().get($pluginDisplayName))
-        <pre>
-$build.build.getPluginOutputs().get($pluginDisplayName)
-        </pre>
-    #else
-        <h2>No information for $pluginDisplayName</h2>
-    #end
+#foreach($pluginDisplayName in $buildCmd.build.getPluginOutputs().keySet())
+    <div id="$pluginDisplayName.replace(' ','_').toLowerCase()" class="widget" style="display:none">
+        #if($buildCmd.build.getPluginOutputs().get($pluginDisplayName))
+            $buildCmd.build.getPluginOutputs().get($pluginDisplayName)
+        #else
+            <h2>No information for $pluginDisplayName</h2>
+        #end
     </div>
 #end
 

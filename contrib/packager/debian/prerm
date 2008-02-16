@@ -3,7 +3,3 @@ set -e
 
 /etc/init.d/cruisecontrol stop
 
-if [ -f /etc/debian_version ]; then
-    update-rc.d mingle remove >/dev/nul || exit $?
-fi
-

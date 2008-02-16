@@ -304,10 +304,13 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         Map allStatus = new HashMap();
         for (Iterator iter = getProjects().iterator(); iter.hasNext();) {
             ProjectConfig projectConfig = (ProjectConfig) iter.next();
+
             String projectName = projectConfig.getName();
             String status = projectConfig.getStatus();
             if (ProjectState.BUILDING.hasDescription(status)) {
                 status = status + " since " + projectConfig.getBuildStartTime();
+            } else if (projectConfig.isPaused()) {
+                status = ProjectState.PAUSED.getName();
             }
             allStatus.put(projectName, status);
         }

@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.apache.commons.io.FileUtils;
+import net.sourceforge.cruisecontrol.dashboard.LogFile;
 
 public final class DataUtils {
     public static final String TEST_DATA_DIR = "test/data/";
@@ -51,8 +52,6 @@ public final class DataUtils {
     public static final String CONFIG_XML = "config.xml";
 
     public static final String DASHBOARD_XML = "dashboard-config.xml";
-
-    public static final String DASHBOARD_XML_FOR_SELENIUM = "dashboard-config-selenium.xml";
 
     public static final String FAILING_LOG = "cruisecontrollog_internalerror.log";
 
@@ -68,10 +67,6 @@ public final class DataUtils {
     public static final String LOGFILE_OF_PROJECT2 = "log20060703155722.xml";
 
     private DataUtils() {
-    }
-
-    public static File getProjectDirAsFile() throws Exception {
-        return getData(PASSING_BUILD_LBUILD_0_XML).getParentFile();
     }
 
     public static File getConfigXmlAsFile() throws Exception {
@@ -112,10 +107,6 @@ public final class DataUtils {
         return getSubFolderOfWebApp("arbitrary_artifacts/artifacts");
     }
 
-    public static File getProjectsRootOfWebapp() {
-        return getSubFolderOfWebApp("projects");
-    }
-
     public static File getConfigXmlInArbitraryCCHome() throws Exception {
         File ccRoot = getData("arbitrary_cc_home");
         File arbitraryCCHome = FilesystemUtils.createDirectory("arbitraryCCHome");
@@ -124,16 +115,20 @@ public final class DataUtils {
         return new File(copiedCCRoot, "config.xml");
     }
 
-    public static File getPassingBuildLbuildAsFile() throws Exception {
-        return getData("logs/project1/" + PASSING_BUILD_LBUILD_0_XML);
+    public static LogFile getPassingBuildLbuildAsFile() throws Exception {
+        return getLogFile("logs/project1/" + PASSING_BUILD_LBUILD_0_XML);
     }
 
-    public static File getFailedBuildLbuildAsFile() throws Exception {
-        return getData("logs/project1/" + FAILING_BUILD_XML);
+    public static LogFile getFailedBuildLbuildAsFile() throws Exception {
+        return getLogFile("logs/project1/" + FAILING_BUILD_XML);
     }
 
-    public static File getBigLogFile() throws Exception {
-        return getData("misc/" + "log20070511103055.xml");
+    public static LogFile getBigLogFile() throws Exception {
+        return getLogFile("misc/" + "log20070511103055.xml");
+    }
+
+    public static LogFile getZippedBuildAsFile() throws Exception {
+        return getLogFile("logs/project3/log20061109122103.xml.gz");
     }
 
     public static File getMiscConfigFile() throws Exception {
@@ -157,15 +152,19 @@ public final class DataUtils {
     }
 
     public static File getProjectLogDirAsFile(String project) throws Exception {
-        return new File(getData("logs"), project);
+        return new File(getLogDirAsFile(), project);
     }
 
     public static File getProject2BuildAsFile() throws Exception {
-        return getData("logs/project2/" + LOGFILE_OF_PROJECT2);
+        return getLogFile("logs/project2/" + LOGFILE_OF_PROJECT2);
     }
 
     private static File getData(String filename) throws URISyntaxException {
         return new File(TEST_DATA_DIR + filename);
+    }
+
+    private static LogFile getLogFile(String filename) {
+        return new LogFile(TEST_DATA_DIR + filename);
     }
 
     public static File createTempFile(String prefix, String suffix) throws IOException {
@@ -224,11 +223,6 @@ public final class DataUtils {
     public static File getDashboardConfig() throws Exception {
         return getData(DASHBOARD_XML);
     }
-
-    public static File getDashboardConfigForSelenium() throws Exception {
-        return getData(DASHBOARD_XML_FOR_SELENIUM);
-    }
-
     public static File getCCRoot() throws Exception {
         return getData(CC_HOME);
     }

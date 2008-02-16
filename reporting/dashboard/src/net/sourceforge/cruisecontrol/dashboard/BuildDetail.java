@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -57,14 +58,26 @@ public class BuildDetail implements Comparable, Build {
 
     private Map pluginOutpus = new LinkedHashMap();
 
-    private Map props;
+    private final Map props;
 
-    public BuildDetail(Map props) {
-        if (props == null) {
-            this.props = new HashMap();
-        } else {
-            this.props = Collections.unmodifiableMap(props);
-        }
+    private final LogFile logFile;
+
+    private CurrentStatus currentStatus = CurrentStatus.WAITING;
+
+    private final TimeConverter timeConverter;
+
+    public BuildDetail(LogFile logFile) {
+        this(logFile, new HashMap(), new TimeConverter());
+    }
+
+    public BuildDetail(LogFile logFile, Map props) {
+        this(logFile, props, new TimeConverter());
+    }
+
+    public BuildDetail(LogFile logFile, Map props, TimeConverter timeConverter) {
+        this.logFile = logFile;
+        this.timeConverter = timeConverter;
+        this.props = Collections.unmodifiableMap(props);
     }
 
     public String getProjectName() {
@@ -79,8 +92,8 @@ public class BuildDetail implements Comparable, Build {
         return (String) props.get("duration");
     }
 
-    public File getLogFile() {
-        return (File) props.get("logfile");
+    public LogFile getLogFile() {
+        return logFile;
     }
 
     public String getLogFileName() {
@@ -146,10 +159,6 @@ public class BuildDetail implements Comparable, Build {
         return numberOfErrors;
     }
 
-    public ProjectBuildStatus getStatus() {
-        return hasPassed() ? ProjectBuildStatus.PASSED : ProjectBuildStatus.FAILED;
-    }
-
     public boolean hasPassed() {
         return StringUtils.contains(getLogFileName(), "L");
     }
@@ -196,10 +205,19 @@ public class BuildDetail implements Comparable, Build {
         return getBuildDate();
     }
 
-    public String getName() {
-        return null;
+    public CurrentStatus getCurrentStatus() {
+        return currentStatus;
     }
 
-    public void updateStatus(String statusStr) {
+    public void updateStatus(CurrentStatus currentStatus) {
+        this.currentStatus = currentStatus;
+    }
+
+    public PreviousResult getPreviousBuildResult() {
+        return hasPassed() ? PreviousResult.PASSED : PreviousResult.FAILED;
+    }
+
+    public String getConvertedTime() {
+        return this.timeConverter.getConvertedTime(getBuildDate().toDate());
     }
 }

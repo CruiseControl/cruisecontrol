@@ -36,62 +36,57 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.PrintWriter;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.web.command.ModificationCommand;
+import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sourceforge.cruisecontrol.dashboard.Modification;
-import net.sourceforge.cruisecontrol.dashboard.ModificationKey;
-import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
-import net.sourceforge.cruisecontrol.dashboard.web.command.ModificationCommand;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
-
 public class GetCommitMessageController implements Controller {
 
-    private CruiseControlJMXService jmxService;
+    private BuildLoopQueryService buildLoopQueryService;
 
     private final DashboardXmlConfigService configService;
 
-    public GetCommitMessageController(CruiseControlJMXService jmxService,
+    public GetCommitMessageController(BuildLoopQueryService buildLoopQueryService,
             DashboardXmlConfigService configService) {
-        this.jmxService = jmxService;
+        this.buildLoopQueryService = buildLoopQueryService;
         this.configService = configService;
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         String projectName = request.getParameter("project");
-        List commitMessages = jmxService.getCommitMessages(projectName);
-        PrintWriter writer = response.getWriter();
-        writer.write("[" + toJsonHeader(commitMessages, projectName) + "]");
-        writer.close();
-        return null;
+        List commitMessages = buildLoopQueryService.getCommitMessages(projectName);
+        Map userAndcommitMessage = new HashMap();
+        userAndcommitMessage.put(JsonView.RENDER_DIRECT, toJsonHeader(commitMessages, projectName));
+        return new ModelAndView(new JsonView(), userAndcommitMessage);
     }
 
-    private String toJsonHeader(List commitMessages, String projectName) {
-        if (CollectionUtils.isEmpty(commitMessages)) {
-            return "";
+    private List toJsonHeader(List commitMessages, String projectName) {
+        List header = new ArrayList();
+        if (CollectionUtils.isNotEmpty(commitMessages)) {
+            String result = "";
+            Map storyTrackers = configService.getStoryTrackers();
+            StoryTracker storyTracker = (StoryTracker) storyTrackers.get(projectName);
+            for (Iterator iter = commitMessages.iterator(); iter.hasNext();) {
+                Modification modification = (Modification) iter.next();
+                ModificationCommand cmd = new ModificationCommand(modification, storyTracker);
+                header.add(cmd.toJsonData());
+            }
         }
-        String result = "";
-        Map storyTrackers = configService.getStoryTrackers();
-        StoryTracker storyTracker = (StoryTracker) storyTrackers.get(projectName);
-        for (Iterator iter = commitMessages.iterator(); iter.hasNext();) {
-            ModificationKey modification = (ModificationKey) iter.next();
-            Modification modi = new Modification("", modification.getUser(), modification.getComment());
-            ModificationCommand cmd = new ModificationCommand(modi, storyTracker);
-            String comment = StringUtils.replace(cmd.getComment(), "\"", "'");
-            result += ("{\"user\":\"" + cmd.getUser() + "\",\"comment\":\"" + comment + "\"},");
-        }
-        return result;
+        return header;
     }
 }

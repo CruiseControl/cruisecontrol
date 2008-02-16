@@ -37,69 +37,67 @@
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import java.io.File;
-import java.io.IOException;
-
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.web.UpdateConfigXmlContentController;
 
 import org.apache.commons.io.FileUtils;
 
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.web.AdminController;
+
 public class AdminTest extends BaseFunctionalTest {
-    private static final String CONFIG_FILE_CONTENT = "configFileContent";
+	private String content;
+	private File dashboardConfig;
 
-    private static final String PAGE_TITLE = "CruiseControl configuration file admin";
+	protected void onSetUp() throws Exception {
+		dashboardConfig = DataUtils.getDashboardConfigXmlOfWebApp();
+		content = FileUtils.readFileToString(dashboardConfig, "UTF-8");
+	}
 
-    private static final String EDIT_CONFIG_FILE_FORM = "editConfig";
+	protected void tearDown() throws Exception {
+		if (!dashboardConfig.exists()) {
+			dashboardConfig.createNewFile();
+			FileUtils.writeStringToFile(dashboardConfig, content);
+		}
+	}
 
-    private static final String EDIT_CONFIG_FILE_URL = "/admin/config";
+	public void testShouldBeAbleToShowEditConfigFormAndShowConfigFileContentsAndUpdateContents()
+			throws Exception {
+		tester.beginAt("/admin/config");
+		shouldContainDashboardConfigurationXmlLocation();
+		shouldContainDashboardConfigurationXmlContent();
+		shouldContainDiagnosisInfomration();
+	}
 
-    private static final String UPDATED_CONFIG_FILE_CONTENTS =
-            "<cruisecontrol><project name=\"project2\"/>" + "</cruisecontrol>\n";
+	public void testShouldNotDisplayConfigXmlContentWhenFileIsMissing()
+			throws Exception {
+		dashboardConfig.delete();
+		tester.beginAt("/admin/config");
+		shouldContainDashboardConfigurationXmlLocation();
+		shouldNotContainDashboardConfigurationXmlContent();
+	}
 
-    private static final String INVALID_CONFIG_FILE_CONTENTS = "<cruisecontrol><project";
+	private void shouldNotContainDashboardConfigurationXmlContent() {
+		tester.assertTextPresent(AdminController.ERROR_MESSAGE_NOT_EXIST);
+	}
 
-    private File configFile;
+	private void shouldContainDiagnosisInfomration() throws Exception {
+		tester.assertTextPresent("N/A");
+		SystemService systemService = new SystemService();
+		tester.assertTextPresent(systemService.getJvmVersion());
+		tester.assertTextPresent(systemService.getOsInfo());
+		tester.assertTextPresent(DataUtils.getLogRootOfWebapp()
+				.getAbsolutePath());
+		tester.assertTextPresent(DataUtils.getArtifactRootOfWebapp()
+				.getAbsolutePath());
+	}
 
-    public void testShouldBeAbleToShowEditConfigFormAndShowConfigFileContentsAndUpdateContents()
-            throws IOException {
-        setConfigFileLocationAndGoToEditConfigPage();
-        assertEditConfigFormPresent();
-        assertConfigFileContentsPresent(FileUtils.readFileToString(configFile, null));
-        updateConfigFileContents(UPDATED_CONFIG_FILE_CONTENTS);
-        assertEditConfigFormPresent();
-        tester.assertTextInElement("edit_message",
-                UpdateConfigXmlContentController.CONFIGURATION_HAS_BEEN_UPDATED_SUCCESSFULLY);
-        assertConfigFileContentsPresent(UPDATED_CONFIG_FILE_CONTENTS);
-    }
+	private void shouldContainDashboardConfigurationXmlContent() {
+		tester.assertTextPresent("<buildloop");
+		tester.assertTextPresent("<features");
+		tester.assertTextPresent("<trackingtool");
+	}
 
-    public void testShouldShowErrorMessageAndKeepModificationIfModificationIsInvalid() throws IOException {
-        setConfigFileLocationAndGoToEditConfigPage();
-        updateConfigFileContents(INVALID_CONFIG_FILE_CONTENTS);
-        assertEditConfigFormPresent();
-        tester.assertMatchInElement("error_1", "^(The configuration file is not valid XML: )");
-        assertConfigFileContentsPresent(INVALID_CONFIG_FILE_CONTENTS);
-    }
-
-    private void setConfigFileLocationAndGoToEditConfigPage() throws IOException {
-        configFile = DataUtils.createDefaultCCConfigFile();
-        setConfigFileAndSubmitForm(configFile.getPath());
-        tester.beginAt(EDIT_CONFIG_FILE_URL);
-    }
-
-    private void updateConfigFileContents(String updatedContents) {
-        tester.setTextField(CONFIG_FILE_CONTENT, updatedContents);
-        tester.submit();
-    }
-
-    private void assertEditConfigFormPresent() {
-        tester.assertTitleEquals(PAGE_TITLE);
-        tester.assertFormPresent(EDIT_CONFIG_FILE_FORM);
-        tester.assertFormElementPresent(CONFIG_FILE_CONTENT);
-        tester.assertElementPresentByXPath("//textarea[@name=\"configFileContent\"]");
-    }
-
-    private void assertConfigFileContentsPresent(String configFileContents) {
-        tester.assertTextInElement(CONFIG_FILE_CONTENT, configFileContents.replaceAll("\\\n", ""));
-        tester.setWorkingForm(EDIT_CONFIG_FILE_FORM);
-    }
+	private void shouldContainDashboardConfigurationXmlLocation() {
+		tester.assertTextPresent("dashboard-config.xml");
+	}
 }

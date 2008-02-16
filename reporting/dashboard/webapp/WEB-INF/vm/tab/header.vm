@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <link href="$req.getContextPath()/css/main.css" rel="stylesheet" type="text/css"></link>
+        <!--[if lte IE 7]>
+            <link href="$req.getContextPath()/css/ie_hacks.css" rel="stylesheet" type="text/css"></link>
+        <![endif]-->
+        <link href="$req.getContextPath()/css/niftyCorners.css" rel="stylesheet" type="text/css"></link>
+    #foreach( $cssFile in $cssFiles )
+        <link href="$req.getContextPath()/$cssFile" rel="stylesheet" type="text/css"/>
+    #end
+        <script type="text/javascript">
+            var contextPath = "$req.getContextPath()"
+            var global_force_build_enabled = $global_force_build_enabled
+        </script>
+        <script src="$req.getContextPath()/compressed/all.js" type="text/javascript"></script>
+        <title>CruiseControl - $currentTab.name</title>
+    </head>
+<body>
+#macro(iscurrenttab $_tabName)#if($_tabName == $currentTab.name)currenttab#end#end
+    <div id="header">
+        <div id="menu">
+            <div id="pageTitle">
+                Dashboard Server : $serverName
+            </div>
+            <div id="logo">
+               <img src="$req.getContextPath()/images/logo.gif" alt="Cruise Control" width="195" height="42"/>
+            </div>
+            <ul>
+            #foreach($tab in $tabs)
+                <li id="$tab.name.toLowerCase()" class='dynamic_width round_top #iscurrenttab($tab.name)'>
+                    <a href="$req.getContextPath()/tab/$tab.link"><span>$tab.name</span></a>
+                </li>
+            #end
+                <li id="administation" class="dynamic_width round_top #iscurrenttab('administration')" style="float:right">
+                    <a href="$req.getContextPath()/admin/config" ><span>Administration</span></a>
+                </li>
+            </ul>
+        </div>
+        <div id="menu_bottom">
+        </div>
+    </div>
+    <div id="content">

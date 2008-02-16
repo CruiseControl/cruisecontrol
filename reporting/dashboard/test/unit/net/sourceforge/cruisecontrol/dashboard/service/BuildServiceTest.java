@@ -36,46 +36,47 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.util.Collection;
-import java.util.List;
-
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCase;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestCaseResult;
 import net.sourceforge.cruisecontrol.dashboard.BuildTestSuite;
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.Modification;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.LogFile;
 import net.sourceforge.cruisecontrol.dashboard.ModificationAction;
 import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
-import net.sourceforge.cruisecontrol.dashboard.ModifiedFile;
+import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
+
+import java.util.Collection;
+import java.util.List;
 
 public class BuildServiceTest extends MockObjectTestCase {
     private BuildService buildFactory;
 
     private Mock mockConfiguration;
-
-    private Configuration configurationMock;
+    private Mock mockQueryService;
 
     protected void setUp() throws Exception {
-        mockConfiguration =
-                mock(Configuration.class, new Class[] {ConfigXmlFileService.class},
-                        new Object[] {new ConfigXmlFileService(new EnvironmentService(new SystemService(),
-                                new DashboardConfigService[] {}))});
-        configurationMock = (Configuration) mockConfiguration.proxy();
-        mockConfiguration.expects(once()).method("getArtifactRoot").will(
-                returnValue(DataUtils.getProject1ArtifactDirAsFile()));
-        buildFactory = new BuildService(configurationMock);
+        mockConfiguration = mock(ConfigurationService.class,
+                new Class[]{EnvironmentService.class, DashboardXmlConfigService.class, BuildLoopQueryService.class},
+                new Object[]{null, null, null});
+        mockConfiguration.expects(once())
+                .method("getArtifactRoot")
+                .will(returnValue(DataUtils.getProject1ArtifactDirAsFile()));
+        mockQueryService = mock(BuildLoopQueryService.class);
+        buildFactory = new BuildService(
+                (ConfigurationService) mockConfiguration.proxy(),
+                (BuildLoopQueryService) mockQueryService.proxy());
     }
 
     public void testShouldReadSpecficBuild() throws Exception {
         BuildDetail expectedBuild = buildFactory.createBuildFromFile(DataUtils.getFailedBuildLbuildAsFile());
         assertEquals("project1", expectedBuild.getProjectName());
-        assertEquals(false, expectedBuild.hasPassed());
+        assertFalse(expectedBuild.hasPassed());
     }
 
     public void testCanReadErrorDetailFromTest() throws Exception {
@@ -88,14 +89,16 @@ public class BuildServiceTest extends MockObjectTestCase {
         assertEquals(1, erroringTestCases.size());
 
         BuildTestCase erroredTest = (BuildTestCase) erroringTestCases.get(0);
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", erroredTest
+        assertEquals(
+                "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", erroredTest
                 .getClassname());
         assertEquals("0.016", erroredTest.getDuration());
         assertEquals("testFourConnected", erroredTest.getName());
-        assertEquals(true, erroredTest.didError());
+        assertTrue(erroredTest.didError());
         assertEquals("org/objectweb/asm/CodeVisitor", erroredTest.getMessage());
-        assertEquals("java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor\n"
-                + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)",
+        assertEquals(
+                "java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor\n"
+                        + "\tat net.sf.cglib.core.KeyFactory$Generator.generateClass(KeyFactory.java:165)",
                 erroredTest.getMessageBody());
     }
 
@@ -106,17 +109,20 @@ public class BuildServiceTest extends MockObjectTestCase {
         BuildTestSuite firstSuite = (BuildTestSuite) suites.get(0);
 
         List failingCases = firstSuite.getFailingTestCases();
-        assertEquals(2, failingCases.size());
+        assertEquals(3, firstSuite.getNumberOfFailures());
+        assertEquals(3, failingCases.size());
 
         BuildTestCase failingTest = (BuildTestCase) failingCases.get(0);
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", failingTest
+        assertEquals(
+                "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest", failingTest
                 .getClassname());
         assertEquals("3.807", failingTest.getDuration());
         assertEquals("testSomething", failingTest.getName());
         assertEquals(BuildTestCaseResult.FAILED, failingTest.getResult());
         assertEquals("Not the expected result", failingTest.getMessage());
-        assertEquals("junit.framework.AssertionFailedError: Error during schema validation \n"
-                + "\tat junit.framework.Assert.fail(Assert.java:47)", failingTest.getMessageBody());
+        assertEquals(
+                "junit.framework.AssertionFailedError: Error during schema validation \n"
+                        + "\tat junit.framework.Assert.fail(Assert.java:47)", failingTest.getMessageBody());
     }
 
     public void testCanReadModificationsFromLogFile() throws Exception {
@@ -127,18 +133,18 @@ public class BuildServiceTest extends MockObjectTestCase {
         assertEquals(2, modifications.size());
         Modification modification = (Modification) modifications.iterator().next();
 
-        assertEquals("cvs", modification.getType());
-        assertEquals("story123 project name changed to cache", modification.getComment());
-        assertEquals("readcb", modification.getUser());
+        assertEquals("cvs", modification.type);
+        assertEquals("story123 project name changed to cache", modification.comment);
+        assertEquals("readcb", modification.userName);
 
         List files = modification.getModifiedFiles();
         assertEquals(1, files.size());
 
-        ModifiedFile firstFile = (ModifiedFile) files.get(0);
+        Modification.ModifiedFile firstFile = (Modification.ModifiedFile) files.get(0);
 
-        assertEquals(ModificationAction.MODIFIED, firstFile.getAction());
-        assertEquals("build.xml", firstFile.getFilename());
-        assertEquals("1.2", firstFile.getRevision());
+        assertEquals(ModificationAction.MODIFIED, ModificationAction.fromDisplayName(firstFile.action));
+        assertEquals("build.xml", firstFile.fileName);
+        assertEquals("1.2", firstFile.revision);
     }
 
     public void testShouldGetDateOfBuild() throws Exception {
@@ -155,10 +161,11 @@ public class BuildServiceTest extends MockObjectTestCase {
 
         BuildTestSuite firstTestSuite = (BuildTestSuite) suites.get(0);
         assertEquals(1, firstTestSuite.getNumberOfErrors());
-        assertEquals(2, firstTestSuite.getNumberOfFailures());
-        assertEquals("net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
+        assertEquals(3, firstTestSuite.getNumberOfFailures());
+        assertEquals(
+                "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
                 firstTestSuite.getName());
-        assertEquals(10, firstTestSuite.getNumberOfTests());
+        assertEquals(12, firstTestSuite.getNumberOfTests());
         assertEquals(0.109, firstTestSuite.getDurationInSeconds(), 0.001);
     }
 
@@ -195,5 +202,25 @@ public class BuildServiceTest extends MockObjectTestCase {
     public void testShouldBeAbleToParseBigLogFile() throws Exception {
         BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getBigLogFile());
         assertNotNull(build);
+    }
+
+    public void testShouldReturnBuildDetailOfDiscontinuedStatus() throws Exception {
+        LogFile logFile = DataUtils.getPassingBuildLbuildAsFile();
+        mockConfiguration.expects(once()).method("getLogRoot").will(returnValue(logFile.getParentFile()));
+        mockQueryService.expects(once()).method("isDiscontinued").with(eq("project1")).will(returnValue(true));
+        BuildDetail build = buildFactory.getBuild("project1",
+                CCDateFormatter.getBuildDateFromLogFileName(logFile.getName()));
+        assertEquals(CurrentStatus.DISCONTINUED, build.getCurrentStatus());
+    }
+
+    public void testShouldReturnBuildDetailOfPausedStatus() throws Exception {
+        String paused = CurrentStatus.PAUSED.getCruiseStatus();
+        LogFile logFile = DataUtils.getPassingBuildLbuildAsFile();
+        mockConfiguration.expects(once()).method("getLogRoot").will(returnValue(logFile.getParentFile()));
+        mockQueryService.expects(once()).method("isDiscontinued").with(eq("project1")).will(returnValue(false));
+        mockQueryService.expects(once()).method("getProjectStatus").with(eq("project1")).will(returnValue(paused));
+        BuildDetail build = buildFactory.getBuild("project1",
+                CCDateFormatter.getBuildDateFromLogFileName(logFile.getName()));
+        assertEquals(CurrentStatus.PAUSED, build.getCurrentStatus());
     }
 }

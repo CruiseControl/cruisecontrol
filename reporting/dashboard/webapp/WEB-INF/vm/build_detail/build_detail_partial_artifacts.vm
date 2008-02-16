@@ -1,17 +1,17 @@
-<div class="artifacts" id="artifacts" $artifacts_extra_attrs>
+<div class="widget" id="artifacts" $artifacts_extra_attrs>
     <h2>Artifacts</h2>
-    <ul class="files">
-        #if( $build.build.artifactFiles.size() == 0)
+    <div class="files">
+        #if( $buildCmd.build.artifactFiles.size() == 0)
             <p>No artifacts found.</p>
         #end
-        #foreach ($artifactFile in $build.build.artifactFiles)
-			#set($url="$req.getContextPath()/build/download/artifacts/$build.build.getProjectName()/$logfile/$artifactFile.name")
+        #foreach ($artifactFile in $buildCmd.build.artifactFiles)
+			#set($url="$req.getContextPath()/tab/build/download/artifacts/$buildCmd.build.getProjectName()/$logfile/$artifactFile.name")
 	        #if($artifactFile.isFile())			
-	            <li><span class="artifact"><a href="$url">$artifactFile.name</a></span></li>
+	            <div><span class="artifact"><a href="$url">$artifactFile.name</a></span></div>
 	        #else
-	            <li><span class="directory"><a onclick='BuildDetailExecuter.ajax_tree_navigator(this,"$url")'>$artifactFile.name</a></span></li>
+	            <div><span class="directory"><a onclick='BuildDetail.tree_navigator(this,"$url")'>$artifactFile.name</a></span></div>
 	            <div id="$url.replaceAll('/', '_')" style="display:none"></div>
 	        #end
         #end
-    </ul>
+    </div>
 </div>

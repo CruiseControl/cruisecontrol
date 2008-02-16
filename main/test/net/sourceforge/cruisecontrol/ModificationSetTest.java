@@ -163,7 +163,7 @@ public class ModificationSetTest extends TestCase {
         Thread.sleep((long) ((quietPeriod * 1000) * .5));
 
         assertNull(mockProgress.getValue());
-        modSet.getModifications(new Date(), null);
+        modSet.retrieveModificationsAsElement(new Date(), null);
         assertNull(mockProgress.getValue());
     }
 
@@ -183,7 +183,7 @@ public class ModificationSetTest extends TestCase {
         Thread.sleep((long) ((quietPeriod * 1000) * .5));
 
         assertNull(mockProgress.getValue());
-        modSet.getModifications(now, mockProgress);
+        modSet.retrieveModificationsAsElement(now, mockProgress);
         final String progressMsg = mockProgress.getValue();
         assertNotNull("Modset progress msg should not be null", progressMsg);
         assertTrue(progressMsg.indexOf(ModificationSet.MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP) > -1);
@@ -199,7 +199,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock2);
 
         // mock source controls don't care about the date
-        final Element modSetResults = modSet.getModifications(new Date(), mockProgress);
+        final Element modSetResults = modSet.retrieveModificationsAsElement(new Date(), mockProgress);
 
         DateFormat formatter = DateFormatFactory.getDateFormat();
         Element modificationsElement = new Element("modifications");
@@ -255,7 +255,7 @@ public class ModificationSetTest extends TestCase {
             }
         });
 
-        final Element actual = modSet.getModifications(new Date(), mockProgress);
+        final Element actual = modSet.retrieveModificationsAsElement(new Date(), mockProgress);
 
         Element expected = new Element("modifications");
         expected.addContent(mod1.toElement(formatter));
@@ -275,7 +275,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date(), mockProgress); // mock source
+        modSet.retrieveModificationsAsElement(new Date(), mockProgress); // mock source
         // controls don't
         // care about the
         // date
@@ -296,7 +296,7 @@ public class ModificationSetTest extends TestCase {
         modSet.add(mock1);
         modSet.add(mock2);
 
-        modSet.getModifications(new Date(), mockProgress); // mock source
+        modSet.retrieveModificationsAsElement(new Date(), mockProgress); // mock source
         // controls don't
         // care about the
         // date
@@ -314,7 +314,7 @@ public class ModificationSetTest extends TestCase {
         mock1.setProperty("property");
 
         modSet.add(mock1);
-        modSet.getModifications(new Date(), mockProgress); // mock source
+        modSet.retrieveModificationsAsElement(new Date(), mockProgress); // mock source
         // controls don't
         // care about the
         // date

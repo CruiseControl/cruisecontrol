@@ -45,8 +45,7 @@ public class MainArgsTest extends TestCase {
         final String defaultIfNoValue = "8000";
 
         //No args specified. Should get the default back.
-        String[] args = {
-        };
+        String[] args = {};
         String foundValue = MainArgs.parseArgument(args, argName, defaultIfNoParam, defaultIfNoValue);
         assertEquals(defaultIfNoParam, foundValue);
 
@@ -78,6 +77,27 @@ public class MainArgsTest extends TestCase {
         assertFalse(MainArgs.argumentPresent(args, "foo"));
 
         assertFalse(MainArgs.argumentPresent(new String[0], "foo"));
+    }
 
+    public void testParseIntArgument() throws Exception {
+        String[] args = new String[] {"-interval", "4"};
+        assertEquals(4, MainArgs.parseInt(args, "interval", 5, 6));
+
+        String[] missingArgs = new String[] {""};
+        assertEquals(5, MainArgs.parseInt(missingArgs, "interval", 5, 6));
+
+        String[] defaultargs = new String[] {"-interval"};
+        assertEquals(6, MainArgs.parseInt(defaultargs, "interval", 5, 6));
+    }
+    
+    public void testParseBooleanArgument() throws Exception {
+        String[] args = new String[] {"-enabled", "true"};
+        assertEquals(true, MainArgs.parseBoolean(args, "enabled", false, false));
+        
+        String[] missingArgs = new String[] {""};
+        assertEquals(false, MainArgs.parseBoolean(missingArgs, "enabled", false, true));
+        
+        String[] defaultargs = new String[] {"-enabled"};
+        assertEquals(true, MainArgs.parseBoolean(defaultargs, "enabled", false, true));
     }
 }

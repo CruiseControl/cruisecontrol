@@ -39,64 +39,33 @@ package net.sourceforge.cruisecontrol.dashboard;
 import java.io.File;
 
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.utils.DashboardConfig;
 
-import org.jdom.Element;
-import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 
 public class ProjectsTest extends MockObjectTestCase {
 
     private Projects projects;
 
-    private File baseDir;
-
-    private DashboardConfig cconfig;
-
-    private Mock dashboardConfig;
-
     private File logDir;
 
     private File artifactsDir;
 
-    private File projectsDir;
-
     protected void setUp() throws Exception {
-        dashboardConfig =
-                mock(DashboardConfig.class, new Class[] {Element.class}, new Object[] {new Element(
-                        "project1")});
-        baseDir = DataUtils.getConfigXmlAsFile().getParentFile();
-        cconfig = (DashboardConfig) dashboardConfig.proxy();
         logDir = DataUtils.getLogDirAsFile();
         artifactsDir = DataUtils.getArtifactsDirAsFile();
-        projectsDir = DataUtils.getProjectDirAsFile();
-        projects = new Projects(projectsDir, logDir, artifactsDir, cconfig);
+        projects = new Projects(logDir, artifactsDir, new String[0]);
     }
 
-    public void testShouldReturnLogsWhenLogDirIsEmpty() {
+    public void testShouldReturnCorrectLogDir() {
         assertEquals(new File(logDir, "project1"), projects.getLogRoot("project1"));
     }
-
-    public void testShouldReturnSourceFolder() {
-        assertEquals(new File(projectsDir, "project1"), projects.getSourceCodeRoot("project1"));
-    }
-
-    public void testShouldThrowExceptionIfLogFileDoesnotExist() {
-        try {
-            projects = new Projects(baseDir, new File("IDontExist"), artifactsDir, cconfig);
-            fail("Exception expected");
-        } catch (Exception e) {
-            // pass
-        }
-    }
-
-    public void testShouldThrowExceptionIfArtifactsFileIsNotDefined() {
-        try {
-            projects = new Projects(baseDir, logDir, null, cconfig);
-            fail("Exception expected");
-        } catch (Exception e) {
-            // pass
-        }
+    
+    public void testShouldReturnLogDirsForAllProjects() throws Exception {
+        projects = new Projects(logDir, artifactsDir, new String[] {"p1", "p2"});
+        File[] logDirs = projects.getProjectsRegistedInBuildLoop();
+        
+        assertEquals(2, logDirs.length);
+        assertEquals(new File(logDir, "p1"), logDirs[0]);
     }
 
     public void testShouldReturnArtifactsWhenArtifactsIsEmpty() throws Exception {

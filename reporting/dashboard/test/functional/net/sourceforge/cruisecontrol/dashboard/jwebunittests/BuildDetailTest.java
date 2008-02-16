@@ -38,16 +38,10 @@ package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
 import org.apache.commons.lang.StringUtils;
 
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 public class BuildDetailTest extends BaseFunctionalTest {
 
-    protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getPath());
-    }
-
     public void testShouldShowArtifactsForFailedBuild() {
-        tester.beginAt("/build/detail/project1/" + DataUtils.FAILING_BUILD_XML);
+        tester.beginAt("/tab/build/detail/project1/20051209122104");
         tester.assertTextPresent("Artifacts");
         tester.assertTextPresent("Merged Check Style");
         tester.assertTextPresent("Line has trailing spaces.");
@@ -55,32 +49,77 @@ public class BuildDetailTest extends BaseFunctionalTest {
     }
 
     public void testShouldNotShowArtifactsIfNoPublishersInConfigFile() throws Exception {
-        tester.beginAt("/build/detail/projectWithoutPublishers/log20060704155755Lbuild.490.xml");
+        tester.beginAt("/tab/build/detail/projectWithoutPublishers/20060704155755");
         tester.assertLinkNotPresentWithText("artifact.txt");
     }
 
     public void testShouldNotShowArtifactsForProjectsWithoutConfiguration() throws Exception {
-        tester.beginAt("/build/detail/projectWithoutConfiguration/log20060704155710Lbuild.489.xml");
+        tester.beginAt("/tab/build/detail/projectWithoutConfiguration/20060704155710");
         tester.assertLinkNotPresentWithText("artifact.txt");
     }
 
     public void testShouldBeAbleToOpenProjectNameWithSpace() throws Exception {
-        tester.beginAt("/build/detail/project%20space");
+        tester.beginAt("/tab/build/detail/project%20space");
         tester.assertTextPresent("project space");
     }
 
     public void testShouldShowDurationFromLastSuccessfulBuild() throws Exception {
-        tester.beginAt("/build/detail/projectWithoutConfiguration/log20060704160010.xml");
-        tester.assertTextPresent("Last successful build");
+        tester.beginAt("/tab/build/detail/projectWithoutConfiguration/20060704160010");
+        tester.assertTextPresent("Previous successful build");
         tester.assertTextPresent("minutes");
         tester.assertTextPresent("ago");
     }
 
     public void testShouldShowErrorsAndWarningTabAndBuildErrorMessages() throws Exception {
-        tester.beginAt("/build/detail/project1/log20051209122104.xml");
+        tester.beginAt("/tab/build/detail/project1/20051209122104");
         tester.assertTextPresent("Errors and Warnings");
         tester.assertTextPresent("Detected OS: Windows XP");
         tester.assertTextPresent("Cannot find something");
+        String projectsFolder = "'C:\\pdj\\src\\cruisecontrol\\target\\webtest\\cruisecontrol-bin-2.4.0-dev\\projects";
+        tester.assertTextPresent("Compilation arguments: "
+                + "'-d' "
+                + projectsFolder + "\\connectfour\\target\\classes' "
+                + "'-classpath' "
+                + projectsFolder + "\\connectfour\\target\\classes;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-launcher.jar;"
+                    + "C:\\Program Files\\Java\\jre1.5.0_05\\lib\\ext\\QTJava.zip;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-antlr.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-bcel.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-bsf.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-log4j.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-oro.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-regexp.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-resolver.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-commons-logging.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-commons-net.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-icontract.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jai.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-javamail.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jdepend.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jmf.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jsch.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-junit.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-netrexx.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-nodeps.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-starteam.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-stylebook.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-swing.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-trax.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-vaj.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-weblogic.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-xalan1.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-xslp.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\junit-3.8.1.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\xercesImpl.jar;"
+                    + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\xml-apis.jar;"
+                    + "C:\\pdj\\java\\j2sdk1.4.2_09\\lib\\tools.jar' "
+                + "'-sourcepath' "
+                + projectsFolder + "\\connectfour\\src' "
+                + "'-g:none' "
+                + "The ' characters around the executable and arguments are "
+                + "not part of the command.");
+
         tester.assertTextPresent("Build Error Message");
         tester.assertTextPresent("This is my error message");
 
@@ -89,29 +128,42 @@ public class BuildDetailTest extends BaseFunctionalTest {
     }
 
     public void testShouldEscapeSpecialCharacterInJUnitMessages() throws Exception {
-        tester.beginAt("/build/detail/project1/log20051209122104.xml");
+        tester.beginAt("/tab/build/detail/project1/20051209122104");
         assertTrue(StringUtils.contains(tester.getPageSource(), "expected:&lt;1&gt; but was:&lt;2&gt;"));
     }
 
     public void testShouldEscapeSpecialCharacterinCommitMessages() throws Exception {
-        tester.beginAt("/build/detail/project1/log20051209122104.xml");
-        assertTrue(StringUtils.contains(tester.getPageSource(),
-                "project name changed to &lt;b&gt;cache&lt;/b&gt;"));
+        tester.beginAt("/tab/build/detail/project1/20051209122104");
+        String pageSource = tester.getPageSource();
+        assertTrue(StringUtils.contains(pageSource, "project name changed to &lt;b&gt;cache&lt;/b&gt;"));
+        assertTrue(StringUtils.contains(pageSource, "[rev. 1.2]"));
+        assertTrue(StringUtils.contains(pageSource, "modified"));
+        assertTrue(StringUtils.contains(pageSource, "cc-build.xml"));
     }
 
     public void testShouldShowDefaultMessagewhenNoErrors() throws Exception {
-        tester.beginAt("/build/detail/project1/log20051209122103Lbuild.489.xml");
+        tester.beginAt("/tab/build/detail/project1/20051209122103");
         tester.assertTextPresent("No error message");
         tester.assertTextPresent("No stacktrace");
         tester.assertTextPresent("No errors or warnings");
     }
 
     public void testShouldListGZippedLogs() throws Exception {
-        tester.beginAt("/build/detail/project3");
-        tester.assertTextPresent("9 Dec 2007 12:21 GMT");
-        tester.assertTextPresent("9 Dec 2006 12:21 GMT");
+        tester.beginAt("/tab/build/detail/project3");
+        tester.assertTextPresent(convertedTime("20070209122100"));
+        tester.assertTextPresent(convertedTime("20061209122100"));
         tester.assertTextPresent("build.489");
-        tester.assertTextPresent("9 Nov 2006 12:21 GMT");
-        tester.assertTextPresent("9 Dec 2005 12:21 GMT");
+        tester.assertTextPresent(convertedTime("20061109122100"));
+        tester.assertTextPresent(convertedTime("20051209122100"));
+    }
+    
+    public void testShouldShowModifications() throws Exception {
+        tester.beginAt("/tab/build/detail/project2");
+        String pageSource = tester.getPageSource();
+
+        assertTrue(StringUtils.contains(pageSource, "[rev. 1.2]"));
+        assertTrue(StringUtils.contains(pageSource, "build.xml"));
+        assertTrue(StringUtils.contains(pageSource, "cc-build.xml"));
+        assertTrue(StringUtils.contains(pageSource, "cc-build-deleted.xml"));
     }
 }

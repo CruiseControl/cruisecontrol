@@ -63,16 +63,68 @@ public class BuildMessageExtractorTest extends TestCase {
         parseLogFile(DataUtils.getFailedBuildLbuildAsFile(), props);
         List messages = (List) props.get(BuildMessageExtractor.KEY_MESSAGES);
 
-        assertEquals(4, messages.size());
-        assertEquals("Adding reference: ant.PropertyHelper", ((BuildMessage) messages.get(0)).getMessage());
-        assertEquals(MessageLevel.DEBUG, ((BuildMessage) messages.get(0)).getLevel());
-        assertEquals("Detected Java version: 1.4 in: C:\\pdj\\java\\j2sdk1.4.2_09\\jre",
-                ((BuildMessage) messages.get(1)).getMessage());
-        assertEquals(MessageLevel.INFO, ((BuildMessage) messages.get(1)).getLevel());
-        assertEquals("Detected OS: Windows XP", ((BuildMessage) messages.get(2)).getMessage());
-        assertEquals(MessageLevel.WARN, ((BuildMessage) messages.get(2)).getLevel());
-        assertEquals("Cannot find something", ((BuildMessage) messages.get(3)).getMessage());
-        assertEquals(MessageLevel.ERROR, ((BuildMessage) messages.get(3)).getLevel());
+        assertEquals(69, messages.size());
+        assertLevelAndMessage(messages, 0, MessageLevel.DEBUG,
+                "Adding reference: ant.PropertyHelper");
+        assertLevelAndMessage(messages, 1, MessageLevel.INFO,
+                "Detected Java version: 1.4 in: C:\\pdj\\java\\j2sdk1.4.2_09\\jre");
+        assertLevelAndMessage(messages, 2, MessageLevel.WARN,
+                "Detected OS: Windows XP");
+        assertLevelAndMessage(messages, 3, MessageLevel.ERROR,
+                "Cannot find something");
+        assertLevelAndMessage(messages, 17, MessageLevel.WARN,
+                "Compilation arguments:\n"
+                + "'-d'\n"
+                + "'C:\\pdj\\src\\cruisecontrol\\target\\webtest\\cruisecontrol-bin-2.4.0-dev\\projects\\"
+                        + "connectfour\\target\\classes'\n"
+                + "'-classpath'\n"
+                + "'C:\\pdj\\src\\cruisecontrol\\target\\webtest\\cruisecontrol-bin-2.4.0-dev\\projects\\"
+                        + "connectfour\\target\\classes;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-launcher.jar;"
+                        + "C:\\Program Files\\Java\\jre1.5.0_05\\lib\\ext\\QTJava.zip;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-antlr.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-bcel.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-bsf.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-log4j.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-oro.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-regexp.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-apache-resolver.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-commons-logging.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-commons-net.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-icontract.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jai.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-javamail.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jdepend.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jmf.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-jsch.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-junit.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-netrexx.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-nodeps.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-starteam.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-stylebook.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-swing.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-trax.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-vaj.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-weblogic.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-xalan1.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant-xslp.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\ant.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\junit-3.8.1.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\xercesImpl.jar;"
+                        + "C:\\pdj\\java\\apache-ant-1.6.5\\lib\\xml-apis.jar;"
+                        + "C:\\pdj\\java\\j2sdk1.4.2_09\\lib\\tools.jar'\n"
+                + "'-sourcepath'\n"
+                + "'C:\\pdj\\src\\cruisecontrol\\target\\webtest\\cruisecontrol-bin-2.4.0-dev\\projects\\"
+                        + "connectfour\\src'\n"
+                + "'-g:none'\n"
+                + "\n"
+                + "The ' characters around the executable and arguments are\n"
+                + "not part of the command.");
+    }
+
+    private void assertLevelAndMessage(List messages, int index, MessageLevel level, String message) {
+        assertEquals(message, ((BuildMessage) messages.get(index)).getMessage());
+        assertEquals(level, ((BuildMessage) messages.get(index)).getLevel());
     }
 
     public void testShouldReturnContentOfErrorAttributeOfBuildElement() throws Exception {

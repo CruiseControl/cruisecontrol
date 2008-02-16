@@ -45,19 +45,26 @@ WordBreaker.prototype = {
 		$$('.wbrSensitive').each(this.word_break);
 	},
 	word_break: function(element) {
-		var textArray = element.innerHTML.toArray();
-		if (!textArray) return;
-		var content = '';
-		for(var i = 0; i < textArray.length;i++) {
-			if ((i + 1) % _inserter.unit == 0) {
-				content += (textArray[i] + _inserter.word_break_element());
-			} else {
-				content += textArray[i];
-			}
+		var html_in_element = element.innerHTML ? element.innerHTML.toLowerCase() : '';
+		if (html_in_element.indexOf(_inserter.word_break_element()) > -1) {
+			return;
 		}
-		element.update(content);
-	},
-	word_break_element: function() {
+        element.update(_inserter.break_text(element.innerHTML));
+    },
+    break_text : function(text) {
+        var textArray = text.toArray();
+        if (!textArray) return;
+        var content = '';
+        for(var i = 0; i < textArray.length;i++) {
+            if ((i + 1) % _inserter.unit == 0) {
+                content += (textArray[i] + _inserter.word_break_element());
+            } else {
+                content += textArray[i];
+            }
+        }
+        return content;
+    },
+    word_break_element: function() {
 		return Prototype.Browser.Gecko ? '<wbr>' : '&shy;';
 	}
 }

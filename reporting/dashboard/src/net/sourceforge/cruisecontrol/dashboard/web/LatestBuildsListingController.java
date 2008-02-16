@@ -36,66 +36,41 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.tabs.BaseTabController;
+import net.sourceforge.cruisecontrol.dashboard.web.command.ForceBuildCommand;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.web.command.ForceBuildCommand;
+public abstract class LatestBuildsListingController extends BaseTabController {
+    private LatestBuildSummariesService buildSummariesService;
 
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
+    private BuildSummaryUIService buildSummaryUIService;
 
-public class LatestBuildsListingController implements Controller {
-    private BuildSummariesService buildSummariesService;
-
-    private final BuildSummaryUIService buildSummaryUIService;
-
-    private static final int CACHE_MILLISECONDS = 5000;
-
-    private long lastScanTime = 0;
-
-    private Map cachedDataMap;
-
-    private final EnvironmentService environmentService;
-
-    public LatestBuildsListingController(BuildSummariesService buildSummaryService,
-            BuildSummaryUIService buildSummaryUIService, EnvironmentService environmentService) {
+    public LatestBuildsListingController(LatestBuildSummariesService buildSummaryService,
+                                         BuildSummaryUIService buildSummaryUIService) {
         this.buildSummariesService = buildSummaryService;
         this.buildSummaryUIService = buildSummaryUIService;
-        this.environmentService = environmentService;
     }
 
-    public synchronized ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+    protected synchronized ModelAndView handleTabRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        long now = new Date().getTime();
-        if (lastScanTime == 0 || (now - lastScanTime) > CACHE_MILLISECONDS) {
-            boolean isForceBuildEnabled = environmentService.isForceBuildEnabled();
-            lastScanTime = now;
-            cachedDataMap = new HashMap();
-            List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
-            try {
-                allProjectsBuildSummaries = buildSummariesService.updateWithLiveStatus(allProjectsBuildSummaries);
-            } catch (Exception e) {
-                // It's OK for now. Usually means that JMX wasn't available.
-            }
-            cachedDataMap.put("buildSummaries", buildSummaryUIService.transform(allProjectsBuildSummaries,
-                    true));
-            cachedDataMap.put("command", new ForceBuildCommand());
-            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
-            cachedDataMap.put("forceBuildEnabled", Boolean.valueOf(isForceBuildEnabled));
-            cachedDataMap.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
-
-        }
-        return new ModelAndView("page_latest_builds", cachedDataMap);
+        List allProjectsBuildSummaries = buildSummariesService.getLatestOfProjects();
+        Map dataMap = new HashMap();
+        dataMap.put("buildCmds", buildSummaryUIService.transformWithLevel(allProjectsBuildSummaries));
+        dataMap.put("command", new ForceBuildCommand());
+        dataMap.put("projectStatistics", new BuildSummaryStatistics(allProjectsBuildSummaries));
+        return new ModelAndView(getViewName(), dataMap);
     }
+
+    protected abstract String getViewName();
 }

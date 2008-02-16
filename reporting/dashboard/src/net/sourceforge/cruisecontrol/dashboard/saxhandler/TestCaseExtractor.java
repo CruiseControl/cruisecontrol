@@ -32,17 +32,18 @@ public class TestCaseExtractor extends SAXBasedExtractor {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         if ("testcase".equals(qName)) {
             readingTestCase = true;
-            name = attributes.getValue("name");
-            duration = attributes.getValue("time");
-            classname = attributes.getValue("classname");
+            name = getAttribute(attributes, "name");
+            duration = getAttribute(attributes, "time");
+            classname = getAttribute(attributes, "classname");
         }
+        String attributeName = "message";
         if (readingTestCase && "error".equals(qName)) {
             readingError = true;
-            errorOrFailureMessage = attributes.getValue("message");
+            errorOrFailureMessage = getAttribute(attributes, attributeName);
         }
         if (readingTestCase && "failure".equals(qName)) {
             readingFailure = true;
-            errorOrFailureMessage = attributes.getValue("message");
+            errorOrFailureMessage = getAttribute(attributes, attributeName);
         }
     }
 

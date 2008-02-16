@@ -57,8 +57,15 @@ Timer.prototype.get_elapsed_time = function() {
 PeriodicalExecuter.prototype.getCallBack = function() {
   	return  this.callback;
 }
-
-
+var old_toggle = Element.toggle;
+function setUp() {
+    Element.addMethods({toggle :  old_toggle});
+    $('project1_time_elapsed_lable').update("");
+    $('project1_time_elapsed').update("");
+    $('project1_time_remaining_lable').update("");
+    $('project1_time_remaining').update("");
+    $('timer_area').show();
+}
 
 function test_should_inoke_timer_should_register_elapse_function_as_periodical_executer() {
    var timer = new Timer("project1");
@@ -93,10 +100,6 @@ function test_timer_should_update_project_profile_box_with_specific_time() {
   assertEquals("00:00:01", content);
   content = $('project1_time_remaining').innerHTML
   assertEquals("00:04:59", content);
-  content = $('project1_time_elapsed_lable').innerHTML
-  assertEquals("Elapsed&nbsp;", content);
-  content = $('project1_time_remaining_lable').innerHTML
-  assertEquals("&nbsp;remaining&nbsp;", content);
 }
 
 function test_timer_should_update_project_profile_box_with_specific_time_and_elapsed_time() {
@@ -108,10 +111,6 @@ function test_timer_should_update_project_profile_box_with_specific_time_and_ela
   assertEquals("00:00:11", content);
   content = $('project1_time_remaining').innerHTML
   assertEquals("00:04:49", content);
-  content = $('project1_time_elapsed_lable').innerHTML
-  assertEquals("Elapsed&nbsp;", content);
-  content = $('project1_time_remaining_lable').innerHTML
-  assertEquals("&nbsp;remaining&nbsp;", content);
 }
 
 function test_should_not_throw_any_exception_when_the_target_html_element_missing() {
@@ -167,6 +166,47 @@ function test_should_be_able_to_stop_executer() {
 	assertFalse($('project1_timer_area').visible());
 }
 
+function test_should_not_report_longer_than_when_duration_is_zero() {
+   var timer = new Timer("project1");
+   timer.last_build_duration(0);
+   assertEquals("", timer.report_remaining());
+}
+
+function test_should_not_update_remainning_when_duration_is_zero() {
+   var timer = new Timer("project1");
+   timer.report_remaining = function() {
+       return "1 minutes";
+   }
+   assertEquals("", $('project1_time_remaining_lable').innerHTML);
+   assertEquals("", $('project1_time_remaining').innerHTML);
+   timer.update();
+   assertEquals("", $('project1_time_remaining').innerHTML);
+   assertEquals("", $('project1_time_remaining_lable').innerHTML);
+}
+
+function test_should_return_remaining_when_elapsed_time_is_less_than_duration() {
+   var timer = new Timer("project1");
+   timer._remaining_time = function() {
+       return 1;
+   }
+   assertEquals("Remaining", timer.report_remaining_label());
+}
+
+function test_should_return_longer_by_when_elaped_time_is_greater_than_duration() {
+    var timer = new Timer("project1");
+    timer._remaining_time = function() {
+       return -5;
+   }
+   assertEquals("Longer by", timer.report_remaining_label());
+}
+
+function test_should_hide_timer_area() {
+    var is_invoked = false;
+    Element.addMethods({toggle : function(){is_invoked = true}});
+    var timer = new Timer("project1");
+    timer.toggle(function(elem){return true});
+    assertTrue(is_invoked);
+}
 </script>
 </head>
 <body>
@@ -190,5 +230,6 @@ function test_should_be_able_to_stop_executer() {
 			</div>
 		</div>
 	</div>
+    <div id="timer_area" class="timer_area"></div>
 </body>
 </html>

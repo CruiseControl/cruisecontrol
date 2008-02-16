@@ -36,25 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
-import net.sourceforge.cruisecontrol.dashboard.Build;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 
 public class RSSBuildSummaryAdapter implements XmlAdapter {
-    private final Build summary;
+    private final BuildSummary summary;
 
     private String baseURL;
 
-    public RSSBuildSummaryAdapter(String baseURL, Build summary) {
+    public RSSBuildSummaryAdapter(String baseURL, BuildSummary summary) {
         this.summary = summary;
         this.baseURL = baseURL;
-    }
-
-    public String getStatus() {
-        if (summary.hasPassed()) {
-            return "passed";
-        } else {
-            return "FAILED";
-        }
     }
 
     public String getProjectName() {
@@ -68,12 +61,26 @@ public class RSSBuildSummaryAdapter implements XmlAdapter {
                 .append('\n').append("    <description>Build ").append(getStatus()).append(
                         "</description>").append('\n').append("    <pubDate>").append(getPubDate())
                 .append("</pubDate>").append('\n').append("    <link>").append(baseURL).append(
-                        "build/detail/").append(getProjectName()).append("</link>").append('\n').append(
+                        "tab/build/detail/").append(getProjectName()).append("</link>").append('\n').append(
                         "  </item>").append('\n');
         return sb.toString();
     }
 
     public Object getPubDate() {
-        return CCDateFormatter.format(summary.getBuildDate(), "EEE, dd MMM yyyy HH:mm:ss Z");
+        if (PreviousResult.UNKNOWN.equals(summary.getPreviousBuildResult())) {
+            return "";
+        } else {
+            return CCDateFormatter.format(summary.getBuildDate(), "EEE, dd MMM yyyy HH:mm:ss Z");
+        }
+    }
+
+    public String getStatus() {
+        PreviousResult previousBuildResult = summary.getPreviousBuildResult();
+        String status = previousBuildResult.getStatus();
+        if (PreviousResult.PASSED.equals(previousBuildResult)) {
+            return status.toLowerCase();
+        } else {
+            return status.toUpperCase();
+       }
     }
 }

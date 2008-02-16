@@ -81,6 +81,15 @@ function test_should_insert_shy_to_individual_element_not_in_firefox() {
 	assertEquals('ad' + specialchar + 'dp' + specialchar + 'r', content);		
 }
 
+function test_should_not_insert_wbr_when_wbr_already_exist() {
+	Prototype.Browser.Gecko = true;
+	var wbr = new WordBreaker(3);
+	var expected = 'ad<wbr>dpr';
+	$('wbr1').innerHTML = expected;
+	wbr.insert();
+	var content = $('wbr1').innerHTML.toLowerCase();
+	assertEquals(expected, content);
+}
 
 </script>
 </head>

@@ -32,7 +32,7 @@ public class ProjectControllerTest extends TestCase {
         project.setProjectConfig(projectConfig);
 
         ProjectMBean controller = new ProjectController(project);
-        String[][] message = controller.getCommitMessages();
+        String[][] message = controller.commitMessages();
         assertEquals(message[0][0], "user1");
         assertEquals(message[0][1], "comment1");
         assertEquals(message[1][0], "user2");

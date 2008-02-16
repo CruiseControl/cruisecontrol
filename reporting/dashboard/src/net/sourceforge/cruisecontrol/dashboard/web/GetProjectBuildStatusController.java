@@ -36,25 +36,21 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
+import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+import org.apache.log4j.Logger;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummariesService;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
-import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
-
-import org.apache.log4j.Logger;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
 
 public class GetProjectBuildStatusController implements Controller {
     public static final String PROJECT_STATUS_IN_BUILDING = "Building";
@@ -65,49 +61,32 @@ public class GetProjectBuildStatusController implements Controller {
 
     public static final String CACHE_CONTROL = "max-age=1, no-cache";
 
-    public CruiseControlJMXService cruiseControlJMXService;
-
-    private final BuildSummariesService buildSummariesSerivce;
+    private final LatestBuildSummariesService buildSummariesSerivce;
 
     private final BuildSummaryUIService uiService;
 
-    private long lastScanTime = 0;
-
-    private Map cachedBuildInfo = new HashMap();
-
-    public GetProjectBuildStatusController(BuildSummariesService buildSummarySerivce,
-            CruiseControlJMXService jmxSerivce, BuildSummaryUIService uiService) {
+    public GetProjectBuildStatusController(LatestBuildSummariesService buildSummarySerivce,
+                                           BuildSummaryUIService uiService) {
         this.buildSummariesSerivce = buildSummarySerivce;
-        this.cruiseControlJMXService = jmxSerivce;
         this.uiService = uiService;
     }
 
-    public synchronized ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
-        long now = new Date().getTime();
-        if ((now - lastScanTime) > CACHE_MILLISECONDS) {
-            lastScanTime = now;
-            cachedBuildInfo = new HashMap();
-            try {
-                if (cruiseControlJMXService.isCruiseAlive()) {
-                    List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
-                    projectsBuildSummaries =
-                            buildSummariesSerivce.updateWithLiveStatus(projectsBuildSummaries);
-                    List buildSummaryCommands = uiService.transform(projectsBuildSummaries, true);
-                    cachedBuildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
-                } else {
-                    cachedBuildInfo.put("error", "cruisecontrol unavailable");
-                }
-            } catch (Exception e) {
-                LOGGER.warn(e);
-                cachedBuildInfo.put("error", e.getMessage());
-            }
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
+        Map buildInfo = new HashMap();
+        try {
+            List projectsBuildSummaries = buildSummariesSerivce.getLatestOfProjects();
+            List buildSummaryCommands = uiService.transformWithLevel(projectsBuildSummaries);
+            buildInfo.put(JsonView.RENDER_DIRECT, createBuildInfos(buildSummaryCommands));
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.warn(e);
+            buildInfo.put("error", e.getMessage());
         }
         // This will force the browser to clear the cache only for this page.
         // If any other pages need to clear the cache, we might want to move this
         // logic to an intercepter.
         response.addHeader("Cache-Control", CACHE_CONTROL);
-
-        return new ModelAndView(new JsonView(), new HashMap(cachedBuildInfo));
+        return new ModelAndView(new JsonView(), new HashMap(buildInfo));
     }
 
     private List createBuildInfos(List commands) {

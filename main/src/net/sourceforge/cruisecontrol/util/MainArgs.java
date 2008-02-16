@@ -108,4 +108,17 @@ public final class MainArgs {
     public static boolean argumentPresent(String[] args, String argName) {
         return findIndex(args, argName) != NOT_FOUND;
     }
+
+    public static boolean parseBoolean(String[] args, String argName, boolean defaultIfNoParam,
+            boolean defaultIfNoValue) {
+        String booleanString =
+                parseArgument(args, argName, Boolean.toString(defaultIfNoParam), Boolean
+                        .toString(defaultIfNoValue));
+        try {
+            return Boolean.valueOf(booleanString).booleanValue();
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("-" + argName + " parameter, specified as '" + booleanString
+                    + "', requires boolean argument");
+        }
+    }
 }

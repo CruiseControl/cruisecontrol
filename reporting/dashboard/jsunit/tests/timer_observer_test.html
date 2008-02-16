@@ -1,0 +1,172 @@
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ --><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>CCE Dashboard Tests</title>
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<link rel="stylesheet" type="text/css" href="../css/jsUnitStyle.css">
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitCore.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsUnitVersionCheck.js"></script>
+<script language="JavaScript" type="text/javascript" src="../app/jsTestHelper.js"></script>
+<script language="JavaScript" type="text/javascript" src="../compressed/all.js"></script>
+
+<script language="JavaScript" type="text/javascript">
+	
+var json;
+var observer;
+
+function setUp() {
+    $('project1_time_elapsed').innerHTML = ''
+	json = building_json('project1');
+	json.building_info.build_duration = '1 hours 1 minutes 1 seconds';
+	json.building_info.build_time_elapsed = 0;
+	observer = new TimerObserver();
+	observer.timers = [];
+}
+
+function test_should_create_timer_when_project_status_is_building() {
+	var timer_before = observer.get_timer(json.building_info.project_name);
+	assertNotUndefined(timer_before);
+	assertTrue(timer_before instanceof Timer);
+	var timer_after = observer.get_timer(json.building_info.project_name);
+	assertTrue(timer_before === timer_after);
+}
+
+function test_should_clean_timer_when_project_status_is_not_building() {
+	var timer = new Timer("project");
+	observer.start_timer(timer, json);
+	assertFalse(timer.is_stopped());
+
+	json = passed_json('project');
+	json.building_info.build_duration = '1 hours 1 minutes 1 seconds';
+	observer.start_timer(timer, json);
+	assertTrue(timer.is_stopped());
+	assertEquals(0, timer.get_last_build_duration());
+}
+
+
+function test_should_return_same_object_when_the_status_is_still_building() {
+	json = building_json('project2');
+	var timer_before = observer.get_timer(json.building_info.project_name);
+	var timer_after = observer.get_timer(json.building_info.project_name);
+	assertTrue(timer_before === timer_after);
+}
+
+function test_should_return_different_timer_object_when_project_name_is_different() {
+	var project1_timer = observer.get_timer('project1');
+	var project2_timer = observer.get_timer('project2');
+
+	assertEquals("project1", project1_timer.get_project_name())
+	assertEquals("project2", project2_timer.get_project_name())
+	assertFalse(project1_timer === project2_timer)
+}
+
+function test_should_be_one_timer_instance_for_different_case() {
+	var timer_passed   = observer.get_timer(passed_json('project1'));
+	var timer_building = observer.get_timer(building_json("project1"));
+	var timer_failed   = observer.get_timer(failed_json("project1"));
+
+	assertTrue(timer_passed === timer_building);
+	assertTrue(timer_passed === timer_failed);
+}
+
+function test_timer_should_be_stopped_when_after_initializing() {
+	var timer = observer.get_timer(passed_json('project1'));
+	assertNotNull(timer);
+	assertTrue(timer.is_stopped());
+}
+
+function test_should_update_the_duration_when_the_build_is_triggered_again() {
+	json.building_info.project_name = 'project6';
+	json.building_info.build_duration = '300';
+	json.building_info.build_time_elapsed = 10;	
+	var timer = new Timer("project")
+
+	assertEquals(0, timer.get_last_build_duration());
+	observer.start_timer(timer, json);
+	assertEquals(300, timer.get_last_build_duration());
+	assertEquals(10,  timer.get_elapsed_time());
+}
+
+
+function test_should_convert_human_reading_time_to_seconds() {
+	var time = "2 hours 2 minutes 2 seconds"
+	assertEquals(7322, observer.evaluate_time_to_seconds(time));	
+	time = "2 hours 2 seconds"
+	assertEquals(7202, observer.evaluate_time_to_seconds(time));
+	time = "10 minutes"
+	assertEquals(600, observer.evaluate_time_to_seconds(time));
+	time = "1 hours"
+	assertEquals(3600, observer.evaluate_time_to_seconds(time));
+	time = " 14 seconds"
+	assertEquals(14, observer.evaluate_time_to_seconds(time));	
+}
+function test_should_return_human_for_singular_reading_time_to_seconds() {
+	var time = "1 hour 1 minute 1 second"
+	assertEquals(3661, observer.evaluate_time_to_seconds(time));	
+
+}
+
+function test_should_return_0_when_failed_to_eval_the_time() {
+	var time = "whever"
+	assertEquals(0, observer.evaluate_time_to_seconds(time));
+}
+
+</script>
+</head>
+<body>
+	<div id="project1_profile_box">
+	    <div id="project1_profile" class="passed">
+			<div style="float:right">
+			    <a><img src="images/wrench.png" alt="Configure project" title="Configure project" /></a>
+	    		<a><img src="images/bin.png" alt="Remove Project" title="Remove Project" /></a>
+			</div>
+			<div style="float:right;padding-right:2px;">
+			    <a id="project1_forcebuild" onclick='ajax_force_build("projectName", "project1")'><img src="images/lightning.png" alt="Force build" title="Force build"/></a>
+			</div>
+		   	<p style="padding:1px;"><strong><a id="project1_build_detail" href="buildDetail.html?filename=log20060704155710Lbuild.489.xml&project=project1">project1 passed</a>
+		   	<a id="project1_build_date" style="text-decoration: none;">at 12:21 on 9 Dec 2005</a></strong>
+   			<a><img src="images/flag_green.png" alt="Past successful builds" title="Past successful builds"/></a> |  <a href="projectDetail.html?project=project1" title="All Builds of Project project1"><img src="images/bricks.png"/></a></p>
+   			<span id="project1_time_elapsed"></span><span id="project1_time_remaining"></span>
+		</div>
+	</div>
+</body>
+</html>

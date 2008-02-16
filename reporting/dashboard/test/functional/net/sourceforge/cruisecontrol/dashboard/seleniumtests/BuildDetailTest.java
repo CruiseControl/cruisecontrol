@@ -36,35 +36,142 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
-import org.apache.commons.lang.StringUtils;
-
 public class BuildDetailTest extends SeleniumTestCase {
 
-    public void testShouldShowUnknownIfCannotGetDuration() throws Exception {
-        selenium.open("/dashboard/build/detail/cclive/log20051209122104.xml");
-        assertTrue(selenium.isTextPresent("Unknown"));
+    public void testShouldNotContainCodeLeakWhenAFailedTestcaseHasNoMessage() throws Exception {
+        openBuildDetailPage("project1", "20051209122104");
+        clickTab("Tests", "Test Suites");
+        String testName = "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest (3)";
+        clickElementWithText("h3", testName);
+        textShouldNOTPresent("$esc");
+    }
 
-        selenium.open("/dashboard/build/detail/project space/log20051209122104Lbuild.467.xml");
-        assertTrue(selenium.isTextPresent("Unknown"));
+    public void testShouldShowUnknownIfCannotGetDuration() throws Exception {
+        openBuildDetailPage("cclive", "20051209122104");
+        textShouldPresent("Unknown");
+
+        openBuildDetailPage("project space", "20051209122104");
+        textShouldPresent("Unknown");
     }
 
     public void testShouldShowDurationIfBeAbleToGetDuration() throws Exception {
-        selenium.open("/dashboard/build/detail/project2/log20051209122103.xml");
-        assertFalse(selenium.isTextPresent("Unknown"));
-        assertTrue(selenium.isTextPresent("3 minutes 10 seconds"));
+        openBuildDetailPage("project2", "20051209122103");
+        textShouldNOTPresent("Unknown");
+        textShouldPresent("3 minutes 10 seconds");
+    }
+
+    public void testShouldDisplayToolkitInBuildDetailPage() throws Exception {
+        openBuildDetailPage("project2", "20051209122103");
+        elementShouldPresent("project2_forcebuild");
+        elementShouldPresent("project2_config_panel");
+
+        clickConfigPanelOf("project2");
+        elementShouldBeVisible("toolkit_project2");
+        clickElementWithTextAndWait("span", "X");
+        elementShouldNOTBeVisible("toolkit_project2");
+
+        forceBuildByClick("project2");
+        elementShouldAppearInCertainTime("trans_message", 6);
+
+        openBuildsPage();
+        textShouldAppearInCertainTime(BUILDING_STARTED, FORCE_BUILD_DURATION);
+
+        openBuildDetailPageDirectly("project2");
+        //Work around Time Dependency
+        if (user.isTextPresent("now building")) {
+            elementShouldNOTBeVisible("project2_forcebuild");
+            elementShouldNOTBeVisible("project2_config_panel");
+            textShouldAppearInCertainTime("see details", 30);
+        }
+        elementShouldPresent("project2_forcebuild");
+        elementShouldPresent("project2_config_panel");
     }
 
     public void testShouldShowHyperLinkOnCommitMessageForActiveBuild() throws Exception {
-        openAndWaiting("/dashboard/dashboard", 5);
-        selenium.click("//li[@id='builds']/a");
-        selenium.click("project1_forcebuild");
-        waitingForTextAppear(BUILDING_STARTED, FORCE_BUILD_DURATION);
-        selenium.click("project1_build_detail");
-        selenium.waitForPageToLoad("5000");
-        waitingForTextAppear("build456", 5);
-        String actual = selenium.getHtmlSource().toLowerCase();
-        String expected =
-                "fixed the <a href=\"https://mingle05.thoughtworks.com/projects/project1/cards/456\">build456</a>";
-        assertTrue(actual, StringUtils.contains(actual, expected));
+        openBuildsPage();
+        forceBuildByClick("project1");
+        textShouldAppearInCertainTime(BUILDING_STARTED, FORCE_BUILD_DURATION);
+
+        clickToOpenBuildDetailPageOf("project1");
+        textShouldAppearInCertainTime("joe", BUILD_DURATION);
+        textShouldBeContainedInHtmlSource("fixed the <a href=\"https://mingle05.thoughtworks.com/projects/project1/cards/456\">build456</a>");
     }
+
+    public void testShouldDisplayErrorPageWhenBuildFileIsMissing() throws Exception {
+        openBuildDetailPage("bbc", "12312313");
+        textShouldPresent("The requested build log 12312313 does not exist in project bbc");
+    }
+
+    public void testShouldDisplayErrorPageWhenProjectIsMissing() throws Exception {
+        openBuildDetailPageDirectly("bbc");
+        textShouldPresent("The requested project bbc does not exist or does not have any logs");
+    }
+
+    public void testShouldDisplayErrorPageWhenNoProjectSpecified() throws Exception {
+        openBuildDetailPageDirectly("");
+        textShouldPresent("No project specified");
+    }
+
+    private void elementShouldBeVisibleUsingPrototype(String element) {
+		String isVisibleString = "this.browserbot.findElement('id=" + element + "').visible()";
+		assertEquals("true", user.getEval(isVisibleString));
+	}
+
+    private void clickTab(String tabName, String textToBeShown) {
+        clickElementWithText("span", tabName);
+        textShouldAppearInCertainTime(textToBeShown, 10);
+    }
+
+//TODO check whether selenium has the bug on detecting the visibility of element. 
+//    private void assertHiddenElementNowCanBeVisible(String text) throws Exception {
+//    	assertFalse(this.user.isVisible("//h2[text()='" + text + "']/../div[@class='collapsible_content']/pre"));
+//        clickElementWithText("h2", text);
+//        Thread.sleep(3000);
+//        assertTrue(this.user.isVisible("//h2[text()='" + text + "']/../div[@class='collapsible_content']/pre"));
+//    }
+
+//    private void assertHiddenElementIdNowCanBeVisible(String hiddenElement, String clickElement) throws Exception {
+//        elementShouldNOTBeVisible(hiddenElement);
+//        user.click(clickElement);
+//        Thread.sleep(4000);
+//        elementShouldBeVisibleUsingPrototype(hiddenElement);
+//    }
+//    public void testShouldExpandTestsWhenClicked() throws Exception {
+//        openBuildDetailPage("project2", "20051209122103");
+//        clickTab("Tests", "Test Suites");
+//
+//        assertHiddenElementNowCanBeVisible("Test Suites (1)");
+//
+//        String testName = "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest";
+//        assertHiddenElementIdNowCanBeVisible("error_" + testName, "title_error_" + testName);
+//        assertHiddenElementIdNowCanBeVisible("failed_" + testName, "title_failed_" + testName);
+//    }
+//
+//    public void testShouldNotDisplayTestErrorAndFailuresWhenThereArentAny() throws Exception {
+//        openBuildDetailPage("queuedPassed", "20051209122103");
+//        clickTab("Tests", "Test Suites");
+//
+//        assertHiddenElementNowCanBeVisible("Test Suites (2)");
+//        textShouldNOTPresent("Test Errors");
+//        textShouldNOTPresent("Test Failures");
+//    }
+//    public void testShouldExpandErrorsAndWarningElementsWhenTheyExist() throws Exception {
+//        openBuildDetailPage("project2", "20051209122103");
+//        clickTab("Errors and Warnings", "Stacktrace");
+//
+//        assertHiddenElementNowCanBeVisible("Stacktrace");
+//        assertHiddenElementNowCanBeVisible("Errors and Warnings");
+//    }
+//    public void testShouldIndicateNotExistsWhenTheyDoNotExist() throws Exception {
+//        openBuildDetailPage("queuedPassed", "log20051209122103Lbuild.489.xml");
+//        clickTab("Errors and Warnings", "Stacktrace");
+//
+//        elementShouldBeVisibleUsingPrototype("stacktrace");
+//        elementShouldContainText("stacktrace", "No stacktrace");
+//
+//        elementShouldBeVisibleUsingPrototype("errors_and_warnings_element");
+//        elementShouldContainText("errors_and_warnings_element", "No errors or warnings");
+//    }
+
 }
+

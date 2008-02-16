@@ -1,0 +1,283 @@
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ 
+ /* Styles for build boxes on compact dashboard page */
+
+@import url("build_common.css");
+
+.bar {
+    display: block;
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    margin: 0.5em;
+    float: left;
+	background-color: #f0f1ec;
+}
+
+/* Ensure that links in build boxes cover the entire area of the box */
+
+.bar a {
+	display: block;
+	width: 38px;
+	height: 30px;
+	min-height: 30px;
+}
+
+.passed .level_0 {
+    background-color: #51FF51;
+}
+.passed .level_1 {
+    background-color: #00FF00;
+}
+.passed .level_2 {
+    background-color: #00EE00;
+}
+.passed .level_3 {
+    background-color: #00CD00;
+}
+.passed .level_4 {
+    background-color: #009900;
+}
+.passed .level_5 {
+    background-color: #008b00;
+}
+.passed .level_6 {
+    background-color: #008000;
+}
+.passed .level_7 {
+    background-color: #006400;
+}
+.passed .level_8 {
+    background-color: #004F00;
+}
+
+.failed .level_0 {
+    background-color: #FF5A5A;
+}
+.failed .level_1 {
+    background-color: #FF4646;
+}
+.failed .level_2 {
+    background-color: #FF4141;
+}
+.failed .level_3 {
+    background-color: #FF3c3c;
+}
+.failed .level_4 {
+    background-color: #FF3737;
+}
+.failed .level_5 {
+    background-color: #FF2828;
+}
+.failed .level_6 {
+    background-color: #FF1d1d;
+}
+.failed .level_7 {
+    background-color: #F50000;
+}
+.failed .level_8 {
+    background-color: #ee0000;
+}
+
+.discontinued .level_0 {
+    background-color: #ccc;
+}
+.discontinued .level_1 {
+    background-color: #ccc;
+}
+.discontinued .level_2 {
+    background-color: #ccc;
+}
+.discontinued .level_3 {
+    background-color: #ccc;
+}
+.discontinued .level_4 {
+    background-color: #ccc;
+}
+.discontinued .level_5 {
+    background-color: #ccc;
+}
+.discontinued .level_6 {
+    background-color: #ccc;
+}
+.discontinued .level_7 {
+    background-color: #ccc;
+}
+.discontinued .level_8 {
+    background-color: #ccc;
+}
+
+
+.paused .round_corner {
+    background-image: url( "../images/icon-paused-medium.gif" );
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.queued .round_corner {
+    background-image: url( "../images/icon-queued-medium.gif" );
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.building_passed .level_unknown, .building_unknown .level_unknown, .building_unknown .level_unknown {
+    background-color: #B6FFB1;
+	background-image: url( "../images/icon-build-spinning-medium.gif" );
+	background-repeat: no-repeat;
+	background-position: center;
+    color : #030;
+}
+
+.building_failed .level_unknown {
+	background-color: #f9d861;
+    background-image: url( "../images/icon-build-spinning-medium.gif" );
+	background-repeat: no-repeat;
+	background-position: center;
+	color : #c30;
+}
+
+
+.inactive .level_unknown {
+    background-color: #ccc;
+	color : #666;
+}
+
+/*The icons in the tool panel of the dashboard page*/
+.tools_bar_holder div.entry {
+	padding : 0;
+}
+
+.tools_bar_holder div.entry a {
+	display : block;
+	padding : 5px 0 5px 30px;
+}
+
+#add_project a {
+	background : url( ../images/icon-add-project.gif ) left center no-repeat;
+}
+
+#rss_feed_for_all a {
+	background : url( ../images/rssicon_small.gif ) left center no-repeat;
+}
+
+#configure_panel a {
+	background : url( ../images/icon-configure-panel.gif ) left center no-repeat;
+}
+
+#cctray a {
+	background : url( ../images/cctrayicon_small.gif ) left center no-repeat;
+}
+
+#cc-config a {
+	background : url( ../images/cc-configicon_small.gif ) left center no-repeat;
+}
+
+.entry_set .info {
+	background : none;
+	display : block;
+	font-weight : normal;
+	padding : 10px 10px 10px 30px;
+}
+
+.entry {
+	line-height : 200%;
+	padding-left : 3em;
+	background : none;
+	margin-bottom : 10px;
+}
+
+.summary {
+	padding-left : 0;
+}
+
+
+#statistics_total {
+	padding-left : 0;
+}
+
+.project_summary_panel {
+	padding : 10px 10px 200px 10px;
+	margin-top : -14px;
+	background : #e0dfd5 url( ../images/summary_holder_background_fade.gif ) top left repeat-x;
+}
+
+.build_status_bar_container {
+	margin : 0 auto;
+	min-height : 300px;
+	background : #f1f0ec;
+	padding-left : 10px;
+	
+}
+
+/* project summary panel*/
+
+.projects_summary {
+	font-size : 1em;
+	padding : 10px;
+	background-color : #cfcec9;
+	margin-bottom : 10px;
+}
+
+
+div.tabContent {
+	padding-top : 5px;
+}
+
+
+#project_summary_panel .title {
+	font-weight : bold;
+	line-height : 200%;
+	margin : 2em  0  0  0;
+	background-color : #eee;
+}
+
+
+#project_summary_panel .title span {
+	padding : 5px 0 5px 10px;
+	margin-right : 10px;
+	display : block;
+	background-color : #eee;
+}
+
+#statistics_rate {
+	display : inline;
+	padding-left : 0.3em;
+	font-weight : bold;
+	clear : both;
+	margin-top : 1em;
+}

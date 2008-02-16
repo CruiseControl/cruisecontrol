@@ -39,36 +39,45 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
+import java.io.PrintWriter;
+
 public class GetProjectBuildOutputController implements Controller {
 
-    private final CruiseControlJMXService jmxService;
+    private final BuildLoopQueryService buildLoopQueryService;
 
-    public GetProjectBuildOutputController(CruiseControlJMXService service) {
-        this.jmxService = service;
+    public GetProjectBuildOutputController(BuildLoopQueryService service) {
+        this.buildLoopQueryService = service;
     }
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String projectName = request.getParameter("project");
         String start = request.getParameter("start");
         int startAsInt = (start == null) ? 0 : Integer.parseInt(start);
-        String[] output = jmxService.getBuildOutput(projectName, startAsInt);
+        String[] output = buildLoopQueryService.getBuildOutput(projectName, startAsInt);
         response.addHeader("X-JSON", "[" + calculateNextStart(startAsInt, output) + "]");
         response.setContentType("text/plain");
-        response.getWriter().write(StringUtils.join(output, "\n"));
-        if (output.length > 0) {
-            response.getWriter().write("\n");
+        if (output != null) {
+            PrintWriter writer = response.getWriter();
+            try {
+                writer.write(StringUtils.join(output, "\n"));
+                if (output.length > 0) {
+                    response.getWriter().write("\n");
+                }
+            } finally {
+                writer.close();
+            }
         }
         return null;
     }
 
-    private int calculateNextStart(int start, String[] outputs) {
-        if (outputs.length == 0) {
+    int calculateNextStart(int start, String[] outputs) {
+        if (outputs == null || outputs.length == 0) {
             return start;
         }
         String firstLine = outputs[0];

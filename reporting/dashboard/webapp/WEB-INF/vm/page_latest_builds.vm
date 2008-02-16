@@ -1,102 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-    #parse("partial/partial_head.vm")
-<title>Projects</title>
-<link href="$req.getContextPath()/css/tool_tip.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_bar.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_profile.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<script>
-ajax_periodical_refresh_dashboard_executer()
-Tooltip.showEvent = "mouseover";
-Tooltip.hideEvent = "mouseout";
+#parse("tab/header.vm")
+<script type="text/javascript">
+	dashboard_periodical_executer.register(new MissingProjectObserver(), new BuildProfileObserver(), new TimerObserver(), new StatisticsObserver());
 </script>
-</head>
-<body>
-<div id="doc3" class="yui-t7">
-#parse('menu/menu_dashboard.vm')
 
-  <div id="bd">
-        <div class="yui-ge build_summary_page" id="tabscontent">
-
-            <!-- tab content 1 -->
-            <div id="tabContent1" class="yui-u first tabContent" $dashboard>
-                        <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
-                        <div id="statusbar" class="projects build_status_bar_container">
-                                #foreach( $buildSummary in $buildSummaries )
-                                    #parse("latest_builds/latest_builds_bar_${buildSummary.build.status.status.toLowerCase()}.vm")
-                                #end
-                        </div>
-                        <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
-            </div>
-            <!-- end tab content 1 -->
-
-            <!-- project summary -->
-            <div id="project_summary_panel" class="project_summary_panel $project_summary_layout">
-            	<!--to fix the IE multiclass bug-->
-            	<div class="iehack">
-               		<div class="projects_summary_holder">
-	                	 <div class="title"><span>Summary</span></div>
-	                     <div class="projects_summary">
-						   <div class="entry_set">
-	                        <div class="info total" id="statistics_total">$projectStatistics.total() project build(s)</div>
-	                        <div class="info failed" id="statistics_failed">$projectStatistics.failed() project build(s) failed</div>
-	                        <div class="info passed" id="statistics_passed">$projectStatistics.passed() project build(s) succeeded</div>
-	                        <div class="info inactive" id="statistics_inactive">$projectStatistics.inactive() project(s) inactive</div>
-	                        <div class="info building" id="statistics_building">$projectStatistics.building() project(s) building</div>
-	                        <div class="summary" id="statistics_rate">$projectStatistics.rate() of projects passing</div>
-	                       </div>
-	                       <div class="clear"> &nbsp; </div>
-	                     </div>
-	                     <div class="clear"> &nbsp; </div>
-	                </div>
-	                <div class="tools_bar_holder">
-	                            <div class="title actions_bar"><span>Tools</span></div>
-	                            <div class="projects_summary actions_bar">
-	                               <div id="add_project" class="entry"><a href="$req.getContextPath()/admin/action/add" title="Add new project">Add a project</a></div>
-	                               <div id="rss_feed_for_all" class="entry"><a href="$req.getContextPath()/rss.xml" title="RSS Feed">RSS Feed</a></div>
-	                               <div id="cctray" class="entry"><a href="$req.getContextPath()/cctray.xml" title="CCTray">for CCTray</a></div>
-	                               <div id="cc-config" class="entry"><a href="/cc-config/cruisecontrol-gui.jnlp" title="CC-Config">for CC-Config</a></div>
-	                               <div id="configure_panel" class="entry"><a href="$req.getContextPath()/admin/mx4j" title="JMX Console">JMX Console</a></div>
-	                            <div class="clear"> &nbsp; </div>
-	                           </div>
-	                </div>
-	                <div class="clear"> &nbsp; </div>
-	           </div>
-            </div>
-            <!-- end project summary -->
-
-            <!-- tab content 2 -->
-            <div id="tabContent2"  class="yui-g tabContent" $builds>
-                    <div id="cruisecontrol_status" class="cc_status transparent_message transparent_notice" style="display:none">CruiseControl is currently unavailable. You will not be able to force a project build.</div>
-                    <span class="page_panel"><b class="rtop"><b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b></b></span>
-                    <div class="projects_profile build_status_bar_container" >
-                            #if ($buildSummaries.size() > 0)
-                                #foreach( $buildSummary in $buildSummaries )
-                                    <div id="${buildSummary.build.projectName}_profile_box">
-                                        #parse("latest_builds/latest_builds_profile_${buildSummary.build.status.status.toLowerCase()}.vm")
-                                    </div>
-                                #end
-                            #else
-                                <h2>No projects found</h2>
-                            #end
+<div id="bd">
+    <div class="yui-ge build_summary_page" id="tabscontent">
+        #parse("partial/partial_warning.vm")
+       <!-- project summary -->
+        <div id="project_summary_panel" class="project_summary_panel yui-g">
+            #parse("latest_builds/build_summary_panel_partial.vm")
+        </div>
+        <!-- end project summary -->
+        <div id="tabContent2"  class="yui-g tabContent">
+            <div id="statusbar" class="build_status_bar_container">
+            #if ($buildCmds.size() > 0)
+                #foreach( $buildCmd in $buildCmds )
+                    <div id="${buildCmd.build.projectName}_profile_box">
+                        #set($build_date_text="${buildCmd.build.getConvertedTime()}")
+                        #parse("latest_builds/latest_builds_profile_${buildCmd.getViewableStatus()}.vm")
                     </div>
-                    <span class="page_panel"><b class="rbottom"><b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b></b></span>
+                #end
+            #else
+                <h2>No projects found</h2>
+            #end
             </div>
-            <!-- end tab content 2 -->
-
+        </div>
     </div>
     <!-- end tabs content -->
-    <div id="trans_message"class="transparent_message transparent_notice" style="display:none">Your build is scheduled</div>
-
 </div>
-<!-- end bd -->
+
 
 #parse("partial/partial_flash_message.vm")
-
-</div>
-
-</body>
-</html>
+<!-- end bd -->
+#parse("tab/footer.vm")

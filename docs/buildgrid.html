@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<title>CruiseControl Build Grid</title>
+<style type="text/css" media="all">
+       @import "cruisecontrol.css";
+       @import "dashboard.css";
+   </style>
+<link href="print.css" type="text/css" rel="stylesheet" media="print" />
+</head>
+<body>
+<div class="header">
+<div class="hostedby">Hosted By:<br />
+<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88"
+	height="31" alt="SourceForge" /></a></div>
+<div class="logo"><img alt="CruiseControl" src="banner.png" /></div>
+</div>
+<div class="container">&nbsp;
+<div id="menu">
+<ul id="menulist">
+	<li class="top"><a href="index.html">home</a></li>
+	<li><a href="download.html">download</a></li>
+	<li><a href="license.html">license</a></li>
+	<li>
+	<h2>documentation</h2>
+	</li>
+	<li><a href="overview.html">overview</a></li>
+	<li><a class="expandmenu" href="../main/docs/index.html">build loop</a></li>
+	<li><a class="expandmenu" href="../reporting/jsp/docs/index.html">results jsp</a></li>
+	<li><a href="dashboard.html">dashboard</a></li>
+	<li><a class="expandmenu" href="gettingstarted.html">getting started</a></li>
+	<li><p id="menuselected">build grid</p></li>
+	<li><a href="../main/docs/configxml.html">config ref</a></li>
+	<li><a href="faq.html">faq</a></li>
+	<li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+	<li>
+	<h2>contributing</h2>
+	</li>
+	<li><a class="expandmenu" href="developers.html">developers</a></li>
+	<li><a href="contact.html">mailing lists</a></li>
+	<li><a href="svn.html">source repository</a></li>
+	<li>
+	<p id="menubottom">Release: %%VERSION%%</p>
+	</li>
+</ul>
+</div>
+<div class="content">
+<h1>How to create a build grid with CruiseControl</h1>
+<h2>What is a build grid?</h2>
+<p>A build grid consists of several independent build loops reporting to a single dashboard application. It is not a true distributed CruiseControl -- for this, check out the various distributed solutions on the <a href="http://confluence.public.thoughtworks.org/display/CC/DistributingBuildsWithCruiseControl">CruiseControl Wiki</a>. See 'Requirements and limitations' below for more on what you can and can't do with a build grid as described in this section.</p>
+<h2>Requirements and limitations</h2>
+<p>In order to use this functionality, you need CruiseControl 2.7.2 or higher. This version of CruiseControl contains functionality that enables the build loops to post their status to the dashboard via HTTP, and which allows the dashboard to talk to multiple build loops via JMX.</p>
+<strong>Limitations:</strong>
+<ul><li>You will have to set up some form of shared filesystem to allow the build loops to write their logs and artifacts to a single directory structure. This directory structure will also be used by the dashboard to read the log files that the build loops create. You could use a Windows share or a Samba server (SMB/CIFS), or an NFS mount to do this.</li>
+<li>You must configure each build loop separately. Each build loop needs its own configuration file with the projects that that specific build loop will be building.</li>
+<li>For the force build, remote JMX console and active build output functionality to work, all the build loops must have their hostname resolve correctly from the computer the dashboard is on. However the dashboard will still be able to report the status of the build loops even if it cannot resolve their hostnames.</li>
+</ul>
+<h2>Deploying the dashboard and build loop</h2>
+<p>First you will need to set up the dashboard. You have two options for this: you can either have it on its own server, or you can have one of the build loop servers host the dashboard. In either case, the simplest option is just to deploy CruiseControl the way you would normally. Follow the instructions in the <a href="gettingstarted.html">Getting Started</a> section.</p>
+<p>Once you have CruiseControl installed on all your servers, you will need to make sure the shared filesystem is mounted and accessible on all of them.</p>
+<h2>Configuration</h2>
+<p>The first job is to configure the projects on the various CruiseControl build loops. This includes making sure that logs and artifacts are published to the shared filesystem.</p>
+<p>Once you've done this, you need to tell the build loop which dashboard to send information to. You do this by setting the <code>-dashboardurl</code> command-line parameter as described <a href="gettingstartedbindist.html#Command_Line_Options.Standard">here</a>. Any problems connecting will be logged to the build loop's console. Assuming everything goes to plan, the dashboard that you specify using this url should start picking up information from the build loops straight away.
+<h2>Common problems and how to solve them</h2>
+<h3>I can't force build or access the JMX console from the dashboard</h3>
+<p>In order for force build and the JMX console to work, the dashboard must be able to connect to the build loops using the host information sent to the build loop by the dashboard. To check whether this is the case, you can hover over the project in question on the dashboard, and see the hostname that the build loop is advertising. You should then log in to the dashboard server and check to see if that hostname resolves correctly. If not, you will need to fix this problem by updating your server's DNS server, or by editing the server's hosts file.</p>
+<p>On Debian and Ubuntu systems, there is a problem whereby if a build loop has its hostname set to 127.0.0.1, the dashboard remote control (force build and active build output) won't work. In order to resolve this problem, you need to edit the hosts file to put the machine's actual IP address with its hostname, and ensure this is the first entry in the hosts file.</p>
+<h3>The dashboard indicates that my projects are still running, but they seem to be 'stuck'</h3>
+<p>If an entire build loop crashes, or its posts stop reaching the dashboard due to a network problem, the dashboard will simply wait until the next post, even if it never comes. Once you re-start the build loop, you need to take no further action. If you actually want to remove a whole build loop, you will need to re-start the dashboard in order to reset it.</p>
+</div>
+</div>
+</body>
+</html>

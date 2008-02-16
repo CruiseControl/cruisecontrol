@@ -65,7 +65,7 @@ public class TestSuiteExtractor extends SAXBasedExtractor {
         int tests = Integer.parseInt(StringUtils.defaultString(attributes.getValue("tests"), "0"));
         int failures = Integer.parseInt(StringUtils.defaultString(attributes.getValue("failures"), "0"));
         int errors = Integer.parseInt(StringUtils.defaultString(attributes.getValue("errors"), "0"));
-        return new BuildTestSuite(duration, tests, failures, name, errors);
+        return new BuildTestSuite(name, duration);
     }
 
     public void report(Map resultSet) {

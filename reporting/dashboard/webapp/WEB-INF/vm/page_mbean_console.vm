@@ -11,7 +11,7 @@
         #parse('menu/menu_admin.vm')
        <div id="bd">
           <div id="console_title">JMX Console for $projectName</div>
-          <div id="console_container"><iframe id="console" src ="http://$serverName:$port/$context"></iframe></div>
+          <div id="console_container"><iframe id="console" src ="$url/$context"></iframe></div>
        </div>
     </div>
 </body>

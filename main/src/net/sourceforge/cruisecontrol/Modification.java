@@ -81,14 +81,25 @@ public class Modification implements Comparable, Serializable {
     private static final String TAGNAME_REVISION = "revision";
     private static final String TAGNAME_ACTION = "action";
 
-    public class ModifiedFile {
+    public static class ModifiedFile {
 
         public String fileName;
         public String revision;
         public String folderName;
         public String action = "unknown";
 
-        protected ModifiedFile() {
+        public ModifiedFile(String fileName, String revision, String folderName, String action) {
+            this.fileName = fileName;
+            this.revision = revision;
+            this.folderName = folderName;
+            this.action = action;
+        }
+        
+        public ModifiedFile(Element modification, DateFormat formatter) {
+            fileName = modification.getChildText(TAGNAME_FILENAME);
+            folderName = modification.getChildText(TAGNAME_FOLDERNAME);
+            revision = modification.getChildText(TAGNAME_REVISION);
+            action = modification.getAttributeValue(TAGNAME_ACTION);
         }
 
         public Element toElement(DateFormat formatter) {
@@ -117,13 +128,6 @@ public class Modification implements Comparable, Serializable {
 
             return element;
 
-        }
-
-        public void fromElement(Element modification, DateFormat formatter) {
-            fileName = modification.getChildText(TAGNAME_FILENAME);
-            folderName = modification.getChildText(TAGNAME_FOLDERNAME);
-            revision = modification.getChildText(TAGNAME_REVISION);
-            action = modification.getAttributeValue(TAGNAME_ACTION);
         }
 
         public boolean equals(Object o) {
@@ -163,15 +167,30 @@ public class Modification implements Comparable, Serializable {
             }
             return code;
         }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public String getRevision() {
+            return revision;
+        }
+
+        public String getFolderName() {
+            return folderName;
+        }
+
+        public String getAction() {
+            return action;
+        }
     }
 
-    public String type = "unknown";
-    public Date modifiedTime;
-    public String userName;
+    public String type = "";
+    public String userName = "";
+    public String comment = "";
     public String emailAddress;
     public String revision;
-    public String comment = "";
-
+    public Date modifiedTime;
     public List files = new ArrayList();
 
     public Modification() {
@@ -182,17 +201,21 @@ public class Modification implements Comparable, Serializable {
         this.type = type;
     }
 
-
-    public final ModifiedFile createModifiedFile(String filename, String folder) {
-        ModifiedFile file = newModifiedFile();
-        file.fileName = filename;
-        file.folderName = folder;
-        files.add(file);
-        return file;
+    public Modification(String type, String user, String comment, String email, 
+            Date datetime, String revision, List files) {
+        this.type = type;
+        this.userName = user;
+        this.comment = comment;
+        this.emailAddress = email;
+        this.modifiedTime = datetime;
+        this.revision = revision;
+        this.files = files;
     }
 
-    protected ModifiedFile newModifiedFile() {
-        return new ModifiedFile();
+    public final ModifiedFile createModifiedFile(String filename, String folder) {
+        ModifiedFile file = new ModifiedFile(filename, "", folder, "unknown");
+        files.add(file);
+        return file;
     }
 
     public Element toElement(DateFormat formatter) {
@@ -397,8 +420,7 @@ public class Modification implements Comparable, Serializable {
             Iterator it = modfiles.iterator();
             while (it.hasNext()) {
                 Element modfileElement = (Element) it.next();
-                ModifiedFile modfile = newModifiedFile();
-                modfile.fromElement(modfileElement, formatter);
+                ModifiedFile modfile = new ModifiedFile(modfileElement, formatter);
                 files.add(modfile);
             }
         }
@@ -423,6 +445,30 @@ public class Modification implements Comparable, Serializable {
 
         result.append(getFileName());
         return result.toString().replace('\\', '/');
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public Date getModifiedTime() {
+        return modifiedTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public String getRevision() {
+        return revision;
+    }
+
+    public String getComment() {
+        return comment;
     }
 
 }

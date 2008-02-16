@@ -23,6 +23,14 @@ distributed
 * Change CCDist build to execute in the distributed/target directory (same as cc-main).
 * Add mail.jar and activation.jar from main to paths for cases where SMTPAppender is used in log4j.properties
 
+packager
+----------------------
+* Added SVN Bootstrapper to sample project
+* Use the /var/spool/cruisecontrol/cc.pid file instead of fighting with /var/run
+* Start cruise after package installation on Debian
+* Fix package removal under Debian
+
+
 build loop
 ======================
 
@@ -77,6 +85,7 @@ Mercurial Source Control & Bootstrapper
 ModificationSet
 ----------------------
 * Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
+* Update timeOfCheck to reflect latest date from Modifications to handle synchronisation differences between the build server and the source control repository (CC-544). Reported by Eric Melin. Patch by Brian Sperlongano.
 
 Project
 ----------------------
@@ -105,6 +114,28 @@ reporting
 * Fix "Building (since)" time on build summary page to show start of build time (instead of last progress message update time). (CC-740) Fix suggested by EJ Ciramella.
 * Show progress message as tooltip over Status cells on build summary page while building. Also show time until next build while waiting.
 * Added AbstractXslOutputWidget to support writing widgets for arbitrary XSL.  Also provide AntOutputWidget that shows Ant output. (CC-718) Submitted by Ketan Padegaonkar.
+
+Dashboard
+======================
+* Have dashboard update its status from HTTP posts from build loop
+* Show build queued status on dashboard
+* Display paused and un-paused build status
+* Update tooltips on dashboard to display full information on build status (queued builds, paused builds etc).
+* Display discontinued project status
+* Create dashboard widget API and change "dashboards" and "builds" tabs to use it
+* remove description text in modification tab and replace with icons
+* See build information from zipped log files
+* Split "dashboard" and "builds" tabs and refactored CSS.
+* Force build, RSS & JMX console links should be available on the build detail page
+* See errors and warnings in an expandable, collapsible list
+* Include last build status on RSS feed
+* Make dashboard work in IE6 and IE7
+* Better time reporting
+* Installation diagnosis widget
+* Made dashboard accept single quotes in a project name.
+* Made "all builds", "all successful builds", "config panel" and "force build" buttons turn grey when project is inactive.
+* Specify location of dashboard via command line
+
 
 CruiseControl Release Notes - 2.7.1
 

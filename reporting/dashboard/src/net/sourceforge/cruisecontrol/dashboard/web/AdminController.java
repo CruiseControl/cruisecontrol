@@ -36,45 +36,66 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
+import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
+import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.web.command.ConfigurationCommand;
-
-import org.apache.commons.io.FileUtils;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.Controller;
-
 public class AdminController implements Controller {
 
-    private Configuration configuration;
+    private ConfigurationService configuration;
 
-    private EnvironmentService envService;
+    private SystemService systemService;
 
-    public AdminController(Configuration configuration, EnvironmentService envService) {
+    public static final String ERROR_MESSAGE_NOT_EXIST = "Configuration file does not exist!"
+            + " Please set \"dashboard.config\" system property to the current location of dashboard-config.xml.";
+
+    public static final String ERROR_MESSAGE_NOT_SPECIFIED = "Configuration file is not specified!";
+
+    public AdminController(ConfigurationService configuration,
+            SystemService systemService) {
         this.configuration = configuration;
-        this.envService = envService;
+        this.systemService = systemService;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
         ConfigurationCommand adminCommand = new ConfigurationCommand();
-        String location = configuration.getCruiseConfigLocation();
+        String location = configuration.getDashboardConfigLocation();
+        String errorMessage = "";
+
+        adminCommand.setConfigFileLocation("");
+        adminCommand.setConfigFileContent("");
         if (location != null) {
             adminCommand.setConfigFileLocation(location);
-            adminCommand.setConfigFileContent(FileUtils.readFileToString(new File(location), null));
+            if (new File(location).exists()) {
+                adminCommand.setConfigFileContent(FileUtils.readFileToString(
+                        new File(location), null));
+            } else {
+                errorMessage = ERROR_MESSAGE_NOT_EXIST;
+            }
+        } else {
+            errorMessage = ERROR_MESSAGE_NOT_SPECIFIED;
         }
         Map model = new HashMap();
-        model.put("isConfigFileEditable", Boolean.valueOf(envService.isConfigFileEditable()));
+        model.put("error_message", errorMessage);
         model.put("command", adminCommand);
-        model.put("location_flash_message", request.getParameter("location_flash_message"));
-        model.put("edit_flash_message", request.getParameter("edit_flash_message"));
+        model.put("jvm_version", systemService.getJvmVersion());
+        model.put("os_info", systemService.getOsInfo());
+        model.put("logs_root", configuration.getLogsRoot().getCanonicalPath());
+        model.put("artifacts_root", configuration.getArtifactsRoot().getCanonicalPath());
+        model.put("forcebuild_enabled",
+                configuration.isForceBuildEnabled() ? "Yes" : "No");
+        model.put("active", StringUtils.defaultString(request.getParameter("active")));
         return new ModelAndView("page_admin", model);
     }
 }

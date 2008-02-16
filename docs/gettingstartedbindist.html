@@ -27,13 +27,13 @@
             <li><a class="expandmenu" href="../main/docs/index.html">build loop</a></li>
             <li><a class="expandmenu" href="../reporting/jsp/docs/index.html">results jsp</a></li>
             <li><a href="dashboard.html">dashboard</a></li>
-            <li><a href="widgets.html">widgets</a></li>
             <li><a class="expandedmenu" href="gettingstarted.html">getting started</a>
                 <ul>
                     <li><p id="menuselected">binary distribution</p></li>
                     <li><a href="gettingstartedsourcedist.html">source distribution</a></li>
                 </ul>
             </li>
+            <li><a href="buildgrid.html">build grid</a></li>
             <li><a href="../main/docs/configxml.html">config ref</a></li>
             <li><a href="faq.html">faq</a></li>
             <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
@@ -161,6 +161,21 @@ time to build
                     <td>-configfile&nbsp;<i>filename</i></td>
                     <td>No</td>
                     <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
+                </tr>
+                <tr>
+                    <td>-dashboardurl&nbsp;<i>[dashboard&nbsp;url]</i></td>
+                    <td>No</td>
+                    <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
+                </tr>
+                <tr>
+                    <td>-postinterval&nbsp;<i>[interval&nbsp;number]</i></td>
+                    <td>No</td>
+                    <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
+                </tr>
+                <tr>
+                    <td>-postenabled&nbsp;<i>[true/false]</i></td>
+                    <td>No</td>
+                    <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
                 </tr>
                 <tr>
                     <td>-debug</td>

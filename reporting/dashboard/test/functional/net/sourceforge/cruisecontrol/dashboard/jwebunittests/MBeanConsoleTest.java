@@ -36,33 +36,19 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.jwebunittests;
 
-import java.net.InetAddress;
-
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
 import org.apache.commons.lang.StringUtils;
 
 public class MBeanConsoleTest extends BaseFunctionalTest {
-
-    protected void onSetUp() throws Exception {
-        setConfigFileAndSubmitForm(DataUtils.getConfigXmlOfWebApp().getAbsolutePath());
-    }
-
-    public void testShouldShowMBeanConsoleForServer() throws Exception {
-        tester.beginAt("/admin/mx4j");
-        tester.assertTextPresent("JMX Console for CruiseControl");
-        assertTrue(StringUtils.contains(tester.getPageSource(), getURL("")));
-    }
 
     public void testShouldShowMBeanConsoleForSpecificProject() throws Exception {
         tester.beginAt("/admin/mx4j/project1");
         tester.assertTextPresent("JMX Console for project1");
         String context = "mbean?objectname=CruiseControl Project:name=project1";
-        assertTrue(StringUtils.contains(tester.getPageSource(), getURL(context)));
+        String pageSource = tester.getPageSource();
+        assertTrue(pageSource, StringUtils.contains(pageSource, getURL(context)));
     }
 
     public String getURL(String context) throws Exception {
-        String hostName = InetAddress.getLocalHost().getCanonicalHostName();
-        return "http://" + hostName + ":8000/" + context;
+        return "http://localhost:8000/" + context;
     }
 }

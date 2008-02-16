@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    #parse("partial/partial_head.vm")
+    <title>CruiseControl Configuration File Administration</title>
+    <link href="$req.getContextPath()/css/transparent_message.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    #parse("menu/menu_builds.vm")
+    
+    #parse("partial/partial_flash_message.vm")
+    <script type="text/javascript">
+        $('trans_content').update("$esc.javascript("$errorMessage")");           
+        new TransMessage('trans_message', document.body, {type:TransMessage.TYPE_ERROR, offsetTop:200, autoHide:false});
+    </script>
+
+    </div><!-- end of id='content' -->
+</body>
+</html>

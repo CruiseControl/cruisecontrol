@@ -36,11 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.service.CruiseControlJMXService;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigService;
+import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
-import net.sourceforge.cruisecontrol.dashboard.service.JMXFactory;
-import net.sourceforge.cruisecontrol.dashboard.service.SystemService;
 
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
@@ -60,10 +58,10 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
 
     protected void setUp() throws Exception {
         serviceMock =
-                mock(CruiseControlJMXService.class, new Class[] {JMXFactory.class, EnvironmentService.class},
-                        new Object[] {null,
-                                new EnvironmentService(new SystemService(), new DashboardConfigService[] {})});
-        controller = new GetProjectBuildOutputController((CruiseControlJMXService) serviceMock.proxy());
+                mock(BuildLoopQueryService.class,
+                        new Class[] {EnvironmentService.class, BuildInformationRepository.class},
+                        new Object[] {null, null});
+        controller = new GetProjectBuildOutputController((BuildLoopQueryService) serviceMock.proxy());
         request = new MockHttpServletRequest();
         response = new MockHttpServletResponse();
     }
@@ -113,6 +111,11 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
 
         String nextStartLine = (String) response.getHeader("X-JSON");
         assertEquals("[500]", nextStartLine);
+    }
+
+    public void testShouldReturnSameStartWhenOutputIsEmpty() throws Exception {
+        assertEquals(10, controller.calculateNextStart(10, null));
+        assertEquals(10, controller.calculateNextStart(10, new String[0]));
     }
 
     public void testShouldReturnNextStartLineEvenSkipSomeLines() throws Exception {

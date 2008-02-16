@@ -1,13 +1,15 @@
 package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 
-import java.util.Map;
-
 import net.sourceforge.cruisecontrol.dashboard.BuildMessage;
 import net.sourceforge.cruisecontrol.dashboard.MessageLevel;
-
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class MessageExtractor extends SAXBasedExtractor {
 
@@ -15,13 +17,11 @@ public class MessageExtractor extends SAXBasedExtractor {
 
     private String priority;
 
-    private BuildMessage message;
+    private List messages = new ArrayList();
 
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         if ("message".equals(qName)) {
             readingMessage = true;
-        }
-        if (readingMessage) {
             priority = attributes.getValue("priority");
         }
     }
@@ -32,7 +32,7 @@ public class MessageExtractor extends SAXBasedExtractor {
             if (StringUtils.isBlank(text)) {
                 return;
             }
-            message = new BuildMessage(text, MessageLevel.getLevelForPriority(priority));
+            messages.add(text);
         }
     }
 
@@ -43,8 +43,12 @@ public class MessageExtractor extends SAXBasedExtractor {
     }
 
     public void report(Map resultSet) {
-        if (message != null) {
-            resultSet.put("message", message);
+        if (!messages.isEmpty()) {
+            String text = "";
+            for (Iterator i = messages.iterator(); i.hasNext();) {
+                text += (String) i.next();
+            }
+            resultSet.put("message", new BuildMessage(text, MessageLevel.getLevelForPriority(priority)));
         }
     }
 }

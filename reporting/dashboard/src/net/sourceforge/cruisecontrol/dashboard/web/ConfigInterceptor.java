@@ -36,42 +36,43 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
+import java.io.File;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
+import net.sourceforge.cruisecontrol.dashboard.service.ConfigurationService;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ConfigInterceptor implements HandlerInterceptor {
-    private Configuration configuration;
+    private ConfigurationService configuration;
+    public static final String FORCE_BUILD_ENABLED_KEY = "global_force_build_enabled";
+    public static final String HAS_DASHBOARD_CONFIG_KEY = "has_dashboard_config";
 
-    public ConfigInterceptor(Configuration configuration) {
+    public ConfigInterceptor(ConfigurationService configuration) {
         this.configuration = configuration;
     }
 
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                             Object object) throws Exception {
-        if (configuration.getCruiseConfigLocation() == null && !isValidURL(httpServletRequest)) {
-            httpServletResponse.sendRedirect(httpServletRequest.getContextPath() + "/admin/config");
-            return false;
-        }
+            Object object) throws Exception {
         return true;
     }
 
-    private boolean isValidURL(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        return requestURI.endsWith("admin/config") || requestURI.endsWith("admin/config/setup");
-
-    }
-
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                           Object object, ModelAndView modelAndView) throws Exception {
+            Object object, ModelAndView modelAndView) throws Exception {
+        modelAndView.getModel().put(FORCE_BUILD_ENABLED_KEY, String.valueOf(configuration.isForceBuildEnabled()));
+        modelAndView.getModel().put(HAS_DASHBOARD_CONFIG_KEY, String.valueOf(hasDashboardConfig()));
     }
 
-    public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                                Object object, Exception exception) throws Exception {
+    public void afterCompletion(HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse, Object object, Exception exception) throws Exception {
+    }
+
+    private boolean hasDashboardConfig() {
+        String configLocation = configuration.getDashboardConfigLocation();
+        return configLocation != null && new File(configLocation).exists();
     }
 
 }

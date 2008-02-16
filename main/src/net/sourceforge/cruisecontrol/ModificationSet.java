@@ -188,8 +188,12 @@ public class ModificationSet implements Serializable {
         return table;
     }
 
+    public List getCurrentModifications() {
+        return this.modifications;
+    }
+
     /**
-     * @deprecated use {@link #getModifications(java.util.Date, Progress)} instead.
+     * @deprecated As of 10-Oct-2007, replaced by {@link #retrieveModificationsAsElement(java.util.Date, Progress)}
      */
     public Element getModifications(final Date lastBuild) {
         return getModifications(lastBuild, null);
@@ -200,6 +204,13 @@ public class ModificationSet implements Serializable {
      * @return modifications element
      */
     public Element getModifications(final Date lastBuild, final Progress progress) {
+        return retrieveModificationsAsElement(lastBuild, null);
+    }
+
+    /**
+     * Returns the modifications as of lastBuild as an XML element.
+     */
+    public Element retrieveModificationsAsElement(final Date lastBuild, final Progress progress) {
         Element modificationsElement;
         do {
             timeOfCheck = new Date();

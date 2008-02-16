@@ -57,6 +57,7 @@
 	<property name="lib" value="${basedir}/lib" />
 	<property name="src" value="${basedir}/src" />
 	<property name="test" value="${basedir}/test" />
+	<property name="functionaltest" value="${basedir}/functionaltest" />
 	<property name="test.classes" value="${target}/test-classes" />
 	<property name="tests" value="*Test" />
 	<property name="xsl" value="${basedir}/xsl" />
@@ -201,10 +202,19 @@
 		</copy>
 	</target>
 
+	
+	<target name="compile-functional-test"  depends="compile">
+		<compile-macro srcdir="${functionaltest}" destdir="${test.classes}">
+			<classpath refid="project.runtime.classpath" />
+		</compile-macro>
+		<copy todir="${test.classes}">
+            <fileset dir="${functionaltest}" excludes="**/*.java" />
+        </copy>
+    </target>
+
 	<target name="compile-test-harvest" if="harvest-sdk-present" depends="compile-harvest">
 		<compile-macro srcdir="${test}" destdir="${test.classes}">
 			<classpath refid="project.runtime.classpath" />
-			<include name="**/AllFusionHarvest*" />
 		</compile-macro>
 	</target>
 
@@ -284,6 +294,11 @@
 			<jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
 			<jvmarg value="-Demma.coverage.out.merge=true" />
 		</test-macro>
+	</target>
+	
+	
+	<target name="functional-test" depends="init, compile-functional-test" unless="test.skip" description="Executes the functional tests">
+		<test-macro includes="**/BuildLoopMonitorTest.class" />
 	</target>
 
 	<target name="test-harvest" depends="init, compile-test-harvest" unless="test.skip">
@@ -383,7 +398,7 @@
     <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
     <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
     <target name="compile-all" depends="compile, compile-harvest, compile-sametime, compile-starteam, compile-yahoo" description="Compile everything" />
-    <target name="test-all" depends="test, test-harvest, test-starteam, test-sametime, test-yahoo" description="Run all tests" />
-	<target name="vizant" depends="-vizant" description="Visualise the Ant build file" />
+    <target name="test-all" depends="test, functional-test, test-harvest, test-starteam, test-sametime, test-yahoo" description="Run all tests" />
+    <target name="vizant" depends="-vizant" description="Visualise the Ant build file" />
 
 </project>

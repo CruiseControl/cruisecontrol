@@ -10,7 +10,6 @@ chown -R cruise:cruise /var/cache/cruisecontrol
 chown -R cruise:cruise /var/spool/cruisecontrol
 chown -R cruise:cruise /etc/cruisecontrol
 chown cruise:cruise /etc/default/cruisecontrol
-chown cruise:cruise /var/run/cruisecontrol.pid
 
 # Set the perms for root stuff
 chown -R root:root /usr/share/cruisecontrol
@@ -25,7 +24,7 @@ echo ""
 
 if [ -f /etc/debian_version ]; then
     update-rc.d cruisecontrol defaults 99 >/dev/null
-    echo "Run the command: update-java-alternatives -s java-1.5.0-sun"
+    invoke-rc.d cruisecontrol start
 elif [ -f /etc/redhat-release ]; then
     echo ""
     # TODO Put notes in on how to switch redhat java

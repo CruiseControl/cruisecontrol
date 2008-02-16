@@ -37,32 +37,25 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BuildTestSuite {
     private float duration;
 
-    private int numberOfTests;
-
-    private int numberOfFailures;
-
     private String name;
-
-    private int numberOfErrors;
 
     private List testCases;
 
-    public BuildTestSuite(float duration, int numberOfTests, int numberOfFailures, String name, int numberOfErrors) {
+    public BuildTestSuite(String name, float duration) {
         this.duration = duration;
-        this.numberOfTests = numberOfTests;
-        this.numberOfFailures = numberOfFailures;
         this.name = name;
-        this.numberOfErrors = numberOfErrors;
         this.testCases = null;
     }
 
     public int getNumberOfErrors() {
-        return numberOfErrors;
+        return checkTestCases() ? getErrorTestCases().size() : 0;
     }
 
     public String getName() {
@@ -70,11 +63,11 @@ public class BuildTestSuite {
     }
 
     public int getNumberOfFailures() {
-        return numberOfFailures;
+        return checkTestCases() ? getFailingTestCases().size() : 0;
     }
 
     public int getNumberOfTests() {
-        return numberOfTests;
+        return checkTestCases() ? testCases.size() : 0;
     }
 
     public float getDurationInSeconds() {
@@ -129,11 +122,27 @@ public class BuildTestSuite {
         this.testCases = tests;
     }
 
+    public void addTestCase(BuildTestCase testCase) {
+        if (!checkTestCases()) {
+            this.testCases = new LinkedList();
+        }
+        this.testCases.add(testCase);
+    }
+
     private boolean checkTestCases() {
         return this.testCases != null;
     }
 
     public boolean isFailed() {
-        return (numberOfFailures > 0 || numberOfErrors > 0);
+        if (checkTestCases()) {
+            for (Iterator iterator = testCases.iterator(); iterator.hasNext();) {
+                BuildTestCase testCase = (BuildTestCase) iterator.next();
+                if (testCase.getResult().equals(BuildTestCaseResult.ERROR) || testCase.getResult()
+                        .equals(BuildTestCaseResult.FAILED)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

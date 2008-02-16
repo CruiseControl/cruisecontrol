@@ -47,7 +47,7 @@ public class MockModificationSet extends ModificationSet {
     private boolean modified = true;
     private Date time = null;
 
-    public Element getModifications(final Date lastBuild, final Progress progress) {
+    public Element retrieveModificationsAsElement(final Date lastBuild, final Progress progress) {
         modCheckCount++;
         return modifications;
     }

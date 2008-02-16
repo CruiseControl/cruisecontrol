@@ -1,18 +1,21 @@
-<div id="modifications" class="modifications" $modification_extra_attrs>
+<div id="modifications" class="widget" $modification_extra_attrs>
     <h2>Modifications</h2>
-    <ul>
-        #if( $build.modifications.size() == 0)
-            <p>No modifications found.</p>
-        #end
-        #foreach ($mod in $build.modifications)
-            <li class="modification">
-                <span class="user">$mod.user</span><br/><span class="comment">$mod.comment</span>
-                <ul class="files">
+    #if( $buildCmd.modifications.size() == 0)
+        <p>No modifications found.</p>
+    #end
+    #foreach ($mod in $buildCmd.modifications)
+        <table class="modifications">
+
+            <tbody>
+                <tr class="comment"><td title="user" class="user">$mod.user</td><td>$mod.comment</td></tr>
                 #foreach ($file in $mod.modifiedFiles)
-                    <li>[$file.revision]&nbsp;<span class="$file.action">$file.action</span>&nbsp;$file.filename</li>
+
+                    <tr>
+                        <td>[rev. $file.revision]</td><td title="$file.action"><img src="$req.getContextPath()/images/table_${file.action}.gif" alt="$file.action"/>$file.fileName</td>
+                    </tr>
+
                 #end
-                </ul>
-            </li>
-        #end
-    </ul>
+            </tbody>
+        </table>
+    #end
 </div>

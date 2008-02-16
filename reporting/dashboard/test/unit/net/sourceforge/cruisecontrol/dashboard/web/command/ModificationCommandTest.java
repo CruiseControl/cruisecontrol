@@ -36,32 +36,64 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web.command;
 
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import net.sourceforge.cruisecontrol.dashboard.Modification;
-import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
-import junit.framework.TestCase;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ModificationCommandTest extends TestCase {
+    private Date date;
+
+    protected void setUp() throws Exception {
+        date = new Date();
+    }
 
     public void testShouldreturnHyperLinkWhenCommandIsStoryTrackerSensitive() {
-        ModificationCommand command =
-                new ModificationCommand(new Modification("user", "type", "story1"), new StoryTracker("pj",
-                        "http://mingle/story/", "story"));
+        StoryTracker storyTracker = new StoryTracker("pj", "http://mingle/story/", "story");
+        ModificationCommand command = new ModificationCommand(createModification("story1"), storyTracker);
         assertEquals("<a href=\"http://mingle/story/1\">story1</a>", command.getComment());
     }
 
+    private Modification createModification(String comment) {
+        List files = new ArrayList();
+        Modification.ModifiedFile file1 = new Modification.ModifiedFile("file1.txt", "123", "folder", "deleted");
+        Modification.ModifiedFile file2 = new Modification.ModifiedFile("file1.txt", "123", "folder", "added");
+        files.add(file1);
+        files.add(file2);
+        return new Modification("svn", "user", comment, "use@email.com", date, "1234", files);
+
+    }
+
     public void testShouldReturnCommentWhenStoryTrackerIsNull() {
-        ModificationCommand command =
-                new ModificationCommand(new Modification("user", "type", "story1"), null);
+        ModificationCommand command = new ModificationCommand(createModification("story1"), null);
         assertEquals("story1", command.getComment());
     }
 
     public void testShouldEscapeHtmlTag() throws Exception {
         String comment = "commit message <b>with</b> <some> html <tags>, go...";
-        ModificationCommand command =
-                new ModificationCommand(new Modification("type", "user1", comment), null);
+        ModificationCommand command = new ModificationCommand(createModification(comment), null);
         String expected = StringEscapeUtils.escapeHtml(comment);
         assertEquals(expected, command.getComment());
     }
+
+    public void testShouldReturnJsonDataMap() throws Exception {
+        ModificationCommand command = new ModificationCommand(createModification("story1"), null);
+        Map map = command.toJsonData();
+        assertEquals("svn", map.get("type"));
+        assertEquals("user", map.get("user"));
+        assertEquals("story1", map.get("comment"));
+        assertEquals(new Long(date.getTime()), map.get("modifiedtime"));
+        List files = (List) map.get("files");
+        assertEquals(2, files.size());
+        assertEquals("file1.txt", ((Map) files.get(0)).get("filename"));
+        assertEquals("123", ((Map) files.get(0)).get("revision"));
+        assertEquals("folder", ((Map) files.get(0)).get("folder"));
+        assertEquals("deleted", ((Map) files.get(0)).get("action"));
+    }
 }
+

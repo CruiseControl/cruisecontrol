@@ -2,7 +2,6 @@ package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -10,11 +9,9 @@ import org.w3c.dom.NodeList;
 public class LongTextLeakOutTest extends SeleniumTestCase {
 
     public void testShouldInsertWbrTagInToTheContentOfWbrSensitiveElement() throws Exception {
-        selenium.open("/dashboard/dashboard");
-        String source = selenium.getHtmlSource();
-        Document htmlDom = getHtmlDom(source);
-        assertTrue(StringUtils.containsIgnoreCase(source, "wbr"));
-        Element div = htmlDom.getElementById("toolkit_projectWithoutPublishers");
+        openBuildsPage();
+        textShouldBeContainedInHtmlSource("wbr");
+        Element div = getHtmlDom().getElementById("toolkit_projectWithoutPublishers");
         NodeList elements = div.getElementsByTagName("span");
         Node item = null;
         for (int i = 0; i < elements.getLength(); i++) {

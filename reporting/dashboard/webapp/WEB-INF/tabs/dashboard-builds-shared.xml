@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2007, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+    <bean id="sharedUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="interceptors">
+            <list>
+                <ref bean="forceBuildEnabledInterceptor"/>
+                <ref bean="rootFolderInterceptor"/>
+            </list>
+        </property>
+        <property name="mappings">
+            <props>
+                <prop key="/build/detail/**">buildDetailController</prop>
+                <prop key="/build/download/**">downloadController</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="forceBuildEnabledInterceptor"
+          class="net.sourceforge.cruisecontrol.dashboard.web.ForceBuildEnabledInterceptor">
+        <constructor-arg ref="configuration"/>
+    </bean>
+    <bean id="rootFolderInterceptor" class="net.sourceforge.cruisecontrol.dashboard.web.RootFolderInterceptor">
+        <constructor-arg ref="configuration"/>
+    </bean>
+
+    <bean id="buildDetailController" class="net.sourceforge.cruisecontrol.dashboard.web.BuildDetailController">
+        <constructor-arg ref="buildService"/>
+        <constructor-arg ref="historicalBuildSummariesService"/>
+        <constructor-arg ref="widgetPluginService"/>
+        <constructor-arg ref="buildSummaryUIService"/>
+        <constructor-arg ref="${buildloop.query.service.impl}"/>
+        <property name="methodNameResolver" ref="projectDetailResolver"/>
+    </bean>
+
+    <bean id="downloadController" class="net.sourceforge.cruisecontrol.dashboard.web.DownloadController">
+        <constructor-arg ref="configuration"/>
+        <property name="methodNameResolver" ref="downloadResolver"/>
+    </bean>
+
+    <!-- Views and resolvers -->
+    <bean id="projectDetailResolver"
+          class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+        <property name="mappings">
+            <value>
+                /build/detail/*=latest
+                /build/detail/*/*=history
+            </value>
+        </property>
+    </bean>
+
+    <bean id="downloadResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+        <property name="mappings">
+            <value>
+                /build/download/log/**=log
+                /build/download/artifacts/**=artifacts
+            </value>
+        </property>
+    </bean>
+
+    <bean id="fileView" class="net.sourceforge.cruisecontrol.dashboard.web.view.FileView"/>
+
+    <bean id="directoryView" class="net.sourceforge.cruisecontrol.dashboard.web.view.DirectoryView">
+        <constructor-arg ref="templateRenderService"/>
+    </bean>
+
+</beans>

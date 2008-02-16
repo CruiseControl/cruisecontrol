@@ -36,104 +36,116 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildDetail;
-import net.sourceforge.cruisecontrol.dashboard.Configuration;
-import net.sourceforge.cruisecontrol.dashboard.ProjectBuildStatus;
+import net.sourceforge.cruisecontrol.dashboard.BuildLiveDetail;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.LogFile;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
 import net.sourceforge.cruisecontrol.dashboard.exception.ShouldStopParsingException;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.BasicInfoExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.CompositeExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.DurationExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.ModificationExtractor;
-import net.sourceforge.cruisecontrol.dashboard.saxhandler.SAXBasedExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.StackTraceExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.TestSuiteExtractor;
-import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.functors.BuildSummariesFilters;
-
+import net.sourceforge.cruisecontrol.dashboard.utils.functors.SpecificLogFileFilter;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BuildService {
     private static final Logger LOGGER = Logger.getLogger(BuildService.class);
 
-    private net.sourceforge.cruisecontrol.dashboard.Configuration configuration;
+    private final ConfigurationService configuration;
+    private final BuildLoopQueryService queryService;
 
-    public BuildService(Configuration configuration) {
+    public BuildService(ConfigurationService configuration, BuildLoopQueryService queryService) {
         this.configuration = configuration;
+        this.queryService = queryService;
     }
 
-    public Build getActiveBuild(final String projectName) {
-        return new BuildDetail(new HashMap()) {
-            public ProjectBuildStatus getStatus() {
-                return ProjectBuildStatus.BUILDING;
-            }
-
-            public String getProjectName() {
-                return projectName;
-            }
-
-            public String getBuildLogFilename() {
-                String now = CCDateFormatter.yyyyMMddHHmmss(new DateTime());
-                return "log" + now + ".xml";
-            }
-
-            public DateTime getBuildDate() {
-                return new DateTime();
-            }
-        };
+    public BuildLiveDetail getActiveBuild(final String projectName, PreviousResult previousResult) {
+        return new BuildLiveDetail(projectName, previousResult);
     }
 
-    public Build getBuild(String projectName, String buildLogFilename) {
-        return createBuildFromFile(getBuildFile(projectName, buildLogFilename));
+    public BuildDetail getBuild(String projectName, String yyyyMMddssHHmmss) {
+        BuildDetail build = createBuildFromFile(getBuildFile(projectName, yyyyMMddssHHmmss));
+        if (queryService.isDiscontinued(projectName)) {
+            build.updateStatus(CurrentStatus.DISCONTINUED);
+        } else if (isPaused(projectName)) {
+            build.updateStatus(CurrentStatus.PAUSED);
+        }
+        return build;
     }
 
-    public File getBuildFile(String projectName, String buildLogFileName) {
+    private boolean isPaused(String projectName) {
+        String status = queryService.getProjectStatus(projectName);
+        return CurrentStatus.PAUSED.equals(CurrentStatus.getProjectBuildStatus(status));
+    }
+
+    private LogFile getBuildFile(String projectName, final String yyyyMMddssHHmmss) {
         File logRoot = configuration.getLogRoot(projectName);
-        return new File(logRoot, buildLogFileName);
+        File[] files = logRoot.listFiles(new SpecificLogFileFilter(yyyyMMddssHHmmss));
+        return new LogFile(logRoot, files[0].getName());
     }
 
-    public BuildDetail createBuildFromFile(File logFile) {
+    BuildDetail createBuildFromFile(LogFile logFile) {
         try {
             Map properties = new HashMap();
             parseLogFile(logFile, properties);
-            properties.put("logfile", logFile);
             properties.put("artifactfolder", getArtifactsRootDir((String) properties.get("projectname")));
-            return new BuildDetail(properties);
+            return new BuildDetail(logFile, properties);
         } catch (Exception e) {
+            e.printStackTrace();
             LOGGER.error("Can not parse the log file: " + logFile.getAbsolutePath(), e);
             return null;
         }
     }
 
-    private void parseLogFile(File buildLogFile, Map props) throws Exception {
-        // TODO injection
-        SAXBasedExtractor[] handlers;
-        if (BuildSummariesFilters.succeedFilter()
-                .accept(buildLogFile.getParentFile(), buildLogFile.getName())) {
-            handlers =
-                    new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
-                            new BasicInfoExtractor(), new TestSuiteExtractor()};
-        } else {
-            handlers =
-                    new SAXBasedExtractor[] {new DurationExtractor(), new ModificationExtractor(),
-                            new BasicInfoExtractor(), new StackTraceExtractor(), new TestSuiteExtractor()};
-        }
+    private void parseLogFile(LogFile buildLogFile, Map props) throws Exception {
+        CompositeExtractor compositeExtractor = compositeExtractor(buildLogFile);
+        parse(buildLogFile.getInputStream(), compositeExtractor);
+        compositeExtractor.report(props);
+    }
+
+    private void parse(InputStream logFileInputStream, CompositeExtractor compositeExtractor)
+            throws Exception {
         SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-        CompositeExtractor compositeExtractor = new CompositeExtractor(handlers);
         try {
-            saxParser.parse(buildLogFile, compositeExtractor);
+            saxParser.parse(logFileInputStream, compositeExtractor);
         } catch (ShouldStopParsingException e) {
             LOGGER.debug("Intentionally throwing exception to stop parsing.");
         }
-        compositeExtractor.report(props);
+    }
+
+    private CompositeExtractor compositeExtractor(File buildLogFile) {
+        List handlers = defaultExtractors();
+        if (!succeeded(buildLogFile)) {
+            handlers.add(new StackTraceExtractor());
+        }
+        return new CompositeExtractor(handlers);
+    }
+
+    private List defaultExtractors() {
+        List extractors = new ArrayList();
+        extractors.add(new DurationExtractor());
+        extractors.add(new ModificationExtractor());
+        extractors.add(new BasicInfoExtractor());
+        extractors.add(new TestSuiteExtractor());
+        return extractors;
+    }
+
+    private boolean succeeded(File buildLogFile) {
+        return BuildSummariesFilters.succeedFilter().accept(buildLogFile.getParentFile(),
+                buildLogFile.getName());
     }
 
     private File getArtifactsRootDir(String projectName) {

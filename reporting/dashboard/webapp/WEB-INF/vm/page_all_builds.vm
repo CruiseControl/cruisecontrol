@@ -4,23 +4,23 @@
 <head>
     #parse("partial/partial_head.vm")
 <link href="$req.getContextPath()/css/build_common.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_detail_summary.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_detail.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
-<link href="$req.getContextPath()/css/build_profile.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/builds_tab.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
+<link href="$req.getContextPath()/css/build_list.css" rel="stylesheet" title="Dashboard style sheet" type="text/css"/>
 
 </head>
 <body>
-    <div id="doc3" class="yui-t7 allBuilds">
-           #parse('menu/menu_builds.vm')
-           <div id="bd">
-                <div class="yui-ge">
-                    <div class="yui-u first">
-                  <div class="buildlist_header"><h1>$projectName</h1> &mdash; All builds</div>
-                  <div id="container">
-                     #foreach( $build in $buildSummaries )
-                         <div class="$build.build.status.status.toLowerCase() build_profile">
-                             <a href="$req.getContextPath()/build/detail/$projectName/$build.build.buildLogFilename">$build.build.name $!build.build.label</a>
-                        <a href="$req.getContextPath()/build/download/log/$projectName/$build.build.buildLogFilename">Download log</a>
+	<div id="doc3" class="yui-t7 all_builds">
+        #parse('menu/menu_builds.vm')
+        <div id="bd">
+            <div class="yui-ge">
+                <div class="yui-u first">
+                    #parse("partial/partial_warning.vm")
+                    <div class="buildlist_header round_top"><h1>$projectName</h1> &mdash; All builds</div>
+                    <div id="container">
+                    #foreach( $buildCmd in $buildCmds)
+                        <div class="$buildCmd.getViewableStatus() build_profile">
+                            <a class="block" href="$req.getContextPath()/tab/build/detail/$projectName/$buildCmd.build.buildLogFileDateTime">$buildCmd.build.getConvertedTime() $!buildCmd.build.label</a>
+                            <a class="block" href="$req.getContextPath()/tab/build/download/log/$projectName/$buildCmd.build.buildLogFilename">Download log</a>
                         </div>
                      #end
                     </div>

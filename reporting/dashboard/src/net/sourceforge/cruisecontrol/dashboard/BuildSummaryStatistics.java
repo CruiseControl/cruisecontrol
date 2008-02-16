@@ -45,45 +45,89 @@ public class BuildSummaryStatistics {
 
     private Map counterMap = new CounterHashMap();
 
+    private final List buildSummaryList;
+
     public BuildSummaryStatistics(List buildSummaryList) {
+        this.buildSummaryList = buildSummaryList;
         for (int i = 0; i < buildSummaryList.size(); i++) {
-            Build summary = (Build) buildSummaryList.get(i);
-            ((CounterHashMap) counterMap).put(summary.getStatus());
+            BuildSummary summary = (BuildSummary) buildSummaryList.get(i);
+            if (summary.isInactive()) {
+                continue;
+            }
+            if (summary.getCurrentStatus().equals(CurrentStatus.BUILDING)
+                    || summary.getCurrentStatus().equals(CurrentStatus.DISCONTINUED)) {
+                ((CounterHashMap) counterMap).put(summary.getCurrentStatus());
+            } else {
+                ((CounterHashMap) counterMap).put(summary.getPreviousBuildResult());
+            }
         }
     }
 
     public Integer failed() {
-        return (Integer) counterMap.get(ProjectBuildStatus.FAILED);
+        return (Integer) counterMap.get(PreviousResult.FAILED);
 
     }
 
     public Integer building() {
-        return (Integer) counterMap.get(ProjectBuildStatus.BUILDING);
+        return (Integer) counterMap.get(CurrentStatus.BUILDING);
     }
 
     public Integer passed() {
-        return (Integer) counterMap.get(ProjectBuildStatus.PASSED);
+        return (Integer) counterMap.get(PreviousResult.PASSED);
     }
 
     public Integer inactive() {
-        return (Integer) counterMap.get(ProjectBuildStatus.INACTIVE);
+        int count = 0;
+        for (int i = 0; i < buildSummaryList.size(); i++) {
+            BuildSummary summary = (BuildSummary) buildSummaryList.get(i);
+            if (summary.isInactive()) {
+                count++;
+            }
+        }
+        return new Integer(count);
+    }
+
+    public Integer discontinued() {
+        Integer currentInactive = (Integer) counterMap.get(CurrentStatus.DISCONTINUED);
+        return new Integer(currentInactive.intValue());
     }
 
     public Integer total() {
-        return new Integer((failed().intValue() + building().intValue() + passed().intValue() + inactive()
-                .intValue()));
+        return new Integer((failed().intValue() + building().intValue() + passed().intValue()));
     }
 
     public String rate() {
-        int totalWithOutInActiveBuilds = total().intValue() - inactive().intValue();
+        int totalWithOutInActiveBuilds = total().intValue();
         return total().intValue() > 0 ? Math
-                .round(((passed().intValue() * 1.0 / totalWithOutInActiveBuilds) * PERCENTAGE)) + "%" : "0%";
+                .round(((passed().intValue() * 1.0 / totalWithOutInActiveBuilds) * PERCENTAGE))
+                + "%" : "0%";
+    }
+
+    public int hashCode() {
+        return counterMap.hashCode();
+    }
+
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null) {
+            return false;
+        }
+        if (getClass() != other.getClass()) {
+            return false;
+        }
+        return equals((BuildSummaryStatistics) other);
+    }
+
+    private boolean equals(final BuildSummaryStatistics other) {
+        return this.counterMap.equals(other.counterMap);
     }
 
     private static class CounterHashMap extends HashMap {
         private static final long serialVersionUID = 1L;
 
-        public void put(ProjectBuildStatus key) {
+        public void put(ViewableStatus key) {
             Object value = this.get(key);
             if (value == null) {
                 this.put(key, new Integer(1));
@@ -100,4 +144,5 @@ public class BuildSummaryStatistics {
             return super.get(key);
         }
     }
+
 }

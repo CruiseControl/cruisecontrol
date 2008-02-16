@@ -44,6 +44,8 @@
     background-position: 16px center;
     background-repeat: no-repeat;
     min-height : 6em;
+    /*IE6 hack*/
+    _height:1%;
 }
 
 /* Define individual icon images for the three project states */
@@ -56,12 +58,16 @@
 	background-image : url( ../images/icon-failure-large.gif );
 }
 
-.building_passed .build_detail_summary {
-	background-image : url( ../images/icon-build-previously-success-large.gif );
+.unknown .build_detail_summary {
+	background-image : url( ../images/icon-unknown-large.gif );
 }
 
-.building_failed .build_detail_summary, .building_unknown .build_detail_summary {
-	background-image : url( ../images/icon-build-previously-failure-large.gif );
+.building_passed .build_detail_summary, .building_unknown .build_detail_summary {
+	background-image : url( ../images/icon-build-spinning-large.gif );
+}
+
+.building_failed .build_detail_summary {
+	background-image : url( ../images/icon-build-spinning-large.gif );
 }
 
 .build_detail_summary h3 {
@@ -78,4 +84,9 @@
 
 .build_detail_summary h3 a {
 	text-decoration: underline;
+}
+
+.build_detail_summary .control_panel {
+	float:right;
+	margin-right : 1em;
 }

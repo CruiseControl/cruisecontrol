@@ -36,45 +36,43 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.util.BuildOutputBuffer;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import junit.framework.TestCase;
 
+import java.io.File;
+import java.io.IOException;
+
 public class BuildOutputBufferManagerTest extends TestCase {
+    private BuildOutputLoggerManager loggerManager;
+    private File tempFile;
 
-    public void testShouldMaintainGlobalOutputBuffers() throws Exception {
-
-        BuildOutputBufferManager bufferManager = new BuildOutputBufferManager(2);
-
-        BuildOutputBuffer buffer = bufferManager.lookupOrCreate("my project");
-        assertNotNull(buffer);
-        assertEquals(buffer, bufferManager.lookupOrCreate("my project"));
-        assertNotSame(buffer, bufferManager.lookupOrCreate("another project"));
-    }
-    
-    public void testShouldClearOldOutputForNewInstanceRequest() throws Exception {
-        BuildOutputBufferManager bufferManager = new BuildOutputBufferManager(2);
-        BuildOutputBuffer buffer1 = bufferManager.create("my project");
-        BuildOutputBuffer buffer2 = bufferManager.create("my project");
-        assertNotSame(buffer1, buffer2);
-    }
-    
-    public void testShouldGetTheLatestOutput() throws Exception {
-        BuildOutputBufferManager bufferManager = new BuildOutputBufferManager(99);
-        bufferManager.create("my project").consumeLine("old");
-        bufferManager.create("my project").consumeLine("new");
-        
-        BuildOutputBuffer buffer = bufferManager.lookupOrCreate("my project");
-        assertEquals("new", buffer.retrieveLines(0)[0]);
+    protected void setUp() throws Exception {
+        loggerManager = new BuildOutputLoggerManager();
+        tempFile = tempFile();
     }
 
-    public void testSouldConfigureBuffers() throws Exception {
+    public void testShouldCreateLogger() throws Exception {
+        BuildOutputLogger logger = loggerManager.lookupOrCreate(tempFile);
+        assertEquals(0, logger.retrieveLines(0).length);
+        logger.consumeLine("1");
+        logger.consumeLine("2");
+        assertEquals(2, logger.retrieveLines(0).length);
+        assertSame(logger,  loggerManager.lookup());
+        assertSame(logger,  loggerManager.lookupOrCreate(tempFile));
+    }
 
-        BuildOutputBufferManager bufferManager = new BuildOutputBufferManager(2);
-        BuildOutputBuffer buffer = bufferManager.lookupOrCreate("my project");
-        assertEquals(0, buffer.retrieveLines(0).length);
+    public void testShouldCreateTemporaryLoggerWhenLookingUpMissingLogger() throws Exception {
+        BuildOutputLogger temporaryLogger = loggerManager.lookup();
+        BuildOutputLogger logger = loggerManager.lookupOrCreate(tempFile);
+        assertNotSame(temporaryLogger, logger);
+        assertSame(logger, loggerManager.lookup());
+        assertSame(logger, loggerManager.lookupOrCreate(tempFile));
+        assertEquals(0, temporaryLogger.retrieveLines(0).length);
+    }
 
-        buffer.consumeLine("1");
-        buffer.consumeLine("2");
-        assertEquals(2, buffer.retrieveLines(0).length);
+    private File tempFile() throws IOException {
+        File file = File.createTempFile("tempOutputlogger", ".tmp");
+        file.deleteOnExit();
+        return file;
     }
 }

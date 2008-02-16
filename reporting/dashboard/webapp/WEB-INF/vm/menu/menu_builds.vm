@@ -1,6 +1,3 @@
-#set($dashboard_href="$req.getContextPath()/dashboard")
-#set($dashboard_onclick='return true')
-#set($builds_href="$req.getContextPath()/dashboard?s=1")
-#set($builds_onclick='return true')
 #set($tabheader2_class='currenttab')
+
 #parse('menu/menu_partial.vm')
