@@ -78,6 +78,10 @@ Http Publisher
 ----------------------
 * New publisher to publish to via HTTP POST, GET, etc (CC-688). Contributed by Jonathan Gerrish.
 
+JMX
+----------------------
+* Change commitMessages to be a JMX method (instead of JMX attribute). (CC-679). Reported by Jan Koops, Patch by Ralf Kretzschmar-Auer.
+
 Mercurial Source Control & Bootstrapper
 ----------------------
 * Sourcecontrol & Bootstrapper implementation for Mercurial (hg) http://www.selenic.com/mercurial/wiki/ (CC-638). Submitted by Jerome Lacoste.
