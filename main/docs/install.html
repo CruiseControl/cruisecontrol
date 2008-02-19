@@ -193,6 +193,23 @@
                 <td>No</td>
                 <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
             </tr>
+            <tr>
+              <td>-lib&nbsp;<i>[search path]</i></td>
+                <td>No</td>
+                <td>Specify additional directories to be included on the CruiseControl classpath.
+                    A Launcher class is used to build the full classpath used when running CruiseControl.
+                    If you are familiar with Ant, then this will seem very familiar.<br>
+                    Typically, <i>[search path]</i> is a jar file or a directory containing jar files.
+                    Any jars or classes in the <i>[search path]</i> will be added to CruiseControl's classloader.
+                    The order in which jars are added to the classpath is as follows:
+                    <ul>
+                        <li>Anything given on the command line using '-lib'.</li>
+                        <li>Any jars in the per-user directory ($HOME/.cruisecontrol/lib).</li>
+                        <li>All jars in the installation dist dir.</li>
+                        <li>All jars in the installation lib dir</li>
+                    </ul>
+                </td>
+            </tr>
           </tbody>
         </table>
 
