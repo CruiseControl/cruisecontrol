@@ -48,10 +48,11 @@ public class CommandExecutor {
     private static final Logger LOG = Logger.getLogger(CommandExecutor.class);
     private StreamConsumer error = StreamLogger.getWarnLogger(LOG);
     private StreamConsumer output = StreamLogger.getInfoLogger(LOG);
-    private Commandline command;
+    private final Commandline command;
 
     /**
      * Creates a new instance of CommandExecutor.
+     * @param command command to be executed
      */
     public CommandExecutor(Commandline command) {
         this.command = command;
@@ -59,6 +60,8 @@ public class CommandExecutor {
 
     /**
      * Creates a new instance of CommandExecutor.
+     * @param command command to be executed
+     * @param log logger to which process streams should be written 
      */
     public CommandExecutor(Commandline command, Logger log) {
         this(command);
@@ -105,7 +108,7 @@ public class CommandExecutor {
     public void executeAndWait() throws CruiseControlException {
         LOG.debug("Executing " + command.getExecutable());
 
-        int exitValue = -1;
+        final int exitValue;
         try {
             exitValue = Processes.waitFor(command.execute(), output, error);
         } catch (Exception e) {
