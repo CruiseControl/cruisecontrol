@@ -35,6 +35,7 @@ import java.awt.GridLayout;
 import java.awt.Window;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 
 /**
@@ -413,12 +414,8 @@ public final class BuildAgentUtility {
             lastLUSCount = MulticastDiscovery.getLUSCount();
 
             // clear and rebuild list
-            for (int i = 0; i < lstServiceItems.size(); i++) {
-                lstServiceItems.remove(i);
-            }
-            for (int i = 0; i < serviceItems.length; i++) {
-                lstServiceItems.add(serviceItems[i]);
-            }
+            lstServiceItems.clear();
+            lstServiceItems.addAll(Arrays.asList(serviceItems));
 
             LOG.info("Agents found: " + serviceItems.length);
             result.append("Found: ").append(serviceItems.length).append(" agent")

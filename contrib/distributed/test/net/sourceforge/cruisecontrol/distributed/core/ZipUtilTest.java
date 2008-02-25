@@ -88,8 +88,11 @@ public class ZipUtilTest extends TestCase {
         try {
             filledDirPath = rootTempDirPath + File.separator + DIR_NAME_FILLED;
             writer = new FileWriter(new File(filledDirPath, tempFile));
-            writer.write("The quick brown fox, yadda, yadda, yadda...");
-            writer.close();
+            try {
+                writer.write("The quick brown fox, yadda, yadda, yadda...");
+            } finally {
+                writer.close();
+            }
         } catch (IOException ioe) {
             String message = "Failed to create temp file " + tempFile + " at " + filledDirPath;
             LOG.error(message, ioe);
@@ -182,8 +185,11 @@ public class ZipUtilTest extends TestCase {
         String line = "";
         try {
             reader = new BufferedReader(new FileReader(unzippedFile));
-            line = reader.readLine();
-            reader.close();
+            try {
+                line = reader.readLine();
+            } finally {
+                reader.close();
+            }
         } catch (IOException ioe) {
             fail(ioe.getMessage());
         }
