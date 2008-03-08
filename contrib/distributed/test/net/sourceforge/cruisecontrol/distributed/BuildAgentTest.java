@@ -240,7 +240,7 @@ public class BuildAgentTest extends TestCase {
     public void testSetEntryOverrides() throws Exception {
         final BuildAgent buildAgent = DistributedMasterBuilderTest.createBuildAgent(false);
         try {
-            final int expectedOrigEntryCount = 4;
+            final int expectedOrigEntryCount = 5;
             final PropertyEntry[] origEnties = buildAgent.getEntries();
             assertEquals("Did the unit test props file change? : "
                     + BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
