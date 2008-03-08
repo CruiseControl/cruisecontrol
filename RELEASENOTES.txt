@@ -21,7 +21,8 @@ distributed
 * Remove extraneous synchronized flags.
 * Add optional child element <remoteResult> to allow retrieval of additional build artifact directories.
 * Change CCDist build to execute in the distributed/target directory (same as cc-main).
-* Add mail.jar and activation.jar from main to paths for cases where SMTPAppender is used in log4j.properties
+* Add mail.jar and activation.jar from main to paths for cases where SMTPAppender is used in log4j.properties.
+* Add "java.verson" to the list of automatically defined agent entries, as the existing "java.vm.version" shows the hotspot vm version in 1.6.0_04+.
 
 packager
 ----------------------
