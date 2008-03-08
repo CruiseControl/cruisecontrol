@@ -54,11 +54,13 @@ class SearchablePropertyEntries {
     private static final Logger LOG = Logger.getLogger(SearchablePropertyEntries.class);
 
     private static final String OS_NAME = "os.name";
+    /** As of jdk 1.6.0_04+, this shows the hotspot vm verson, like 10.0-b19. */
     private static final String JAVA_VM_VERSION = "java.vm.version";
+    private static final String JAVA_VERSION = "java.version";
     public static final String HOSTNAME = "hostname";
     // @todo Use enumeration when min JRE version allows it...
     public static final String[] SYSTEM_ENTRY_KEYS = new String[] {
-            OS_NAME, JAVA_VM_VERSION, HOSTNAME
+            OS_NAME, JAVA_VM_VERSION, JAVA_VERSION, HOSTNAME
     };
 
     private final Properties entryProperties = new Properties();
@@ -89,6 +91,10 @@ class SearchablePropertyEntries {
         final String javaVmVersion = System.getProperty(JAVA_VM_VERSION);
         systemEntryProps.put(JAVA_VM_VERSION, javaVmVersion);
         LOG.debug("Set search entry " + JAVA_VM_VERSION + " to: " + javaVmVersion);
+
+        final String javaVersion = System.getProperty(JAVA_VERSION);
+        systemEntryProps.put(JAVA_VERSION, javaVersion);
+        LOG.debug("Set search entry " + JAVA_VERSION + " to: " + javaVersion);
 
         final String hostname;
         try {
