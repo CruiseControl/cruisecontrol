@@ -188,6 +188,7 @@ public class P4 implements SourceControl {
 
     private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers) throws Exception {
         Commandline command = buildDescribeCommand(changelistNumbers);
+        LOG.debug(command.toString());
         Process p = command.execute();
 
         Thread error = logErrorStream(p.getErrorStream());
@@ -248,7 +249,7 @@ public class P4 implements SourceControl {
         String emailaddr = null;
 
         Commandline command = buildUserCommand(username);
-        LOG.info(command.toString());
+        LOG.debug(command.toString());
         Process p = command.execute();
 
         logErrorStream(p.getErrorStream());
@@ -279,6 +280,7 @@ public class P4 implements SourceControl {
 
     private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now) throws Exception {
         Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
+        LOG.debug(command.toString());
         Process p = command.execute();
 
         Thread error = logErrorStream(p.getErrorStream());

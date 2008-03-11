@@ -92,6 +92,10 @@ ModificationSet
 * Changed ModificationSet to use Progress Signaling API to report when sleeping due to modifications found during Quiet Period.
 * Update timeOfCheck to reflect latest date from Modifications to handle synchronisation differences between the build server and the source control repository (CC-544). Reported by Eric Melin. Patch by Brian Sperlongano.
 
+P4 (Perforce)
+----------------------
+* Add DEBUG level logging for all the p4 command-lines. Change buildUserCommand logging from INFO to DEBUG.
+
 Project
 ----------------------
 * Allow no <modificationset> and requiremodifications="false"
