@@ -107,6 +107,7 @@ PVCS
 SVNLabelIncrementer
 ----------------------
 * New label incrementer to update label based on SVN revision number (CC-716).  Submitted by Ketan Padegaonkar.
+* Handle the range of valid output from svnversion. Patch by Eric di Domenico
 
 TeamFoundationServer source control
 ----------------------

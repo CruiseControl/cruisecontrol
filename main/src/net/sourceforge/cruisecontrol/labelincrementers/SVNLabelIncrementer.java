@@ -79,17 +79,11 @@ public class SVNLabelIncrementer implements LabelIncrementer {
         return rev;
     }
 
+    // See http://svnbook.red-bean.com/en/1.1/re57.html
     public boolean isValidLabel(String label) {
-        if (label.indexOf(getSeparator()) < 0) {
-            return false;
-        }
-        try {
-            String suffix = label.substring(label.lastIndexOf(getSeparator()) + 1, label.length());
-            Integer.parseInt(suffix);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        final String pattern = getLabelPrefix() + "\\" + getSeparator() 
+                                   + "[0-9]+:??[0-9]*[MS]*S??(" + getSeparator() + "[0-9]*)??";
+        return label.matches(pattern); 
     }
 
     public void setWorkingCopyPath(String path) {
