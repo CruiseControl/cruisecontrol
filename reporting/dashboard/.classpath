@@ -69,6 +69,6 @@
 	<classpathentry kind="lib" path="lib/aspectjrt.jar"/>
 	<classpathentry kind="lib" path="lib/aspectjweaver.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/main"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cc-main"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
