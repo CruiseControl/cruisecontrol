@@ -70,4 +70,23 @@ public class SVNLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isValidLabel("svn-10"));
         assertTrue(incrementer.isValidLabel("svn-10-2"));
     }
+ 
+    // See http://svnbook.red-bean.com/en/1.1/re57.html
+    public void testShouldValidateForNonSameRevisionLabels() {
+        assertTrue(incrementer.isValidLabel("svn.10:11"));
+        assertTrue(incrementer.isValidLabel("svn.10:11.2"));        
+        assertTrue(incrementer.isValidLabel("svn.10M"));
+        assertTrue(incrementer.isValidLabel("svn.10M.2"));
+        assertTrue(incrementer.isValidLabel("svn.10S"));
+        assertTrue(incrementer.isValidLabel("svn.10S.2"));
+        assertTrue(incrementer.isValidLabel("svn.10:11MS"));
+        assertTrue(incrementer.isValidLabel("svn.10:11MS.2"));
+ 
+        incrementer.setSeparator("-");
+        assertFalse(incrementer.isValidLabel("svn.10:11MS.2"));
+        assertFalse(incrementer.isValidLabel("svn-10:11MS.2"));
+        assertFalse(incrementer.isValidLabel("svn.10:11MS-2"));
+        assertTrue(incrementer.isValidLabel("svn-10:11MS-2"));
+    }
+    
 }
