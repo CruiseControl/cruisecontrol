@@ -43,6 +43,10 @@ AntBuilder
 ----------------------
 * Fix validateBuildFileExists() to handle non-absolute, but valid build file with antWorkingDir set to a different work dir on Windows.
 
+BuildQueue
+----------------------
+* Project blocked in Completed (or Queued) state in the queue, never gets to be built again (CC-443). Patch of Patch by Szczepan Faber.
+
 Cincom Smalltalk VisualWorks Store Source Control
 ----------------------
 * A sourcecontrol implementation for Cincom Smalltalk VisualWorks Store scm (CC-709). Contributed by Randy Coulman.

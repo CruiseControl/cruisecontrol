@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.sourceforge.cruisecontrol.util.threadpool.TaskAlreadyAddedException;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
 
 import org.apache.log4j.Logger;
@@ -65,10 +64,10 @@ public class BuildQueue implements Runnable {
 
     private Thread buildQueueThread;
 
-    private List listeners = new ArrayList();
+    private final List listeners = new ArrayList();
 
     /**
-     * @param project
+     * @param project the project to build
      */
     public void requestBuild(ProjectInterface project) {
         LOG.debug("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
@@ -105,13 +104,7 @@ public class BuildQueue implements Runnable {
                 if (nextProject != null) {
                     LOG.info("now adding to the thread queue: " + nextProject.getName());
                     ProjectWrapper pw = new ProjectWrapper(nextProject);
-                    try {
-                        ThreadQueue.addTask(pw);
-                    } catch (TaskAlreadyAddedException e) {
-                        // it's already there... don't re-add it.
-                        // later, we'll need to add it to a queued up list
-                        // so we don't 'forget' about the new build request
-                    }
+                    ThreadQueue.addTask(pw);
                 }
             }
         }
