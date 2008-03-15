@@ -134,11 +134,21 @@ public class ThreadQueue extends Thread {
     private void handleWaitingTask() {
         LOG.debug("handling waiting task");
         synchronized (busyTasks) {
-            WorkerThread worker = (WorkerThread) idleTasks.remove(0);
-            Thread thisThread = new Thread(loggingGroup, worker);
-            busyTasks.add(worker);
-            runningThreads.put(worker, thisThread);
-            thisThread.start();
+            synchronized (idleTasks) {
+                WorkerThread firstIdleWorkerThread = (WorkerThread) idleTasks.get(0);
+                //Since idleTasks allows duplicates, lets make sure this project is not already building
+                if (getBusyTask(firstIdleWorkerThread.getName()) != null) {
+                    LOG.debug("The idle task is already running, it will not be moved to busy tasks yet");
+                    return;
+                } else {
+                    idleTasks.remove(firstIdleWorkerThread);
+                }
+
+                Thread thisThread = new Thread(loggingGroup, firstIdleWorkerThread);
+                busyTasks.add(firstIdleWorkerThread);
+                runningThreads.put(firstIdleWorkerThread, thisThread);
+                thisThread.start();
+            }
         }
     }
 
@@ -187,11 +197,6 @@ public class ThreadQueue extends Thread {
                 // don't trust that 100 ms main loop managed to clean up very
                 // recently finished tasks
                 getThreadQueue().cleanCompletedTasks();
-
-                if (isActive(task.getName())) {
-                    throw new TaskAlreadyAddedException("Duplicate task name!");
-                }
-
                 getThreadQueue().idleTasks.add(task);
             }
         }
