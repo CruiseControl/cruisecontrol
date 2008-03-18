@@ -396,10 +396,13 @@
 		</available>
 	</target>
 
-	<target name="-generate.svn.revsion" if="has.dotsvn.dir">
+	<target name="-generate.svn.revsion" if="has.dotsvn.dir" unless="current.revision">
 		<svn>
 			<status path="${basedir}" revisionProperty="current.revision" />
 		</svn>
+	</target>
+
+	<target name="-write.version.info">
 		<echo file="${war.dir}/WEB-INF/vm/admin/page_admin_version.txt" message="${cc.release.label}(${current.revision})" />
 	</target>
 
@@ -549,7 +552,7 @@
 	<target name="--run.unit.tests" depends="--compile, -compile-tests, -properties.unit, -unit-tests" />
 
 	<target name="--compile" depends="-clean, --compress, -copy.resources.web, -compile" />
-	<target name="--war.production" depends="-properties.production, -check.dotsvn.dir, -generate.svn.revsion, -war.production" />
+	<target name="--war.production" depends="-properties.production, -check.dotsvn.dir, -generate.svn.revsion, -write.version.info, -war.production" />
 	<target name="--war.development" depends="-properties.jwebunit, -war.development" />
 	<target name="--war.smoke" depends="-properties.smoke, -war.smoke" />
 
@@ -564,7 +567,7 @@
 	<target name="--package.development" depends="-clean, --compile, -compile-tests, --war.development" />
 	<target name="--prepare.smoke.tests" depends="--compile, -compile-tests, --war.smoke" />
 	<target name="--prepare.functional.tests" depends="--compile, -compile-tests, --war.development" />
-	<target name="--dist" depends="--run.all.tests, --war.production" />
+	<target name="--dist" depends="-check.dotsvn.dir, -generate.svn.revsion, --run.all.tests, --war.production" />
 	<target name="--product" depends="--compile, --war.production" description="build and package war without testing" />
 	<target name="--compress" depends="-contact.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
 
