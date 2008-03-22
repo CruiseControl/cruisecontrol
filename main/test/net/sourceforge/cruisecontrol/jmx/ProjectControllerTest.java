@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.util.FileUtils;
-
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -15,6 +13,8 @@ import net.sourceforge.cruisecontrol.ModificationSet;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
@@ -44,7 +44,7 @@ public class ProjectControllerTest extends TestCase {
         project.setName("project1");
 
         File validFile = new File("project1");
-        FileUtils.forceMkdir(validFile);
+        Util.doMkDirs(validFile);
 
         AntBootstrapper bootstrapper = new AntBootstrapper();
 
@@ -58,7 +58,7 @@ public class ProjectControllerTest extends TestCase {
         } catch (Exception e) {
             Thread.sleep(2 * 1000);
         } finally {
-            FileUtils.forceDelete(validFile);
+            IO.delete(validFile);
         }
 
         ProjectMBean mbean = new ProjectController(project);
