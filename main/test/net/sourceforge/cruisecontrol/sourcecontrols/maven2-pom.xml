@@ -28,12 +28,14 @@
             <artifactId>cc-maven-test</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
             <groupId>maven.cc.test</groupId>
             <artifactId>maven-ant-plugin</artifactId>
             <version>1.0</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>ccdeptest</groupId>
             <artifactId>maven</artifactId>
@@ -42,73 +44,6 @@
             <classifier>source</classifier>
         </dependency>
 
-
-
-        <!--<dependency>-->
-            <!--<groupId>junit</groupId>-->
-            <!--<artifactId>junit</artifactId>-->
-            <!--<version>3.8.1</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.testutil</groupId>-->
-            <!--<artifactId>bhatestutil</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<type>zip</type>-->
-            <!--<classifier>src</classifier>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.testutil</groupId>-->
-            <!--<artifactId>bhatestutil</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<type>zip</type>-->
-            <!--<classifier>xyz</classifier>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.util</groupId>-->
-            <!--<artifactId>bhautil</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.util</groupId>-->
-            <!--<artifactId>bhautil</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.bhadaemon</groupId>-->
-            <!--<artifactId>bhadaemon</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-        <!--</dependency>-->
-
-        <!--<dependency>-->
-            <!--<groupId>checkstyle</groupId>-->
-            <!--<artifactId>checkstyle</artifactId>-->
-            <!--<version>4.1</version>-->
-        <!--</dependency>-->
-
-
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.bhadaemon</groupId>-->
-            <!--<artifactId>JNIRegistry</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<scope>system</scope>-->
-            <!--<systemPath>${basedir}/lib/JNIRegistry</systemPath>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.bhaweb.bhadaemon</groupId>-->
-            <!--<artifactId>JNIRegistry2</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-
     </dependencies>
-
-    <!--<parent>-->
-        <!--<groupId>com.bhaweb</groupId>-->
-        <!--<artifactId>bhaPomCommon</artifactId>-->
-        <!--<version>1.0-SNAPSHOT</version>-->
-    <!--</parent>-->
 
 </project>
