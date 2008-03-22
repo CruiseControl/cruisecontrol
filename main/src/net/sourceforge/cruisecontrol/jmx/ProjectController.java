@@ -73,7 +73,7 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
-    private Project project;
+    private final Project project;
     private static int sequence = 0;
     private static final Object SEQUENCE_LOCK = new Object();
 
@@ -281,7 +281,7 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     /**
      * Ouptut from the build output buffer, after line specified (inclusive).
-     * @see net.sourceforge.cruisecontrol.util.BuildOutputBuffer
+     * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger
      */
     public String[] getBuildOutput(Integer firstLine) {
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
