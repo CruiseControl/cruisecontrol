@@ -46,6 +46,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.UtilLocator;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class AntScriptTest extends TestCase {
@@ -166,6 +167,13 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testRemoveSaxonJarsForWindows() throws Exception {
+        // skip this test if not running under windows,
+        // as File objects with "c:..." paths return full path for file.getName() used in script.removeSaxonJars()
+        if (!Util.isWindows()) {
+            System.out.println("skipping test: " + getName());
+            return;
+        }
+
         List list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
         String path = script.removeSaxonJars(list, IS_WINDOWS);
         assertFalse(path.indexOf("saxon") >= 0);
