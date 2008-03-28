@@ -42,6 +42,7 @@ AntBootstrapper/Publisher
 AntBuilder
 ----------------------
 * Fix validateBuildFileExists() to handle non-absolute, but valid build file with antWorkingDir set to a different work dir on Windows.
+* Junitreport broken by over-riding xalan with saxon when not using anthome/antscript attrib. If anthome/antscript is not used, the saxon jars are removed from the classpath before ant is called. (CC-773) Patch by John Lewis
 
 BuildQueue
 ----------------------

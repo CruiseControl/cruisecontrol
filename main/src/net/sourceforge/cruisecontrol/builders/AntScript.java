@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -127,9 +128,11 @@ public class AntScript implements Script, StreamConsumer {
                 }
             }
 
-            cmdLine.createArguments("-classpath", getAntLauncherJarLocation(systemClassPath, isWindows));
+            final List classpathItems = getClasspathItems(systemClassPath, isWindows);
+            final String antLauncherJarLocation = getAntLauncherJarLocation(systemClassPath, classpathItems);
+            cmdLine.createArguments("-classpath", antLauncherJarLocation);
             cmdLine.createArgument("org.apache.tools.ant.launch.Launcher");
-            cmdLine.createArguments("-lib", systemClassPath);
+            cmdLine.createArguments("-lib", removeSaxonJars(classpathItems, isWindows));
         }
 
         if (progress == null) {
@@ -228,10 +231,19 @@ public class AntScript implements Script, StreamConsumer {
      * @throws CruiseControlException if path to ant-launcher.jar could not be found.
      */
     String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
-        final String separator = isWindows ? ";" : ":";
-        final StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
-        while (pathTokenizer.hasMoreTokens()) {
-            final String pathElement = pathTokenizer.nextToken();
+        return getAntLauncherJarLocation(path, getClasspathItems(path, isWindows));
+    }
+
+    /**
+     * @param path the classpath as a single string, used here only for error message.
+     * @param classpathItems the classpath items to search for the ant-launcher.jar
+     * @return the path to ant-launcher*.jar taken from the given path
+     * @throws CruiseControlException if path to ant-launcher.jar could not be found.
+     */
+    private String getAntLauncherJarLocation(String path, List classpathItems)
+        throws CruiseControlException {
+        for (Iterator iterator = classpathItems.iterator(); iterator.hasNext();) {
+            final String pathElement = (String) iterator.next();
             if (pathElement.indexOf("ant-launcher") != -1 && pathElement.endsWith(".jar")) {
                 return pathElement;
             }
@@ -239,7 +251,55 @@ public class AntScript implements Script, StreamConsumer {
         throw new CruiseControlException("Couldn't find path to ant-launcher jar in this classpath: '" + path + "'");
     }
 
-    void setupResolvedLoggerClassname() {
+    /**
+     * @param path the classpath to split each element into a List
+     * @param isWindows true if running on Windows
+     * @return a List containing each element in the classpath
+     */
+    List getClasspathItems(String path, boolean isWindows) {
+        List ret = new ArrayList();
+        final String separator = getSeparator(isWindows);
+        final StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
+        while (pathTokenizer.hasMoreTokens()) {
+            final String pathElement = pathTokenizer.nextToken();
+            ret.add(pathElement);
+        }
+        return ret;
+    }
+    
+    /**
+     * The Saxon jars cause the Ant junitreport task to fail.
+     * 
+     * @param classpathItems a List containing items in a classpath
+     * @param isWindows true if running on Windows
+     * @return a String containing all the jars in the classpath minus the Saxon jars
+     */
+    String removeSaxonJars(List classpathItems, boolean isWindows) {
+        StringBuffer path = new StringBuffer();
+
+        final String separator = getSeparator(isWindows);
+        for (Iterator iterator = classpathItems.iterator(); iterator.hasNext();) {
+            String pathElement = (String) iterator.next();
+            File elementFile = new File(pathElement);
+            if (!elementFile.getName().startsWith("saxon")) {
+                if (path.length() > 0) {
+                    path.append(separator);
+                }
+                path.append(pathElement);
+            }
+        }
+        return path.toString();
+    }
+    
+    String removeSaxonJars(String path, boolean isWindows) {
+        return removeSaxonJars(getClasspathItems(path, isWindows), isWindows);
+    }
+    
+    private String getSeparator(boolean isWindows) {
+        return isWindows ? ";" : ":";
+    }
+
+   void setupResolvedLoggerClassname() {
         // use proper default logger if loggerClassName was not specified by config
         if ((progress != null) && (!isLoggerClassNameSet)) {
             if (useLogger) {
