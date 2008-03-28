@@ -56,6 +56,8 @@ public class AntScriptTest extends TestCase {
     private static final boolean USE_LOGGER = true;
     private static final boolean USE_SCRIPT = true;
     private static final boolean IS_WINDOWS = true;
+    private static final int NUMBER_OF_SAXON_JARS = 2;
+    private static final int UNIX_PATH_LENGTH = 22;
     private static final String UNIX_PATH = "/usr/java/jdk1.5.0/lib/tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/dist/cruisecontrol.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/log4j.jar:"
@@ -71,10 +73,14 @@ public class AntScriptTest extends TestCase {
       + "/home/joris/java/cruisecontrol-2.2/main/lib/activation.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/commons-net-1.1.0.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/starteam-sdk.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/saxon8.jar:"
+      + "/home/joris/java/cruisecontrol-2.2/main/lib/saxon8-dom.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-tools.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/mx4j-remote.jar:"
       + "/home/joris/java/cruisecontrol-2.2/main/lib/smack.jar:.";
+    private static String unixPathWithoutSaxonJars;
+    private static final int WINDOWS_PATH_LENGTH = 24;
     private static final String WINDOWS_PATH = "C:\\Progra~1\\IBM\\WSAD\\tools.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\dist\\cruisecontrol.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\log4j.jar;"
@@ -90,13 +96,17 @@ public class AntScriptTest extends TestCase {
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\activation.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\commons-net-1.1.0.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\starteam-sdk.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\saxon8.jar;"
+      + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\saxon8-dom.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-tools.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\mx4j-remote.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\smack.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\comm.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
+    private static String windowsPathWithoutSaxonJars;
 
+    
     protected void setUp() throws Exception {
         script = new AntScript();
 
@@ -128,6 +138,21 @@ public class AntScriptTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
+     
+        unixPathWithoutSaxonJars = script.removeSaxonJars(UNIX_PATH, !IS_WINDOWS);
+        windowsPathWithoutSaxonJars = script.removeSaxonJars(WINDOWS_PATH, IS_WINDOWS);
+    }
+
+    public void testGetClasspathItemsForWindows() throws Exception {
+        List list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
+        assertEquals(WINDOWS_PATH_LENGTH, list.size());
+        assertEquals("C:\\Progra~1\\IBM\\WSAD\\tools.jar", list.get(0));
+    }
+
+    public void testGetClasspathItemsForUnix() throws Exception {
+        List list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
+        assertEquals(UNIX_PATH_LENGTH, list.size());
+        assertEquals("/usr/java/jdk1.5.0/lib/tools.jar", list.get(0));
     }
 
     public void testGetAntLauncherJarLocationForWindows() throws Exception {
@@ -140,6 +165,22 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS));
     }
 
+    public void testRemoveSaxonJarsForWindows() throws Exception {
+        List list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
+        String path = script.removeSaxonJars(list, IS_WINDOWS);
+        assertFalse(path.indexOf("saxon") >= 0);
+        list = script.getClasspathItems(path, IS_WINDOWS);
+        assertEquals(WINDOWS_PATH_LENGTH - NUMBER_OF_SAXON_JARS, list.size());
+    }
+
+    public void testRemoveSaxonJarsForUnix() throws Exception {
+        List list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
+        String path = script.removeSaxonJars(list, IS_WINDOWS);
+        assertFalse(path.indexOf("saxon") >= 0);
+        list = script.getClasspathItems(path, IS_WINDOWS);
+        assertEquals(UNIX_PATH_LENGTH - NUMBER_OF_SAXON_JARS, list.size());
+    }
+
     public void testGetCommandLineArgs() throws CruiseControlException {
         String[] resultInfo =
             {
@@ -148,7 +189,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -175,7 +216,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -204,7 +245,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -231,7 +272,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -258,7 +299,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -291,7 +332,7 @@ public class AntScriptTest extends TestCase {
                  script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                  "org.apache.tools.ant.launch.Launcher",
                  "-lib",
-                 UNIX_PATH,
+                 unixPathWithoutSaxonJars,
                  "-listener",
                  "org.apache.tools.ant.XmlLogger",
                  "-DXmlLogger.file=log.xml",
@@ -321,7 +362,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -353,7 +394,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-logger",
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
@@ -387,7 +428,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -422,7 +463,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                UNIX_PATH,
+                unixPathWithoutSaxonJars,
                 "-listener",
                 "org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
@@ -511,7 +552,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 "com.canoo.Logger",
                 "-DXmlLogger.file=log.xml",
@@ -627,7 +668,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntProgressLogger.class.getName(),
                 "-listener",
@@ -663,7 +704,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntProgressXmlLogger.class.getName(),
                 "-listener",
@@ -700,7 +741,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntProgressLogger.class.getName(),
                 "-listener",
@@ -732,7 +773,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntProgressXmlLogger.class.getName(),
                 "-listener",
@@ -765,7 +806,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
@@ -798,7 +839,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
@@ -831,7 +872,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntBuilder.DEFAULT_LOGGER,
                 "-logfile",
@@ -870,7 +911,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
@@ -899,7 +940,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-logger",
                 AntBuilder.DEFAULT_LOGGER,
                 "-logfile",
@@ -934,7 +975,7 @@ public class AntScriptTest extends TestCase {
                 script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
                 "org.apache.tools.ant.launch.Launcher",
                 "-lib",
-                WINDOWS_PATH,
+                windowsPathWithoutSaxonJars,
                 "-listener",
                 AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
@@ -965,7 +1006,7 @@ public class AntScriptTest extends TestCase {
              script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
              "org.apache.tools.ant.launch.Launcher",
              "-lib",
-             WINDOWS_PATH,
+             windowsPathWithoutSaxonJars,
              "-listener",
              "com.canoo.Logger",
              "-DXmlLogger.file=log.xml",
@@ -1000,7 +1041,7 @@ public class AntScriptTest extends TestCase {
              script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
              "org.apache.tools.ant.launch.Launcher",
              "-lib",
-             WINDOWS_PATH,
+             windowsPathWithoutSaxonJars,
              "-listener",
              "com.canoo.Logger",
              "-DXmlLogger.file=log.xml",

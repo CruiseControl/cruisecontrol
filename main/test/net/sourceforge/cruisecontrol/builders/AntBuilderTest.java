@@ -521,4 +521,105 @@ public class AntBuilderTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
     }
+    
+    public void testRealBuild() throws IOException, CruiseControlException {
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+        File tempSubdir = new File(tempDir, "cruisecontroltest" + System.currentTimeMillis());
+        tempSubdir.mkdir();
+        filesToDelete.add(tempSubdir);
+        
+        File buildFile = new File(tempSubdir, "build.xml");
+        
+        createFakeProjectInTempDir(tempSubdir, buildFile);
+        
+        builder.setBuildFile(buildFile.getAbsolutePath());
+        builder.setTarget("all");
+        builder.setTempFile("notLog.xml");
+        builder.validate();
+        HashMap buildProperties = new HashMap();
+        builder.build(buildProperties, null);
+        
+        //Now verify a JUnit report was created
+        File htmlJUnitReportFile = new File(tempSubdir, "reports/html/index.html");
+        assertTrue("JUnit HTML Report was not created", htmlJUnitReportFile.exists());
+    }
+
+    private void createFakeProjectInTempDir(File dir, File buildFile) throws CruiseControlException {        
+        File srcDir = new File(dir, "src");
+        File srcPackageDir = new File(srcDir, "apackage");
+        writeSimpleClassFile(srcPackageDir);
+        
+        File testDir = new File(dir, "test");
+        File testPackageDir = new File(testDir, "apackage");
+        writeSimpleTestFile(testPackageDir);
+        
+        writeSimpleBuildFile(buildFile);
+    }
+    
+    private void writeSimpleClassFile(File srcPackageDir) throws CruiseControlException {
+        srcPackageDir.mkdirs();
+        File simpleClassFile = new File(srcPackageDir, "Simple.java");
+
+        StringBuffer contents = new StringBuffer();
+        contents.append("package apackage;");
+        contents.append("public class Simple {");
+        contents.append("    public void call() {}");
+        contents.append("}");
+        IO.write(simpleClassFile, contents.toString());
+    }
+    
+    private void writeSimpleTestFile(File testPackageDir) throws CruiseControlException {
+        testPackageDir.mkdirs();
+        File simpleTestFile = new File(testPackageDir, "SimpleTest.java");
+
+        StringBuffer contents = new StringBuffer();
+        contents.append("package apackage;");
+        contents.append("import junit.framework.TestCase;");
+        contents.append("public class SimpleTest extends TestCase {");
+        contents.append("    public void testSimple() {");
+        contents.append("        Simple simple = new Simple();");
+        contents.append("        simple.call();");
+        contents.append("    }");
+        contents.append("}");
+        IO.write(simpleTestFile, contents.toString());
+    }
+    
+    private void writeSimpleBuildFile(File buildFile) throws CruiseControlException {
+        /*
+         * This compiles the Simple and SimpleTest classes, runs JUnit, and generates a junitreport
+         */
+
+        StringBuffer contents = new StringBuffer();
+        contents.append("<project name='Simple' basedir='.' default='all'>\n");
+        contents.append("    <target name='all'>\n");
+        contents.append("         <mkdir dir='build' />\n");
+        contents.append("         <path id='test.classpath'>\n");
+        contents.append("             <pathelement location='build' />\n");
+        contents.append("         </path>\n");
+        contents.append("         <javac srcdir='src' destdir='build' />\n");
+        contents.append("         <javac srcdir='test' destdir='build' classpathref='test.classpath' />\n");
+        contents.append("         <mkdir dir='reports/xml' />");
+        contents.append("         <junit fork='yes'>\n");
+        contents.append("             <classpath>\n");
+        contents.append("                 <path refid='test.classpath' />\n");
+        contents.append("             </classpath>\n");
+        contents.append("             <formatter type='xml' />\n");
+        contents.append("             <batchtest fork='yes' todir='reports/xml'>\n");
+        contents.append("                 <fileset dir='build'>\n");
+        contents.append("                     <include name='**/*Test*.class' />\n");
+        contents.append("                 </fileset>\n");
+        contents.append("             </batchtest>\n");
+        contents.append("         </junit>\n");
+        contents.append("         <junitreport>\n");
+        contents.append("             <fileset dir='reports/xml'>\n");
+        contents.append("                 <include name='TEST-*.xml'/>\n");
+        contents.append("             </fileset>\n");
+        contents.append("             <report format='frames' todir='reports/html' />\n");
+        contents.append("         </junitreport>\n");
+        contents.append("    </target>\n");
+        contents.append("\n");
+        contents.append("</project>\n");
+        IO.write(buildFile, contents.toString());
+    }
+    
 }
