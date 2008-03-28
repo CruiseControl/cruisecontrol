@@ -311,7 +311,9 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
 &lt;/distributed&gt;</pre>
 
                      Deploy and launch all your agents, <b>without</b> modifying entries in <i>user-defined.properties</i>. You can now add a new 'Entry Override' (ie: <code>sound=hardwaremixable</code>) to only those agents running on the correct hardware. Do this via the <a href="#advancedConfigAgentUI">Build Agent UI</a> or the <a href="#advancedConfigAgentUtility">Build Agent Utility</a>. This new Agent entry will persist across Agent restarts.<br/><br/>
-                     <b>NOTE: </b>Be aware there is a bug in the Preferences API implementation in JRE 6.0 on non-Windows OS's that prevents these settings from persisting. See Sun Bug ID: 6568540 "(prefs) Preferences not saved in Webstart app, even after synch()" - you might want to vote for it.</li>
+                     <b>NOTE: </b>Be aware there is a bug in the Preferences API implementation in JRE 6.0 on non-Windows OS's that prevents these settings from persisting. See Sun Bug ID: 6568540 "(prefs) Preferences not saved in Webstart app, even after synch()" - you might want to vote for it.<br/>
+                     To workaround this bug, the saxon jars are no longer used in the agent.jnlp file. If this workaround causes problems for you, you can uncomment these jars in the agent.jnlp file (and the "ps.jarnames-xml-libs" patternset in CCDist build.xml).
+                    </li>
                 </ol>
             </li>
         </ol>
