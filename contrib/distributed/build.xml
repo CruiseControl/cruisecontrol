@@ -105,7 +105,9 @@
     <patternset id="ps.jarnames-xml-libs">
         <include name="xml-apis-*.jar" />
         <include name="xercesImpl-*.jar" />
-        <include name="saxon*.jar" />
+        <!-- Saxon jars cause the Ant junitreport task to fail when no anthome/antscript is set,
+         and Sun Bug ID: 6568540 "(prefs) Preferences not saved in Webstart app, even after synch()" -->
+        <!--<include name="saxon*.jar" />-->
     </patternset>
 
     <!-- commonly reused libs from main/lib -->
