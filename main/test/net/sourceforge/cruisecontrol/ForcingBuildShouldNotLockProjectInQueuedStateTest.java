@@ -83,8 +83,20 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
 
         // sanity checks
         assertTrue(buildQueue.isWaiting());
-        assertTrue(ThreadQueue.getIdleTaskNames().size() == 0);
-        assertTrue(ThreadQueue.getBusyTaskNames().size() == 0);
+
+        int count = 0;
+        while ((ThreadQueue.getIdleTaskNames().size() != 0) && (count < 20)) {
+            count++;
+            Thread.sleep(100 * count);
+        }
+        assertTrue("ThreadQueue.getIdleTaskNames() should be empty", ThreadQueue.getIdleTaskNames().size() == 0);
+
+        count = 0;
+        while ((ThreadQueue.getBusyTaskNames().size() != 0) && (count < 20)) {
+            count++;
+            Thread.sleep(100 * count);
+        }
+        assertTrue("ThreadQueue.getBusyTaskNames() should be empty", ThreadQueue.getBusyTaskNames().size() == 0);
 
         return projectToForce;
     }
