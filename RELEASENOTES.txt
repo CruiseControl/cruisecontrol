@@ -151,6 +151,7 @@ Dashboard
 * Made dashboard accept single quotes in a project name.
 * Made "all builds", "all successful builds", "config panel" and "force build" buttons turn grey when project is inactive.
 * Specify location of dashboard via command line
+* Removed links to widgets.html because API is deprecated
 
 
 CruiseControl Release Notes - 2.7.1
