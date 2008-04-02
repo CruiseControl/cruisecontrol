@@ -57,7 +57,7 @@ if [ -z "$CCDIR" ] ; then
 
   saveddir=`pwd`
 
-  CCDIR=`dirname "$PRG"`/..
+  CCDIR=`dirname "$PRG"`
 
   # make it fully qualified
   CCDIR=`cd "$CCDIR" && pwd`
