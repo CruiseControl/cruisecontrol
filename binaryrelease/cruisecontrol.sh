@@ -37,9 +37,34 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ################################################################################
 
-# The root of the CruiseControl directory.  The key requirement is that this is the parent
+# CCDIR: The root of the CruiseControl directory.
+# The key requirement is that this is the parent
 # directory of CruiseControl's lib and dist directories.
-CCDIR=`pwd`
+if [ -z "$CCDIR" ] ; then
+  # resolve links - $0 may be a softlink
+  PRG="$0"
+
+  # need this for relative symlinks
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+      PRG="$link"
+    else
+      PRG=`dirname "$PRG"`"/$link"
+    fi
+  done
+
+  saveddir=`pwd`
+
+  CCDIR=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  CCDIR=`cd "$CCDIR" && pwd`
+
+  cd $saveddir
+  echo Using Cruise Control at $CCDIR
+fi
 
 # Uncomment the following line if you have OutOfMemoryError errors
 # CC_OPTS="-Xms128m -Xmx256m"
