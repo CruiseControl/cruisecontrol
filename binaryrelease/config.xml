@@ -11,7 +11,7 @@
 
         <modificationset quietperiod="30">
             <!-- touch any file in connectfour project to trigger a build -->
-            <file folder="projects/${project.name}"/>
+            <filesystem folder="projects/${project.name}"/>
         </modificationset>
 
         <schedule interval="300">
