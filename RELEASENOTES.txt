@@ -7,10 +7,8 @@ CruiseControl Release Notes - 2.7.2-dev
 general
 ======================
 * use Util.doMkDirs() instead of File.mkdirs() to fix possible race condition when creating directories on WinXP, also Windows2000.
-
-cc-config
-======================
 * Update bundled cc-config to version 1.7.2.
+* Changed how CCDIR is calculated by cruisecontrol.sh in binary distribution to match the source distribution (CC-361)
 
 contrib
 ======================
