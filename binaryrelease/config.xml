@@ -6,11 +6,12 @@
         </listeners>
 
         <bootstrappers>
-            <svnbootstrapper localWorkingCopy="projects/${project.name}" />
+            <antbootstrapper anthome="%%APACHE_ANT%%" buildfile="projects/${project.name}/build.xml" target="clean" />
         </bootstrappers>
 
         <modificationset quietperiod="30">
-            <svn localWorkingCopy="projects/${project.name}"/>
+            <!-- touch any file in connectfour project to trigger a build -->
+            <file folder="projects/${project.name}"/>
         </modificationset>
 
         <schedule interval="300">
