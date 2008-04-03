@@ -4,6 +4,14 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.7.3-dev
 
+build loop
+======================
+
+Git Source Control & Bootstrapper
+----------------------
+* add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
+
+
 CruiseControl Release Notes - 2.7.2
 
 general
