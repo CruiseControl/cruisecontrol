@@ -7,6 +7,10 @@ CruiseControl Release Notes - 2.7.3-dev
 build loop
 ======================
 
+ClearCaseViewstrapper
+---------------------
+*  ClearCaseViewStrapper would cancel the build if the view was already mounted (CC-757).  Reported by Gerrit Brehmer. Patch by Glenn Opdycke-Hansen.
+
 Git Source Control & Bootstrapper
 ----------------------
 * add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
