@@ -65,8 +65,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
     /**
      * set the path to the view to be started
      *
-     * @param path
-     *            path to view to be started
+     * @param path path to view to be started
      */
     public void setViewpath(String path) {
         viewpath = path;
@@ -75,14 +74,13 @@ public class ClearCaseViewstrapper implements Bootstrapper {
     /**
      * set the list of VOBs to mount, the list is comma separated
      *
-     * @param list
-     *            comma separated list of VOBs to mount
+     * @param list comma separated list of VOBs to mount
      */
     public void setVoblist(String list) {
         voblist = list;
     }
 
-    /*
+    /**
      * start the specified view and VOBs.
      */
     public void bootstrap() throws CruiseControlException {
@@ -92,7 +90,19 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         if (voblist != null) {
             String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
-                buildMountVOBCommand(vobs[i]).executeAndWait(LOG);
+                // first, test if the view path is already available
+                boolean vobIsMounted = false;
+                try {
+                    buildListVOBCommand(viewpath).executeAndWait(LOG);
+                    vobIsMounted = true;
+                } catch (CruiseControlException cce) {
+                    // if get here then exception was not handled, may want to rethrow
+                }
+
+                // now mount the vob, if needed
+                if (!vobIsMounted) {
+                    buildMountVOBCommand(vobs[i]).executeAndWait(LOG);
+                }
             }
         }
     }
@@ -101,14 +111,14 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         return voblist.split(",");
     }
 
-    /*
+    /**
      * check whether the appropriate attributes have been set
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(viewpath, "viewpath", this.getClass());
     }
 
-    /*
+    /**
      * build a command line for starting the view
      */
     protected Commandline buildStartViewCommand() {
@@ -120,7 +130,7 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         return commandLine;
     }
 
-    /*
+    /**
      * build a command line for starting a VOB
      */
     protected Commandline buildMountVOBCommand(String vob) {
@@ -132,7 +142,18 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         return commandLine;
     }
 
-    /*
+
+    /**
+     * build a command line to list (ls) a file/folder
+     */
+    protected Commandline buildListVOBCommand(String f) {
+        Commandline commandLine = new Commandline();
+        commandLine.setExecutable("cleartool");
+        commandLine.createArguments("ls", f);
+        return commandLine;
+    }
+
+    /**
      * work out the view tag from the viewpath
      */
     private String getViewName() {
