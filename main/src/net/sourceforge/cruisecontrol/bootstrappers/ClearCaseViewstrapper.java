@@ -45,14 +45,18 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 
 /**
- * This class allows you to start up ClearCase dynamic views and mount VOBs before you initiate your build. If your view
- * has been stopped, a VOB unmounted or your machine rebooted, the likelihood is that your build will fail when using
- * dynamic views. The class therefore allows you to specify a viewpath, from which it works out the view tag and starts
- * it, optionally you can specify voblist, a comma separated list of VOBs to mount. The reason a viewpath is used rather
- * than just the view path is that you can reuse a CruiseControl property which defines the source of your build. You
- * should always specify the viewpath via the root location, i.e. M:\... on Windows or /view/... on Unix Usage:
- * &lt;clearcaseviewstrapper viewpath="M:\dynamic_view\some_vob\src" voblist="\SourceVOB,\ReleaseVOB"/%gt;
- *
+ * This class allows you to start up ClearCase dynamic views and mount VOBs
+ * before you initiate your build. If your view has been stopped, a VOB
+ * unmounted or your machine rebooted, the likelihood is that your build will
+ * fail when using dynamic views. The class therefore allows you to specify a
+ * viewpath, from which it works out the view tag and starts it, optionally you
+ * can specify voblist, a comma separated list of VOBs to mount. The reason a
+ * viewpath is used rather than just the view path is that you can reuse a
+ * CruiseControl property which defines the source of your build. You should
+ * always specify the viewpath via the root location, i.e. M:\... on Windows or
+ * /view/... on Unix Usage: &lt;clearcaseviewstrapper
+ * viewpath="M:\dynamic_view\some_vob\src" voblist="\SourceVOB,\ReleaseVOB"/%gt;
+ * 
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
 public class ClearCaseViewstrapper implements Bootstrapper {
@@ -64,8 +68,9 @@ public class ClearCaseViewstrapper implements Bootstrapper {
 
     /**
      * set the path to the view to be started
-     *
-     * @param path path to view to be started
+     * 
+     * @param path
+     *            path to view to be started
      */
     public void setViewpath(String path) {
         viewpath = path;
@@ -73,8 +78,9 @@ public class ClearCaseViewstrapper implements Bootstrapper {
 
     /**
      * set the list of VOBs to mount, the list is comma separated
-     *
-     * @param list comma separated list of VOBs to mount
+     * 
+     * @param list
+     *            comma separated list of VOBs to mount
      */
     public void setVoblist(String list) {
         voblist = list;
@@ -90,19 +96,27 @@ public class ClearCaseViewstrapper implements Bootstrapper {
         if (voblist != null) {
             String[] vobs = getVobsFromList(voblist);
             for (int i = 0; i < vobs.length; i++) {
-                // first, test if the view path is already available
-                boolean vobIsMounted = false;
+                // mount the vob(s)
                 try {
-                    buildListVOBCommand(viewpath).executeAndWait(LOG);
-                    vobIsMounted = true;
-                } catch (CruiseControlException cce) {
-                    // if get here then exception was not handled, may want to rethrow
-                }
-
-                // now mount the vob, if needed
-                if (!vobIsMounted) {
+                    LOG.debug("mount vob=" + vobs[i]);
                     buildMountVOBCommand(vobs[i]).executeAndWait(LOG);
+                } catch (CruiseControlException cceMount) {
+                    // log the exception, do not throw.
+                    // Note: warn because the exception may result from mounting
+                    // a vob that was already mounted or it
+                    // could be that the vob does not exist
+                    LOG.warn("mount exception=" + cceMount);
                 }
+            }
+
+            // test if the view path is now available
+            try {
+                LOG.debug("ls viewpath=" + viewpath);
+                buildListVOBCommand(viewpath).executeAndWait(LOG);
+            } catch (CruiseControlException cceList) {
+                // log the exception, do not throw
+                // Note: error because the exception is most likely a problem
+                LOG.error("ls exception=" + cceList);
             }
         }
     }
@@ -141,7 +155,6 @@ public class ClearCaseViewstrapper implements Bootstrapper {
 
         return commandLine;
     }
-
 
     /**
      * build a command line to list (ls) a file/folder
