@@ -164,7 +164,9 @@ public final class IO {
     public static void write(File f, String contents) throws CruiseControlException {
         FileWriter fw = null;
         try {
-            f.getParentFile().mkdirs();
+            if (f.getParentFile() != null) {
+                f.getParentFile().mkdirs();
+            }
             fw = new FileWriter(f);
             fw.write(contents);
         } catch (IOException ioe) {
