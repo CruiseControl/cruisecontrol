@@ -6,7 +6,7 @@ CruiseControl Release Notes - 2.7.3-dev
 
 general
 ======================
-* Change cruisecontrol.sh (main, binaryrelease, distcc) script to use more generic shebang (works with FreeBSD). Patch by Ivan "Rambius" Ivanov
+* Change cruisecontrol.sh (main, binaryrelease, distcc) script to use more generic shebang (that also works on FreeBSD) (CC-789). Patch by Ivan "Rambius" Ivanov
 
 build loop
 ======================
