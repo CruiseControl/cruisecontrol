@@ -162,6 +162,7 @@
 <a href="#phing">&lt;phing&gt;</a>
 <a href="#onfailure">&lt;onfailure&gt;</a>
 <a href="#onsuccess">&lt;onsuccess&gt;</a>
+<a href="#origo">&lt;origo&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
@@ -342,6 +343,7 @@
          <a href="#jabber">&lt;jabber/&gt;</a>
          <a href="#onfailure">&lt;onfailure/&gt;</a>
          <a href="#onsuccess">&lt;onsuccess/&gt;</a>
+         <a href="#origo">&lt;origo/&gt;</a>
          <a href="#rss">&lt;rss/&gt;</a>
          <a href="#sametimeannouncement">&lt;sametimeannouncement/&gt;</a>
          <a href="#scp">&lt;scp/&gt;</a>
@@ -7367,6 +7369,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                     if the current build was successful.</td>
             </tr>
             <tr>
+                <td><a href="#origo"><code>&lt;origo&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Creates/closes an issue in an Origo project.</td>
+            </tr>
+            <tr>
                 <td><a href="#sametimeannouncement"><code>&lt;sametimeannouncement&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends Sametime announcements with the result of the build</td>
@@ -9176,6 +9183,84 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         dest="artifacts/project1"&gt;
     &lt;/artifactspublisher&gt;
 &lt;/onsuccess&gt;
+            </pre>
+            </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="origo">&lt;origo&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;origo&gt;</pre>
+        </div>
+
+        <p>Creates a new issue in an Origo system if a build fails and closes
+           the issue after the build has been fixed.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            	<td>apiurl</td>
+            	<td>No (defaults to http://api.origo.ethz.ch/api/xmlrpc)</td>
+            	<td>URL to Origo API</td>
+            </tr>
+            <tr>
+                <td>buildresultsurl</td>
+                <td>No (defaults to http://localhost:8180/)</td>
+                <td>URL to the build results JSP</td>
+            </tr>
+            <tr>
+            	<td>issueprivate</td>
+            	<td>No (defaults to true)</td>
+            	<td>Should the issue be private</td>
+            </tr>
+            <tr>
+            	<td>issuesubject</td>
+            	<td>No (defaults to Cruisecontrol failed)</td>
+            	<td>Subject for newly created issue</td>
+            </tr>
+            <tr>
+            	<td>issuetag</td>
+            	<td>No (defaults to cruisecontrol::failed)</td>
+            	<td>Tag for newly created issue, must be unique in the project</td>
+            </tr>
+            <tr>
+            	<td>projectname</td>
+            	<td>Yes</td>
+            	<td>Name of the origo project</td>
+            </tr>
+            <tr>
+            	<td>userkey</td>
+            	<td>Yes</td>
+            	<td>Origo user key to report/update the issue</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+
+        <ol>
+            <li>Create/update an issue in the ethz Origo instance for the project Connectfour.
+            <pre>
+&lt;origo userkey="SOMEVERYSECRETKEY"
+        projectname="connectfour"
+        buildresultsurl="http://somehost.tld//buildresults/${project.name}"
+        issuetag="cruisecontrol::${project.name}::failed"/&gt;
             </pre>
             </li>
         </ol>
