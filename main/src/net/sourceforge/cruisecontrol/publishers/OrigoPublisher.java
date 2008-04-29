@@ -174,8 +174,7 @@ public class OrigoPublisher implements Publisher {
             }
         } catch (Exception e) {
             LOG.error("Problem during xmlrpc call", e);
-            // @todo Should CCException be thrown here?, otherwise failure is hidden...
-            //throw new CruiseControlException(e);
+            throw new CruiseControlException(e);
         }
     }
 
