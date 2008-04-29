@@ -17,7 +17,11 @@ ClearCaseViewstrapper
 
 Git Source Control & Bootstrapper
 ----------------------
-* add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
+* Add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
+
+Origo Publisher
+----------------------
+* Add Publisher for the Origo collaboration platform (CC-775). Patch by Patrick Ruckstuhl.
 
 
 CruiseControl Release Notes - 2.7.2
