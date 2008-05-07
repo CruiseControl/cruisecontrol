@@ -99,6 +99,11 @@
 
 	<target name="checklabel">
 		<fail unless="cc.release.label" message="label is not defined." />
+
+        <echo>Java: ${java.version} (${java.vm.name})</echo>
+        <echo>   in ${java.home}</echo>
+        <echo>Ant: ${ant.version}</echo>
+        <echo>CruiseControl: ${cc.release.label}</echo>        
 	</target>
 
 	<target name="init" description="Setup build system" depends="checklabel">
