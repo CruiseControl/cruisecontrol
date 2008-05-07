@@ -107,6 +107,12 @@
     <target name="init">
         <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
 
+        <echo>Java: ${java.version} (${java.vm.name})</echo>
+        <echo>   in ${java.home}</echo>
+        <echo>Ant: ${ant.version}</echo>
+        <echo>CruiseControl: ${cc.version}
+        </echo>
+
         <mkdir dir="${dist}"/>
         <mkdir dir="${classes}"/>
         <mkdir dir="${test.classes}"/>

@@ -232,6 +232,11 @@
 
     <target name="ccdist.checklabel">
         <fail unless="ccdist.release.label" message="label is not defined." />
+
+        <echo>Java: ${java.version} (${java.vm.name})</echo>
+        <echo>   in ${java.home}</echo>
+        <echo>Ant: ${ant.version}</echo>
+        <echo>CruiseControl: ${cc.version}, CCDist: ${ccdist.release.label}</echo>
     </target>
 
     <target name="init" depends="ccdist.checklabel,checkRequiredLibs" description="Initializes dist directories">
