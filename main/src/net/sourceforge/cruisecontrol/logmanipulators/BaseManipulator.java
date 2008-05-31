@@ -82,7 +82,7 @@ public abstract class BaseManipulator implements Manipulator {
 
             cal.add(unit.intValue(), -every);
 
-            backupFiles = dir.listFiles(new LogfileNameFilter(cal.getTime(), ignoreSuffix));
+            backupFiles = dir.listFiles(getFilenameFilter(cal.getTime(), ignoreSuffix));
         }
         return backupFiles;
     }
@@ -114,6 +114,16 @@ public abstract class BaseManipulator implements Manipulator {
 
     Integer getUnit() {
         return this.unit;
+    }
+
+    /**
+     * Can be overriden to provide different FilenameFilter implemenations.
+     * @param logdate the date of 'old' build file(s) on which some action should be taken.
+     * @param ignoreSuffix true to ignore ".xml" suffix during matching
+     * @return a FilenameFilter to be used to select files older that a certain date for manipulation.
+     */
+    protected FilenameFilter getFilenameFilter(final Date logdate, final boolean ignoreSuffix) {
+        return new LogfileNameFilter(logdate, ignoreSuffix);
     }
 
     private class LogfileNameFilter implements FilenameFilter {

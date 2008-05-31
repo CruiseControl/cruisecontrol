@@ -127,6 +127,7 @@
 <a href="#dashboard">&lt;dashboard&gt;</a>
 <a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
+<a href="#deleteartifacts">&lt;deleteartifacts&gt;</a>
 <a href="#email">&lt;email&gt;</a>
 <a href="#exec">&lt;exec&gt;</a>
 <a href="#execbootstrapper">&lt;execbootstrapper&gt;</a>
@@ -325,6 +326,7 @@
          <a href="#merge">&lt;merge/&gt;</a>
 	 <a href="#gzip">&lt;gzip/&gt;</a>
 	 <a href="#delete">&lt;delete/&gt;</a>
+	 <a href="#deleteartifacts">&lt;deleteartifacts/&gt;</a>
       &lt;/log&gt;
       <a href="#publishers">&lt;publishers&gt;</a>
          <a href="#antpublisher">&lt;antpublisher/&gt;</a>
@@ -7121,6 +7123,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>0 .. 1</td>
                 <td>Deletes old log files.</td>
 	    </tr>
+            <tr>
+                <td><a href="#deleteartifacts"><code>&lt;deleteartifacts&gt;</code></a></td>
+                <td>0 .. 1</td>
+                <td>Deletes old artifact directories.</td>
+	    </tr>
 
 
             </tbody>
@@ -7247,17 +7254,58 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                <td>every</td>
                <td>true</td>
-               <td>Sets the amount of Units after which the logfiles are backuped.</td>
+               <td>Sets the amount of Units after which the logfiles are deleted.</td>
             </tr>
             <tr>
                <td>unit</td>
                <td>true</td>
-               <td>The Unit for backups. Valid Units are DAY, WEEK, MONTH or YEAR</td>
+               <td>The Unit for deletions. Valid Units are DAY, WEEK, MONTH or YEAR</td>
             </tr>
             <tr>
                <td>ignoreSuffix</td>
                <td>true</td>
                <td>Ignores default xml-suffix when deleting files, so other logfiles could be deleted</td>
+            </tr>
+           </tbody>
+        </table>
+	</div>
+
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="deleteartifacts">&lt;deleteartifacts&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#log">&lt;log&gt;</a>
+      &lt;deleteartifacts&gt;</pre>
+        </div>
+
+        <p>After the build-file is written, this manipulator deletes all old artifact directories
+	that may exist.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+               <th>Attribute</th>
+               <th>Required</th>
+               <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+               <td>every</td>
+               <td>true</td>
+               <td>Sets the amount of Units after which the artifact directories are deleted.</td>
+            </tr>
+            <tr>
+               <td>unit</td>
+               <td>true</td>
+               <td>The Unit for deletions. Valid Units are DAY, WEEK, MONTH or YEAR</td>
             </tr>
            </tbody>
         </table>

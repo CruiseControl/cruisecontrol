@@ -15,6 +15,10 @@ ClearCaseViewstrapper
 ---------------------
 *  ClearCaseViewStrapper would cancel the build if the view was already mounted (CC-757).  Reported by Gerrit Brehmer. Patch by Glenn Opdycke-Hansen.
 
+Manipulator:
+----------------------
+* Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).
+ 
 Git Source Control & Bootstrapper
 ----------------------
 * Add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
