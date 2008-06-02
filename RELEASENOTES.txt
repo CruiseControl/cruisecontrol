@@ -15,6 +15,10 @@ ClearCaseViewstrapper
 ---------------------
 *  ClearCaseViewStrapper would cancel the build if the view was already mounted (CC-757).  Reported by Gerrit Brehmer. Patch by Glenn Opdycke-Hansen.
 
+CMSynergy
+---------------------
+* Now throws exception when contacting the server fails. This will abort the build rather than continuing with potentially incomplete or incorrect information.
+
 Manipulator:
 ----------------------
 * Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).

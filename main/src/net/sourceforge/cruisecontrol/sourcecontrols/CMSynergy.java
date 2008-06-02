@@ -432,9 +432,10 @@ public class CMSynergy implements SourceControl {
             cmd.assertExitCode(0);
             this.ccmDelimiter = cmd.getStdoutAsString().trim();
         } catch (Exception e) {
-            StringBuffer buff = new StringBuffer("Could not connect to provided CM Synergy session");
-            LOG.error(buff.toString(), e);
-            return null;
+            StringBuffer message = new StringBuffer("Could not connect to provided CM Synergy session: ");
+            message.append(sessionName).append(" with session file:").append(sessionFile.getAbsolutePath());
+            LOG.error(message.toString(), e);
+            throw new OpperationFailedException(message.toString(), e);
         }
 
         // Create the projectFourPartName needed for projects with instance
@@ -482,6 +483,8 @@ public class CMSynergy implements SourceControl {
      * Update the folders within the given project's reconfigure properties.
      */
     private void refreshReconfigureProperties() {
+        LOG.debug("Refreshing reconfigure properties for project " + projectFourPartName + ".");
+
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument("reconfigure_properties");
@@ -493,7 +496,9 @@ public class CMSynergy implements SourceControl {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.warn("Could not refresh reconfigure properties for project \"" + projectFourPartName + "\".", e);
+            String message = "Could not refresh reconfigure properties for project \"" + projectFourPartName + "\".";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
         }
     }
 
@@ -543,7 +548,9 @@ public class CMSynergy implements SourceControl {
         try {
             cmd.execute();
         } catch (Exception e) {
-            LOG.error("Could not query for new tasks. The modification list " + "will be empty!", e);
+            String message = "Could not query for new tasks.";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
         }
 
         // create a modification list with discovered tasks
@@ -753,7 +760,7 @@ public class CMSynergy implements SourceControl {
      * Reconfigure the project
      */
     private void reconfigureProject() {
-        LOG.info("Reconfiguring project " + projectFourPartName + ".");
+        LOG.debug("Reconfiguring project " + projectFourPartName + ".");
 
         // Construct the CM Synergy command
         cmd.clearArgs();
@@ -767,7 +774,9 @@ public class CMSynergy implements SourceControl {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            LOG.warn("Could not reconfigure project \"" + projectFourPartName + "\".", e);
+            String message = "Could not reconfigure project \"" + projectFourPartName + "\".";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
         }
     }
 
@@ -895,4 +904,12 @@ public class CMSynergy implements SourceControl {
 
         return command;
     }
+
+    class OpperationFailedException extends RuntimeException {
+        public OpperationFailedException(String message, Exception e) {
+            super(message, e);
+        }
+    }
+
 }
+
