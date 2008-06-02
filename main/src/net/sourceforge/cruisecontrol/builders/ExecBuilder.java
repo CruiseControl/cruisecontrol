@@ -126,12 +126,18 @@ public class ExecBuilder extends Builder {
 
         // did the exec fail in anyway?
         if (scriptIOError) {
+            StringBuffer message = new StringBuffer("Could not execute command: " + command);
+            if (args == null) {
+                message.append(" with no arguments");
+            } else {
+                message.append(" with arguments: ").append(args);
+            }
             // YES: could fin or execute command
-            LOG.warn("Could not execute command: " + command + " " + args);
+            LOG.warn(message.toString());
             synchronized (buildLogElement) {
                 buildLogElement.setAttribute("error", "exec error");
                 Element msg = new Element("message");
-                msg.addContent(new CDATA("Could not execute command: " + command + " " + args));
+                msg.addContent(new CDATA(message.toString()));
                 msg.setAttribute("priority", "error");
                 task.addContent(msg);
             }

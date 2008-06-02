@@ -19,6 +19,10 @@ CMSynergy
 ---------------------
 * Now throws exception when contacting the server fails. This will abort the build rather than continuing with potentially incomplete or incorrect information.
 
+ExecBuilder
+---------------------
+* Improve error message when there are no arguments.
+
 Manipulator:
 ----------------------
 * Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).
