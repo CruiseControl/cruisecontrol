@@ -117,10 +117,10 @@ public abstract class BaseManipulator implements Manipulator {
     }
 
     /**
-     * Can be overriden to provide different FilenameFilter implemenations.
+     * Can be overriden to provide different FilenameFilter implementations.
      * @param logdate the date of 'old' build file(s) on which some action should be taken.
      * @param ignoreSuffix true to ignore ".xml" suffix during matching
-     * @return a FilenameFilter to be used to select files older that a certain date for manipulation.
+     * @return a FilenameFilter to be used to select files older than the given date for manipulation.
      */
     protected FilenameFilter getFilenameFilter(final Date logdate, final boolean ignoreSuffix) {
         return new LogfileNameFilter(logdate, ignoreSuffix);
