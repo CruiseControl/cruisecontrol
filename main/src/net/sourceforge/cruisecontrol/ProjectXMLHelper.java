@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
+import net.sourceforge.cruisecontrol.util.Util;
 
 /**
  *  Instantiates a project from a JDOM Element. Supports the use of Ant-like patterns in
@@ -155,64 +156,6 @@ public class ProjectXMLHelper implements ProjectHelper {
         return propertiesObject;
     }
 
-
-    // FIXME Helper extract ?
-    /**
-     * Parses a string by replacing all occurrences of a property macro with
-     * the resolved value of the property. Nested macros are allowed - the
-     * inner most macro will be resolved first, moving out from there.
-     *
-     * @param string The string to be parsed
-     * @return The parsed string
-     * @throws CruiseControlException if a property cannot be resolved
-     */
-    public static String parsePropertiesInString(Map props, String string,
-                                          boolean failIfMissing) throws CruiseControlException {
-        if (string != null) {
-            int startIndex = string.indexOf("${");
-            if (startIndex != -1) {
-                int openedBrackets = 1;
-                int lastStartIndex = startIndex + 2;
-                int endIndex;
-                do {
-                    endIndex = string.indexOf("}", lastStartIndex);
-                    int otherStartIndex = string.indexOf("${", lastStartIndex);
-                    if (otherStartIndex != -1 && otherStartIndex < endIndex) {
-                        openedBrackets++;
-                        lastStartIndex = otherStartIndex + 2;
-                    } else {
-                        openedBrackets--;
-                        if (openedBrackets == 0) {
-                            break;
-                        }
-                        lastStartIndex = endIndex + 1;
-                    }
-                } while (true);
-                if (endIndex < startIndex + 2) {
-                    throw new CruiseControlException("Unclosed brackets in " + string);
-                }
-                String property = string.substring(startIndex + 2, endIndex);
-                // not necessarily resolved
-                String propertyName = parsePropertiesInString(props, property, failIfMissing);
-                String value = "".equals(propertyName) ? "" : (String) props.get(propertyName);
-                if (value == null) {
-                    if (failIfMissing) {
-                        throw new CruiseControlException("Property \"" + propertyName
-                                + "\" is not defined. Please check the order in which you have used your properties.");
-                    } else {
-                        // we don't resolve missing properties
-                        value = "${" + propertyName + "}";
-                    }
-                }
-                LOG.debug("Replacing the string \"" + propertyName + "\" with \"" + value + "\".");
-                string = string.substring(0, startIndex) + value
-                    + parsePropertiesInString(props, string.substring(endIndex + 1), failIfMissing);
-            }
-        }
-        return string;
-
-    }
-
     // FIXME Helper extract ?
     public static void parsePropertiesInElement(Element element,
                                                 Map props,
@@ -227,13 +170,13 @@ public class ProjectXMLHelper implements ProjectHelper {
         // Parse the attribute value strings
         for (Iterator attributes = element.getAttributes().iterator(); attributes.hasNext(); ) {
             Attribute attribute = (Attribute) attributes.next();
-            attribute.setValue(parsePropertiesInString(props, attribute.getValue(), failIfMissing));
+            attribute.setValue(Util.parsePropertiesInString(props, attribute.getValue(), failIfMissing));
         }
 
         // Parse the element's text
         String text = element.getTextTrim();
         if (text.length() > 0) {
-            element.setText(parsePropertiesInString(props, text, failIfMissing));
+            element.setText(Util.parsePropertiesInString(props, text, failIfMissing));
         }
     }
 

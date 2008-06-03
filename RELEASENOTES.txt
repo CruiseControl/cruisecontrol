@@ -23,6 +23,7 @@ CMSynergy
 ExecBuilder
 ---------------------
 * Improve error message when there are no arguments.
+* Substitute properites in arguments (like ${label} or ${projectname})
 
 Manipulator:
 ----------------------

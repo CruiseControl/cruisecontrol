@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
@@ -270,7 +271,7 @@ public class CruiseControlConfig {
      */
     public void add(IncludeProjectsPlugin project) throws CruiseControlException {
         String file = project.getFile();
-        String path = ProjectXMLHelper.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
+        String path = Util.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
         // FIXME GENDOC Self configure ??
         LOG.debug("getting included projects from " + path);
         Element includedElement = xmlResolver.getElement(path);
@@ -364,7 +365,7 @@ public class CruiseControlConfig {
             String key = (String) iterator.next();
             if (!thisProperties.containsKey(key)) {
                 String value = (String) rootProperties.get(key);
-                thisProperties.put(key, ProjectXMLHelper.parsePropertiesInString(thisProperties, value, false));
+                thisProperties.put(key, Util.parsePropertiesInString(thisProperties, value, false));
             }
         }
 
@@ -426,7 +427,7 @@ public class CruiseControlConfig {
             throw new IllegalStateException("Invalid Node <" + childElement.getName() + "> (not a project)");
         }
         String rawName = childElement.getAttribute("name").getValue();
-        return ProjectXMLHelper.parsePropertiesInString(rootProperties, rawName, false);
+        return Util.parsePropertiesInString(rootProperties, rawName, false);
     }
 
     public ProjectInterface getProject(String name) {

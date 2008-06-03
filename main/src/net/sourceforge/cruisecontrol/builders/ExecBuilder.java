@@ -36,14 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.Map;
 import java.io.File;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
@@ -99,10 +100,11 @@ public class ExecBuilder extends Builder {
         buildLogElement = new Element("build");
 
         // setup script handler
-        final ExecScript script = new ExecScript();
+        final ExecScript script = createExecScript();
         script.setExecCommand(this.command);
-        script.setExecArgs(this.args);
+        script.setExecArgs(substituteProperties(buildProperties, this.args));
         script.setErrorStr(this.errorStr);
+        // TODO: should properties become environment variables?
         //script.setBuildProperties(buildProperties); - currently ignored
         script.setProgress(progress);
 
@@ -115,7 +117,7 @@ public class ExecBuilder extends Builder {
         boolean scriptCompleted = false;
         boolean scriptIOError = false;
         try {
-            scriptCompleted = scriptRunner.runScript(new File(this.workingDir), script, timeout);
+            scriptCompleted = runScript(script, scriptRunner, this.workingDir);
         } catch (CruiseControlException ex) {
           scriptIOError = true;
         }
@@ -168,6 +170,25 @@ public class ExecBuilder extends Builder {
         script.flushCurrentElement();
         return buildLogElement;
     } // build
+
+    protected boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir)
+      throws CruiseControlException {
+        return scriptRunner.runScript(new File(dir), script, timeout);
+    }
+
+    private String substituteProperties(Map properties, String string) {
+        String value = string;
+        try {
+            value = Util.parsePropertiesInString(properties, string, false);
+        } catch (CruiseControlException e) {
+            LOG.error("exception substituing proerties into arguements: " + string, e);
+        }
+        return value;
+    }
+
+    protected ExecScript createExecScript() {
+        return new ExecScript();
+    }
 
 
     public Element buildWithTarget(final Map properties, final String target, final Progress progress)

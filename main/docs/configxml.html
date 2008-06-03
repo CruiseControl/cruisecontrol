@@ -6954,7 +6954,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         <p>Runs a specified command or script as part of the build. Reports build
            failure if the command cannot be run or returns an error. There is also
            a capability to search for a user defined string in the command output, for example,
-           "build failed" and if so return an error.</p>
+           "build failed" and if so return an error. Arguments will have any <a href="#buildproperties">
+           properties passed to builders</a> substitued at runtime.</p>
 
         <p>See below for <a href="#exec-examples">examples</a> of the
         <code>&lt;exec&gt;</code> element.</p>
@@ -7033,11 +7034,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <ol>
             <li>Invoke execbuilder, specifying the
-            working directory as <code>/workspace/myproject</code> and
+            working directory as <code>/workspace/myproject</code> using property substitution and
             executing the Perl script <code>backup.pl</code>.
 
             <pre>&lt;schedule&gt;
-    &lt;exec workingdir="/workspace/myproject"
+    &lt;exec workingdir="/workspace/${projectname}"
          command="/usr/local/bin/Perl"
          args="backup.pl"/&gt;
 &lt;/schedule&gt;</pre>

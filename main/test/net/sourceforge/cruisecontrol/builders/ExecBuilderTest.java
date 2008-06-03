@@ -37,8 +37,10 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -251,4 +253,52 @@ public class ExecBuilderTest extends TestCase {
           }
       } // makeTestFile
 
+    public void testArgumentsShouldHavePropertySubstituion() throws CruiseControlException {
+        MockExecScript script = new MockExecScript();
+        ExecBuilder builder = new TestExecBuilder(script);
+        builder.setCommand("cmd");
+        builder.setArgs("${label}");
+        builder.validate();
+
+        Map buildProperties = new HashMap();
+        buildProperties.put("label", "foo");
+        builder.build(buildProperties, null);
+        
+        assertEquals(script.getExecArgs(), "foo");
+    }
+    
+    private class TestExecBuilder extends ExecBuilder {
+
+        private MockExecScript script;
+
+        public TestExecBuilder(MockExecScript script) {
+            this.script = script;
+        }
+
+        protected ExecScript createExecScript() {
+            return script;
+        }
+
+        protected boolean runScript(ExecScript script, ScriptRunner scriptRunner, String dir)
+          throws CruiseControlException {
+            return true;
+        }
+        
+    }
+    
+    private class MockExecScript extends ExecScript {
+
+        private String args;
+
+        public String getExecArgs() {
+            return args;
+        }
+
+        public void setExecArgs(String execArgs) {
+            args = execArgs;
+            super.setExecArgs(execArgs);
+        }
+
+    }
+      
 } // ExecBuilderTest
