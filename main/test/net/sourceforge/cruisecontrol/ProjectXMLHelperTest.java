@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Properties;
 
+import net.sourceforge.cruisecontrol.util.Util;
+
 import junit.framework.TestCase;
 
 public class ProjectXMLHelperTest extends TestCase {
@@ -45,39 +47,39 @@ public class ProjectXMLHelperTest extends TestCase {
     public void testParsePropertiesInString1() throws CruiseControlException {
         Properties properties = new Properties();
         properties.put("property", "value");
-        String s = ProjectXMLHelper.parsePropertiesInString(properties, "${property}", false);
+        String s = Util.parsePropertiesInString(properties, "${property}", false);
         assertEquals("value", s);
 
         properties.put("one", "1");
         properties.put("two", "2");
-        String s2 = ProjectXMLHelper.parsePropertiesInString(properties, "a${one}b${two}c", false);
+        String s2 = Util.parsePropertiesInString(properties, "a${one}b${two}c", false);
         assertEquals("a1b2c", s2);
 
         properties.put("one", "1");
         properties.put("two", "2");
 
-        String s3 = ProjectXMLHelper.parsePropertiesInString(properties, "a${oneb${two}}c", false);
+        String s3 = Util.parsePropertiesInString(properties, "a${oneb${two}}c", false);
         assertEquals("a${oneb2}c", s3);
 
         properties.put("foo-bar", "b");
         properties.put("two", "bar");
-        String s4 = ProjectXMLHelper.parsePropertiesInString(properties, "a${foo-${two}}c", false);
+        String s4 = Util.parsePropertiesInString(properties, "a${foo-${two}}c", false);
         assertEquals("abc", s4);
 
         try {
-            ProjectXMLHelper.parsePropertiesInString(properties, "${foo", false);
+            Util.parsePropertiesInString(properties, "${foo", false);
             fail("badly formatted properties. Should have failed");
         } catch (CruiseControlException e) {
            // expected
         }
 
-        String s5 = ProjectXMLHelper.parsePropertiesInString(properties, "${}", false);
+        String s5 = Util.parsePropertiesInString(properties, "${}", false);
         assertEquals("", s5);
     }
 
     public void testParsePropertiesInString2() throws CruiseControlException {
         Properties properties = new Properties();
-        String s = ProjectXMLHelper.parsePropertiesInString(properties, "${missing}", false);
+        String s = Util.parsePropertiesInString(properties, "${missing}", false);
         assertEquals("${missing}", s);
     }
 }

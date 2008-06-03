@@ -57,6 +57,7 @@ import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -155,7 +156,7 @@ public class DashboardConfig {
         }
         try {
             path =
-                    ProjectXMLHelper.parsePropertiesInString(rootProperties, path,
+                    Util.parsePropertiesInString(rootProperties, path,
                             FAIL_UPON_MISSING_PROPERTY);
             LOG.debug("getting included projects from " + path);
             Element includedElement = xmlResolver.getElement(path);
@@ -275,7 +276,7 @@ public class DashboardConfig {
             String key = (String) iterator.next();
             if (!thisProperties.containsKey(key)) {
                 String value = (String) rootProperties.get(key);
-                thisProperties.put(key, ProjectXMLHelper.parsePropertiesInString(thisProperties,
+                thisProperties.put(key, Util.parsePropertiesInString(thisProperties,
                         value, false));
             }
         }
@@ -336,7 +337,7 @@ public class DashboardConfig {
                     + "> (not a project)");
         }
         String rawName = childElement.getAttribute("name").getValue();
-        return ProjectXMLHelper.parsePropertiesInString(rootProperties, rawName, false);
+        return Util.parsePropertiesInString(rootProperties, rawName, false);
     }
 
     public ProjectInterface getProject(String name) {

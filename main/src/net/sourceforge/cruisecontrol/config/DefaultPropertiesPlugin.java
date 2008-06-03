@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
@@ -177,9 +178,9 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
                     continue;
                 }
                 String parsedName
-                    = ProjectXMLHelper.parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
+                    = Util.parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
                 String parsedValue
-                    = ProjectXMLHelper.parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
+                    = Util.parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
                 ProjectXMLHelper.setProperty(props, parsedName, parsedValue);
             }
             reader.close();
@@ -208,11 +209,11 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
                 propName.append(line.substring(0, index));
             }
             String parsedValue
-                    = ProjectXMLHelper.parsePropertiesInString(props, line.substring(index + 1), failIfMissing);
+                    = Util.parsePropertiesInString(props, line.substring(index + 1), failIfMissing);
             ProjectXMLHelper.setProperty(props, propName.toString(), parsedValue);
         }
     } else {
-        String parsedValue = ProjectXMLHelper.parsePropertiesInString(props, value, failIfMissing);
+        String parsedValue = Util.parsePropertiesInString(props, value, failIfMissing);
         ProjectXMLHelper.setProperty(props, name, parsedValue);
     }
   }
