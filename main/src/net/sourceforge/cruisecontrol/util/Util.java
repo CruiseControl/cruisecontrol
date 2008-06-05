@@ -51,12 +51,10 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 public final class Util {
-    private static final Logger LOG = Logger.getLogger(Util.class);
 
     private Util() {
     }
@@ -234,7 +232,6 @@ public final class Util {
         return true;
     }
 
-    // FIXME Helper extract ?
     /**
      * Parses a string by replacing all occurrences of a property macro with
      * the resolved value of the property. Nested macros are allowed - the
@@ -282,12 +279,10 @@ public final class Util {
                         value = "${" + propertyName + "}";
                     }
                 }
-                LOG.debug("Replacing the string \"" + propertyName + "\" with \"" + value + "\".");
                 string = string.substring(0, startIndex) + value
                     + parsePropertiesInString(props, string.substring(endIndex + 1), failIfMissing);
             }
         }
-        return string;
-    
+        return string;    
     }
 }
