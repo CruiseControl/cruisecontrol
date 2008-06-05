@@ -181,7 +181,7 @@ public class ExecBuilder extends Builder {
         try {
             value = Util.parsePropertiesInString(properties, string, false);
         } catch (CruiseControlException e) {
-            LOG.error("exception substituing proerties into arguements: " + string, e);
+            LOG.error("exception substituting properties into arguements: " + string, e);
         }
         return value;
     }
