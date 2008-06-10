@@ -23,7 +23,7 @@ public class TimeChartDataTest extends TestCase {
         List buildInfos = new ArrayList();
         BuildInfoSummary buildInfoSummary = new BuildInfoSummary(buildInfos);
         map.put("buildInfo", buildInfoSummary);
-        data.produceDataset(map);
+        assertNotNull(data.produceDataset(map));
     }
 
     public void testProduceDatasetBuildsInSameMinute() throws Exception {
@@ -37,6 +37,6 @@ public class TimeChartDataTest extends TestCase {
         buildInfos.add(info);
         BuildInfoSummary buildInfoSummary = new BuildInfoSummary(buildInfos);
         map.put("buildInfo", buildInfoSummary);
-        data.produceDataset(map);
+        assertNotNull(data.produceDataset(map));
     }
 }
