@@ -25,14 +25,18 @@ ExecBuilder
 * Improve error message when there are no arguments.
 * Substitute properites in arguments (like ${label} or ${projectname})
 
-Manipulator:
-----------------------
-* Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).
- 
 Git Source Control & Bootstrapper
 ----------------------
 * Add git and gitbootstrapper to default-plugins.properties. Reported by Garret Pick.
 
+JabberPublisher
+----------------------
+* Add debug level log messages for troubleshooting.
+
+Manipulator:
+----------------------
+* Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).
+ 
 Origo Publisher
 ----------------------
 * Add Publisher for the Origo collaboration platform (CC-775). Patch by Patrick Ruckstuhl.

@@ -207,8 +207,10 @@ public abstract class JabberPublisher implements Publisher {
         // Send the message to the recipient
         try {
             if (chatroom) {
+                LOG.debug("sending to chat room (" + recipient + ") the message: " + message);
                 groupchat.sendMessage(message);
             } else {
+                LOG.debug("sending to user (" + recipient + ") the message: " + message);
                 chat.sendMessage(message);
             }
         } catch (XMPPException e) {
