@@ -65,7 +65,7 @@ public class TimeChartData extends AbstractCruiseControlChartData implements Cha
     private static final long serialVersionUID = -5159867264828131088L;
 
     public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo");
+        BuildInfoSummary summary = getBuildInfoSummary(params);
         TimeSeries brokenSeries = new TimeSeries("Broken Builds", Minute.class);
         TimeSeries goodSeries = new TimeSeries("Good Builds", Minute.class);
         for (Iterator iter = summary.iterator(); iter.hasNext();) {

@@ -47,7 +47,7 @@ import de.laures.cewolf.DatasetProduceException;
 public class PieChartData extends AbstractCruiseControlChartData {
 
     public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo");
+        BuildInfoSummary summary = getBuildInfoSummary(params);
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("Broken Builds", summary.getNumBrokenBuilds());
         dataset.setValue("Good Builds", summary.getNumSuccessfulBuilds());

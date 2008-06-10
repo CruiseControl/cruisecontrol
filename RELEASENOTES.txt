@@ -37,6 +37,13 @@ Origo Publisher
 ----------------------
 * Add Publisher for the Origo collaboration platform (CC-775). Patch by Patrick Ruckstuhl.
 
+reporting jsp app
+======================
+
+Charts
+----------------------
+* Charts should now be cached rather than regenerated when no new build has run.
+
 
 CruiseControl Release Notes - 2.7.2
 

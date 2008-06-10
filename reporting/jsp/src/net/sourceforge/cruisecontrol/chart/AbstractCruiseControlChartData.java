@@ -38,8 +38,12 @@ package net.sourceforge.cruisecontrol.chart;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.BuildInfo;
+import net.sourceforge.cruisecontrol.BuildInfoSummary;
+import net.sourceforge.cruisecontrol.taglib.BuildInfoTag;
 import de.laures.cewolf.DatasetProducer;
 
 /**
@@ -47,14 +51,37 @@ import de.laures.cewolf.DatasetProducer;
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
 public abstract class AbstractCruiseControlChartData implements DatasetProducer, Serializable {
-    private static final long FIVE_SECONDS = 5000L;
 
     /**
-     * Helper method to see if the graph is out of date. We will assume that the graph is out of date if it is older
-     * than 5 seconds.
+     * Helper method to see if the graph is out of date. We will check the BuildInfoSummary
+     * to see if a new log file is available.
      */
-    public boolean hasExpired(Map params, Date since) {
-        return (System.currentTimeMillis() - since.getTime())  > FIVE_SECONDS;
+    public boolean hasExpired(Map params, Date dateOfCachedData) {
+        BuildInfoSummary summary = getBuildInfoSummary(params);
+        if (noBuilds(summary)) {
+            return false;
+        }
+        
+        Date newestBuild = null;
+        Iterator iterator = summary.iterator();
+        while (iterator.hasNext()) {
+            BuildInfo info = (BuildInfo) iterator.next();
+            Date buildDate = info.getBuildDate();
+            if (newestBuild == null || buildDate.after(newestBuild)) {
+                newestBuild = buildDate;
+            }
+        }
+        
+        return newestBuild.after(dateOfCachedData);
+    }
+
+    private boolean noBuilds(BuildInfoSummary summary) {
+        return summary.getBuildInfoList().size() == 0;
+    }
+
+    protected BuildInfoSummary getBuildInfoSummary(Map params) {
+        BuildInfoSummary summary = (BuildInfoSummary) params.get(BuildInfoTag.INFO_ATTRIBUTE);
+        return summary;
     }
 
 
