@@ -15,7 +15,7 @@
 <cewolf:chart id="pie" title="Breakdown of build types" type="pie" >
     <cewolf:data>
         <cewolf:producer id="pieData">
-          <cewolf:param name="buildInfo" value="<%=build_info%>" />
+          <cewolf:param name="build_info" value="<%=build_info%>" />
         </cewolf:producer>
     </cewolf:data>
 </cewolf:chart>
@@ -26,7 +26,7 @@
 <cewolf:chart id="chart" title="Breakdown of build types" type="timeseries"  xaxislabel="date" yaxislabel="time">
     <cewolf:data>
         <cewolf:producer id="chartData">
-          <cewolf:param name="buildInfo" value="<%=build_info%>" />
+          <cewolf:param name="build_info" value="<%=build_info%>" />
         </cewolf:producer>
     </cewolf:data>
     <cewolf:chartpostprocessor id="chartData" />
@@ -43,7 +43,7 @@
 <cewolf:chart id="chart" title="Coding violations" type="timeseries"  xaxislabel="date" yaxislabel="violations">
     <cewolf:data>
         <cewolf:producer id="xpathData">
-          <cewolf:param name="buildInfo" value="<%=build_info%>" />
+          <cewolf:param name="build_info" value="<%=build_info%>" />
         </cewolf:producer>
     </cewolf:data>
     <cewolf:chartpostprocessor id="xpathData" />

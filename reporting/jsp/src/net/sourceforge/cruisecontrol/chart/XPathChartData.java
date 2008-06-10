@@ -77,7 +77,7 @@ public class XPathChartData extends AbstractCruiseControlChartData implements Ch
     }
 
     public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get("buildInfo");
+        BuildInfoSummary summary = getBuildInfoSummary(params);
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         Map timeSeries = new LinkedHashMap(xpaths.size());
         for (Iterator i = xpaths.iterator(); i.hasNext(); ) {
