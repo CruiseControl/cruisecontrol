@@ -25,4 +25,9 @@ public class GenericPluginDetailTest extends TestCase {
         GenericPluginDetail detail = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
         assertEquals(0, detail.compareTo(detail));
     }
+
+    public void testToString() {
+        GenericPluginDetail detail = new GenericPluginDetail("cvs", ConcurrentVersionsSystem.class);
+        assertEquals(detail.getType() + ":" + detail.getName(), detail.toString());
+    }
 }
