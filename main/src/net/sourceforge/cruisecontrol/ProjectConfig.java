@@ -215,7 +215,7 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Bootstrappers implements Serializable {
         private static final long serialVersionUID = 7428779281399848035L;
-        private List bootstrappers = new ArrayList();
+        private final List bootstrappers = new ArrayList();
 
         public void add(Bootstrapper bootstrapper) {
             bootstrappers.add(bootstrapper);
@@ -235,7 +235,7 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Listeners implements Serializable {
         private static final long serialVersionUID = -3816080104514876038L;
-        private List listeners = new ArrayList();
+        private final List listeners = new ArrayList();
 
         public void add(Listener listener) {
             listeners.add(listener);
@@ -255,7 +255,7 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Publishers implements Serializable {
         private static final long serialVersionUID = -410933401108345152L;
-        private List publishers = new ArrayList();
+        private final List publishers = new ArrayList();
 
         public void add(Publisher publisher) {
             publishers.add(publisher);
@@ -372,6 +372,17 @@ public class ProjectConfig implements ProjectInterface {
 
     public int hashCode() {
         return name.hashCode();
+    }
+
+    /**
+     * Need to delegate to "project" toString() to avoid breaking external jmx scripts.
+     * {@inheritDoc}
+     */
+    public String toString() {
+        if (project != null) {
+            return project.toString();
+        }
+        return super.toString();
     }
 
     public void getStateFromOldProject(ProjectInterface oldProject) throws CruiseControlException {
