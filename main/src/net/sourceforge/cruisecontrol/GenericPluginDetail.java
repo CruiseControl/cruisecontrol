@@ -71,6 +71,10 @@ public class GenericPluginDetail implements PluginDetail {
         return this.getName().compareTo(((PluginDetail) other).getName());
     }
 
+    public String toString() {
+        return type + ":" + name;
+    }
+    
     private static Attribute[] lookupRequiredAttributes(Class plugin) {
         List attrs = new LinkedList();
         Method[] methods = plugin.getMethods();
