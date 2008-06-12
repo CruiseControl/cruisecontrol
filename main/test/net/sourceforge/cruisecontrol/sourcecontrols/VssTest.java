@@ -374,10 +374,12 @@ public class VssTest extends TestCase {
         String entry = "Comment: blah blah blah\n*****\n*****  test.file  *****\nVersion 1\nUser: Jyip      "
                 + "Date:  7/8/06   Time:  12:24p\nChecked in $/some/folder/path\n" + "Comment: some normal comment\n";
         List modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new StringReader(entry));
-
-        vss.parseHistoryEntries(modifications, reader);
-
+        final BufferedReader reader = new BufferedReader(new StringReader(entry));
+        try {
+            vss.parseHistoryEntries(modifications, reader);
+        } finally {
+            reader.close();
+        }
         assertEquals(1, modifications.size());
         Modification modification = (Modification) modifications.get(0);
         assertEquals("test.file", modification.getFileName());
@@ -407,7 +409,6 @@ public class VssTest extends TestCase {
 
         File execFile = new File("..", "ss.exe");
         vss.setSsDir("..");
-        System.out.println(execFile.getCanonicalPath());
         String[] expectedCommandWithSsdir = { execFile.getCanonicalPath(), "history", "$vsspath", "-R",
                 "-Vd04/08/02;01:15P~03/08/02;09:30A", "-Ylogin,password", "-I-N", "-Ovsspath.tmp" };
         String[] actualCommandWithSsdir = vss.getCommandLine(lastBuild, now);
