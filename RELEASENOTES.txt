@@ -41,6 +41,10 @@ Origo Publisher
 ----------------------
 * Add Publisher for the Origo collaboration platform (CC-775). Patch by Patrick Ruckstuhl.
 
+ProjectConfig
+----------------------
+* ProjectConfig.toString() should return Project.toString() to avoid breaking external jmx scripts. Reported by Mark Hatton.
+
 reporting jsp app
 ======================
 

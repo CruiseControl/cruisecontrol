@@ -107,11 +107,20 @@ public class ProjectConfigTest extends TestCase {
     }
 
     public void testReadProject() {
-        String tempDir = System.getProperty("java.io.tmpdir");
-        ProjectConfig projectConfig = new ProjectConfig();
-        Project project = projectConfig.readProject(tempDir);
+        final Project project = config.readProject(System.getProperty("java.io.tmpdir"));
         assertNotNull(project);
         assertTrue(project.getBuildForced());
+    }
+
+    public void testToStringDelegatesToProject() throws Exception {
+        config.add(new DefaultLabelIncrementer());
+        config.configureProject();
+        // see comments at page bottom in:
+        // http://confluence.public.thoughtworks.org/display/CC/RunningCruiseControlFromUnixInit
+        // for details
+        assertEquals("ProjectConfig.toString() should return Project.toString() to avoid breaking external jmx scripts",
+                "Project " + config.getName() + ": " + config.getStatus(),
+                config.toString());
     }
 
     public void testShouldBeAbleToGetCommitMessage() throws Exception {
