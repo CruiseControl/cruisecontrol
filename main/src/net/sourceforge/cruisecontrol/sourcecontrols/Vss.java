@@ -71,7 +71,7 @@ public class Vss implements SourceControl {
     private String login;
     private String dateFormat = "MM/dd/yy";
     private String timeFormat = "hh:mma";
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     public Vss() {
         constructVssDateTimeFormat();
