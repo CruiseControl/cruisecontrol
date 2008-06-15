@@ -13,6 +13,8 @@ import net.sourceforge.cruisecontrol.ModificationSet;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.MockProject;
+import net.sourceforge.cruisecontrol.ProjectTest;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
@@ -66,6 +68,28 @@ public class ProjectControllerTest extends TestCase {
         assertNotNull(output);
         assertTrue(output.length > 0);
     }
+
+
+    public void testIsLastBuildSuccessful() {
+        final ProjectController mbean = new ProjectController(new Project());
+        assertTrue(mbean.isLastBuildSuccessful());
+    }
+
+    public void testIsLastBuildSuccessfulFromMockProjectFollowsValueChanges() throws Exception {
+        final MockProject project = new MockProject();
+        final ProjectController mbean = new ProjectController(project);
+
+        ProjectTest.setWasLastBuildSuccessful(project, false);
+        assertFalse(mbean.isLastBuildSuccessful());
+
+        ProjectTest.setWasLastBuildSuccessful(project, true);
+        assertTrue(mbean.isLastBuildSuccessful());
+
+        ProjectTest.setWasLastBuildSuccessful(project, false);
+        assertFalse(mbean.isLastBuildSuccessful());
+    }
+
+
 
     private class SVNStub implements SourceControl {
         private static final long serialVersionUID = 1L;
