@@ -877,4 +877,13 @@ public class ProjectTest extends TestCase {
         }
 
     }
+
+    /**
+     * Unit test helper method to allow tests access to package visible setter, w/out exposing setter in production API.
+     * @param testProject the unit test Project to be altered
+     * @param buildSuccessful the new value of the build successful flag
+     */
+    public static void setWasLastBuildSuccessful(final Project testProject, final boolean buildSuccessful) {
+        testProject.setWasLastBuildSuccessful(buildSuccessful);
+    }
 }

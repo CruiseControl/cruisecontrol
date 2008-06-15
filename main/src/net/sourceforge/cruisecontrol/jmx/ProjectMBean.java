@@ -112,6 +112,8 @@ public interface ProjectMBean {
 
     public String getLastBuild();
 
+    public boolean isLastBuildSuccessful();
+
     /**
      * Change the last built date.  This can be used to manipulate whether
      * builds will be initiated.

@@ -52,6 +52,10 @@ Charts
 ----------------------
 * Charts should now be cached rather than regenerated when no new build has run.
 
+JMX
+----------------------
+* Expose isLastBuildSuccessful via jmx (CC-493). Patch by Allan Wick, James Wilson.
+
 
 CruiseControl Release Notes - 2.7.2
 

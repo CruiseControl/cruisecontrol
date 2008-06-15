@@ -190,6 +190,10 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLastBuild();
     }
 
+    public boolean isLastBuildSuccessful() {
+        return project.isLastBuildSuccessful();
+    }
+
     public void setLastSuccessfulBuild(String date)
         throws CruiseControlException {
         log("setting last successful build to [" + date + "]");
