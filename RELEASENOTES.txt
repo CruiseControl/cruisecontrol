@@ -33,6 +33,10 @@ JabberPublisher
 ----------------------
 * Add debug level log messages for troubleshooting.
 
+JMX
+----------------------
+* Expose isLastBuildSuccessful via jmx (CC-493). Patch by Allan Wick, James Wilson.
+
 Manipulator:
 ----------------------
 * Add DeleteArtifacts manipulator to delete old artifacts directories (CC-446).
@@ -51,10 +55,6 @@ reporting jsp app
 Charts
 ----------------------
 * Charts should now be cached rather than regenerated when no new build has run.
-
-JMX
-----------------------
-* Expose isLastBuildSuccessful via jmx (CC-493). Patch by Allan Wick, James Wilson.
 
 
 CruiseControl Release Notes - 2.7.2
