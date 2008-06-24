@@ -383,24 +383,7 @@ public class SVN implements SourceControl {
 
         final HashMap directories = new HashMap();
         try {
-            String line;
-            String currentDir = null;
-
-            while ((line = reader.readLine()) != null) {
-                String[] split = line.split(" - ");
-                // the directory containing the externals
-                if (split.length > 1) {
-                    currentDir = split[0];
-                    directories.put(currentDir, new ArrayList());
-                    line = split[1];
-                }
-                split = line.split(" ");
-                if (!split[0].equals("")) {
-                    ArrayList externals = (ArrayList) directories.get(currentDir);
-                    // split contains: [externalPath, externalSvnURL]
-                    externals.add(split);
-                }
-            }
+            parsePropgetReader(reader, directories);
 
             p.waitFor();
             stderr.join();
@@ -410,6 +393,33 @@ public class SVN implements SourceControl {
         }
 
         return directories;
+    }
+
+    /**
+     * Parse results from exec of propget command for svn externals.
+     * @param reader exec reader (UTF-8)
+     * @param directories will be populated with external directories
+     * @throws IOException if an error occurs
+     */
+    static void parsePropgetReader(BufferedReader reader, HashMap directories) throws IOException {
+        String line;
+        String currentDir = null;
+
+        while ((line = reader.readLine()) != null) {
+            String[] split = line.split(" - ");
+            // the directory containing the externals
+            if (split.length > 1) {
+                currentDir = split[0];
+                directories.put(currentDir, new ArrayList());
+                line = split[1];
+            }
+            split = line.split("\\s");
+            if (!split[0].equals("")) {
+                ArrayList externals = (ArrayList) directories.get(currentDir);
+                // split contains: [externalPath, externalSvnURL]
+                externals.add(split);
+            }
+        }
     }
 
     private static List execHistoryCommand(Commandline command, Date lastBuild,

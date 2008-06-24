@@ -44,6 +44,9 @@ import org.jdom.JDOMException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.ByteArrayInputStream;
 import java.text.ParseException;
 import java.util.TimeZone;
 import java.util.Date;
@@ -53,6 +56,7 @@ import java.util.Calendar;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 
 
 /**
@@ -146,6 +150,33 @@ public class SVNTest extends TestCase {
                 "http://svn.collab.net/repos/svn" };
         actualCmd = svn.buildPropgetCommand().getCommandline();
         assertArraysEquals(expectedCmd, actualCmd);
+    }
+
+    public void testParsePropgetReader() throws Exception {
+        final String testPropgetResult = ". - shared/build\tsvn://mybank.org/svnbank/trunk/java/shared/build\n" +
+                "shared/tool/jfcunit_2.08\tsvn://mybank.org/svnbank/trunk/java/shared/tool/jfcunit_2.08\n" +
+                "shared/lib/jnlp-1_2-dev\tsvn://mybank.org/svnbank/trunk/java/shared/lib/jnlp-1_2-dev\n";
+
+        final HashMap directories = new HashMap();
+        final BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        new ByteArrayInputStream(testPropgetResult.getBytes("UTF-8")), "UTF-8"));
+        try {
+            SVN.parsePropgetReader(reader, directories);
+        } finally {
+            reader.close();
+        }
+        assertEquals(1, directories.keySet().size());
+        final String directory = (String) directories.keySet().iterator().next();
+        final ArrayList externals = (ArrayList) directories.get(directory);
+        assertEquals("Wrong number of externals", 3, externals.size());
+
+        assertEquals("Wrong external: " + Arrays.asList(((String[])externals.get(0))).toString(), 
+                2, ((String[])externals.get(0)).length);
+
+        assertEquals("Wrong externalSvnURL",
+                "svn://mybank.org/svnbank/trunk/java/shared/build",
+                ((String[])externals.get(0))[1]);
     }
 
     public void testFormatSVNDateForWindows() {
