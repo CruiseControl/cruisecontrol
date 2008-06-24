@@ -153,9 +153,9 @@ public class SVNTest extends TestCase {
     }
 
     public void testParsePropgetReader() throws Exception {
-        final String testPropgetResult = ". - shared/build\tsvn://mybank.org/svnbank/trunk/java/shared/build\n" +
-                "shared/tool/jfcunit_2.08\tsvn://mybank.org/svnbank/trunk/java/shared/tool/jfcunit_2.08\n" +
-                "shared/lib/jnlp-1_2-dev\tsvn://mybank.org/svnbank/trunk/java/shared/lib/jnlp-1_2-dev\n";
+        final String testPropgetResult = ". - shared/build\tsvn://mybank.org/svnbank/trunk/java/shared/build\n"
+                + "shared/tool/jfcunit_2.08\tsvn://mybank.org/svnbank/trunk/java/shared/tool/jfcunit_2.08\n"
+                + "shared/lib/jnlp-1_2-dev\tsvn://mybank.org/svnbank/trunk/java/shared/lib/jnlp-1_2-dev\n";
 
         final HashMap directories = new HashMap();
         final BufferedReader reader = new BufferedReader(
@@ -171,12 +171,12 @@ public class SVNTest extends TestCase {
         final ArrayList externals = (ArrayList) directories.get(directory);
         assertEquals("Wrong number of externals", 3, externals.size());
 
-        assertEquals("Wrong external: " + Arrays.asList(((String[])externals.get(0))).toString(), 
-                2, ((String[])externals.get(0)).length);
+        assertEquals("Wrong external: " + Arrays.asList(((String[]) externals.get(0))).toString(),
+                2, ((String[]) externals.get(0)).length);
 
         assertEquals("Wrong externalSvnURL",
                 "svn://mybank.org/svnbank/trunk/java/shared/build",
-                ((String[])externals.get(0))[1]);
+                ((String[]) externals.get(0))[1]);
     }
 
     public void testFormatSVNDateForWindows() {
