@@ -50,10 +50,11 @@ import org.apache.log4j.Logger;
 
 public class ProjectWrapper implements WorkerThread {
 
-  private ProjectInterface myProject = null;
   private static final Logger LOG = Logger.getLogger(ProjectWrapper.class);
+
+  private final ProjectInterface myProject;
   private boolean doneBuilding;
-  private Object doneBuildingMutex = new Object();
+  private final Object doneBuildingMutex = new Object();
 
   public ProjectWrapper(ProjectInterface thisProject) {
     if (thisProject == null) {
@@ -68,25 +69,25 @@ public class ProjectWrapper implements WorkerThread {
     try {
         myProject.execute();
     } finally {
-        setDoneBuilding(true);
+        setDoneBuilding();
     }
   }
 
   public Object getResult() {
-    if (doneBuilding()) {
+    if (isDoneBuilding()) {
       return "finished";
     } else {
       return null;
     }
   }
 
-  private void setDoneBuilding(boolean done) {
+  private void setDoneBuilding() {
     synchronized (doneBuildingMutex) {
-      doneBuilding = done;
+      doneBuilding = true;
     }
   }
 
-  private boolean doneBuilding() {
+  private boolean isDoneBuilding() {
     synchronized (doneBuildingMutex) {
       return doneBuilding;
     }
