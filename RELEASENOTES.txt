@@ -60,6 +60,10 @@ Charts
 ----------------------
 * Charts should now be cached rather than regenerated when no new build has run.
 
+Modifications
+----------------------
+* Display revision # or label of modification if available (CC-496). Patch by Randy Coulman.
+
 
 CruiseControl Release Notes - 2.7.2
 
