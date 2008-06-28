@@ -300,6 +300,9 @@
                 <xsl:value-of select="file/filename"/>
             </td>
             <td class="modifications-data">
+                <xsl:value-of select="revision"/>
+            </td>
+            <td class="modifications-data">
                 <xsl:value-of select="date"/>
             </td>
             <td class="modifications-data">
