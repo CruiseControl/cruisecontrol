@@ -61,6 +61,10 @@ SVN
 ----------------------
 * Relax SVN externals parsing (CC-736). Reported by Patrick Muller.
 
+VSS
+----------------------
+* VSS modificationset fails for root project (CC-783). Reported by Gert Driesen.
+
 Documentation
 ======================
 * Fix typo in NantScript docs - NAnt.Core.XMLLogger to NAnt.Core.XmlLogger (CC-784). Reported by Gert Driesen.

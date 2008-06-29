@@ -49,6 +49,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -61,9 +62,20 @@ public class VssTest extends TestCase {
     private static final String DATE_TIME_STRING = "Date:  6/20/01   Time:  10:36a";
     private static final String ALTERNATE_DATE_TIME_STRING = "Date:  20/6/01   Time:  10:36";
 
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
+
     protected void setUp() throws Exception {
         super.setUp();
         vss = new Vss();
+    }
+
+    protected void tearDown() {
+        filesToDelete.delete();
+    }
+
+    public void testVssTempFileWithRootProject() throws Exception {
+        vss.setVsspath("/");
+        assertEquals("vssroot.tmp", vss.createFileNameFromVssPath());
     }
 
     /**
@@ -75,10 +87,10 @@ public class VssTest extends TestCase {
         vss.setVsspath("vsspath");
 
         final File tempFile = new File(vss.createFileNameFromVssPath());
+        filesToDelete.add(tempFile);
         // create the temp file
         assertTrue("Failed to create test temp file: " + tempFile.getAbsolutePath(),
                 tempFile.createNewFile());
-        tempFile.deleteOnExit();
         try {
             final ArrayList mods = new ArrayList();
             vss.parseTempFile(mods);
