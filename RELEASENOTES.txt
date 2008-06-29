@@ -76,6 +76,7 @@ Documentation
 ======================
 * Fix typo in NantScript docs - NAnt.Core.XMLLogger to NAnt.Core.XmlLogger (CC-784). Reported by Gert Driesen.
 * Attribute contributors in UCM defaults to true in stead of false (CC-816). Reported by Patrick Jenner.
+* Document rebases and pvob attribs in UCM (CC-817). Reported by Patrick Jenner.
 
 reporting jsp app
 ======================

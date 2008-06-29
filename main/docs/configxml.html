@@ -5277,6 +5277,16 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                     enter the branch type if it is named differently than your UCM stream)</td>
                 </tr>
                 <tr>
+                    <td>rebases</td>
+                    <td>No (defaults to false)</td>
+                    <td>Whether rebases of the integration stream are reported as changes.</td>
+                </tr>
+                <tr>
+                    <td>pvob</td>
+                    <td>No (unless rebases is true)</td>
+                    <td>The name of the pvob to use for queries. Required if rebases = true</td>
+                </tr>
+                <tr>
                     <td>contributors</td>
                     <td>No (defaults to true)</td>
                     <td>Whether to check for and log contributor activities</td>
