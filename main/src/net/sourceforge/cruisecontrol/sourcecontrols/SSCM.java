@@ -50,9 +50,10 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
-
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 
 /**
@@ -65,15 +66,15 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
     private static final Logger LOG = Logger.getLogger(SSCM.class);
     private final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    private SSCMCLIStringParam strparamBranch = new SSCMCLIStringParam("branch", "-b", false);
-    private SSCMCLIStringParam strparamRepository = new SSCMCLIStringParam("repository", "-p", false);
-    private SSCMCLIStringParam strparamFile = new SSCMCLIStringParam("file", "", false);
-    private SSCMCLIStringParam strparamServerConnect = new SSCMCLIStringParam("serverconnect", "-z", false);
-    private SSCMCLIStringParam strparamServerLogin = new SSCMCLIStringParam("serverlogin", "-y", false);
-    private SSCMCLIBoolParam fparamSearchRegExp = new SSCMCLIBoolParam("searchregexp", "-x", false);
-    private SSCMCLIBoolParam fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
+    private final SSCMCLIStringParam strparamBranch = new SSCMCLIStringParam("branch", "-b", false);
+    private final SSCMCLIStringParam strparamRepository = new SSCMCLIStringParam("repository", "-p", false);
+    private final SSCMCLIStringParam strparamFile = new SSCMCLIStringParam("file", "", false);
+    private final SSCMCLIStringParam strparamServerConnect = new SSCMCLIStringParam("serverconnect", "-z", false);
+    private final SSCMCLIStringParam strparamServerLogin = new SSCMCLIStringParam("serverlogin", "-y", false);
+    private final SSCMCLIBoolParam fparamSearchRegExp = new SSCMCLIBoolParam("searchregexp", "-x", false);
+    private final SSCMCLIBoolParam fparamRecursive = new SSCMCLIBoolParam("recursive", "-r", false);
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     public void validate() throws CruiseControlException { /* nothing is required */ }
 
@@ -145,7 +146,9 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
 
     protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
         List listMods = null;
-        StringBuffer strbufferCmdLine = new StringBuffer("sscm cc ");
+        Commandline command = new Commandline();
+        command.setExecutable("sscm");
+        command.createArgument().setValue("cc");
 
         // Next, we just iterate through the list, adding entries.
         boolean fAllRequirementsMet = true;
@@ -155,8 +158,8 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
                 if (param.checkRequired()) {
                     String str = param.getFormatted();
                     if (str != null) {
-                        strbufferCmdLine.append(str);
-                        strbufferCmdLine.append(' ');
+                        command.createArgument().setValue(str);
+                        LOG.debug("Added cmd part: " + str);
                     }
                 } else {
                     fAllRequirementsMet = false;
@@ -166,16 +169,15 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         }
 
         if (fAllRequirementsMet) {
-            strbufferCmdLine.append(' ');
-            strbufferCmdLine.append(strDTRangeParam);
-            strbufferCmdLine.append(' ');
 
-            LOG.debug("\n" + strbufferCmdLine + "\n");
+            command.createArgument().setValue(strDTRangeParam);
+            LOG.debug("Added DTRangeParam: " + strDTRangeParam);
 
             try {
-                Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
-                process.getOutputStream().close();
-                Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
+                Process process = command.execute();
+                // logs process error stream at info level
+                final Thread stderr = new Thread(new StreamPumper(process.getErrorStream(),
+                            StreamLogger.getInfoLogger(LOG)));
                 stderr.start();
 
                 InputStream input = process.getInputStream();
@@ -200,6 +202,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
         String line = reader.readLine();
+        LOG.debug("\nSSCM mod line: " + line + "\n");
 
         // -meh. Kind of lame, but total-0 will work.
         if (!"total-0".equals(line)) {
@@ -347,8 +350,8 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
             fIsSet = f;
         }
 
-        private String strParamName;
-        private String strParam;
+        private final String strParamName;
+        private final String strParam;
         private boolean fIsRequired;
         private boolean fIsSet;
     }
