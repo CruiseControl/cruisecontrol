@@ -104,9 +104,8 @@ public class SVNBootstrapperTest extends TestCase {
     }
 
     public void testBuildUpdateCommand() throws CruiseControlException {
-        String tempDir = System.getProperty("java.io.tmpdir");
 
-        bootStrapper.setLocalWorkingCopy(tempDir);
+        bootStrapper.setLocalWorkingCopy(System.getProperty("java.io.tmpdir"));
         String command = bootStrapper.buildUpdateCommand().toString();
         assertEquals("svn update --non-interactive", command);
 
@@ -116,12 +115,22 @@ public class SVNBootstrapperTest extends TestCase {
 
         bootStrapper.setUsername("lee");
         command = bootStrapper.buildUpdateCommand().toString();
-        assertEquals("svn update --non-interactive --username lee foo.txt", command);
+        assertEquals("svn update --non-interactive --no-auth-cache --username lee foo.txt", command);
 
         bootStrapper.setPassword("secret");
         command = bootStrapper.buildUpdateCommand().toString();
         assertEquals(
-            "svn update --non-interactive --username lee --password secret foo.txt",
+            "svn update --non-interactive --no-auth-cache --username lee --password secret foo.txt",
             command);
+    }
+
+    public void testConfigDir() throws CruiseControlException {
+        bootStrapper.setLocalWorkingCopy(System.getProperty("java.io.tmpdir"));
+        assertEquals("svn update --non-interactive", bootStrapper.buildUpdateCommand().toString());
+
+        final String testConfDir = "myConfigDir";
+        bootStrapper.setConfigDir(testConfDir);
+        assertEquals("svn update --non-interactive --config-dir " + testConfDir,
+                bootStrapper.buildUpdateCommand().toString());
     }
 }

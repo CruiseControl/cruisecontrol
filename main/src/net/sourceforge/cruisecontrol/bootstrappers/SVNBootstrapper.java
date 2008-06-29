@@ -52,6 +52,10 @@ import java.io.File;
  * @author <a href="etienne.studer@canoo.com">Etienne Studer</a>
  */
 public class SVNBootstrapper implements Bootstrapper {
+
+    /** serialVersionUID */
+    private static final long serialVersionUID = -4444449761990187324L;
+
     private static final Logger LOG = Logger.getLogger(SVNBootstrapper.class);
 
     /** Configuration parameters */
@@ -59,6 +63,14 @@ public class SVNBootstrapper implements Bootstrapper {
     private String localWorkingCopy;
     private String userName;
     private String password;
+    private String configDir;
+
+    /**
+     * @param configDir the configuration directory for the subversion client.
+     */
+    public void setConfigDir(String configDir) {
+        this.configDir = configDir;
+    }
 
     /**
      * @param fileName
@@ -143,11 +155,17 @@ public class SVNBootstrapper implements Bootstrapper {
 
         command.createArgument("update");
         command.createArgument("--non-interactive");
-        if (userName != null) {
-            command.createArguments("--username", userName);
+        if (configDir != null) {
+            command.createArguments("--config-dir", configDir);
         }
-        if (password != null) {
-            command.createArguments("--password", password);
+        if (userName != null || password != null) {
+            command.createArgument("--no-auth-cache");
+            if (userName != null) {
+                command.createArguments("--username", userName);
+            }
+            if (password != null) {
+                command.createArguments("--password", password);
+            }
         }
         if (fileName != null) {
             command.createArgument(fileName);

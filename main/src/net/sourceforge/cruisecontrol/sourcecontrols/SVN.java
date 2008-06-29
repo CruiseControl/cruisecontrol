@@ -82,6 +82,9 @@ import java.util.TimeZone;
  */
 public class SVN implements SourceControl {
 
+    /** serialVersionUID */
+    private static final long serialVersionUID = -144583234813298598L;
+
     private static final Logger LOG = Logger.getLogger(SVN.class);
 
     /** Date format expected by Subversion */
@@ -97,6 +100,7 @@ public class SVN implements SourceControl {
     private String localWorkingCopy;
     private String userName;
     private String password;
+    private String configDir;
     private boolean checkExternals = false;
 
     private boolean useLocalRevision = false;
@@ -111,6 +115,13 @@ public class SVN implements SourceControl {
 
     public void setPropertyOnDelete(String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
+    }
+
+    /**
+     * @param configDir the configuration directory for the subversion client.
+     */
+    public void setConfigDir(String configDir) {
+        this.configDir = configDir;
     }
 
     /**
@@ -340,11 +351,17 @@ public class SVN implements SourceControl {
         command.createArgument("-r");
         command.createArgument(lastBuild + ":" + checkTime);
 
-        if (userName != null) {
-            command.createArguments("--username", userName);
+        if (configDir != null) {
+            command.createArguments("--config-dir", configDir);
         }
-        if (password != null) {
-            command.createArguments("--password", password);
+        if (userName != null || password != null) {
+            command.createArgument("--no-auth-cache");
+            if (userName != null) {
+                command.createArguments("--username", userName);
+            }
+            if (password != null) {
+                command.createArguments("--password", password);
+            }
         }
         if (path != null) {
             command.createArgument(path);

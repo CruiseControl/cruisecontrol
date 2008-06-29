@@ -272,10 +272,32 @@ public class SVNTest extends TestCase {
                 "-v",
                 "-r",
                 SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
+                "--no-auth-cache",
                 "--username",
                 "lee",
                 "--password",
                 "secret",
+                "http://svn.collab.net/repos/svn" };
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
+                SVN.formatSVNDate(checkTime, false)).getCommandline();
+        assertArraysEquals(expectedCmd, actualCmd);
+
+
+        svn.setUsername(null);
+        svn.setPassword(null);
+        final String testConfDir = "myConfigDir";
+        svn.setConfigDir(testConfDir);
+        expectedCmd =
+            new String[] {
+                "svn",
+                "log",
+                "--non-interactive",
+                "--xml",
+                "-v",
+                "-r",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
+                "--config-dir",
+                testConfDir,
                 "http://svn.collab.net/repos/svn" };
         actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
                 SVN.formatSVNDate(checkTime, false)).getCommandline();
