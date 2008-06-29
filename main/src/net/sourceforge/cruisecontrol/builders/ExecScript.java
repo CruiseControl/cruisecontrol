@@ -118,6 +118,15 @@ public class ExecScript implements Script, StreamConsumer {
                 // YES: set error flag
                 if (line.indexOf(errorStr) >= 0) {
                     foundError = true;
+                    //write the error line in the log
+                    final Element msg = new Element("message");
+                    msg.addContent(new CDATA(line));
+                    msg.setAttribute("priority", "error");
+                    if (currentElement == null) {
+                        buildLogElement.addContent(msg);
+                    } else {
+                        currentElement.addContent(msg);
+                    }
                 }
             } else {
                 // NO: just write the ouput to the log

@@ -28,6 +28,7 @@ ExecBuilder
 ---------------------
 * Improve error message when there are no arguments.
 * Substitute properites in arguments (like ${label} or ${projectname})
+* Error lines reported by an external script are now injected into the build log (CC-763). Patch by Adrian Spinei.
 
 Git Source Control & Bootstrapper
 ----------------------
