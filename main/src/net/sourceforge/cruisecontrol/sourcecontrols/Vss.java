@@ -229,27 +229,40 @@ public class Vss implements SourceControl {
     }
 
     private void logVSSTempFile() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(getTempFile()));
-        String currLine = reader.readLine();
-        LOG.debug(" ");
-        while (currLine != null) {
-            LOG.debug(getTempFile().getName() + ": " + currLine);
-            currLine = reader.readLine();
+        final BufferedReader reader = new BufferedReader(new FileReader(getTempFile()));
+        try {
+            String currLine = reader.readLine();
+            LOG.debug(" ");
+            while (currLine != null) {
+                LOG.debug(getTempFile().getName() + ": " + currLine);
+                currLine = reader.readLine();
+            }
+            LOG.debug(" ");
+        } finally {
+            reader.close();
         }
-        LOG.debug(" ");
-        reader.close();
     }
 
     private File getTempFile() {
+        //@todo Make this thread safe
         return new File(createFileNameFromVssPath());
     }
 
     String createFileNameFromVssPath() {
+        //@todo Make this thread safe - same temp file would be used if two projects w/ same vsspath exec together
+
         // don't include the leading $
         String filename = vssPath.substring(1).replace('/', '_') + ".tmp";
         while (filename.charAt(0) == '_') {
             filename = filename.substring(1);
         }
+
+        // special case for vsspath == root ($/) where .tmp is not valid file on Windows.
+        // http://jira.public.thoughtworks.org/browse/CC-783
+        if (".tmp".equals(filename)) {
+            filename = "vssroot" + filename;
+        }
+        
         return filename;
     }
 
