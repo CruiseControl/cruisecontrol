@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -78,7 +79,7 @@ public class ClearCase implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(ClearCase.class);
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * The path of the clear case view
@@ -94,9 +95,12 @@ public class ClearCase implements SourceControl {
 
     /**
      * Date format required by commands passed to Clear Case
+     * As per: http://jira.public.thoughtworks.org/browse/CC-818
+     * The cleartool command line always take date in US format and does not mind of the
+     * language set in the operating System.
      */
     private final SimpleDateFormat inDateFormatter =
-            new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
+            new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss", Locale.US);
 
     /**
      * Date format returned in the output of Clear Case commands.
@@ -187,11 +191,10 @@ public class ClearCase implements SourceControl {
      * @return the list of modifications, an empty (not null) list if no
      *         modifications.
      */
-    public List getModifications(Date lastBuild, Date now) {
-        String lastBuildDate = inDateFormatter.format(lastBuild);
-        String nowDate = inDateFormatter.format(now);
+    public List getModifications(final Date lastBuild, final Date now) {
+        final String lastBuildDate = inDateFormatter.format(lastBuild);
         properties.put("clearcaselastbuild", lastBuildDate);
-        properties.put("clearcasenow", nowDate);
+        properties.put("clearcasenow", inDateFormatter.format(now));
 
         /*
          * let's try a different clearcase command--this one just takes
