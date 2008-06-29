@@ -56,9 +56,15 @@ ProjectConfig
 SSCM/SSCMBootstrapper
 ----------------------
 * Change Surround sourcecontrol and bootstrapper to use CommandLine() classes (CC-786). Patch by Alex Hooper.
+
 SVN
 ----------------------
 * Relax SVN externals parsing (CC-736). Reported by Patrick Muller.
+
+Documentation
+======================
+* Fix typo in NantScript docs - NAnt.Core.XMLLogger to NAnt.Core.XmlLogger (CC-784). Reported by Gert Driesen.
+
 
 reporting jsp app
 ======================
