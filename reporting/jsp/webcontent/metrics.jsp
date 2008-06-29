@@ -38,7 +38,7 @@
 <%
     xpathData.add("CheckStyle", "count(/cruisecontrol/checkstyle/file/error)");
     xpathData.add("PMD", "count(/cruisecontrol/pmd/file/violation)");
-    xpathData.add("Javadoc", "count(/cruisecontrol/build//target/task[@name='javadoc'])");
+    xpathData.add("Javadoc", "count(/cruisecontrol/build//target/task[@name='javadoc']/message[@priority='warn' or @priority='error'])");
 %>
 <cewolf:chart id="chart" title="Coding violations" type="timeseries"  xaxislabel="date" yaxislabel="violations">
     <cewolf:data>

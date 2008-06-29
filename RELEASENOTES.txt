@@ -83,6 +83,7 @@ reporting jsp app
 Charts
 ----------------------
 * Charts should now be cached rather than regenerated when no new build has run.
+* Change how Counts about javadoc computed on metrics page (CC-695). Patch by Guanglei Li.
 
 Modifications
 ----------------------
