@@ -60,6 +60,13 @@ SSCM/SSCMBootstrapper
 SVN
 ----------------------
 * Relax SVN externals parsing (CC-736). Reported by Patrick Muller.
+* Will not cache authentication if username/password is specified (CC-723). Patch by Gunnar Wagenknecht.
+* Added configDir attribute to allow use of separate Subversion configuration directory (CC-723). Patch by Gunnar Wagenknecht.
+
+SVNBootstrapper
+----------------------
+* Will not cache authentication if username/password is specified (CC-722). Patch by Gunnar Wagenknecht.
+* Added configDir attribute to allow use of separate Subversion configuration directory (CC-722). Patch by Gunnar Wagenknecht.
 
 VSS
 ----------------------
