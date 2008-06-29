@@ -53,6 +53,9 @@ ProjectConfig
 ----------------------
 * ProjectConfig.toString() should return Project.toString() to avoid breaking external jmx scripts. Reported by Mark Hatton.
 
+SSCM/SSCMBootstrapper
+----------------------
+* Change Surround sourcecontrol and bootstrapper to use CommandLine() classes (CC-786). Patch by Alex Hooper.
 SVN
 ----------------------
 * Relax SVN externals parsing (CC-736). Reported by Patrick Muller.

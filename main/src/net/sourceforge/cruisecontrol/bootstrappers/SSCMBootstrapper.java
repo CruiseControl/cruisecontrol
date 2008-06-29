@@ -38,9 +38,12 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.SSCM;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
+import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 import java.io.IOException;
-import net.sourceforge.cruisecontrol.util.Processes;
 
 /**
  *  Bootstrapper for Surround SCM. Accepts one Branch/Repository path for fetching files
@@ -102,53 +105,64 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
         }
     }
 
-    private SSCM.SSCMCLIStringParam strparamBranch = new SSCM.SSCMCLIStringParam("branch", "-b", false);
-   private SSCM.SSCMCLIStringParam strparamRepository = new SSCM.SSCMCLIStringParam("repository", "-p", false);
-   private SSCM.SSCMCLIStringParam strparamLabel = new SSCM.SSCMCLIStringParam("label", "-l", false);
-   private SSCM.SSCMCLIStringParam strparamServerConnect = new SSCM.SSCMCLIStringParam("serverconnect", "-z", false);
-   private SSCM.SSCMCLIStringParam strparamServerLogin = new SSCM.SSCMCLIStringParam("serverlogin", "-y", false);
-   private SSCM.SSCMCLIStringParam strparamIncludeRemovedFiles =
-       new SSCM.SSCMCLIStringParam("includeremoved", "-i", false);
-   private SSCM.SSCMCLIStringParam strparamOverwrite = new SSCM.SSCMCLIStringParam("overwrite", "-w", false);
+    private final SSCM.SSCMCLIStringParam strparamBranch = new SSCM.SSCMCLIStringParam("branch", "-b", false);
+    private final SSCM.SSCMCLIStringParam strparamRepository = new SSCM.SSCMCLIStringParam("repository", "-p", false);
+    private final SSCM.SSCMCLIStringParam strparamLabel = new SSCM.SSCMCLIStringParam("label", "-l", false);
+    private final SSCM.SSCMCLIStringParam strparamServerConnect
+            = new SSCM.SSCMCLIStringParam("serverconnect", "-z", false);
+    private final SSCM.SSCMCLIStringParam strparamServerLogin = new SSCM.SSCMCLIStringParam("serverlogin", "-y", false);
+    private final SSCM.SSCMCLIStringParam strparamIncludeRemovedFiles
+            = new SSCM.SSCMCLIStringParam("includeremoved", "-i", false);
+    private final SSCM.SSCMCLIStringParam strparamOverwrite = new SSCM.SSCMCLIStringParam("overwrite", "-w", false);
 
-   private SSCM.SSCMCLIBoolParam fparamRecursive = new SSCM.SSCMCLIBoolParam("recursive", "-r", false);
-   private SSCM.SSCMCLIBoolParam fparamForceFetch = new SSCM.SSCMCLIBoolParam("force", "-f", false);
-   private SSCM.SSCMCLIBoolParam fparamMakeWritable = new SSCM.SSCMCLIBoolParam("writable", "-e", false);
+    private final SSCM.SSCMCLIBoolParam fparamRecursive = new SSCM.SSCMCLIBoolParam("recursive", "-r", false);
+    private final SSCM.SSCMCLIBoolParam fparamForceFetch = new SSCM.SSCMCLIBoolParam("force", "-f", false);
+    private final SSCM.SSCMCLIBoolParam fparamMakeWritable = new SSCM.SSCMCLIBoolParam("writable", "-e", false);
 
-   private static final Logger LOG = Logger.getLogger(SSCMBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(SSCMBootstrapper.class);
 
-   protected void executeCLICommand(java.util.List paramList) throws CruiseControlException {
-      StringBuffer strbufferCmdLine = new StringBuffer("sscm get ");
+    protected void executeCLICommand(java.util.List paramList) throws CruiseControlException {
+        Commandline command = new Commandline();
+        command.setExecutable("sscm");
+        command.createArgument().setValue("get");
 
-      // Next, we just iterate through the list, adding entries.
-      for (int i = 0; i < paramList.size(); ++i) {
-         SSCM.SSCMCLIParam param = (SSCM.SSCMCLIParam) paramList.get(i);
+        // Next, we just iterate through the list, adding entries.
+        for (int i = 0; i < paramList.size(); ++i) {
+            SSCM.SSCMCLIParam param = (SSCM.SSCMCLIParam) paramList.get(i);
 
-         if (param == null) {
-            throw new IllegalArgumentException("paramList may not contain null values");
-         }
-         if (param.checkRequired()) {
-            String str = param.getFormatted();
-            if (str != null) {
-               strbufferCmdLine.append(str);
-               strbufferCmdLine.append(' ');
+            if (param == null) {
+                throw new IllegalArgumentException("paramList may not contain null values");
             }
-         } else {
-            throw new CruiseControlException("Required parameter '" + param.getParamName() + "' is missing!");
-         }
-      }
+            if (param.checkRequired()) {
+                String str = param.getFormatted();
+                if (str != null) {
+                    command.createArgument().setValue(str);
+                    LOG.debug("Added cmd part: " + str);
+                }
+            } else {
+                throw new CruiseControlException("Required parameter '" + param.getParamName() + "' is missing!");
+            }
+        }
 
-      LOG.debug(strbufferCmdLine.toString() + "\n");
+        try {
+            Process process = command.execute();
+            new Thread(new StreamPumper(process.getInputStream(),
+                    StreamLogger.getInfoLogger(LOG))).start();
+            // logs process error stream at info level
+            final Thread stderr = new Thread(new StreamPumper(process.getErrorStream(),
+                    StreamLogger.getInfoLogger(LOG)));
+            stderr.start();
 
-      try {
-        Process process = Runtime.getRuntime().exec(strbufferCmdLine.toString());
-        Processes.waitFor(process, LOG);
-      } catch (IOException e) {
-         throw new CruiseControlException("Problem trying to execute command line process", e);
-      } catch (InterruptedException e) {
-         throw new CruiseControlException("Problem trying to execute command line process", e);
-      }
-   }
+            process.waitFor();
+            stderr.join();
+
+            IO.close(process);
+        } catch (IOException e) {
+            throw new CruiseControlException("Problem trying to execute command line process", e);
+        } catch (InterruptedException e) {
+            throw new CruiseControlException("Problem trying to execute command line process", e);
+        }
+    }
 
 }
 
