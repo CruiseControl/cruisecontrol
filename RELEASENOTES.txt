@@ -12,9 +12,13 @@ general
 build loop
 ======================
 
+ClearCase
+---------------------
+* Change cleartool command line to always use date in US format, ignoring the language set in the operating System (CC-818). Patch by Jean-Philippe HAUTIN.
+
 ClearCaseViewstrapper
 ---------------------
-*  ClearCaseViewStrapper would cancel the build if the view was already mounted (CC-757).  Reported by Gerrit Brehmer. Patch by Glenn Opdycke-Hansen.
+* ClearCaseViewStrapper would cancel the build if the view was already mounted (CC-757).  Reported by Gerrit Brehmer. Patch by Glenn Opdycke-Hansen.
 
 CMSynergy
 ---------------------
