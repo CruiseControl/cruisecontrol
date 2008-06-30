@@ -79,11 +79,10 @@ public class SVNLabelIncrementer implements LabelIncrementer {
         return rev;
     }
 
-    // See http://svnbook.red-bean.com/en/1.1/re57.html
     public boolean isValidLabel(String label) {
-        final String pattern = getLabelPrefix() + "\\" + getSeparator() 
-                                   + "[0-9]+:??[0-9]*[MS]*S??(" + getSeparator() + "[0-9]*)??";
-        return label.matches(pattern); 
+        // we don't mind what the previous label is,
+        // when the next label is built, then parsing is performed to add / increment a suffix.
+        return true;
     }
 
     public void setWorkingCopyPath(String path) {
@@ -100,7 +99,7 @@ public class SVNLabelIncrementer implements LabelIncrementer {
     }
 
     public String getDefaultLabel() {
-        return "svn.0";
+        return getLabelPrefix() + getSeparator() + "0";
     }
 
     public String getSeparator() {
