@@ -60,24 +60,42 @@ public class StreamPumperTest extends TestCase {
 
         TestConsumer consumer = new TestConsumer();
         StreamPumper pumper = new StreamPumper(inputStream, consumer);
-        new Thread(pumper).run();
+        pumper.run();
 
         //Check the consumer to see if it got both lines.
-        assertTrue(consumer.wasLineConsumed(line1, 1000));
-        assertTrue(consumer.wasLineConsumed(line2, 1000));
+        assertTrue(consumer.wasLineConsumed(line1));
+        assertTrue(consumer.wasLineConsumed(line2));
+    }
+
+    public void testInvalidStreamChars() {
+        String line1 = "pre:-line1\u001b";
+        String line2 = "li\u0008ne2";
+        String lines = line1 + "\n" + line2;
+        ByteArrayInputStream inputStream =
+                new ByteArrayInputStream(lines.getBytes());
+
+        TestConsumer consumer = new TestConsumer();
+        StreamPumper pumper = new StreamPumper(inputStream, consumer);
+        pumper.run();
+
+        //Check the consumer to see if it got both lines, less invalid chars.
+        assertTrue(consumer.wasLineConsumed("pre:-line1"));
+        assertTrue(consumer.wasLineConsumed("line2"));
     }
 
     public void testNoSystemOut() {
-        PrintStream oldOut = System.out;
-        ByteArrayOutputStream newOut = new ByteArrayOutputStream();
+        final PrintStream oldOut = System.out;
+        final ByteArrayOutputStream newOut = new ByteArrayOutputStream();
+        final PrintStream newPrintStreamOut = new PrintStream(newOut);
         try {
-            System.setOut(new PrintStream(newOut));
+            System.setOut(newPrintStreamOut);
             InputStream input = new ByteArrayInputStream(
                     "some input".getBytes());
             new StreamPumper(input, null).run();
             assertEquals(0, newOut.toByteArray().length);
         } finally {
             System.setOut(oldOut);
+            newPrintStreamOut.close();
         }
     }
 }
@@ -87,40 +105,21 @@ public class StreamPumperTest extends TestCase {
  */
 class TestConsumer implements StreamConsumer {
 
-    private List lines = new ArrayList();
+    private final List lines = new ArrayList();
 
     /**
-     * Checks to see if this consumer consumed a particular line. This method
-     * will wait up to timeout number of milliseconds for the line to get
-     * consumed.
+     * Checks to see if this consumer consumed a particular line.
      *
      * @param testLine Line to test for.
-     * @param timeout Number of milliseconds to wait for the line.
      * @return true if the line gets consumed, else false.
      */
-    public boolean wasLineConsumed(String testLine, long timeout) {
+    boolean wasLineConsumed(String testLine) {
 
-        long start = System.currentTimeMillis();
-        long trialTime = 0;
+        if (lines.contains(testLine)) {
+            return true;
+        }
 
-        do {
-            if (lines.contains(testLine)) {
-                return true;
-            }
-
-            //Sleep a bit.
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                //ignoring...
-            }
-
-            //How long have been waiting for the line?
-            trialTime = System.currentTimeMillis() - start;
-
-        } while (trialTime < timeout);
-
-        //If we got here, then the line wasn't consume within the timeout
+        //If we got here, then the line wasn't consumed
         return false;
     }
 

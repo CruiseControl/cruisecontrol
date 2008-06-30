@@ -58,6 +58,10 @@ SSCM/SSCMBootstrapper
 ----------------------
 * Change Surround sourcecontrol and bootstrapper to use CommandLine() classes (CC-786). Patch by Alex Hooper.
 
+StreamPumper
+----------------------
+* Remove VT100 terminal escape sequences and other control characters apart from tab, newline and carriage return when reading character streams (CC-824). Patch by Martin Kleppmann.
+
 SVN
 ----------------------
 * Relax SVN externals parsing (CC-736). Reported by Patrick Muller.
