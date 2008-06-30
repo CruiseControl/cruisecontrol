@@ -106,7 +106,7 @@ import org.apache.log4j.Logger;
  */
 public class StreamPumper implements Runnable {
 
-    private BufferedReader in;
+    private final BufferedReader in;
     private StreamConsumer consumer = null;
 
     private static final int SIZE = 1024;
@@ -121,6 +121,10 @@ public class StreamPumper implements Runnable {
         try {
             String s = in.readLine();
             while (s != null) {
+                // Remove VT100 terminal escape sequences
+                s = s.replaceAll("\\e(\\[[^a-zA-Z]*[a-zA-Z]|[^\\[])", "");
+                // Remove other control characters apart from tab, newline and carriage return
+                s = s.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]", "");
                 consumeLine(s);
                 s = in.readLine();
             }
