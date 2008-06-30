@@ -141,6 +141,9 @@
   if(sort == null){
     sort = "none";
   }
+  else if (!(sort.equals("none")||sort.equals("project")||sort.equals("status")||sort.equals("last failure")||sort.equals("last successful"))){
+    sort = "none";
+  }
 %>
 
 

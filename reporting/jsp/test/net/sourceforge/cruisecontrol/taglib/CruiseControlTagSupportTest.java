@@ -112,6 +112,12 @@ public class CruiseControlTagSupportTest extends TestCase {
         assertEquals("/context/servlet?otherParam=otherValue&param=value", tag.createUrl("param", "value"));
     }
 
+    public void testCreateUrlCrossSiteScriptingVuln() {
+        request.addParameter("otherParam", "otherValue</title><script>alert(55241)</script>");
+        assertEquals("/context/servlet?otherParam=otherValue  title  script alert(55241)  script &param=value",
+                tag.createUrl("param", "value"));
+    }
+
     public void testGetXmlFile() throws Exception {
         IO.write(log2, "");
         IO.write(log3, "");
