@@ -112,6 +112,12 @@ public class ProjectConfigTest extends TestCase {
         assertTrue(project.getBuildForced());
     }
 
+    public void testForceBuildNewProject() {
+        config.setForceBuildNewProject(false);
+        final Project project = config.readProject(System.getProperty("java.io.tmpdir"));
+        assertFalse(project.getBuildForced());
+    }
+
     public void testToStringDelegatesToProject() throws Exception {
         config.add(new DefaultLabelIncrementer());
         config.configureProject();
