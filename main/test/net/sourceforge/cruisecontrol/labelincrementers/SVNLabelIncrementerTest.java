@@ -23,6 +23,10 @@ public class SVNLabelIncrementerTest extends TestCase {
 
     public void testGetsDefaultLabel() throws Exception {
         assertEquals("svn.0", incrementer.getDefaultLabel());
+        incrementer.setSeparator("-");
+        assertEquals("svn-0", incrementer.getDefaultLabel());
+        incrementer.setLabelPrefix("test");
+        assertEquals("test-0", incrementer.getDefaultLabel());
     }
 
     public void testGetsLabelPrefix() throws Exception {
@@ -61,18 +65,15 @@ public class SVNLabelIncrementerTest extends TestCase {
     }
 
     public void testValidatesLabel() throws Exception {
-        assertFalse(incrementer.isValidLabel("svn10"));
+        // all labels should be considered valid!
+        assertTrue(incrementer.isValidLabel("svn10"));
         assertTrue(incrementer.isValidLabel("svn.10"));
         assertTrue(incrementer.isValidLabel("svn.10.2"));
 
         incrementer.setSeparator("-");
-        assertFalse(incrementer.isValidLabel("svn10"));
+        assertTrue(incrementer.isValidLabel("svn10"));
         assertTrue(incrementer.isValidLabel("svn-10"));
         assertTrue(incrementer.isValidLabel("svn-10-2"));
-    }
- 
-    // See http://svnbook.red-bean.com/en/1.1/re57.html
-    public void testShouldValidateForNonSameRevisionLabels() {
         assertTrue(incrementer.isValidLabel("svn.10:11"));
         assertTrue(incrementer.isValidLabel("svn.10:11.2"));        
         assertTrue(incrementer.isValidLabel("svn.10M"));
@@ -83,10 +84,11 @@ public class SVNLabelIncrementerTest extends TestCase {
         assertTrue(incrementer.isValidLabel("svn.10:11MS.2"));
  
         incrementer.setSeparator("-");
-        assertFalse(incrementer.isValidLabel("svn.10:11MS.2"));
-        assertFalse(incrementer.isValidLabel("svn-10:11MS.2"));
-        assertFalse(incrementer.isValidLabel("svn.10:11MS-2"));
+        assertTrue(incrementer.isValidLabel("svn.10:11MS.2"));
+        assertTrue(incrementer.isValidLabel("svn-10:11MS.2"));
+        assertTrue(incrementer.isValidLabel("svn.10:11MS-2"));
         assertTrue(incrementer.isValidLabel("svn-10:11MS-2"));
     }
+
     
 }

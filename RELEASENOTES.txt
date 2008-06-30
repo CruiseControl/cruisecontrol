@@ -73,6 +73,10 @@ SVNBootstrapper
 * Will not cache authentication if username/password is specified (CC-722). Patch by Gunnar Wagenknecht.
 * Added configDir attribute to allow use of separate Subversion configuration directory (CC-722). Patch by Gunnar Wagenknecht.
 
+SVNLabelIncrementer
+----------------------
+* Default Label should contain LabelPrefix (CC-793). Reported by Henk de Vries, Patch by Rich.
+
 VSS
 ----------------------
 * VSS modificationset fails for root project (CC-783). Reported by Gert Driesen.
