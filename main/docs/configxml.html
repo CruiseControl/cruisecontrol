@@ -824,6 +824,15 @@
                 failing database connection).</td>
             </tr>
             <tr>
+                <td>forceBuildNewProject</td>
+                <td>No (defaults to true)</td>
+                <td>Should CruiseControl force a project to build if the serial
+                file (project.SER) is not found, typically this is when the
+                project is first added. This feature is useful for
+                projects that have or use dependencies.
+                </td>
+            </tr>
+            <tr>
                <td>requireModification</td>
                <td>No (defaults to true)</td>
                <td>Is a modification required for the build to continue?

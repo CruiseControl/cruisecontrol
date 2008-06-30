@@ -68,6 +68,7 @@ public class ProjectConfig implements ProjectInterface {
     private boolean buildAfterFailed = true;
     private boolean forceOnly = false;
     private boolean requiremodification = true;
+    private boolean forceBuildNewProject = true; // default to current behavior
     private transient CCDateFormat dateFormat;
 
     private transient Bootstrappers bootstrappers;
@@ -125,6 +126,10 @@ public class ProjectConfig implements ProjectInterface {
 
     public void setBuildAfterFailed(boolean buildAfterFailed) {
         this.buildAfterFailed = buildAfterFailed;
+    }
+
+    public void setForceBuildNewProject(boolean forceBuildNewProject) {
+        this.forceBuildNewProject = forceBuildNewProject;
     }
 
     /**
@@ -331,12 +336,16 @@ public class ProjectConfig implements ProjectInterface {
 
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()
                 || serializedProjectFile.isDirectory()) {
-            Project temp = new Project();
-            temp.setName(projectName);
-            LOG.warn("No previously serialized project found [" + serializedProjectFile.getAbsolutePath()
-                    + ".ser], forcing a build.");
-            Project newProject = new Project();
-            newProject.setBuildForced(true);
+            final Project newProject = new Project();
+            newProject.setName(projectName);
+            if (forceBuildNewProject) {
+                LOG.warn("No previously serialized project found [" + serializedProjectFile.getAbsolutePath()
+                        + ".ser], forcing a build.");
+                newProject.setBuildForced(true);
+            } else {
+                LOG.warn("No previously serialized project found  [" + serializedProjectFile.getAbsolutePath()
+                         + ".ser], Not forcing build, forceBuildNewProject = false.");
+            }
             return newProject;
         }
 
