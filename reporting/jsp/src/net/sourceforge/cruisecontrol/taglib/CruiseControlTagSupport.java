@@ -222,9 +222,11 @@ public class CruiseControlTagSupport extends TagSupport {
         while (requestParams.hasMoreElements()) {
             String requestParamName = (String) requestParams.nextElement();
             if (!requestParamName.equals(paramName)) {
+                requestParamName = removeCrossSiteChars(requestParamName);
                 String[] requestParamValues = request.getParameterValues(requestParamName);
                 for (int i = 0; i < requestParamValues.length; i++) {
-                    final String requestParamValue = requestParamValues[i];
+                    String requestParamValue = requestParamValues[i];
+                    requestParamValue = removeCrossSiteChars(requestParamValue);
                     appendParam(queryString, requestParamName, requestParamValue);
                 }
             }
@@ -236,6 +238,28 @@ public class CruiseControlTagSupport extends TagSupport {
         url.setLength(url.length() - 1);
         return url.toString();
     }
+    
+    public String removeCrossSiteChars(String fromValue) {
+        final StringBuffer buf = new StringBuffer(fromValue.length());
+        for (int i = 0; i < fromValue.length(); i++) {
+            final char c = fromValue.charAt(i);
+            switch(c) {
+                case '<':
+                case '>':
+                case '&':
+                case '/':
+                case '"':
+                    buf.append(' ');
+                    break;
+                default:
+                    buf.append(c);
+                    break;
+            }
+        }
+        return buf.toString();
+    }
+    
+    
 
     private void appendParam(StringBuffer queryString, String name, final String value) {
         queryString.append(name);

@@ -87,6 +87,10 @@ Charts
 * Charts should now be cached rather than regenerated when no new build has run.
 * Change how Counts about javadoc computed on metrics page (CC-695). Patch by Guanglei Li.
 
+index.jsp/CruiseControlTagSupport.java
+----------------------
+* Fix some HTML injection and Cross-site scripting vulnerabilities (CC-805). Patch by Dan Ertman.
+
 Modifications
 ----------------------
 * Display revision # or label of modification if available (CC-496). Patch by Randy Coulman.
