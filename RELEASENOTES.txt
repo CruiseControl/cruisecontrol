@@ -41,6 +41,7 @@ JabberPublisher
 JMX
 ----------------------
 * Expose isLastBuildSuccessful via jmx (CC-493). Patch by Allan Wick, James Wilson.
+* Preserve line ends in configuration file returned from JMX console (CC-825). Patch by Laszlo Kishalmi.
 
 Manipulator:
 ----------------------
