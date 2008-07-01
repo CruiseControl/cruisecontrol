@@ -264,9 +264,9 @@ public class LogTest extends TestCase {
                 fail("Other log files exists");
             }
         }
-        assertEquals(expectedGZIP, countGzip);
-        assertEquals(expectedXML, countXML);
-        assertEquals(expectedLength, logfiles.length);
+        assertEquals("Wrong number of gzip log files after manipulation", expectedGZIP, countGzip);
+        assertEquals("Wrong number of xml log files after manipulation", expectedXML, countXML);
+        assertEquals("Wrong total number of log files after manipulation", expectedLength, logfiles.length);
     }
 
     private Log getWrittenTestLog(String projectName, String testLogDir,
