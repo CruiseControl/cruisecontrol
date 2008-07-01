@@ -184,9 +184,9 @@ public class LogTest extends TestCase {
         gzip.setEvery(12);
         gzip.setUnit("month");
         // create old log
-        getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
+        getWrittenTestLog(testProjectName, date.getTime());
         // create new log
-        Log log = getWrittenTestLog(testProjectName, LOG_DIR, new Date());
+        Log log = getWrittenTestLog(testProjectName, new Date());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 2, 1, 1);
@@ -197,7 +197,7 @@ public class LogTest extends TestCase {
         gzip = new GZIPManipulator();
         gzip.setEvery(2);
         gzip.setUnit("day");
-        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
+        log = getWrittenTestLog(testProjectName, date.getTime());
         log.add(gzip);
         log.validate();
         assertBackupsHelper(log, 3, 1, 2);
@@ -208,7 +208,7 @@ public class LogTest extends TestCase {
         DeleteManipulator deleteManipulator = new DeleteManipulator();
         deleteManipulator.setEvery(2);
         deleteManipulator.setUnit("day");
-        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
+        log = getWrittenTestLog(testProjectName, date.getTime());
         log.add(deleteManipulator);
         log.validate();
         assertBackupsHelper(log, 3, 1, 2);
@@ -220,7 +220,7 @@ public class LogTest extends TestCase {
         deleteManipulator.setUnit("day");
         // This should delete the gz-files too
         deleteManipulator.setIgnoreSuffix(true);
-        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
+        log = getWrittenTestLog(testProjectName, date.getTime());
         log.add(deleteManipulator);
         log.validate();
         assertBackupsHelper(log, 1, 1, 0);
@@ -228,7 +228,7 @@ public class LogTest extends TestCase {
         //Validation Error
         gzip = new GZIPManipulator();
         gzip.setUnit("day");
-        log = getWrittenTestLog(testProjectName, LOG_DIR, date.getTime());
+        log = getWrittenTestLog(testProjectName, date.getTime());
         log.add(gzip);
         try {
             log.validate();
@@ -269,14 +269,14 @@ public class LogTest extends TestCase {
         assertEquals("Wrong total number of log files after manipulation", expectedLength, logfiles.length);
     }
 
-    private Log getWrittenTestLog(String projectName, String testLogDir,
-            Date date) throws CruiseControlException, JDOMException,
+    private Log getWrittenTestLog(String projectName,
+                                  Date date) throws CruiseControlException, JDOMException,
             IOException {
         Log log;
         Element build;
         log = new Log();
         log.setProjectName(projectName);
-        log.setDir(testLogDir);
+        log.setDir(LogTest.LOG_DIR);
         log.validate();
         log.addContent(getBuildLogInfo());
         build = new Element("build");
@@ -285,7 +285,7 @@ public class LogTest extends TestCase {
         log.writeLogFile(date);
 
         String expectFilename = "log" + DateUtil.getFormattedTime(date) + "L.xml";
-        File logFile = new File(testLogDir, expectFilename);
+        File logFile = new File(LogTest.LOG_DIR, expectFilename);
         assertTrue(logFile.isFile());
         filesToDelete.add(logFile);
         
