@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.io.File;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.ByteArrayInputStream;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
@@ -192,5 +195,24 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
         } catch (CruiseControlException cce) {
             fail("Validation failed on valid config, reason: " + cce.getMessage());
         }
+    }
+
+    public void testReadConfigFileContents() throws Exception {
+        final String configContents = "<cruisecontrol>\n"
+            + "<project name=\"test\"\n>"
+            + "\t<modificationset><cvs localworkingcopy=\".\"/></modificationset>\n"
+            + "    <schedule><ant/></schedule>\n"
+            + "</project>\n"
+            + "</cruisecontrol>";
+        final BufferedReader theConfigFileReader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
+                configContents.getBytes())));
+        final StringBuffer actualContents = new StringBuffer();
+        try {
+            CruiseControlControllerJMXAdaptor.readConfigFileContents(actualContents, theConfigFileReader);
+        } finally {
+            theConfigFileReader.close();
+        }
+        assertEquals(configContents + "\n", // trailing newline always added 
+                actualContents.toString());
     }
 }

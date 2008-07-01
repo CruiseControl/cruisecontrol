@@ -103,7 +103,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
 
     public String getConfigFileContents() {
 
-        File theConfigFile = controller.getConfigFile();
+        final File theConfigFile = controller.getConfigFile();
 
         // guard clause
         if (theConfigFile == null) {
@@ -113,17 +113,16 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         StringBuffer theResults = new StringBuffer();
 
         try {
-            BufferedReader theConfigFileReader = new BufferedReader(
-                    new FileReader(theConfigFile));
 
-            // approximate the size
-            theResults = new StringBuffer((int) theConfigFile.length());
-
-            String theCurrentLine = theConfigFileReader.readLine();
-            while (theCurrentLine != null) {
-                theResults.append(theCurrentLine);
-                theCurrentLine = theConfigFileReader.readLine();
+            final BufferedReader theConfigFileReader = new BufferedReader(new FileReader(theConfigFile));
+            try {
+                // approximate the size
+                theResults = new StringBuffer((int) theConfigFile.length());
+                readConfigFileContents(theResults, theConfigFileReader);
+            } finally {
+                theConfigFileReader.close();
             }
+            
         } catch (FileNotFoundException fne) {
 
             LOG.error("Configuration file not found", fne);
@@ -135,6 +134,22 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
 
         return theResults.toString();
+    }
+
+    /**
+     * Populate the given StringBuffer with the content of the config file
+     * @param theResults will contain the config file contents
+     * @param theConfigFileReader reader opened on the config file
+     * @throws IOException if an error occurs
+     */
+    static void readConfigFileContents(StringBuffer theResults, BufferedReader theConfigFileReader)
+            throws IOException {
+
+        String theCurrentLine = theConfigFileReader.readLine();
+        while (theCurrentLine != null) {
+            theResults.append(theCurrentLine).append('\n');
+            theCurrentLine = theConfigFileReader.readLine();
+        }
     }
 
     public void setConfigFileContents(String contents) throws CruiseControlException {
