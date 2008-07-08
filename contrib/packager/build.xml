@@ -21,7 +21,7 @@
     <property name="cruisecontrol.reporting.webapp" value="${cruisecontrol.reporting}/dist/${config.webapp}"/>
     <property name="cruisecontrol.dashboard" value="${cruisecontrol}/reporting/dashboard"/>
     <property name="cruisecontrol.dashboard.webapp" value="${cruisecontrol.dashboard}/dist/dashboard.war"/>
-    <property name="cruisecontrol.cc-config.webapp" value="${cruisecontrol}/target/cc-config/dist/cc-configuration.war"/>
+    <property name="cruisecontrol.cc-config.webapp" value="${cruisecontrol}/target/cc-config/dist/cc-config.war"/>
 
     <property name="install.docs" value="${build.dir}/usr/share/doc/${config.name}"/>
     <property name="install.share" value="${build.dir}/usr/share/${config.name}"/>

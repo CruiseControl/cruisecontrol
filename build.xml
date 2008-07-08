@@ -183,7 +183,7 @@
 
     <target name="update-zip" unless="test.skip">
          <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" update="true">
-            <zipfileset src="target/cc-config/dist/cc-configuration.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config" />
+            <zipfileset src="target/cc-config/dist/cc-config.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config" />
 	 </zip>
     </target>
 
