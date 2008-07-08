@@ -8,6 +8,7 @@ general
 ======================
 * Change cruisecontrol.sh (main, binaryrelease, distcc) script to use more generic shebang (that also works on FreeBSD) (CC-789). Patch by Ivan "Rambius" Ivanov
 * Update saxon to 9.0.0.6
+* Update bundled cc-config to version 1.8.
 
 build loop
 ======================
