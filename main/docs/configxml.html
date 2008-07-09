@@ -3026,7 +3026,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td><a href="#forceonly">&lt;forceonly&gt;</a></td>
                 <td>0 .. *</td>
-                <td>Never returns any changes; use this to define a project that only builds when forced to.</td>
+                <td>Never returns any changes. Deprecated: use forceonly attribute on <a href="#project">&lt;project&gt;</a> instead.</td>
             </tr>
              <tr>
                 <td><a href="#git">&lt;git&gt;</a></td>
@@ -4062,6 +4062,8 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
       &lt;forceonly&gt;</pre>
         </div>
 
+	<p>Deprecated. Use forceonly attribute on <a href="#project">&lt;project&gt;</a> instead.</p>
+	
         <p>Never returns any changes. Use this to define a project that
         only builds when forced to, like for release builds.
         If you also want the modifications between two forced builds to
