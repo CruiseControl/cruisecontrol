@@ -67,7 +67,7 @@ public class SVNLabelIncrementer implements LabelIncrementer {
         String rev;
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec("svnversion " + workingCopyPath);
+            p = Runtime.getRuntime().exec(new String[]{"svnversion", workingCopyPath});
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
             rev = stdInput.readLine();
         } finally {

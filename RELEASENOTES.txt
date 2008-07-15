@@ -79,6 +79,7 @@ SVNBootstrapper
 SVNLabelIncrementer
 ----------------------
 * Default Label should contain LabelPrefix (CC-793). Reported by Henk de Vries, Patch by Rich.
+* Breaks when workingCopyPath contains spaces. Patch by Juergen Hoffmann.
 
 VSS
 ----------------------
