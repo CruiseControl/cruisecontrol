@@ -227,7 +227,7 @@
                         <classpath refid="test.classpath" />
                     </java>
                 </daemons>
-    			<waitfor maxwait="60" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
+    			<waitfor maxwait="90" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
     				<http url="http://localhost:9090/dashboard/admin/config" />
     			</waitfor>
 			</parallel>
