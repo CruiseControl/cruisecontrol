@@ -90,6 +90,7 @@ public class CurrentBuildStatusFTPListener extends AbstractFTPClass implements L
         ValidationHelper.assertIsSet(fileName, "file", this.getClass());
         CurrentBuildFileWriter.validate(fileName);
         ValidationHelper.assertIsSet(destdir, "destdir", this.getClass());
+        super.validate();
     }
 
     public void setFile(String fileName) {

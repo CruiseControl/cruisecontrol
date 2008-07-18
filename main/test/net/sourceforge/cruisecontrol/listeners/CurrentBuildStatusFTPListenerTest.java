@@ -105,6 +105,14 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         }
 
         listener.setDestDir("destdir");
+        try {
+            listener.validate();
+            fail("'targethost' should be a required attribute");
+        } catch (CruiseControlException cce) {
+        	assertEquals("'targethost' not specified in configuration file", cce.getMessage());
+        }
+        
+        listener.setTargetHost("targetHost");
         listener.validate();
     }
 
