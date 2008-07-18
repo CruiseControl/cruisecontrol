@@ -17,7 +17,7 @@ public class Veto implements SourceControl {
     /**
      * enable logging for this class
      */
-    private static Logger log = Logger.getLogger(Veto.class);
+    private static final Logger LOG = Logger.getLogger(Veto.class);
 
     private Triggers triggers;
 
@@ -36,7 +36,6 @@ public class Veto implements SourceControl {
         }
 
         Modification latestBuildStatusMod = getLatestModification(buildStatusMods);
-        Modification latestTriggerMod = getLatestModification(triggerMods);
 
         if (!getNewerModifications(triggerMods, latestBuildStatusMod).isEmpty()) {
             throw new OutOfDateException("buildstatus out of date compared to trigger changes");
@@ -58,13 +57,16 @@ public class Veto implements SourceControl {
 
     private List getNewerModifications(List mods, Modification buildStatusMod) {
         List newerMods = new ArrayList();
-        log.info("Comparing all trigger mods against buildStatusMod with date [" + buildStatusMod.modifiedTime + "]");
+        LOG.debug("Comparing all trigger mods against buildStatusMod with date [" + buildStatusMod.modifiedTime + "]");
         for (Iterator iter = mods.iterator(); iter.hasNext();) {
             Modification mod = (Modification) iter.next();
             if (mod.modifiedTime.after(buildStatusMod.modifiedTime)) {
                 newerMods.add(mod);
-                log.info("Newer file : " + mod.getFullPath() + " at [" + mod.modifiedTime + "]");
+                LOG.debug("Newer file : " + mod.getFullPath() + " at [" + mod.modifiedTime + "]");
             }
+        }
+        if (!newerMods.isEmpty()) {
+            LOG.info("Found " + newerMods.size() + " modifications since last build status.");
         }
         return newerMods;
     }
