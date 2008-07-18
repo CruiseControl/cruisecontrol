@@ -192,7 +192,9 @@ public class Vss implements SourceControl {
             LOG.error("Problem occurred while attempting to get VSS modifications.  Returning empty modifications.", e);
             return Collections.EMPTY_LIST;
         } finally {
-            IO.close(p);
+            if (p != null) {
+                IO.close(p);
+            }
         }
 
         if (modifications.size() > 0) {
