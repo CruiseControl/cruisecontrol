@@ -45,12 +45,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.Modification.ModifiedFile;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -204,7 +205,7 @@ public class PlasticSCM implements SourceControl {
     protected List parseStream(InputStream input) throws IOException, ParseException 
     {
         ArrayList modifications = new ArrayList();
-        ArrayList filemodifications = new ArrayList();
+        Set modifiedFiles = new HashSet();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String line;
         
@@ -216,15 +217,18 @@ public class PlasticSCM implements SourceControl {
             
             if (!line.equals("") && !line.startsWith("Total:")) {
                 String[] fields = line.split(DELIMITER);
-                File file = new File (fields[1]);
+                File file = new File(fields[1]);
+                if (!file.isFile() || modifiedFiles.contains(file)) {
+                    continue;
+                }
+
                 Modification mod = new Modification ("plasticscm");
-                ModifiedFile modfile = mod.createModifiedFile(file.getName(), file.getParent());
+                mod.createModifiedFile(file.getName(), file.getParent());
                 mod.userName = fields[2];
                 mod.modifiedTime = dateFormat.parse(fields[3]);
-                if (file.exists() && file.isFile() && !filemodifications.contains(file)) {
-                    filemodifications.add(file);
-                    modifications.add(mod);
-                }
+                modifications.add(mod);
+
+                modifiedFiles.add(file);
             }
         }
         return modifications;
