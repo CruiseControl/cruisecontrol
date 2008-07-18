@@ -168,9 +168,7 @@ public class Maven2Builder extends Builder {
         //This check is done here because the pom can be downloaded after CC is started
         // and before this plugin is run
         final File filePomFile = new File(pomFile);
-        ValidationHelper.assertTrue(filePomFile.exists(),
-                "the pom file could not be found : " + filePomFile.getAbsolutePath()
-                        + "; Check the 'pomfile' attribute: " + pomFile);
+        validatePomFile(filePomFile);
 
         final File workingDir = filePomFile.getAbsoluteFile().getParentFile();
         LOG.debug("Working dir is : " + workingDir.toString());
@@ -215,6 +213,14 @@ public class Maven2Builder extends Builder {
         buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
         return buildLogElement;
     }
+	void validatePomFile(final File filePomFile) throws CruiseControlException {
+		ValidationHelper.assertTrue(filePomFile.exists(),
+                "the pom file could not be found : " + filePomFile.getAbsolutePath()
+                        + "; Check the 'pomfile' attribute: " + pomFile);
+        ValidationHelper.assertTrue(filePomFile.isFile(),
+                "the pom file can't be a directory : " + filePomFile.getAbsolutePath()
+                        + "; Check the 'pomfile' attribute: " + pomFile);
+	}
 
     public Element buildWithTarget(final Map properties, final String target, final Progress progress)
             throws CruiseControlException {

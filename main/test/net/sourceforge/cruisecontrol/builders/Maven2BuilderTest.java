@@ -207,6 +207,26 @@ public class Maven2BuilderTest extends TestCase {
         // do validate again, just to check reuse issues
         mb.validate();
     }
+    
+    public void testValidatePomFile() throws Exception {
+    	Maven2Builder mb = new Maven2Builder();
+        final File testProject = createTestMvnProjectFile();
+    	mb.validatePomFile(testProject);
+    	try {
+    		mb.validatePomFile(testProject.getParentFile());
+    		fail("directories are not valid pom files");
+    	} catch (CruiseControlException e) {
+    		assertTrue(e.getMessage().startsWith("the pom file can't be a directory"));
+    	}
+    	assertTrue(testProject.delete());
+    	assertFalse(testProject.exists());
+    	try {
+    		mb.validatePomFile(testProject);
+    		fail("pom files must exist");
+    	} catch (CruiseControlException e) {
+    		assertTrue(e.getMessage().startsWith("the pom file could not be found"));
+    	}
+    }
 
     public void testBuild_Success() throws IOException, CruiseControlException {
         Maven2Builder mb = new Maven2Builder();
