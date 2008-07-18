@@ -304,7 +304,7 @@ public class UCM implements SourceControl {
                 BufferedReader br = new BufferedReader(isr);
                 String line;
 
-                while (((line = br.readLine()) != null) && (!br.equals(""))) {
+                while (((line = br.readLine()) != null) && (!line.equals(""))) {
                     String[] details = getDetails(line);
                     if (details[0].equals("mkbranch") || details[0].equals("rmbranch") || details[0].equals("rmver")) {
                         // if type is create/remove branch then skip
@@ -433,7 +433,7 @@ public class UCM implements SourceControl {
                 BufferedReader br = new BufferedReader(isr);
                 String line;
 
-                while (((line = br.readLine()) != null) && (!br.equals(""))) {
+                while (((line = br.readLine()) != null) && (!line.equals(""))) {
                     String[] details = getDetails(line);
                     try {
                         mod.modifiedTime = outputDateFormat.parse(activityDate);
