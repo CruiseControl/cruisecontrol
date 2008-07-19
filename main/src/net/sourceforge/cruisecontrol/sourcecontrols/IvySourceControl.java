@@ -101,6 +101,7 @@ public class IvySourceControl extends FakeUserSourceControl {
     @SuppressWarnings ("unchecked")
     Collection<Artifact> artifacts() throws IOException, ParseException {
         Ivy ivy = Ivy.newInstance();
+        ivy.configure(ivySettings.toURI().toURL());
         return ivy.resolve(ivyXml.toURI().toURL()).getArtifacts();
     }
 
