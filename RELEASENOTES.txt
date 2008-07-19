@@ -4,6 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8-dev
 
+Documentation
+======================
+* Composite builder does not support Pause builder child element (CC-812). Reported by John Camerin
+
+
 CruiseControl Release Notes - 2.7.3
 
 general

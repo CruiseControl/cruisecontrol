@@ -6333,7 +6333,7 @@ endlocal</pre>
       &lt;composite&gt;</pre>
         </div>
 
-        <p>The CompositeBuilder executes a list of builders. This is necessary
+        <p>The CompositeBuilder executes a list of builders (any builder, except <a href="#pause">&lt;pause&gt;</a>). This is necessary
         for builds in an empty directory (see keyword CRISP-builds in Pragmatic Project Automation
         from Mike Clark) </p>
 
@@ -6410,11 +6410,6 @@ endlocal</pre>
                 <td><a href="#maven2">&lt;maven2&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Builds the project using Maven2.</td>
-            </tr>
-            <tr>
-                <td><a href="#pause">&lt;pause&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Pauses the build.</td>
             </tr>
             <tr>
                 <td><a href="#nant">&lt;nant&gt;</a></td>
