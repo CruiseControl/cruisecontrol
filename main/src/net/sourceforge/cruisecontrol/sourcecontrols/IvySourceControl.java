@@ -59,7 +59,7 @@ import java.util.List;
  * @author <a href="mailto:paul@willowbark.com">Paul Julius</a>
  */
 public class IvySourceControl extends FakeUserSourceControl {
-    private static Logger log = Logger.getLogger(IvySourceControl.class);
+    private static final Logger LOG = Logger.getLogger(IvySourceControl.class);
 
     private File ivyXml = new File("ivy.xml");
     private File ivySettings = new File("ivysettings.xml");
@@ -72,7 +72,7 @@ public class IvySourceControl extends FakeUserSourceControl {
         try {
             return getModifications(lastBuild, artifacts());
         } catch (Exception e) {
-            log.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
 
         return Collections.EMPTY_LIST;
