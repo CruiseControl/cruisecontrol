@@ -87,7 +87,7 @@ public class MavenSnapshotDependency implements SourceControl {
     private String user;
 
     /** enable logging for this class */
-    private static Logger log = Logger.getLogger(MavenSnapshotDependency.class);
+    private static final Logger LOG = Logger.getLogger(MavenSnapshotDependency.class);
 
     /**
      * Set the root folder of the directories that we are going to scan
@@ -214,7 +214,7 @@ public class MavenSnapshotDependency implements SourceControl {
                 break;
             }
             String key = value.substring(i + 2, j);
-            // log.info("Tag: " + key);
+            // LOG.info("Tag: " + key);
 
             if (p.containsKey(key)) {
                value = value.substring(0, i) + p.getProperty(key) + value.substring(j + 1);
@@ -227,7 +227,7 @@ public class MavenSnapshotDependency implements SourceControl {
                // could not replace the value, leave it there
                pos = j + 1;
             }
-            // log.info("New value: " + value);
+            // LOG.info("New value: " + value);
 
             i = value.indexOf("${", pos);
         }
@@ -238,7 +238,7 @@ public class MavenSnapshotDependency implements SourceControl {
      * Parse the Maven project file, and file names
      */
     List getSnapshotFilenames(File mavenFile) {
-        log.info("Getting a list of dependencies for " + mavenFile);
+        LOG.info("Getting a list of dependencies for " + mavenFile);
 
         List filenames = new ArrayList();
         Element mavenElement;
@@ -246,12 +246,12 @@ public class MavenSnapshotDependency implements SourceControl {
         try {
             mavenElement = builder.build(mavenFile).getRootElement();
         } catch (JDOMException e) {
-            log.error("failed to load project file ["
+            LOG.error("failed to load project file ["
                 + (mavenFile != null ? mavenFile.getAbsolutePath() : "")
                 + "]", e);
             return filenames;
         } catch (IOException e) {
-            log.error("failed to load project file ["
+            LOG.error("failed to load project file ["
                 + (mavenFile != null ? mavenFile.getAbsolutePath() : "")
                 + "]", e);
             return filenames;
@@ -272,7 +272,7 @@ public class MavenSnapshotDependency implements SourceControl {
                 in = new BufferedInputStream(fin);
                 projectProperties.load(in);
             } catch (IOException ex) {
-                log.error("failed to load project properties file ["
+                LOG.error("failed to load project properties file ["
                            + propertiesFile.getAbsolutePath() + "]", ex);
             } finally {
                 IO.close(in);
@@ -299,7 +299,7 @@ public class MavenSnapshotDependency implements SourceControl {
 
         // No dependencies listed at all
         if (depsRoot == null) {
-            log.warn("No dependencies detected.");
+            LOG.warn("No dependencies detected.");
             return filenames;
         }
 
@@ -367,7 +367,7 @@ public class MavenSnapshotDependency implements SourceControl {
 
                 File file = new File(fileName.toString());
 
-                log.info("Snapshot detected: " + fileName);
+                LOG.info("Snapshot detected: " + fileName);
 
                 filenames.add(file.getAbsolutePath());
             }

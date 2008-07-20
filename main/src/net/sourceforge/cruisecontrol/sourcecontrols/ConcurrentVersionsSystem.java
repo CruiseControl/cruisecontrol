@@ -69,7 +69,7 @@ import org.apache.log4j.Logger;
  * This class implements the SourceControlElement methods for a CVS repository. The call to CVS is assumed to work
  * without any setup. This implies that if the authentication type is pserver the call to cvs login should be done prior
  * to calling this class. <p/> There are also differing CVS client/server implementations (e.g. the <i>official</i> CVS
- * and the CVSNT fork). <p/> Note that the log formats of the official CVS have changed starting from version 1.12.9.
+ * and the CVSNT fork). <p/> Note that the LOG formats of the official CVS have changed starting from version 1.12.9.
  * This class currently knows of 2 different outputs referred to as the 'old' and the 'new' output formats.
  * 
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
@@ -186,41 +186,41 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * enable logging for this class
      */
-    private static Logger log = Logger.getLogger(ConcurrentVersionsSystem.class);
+    private static final Logger LOG = Logger.getLogger(ConcurrentVersionsSystem.class);
 
     /**
-     * This line delimits separate files in the CVS log information.
+     * This line delimits separate files in the CVS LOG information.
      */
     private static final String CVS_FILE_DELIM = "==================================================================="
             + "==========";
 
     /**
-     * This is the keyword that precedes the name of the RCS filename in the CVS log information.
+     * This is the keyword that precedes the name of the RCS filename in the CVS LOG information.
      */
     private static final String CVS_RCSFILE_LINE = "RCS file: ";
 
     /**
-     * This is the keyword that precedes the name of the working filename in the CVS log information.
+     * This is the keyword that precedes the name of the working filename in the CVS LOG information.
      */
     private static final String CVS_WORKINGFILE_LINE = "Working file: ";
 
     /**
-     * This line delimits the different revisions of a file in the CVS log information.
+     * This line delimits the different revisions of a file in the CVS LOG information.
      */
     private static final String CVS_REVISION_DELIM = "----------------------------";
 
     /**
-     * This is the keyword that precedes the timestamp of a file revision in the CVS log information.
+     * This is the keyword that precedes the timestamp of a file revision in the CVS LOG information.
      */
     private static final String CVS_REVISION_DATE = "date:";
 
     /**
-     * This is the name of the tip of the main branch, which needs special handling with the log entry parser
+     * This is the name of the tip of the main branch, which needs special handling with the LOG entry parser
      */
     private static final String CVS_HEAD_TAG = "HEAD";
 
     /**
-     * This is the keyword that tells us when we have reached the end of the header as found in the CVS log information.
+     * This is the keyword that tells us when we have reached the end of the header as found in the CVS LOG information.
      */
     private static final String CVS_DESCRIPTION = "description:";
 
@@ -236,7 +236,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     private static final String NEW_LINE = System.getProperty("line.separator");
 
     /**
-     * This is the date format returned in the log information from CVS.
+     * This is the date format returned in the LOG information from CVS.
      */
     private final SimpleDateFormat logDateFormatter = new SimpleDateFormat(LOG_DATE_FORMAT);
 
@@ -255,14 +255,14 @@ public class ConcurrentVersionsSystem implements SourceControl {
      * 
      * @param local
      *            String indicating the relative or absolute path to the local working copy of the module of which to
-     *            find the log history.
+     *            find the LOG history.
      */
     public void setLocalWorkingCopy(String local) {
         this.local = local;
     }
 
     /**
-     * Set the cvs tag. Note this should work with names, numbers, and anything else you can put on log -rTAG
+     * Set the cvs tag. Note this should work with names, numbers, and anything else you can put on LOG -rTAG
      * 
      * @param tag
      *            the cvs tag
@@ -290,7 +290,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * @param reallyQuiet When true, this class should use the -Q cvs option instead of -q for the log command.
+     * @param reallyQuiet When true, this class should use the -Q cvs option instead of -q for the LOG command.
      */
     public void setReallyQuiet(boolean reallyQuiet) {
         this.reallyQuiet = reallyQuiet;
@@ -332,27 +332,27 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
                 cvsServerVersion = extractCVSServerVersionFromCVSVersionCommandOutput(in);
 
-                log.debug("cvs server version: " + cvsServerVersion);
+                LOG.debug("cvs server version: " + cvsServerVersion);
 
                 p.waitFor();
                 stderr.join();
                 IO.close(p);
             } catch (IOException e) {
-                log.error("Failed reading cvs server version", e);
+                LOG.error("Failed reading cvs server version", e);
             } catch (CruiseControlException e) {
-                log.error("Failed reading cvs server version", e);
+                LOG.error("Failed reading cvs server version", e);
             } catch (InterruptedException e) {
-                log.error("Failed reading cvs server version", e);
+                LOG.error("Failed reading cvs server version", e);
             }
 
             if (p == null || p.exitValue() != 0 || cvsServerVersion == null) {
                 if (p == null) {
-                    log.debug("Process p was null in CVS.getCvsServerVersion()");
+                    LOG.debug("Process p was null in CVS.getCvsServerVersion()");
                 } else {
-                    log.debug("Process exit value = " + p.exitValue());
+                    LOG.debug("Process exit value = " + p.exitValue());
                 }
                 cvsServerVersion = DEFAULT_CVS_SERVER_VERSION;
-                log.warn("problem getting cvs server version; using " + cvsServerVersion);
+                LOG.warn("problem getting cvs server version; using " + cvsServerVersion);
             }
         }
         return cvsServerVersion;
@@ -381,23 +381,23 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 return null;
             }
             if (!line.startsWith("Server:")) {
-                log.warn("Warning expected a line starting with \"Server:\" but got " + line);
+                LOG.warn("Warning expected a line starting with \"Server:\" but got " + line);
                 // we try anyway
             }
         }
-        log.debug("server version line: " + line);
+        LOG.debug("server version line: " + line);
         int nameBegin = line.indexOf(" (");
         int nameEnd = line.indexOf(") ", nameBegin);
         final String name;
         final String version;
         if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
-            log.warn("cvs server version name couldn't be parsed from " + line);
+            LOG.warn("cvs server version name couldn't be parsed from " + line);
             return null;
         }
         name = line.substring(nameBegin + 2, nameEnd);
         int verEnd = line.indexOf(" ", nameEnd + 2);
         if (verEnd < nameEnd + 2) {
-            log.warn("cvs server version number couldn't be parsed from " + line);
+            LOG.warn("cvs server version number couldn't be parsed from " + line);
             return null;
         }
         version = line.substring(nameEnd + 2, verEnd);
@@ -422,7 +422,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                     return true;
                 }
             } catch (Throwable e) {
-                log.warn("problem identifying cvs server. Assuming output is of 'old' type");
+                LOG.warn("problem identifying cvs server. Assuming output is of 'old' type");
             }
         }
         return false;
@@ -468,7 +468,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
         } catch (Exception e) {
-            log.error("Log command failed to execute successfully", e);
+            LOG.error("Log command failed to execute successfully", e);
         }
 
         if (mods == null) {
@@ -516,16 +516,16 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 stderr.join();
                 IO.close(p);
             } catch (Exception e) {
-                log.error("Failed reading mail aliases", e);
+                LOG.error("Failed reading mail aliases", e);
             }
 
             if (p == null || p.exitValue() != 0) {
                 if (p == null) {
-                    log.debug("Process p was null in CVS.getMailAliases()");
+                    LOG.debug("Process p was null in CVS.getMailAliases()");
                 } else {
-                    log.debug("Process exit value = " + p.exitValue());
+                    LOG.debug("Process exit value = " + p.exitValue());
                 }
-                log.warn("problem getting CVSROOT/users; using empty email map");
+                LOG.warn("problem getting CVSROOT/users; using empty email map");
                 mailAliases = new Hashtable();
             }
         }
@@ -534,7 +534,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     void addAliasToMap(String line) {
-        log.debug("Mapping " + line);
+        LOG.debug("Mapping " + line);
         int colon = line.indexOf(':');
 
         if (colon >= 0) {
@@ -548,7 +548,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * @param lastBuildTime
      * @param checkTime
-     * @return CommandLine for "cvs -d CVSROOT -q log -N -dlastbuildtime<checktime "
+     * @return CommandLine for "cvs -d CVSROOT -q LOG -N -dlastbuildtime<checktime "
      */
     public Commandline buildHistoryCommand(Date lastBuildTime, Date checkTime) throws CruiseControlException {
         Commandline commandLine = getCommandline();
@@ -603,18 +603,18 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     /**
-     * Parses the input stream, which should be from the cvs log command. This method will format the data found in the
+     * Parses the input stream, which should be from the cvs LOG command. This method will format the data found in the
      * input stream into a List of Modification instances.
      * 
      * @param input
-     *            InputStream to get log data from.
+     *            InputStream to get LOG data from.
      * @return List of Modification elements, maybe empty never null.
      * @throws IOException
      */
     protected List parseStream(InputStream input) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-        // Read to the first RCS file name. The first entry in the log
+        // Read to the first RCS file name. The first entry in the LOG
         // information will begin with this line. A CVS_FILE_DELIMITER is NOT
         // present. If no RCS file lines are found then there is nothing to do.
 
@@ -665,7 +665,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
     }
 
     static Thread logErrorStream(InputStream error) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(log, error));
+        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, error));
         stderr.start();
         return stderr;
     }
@@ -674,7 +674,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
     /**
      * Parses a single file entry from the reader. This entry may contain zero or more revisions. This method may
-     * consume the next CVS_FILE_DELIMITER line from the reader, but no further. <p/> When the log is related to a non
+     * consume the next CVS_FILE_DELIMITER line from the reader, but no further. <p/> When the LOG is related to a non
      * branch tag, only the last modification for each file will be listed.
      * 
      * @param reader
@@ -791,7 +791,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
                     nextModification.modifiedTime = logDateFormatter.parse(dateStamp + " " + timeStamp + " GMT");
                 }
             } catch (ParseException pe) {
-                log.error("Error parsing cvs log for date and time", pe);
+                LOG.error("Error parsing cvs LOG for date and time", pe);
                 return null;
             }
 
@@ -806,7 +806,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
 
             if (stateKeyword.equalsIgnoreCase(CVS_REVISION_DEAD)
                     && message.indexOf("was initially added on branch") != -1) {
-                log.debug("skipping branch addition activity for " + nextModification);
+                LOG.debug("skipping branch addition activity for " + nextModification);
                 // this prevents additions to a branch from showing up as action "deleted" from head
                 continue;
             }

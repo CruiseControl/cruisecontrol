@@ -58,7 +58,7 @@ import org.apache.log4j.Logger;
  * This BootStrapper class is used to connect to Harvest to retrieve files
  * before the build is started. It has a number of properties which must be set
  * in order to connect to Harvest. It also provides a mechanism to pipe Harvest
- * errors through into the CruiseControl log.
+ * errors through into the CruiseControl LOG.
  *
  * @author <a href="mailto:info@trinem.com">Trinem Consulting Ltd</a>
  */
@@ -82,7 +82,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
 
     private JCaHarvestLogStreamWrap logstream = null;
 
-    private static Logger log = Logger.getLogger(AllFusionHarvestBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(AllFusionHarvestBootstrapper.class);
 
     /**
      * Default constructor. Creates a new uninitialise Bootstrapper.
@@ -97,7 +97,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
      *            Harvest Broker to use.
      */
     public void setBroker(String broker) {
-        log.debug("Broker: " + broker);
+        LOG.debug("Broker: " + broker);
         this.broker = broker;
     }
 
@@ -199,7 +199,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
         harvest.setLog(logstream);
 
         if (harvest.login(username, password) != 0) {
-            log.error("Login failed: " + harvest.getLastMessage());
+            LOG.error("Login failed: " + harvest.getLastMessage());
             return false;
         }
 
@@ -214,7 +214,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
         try {
             harvest.logout();
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
     }
 
@@ -241,7 +241,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
      */
     public void bootstrap() {
 
-        log.debug("bootstrap()");
+        LOG.debug("bootstrap()");
 
         if (!login()) {
             return;
@@ -253,11 +253,11 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
             context.setState(state);
 
             if (!context.setCheckout(process)) {
-                log.error("No checkout process named \"" + process + "\" in this project/state");
+                LOG.error("No checkout process named \"" + process + "\" in this project/state");
                 return;
             }
             if (!context.isProcessSet(JCaConstWrap.HAR_CHECKOUT_PROCESS_TYPE)) {
-                log.error("No checkout process in this project/state");
+                LOG.error("No checkout process in this project/state");
                 return;
             }
 
@@ -301,14 +301,14 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
             coproc.execute();
 
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.toString() /* , getLocation() */);
+            LOG.error(e.toString() /* , getLocation() */);
             // e.printStackTrace();
         }
     }
 
     /**
      * Simple LogStream Listener class which interprets the message serverity
-     * level of Harvest messages and reports them to the CruiseControl log.
+     * level of Harvest messages and reports them to the CruiseControl LOG.
      *
      * @author <a href="mailto:info@trinem.com">Trinem Consulting Ltd</a>
      */
@@ -329,16 +329,16 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
             // Convert Harvest level to log4j level
             switch (level) {
             case JCaHarvestLogStreamWrap.OK:
-                log.debug(message);
+                LOG.debug(message);
                 break;
             case JCaHarvestLogStreamWrap.INFO:
-                log.info(message);
+                LOG.info(message);
                 break;
             case JCaHarvestLogStreamWrap.WARNING:
-                log.warn(message);
+                LOG.warn(message);
                 break;
             case JCaHarvestLogStreamWrap.ERROR:
-                log.error(message);
+                LOG.error(message);
                 break;
             default:
             }
