@@ -189,6 +189,7 @@ public class IvySourceControlTest {
             ivy.setIvySettings(ivySettings.getAbsolutePath());
             ivy.validate();
         } finally {
+            IO.delete(ivySettings);
             IO.delete(ivyXml);
         }
     }
