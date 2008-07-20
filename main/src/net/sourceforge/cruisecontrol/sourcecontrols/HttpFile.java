@@ -56,7 +56,7 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:yourgod@users.sourceforge.net">Brad Clarke</a>
  */
 public class HttpFile extends FakeUserSourceControl {
-    private static Logger log = Logger.getLogger(HttpFile.class);
+    private static final Logger LOG = Logger.getLogger(HttpFile.class);
     private String urlString;
 
         public void setURL(String urlString) {
@@ -91,7 +91,7 @@ public class HttpFile extends FakeUserSourceControl {
         try {
             lastModified = getURLLastModified(url);
         } catch (IOException e) {
-            log.error("Could not connect to 'url'", e);
+            LOG.error("Could not connect to 'url'", e);
             return new ArrayList();
         }
         List modifiedList = new ArrayList();

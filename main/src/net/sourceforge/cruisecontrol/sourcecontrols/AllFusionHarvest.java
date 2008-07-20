@@ -91,7 +91,7 @@ public class AllFusionHarvest implements SourceControl {
 
     private JCaHarvestLogStreamWrap logstream = null;
 
-    private static Logger log = Logger.getLogger(AllFusionHarvest.class);
+    private static final Logger LOG = Logger.getLogger(AllFusionHarvest.class);
 
     /**
      * Default contructor. Creates a new uninitialise Bootstrapper.
@@ -110,7 +110,7 @@ public class AllFusionHarvest implements SourceControl {
      *            Harvest Broker to use.
      */
     public void setBroker(String broker) {
-        log.debug("Broker: " + broker);
+        LOG.debug("Broker: " + broker);
         this.broker = broker;
     }
 
@@ -206,7 +206,7 @@ public class AllFusionHarvest implements SourceControl {
      */
     public List getModifications(Date lastBuild, Date now) {
 
-        log.debug("getModifications( " + lastBuild + ", " + now + " )");
+        LOG.debug("getModifications( " + lastBuild + ", " + now + " )");
 
         if (!login()) {
             return new ArrayList();
@@ -230,7 +230,7 @@ public class AllFusionHarvest implements SourceControl {
                 }
             }
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
 
         return list;
@@ -361,7 +361,7 @@ public class AllFusionHarvest implements SourceControl {
         harvest.setLog(logstream);
 
         if (harvest.login(username, password) != 0) {
-            log.error("Login failed: " + harvest.getLastMessage());
+            LOG.error("Login failed: " + harvest.getLastMessage());
             return false;
         }
 
@@ -377,7 +377,7 @@ public class AllFusionHarvest implements SourceControl {
             harvest.logout();
             loggedIn = false;
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
     }
 
@@ -415,7 +415,7 @@ public class AllFusionHarvest implements SourceControl {
 
             return emailAddress;
         } catch (JCaHarvestExceptionWrap e) {
-            log.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
 
         return null;
@@ -435,8 +435,8 @@ public class AllFusionHarvest implements SourceControl {
     }
 
     /**
-     * This class implements a Harvest log stream listener and takes messages
-     * from Harvest and gives them appropriate log levels in the Log4J stream
+     * This class implements a Harvest LOG stream listener and takes messages
+     * from Harvest and gives them appropriate LOG levels in the Log4J stream
      * for the AllFusionHarvest sourcecontrol. Without this class you would not
      * see errors from Harvest, nor would warnings and info messages be handled
      * correctly.
@@ -459,16 +459,16 @@ public class AllFusionHarvest implements SourceControl {
             // Convert Harvest level to log4j level
             switch (level) {
             case JCaHarvestLogStreamWrap.OK:
-                log.debug(message);
+                LOG.debug(message);
                 break;
             case JCaHarvestLogStreamWrap.INFO:
-                log.info(message);
+                LOG.info(message);
                 break;
             case JCaHarvestLogStreamWrap.WARNING:
-                log.warn(message);
+                LOG.warn(message);
                 break;
             case JCaHarvestLogStreamWrap.ERROR:
-                log.error(message);
+                LOG.error(message);
                 break;
             default:
             }
