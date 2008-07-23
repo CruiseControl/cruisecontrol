@@ -11,7 +11,6 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 public class PhingScript implements Script {
     private Map buildProperties;
 
-    private boolean isWindows;
     private String phingScript;
     private String loggerClassName;
     private String tempFileName = "log.xml";
@@ -19,7 +18,7 @@ public class PhingScript implements Script {
     private boolean useQuiet;
     private boolean useDebug;
     private String buildFile = "build.xml";
-    private List properties;
+    private List<Property> properties;
     private String target = "";
     private int exitCode;
 
@@ -60,8 +59,7 @@ public class PhingScript implements Script {
             }
         }
 
-        for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
-            Property property = (Property) antPropertiesIterator.next();
+        for (Property property : properties) {
             cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
@@ -104,12 +102,6 @@ public class PhingScript implements Script {
     }
     
     /**
-     * @param isWindows The isWindows to set.
-     */
-    public void setWindows(boolean isWindows) {
-        this.isWindows = isWindows;
-    }
-    /**
      * @param buildFile The buildFile to set.
      */
     public void setBuildFile(String buildFile) {
@@ -143,7 +135,7 @@ public class PhingScript implements Script {
     /**
      * @param properties The properties to set.
      */
-    public void setProperties(List properties) {
+    public void setProperties(List<Property> properties) {
         this.properties = properties;
     }
     /**
