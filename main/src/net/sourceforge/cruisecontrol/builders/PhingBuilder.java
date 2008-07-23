@@ -25,7 +25,7 @@ import org.xml.sax.helpers.XMLFilterImpl;
 public class PhingBuilder extends Builder {
 
     protected static final String DEFAULT_LOGGER = "phing.listener.XmlLogger";
-    private static final Logger LOG = Logger.getLogger(AntBuilder.class);
+    private static final Logger LOG = Logger.getLogger(PhingBuilder.class);
 
     private String phingWorkingDir = null;
     private String buildFile = "build.xml";
@@ -34,7 +34,7 @@ public class PhingBuilder extends Builder {
     private String phingScript = "phing";
     private String phingHome;
     private boolean useLogger;
-    private final List properties = new ArrayList();
+    private final List<Property> properties = new ArrayList<Property>();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
@@ -91,7 +91,6 @@ public class PhingBuilder extends Builder {
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
         script.setUseLogger(useLogger);
-        script.setWindows(Util.isWindows());
         script.setPhingScript(phingScript);
         script.setBuildFile(buildFile);
         script.setTarget(target);
