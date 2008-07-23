@@ -10,7 +10,7 @@ import java.io.File;
  * Date: Jan 2, 2007
  * Time: 12:08:33 PM
  */
-public class CommandLineTest extends TestCase {
+public class CommandlineTest extends TestCase {
 
     private static final String DBL_QUOTE = "\"";
 
