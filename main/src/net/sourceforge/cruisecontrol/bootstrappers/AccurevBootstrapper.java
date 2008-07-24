@@ -38,8 +38,6 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.builders.AntBuilder;
-import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
@@ -52,185 +50,82 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class AccurevBootstrapper implements Bootstrapper {
-  private boolean verbose;
-  private boolean keep;
-  private boolean synctime;
-  private String  workspace;
-  private Runner  runner;
-  private AntBuilder delegate = new AntBuilder();
+    private boolean verbose;
+    private boolean keep;
+    private boolean synctime;
+    private String workspace;
+    private Runner runner;
 
-  /**
-   * Enables/disables verbose logging
-   *
-   * @param verbose
-   *          if true, verbose logging is enabled
-   */
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
-  /**
-   * Enables/disables automatic keep
-   *
-   * @param keep
-   *          if true, "accurev keep -m" is run on the selected workspace, to keep al modified files
-   */
-  public void setKeep(boolean keep) {
-    this.keep = keep;
-  }
-  /**
-   * Enables/disables automatic synctime
-   *
-   * @param synctime
-   *          if true, "accurev synctime" is run on the selected workspace, synchronizing the
-   *          server's time with the client's
-   */
-  public void setSynctime(boolean synctime) {
-    this.synctime = synctime;
-  }
-  /**
-   * Selects a workspace
-   *
-   * @param workspace
-   *          the path of the workspace to work in, in the local filesystem
-   */
-  public void setWorkspace(String workspace) {
-    this.workspace = workspace;
-  }
-  private void runAccurev(AccurevCommandline cmd) throws CruiseControlException {
-    if (runner != null) {
-      cmd.setRunner(runner);
+    /**
+     * Enables/disables verbose logging
+     *
+     * @param verbose if true, verbose logging is enabled
+     */
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
     }
-    cmd.setWorkspaceLocalPath(workspace);
-    cmd.setVerbose(verbose);
-    cmd.run();
-    cmd.assertSuccess();
-  }
-  /**
-   * Runs the bootstrapper: updates the selected workspace. If required, it runs synctime and keep
-   * before updating.
-   */
-  public void bootstrap() throws CruiseControlException {
-    if (synctime) {
-      runAccurev(AccurevCommand.SYNCTIME.create());
+
+    /**
+     * Enables/disables automatic keep
+     *
+     * @param keep if true, "accurev keep -m" is run on the selected workspace, to keep al modified files
+     */
+    public void setKeep(boolean keep) {
+        this.keep = keep;
     }
-    if (keep) {
-      AccurevCommandline cmdKeep = AccurevCommand.KEEP.create();
-      cmdKeep.selectModified();
-      cmdKeep.setComment("CruiseControl automatic keep");
-      runAccurev(cmdKeep);
+
+    /**
+     * Enables/disables automatic synctime
+     *
+     * @param synctime if true, "accurev synctime" is run on the selected workspace, synchronizing the
+     *                 server's time with the client's
+     */
+    public void setSynctime(boolean synctime) {
+        this.synctime = synctime;
     }
-    runAccurev(AccurevCommand.UPDATE.create());
-  }
-  public void setRunner(Runner runner) {
-    this.runner = runner;
-  }
 
-  public void validate() throws CruiseControlException {
-      delegate.validate();
-  }
+    /**
+     * Selects a workspace
+     *
+     * @param workspace the path of the workspace to work in, in the local filesystem
+     */
+    public void setWorkspace(String workspace) {
+        this.workspace = workspace;
+    }
 
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setSaveLogDir(String)
-   */
-  public void setSaveLogDir(String dir) {
-      delegate.setSaveLogDir(dir);
-  }
+    private void runAccurev(AccurevCommandline cmd) throws CruiseControlException {
+        if (runner != null) {
+            cmd.setRunner(runner);
+        }
+        cmd.setWorkspaceLocalPath(workspace);
+        cmd.setVerbose(verbose);
+        cmd.run();
+        cmd.assertSuccess();
+    }
 
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntWorkingDir(String)
-   */
-  public void setAntWorkingDir(String dir) {
-      delegate.setAntWorkingDir(dir);
-  }
+    /**
+     * Runs the bootstrapper: updates the selected workspace. If required, it runs synctime and keep
+     * before updating.
+     */
+    public void bootstrap() throws CruiseControlException {
+        if (synctime) {
+            runAccurev(AccurevCommand.SYNCTIME.create());
+        }
+        if (keep) {
+            AccurevCommandline cmdKeep = AccurevCommand.KEEP.create();
+            cmdKeep.selectModified();
+            cmdKeep.setComment("CruiseControl automatic keep");
+            runAccurev(cmdKeep);
+        }
+        runAccurev(AccurevCommand.UPDATE.create());
+    }
 
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntScript(String)
-   */
-  public void setAntScript(String antScript) {
-      delegate.setAntScript(antScript);
-  }
+    public void setRunner(Runner runner) {
+        this.runner = runner;
+    }
 
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntHome(String)
-   */
-  public void setAntHome(String antHome) {
-      delegate.setAntHome(antHome);
-  }
+    public void validate() throws CruiseControlException {
+        // @todo Should something be validated here?
+    }
 
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTempFile(String)
-   */
-  public void setTempFile(String tempFileName) {
-      delegate.setTempFile(tempFileName);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTarget(String)
-   */
-  public void setTarget(String target) {
-      delegate.setTarget(target);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setBuildFile(String)
-   */
-  public void setBuildFile(String buildFile) {
-      delegate.setBuildFile(buildFile);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseLogger(boolean)
-   */
-  public void setUseLogger(boolean useLogger) {
-      delegate.setUseLogger(useLogger);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createJVMArg()
-   */
-  public Object createJVMArg() {
-      return delegate.createJVMArg();
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createProperty()
-   */
-  public Property createProperty() {
-      return delegate.createProperty();
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseDebug(boolean)
-   */
-  public void setUseDebug(boolean debug) {
-      delegate.setUseDebug(debug);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseQuiet(boolean)
-   */
-  public void setUseQuiet(boolean quiet) {
-      delegate.setUseQuiet(quiet);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#getLoggerClassName()
-   */
-  public String getLoggerClassName() {
-      return delegate.getLoggerClassName();
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setLoggerClassName(String)
-   */
-  public void setLoggerClassName(String string) {
-      delegate.setLoggerClassName(string);
-  }
-
-  /**
-   * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTimeout(long)
-   */
-  public void setTimeout(long timeout) {
-      delegate.setTimeout(timeout);
-  }
 }
