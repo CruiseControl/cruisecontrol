@@ -48,6 +48,7 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 
@@ -57,6 +58,7 @@ import net.sourceforge.cruisecontrol.util.MockCommandline;
 public class UCMTest extends TestCase {
 
     private UCM ucm;
+    private static final byte[] BUF_EMPTY = new byte[0];
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -110,8 +112,22 @@ public class UCMTest extends TestCase {
         }
     }
 
+    public void testBuildListContributorsCommand() throws Exception {
+        final String dummyActivityID = "dummyActivityID";
+        final Commandline actualCommandline = ucm.buildListContributorsCommand(dummyActivityID);
+        TestUtil.assertArray("Wrong commandline",
+                new String[] {
+                        "cleartool",
+                        "describe",
+                        "-fmt",
+                        "%[contrib_acts]Xp", // CC-815 - tested on Linux, needs testing on Windows, Unix
+                        dummyActivityID
+                },
+                actualCommandline.getCommandline());
+    }
+
     public void testParseStream() throws Exception {
-        List commands = new ArrayList();
+        List<Commandline> commands = new ArrayList<Commandline>();
         commands.add(emptyOutput());
         commands.add(loadCommandOutput("ucmstream_hyperlink.txt"));
         commands.add(emptyOutput());
@@ -125,7 +141,7 @@ public class UCMTest extends TestCase {
     }
 
     public void testParseAttachEntry() throws Exception {
-        List commands = new ArrayList();
+        List<Commandline> commands = new ArrayList<Commandline>();
         commands.add(loadCommandOutput("ucmstream_hyperlink.txt"));
 
         UCM control = createControl(commands);
@@ -149,7 +165,7 @@ public class UCMTest extends TestCase {
     }
 
     public void testParseRemoveEntry() throws Exception {
-        List commands = new ArrayList();
+        List<Commandline> commands = new ArrayList<Commandline>();
         commands.add(emptyOutput());
 
         UCM control = createControl(commands);
@@ -166,13 +182,13 @@ public class UCMTest extends TestCase {
         assertEquals("Day incorrect", 16, cal.get(Calendar.DAY_OF_MONTH));
         assertEquals("Hour incorrect", 17, cal.get(Calendar.HOUR_OF_DAY));
         assertEquals("Minute incorrect", 50, cal.get(Calendar.MINUTE));
-        assertEquals("Second incorrect", 04, cal.get(Calendar.SECOND));
+        assertEquals("Second incorrect", 4, cal.get(Calendar.SECOND));
         assertEquals("Removed dependency", mod.comment);
     }
 
     public void testParseEmptyHyperlinkDescription() throws Exception {
         UCM control = new UCM();
-        UCM.Hyperlink link = control.parseHyperlinkDescription(new ByteArrayInputStream(new byte[0]));
+        UCM.Hyperlink link = control.parseHyperlinkDescription(new ByteArrayInputStream(BUF_EMPTY));
 
         assertEquals("", link.getFrom());
         assertEquals("", link.getTo());
@@ -205,7 +221,7 @@ public class UCMTest extends TestCase {
         commandline.setAssertCorrectCommandline(false);
         commandline.setProcessInputStream(loadAsStream(outputResource));
         commandline.setProcessOutputStream(new ByteArrayOutputStream());
-        commandline.setProcessErrorStream(new ByteArrayInputStream(new byte[0]));
+        commandline.setProcessErrorStream(new ByteArrayInputStream(BUF_EMPTY));
         return commandline;
     }
 
@@ -231,16 +247,16 @@ public class UCMTest extends TestCase {
     private MockCommandline emptyOutput() {
         MockCommandline commandline = new MockCommandline();
         commandline.setAssertCorrectCommandline(false);
-        commandline.setProcessErrorStream(new ByteArrayInputStream(new byte[0]));
+        commandline.setProcessErrorStream(new ByteArrayInputStream(BUF_EMPTY));
         commandline.setProcessOutputStream(new ByteArrayOutputStream());
-        commandline.setProcessInputStream(new ByteArrayInputStream(new byte[0]));
+        commandline.setProcessInputStream(new ByteArrayInputStream(BUF_EMPTY));
         return commandline;
     }
 
     public UCM createControl(Collection commands) {
         final Iterator iter = commands.iterator();
 
-        UCM control = new UCM() {
+        return new UCM() {
             protected Commandline buildGetHyperlinkCommandline(String linkName) {
                 return (Commandline) iter.next();
             }
@@ -249,7 +265,5 @@ public class UCMTest extends TestCase {
                 return (Commandline) iter.next();
             }
         };
-
-        return control;
     }
 }

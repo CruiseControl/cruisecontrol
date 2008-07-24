@@ -22,8 +22,4 @@
               files="P4.java"
               lines="395,420"/>
 
-    <suppress checks="InnerAssignment"
-              files="UCM.java"
-              lines="307,436"/>
-
 </suppressions>
