@@ -8,6 +8,13 @@ Documentation
 ======================
 * Composite builder does not support Pause builder child element (CC-812). Reported by John Camerin
 
+build loop
+======================
+
+ScriptRunner
+---------------------
+* Change ScriptRunner/AntBuilder to only create antBuilderOutput.log when needed. Reported by Jared Tafralian.
+
 
 CruiseControl Release Notes - 2.7.3
 

@@ -42,31 +42,55 @@ public class ProjectControllerTest extends TestCase {
     }
 
     public void testShouldRetrieveBuildOutputWhenProjectIsBuilding() throws Exception {
-        Project project = new Project();
+        final Project project = new Project();
         project.setName("project1");
 
-        File validFile = new File("project1");
+        final File validFile = new File("project1");
         Util.doMkDirs(validFile);
-
-        AntBootstrapper bootstrapper = new AntBootstrapper();
-
-        bootstrapper.setBuildFile(validFile.getAbsolutePath());
-        bootstrapper.setTempFile("notLog.xml");
-        bootstrapper.setTarget("init");
-        bootstrapper.setAntWorkingDir(validFile.getAbsolutePath());
-        bootstrapper.validate();
         try {
-            bootstrapper.bootstrap();
-        } catch (Exception e) {
-            Thread.sleep(2 * 1000);
+            final AntBootstrapper bootstrapper = new AntBootstrapper();
+
+            bootstrapper.setBuildFile(validFile.getAbsolutePath());
+
+            final File expectedTempFile = new File(validFile, "notLog.xml");
+            bootstrapper.setTempFile(expectedTempFile.getName());
+
+            bootstrapper.setTarget("init");
+            bootstrapper.setAntWorkingDir(validFile.getAbsolutePath());
+            bootstrapper.validate();
+            try {
+                bootstrapper.bootstrap();
+            } catch (CruiseControlException e) {
+                assertEquals("ant logfile " + expectedTempFile.getAbsolutePath() + " does not exist.", e.getMessage());
+            }
+
+            final ProjectMBean mbean = new ProjectController(project);
+            String[] output = mbean.getBuildOutput(0);
+            assertNotNull(output);
+            assertEquals("AntBuilder/Bootstrapper/Publisher only create build output if useLogger, showOutput are true",
+                    0, output.length);
+
+
+            IO.delete(validFile);
+            Util.doMkDirs(validFile);
+    
+            bootstrapper.setUseLogger(true);
+            bootstrapper.setShowAntOutput(true);
+            bootstrapper.setProgressLoggerLib("dummyLib");
+            try {
+                bootstrapper.bootstrap();
+            } catch (Exception e) {
+                assertEquals("ant logfile " + expectedTempFile.getAbsolutePath()
+                    + " is empty. Your build probably failed. Check your CruiseControl logs.", e.getMessage());
+            }
+
+            output = mbean.getBuildOutput(0);
+            assertNotNull(output);
+            assertTrue("Unexpected empty build output", output.length > 0);
+
         } finally {
             IO.delete(validFile);
         }
-
-        ProjectMBean mbean = new ProjectController(project);
-        String[] output = mbean.getBuildOutput(new Integer(0));
-        assertNotNull(output);
-        assertTrue(output.length > 0);
     }
 
 
