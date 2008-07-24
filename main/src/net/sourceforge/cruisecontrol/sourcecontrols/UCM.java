@@ -78,7 +78,7 @@ public class UCM implements SourceControl {
     private boolean contributors = true;
     private boolean rebases = false;
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     private final SimpleDateFormat inputDateFormat = new SimpleDateFormat("dd-MMMM-yyyy.HH:mm:ss");
     private final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyyMMdd.HHmmss");
@@ -243,14 +243,15 @@ public class UCM implements SourceControl {
      * @return a list of XML elements that contains data about the modifications that took place. If no changes, this
      *         method returns an empty list.
      */
-    public List getModifications(Date lastBuild, Date now) {
-        String lastBuildDate = inputDateFormat.format(lastBuild);
-        String nowDate = inputDateFormat.format(now);
+    public List getModifications(final Date lastBuild, final Date now) {
+        final String lastBuildDate = inputDateFormat.format(lastBuild);
+        final String nowDate = inputDateFormat.format(now);
         properties.put("ucmlastbuild", lastBuildDate);
         properties.put("ucmnow", nowDate);
-        List mods = new ArrayList();
+
+        List<Modification> mods = new ArrayList<Modification>();
         try {
-            HashMap activityNames = collectActivitiesSinceLastBuild(lastBuildDate);
+            final HashMap<String, String> activityNames = collectActivitiesSinceLastBuild(lastBuildDate);
             if (activityNames.size() == 0) {
                 return mods;
             }
@@ -261,9 +262,9 @@ public class UCM implements SourceControl {
 
         if (this.isRebases()) {
             try {
-                Commandline commandline = buildDetectRebasesCommand(lastBuildDate);
+                final Commandline commandline = buildDetectRebasesCommand(lastBuildDate);
                 commandline.setWorkingDirectory(viewPath);
-                InputStream cmdStream = CommandlineUtil.streamOutput(commandline);
+                final InputStream cmdStream = CommandlineUtil.streamOutput(commandline);
 
                 try {
                     mods.addAll(parseRebases(cmdStream));
@@ -286,39 +287,41 @@ public class UCM implements SourceControl {
     /**
      * get all the activities on the stream since the last build date
      */
-    private HashMap collectActivitiesSinceLastBuild(String lastBuildDate) {
+    private HashMap<String, String> collectActivitiesSinceLastBuild(final String lastBuildDate) {
 
         LOG.debug("Last build time was: " + lastBuildDate);
 
-        HashMap activityMap = new HashMap();
+        final HashMap<String, String> activityMap = new HashMap<String, String>();
 
-        Commandline commandLine = buildListStreamCommand(lastBuildDate);
+        final Commandline commandLine = buildListStreamCommand(lastBuildDate);
         LOG.debug("Executing: " + commandLine);
 
         try {
             commandLine.setWorkingDirectory(viewPath);
-            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
-
+            final InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
+            final InputStreamReader isr = new InputStreamReader(cmdStream);
+            final BufferedReader br = new BufferedReader(isr);
             try {
-                InputStreamReader isr = new InputStreamReader(cmdStream);
-                BufferedReader br = new BufferedReader(isr);
-                String line;
 
-                while (((line = br.readLine()) != null) && (!line.equals(""))) {
-                    String[] details = getDetails(line);
+                String line = br.readLine();
+                while ((line != null) && (!line.equals(""))) {
+                    final String[] details = getDetails(line);
                     if (details[0].equals("mkbranch") || details[0].equals("rmbranch") || details[0].equals("rmver")) {
                         // if type is create/remove branch then skip
                     } else {
-                        String activityName = details[1];
-                        String activityDate = details[2];
+                        final String activityName = details[1];
+                        final String activityDate = details[2];
                         // assume the latest change for an activity is listed first
                         if (!activityMap.containsKey(activityName)) {
                             LOG.debug("Found activity name: " + activityName + "; date: " + activityDate);
                             activityMap.put(activityName, activityDate);
                         }
                     }
+
+                    line = br.readLine();
                 }
             } finally {
+                br.close();
                 cmdStream.close();
             }
         } catch (IOException e) {
@@ -332,7 +335,7 @@ public class UCM implements SourceControl {
 
     private String[] getDetails(String line) {
         // replacing line.split("~#~") for jdk 1.3
-        ArrayList details = new ArrayList();
+        ArrayList<String> details = new ArrayList<String>();
         String delimiter = "~#~";
         int startIndex = 0;
         int index = 0;
@@ -348,14 +351,14 @@ public class UCM implements SourceControl {
             startIndex = index + delimiter.length();
         }
 
-        return (String[]) details.toArray(new String[] {});
+        return details.toArray(new String[details.size()]);
     }
 
     /**
      * construct a command to get all the activities on the specified stream
      */
-    public Commandline buildListStreamCommand(String lastBuildDate) {
-        Commandline commandLine = new Commandline();
+    public Commandline buildListStreamCommand(final String lastBuildDate) {
+        final Commandline commandLine = new Commandline();
         if (isMultiVob()) {
             try {
                 commandLine.setWorkingDirectory(getViewPath());
@@ -383,26 +386,23 @@ public class UCM implements SourceControl {
     /**
      * get all the activities on the stream since the last build date
      */
-    private List describeAllActivities(HashMap activityNames) {
+    private List<Modification> describeAllActivities(final HashMap<String, String> activityNames) {
 
-        ArrayList activityList = new ArrayList();
+        final ArrayList<Modification> activityList = new ArrayList<Modification>();
 
-        Iterator it = activityNames.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry activity = (Map.Entry) it.next();
-            String activityID = activity.getKey().toString();
-            String activityDate = activity.getValue().toString();
-            UCMModification activityMod = describeActivity(activityID, activityDate);
+        for (Map.Entry<String, String> activity : activityNames.entrySet()) {
+            final String activityID = activity.getKey();
+            final String activityDate = activity.getValue();
+            final UCMModification activityMod = describeActivity(activityID, activityDate);
             activityList.add(activityMod);
 
             // check for contributor activities
             if (activityMod.comment.startsWith("deliver ") && isContributors()) {
-                List contribList;
-                contribList = describeContributors(activityID);
-                Iterator contribIter = contribList.iterator();
+                final List<String> contribList = describeContributors(activityID);
+                final Iterator contribIter = contribList.iterator();
                 while (contribIter.hasNext()) {
-                    String contribName = contribIter.next().toString();
-                    UCMModification contribMod = describeActivity(contribName, activityDate);
+                    final String contribName = activity.toString();
+                    final UCMModification contribMod = describeActivity(contribName, activityDate);
                     // prefix type to make it stand out in Build Results report
                     contribMod.type = "contributor";
                     LOG.debug("Found contributor name: " + contribName + "; date: " + activityDate);
@@ -417,24 +417,23 @@ public class UCM implements SourceControl {
     /**
      * get all the activities on the stream since the last build date
      */
-    private UCMModification describeActivity(String activityID, String activityDate) {
+    private UCMModification describeActivity(final String activityID, final String activityDate) {
 
-        UCMModification mod = new UCMModification();
+        final UCMModification mod = new UCMModification();
 
-        Commandline commandLine = buildDescribeActivityCommand(activityID);
+        final Commandline commandLine = buildDescribeActivityCommand(activityID);
         LOG.debug("Executing: " + commandLine);
 
         try {
             commandLine.setWorkingDirectory(viewPath);
-            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
-
+            final InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
+            final InputStreamReader isr = new InputStreamReader(cmdStream);
+            final BufferedReader br = new BufferedReader(isr);
             try {
-                InputStreamReader isr = new InputStreamReader(cmdStream);
-                BufferedReader br = new BufferedReader(isr);
-                String line;
 
-                while (((line = br.readLine()) != null) && (!line.equals(""))) {
-                    String[] details = getDetails(line);
+                String line = br.readLine();
+                while ((line != null) && (!line.equals(""))) {
+                    final String[] details = getDetails(line);
                     try {
                         mod.modifiedTime = outputDateFormat.parse(activityDate);
                     } catch (ParseException e) {
@@ -451,8 +450,11 @@ public class UCM implements SourceControl {
                     mod.crmtype = details[1];
                     mod.userName = details[2];
                     mod.comment = details[3];
+
+                    line = br.readLine();
                 }
             } finally {
+                br.close();
                 cmdStream.close();
             }
         } catch (IOException e) {
@@ -467,8 +469,8 @@ public class UCM implements SourceControl {
     /**
      * construct a command to get all the activities on the specified stream
      */
-    public Commandline buildDescribeActivityCommand(String activityID) {
-        Commandline commandLine = new Commandline();
+    public Commandline buildDescribeActivityCommand(final String activityID) {
+        final Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
         commandLine.createArgument("describe");
         commandLine.createArguments("-fmt", "%[crm_record_id]p~#~%[crm_record_type]p~#~%u~#~%[headline]p~#~");
@@ -479,28 +481,26 @@ public class UCM implements SourceControl {
     /**
      * get all the activities on the stream since the last build date
      */
-    private List describeContributors(String activityName) {
+    private List<String> describeContributors(final String activityName) {
 
-        ArrayList contribList = new ArrayList();
-        Commandline commandLine = buildListContributorsCommand(activityName);
+        final ArrayList<String> contribList = new ArrayList<String>();
+        final Commandline commandLine = buildListContributorsCommand(activityName);
         LOG.debug("Executing: " + commandLine);
 
         try {
             commandLine.setWorkingDirectory(viewPath);
-            InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
-
+            final InputStream cmdStream = CommandlineUtil.streamOutput(commandLine);
+            final InputStreamReader isr = new InputStreamReader(cmdStream);
+            final BufferedReader br = new BufferedReader(isr);
             try {
-                InputStreamReader isr = new InputStreamReader(cmdStream);
-                BufferedReader br = new BufferedReader(isr);
                 String line;
 
                 while ((line = br.readLine()) != null) {
-                    String[] contribs = splitOnSpace(line);
-                    for (int i = 0; i < contribs.length; i++) {
-                        contribList.add(contribs[i]);
-                    }
+                    final String[] contribs = splitOnSpace(line);
+                    contribList.addAll(Arrays.asList(contribs));
                 }
             } finally {
+                br.close();
                 cmdStream.close();
             }
         } catch (IOException e) {
@@ -512,31 +512,31 @@ public class UCM implements SourceControl {
         return contribList;
     }
 
-    private String[] splitOnSpace(String string) {
+    private String[] splitOnSpace(final String string) {
         return string.split(" ");
     }
 
     /**
      * construct a command to get all the activities on the specified stream
      */
-    public Commandline buildListContributorsCommand(String activityID) {
-        Commandline commandLine = new Commandline();
+    public Commandline buildListContributorsCommand(final String activityID) {
+        final Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
         commandLine.createArgument("describe");
-        commandLine.createArguments("-fmt", "\"%[contrib_acts]Xp\"");
+        commandLine.createArguments("-fmt", "%[contrib_acts]Xp");
         commandLine.createArgument(activityID);
         return commandLine;
     }
 
-    protected Commandline buildDetectRebasesCommand(String lastBuildDate) {
-        Commandline commandLine = new Commandline();
+    protected Commandline buildDetectRebasesCommand(final String lastBuildDate) {
+        final Commandline commandLine = new Commandline();
         commandLine.setExecutable("cleartool");
         commandLine.createArgument().setValue("lshistory");
         commandLine.createArgument().setValue("-since");
         commandLine.createArgument().setValue(lastBuildDate);
         commandLine.createArgument().setValue("-minor");
         commandLine.createArgument().setValue("-fmt");
-        String format = "%u" + DELIMITER + "%Nd" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER
+        final String format = "%u" + DELIMITER + "%Nd" + DELIMITER + "%o" + DELIMITER + "%Nc" + END_OF_STRING_DELIMITER
                 + "\\n";
         commandLine.createArgument().setValue(format);
         commandLine.createArgument().setValue("stream:" + stream + "@" + pvob);
@@ -554,31 +554,34 @@ public class UCM implements SourceControl {
      * @return a list of modification elements
      * @exception IOException
      */
-    List parseRebases(InputStream input) throws IOException {
-        ArrayList modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        String ls = System.getProperty("line.separator");
+    List<Modification> parseRebases(final InputStream input) throws IOException {
+        final ArrayList<Modification> modifications = new ArrayList<Modification>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        try {
+            final String ls = System.getProperty("line.separator");
 
-        String line;
-        StringBuffer lines = new StringBuffer();
+            String line;
+            StringBuffer lines = new StringBuffer();
 
-        while ((line = reader.readLine()) != null) {
-            if (lines.length() != 0) {
-                lines.append(ls);
+            while ((line = reader.readLine()) != null) {
+                if (lines.length() != 0) {
+                    lines.append(ls);
+                }
+                lines.append(line);
+                Modification mod = null;
+
+                if (lines.indexOf(END_OF_STRING_DELIMITER) > -1) {
+                    mod = parseRebaseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
+                    lines = new StringBuffer();
+                }
+
+                if (mod != null) {
+                    modifications.add(mod);
+                }
             }
-            lines.append(line);
-            Modification mod = null;
-
-            if (lines.indexOf(END_OF_STRING_DELIMITER) > -1) {
-                mod = parseRebaseEntry(lines.substring(0, lines.indexOf(END_OF_STRING_DELIMITER)));
-                lines = new StringBuffer();
-            }
-
-            if (mod != null) {
-                modifications.add(mod);
-            }
+        } finally {
+            reader.close();
         }
-
         return modifications;
     }
 
@@ -594,7 +597,7 @@ public class UCM implements SourceControl {
      *            the line to parse
      * @return a modification element corresponding to the given line
      */
-    Modification parseRebaseEntry(String line) {
+    Modification parseRebaseEntry(final String line) {
         LOG.debug("parsing entry: " + line);
         String[] tokens = tokenizeEntry(line);
         if (tokens == null) {
@@ -688,49 +691,53 @@ public class UCM implements SourceControl {
         return commandline;
     }
 
-    Hyperlink parseHyperlinkDescription(InputStream input) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+    Hyperlink parseHyperlinkDescription(final InputStream input) throws IOException {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        try {
+            String lastLine = "";
+            String line = reader.readLine();
 
-        String lastLine = "";
-        String line = reader.readLine();
+            // If the hyperlink wasn't found, cleartool will return no output, giving
+            // us an empty stream. This will end up returning an empty string.
+            while (line != null) {
+                lastLine = line;
+                line = reader.readLine();
+            }
 
-        // If the hyperlink wasn't found, cleartool will return no output, giving
-        // us an empty stream. This will end up returning an empty string.
-        while (line != null) {
-            lastLine = line;
-            line = reader.readLine();
-        }
+            final Hyperlink link = new Hyperlink();
+            final StringTokenizer tokens = new StringTokenizer(lastLine, " ");
 
-        Hyperlink link = new Hyperlink();
-        StringTokenizer tokens = new StringTokenizer(lastLine, " ");
+            if (!tokens.hasMoreTokens()) {
+                return link;
+            }
 
-        if (!tokens.hasMoreTokens()) {
+            // Discard the first one, that's the link name
+            tokens.nextToken();
+
+            if (!tokens.hasMoreTokens()) {
+                return link;
+            }
+
+            link.setFrom(tokens.nextToken());
+
+            // Discard "->"
+            if (!tokens.hasMoreTokens()) {
+                return link;
+            }
+
+            tokens.nextToken();
+
+            if (!tokens.hasMoreTokens()) {
+                return link;
+            }
+
+            link.setTo(tokens.nextToken());
+
             return link;
+
+        } finally {
+            reader.close();
         }
-
-        // Discard the first one, that's the link name
-        tokens.nextToken();
-
-        if (!tokens.hasMoreTokens()) {
-            return link;
-        }
-
-        link.setFrom(tokens.nextToken());
-
-        // Discard "->"
-        if (!tokens.hasMoreTokens()) {
-            return link;
-        }
-
-        tokens.nextToken();
-
-        if (!tokens.hasMoreTokens()) {
-            return link;
-        }
-
-        link.setTo(tokens.nextToken());
-
-        return link;
     }
 
     String parseLinkName(String comment) {
