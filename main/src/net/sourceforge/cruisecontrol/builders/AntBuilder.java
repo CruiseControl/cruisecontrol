@@ -49,9 +49,11 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
@@ -191,7 +193,17 @@ public class AntBuilder extends Builder {
 
         final File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
-        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
+        // only create "antBuilderOutput.log" file if needed.
+        final BuildOutputLogger buildOutputConsumer;
+        if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
+            final File antBuilderOutput = new File(workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
+            buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(antBuilderOutput);
+            buildOutputConsumer.clear();
+        } else {
+            buildOutputConsumer = null;
+        }
+
+        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout, buildOutputConsumer);
 
         final File logFile = new File(antWorkingDir, tempFileName);
         final Element buildLogElement;

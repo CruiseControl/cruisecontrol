@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -46,8 +45,7 @@ import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
-import net.sourceforge.cruisecontrol.builders.AntBuilder;
-import net.sourceforge.cruisecontrol.builders.Property;
+import net.sourceforge.cruisecontrol.builders.AbstractAntBuilderDelegate;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
@@ -59,35 +57,25 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
  *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
  */
-public class AntPublisher implements Publisher {
+public class AntPublisher extends AbstractAntBuilderDelegate implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(AntPublisher.class);
 
-    private final AntBuilder delegate = new AntBuilder();
-
     /**
-     * Constructor overrides default AntBuilder.showAntOutput value in delegate.
-     * Required if showAntOutput defaults to true.
-     */
-    public AntPublisher() {
-        delegate.setShowAntOutput(false);
-    }
-
-    /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
-    public void publish(Element log) throws CruiseControlException {
+    public void publish(final Element log) throws CruiseControlException {
 
-        Map properties = new HashMap();
+        final Map properties = new HashMap();
 
         populatePropertesForAntBuilder(log, properties);
 
         // Run Ant
-        Element result = delegate.build(properties, null);
+        final Element result = getDelegate().build(properties, null);
         if (result == null) {
             LOG.error("Publisher failed.\n\n");
         } else {
-            Attribute error = result.getAttribute("error");
+            final Attribute error = result.getAttribute("error");
             if (error == null) {
                 LOG.info("Publisher successful.");
             } else {
@@ -98,147 +86,17 @@ public class AntPublisher implements Publisher {
         }
     }
 
-    public void validate() throws CruiseControlException {
-        delegate.validate();
-    }
 
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setSaveLogDir(String)
-     */
-    public void setSaveLogDir(String dir) {
-        delegate.setSaveLogDir(dir);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntWorkingDir(String)
-     */
-    public void setAntWorkingDir(String dir) {
-        delegate.setAntWorkingDir(dir);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntScript(String)
-     */
-    public void setAntScript(String antScript) {
-        delegate.setAntScript(antScript);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setAntHome(String)
-     */
-    public void setAntHome(String antHome) {
-        delegate.setAntHome(antHome);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTempFile(String)
-     */
-    public void setTempFile(String tempFileName) {
-        delegate.setTempFile(tempFileName);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTarget(String)
-     */
-    public void setTarget(String target) {
-        delegate.setTarget(target);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setBuildFile(String)
-     */
-    public void setBuildFile(String buildFile) {
-        delegate.setBuildFile(buildFile);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setPropertyfile(String)
-     */
-    public void setPropertyfile(String propertyfile) {
-        delegate.setPropertyfile(propertyfile);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseLogger(boolean)
-     */
-    public void setUseLogger(boolean useLogger) {
-        delegate.setUseLogger(useLogger);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createJVMArg()
-     */
-    public Object createJVMArg() {
-        return delegate.createJVMArg();
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLib()
-     */
-    public Object createLib() {
-        return delegate.createLib();
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createListener()
-     */
-    public Object createListener() {
-        return delegate.createListener();
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createProperty()
-     */
-    public Property createProperty() {
-        return delegate.createProperty();
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseDebug(boolean)
-     */
-    public void setUseDebug(boolean debug) {
-        delegate.setUseDebug(debug);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setUseQuiet(boolean)
-     */
-    public void setUseQuiet(boolean quiet) {
-        delegate.setUseQuiet(quiet);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#getLoggerClassName()
-     */
-    public String getLoggerClassName() {
-        return delegate.getLoggerClassName();
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setLoggerClassName(String)
-     */
-    public void setLoggerClassName(String string) {
-        delegate.setLoggerClassName(string);
-    }
-
-    /**
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setTimeout(long)
-     */
-    public void setTimeout(long timeout) {
-        delegate.setTimeout(timeout);
-    }
-
-    void populatePropertesForAntBuilder(Element log, Map properties) {
-        XMLLogHelper helper = new XMLLogHelper(log);
+    void populatePropertesForAntBuilder(final Element log, final Map properties) {
+        final XMLLogHelper helper = new XMLLogHelper(log);
         if (helper.isBuildSuccessful()) {
             properties.put("thisbuildsuccessful", "true");
         } else {
             properties.put("thisbuildsuccessful", "false");
         }
 
-        Iterator propertyIterator = log.getChild("info").getChildren("property").iterator();
-        while (propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
+        for (final Object o : log.getChild("info").getChildren("property")) {
+            final Element property = (Element) o;
             properties.put(property.getAttributeValue("name"),
                     property.getAttributeValue("value"));
         }

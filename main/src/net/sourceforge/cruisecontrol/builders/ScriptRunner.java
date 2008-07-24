@@ -40,7 +40,6 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.File;
 import java.io.IOException;
 
-import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
@@ -92,19 +91,38 @@ public class ScriptRunner  {
      *
      * @param workingDir  The directory to run the script from.
      * @param script  The details on the script to be run.
+     * @param timeout Time in seconds after which the script should be killed.
+     * @return true if the script was killed due to timeout expiring
+     * @throws CruiseControlException if it breaks
      */
     public boolean runScript(File workingDir, Script script, long timeout) throws CruiseControlException {
-        Commandline commandline = script.buildCommandline();
+        return runScript(workingDir, script, timeout, null);
+    }
+
+    /**
+     * build and return the results via xml. debug status can be determined from
+     * log4j category once we get all the logging in place.
+     *
+     * @param workingDir  The directory to run the script from.
+     * @param script  The details on the script to be run.
+     * @param timeout Time in seconds after which the script should be killed.
+     * @param buildOutputConsumer  Optional script output consumer.
+     * @return true if the script was killed due to timeout expiring
+     * @throws CruiseControlException if it breaks
+     */
+    public boolean runScript(final File workingDir, final Script script, long timeout,
+                             final BuildOutputLogger buildOutputConsumer)
+            throws CruiseControlException {
+
+        final Commandline commandline = script.buildCommandline();
 
         commandline.setWorkingDir(workingDir);
 
-        File antBuilderOutput = new File(workingDir, "antBuilderOutput.log");
-        BuildOutputLogger buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(antBuilderOutput);
-        buildOutputConsumer.clear();
+        if (buildOutputConsumer != null) {
+            buildOutputConsumer.clear();
+        }
 
-        Process p;
-        int exitCode = -1;
-
+        final Process p;
         try {
             p = commandline.execute();
         } catch (IOException e) {
@@ -112,28 +130,33 @@ public class ScriptRunner  {
                     + script.toString() + "'. CruiseControl cannot continue.", e);
         }
 
-        CompositeConsumer consumerForError = new CompositeConsumer(StreamLogger.getWarnLogger(LOG));
-        CompositeConsumer consumerForOut = new CompositeConsumer(StreamLogger.getInfoLogger(LOG));
-        //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
-        consumerForError.add(buildOutputConsumer);
-        consumerForOut.add(buildOutputConsumer);
+        final CompositeConsumer consumerForError = new CompositeConsumer(StreamLogger.getWarnLogger(LOG));
+        final CompositeConsumer consumerForOut = new CompositeConsumer(StreamLogger.getInfoLogger(LOG));
+
+        if (buildOutputConsumer != null) {
+            //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
+            consumerForError.add(buildOutputConsumer);
+            consumerForOut.add(buildOutputConsumer);
+        }
+
         if (script instanceof StreamConsumer) {
             consumerForError.add((StreamConsumer) script);
             consumerForOut.add((StreamConsumer) script);
         }
 
-        StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), consumerForError);
-        StreamPumper outPumper = new StreamPumper(p.getInputStream(), consumerForOut);
+        final StreamPumper errorPumper = new StreamPumper(p.getErrorStream(), consumerForError);
+        final StreamPumper outPumper = new StreamPumper(p.getInputStream(), consumerForOut);
 
-        Thread stderr = new Thread(errorPumper);
+        final Thread stderr = new Thread(errorPumper);
         stderr.start();
-        Thread stdout = new Thread(outPumper);
+        final Thread stdout = new Thread(outPumper);
         stdout.start();
-        AsyncKiller killer = new AsyncKiller(p, timeout);
+        final AsyncKiller killer = new AsyncKiller(p, timeout);
         if (timeout > 0) {
             killer.start();
         }
 
+        int exitCode = -1;
         try {
             exitCode = p.waitFor();
             killer.interrupt();
@@ -149,7 +172,6 @@ public class ScriptRunner  {
         script.setExitCode(exitCode);
 
         return !killer.processKilled();
-
     }
 }
 
