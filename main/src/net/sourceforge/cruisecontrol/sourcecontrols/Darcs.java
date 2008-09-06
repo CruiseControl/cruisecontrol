@@ -80,38 +80,38 @@ public class Darcs implements SourceControl {
     private static final Logger LOGGER = Logger.getLogger(Darcs.class);
     private static final DateFormat DARCS_DATE_FORMAT_IN = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private String mWorkingDir;
-    private String mRepositoryLocation;
-    private SourceControlProperties mProperties = new SourceControlProperties();
+    private String workingDir;
+    private String repositoryLocation;
+    private SourceControlProperties properties = new SourceControlProperties();
 
     public void setProperty(String property) {
-        mProperties.assignPropertyName(property);
+        properties.assignPropertyName(property);
     }
 
     public void setPropertyOnDelete(String propertyOnDelete) {
-        mProperties.assignPropertyOnDeleteName(propertyOnDelete);
+        properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
     public void setRepositoryLocation(String repositoryLocation) {
-        mRepositoryLocation = repositoryLocation;
+        this.repositoryLocation = repositoryLocation;
     }
 
     public void setWorkingDir(String workingDir) {
-        mWorkingDir = workingDir;
+        this.workingDir = workingDir;
     }
 
     public Map getProperties() {
-        return mProperties.getPropertiesAndReset();
+        return properties.getPropertiesAndReset();
     }
 
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertTrue(mRepositoryLocation != null || mWorkingDir != null,
+        ValidationHelper.assertTrue(repositoryLocation != null || workingDir != null,
                 "At least 'repositoryLocation'or 'workingDir' is a required attribute on the Darcs task ");
 
-        if (mWorkingDir != null) {
-            File workingDir = new File(mWorkingDir);
-            ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
-                    "'workingDir' must be an existing directory. Was " + workingDir.getAbsolutePath());
+        if (workingDir != null) {
+            File workingDirFile = new File(workingDir);
+            ValidationHelper.assertTrue(workingDirFile.exists() && workingDirFile.isDirectory(),
+                    "'workingDir' must be an existing directory. Was " + workingDirFile.getAbsolutePath());
         }
     }
 
@@ -132,8 +132,8 @@ public class Darcs implements SourceControl {
         Commandline command = new Commandline();
         command.setExecutable("darcs");
 
-        if (mWorkingDir != null) {
-            command.setWorkingDirectory(mWorkingDir);
+        if (workingDir != null) {
+            command.setWorkingDirectory(workingDir);
         }
 
         command.createArgument("changes");
@@ -176,7 +176,7 @@ public class Darcs implements SourceControl {
 
     void fillPropertiesIfNeeded(List modifications) {
         if (!modifications.isEmpty()) {
-            mProperties.modificationFound();
+            properties.modificationFound();
         }
     }
 
