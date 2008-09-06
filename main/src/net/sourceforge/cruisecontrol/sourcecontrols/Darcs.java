@@ -66,29 +66,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p/>
  * Source Control implementation for Darcs. Provides a means of executing the darcs changes command and parsing the xml
  * output to determine if there have been any changes. The modifications are parsed and used for cruisecontrol build
  * reports which allow the patch names associated with a build to be displayed. Currently the darcs xml-output does not
  * display which files have changed.
- * </p>
- * <p/>
+ * 
  * Large parts of this implementation were based on the {@link net.sourceforge.cruisecontrol.sourcecontrols.SVN} source
  * control implementation.
- * </p>
  */
 public class Darcs implements SourceControl {
 
     private static final long serialVersionUID = 7976081409836256093L;
-
     private static final Logger LOGGER = Logger.getLogger(Darcs.class);
-
-    private static final DateFormat DARCS_DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final DateFormat DARCS_DATE_FORMAT_IN = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String mWorkingDir;
-
     private String mRepositoryLocation;
-
     private SourceControlProperties mProperties = new SourceControlProperties();
 
     public void setProperty(String property) {
@@ -146,16 +139,17 @@ public class Darcs implements SourceControl {
         command.createArgument("changes");
         command.createArgument("--xml-output");
         command.createArgument("--match");
-        command.createArgument("'date \"" + DARCS_DATE_FORMAT.format(lastBuild) + "/"
-                + DARCS_DATE_FORMAT.format(checkTime) + "\"'");
+        command.createArgument("--matches");
+        command.createArgument("date \"" + DARCS_DATE_FORMAT_IN.format(lastBuild) + "/"
+                + DARCS_DATE_FORMAT_IN.format(checkTime) + "\"");
 
         LOGGER.debug("Executing command: " + command);
 
         return command;
     }
 
-    private List execChangesCommand(Commandline command) throws InterruptedException, IOException,
-            ParseException, JDOMException {
+    private List execChangesCommand(Commandline command) throws InterruptedException, IOException, ParseException,
+            JDOMException {
 
         Process p = command.execute();
 
@@ -187,7 +181,10 @@ public class Darcs implements SourceControl {
     }
 
     static final class DarcsXmlParser {
-        private DarcsXmlParser() { /* helper class, no instances */ }
+        private static final DateFormat DARCS_DATE_FORMAT_OUT = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        private DarcsXmlParser() { /* helper class, no instances */
+        }
 
         static List parse(Reader reader) throws ParseException, JDOMException, IOException {
 
@@ -211,7 +208,7 @@ public class Darcs implements SourceControl {
 
         private static Modification parsePatch(Element patch) throws ParseException {
             Modification modification = new Modification("darcs");
-            modification.modifiedTime = DARCS_DATE_FORMAT.parse(patch.getAttributeValue("date"));
+            modification.modifiedTime = DARCS_DATE_FORMAT_OUT.parse(patch.getAttributeValue("date"));
             String email = patch.getAttributeValue("author");
             modification.userName = parseUser(email);
             modification.emailAddress = email;
