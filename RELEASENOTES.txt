@@ -11,6 +11,10 @@ Documentation
 build loop
 ======================
 
+Darcs
+---------------------
+* Fix Darcs support (CC-847). Patch by Marc Fontaine.
+
 ScriptRunner
 ---------------------
 * Change ScriptRunner/AntBuilder to only create antBuilderOutput.log when needed. Reported by Jared Tafralian.
