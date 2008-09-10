@@ -116,9 +116,12 @@ public class AdminControllerTest extends MockObjectTestCase {
         ModelAndView mov = controller.handleRequest(request, response);
         assertEquals("1.5", mov.getModel().get("jvm_version"));
         assertEquals("Linux", mov.getModel().get("os_info"));
-        assertEquals(logsRoot.getAbsolutePath(), mov.getModel().get("logs_root"));
-        assertEquals(artifactsRoot.getAbsolutePath(), mov.getModel().get("artifacts_root"));
         assertEquals("Yes", mov.getModel().get("forcebuild_enabled"));
+
+        // lower case the next two comparison because of cygwin
+        // otherwise you get inconsistent casing of the drive letters.
+        assertEquals(logsRoot.getAbsolutePath().toLowerCase(), mov.getModel().get("logs_root").toString().toLowerCase());
+        assertEquals(artifactsRoot.getAbsolutePath().toLowerCase(), mov.getModel().get("artifacts_root").toString().toLowerCase());
     }
     
     public void testShouldShowErrorMessageWhenConfigFileIsNotSpecified() throws Exception {
