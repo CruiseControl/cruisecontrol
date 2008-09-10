@@ -25,7 +25,6 @@
 	<classpathentry kind="lib" path="lib/buildtime/jmock-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/buildtime/jmock-cglib-1.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/buildtime/js-1.6R5.jar"/>
-	<classpathentry kind="lib" path="lib/buildtime/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/buildtime/junit-addons-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/buildtime/jwebunit-core-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/buildtime/jwebunit-htmlunit-plugin-1.4.jar"/>
@@ -70,5 +69,6 @@
 	<classpathentry kind="lib" path="lib/aspectjweaver.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cc-main"/>
+	<classpathentry kind="lib" path="lib/buildtime/junit-4.4.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
