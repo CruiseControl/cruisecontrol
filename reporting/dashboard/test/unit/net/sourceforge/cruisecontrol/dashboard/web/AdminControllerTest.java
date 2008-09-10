@@ -120,8 +120,10 @@ public class AdminControllerTest extends MockObjectTestCase {
 
         // lower case the next two comparison because of cygwin
         // otherwise you get inconsistent casing of the drive letters.
-        assertEquals(logsRoot.getAbsolutePath().toLowerCase(), mov.getModel().get("logs_root").toString().toLowerCase());
-        assertEquals(artifactsRoot.getAbsolutePath().toLowerCase(), mov.getModel().get("artifacts_root").toString().toLowerCase());
+        assertEquals(logsRoot.getAbsolutePath().toLowerCase(),
+                mov.getModel().get("logs_root").toString().toLowerCase());
+        assertEquals(artifactsRoot.getAbsolutePath().toLowerCase(),
+                mov.getModel().get("artifacts_root").toString().toLowerCase());
     }
     
     public void testShouldShowErrorMessageWhenConfigFileIsNotSpecified() throws Exception {
