@@ -541,7 +541,7 @@
 	<target name="--run.jwebunit.tests" depends="--prepare.functional.tests, -start.jwebunit.functional.testing.server, -prepare.functional.test.property, -jwebunit-tests, -stop.jwebunit.functional.testing.server, -check.jwebunit.testing.result" />
 
 	<target name="--start-jetty-server" depends="--package.development, -start.jetty.server.with.sys" />
-	<target name="--run.all.tests" depends="--check.license, checkstyle, --run.unit.tests, --run.smoke.tests, --run.jwebunit.tests" />
+	<target name="--run.all.tests" depends="--check.license, checkstyle, --run.unit.tests, smoke, --run.jwebunit.tests" />
 	<target name="--package.production" depends="clean, --compile, --war.production" />
 	<target name="--package.development" depends="clean, --compile, -compile-tests, --war.development" />
 	<target name="--prepare.smoke.tests" depends="--compile, -compile-tests, --war.smoke" />
