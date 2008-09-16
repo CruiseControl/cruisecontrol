@@ -36,7 +36,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 -->
-<project name="cruise-dashboard" default="all.test.local">
+<project name="cruise-dashboard" default="dist">
 	
 	<!-- define cc.version -->
 	<property file="../../build.properties" />
