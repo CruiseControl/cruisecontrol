@@ -113,16 +113,6 @@
 	<taskdef resource="emma_ant.properties" classpathref="emma.lib.dir" />
 	<taskdef resource="svntask.properties" classpathref="svn.lib.dir" />
 
-	<target name="-clean">
-		<delete dir="${emma.dir}/classes" quiet="true" />
-		<delete dir="${build.dir}" quiet="true" />
-		<delete dir="${app.classes.dir}" quiet="true" />
-		<delete dir="${jsunit.dir}/ccjs" quiet="true" />
-		<delete dir="${jsunit.dir}/logs" quiet="true" />
-		<delete dir="${war.src.dir}/compressed" quiet="true" />
-		<delete dir="dist" quiet="true" />
-	</target>
-
 	<target name="-check-jdk">
 		<condition property="not.jdk1.5">
 			<not>
@@ -373,14 +363,6 @@
 		</copy>
 	</target>
 
-	<target name="-checkstyle-main">
-		<checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}" testdir="${unittest.dir}">
-
-			<taskdef classpathref="lib.classpath" resource="checkstyletask.properties" />
-
-		</checkstyle-macro>
-	</target>
-
 	<target name="dashboard.jar">
 		<mkdir dir="${dist.dir}" />
 		<jar destfile="${dist.dir}/dashboard.jar">
@@ -551,25 +533,19 @@
 	<target name="--jsunit" depends="--compress, -not.run.jsunit, -jsunit" />
 	<target name="--run.unit.tests" depends="--compile, -compile-tests, -properties.unit, -unit-tests" />
 
-	<target name="--compile" depends="-clean, --compress, -copy.resources.web, -compile" />
+	<target name="--compile" depends="clean, --compress, -copy.resources.web, -compile" />
 	<target name="--war.production" depends="-properties.production, -check.dotsvn.dir, -generate.svn.revsion, -write.version.info, -war.production" />
 	<target name="--war.development" depends="-properties.jwebunit, -war.development" />
 	<target name="--war.smoke" depends="-properties.smoke, -war.smoke" />
 
 	<target name="--run.jwebunit.tests" depends="--prepare.functional.tests, -start.jwebunit.functional.testing.server, -prepare.functional.test.property, -jwebunit-tests, -stop.jwebunit.functional.testing.server, -check.jwebunit.testing.result" />
-	<target name="--run.smoke.tests" depends="--prepare.smoke.tests,      -start.smoke.testing.server, -prepare.functional.test.property, -smoke.tests,-stop.smoke.testing.server, -check.smoke.testing.result" />
-	<target name="--run.selenium.tests" depends="--prepare.functional.tests, -start.selenium.server, -start.selenium.functional.testing.server, -prepare.functional.test.property, -selenium.tests, -stop.selenium.server, -stop.selenium.functional.testing.server, -check.selenium.testing.result" />
 
-	<target name="--stat" depends="-emma.clean, --compile, -compile-tests,-properties.unit, -emma.instr, -unit-tests, -emma.reporting, -emma.check" />
 	<target name="--start-jetty-server" depends="--package.development, -start.jetty.server.with.sys" />
-	<target name="--run.all.tests" depends="--check.license, -checkstyle-main, --run.unit.tests, --run.smoke.tests, --run.jwebunit.tests" />
-	<target name="--package.production" depends="-clean, --compile, --war.production" />
-	<target name="--package.development" depends="-clean, --compile, -compile-tests, --war.development" />
+	<target name="--run.all.tests" depends="--check.license, checkstyle, --run.unit.tests, --run.smoke.tests, --run.jwebunit.tests" />
+	<target name="--package.production" depends="clean, --compile, --war.production" />
+	<target name="--package.development" depends="clean, --compile, -compile-tests, --war.development" />
 	<target name="--prepare.smoke.tests" depends="--compile, -compile-tests, --war.smoke" />
 	<target name="--prepare.functional.tests" depends="--compile, -compile-tests, --war.development" />
-	<target name="--dist" depends="-check.dotsvn.dir, -generate.svn.revsion, --run.all.tests, --war.production" />
-	<target name="--product" depends="--compile, --war.production" description="build and package war without testing" />
-	<target name="--compress" depends="-contact.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
 
 	<target name="package.development" depends="--package.development" description="package for development" />
 	<target name="package.production" depends="--package.production" description="package application for production" />
@@ -577,15 +553,31 @@
 	<target name="ft" depends="--run.jwebunit.tests" description="run all functional tests" />
 	<target name="start.server" depends="--start-jetty-server" description="start jetty server" />
 	<target name="all.test" depends="--run.all.tests" description="run unit tests and functional tests" />
-	<target name="all.test.local" depends="--run.all.tests, js.unit, --run.selenium.tests, -war.production" description="run unit tests and functional tests" />
-	<target name="clean" depends="-clean" description="clean all" />
-	<target name="stat" depends="--stat" description="generating the test coverage of source code" />
-	<target name="checkstyle" depends="-checkstyle-main" description="checkstyle" />
+	<target name="all.test.local" depends="--run.all.tests, js.unit, selenium, -war.production" description="run unit tests and functional tests" />
+
+	<target name="clean" description="clean all">
+		<delete dir="${emma.dir}/classes" quiet="true" />
+		<delete dir="${build.dir}" quiet="true" />
+		<delete dir="${app.classes.dir}" quiet="true" />
+		<delete dir="${jsunit.dir}/ccjs" quiet="true" />
+		<delete dir="${jsunit.dir}/logs" quiet="true" />
+		<delete dir="${war.src.dir}/compressed" quiet="true" />
+		<delete dir="dist" quiet="true" />
+	</target>
+
+	<target name="stat" depends="-emma.clean, --compile, -compile-tests,-properties.unit, -emma.instr, -unit-tests, -emma.reporting, -emma.check" description="generating the test coverage of source code" />
+	<target name="checkstyle" description="checkstyle">
+		<checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}" testdir="${unittest.dir}">
+
+			<taskdef classpathref="lib.classpath" resource="checkstyletask.properties" />
+
+		</checkstyle-macro>
+	</target>
 	<target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, -check-browser-path, -report-failed-to-find-browser, --jsunit" description="run jsunit test" />
-	<target name="selenium" depends="--run.selenium.tests" description="run selenium test" />
-	<target name="smoke" depends="--run.smoke.tests" description="run selenium test" />
-	<target name="dist" depends="--dist" description="build and package war" />
-	<target name="product" depends="--product" description="build and package war without testing" />
-	<target name="compress" depends="--compress" description="compress the javascripts and css files" />
+	<target name="selenium" depends="--prepare.functional.tests, -start.selenium.server, -start.selenium.functional.testing.server, -prepare.functional.test.property, -selenium.tests, -stop.selenium.server, -stop.selenium.functional.testing.server, -check.selenium.testing.result" description="run selenium test" />
+	<target name="smoke" depends="--prepare.smoke.tests, -start.smoke.testing.server, -prepare.functional.test.property, -smoke.tests,-stop.smoke.testing.server, -check.smoke.testing.result" description="run selenium test" />
+	<target name="dist" depends="-check.dotsvn.dir, -generate.svn.revsion, --run.all.tests, --war.production" description="build and package war" />
+	<target name="product" depends="--compile, --war.production" description="build and package war without testing" />
+	<target name="compress" depends="-contact.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
 </project>
 
