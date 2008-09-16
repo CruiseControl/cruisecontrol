@@ -530,10 +530,10 @@
 		</concat>
 	</target>
 
-	<target name="--jsunit" depends="--compress, -not.run.jsunit, -jsunit" />
+	<target name="--jsunit" depends="compress, -not.run.jsunit, -jsunit" />
 	<target name="--run.unit.tests" depends="--compile, -compile-tests, -properties.unit, -unit-tests" />
 
-	<target name="--compile" depends="clean, --compress, -copy.resources.web, -compile" />
+	<target name="--compile" depends="clean, compress, -copy.resources.web, -compile" />
 	<target name="--war.production" depends="-properties.production, -check.dotsvn.dir, -generate.svn.revsion, -write.version.info, -war.production" />
 	<target name="--war.development" depends="-properties.jwebunit, -war.development" />
 	<target name="--war.smoke" depends="-properties.smoke, -war.smoke" />
