@@ -1,0 +1,3 @@
+<project name="AllFusionHarvest" default="dist">
+  <import file="../common.xml"/>
+</project>

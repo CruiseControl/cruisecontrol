@@ -1,0 +1,99 @@
+<project name="common">
+
+  <dirname property="common.dir" file="${ant.file.common}"/>
+  <property file="local.properties"/>
+  <property file="${common.dir}/local.properties"/>
+  <property file="build.properties"/>
+  <property file="${common.dir}/build.properties"/>
+
+  <property name="cruisecontrol.jar.path" value="${common.dir}/../../main/dist/cruisecontrol.jar"/>
+  <available property="cruisecontrol.jar.exists" file="${cruisecontrol.jar.path}"/>
+  <fail unless="cruisecontrol.jar.exists" message="cruisecontrol.jar doesn't exist at ${cruisecontrol.jar.path}"/>
+  <path id="cruisecontrol.jar" path="${cruisecontrol.jar.path}"/>
+
+  <property name="cruisecontrol.lib.path" value="${common.dir}/../../main/lib/"/>
+  <path id="cc.jars">
+    <fileset dir="${cruisecontrol.lib.path}">
+      <include name="*.jar"/>
+      <include name="*.zip"/>
+    </fileset>
+  </path>
+  <condition property="cc.jars.not.found">
+    <resourcecount refid="cc.jars" count="0"/>
+  </condition>
+  <fail message="didn't find the cruisecontrol jars at ${cruisecontrol.lib.path}" if="cc.jars.not.found" unless="i.dont.need.cc.jars"/>
+
+  <path id="my.jars">
+    <fileset dir="lib">
+      <include name="*.jar"/>
+      <include name="*.zip"/>
+    </fileset>
+  </path>
+  <condition property="my.jars.not.found">
+    <resourcecount refid="my.jars" count="0"/>
+  </condition>
+  <fail message="no jars found in lib directory" if="my.jars.not.found" unless="i.dont.need.jars"/>
+
+  <path id="class.path">
+    <path refid="cruisecontrol.jar"/>
+    <path refid="cc.jars"/>
+    <path refid="my.jars"/>
+  </path>
+
+  <target name="dist" depends="clean, compile, test, jar, copy.libs">
+    <echo message="copy files from target/dist to cruisecontrol's classpath"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="target"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="target/classes"/>
+    <javac srcdir="src" destdir="target/classes" classpathref="class.path" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5"/>
+
+    <mkdir dir="target/test-classes"/>
+    <javac srcdir="test" destdir="target/test-classes" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5">
+      <classpath>
+        <path refid="class.path"/>
+        <pathelement location="target/classes"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test">
+    <mkdir dir="target/test-results"/>
+    <junit fork="true" forkmode="perBatch" haltonfailure="true" printsummary="true" dir="target">
+      <classpath>
+        <path refid="class.path"/>
+        <pathelement location="target/classes"/>
+        <pathelement location="target/test-classes"/>
+      </classpath>
+      <formatter type="brief" usefile="false" />
+      <formatter type="xml" />
+      <batchtest todir="target/test-results">
+        <fileset dir="target/test-classes" includes="**/*Test.class"/>
+      </batchtest>
+    </junit>
+
+    <mkdir dir="target/test-report"/>
+    <junitreport todir="target/test-report">
+      <fileset dir="target/test-results">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="target/test-report"/>
+    </junitreport>
+  </target>
+
+  <target name="jar">
+    <mkdir dir="target/dist"/>
+    <jar destfile="target/dist/${ant.project.name}.jar" basedir="target/classes"/>
+  </target>
+
+  <target name="copy.libs">
+    <copy todir="target/dist">
+      <path refid="my.jars"/>
+    </copy>
+  </target>
+
+</project>

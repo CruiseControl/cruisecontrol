@@ -2157,11 +2157,14 @@ password=P@ssW0rd!
         <p>In order to use this element, you must have the AllFusion Harvest
            client installed on the CruiseControl machine.  Additionally, the
            <code>HARVESTHOME</code> environment variable should be set (this
-           should happen during installation of AllFusion Harvest) and you
-           should copy <code>jhsdk.jar</code> from your Harvest installation
-           into the CruiseControl <code>lib</code> directory.  If you do not do
-           this, you will see an error indicating that the JHSDK is not installed.</p>
+           should happen during installation of AllFusion Harvest). And you'll
+	   need to build the plugin.</p>
 
+        <p>The jar you'll need to build the plugin is <code>jhsdk.jar</code> from your Harvest installation.
+	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
+	Plugins That Need External Libraries</a></p>
+
+	
         <h3>Attributes</h3>
 
         <p><code>&lt;harvestbootstrapper&gt;</code> requires at least one of its
@@ -2489,7 +2492,11 @@ password=P@ssW0rd!
         <p>Handles updating multiple files (space separated list) from StarTeam
         before the build begins.</p>
 
-        <h3>Attributes</h3>
+        <p>To use this plugin you'll need to build it. The jar you'll need to build the plugin is <code>starteam-sdk.jar</code>.
+	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
+	Plugins That Need External Libraries</a></p>
+
+	<h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -4179,12 +4186,14 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>In order to use this element, you must have the AllFusion Harvest
            client installed on the CruiseControl machine.  Additionally, the
            <code>HARVESTHOME</code> environment variable should be set (this
-           should happen during installation of AllFusion Harvest) and you
-           should copy <code>jhsdk.jar</code> from your Harvest installation
-           into the CruiseControl <code>lib</code> directory.  If you do not do
-           this, you will see an error indicating that the JHSDK is not installed.</p>
+           should happen during installation of AllFusion Harvest) and you'll
+	   need to build the plugin.</p>
 
-        <p>See the <a href="http://www3.ca.com/solutions/Product.aspx?ID=255">AllFusion
+        <p>The jar you'll need to build the plugin is <code>jhsdk.jar</code> from your Harvest installation.
+	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
+	Plugins That Need External Libraries</a></p>
+
+	<p>See the <a href="http://www3.ca.com/solutions/Product.aspx?ID=255">AllFusion
            Harvest product page</a> for more information.</p>
 
        <p>This implementation has only been tested against All Fusion Harvest
@@ -4782,7 +4791,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>If logged on as SERVER ADMINISTRATOR it will look up the email
         associated with the user account for each modification.</p>
 
-        <h3>Attributes</h3>
+        <p>To use this plugin you'll need to build it. The jar you'll need to build the plugin is <code>starteam-sdk.jar</code>.
+	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
+	Plugins That Need External Libraries</a></p>
+
+	<h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -9413,7 +9426,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         all of the attributes of <a href="#email"><code>&lt;email&gt;</code></a>
         apply to <code>&lt;sametimeannouncement&gt;</code> as well.</p>
 
-        <h3>Attributes</h3>
+        <p>To use this plugin you'll need to build it. The jar you'll need to build the plugin is <code>STComm.jar</code>.
+	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
+	Plugins That Need External Libraries</a></p>
+
+	<h3>Attributes</h3>
         <table class="documentation">
             <thead>
             <tr>
@@ -9961,10 +9978,13 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
       &lt;yahoopublisher&gt;</pre>
         </div>
 
-        <p>Sends an instant message with a link to the build results via a Yahoo IM message. You need to put the files
-        ymsg_network_v0_6.jar and ymsg_support_v0_6.jar into the library path of CC. These can be downloaded at
-        <a href="http://jymsg9.sourceforge.net/">http://jymsg9.sourceforge.net/</a>.
-        </p>
+        <p>Sends an instant message with a link to the build results via a Yahoo IM message. To use this plugin
+	you'll need to build the plugin.</p>
+
+        <p>You'll need files ymsg_network_v0_6.jar and ymsg_support_v0_6.jar which can be downloaded at
+        <a href="http://jymsg9.sourceforge.net/">http://jymsg9.sourceforge.net/</a>. To build the plugin
+        read the directions for <a href="#buildingpluginsthatneedexternallibs">Building Plugins That Need
+        External Libraries</a></p>
 
         <h3>Attributes</h3>
 
@@ -10601,6 +10621,23 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tbody>
         </table>
     </div>
+
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+
+        <h2><a name="buildingpluginsthatneedexternallibs">Building Plugins That Need External Libraries</a></h2>
+
+        <p>Several plugins require libraries to build that can't be distributed with CruiseControl. To use these
+        plugins you'll need to acquire the required libraries and build them. The source for these plugins is
+        available in the source distribution of in the repository at <code>cruisecontrol/contrib/plugin/</code>.</p>
+
+        <p>To build the plugin you'll need to put the required jars for the plugin into the <code>[name]/lib</code> directory
+        then run the build file <code>[name]/build.xml</code>. After you've built the plugin you'll need to move all the files
+        in <code>[name]/target/dist</code> into the library path of CruiseControl &mdash; which means just copying them to the
+        <code>cruisecontrol/lib</code> &mdash; and restart the server.</p>
+    </div>
+
+    
     </div>
 </div>
 </body>
