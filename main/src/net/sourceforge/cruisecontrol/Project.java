@@ -664,9 +664,6 @@ public class Project implements Serializable, Runnable {
             lastSuccessfulBuild = lastBuild;
         }
 
-        // should we move this to build? This singleton thingy is scaring me..
-        setDateFormat(projectConfig.getDateFormat());
-
         if (LOG.isDebugEnabled()) {
             debug("buildInterval          = [" + getBuildInterval() + "]");
             debug("buildForced            = [" + buildForced + "]");
@@ -684,12 +681,6 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    private void setDateFormat(CCDateFormat dateFormat) {
-        if (dateFormat != null && dateFormat.getFormat() != null) {
-            DateFormatFactory.setFormat(dateFormat.getFormat());
-        }
-    }
-
     protected Element getProjectPropertiesElement(Date now) {
         Element infoElement = new Element("info");
         addProperty(infoElement, "projectname", name);
@@ -698,7 +689,7 @@ public class Project implements Serializable, Runnable {
         String lastSuccessfulBuildString =
                 DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
-        addProperty(infoElement, "builddate", DateFormatFactory.getDateFormat().format(now));
+        addProperty(infoElement, "builddate", DateUtil.formatIso8601(now));
         addProperty(infoElement, "cctimestamp", DateUtil.getFormattedTime(now));
         addProperty(infoElement, "label", label);
         addProperty(infoElement, "interval", Long.toString(getBuildInterval() / 1000L));

@@ -42,8 +42,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -51,8 +49,8 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Content;
@@ -325,9 +323,8 @@ public class Log implements Serializable {
         return startsWithLog && hasLabelSeparator && isXmlFile;
     }
 
-    public static Date parseDateFromLogFileName(String filename) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        return formatter.parse(filename.substring(3, BEFORE_LENGTH - 1));
+    public static Date parseDateFromLogFileName(String filename) throws CruiseControlException {
+        return DateUtil.parseFormattedTime(filename.substring(3, BEFORE_LENGTH - 1), "date from logfile name");
     }
 
     public static String parseLabelFromLogFileName(String filename) {

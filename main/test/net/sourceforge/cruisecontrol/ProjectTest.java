@@ -200,7 +200,7 @@ public class ProjectTest extends TestCase {
                 + project.getLastSuccessfulBuild()
                 + "\" />"
                 + "<property name=\"builddate\" value=\""
-                + DateFormatFactory.getDateFormat().format(now)
+                + DateUtil.formatIso8601(now)
                 + "\" />"
                 + "<property name=\"cctimestamp\" value=\""
                 + DateUtil.getFormattedTime(now)

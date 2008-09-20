@@ -58,9 +58,6 @@ public class PluginTypeTest extends TestCase {
         type = PluginType.find(AntBuilder.class);
         assertSame(PluginType.BUILDER, type);
 
-        type = PluginType.find(CCDateFormat.class);
-        assertSame(PluginType.DATE_FORMAT, type);
-
         type = PluginType.find(DefaultLabelIncrementer.class);
         assertSame(PluginType.LABEL_INCREMENTER, type);
 

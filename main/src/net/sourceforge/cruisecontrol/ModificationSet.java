@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -47,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -71,7 +71,6 @@ public class ModificationSet implements Serializable {
     private final List sourceControls = new ArrayList();
     private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
-    private final DateFormat formatter = DateFormatFactory.getDateFormat();
 
     /**
      * File-Patterns (as org.apache.oro.io.GlobFilenameFilter) to be ignored
@@ -140,29 +139,18 @@ public class ModificationSet implements Serializable {
         return (quietPeriodStart <= lastModificationTime) && !modificationInFuture;
     }
 
-    protected long getLastModificationMillis(List modificationList) {
+    protected long getLastModificationMillis(List<Modification> modificationList) {
         Date timeOfLastModification = new Date(0);
-        Iterator iterator = modificationList.iterator();
+        Iterator<Modification> iterator = modificationList.iterator();
         while (iterator.hasNext()) {
-            Object object = iterator.next();
-            Modification modification = null;
-            if (object instanceof Modification) {
-                modification = (Modification) object;
-            }
-            if (object instanceof Element) {
-                Element element = (Element) object;
-                modification = new Modification("unknown");
-                modification.fromElement(element, formatter);
-            }
-            if (modification != null) {
-                Date modificationDate = modification.modifiedTime;
-                if (modificationDate.after(timeOfLastModification)) {
-                    timeOfLastModification = modificationDate;
-                }
+            Modification modification = iterator.next();
+            Date modificationDate = modification.modifiedTime;
+            if (modificationDate.after(timeOfLastModification)) {
+                timeOfLastModification = modificationDate;
             }
         }
         if (modificationList.size() > 0) {
-            LOG.debug("Last modification: " + formatter.format(timeOfLastModification));
+            LOG.debug("Last modification: " + DateUtil.formatIso8601(timeOfLastModification));
         } else {
             LOG.debug("list has no modifications; returning new Date(0).getTime()");
         }
@@ -214,7 +202,7 @@ public class ModificationSet implements Serializable {
         Element modificationsElement;
         do {
             timeOfCheck = new Date();
-            modifications = new ArrayList();
+            modifications = new ArrayList<Modification>();
             Iterator sourceControlIterator = sourceControls.iterator();
             while (sourceControlIterator.hasNext()) {
                 SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
@@ -230,25 +218,20 @@ public class ModificationSet implements Serializable {
                                 : " modification has been detected."));
             }
             modificationsElement = new Element("modifications");
-            Iterator modificationIterator = modifications.iterator();
+            Iterator<Modification> modificationIterator = modifications.iterator();
             while (modificationIterator.hasNext()) {
-                Object object = modificationIterator.next();
-                if (object instanceof Element) {
-                    modificationsElement.addContent(((Element) object).detach());
-                } else {
-                    Modification modification = (Modification) object;
-                    Element modificationElement = (modification).toElement(formatter);
-                    modification.log(formatter);
-                    modificationsElement.addContent(modificationElement);
-                }
+                Modification modification = modificationIterator.next();
+                Element modificationElement = modification.toElement();
+                modification.log();
+                modificationsElement.addContent(modificationElement);
             }
 
             if (isLastModificationInQuietPeriod(timeOfCheck, modifications)) {
                 LOG.info("A modification has been detected in the quiet period.  ");
                 if (LOG.isDebugEnabled()) {
                     final Date quietPeriodStart = new Date(timeOfCheck.getTime() - quietPeriod);
-                    LOG.debug(formatter.format(quietPeriodStart) + " <= Quiet Period <= "
-                            + formatter.format(timeOfCheck));
+                    LOG.debug(DateUtil.formatIso8601(quietPeriodStart) + " <= Quiet Period <= "
+                            + DateUtil.formatIso8601(timeOfCheck));
                 }
                 Date now = new Date();
                 long timeToSleep = getQuietPeriodDifference(now, modifications);
@@ -274,19 +257,10 @@ public class ModificationSet implements Serializable {
     /**
      * Remove all Modifications that match any of the ignoreFiles-patterns
      */
-    protected void filterIgnoredModifications(List modifications) {
+    protected void filterIgnoredModifications(List<Modification> modifications) {
         if (this.ignoreFiles != null) {
-            for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
-                Object object = iterator.next();
-                Modification modification = null;
-                if (object instanceof Modification) {
-                    modification = (Modification) object;
-                } else if (object instanceof Element) {
-                    Element element = (Element) object;
-                    modification = new Modification();
-                    modification.fromElement(element, formatter);
-                }
-
+            for (Iterator<Modification> iterator = modifications.iterator(); iterator.hasNext();) {
+                Modification modification = iterator.next();
                 if (isIgnoredModification(modification)) {
                     iterator.remove();
                 }

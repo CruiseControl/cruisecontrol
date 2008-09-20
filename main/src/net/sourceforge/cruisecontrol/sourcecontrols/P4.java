@@ -40,7 +40,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -584,9 +583,8 @@ public class P4 implements SourceControl {
             super("p4");
         }
 
-        public Element toElement(DateFormat format) {
-
-            Element element = super.toElement(format);
+        public Element toElement() {
+            Element element = super.toElement();
             LOG.debug("client = " + client);
 
             Element clientElement = new Element("client");

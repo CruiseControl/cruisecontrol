@@ -48,6 +48,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -66,6 +67,8 @@ public class ModificationSetTest extends TestCase {
         }
     }
 
+    private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    
     private final MockProgress mockProgress = new MockProgress();
 
     private ModificationSet modSet;
@@ -75,17 +78,16 @@ public class ModificationSetTest extends TestCase {
         modSet.setQuietPeriod(0);
     }
 
-    public void testIsLastModificationInQuietPeriod() throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    public void testIsLastModificationInQuietPeriod() throws ParseException, CruiseControlException {
         Modification mod1 = new Modification();
-        mod1.modifiedTime = formatter.parse("20020621140000");
+        mod1.modifiedTime = DateUtil.parseFormattedTime("20020621140000", "testIsLastModificationInQuietPeriod");
         Modification mod2 = new Modification();
-        mod2.modifiedTime = formatter.parse("20020621140100");
+        mod2.modifiedTime = DateUtil.parseFormattedTime("20020621140100", "testIsLastModificationInQuietPeriod");
 
         // When a change is put into source control with a bad date in the
         // future, we should still build
         Modification modInFuture = new Modification();
-        modInFuture.modifiedTime = formatter.parse("30020731150000");
+        modInFuture.modifiedTime = DateUtil.parseFormattedTime("30020731150000", "testIsLastModificationInQuietPeriod");
 
         List mods1 = new ArrayList();
         mods1.add(mod1);
@@ -99,7 +101,7 @@ public class ModificationSetTest extends TestCase {
         hasModInFuture.add(mod2);
         hasModInFuture.add(modInFuture);
 
-        Date now = formatter.parse("20020621140103");
+        Date now = DateUtil.parseFormattedTime("20020621140103", "testIsLastModificationInQuietPeriod");
 
         modSet.setQuietPeriod(5);
 
@@ -108,12 +110,11 @@ public class ModificationSetTest extends TestCase {
         assertEquals(false, modSet.isLastModificationInQuietPeriod(now, hasModInFuture));
     }
 
-    public void testGetLastModificationMillis() throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+    public void testGetLastModificationMillis() throws CruiseControlException {
         Modification mod1 = new Modification();
-        mod1.modifiedTime = formatter.parse("20020621140000");
+        mod1.modifiedTime = DateUtil.parseFormattedTime("20020621140000", "testGetLastModificationMillis");
         Modification mod2 = new Modification();
-        mod2.modifiedTime = formatter.parse("20020621140100");
+        mod2.modifiedTime = DateUtil.parseFormattedTime("20020621140100", "testGetLastModificationMillis");
 
         List mods1 = new ArrayList();
         mods1.add(mod2);
@@ -122,13 +123,12 @@ public class ModificationSetTest extends TestCase {
         assertEquals(mod2.modifiedTime.getTime(), modSet.getLastModificationMillis(mods1));
     }
 
-    public void testGetQuietPeriodDifference() throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        Date now = formatter.parse("20020621140103");
+    public void testGetQuietPeriodDifference() throws CruiseControlException {
+        Date now = DateUtil.parseFormattedTime("20020621140103", "testGetQuietPeriodDifference");
         Modification mod1 = new Modification();
-        mod1.modifiedTime = formatter.parse("20020621140000");
+        mod1.modifiedTime = DateUtil.parseFormattedTime("20020621140000", "testGetQuietPeriodDifference");
         Modification mod2 = new Modification();
-        mod2.modifiedTime = formatter.parse("20020621140100");
+        mod2.modifiedTime = DateUtil.parseFormattedTime("20020621140100", "testGetQuietPeriodDifference");
 
         List mods1 = new ArrayList();
         mods1.add(mod1);
@@ -201,17 +201,16 @@ public class ModificationSetTest extends TestCase {
         // mock source controls don't care about the date
         final Element modSetResults = modSet.retrieveModificationsAsElement(new Date(), mockProgress);
 
-        DateFormat formatter = DateFormatFactory.getDateFormat();
         Element modificationsElement = new Element("modifications");
         Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date()).iterator();
         while (mock1ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock1ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(formatter));
+            modificationsElement.addContent(modification.toElement());
         }
         Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date()).iterator();
         while (mock2ModificationsIterator.hasNext()) {
             Modification modification = (Modification) mock2ModificationsIterator.next();
-            modificationsElement.addContent(modification.toElement(formatter));
+            modificationsElement.addContent(modification.toElement());
         }
 
         XMLOutputter outputter = new XMLOutputter();
@@ -225,7 +224,6 @@ public class ModificationSetTest extends TestCase {
      * sourcecontrol implementation instead of mock.
      */
     public void testGetMixedModifications() throws ParseException {
-        DateFormat formatter = DateFormatFactory.getDateFormat();
 
         Modification mod1 = new Modification();
         mod1.userName = "user3";
@@ -243,8 +241,8 @@ public class ModificationSetTest extends TestCase {
         Modification.ModifiedFile mod2file = mod1.createModifiedFile("file4", "dir4");
         mod2file.action = "Checkin";
 
-        final List result = new ArrayList();
-        result.add(mod1.toElement(formatter));
+        final List<Modification> result = new ArrayList();
+        result.add(mod1);
         result.add(mod2);
 
         assertEquals(mod1.modifiedTime.getTime(), modSet.getLastModificationMillis(result));
@@ -258,8 +256,8 @@ public class ModificationSetTest extends TestCase {
         final Element actual = modSet.retrieveModificationsAsElement(new Date(), mockProgress);
 
         Element expected = new Element("modifications");
-        expected.addContent(mod1.toElement(formatter));
-        expected.addContent(mod2.toElement(formatter));
+        expected.addContent(mod1.toElement());
+        expected.addContent(mod2.toElement());
 
         XMLOutputter outputter = new XMLOutputter();
         assertEquals("XML data differ", outputter.outputString(expected), outputter.outputString(actual));
@@ -360,7 +358,6 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
-        final DateFormat formatter = DateFormatFactory.getDateFormat();
         final List modifications = new ArrayList();
 
         final Modification mod1 = new Modification();
@@ -403,7 +400,6 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testFilterIgnoredFilesInMultipleSubdirectories() throws CruiseControlException, ParseException {
-        final DateFormat formatter = DateFormatFactory.getDateFormat();
         final List modifications = new ArrayList();
 
         final Modification mod1 = new Modification();
@@ -442,7 +438,6 @@ public class ModificationSetTest extends TestCase {
      * Tests ignoring files when multiple files exist in the modification sets.
      */
     public void testFilterIgnoredFilesMultipleFiles() throws CruiseControlException, ParseException {
-        final DateFormat formatter = DateFormatFactory.getDateFormat();
         final List modifications = new ArrayList();
 
         final Modification mod1 = new Modification();

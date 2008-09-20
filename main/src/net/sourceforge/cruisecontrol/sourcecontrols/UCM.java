@@ -40,7 +40,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -847,8 +846,8 @@ public class UCM implements SourceControl {
             super("ucm");
         }
 
-        public Element toElement(DateFormat formatter) {
-            Element modificationElement = super.toElement(formatter);
+        public Element toElement() {
+            Element modificationElement = super.toElement();
             Element crmtypeElement = new Element(TAGNAME_CRMTYPE);
             crmtypeElement.addContent(crmtype);
             modificationElement.addContent(crmtypeElement);

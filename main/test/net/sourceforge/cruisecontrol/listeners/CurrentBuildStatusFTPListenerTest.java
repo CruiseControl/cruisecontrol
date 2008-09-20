@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.Assert;
@@ -46,6 +45,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 /**
@@ -139,8 +139,7 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         // This should be equivalent to the date used in listener at seconds precision
         Date date = new Date();
         listener.handleEvent(new ProjectStateChangedEvent("projName", state));
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        final String dateString = formatter.format(date);
+        final String dateString = DateUtil.formatIso8601(date);
         final String description = state.getDescription();
         String expected = description + " since\n" + dateString;
         assertEquals(expected, Util.readFileToString(fileName));

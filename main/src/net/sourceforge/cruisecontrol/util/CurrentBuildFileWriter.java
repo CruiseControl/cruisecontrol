@@ -36,12 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
-
 import java.io.File;
-import java.text.DateFormat;
 import java.util.Date;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * @author <a href="mailto:jcyip@thoughtworks.com">Jason Yip</a>
@@ -53,8 +51,7 @@ public final class CurrentBuildFileWriter {
     }
 
     public static void writefile(String info, Date date, String fileName) throws CruiseControlException {
-        DateFormat formatter = DateFormatFactory.getDateFormat();
-        StringBuffer buffer = new StringBuffer(info).append(formatter.format(date));
+        StringBuffer buffer = new StringBuffer(info).append(DateUtil.formatIso8601(date));
 
         IO.write(fileName, buffer.toString());
     }

@@ -144,17 +144,6 @@
     <foo name="${global}" />
   </mock.project>
 
-  <project name='dateformatfromproperty' >
-    <property name='date.format' value='MM/dd/yyyy HH:mm:ss a'/>
-    <dateformat format='${date.format}'/>
-  </project>
-
-  <project name='dateformatpreconfigured' >
-    <property name='date.format' value='MM/dd/yyyy HH:mm:ss a'/>
-    <plugin name='dateformat' format='${date.format}'/>
-    <dateformat/>
-  </project>
-
   <project name='logpreconfigured' >
     <plugin name='log' dir='mylogs/${project.name}' encoding='utf128' >
       <merge dir='${project.name}/target/test-reports'/>

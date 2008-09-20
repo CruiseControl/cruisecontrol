@@ -40,15 +40,14 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
 import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
-import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.jdom.Element;
@@ -115,7 +114,7 @@ public class LogTest extends TestCase {
         assertFalse(Log.wasSuccessfulBuild(null));
     }
 
-    public void testParseDateFromLogFileName() throws ParseException {
+    public void testParseDateFromLogFileName() throws CruiseControlException {
         Calendar augTweleveCalendar = Calendar.getInstance();
         augTweleveCalendar.set(2004, 7, 12, 1, 1, 1);
         Date augTweleve = augTweleveCalendar.getTime();
