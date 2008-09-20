@@ -104,7 +104,7 @@ public class PluginXMLHelper {
     private Object instantiatePlugin(Class pluginClass) throws CruiseControlException {
         Object pluginInstance;
         try {
-            pluginInstance = pluginClass.getConstructor(null).newInstance(null);
+            pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
             if (pluginInstance instanceof ControllerAware) {
                 ((ControllerAware) pluginInstance).setController(controller);
             }
@@ -184,7 +184,7 @@ public class PluginXMLHelper {
                     LOG.debug("treating child with creator " + childElement.getName());
                     try {
                         Method method = (Method) creators.get(childElement.getName().toLowerCase());
-                        Object childObject = method.invoke(object, null);
+                        Object childObject = method.invoke(object, (Object[]) null);
                         configureObject(childElement, childObject, false);
                     } catch (Exception e) {
                         throw new CruiseControlException(e.getMessage());
