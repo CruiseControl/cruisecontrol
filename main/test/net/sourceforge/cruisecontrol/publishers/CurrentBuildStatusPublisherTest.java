@@ -38,12 +38,12 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 /**
@@ -78,8 +78,7 @@ public class CurrentBuildStatusPublisherTest extends TestCase {
         publisher.setFile(fileName);
         filesToDelete.add(new File(fileName));
         Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        final String buildTime = formatter.format(new Date(date.getTime() + (300 * 1000)));
+        final String buildTime = DateUtil.formatIso8601((new Date(date.getTime() + (300 * 1000))));
 
         publisher.writeFile(date, 300);
         String expected = "Next Build Starts At:\n" + buildTime;

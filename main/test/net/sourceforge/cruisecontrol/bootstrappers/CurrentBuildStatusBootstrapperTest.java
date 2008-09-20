@@ -38,12 +38,12 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 /**
@@ -83,8 +83,7 @@ public class CurrentBuildStatusBootstrapperTest extends TestCase {
 
         bootstrapper.bootstrap();
 
-        final SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        final String expected = "Current Build Started At:\n" + formatter.format(date);
+        final String expected = "Current Build Started At:\n" + DateUtil.formatIso8601(date);
         assertEquals(expected, Util.readFileToString(fileName));
     }
 }

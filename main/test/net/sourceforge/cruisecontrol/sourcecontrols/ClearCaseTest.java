@@ -36,21 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Vector;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
 
 /**
  * @author Eric Lefevre
@@ -62,10 +66,8 @@ public class ClearCaseTest extends TestCase {
     private static final String WINDOWS_XML = "clearcase-history.xml";
     private static final String UNIX_XML = "clearcase-history-alt.xml";
 
-    public static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
     private ClearCase clearCase;
-    private List mods;
+    private List<Modification> cannedMods;
 
     private InputStream loadTestLog(String name) {
         InputStream testStream = getClass().getResourceAsStream(name);
@@ -76,7 +78,7 @@ public class ClearCaseTest extends TestCase {
     protected void setUp() throws JDOMException, IOException {
         // Initialize our ClearCase element
         clearCase = new ClearCase();
-        mods = new Vector();
+        cannedMods = new Vector();
 
         String testXML;
         if (File.separatorChar == '\\') {
@@ -94,9 +96,21 @@ public class ClearCaseTest extends TestCase {
         while (it.hasNext()) {
             Element elt = (Element) it.next();
             ClearCaseModification mod = new ClearCaseModification();
-            mod.fromElement(elt, DATE_FMT);
-            mods.add(mod);
+            mod.fromElement(elt);
+            adjustDateForTimeZone(mod);
+            cannedMods.add(mod);
         }
+    }
+
+    private void adjustDateForTimeZone(ClearCaseModification mod) {
+        Date date = mod.modifiedTime;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        TimeZone tz = TimeZone.getDefault();
+        int offset = tz.getOffset(date.getTime());
+        cal.add(Calendar.MILLISECOND, -offset);
+        date = cal.getTime();
+        mod.modifiedTime = date;
     }
 
     /**
@@ -112,27 +126,27 @@ public class ClearCaseTest extends TestCase {
         BufferedInputStream stream =
                 new BufferedInputStream(loadTestLog(testLog));
 
-        List list = clearCase.parseStream(stream);
-        assertEquals(mods.size(), list.size());
+        List<Modification> modificationsFromFile = clearCase.parseStream(stream);
+        assertEquals(cannedMods.size(), modificationsFromFile.size());
 
-        for (int i = 0; i < list.size(); i++) {
-            ClearCaseModification a = (ClearCaseModification) mods.get(i);
-            ClearCaseModification b = (ClearCaseModification) list.get(i);
+        for (int i = 0; i < modificationsFromFile.size(); i++) {
+            Modification expected = cannedMods.get(i);
+            Modification actual = modificationsFromFile.get(i);
 
-            assertEquals(a.type, b.type);
-            assertEquals(a.modifiedTime, b.modifiedTime);
-            assertEquals(a.userName, b.userName);
-            assertEquals(a.emailAddress, b.emailAddress);
-            assertEquals(a.revision, b.revision);
-            assertEquals(a.labels, b.labels);
-            assertEquals(a.attributes, b.attributes);
+            assertEquals(expected.type, actual.type);
+            assertEquals(expected.modifiedTime, actual.modifiedTime);
+            assertEquals(expected.userName, actual.userName);
+            assertEquals(expected.emailAddress, actual.emailAddress);
+            assertEquals(expected.revision, actual.revision);
+            assertEquals(((ClearCaseModification) expected).labels, ((ClearCaseModification) actual).labels);
+            assertEquals(((ClearCaseModification) expected).attributes, ((ClearCaseModification) actual).attributes);
 
-            assertEquals(a.files.size(), b.files.size());
-            for (int j = 0; j < b.files.size(); j++) {
+            assertEquals(expected.files.size(), actual.files.size());
+            for (int j = 0; j < actual.files.size(); j++) {
                 ClearCaseModification.ModifiedFile af =
-                        (ClearCaseModification.ModifiedFile) a.files.get(j);
+                        (ClearCaseModification.ModifiedFile) expected.files.get(j);
                 ClearCaseModification.ModifiedFile bf =
-                        (ClearCaseModification.ModifiedFile) b.files.get(j);
+                        (ClearCaseModification.ModifiedFile) actual.files.get(j);
                 assertEquals(af.action, bf.action);
                 assertEquals(af.fileName, bf.fileName);
                 assertEquals(af.folderName, bf.folderName);
@@ -140,13 +154,13 @@ public class ClearCaseTest extends TestCase {
             }
 
 
-            StringBuffer bc = new StringBuffer(b.comment);
+            StringBuffer bc = new StringBuffer(actual.comment);
             for (int j = 0; j < bc.length(); j++) {
                 if (bc.charAt(j) == 13) {
                     bc.deleteCharAt(j);
                 }
             }
-            assertEquals(a.comment, bc.toString());
+            assertEquals(expected.comment, bc.toString());
 
             System.out.println("Record " + i + " OK");
         }

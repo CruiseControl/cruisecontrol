@@ -38,20 +38,19 @@ package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
 import net.sourceforge.cruisecontrol.Listener;
 import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
@@ -190,7 +189,6 @@ public class CurrentBuildStatusPageListener implements Listener {
     private String substituteItems(String src, String projectName, HistoryItem current, long prevtime) {
         int idx;
         StringBuffer result = new StringBuffer();
-        DateFormat dateFmt = DateFormatFactory.getDateFormat();
 
         // Find and substitute entries in this line
         while ((idx = src.indexOf('{')) != -1) {
@@ -212,7 +210,7 @@ public class CurrentBuildStatusPageListener implements Listener {
                 result.append(current.desc);
                 skiplen = KEY_DESC.length();
             } else if (src.toLowerCase().startsWith(KEY_DATE)) {
-                result.append(dateFmt.format(new Date(current.when)));
+                result.append(DateUtil.formatIso8601(new Date(current.when)));
                 skiplen = KEY_DATE.length();
             } else if (src.toLowerCase().startsWith(KEY_DURATION)) {
                 result.append(formatDuration(prevtime - current.when));

@@ -37,12 +37,12 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  * @deprecated Tests deprecated code
@@ -110,10 +110,9 @@ public class CurrentBuildStatusFTPBootstrapperTest extends TestCase {
 
         // This should be equivalent to the date used in bootstrap at seconds
         // precision
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         String expected =
             "Current Build Started At:\n"
-            + formatter.format(new Date());
+            + DateUtil.formatIso8601(new Date());
         String out = cbsfb.makeFile();
         assertEquals(expected, out);
     }

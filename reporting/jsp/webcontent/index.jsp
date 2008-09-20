@@ -38,6 +38,7 @@
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
 <%@ page import="net.sourceforge.cruisecontrol.*" %>
 <%@ page import="net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener" %>
+<%@ page import="net.sourceforge.cruisecontrol.util.DateUtil" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
 <%@ page import="java.net.URL" %>
@@ -187,8 +188,7 @@
 
         // statusFile mod date can be wrong, so read the status date from the statusFile contents
         final String sinceString = reader.readLine();
-        final DateFormat formatter = DateFormatFactory.getDateFormat();
-        statusSince = formatter.parse(sinceString);
+        statusSince = DateUtil.parseIso8601(sinceString);
 
         progressMsg = reader.readLine();
       }
@@ -248,8 +248,8 @@
         final String msgTimeText = progressMsg.substring(prefixLen, startOfMessage);
         final Date msgTime;
         try {
-          msgTime = DateFormatFactory.getTimeFormat().parse(msgTimeText);
-        } catch (ParseException e) {
+          msgTime = DateUtil.parseFormattedTime(msgTimeText, "progress message time");
+        } catch (CruiseControlException e) {
           return progressMsg;
         }
         return "(" + timeWithSecsOnlyFormat.format(msgTime) + ")" + progressMsg.substring(startOfMessage);

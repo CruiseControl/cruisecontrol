@@ -125,7 +125,6 @@
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
 <a href="#darcs">&lt;darcs&gt;</a>
 <a href="#dashboard">&lt;dashboard&gt;</a>
-<a href="#dateformat">&lt;dateformat&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#deleteartifacts">&lt;deleteartifacts&gt;</a>
 <a href="#email">&lt;email&gt;</a>
@@ -241,7 +240,6 @@
    <a href="#project">&lt;project&gt;</a>
       <a href="#property">&lt;property/&gt;</a>
       <a href="#plugin">&lt;plugin/&gt;</a>
-      <a href="#dateformat">&lt;dateformat/&gt;</a>
       <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
       <a href="#listeners">&lt;listeners&gt;</a>
          <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
@@ -892,11 +890,6 @@
                 <td>Container element for Publisher plugin instances.</td>
             </tr>
             <tr>
-                <td><a href="#dateformat">&lt;dateformat&gt;</a></td>
-                <td>0 .. 1</td>
-                <td>Overrides the default date format for presentation.</td>
-            </tr>
-            <tr>
                 <td><a href="#plugin">&lt;plugin&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Registers a classname with an alias.</td>
@@ -1223,8 +1216,7 @@ password=P@ssW0rd!
         <code>&lt;currentbuildstatuslistener&gt;</code> to write an HTML
         snippet to disk in a location where the JSP can read it. This file will
         consist of the current status of the build and the last time the status
-        changed, with the formatting set by the
-        <a href="#dateformat">dateformat</a> element.</p>
+        changed.</p>
 
         <h3>Attributes</h3>
 
@@ -1922,8 +1914,7 @@ password=P@ssW0rd!
         to the JSP, we can use the optional
         <code>&lt;currentbuildstatusbootstrapper&gt;</code> to write an HTML
         snippet to disk in a location where the JSP can read it. This file will
-        consist of the time the build was started with the formatting set by the
-        <a href="#dateformat">dateformat</a> element.</p>
+        consist of the time the build was started.</p>
 
         <p>This plugin is used in tandem with the
         <a href="#currentbuildstatuspublisher"><code>currentbuildstatuspublisher</code></a>.</p>
@@ -7575,8 +7566,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>builddate</td>
-                <td>The date of the last build, formatted using the default or
-                specified <a href="#dateformat">&lt;dateformat&gt;</a>.</td>
+                <td>The date of the last build, formatted using the default format.</td>
             </tr>
             <tr>
                 <td>interval</td>
@@ -10033,42 +10023,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </table>
         </div>
 
-
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="dateformat">&lt;dateformat&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    &lt;dateformat&gt;</pre>
-        </div>
-
-        <p>The optional <code>&lt;dateformat&gt;</code> element overrides the
-        default date format for presentation. If this element is not specified,
-        the default date format is "<code>MM/dd/yyyy HH:mm:ss</code>".</p>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>format</td>
-                <td>Yes</td>
-                <td>A DateFormat String that specifies the date format for
-                presentation.</td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>

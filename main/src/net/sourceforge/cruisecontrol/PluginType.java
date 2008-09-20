@@ -93,7 +93,6 @@ public final class PluginType implements Serializable {
             put(Builder.class, BUILDER);
             put(ConfigurationPlugin.class, CONFIGURATION);
             put(CruiseControlConfig.class, CRUISECONTROL);
-            put(CCDateFormat.class, DATE_FORMAT);
             put(LabelIncrementer.class, LABEL_INCREMENTER);
             put(IncludeProjectsPlugin.class, INCLUDE_PROJECTS);
             put(Listener.class, LISTENER);

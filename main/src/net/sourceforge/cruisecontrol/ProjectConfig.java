@@ -69,7 +69,6 @@ public class ProjectConfig implements ProjectInterface {
     private boolean forceOnly = false;
     private boolean requiremodification = true;
     private boolean forceBuildNewProject = true; // default to current behavior
-    private transient CCDateFormat dateFormat;
 
     private transient Bootstrappers bootstrappers;
     private transient LabelIncrementer labelIncrementer;
@@ -88,9 +87,6 @@ public class ProjectConfig implements ProjectInterface {
      *             if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        if (dateFormat != null) {
-            dateFormat.validate();
-        }
         ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
 
         if (bootstrappers != null) {
@@ -146,10 +142,6 @@ public class ProjectConfig implements ProjectInterface {
         // currently only declared for documentation generation purposes
     }
 
-    public void add(CCDateFormat dateFormat) {
-        this.dateFormat = dateFormat;
-    }
-
     public void add(LabelIncrementer labelIncrementer) {
         this.labelIncrementer = labelIncrementer;
     }
@@ -176,10 +168,6 @@ public class ProjectConfig implements ProjectInterface {
 
     public void add(Log log) {
         this.log = log;
-    }
-
-    public CCDateFormat getDateFormat() {
-        return dateFormat;
     }
 
     public boolean shouldBuildAfterFailed() {

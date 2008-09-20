@@ -5,7 +5,7 @@
             <project>dir1\dir11\dir111</project>
             <revision>\main\dev\1</revision>
          </file>
-         <date>2003/04/09 09:33:00</date>
+         <date>2003-04-09T09:33:00</date>
          <user>userid1</user>
          <comment><![CDATA[]]></comment>
          <revision>\main\dev\1</revision>
@@ -16,7 +16,7 @@
             <project>dir1\dir11\dir111</project>
             <revision>\main\1</revision>
          </file>
-         <date>2003/04/08 08:33:00</date>
+         <date>2003-04-08T08:33:00</date>
          <user>userid2</user>
          <comment><![CDATA[one line comment, no cr/lf]]></comment>
          <revision>\main\1</revision>
@@ -27,7 +27,7 @@
              <project>dir1\dir11</project>
              <revision>\main\dev\1</revision>
           </file>
-         <date>2003/04/08 08:33:00</date>
+         <date>2003-04-08T08:33:00</date>
          <user>userid1</user>
          <comment><![CDATA[multi
 line
@@ -40,7 +40,7 @@ comment]]></comment>
              <project>dir1\dir11\dir111</project>
              <revision>\main\dev\1</revision>
          </file>
-         <date>2003/04/07 08:35:00</date>
+         <date>2003-04-07T08:35:00</date>
          <user>userid2</user>
          <comment><![CDATA[one line comment, no cr/lf]]></comment>
          <revision>\main\dev\1</revision>
@@ -55,7 +55,7 @@ comment]]></comment>
             <project>dir1\dir11\dir111</project>
             <revision>\main\dev\1</revision>
          </file>
-         <date>2003/04/07 08:35:00</date>
+         <date>2003-04-07T08:35:00</date>
          <user>userid2</user>
          <comment><![CDATA[one line comment, no cr/lf but includes # character]]></comment>
          <revision>\main\dev\1</revision>

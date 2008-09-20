@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.listeners.ProgressChangedEvent;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -36,7 +37,7 @@ public class ProgressImpl implements Progress {
 
     /** @return current progress value represented as a String, prefixed with last update date. */
     public String getValue() {
-        return DateFormatFactory.getTimeFormat().format(lastUpdated) + " " + val;
+        return DateUtil.getFormattedTime(lastUpdated) + " " + val;
     }
 }
 

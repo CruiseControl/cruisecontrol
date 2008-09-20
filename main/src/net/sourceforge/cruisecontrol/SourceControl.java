@@ -75,7 +75,7 @@ public interface SourceControl extends Serializable {
      *@param  now
      *@return List of Modification objects
      */
-    public List getModifications(Date lastBuild, Date now);
+    public List<Modification> getModifications(Date lastBuild, Date now);
 
 
     public void validate() throws CruiseControlException;

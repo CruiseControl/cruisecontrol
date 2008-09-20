@@ -2,18 +2,17 @@ package net.sourceforge.cruisecontrol.listeners;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.ProjectConfig;
-import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.Progress;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
+import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 
 /**
@@ -77,8 +76,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
     }
 
     private static String getExpectedStateText(Date date, ProjectState state) {
-        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        final String dateString = formatter.format(date);
+        final String dateString = DateUtil.formatIso8601(date);
         final String description = state.getDescription();
         return description + " since\n" + dateString;
     }
@@ -95,7 +93,7 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         final Progress progress = project.getProgress();
         project.setProjectConfig(projectConfig);
 
-        final String expectedProgressTime = DateFormatFactory.getTimeFormat().format(new Date()) + " ";
+        final String expectedProgressTime = DateUtil.getFormattedTime(new Date()) + " ";
         final String expectedProgressMsgPrefix = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS + expectedProgressTime;
 
         String testMsg = "test msg1";

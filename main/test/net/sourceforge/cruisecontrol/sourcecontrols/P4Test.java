@@ -198,16 +198,6 @@ public class P4Test extends TestCase {
         assertEquals("Wrong description", "Testing ..\nSome ..\nLinebreaks.",
                 ((Modification) changelists.get(2)).comment);
         checkModifications((Modification) changelists.get(2), "", 0);
-        // XMLOutputter outputter = new XMLOutputter();
-        // for (Iterator iterator = changelistElements.iterator();
-        // iterator.hasNext();) {
-        // Element element = (Element) iterator.next();
-        // Use next lines if you want to see the output of the run. This is what
-        // is inserted into the logs.
-        // outputter.setNewlines(true);
-        // outputter.setIndent(true);
-        // System.out.println(outputter.outputString(element));
-        // }
     }
 
     /**

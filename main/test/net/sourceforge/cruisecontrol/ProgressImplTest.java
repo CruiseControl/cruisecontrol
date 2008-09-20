@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import java.util.Date;
 
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  * @author Dan Rollo
@@ -16,7 +17,7 @@ public class ProgressImplTest extends TestCase {
     public void testProgressInitState() throws Exception {
         final Progress progress = new ProgressImpl(null);
         assertEquals("New Progress should support call to getValue.",
-                DateFormatFactory.getTimeFormat().format(new Date()) + " null",
+                DateUtil.getFormattedTime(new Date()) + " null",
                 progress.getValue());
     }
 
@@ -31,6 +32,6 @@ public class ProgressImplTest extends TestCase {
 
         final String testValue = "test value";
         progress.setValue(testValue);
-        assertEquals(DateFormatFactory.getTimeFormat().format(new Date()) + " " + testValue, progress.getValue());
+        assertEquals(DateUtil.getFormattedTime(new Date()) + " " + testValue, progress.getValue());
     }
 }

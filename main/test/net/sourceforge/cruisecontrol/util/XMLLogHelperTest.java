@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,10 +58,24 @@ public class XMLLogHelperTest extends TestCase {
     private Element failedLogElement;
 
     private static final Date SOME_DATE = new Date(2333);
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
-    public XMLLogHelperTest(String name) {
-        super(name);
+    @Override
+    protected void setUp() {
+        successfulLogElement = new Element("cruisecontrol");
+        successfulLogElement.addContent(TestUtil.createInfoElement("1.0", false));
+        successfulLogElement.addContent(createBuildElement(true));
+        successfulLogElement.addContent(createModificationsElement("username1", "username2"));
+
+        failedLogElement = new Element("cruisecontrol");
+        failedLogElement.addContent(TestUtil.createInfoElement("1.1", true));
+        failedLogElement.addContent(createBuildElement(false));
+        failedLogElement.addContent(createModificationsElement("username3", "username4"));
+    }
+    
+    @Override
+    protected void tearDown() {
+        successfulLogElement = null;
+        failedLogElement = null;
     }
 
     private Modification[] createModifications(String username1, String username2) {
@@ -90,9 +103,9 @@ public class XMLLogHelperTest extends TestCase {
     private Element createModificationsElement(String username1, String username2) {
         Element modificationsElement = new Element("modifications");
         Modification[] mods = createModifications(username1, username2);
-        modificationsElement.addContent(mods[0].toElement(DATE_FORMAT));
-        modificationsElement.addContent(mods[1].toElement(DATE_FORMAT));
-        modificationsElement.addContent(mods[2].toElement(DATE_FORMAT));
+        modificationsElement.addContent(mods[0].toElement());
+        modificationsElement.addContent(mods[1].toElement());
+        modificationsElement.addContent(mods[2].toElement());
         return modificationsElement;
     }
 
@@ -102,18 +115,6 @@ public class XMLLogHelperTest extends TestCase {
             buildElement.setAttribute("error", "No Build Necessary");
         }
         return buildElement;
-    }
-
-    public void setUp() {
-        successfulLogElement = new Element("cruisecontrol");
-        successfulLogElement.addContent(TestUtil.createInfoElement("1.0", false));
-        successfulLogElement.addContent(createBuildElement(true));
-        successfulLogElement.addContent(createModificationsElement("username1", "username2"));
-
-        failedLogElement = new Element("cruisecontrol");
-        failedLogElement.addContent(TestUtil.createInfoElement("1.1", true));
-        failedLogElement.addContent(createBuildElement(false));
-        failedLogElement.addContent(createModificationsElement("username3", "username4"));
     }
 
     public void testGetLabel() {
@@ -192,25 +193,6 @@ public class XMLLogHelperTest extends TestCase {
         assertEquals(true, successHelperParticipants.contains("username2"));
         assertEquals(false, successHelperParticipants.contains("notaperson"));
         assertEquals(true, successHelperParticipants.contains("user3@host.com"));
-
-        //test P4 changelist structure
-        Element ccElement = new Element("cruisecontrol");
-        Element modsElement = new Element("modifications");
-        Element cl1Element = new Element("changelist");
-        cl1Element.setAttribute("user", "user1");
-        Element cl2Element = new Element("changelist");
-        cl2Element.setAttribute("user", "user2");
-
-        modsElement.addContent(cl1Element);
-        modsElement.addContent(cl2Element);
-        ccElement.addContent(modsElement);
-
-        XMLLogHelper helper = new XMLLogHelper(ccElement);
-        Set p4Users = helper.getBuildParticipants();
-
-        assertEquals(true, p4Users.contains("user1"));
-        assertEquals(true, p4Users.contains("user2"));
-        assertEquals(false, p4Users.contains("notaperson"));
     }
 
     public void testGetModifications() {
@@ -218,7 +200,7 @@ public class XMLLogHelperTest extends TestCase {
         //a date to a string and parse it back to a date the milliseconds will
         //be different.  Therefore the test gets all of the modifications
         //and sets the date on all of them to account for this, after it compares the date by string
-        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement, DATE_FORMAT);
+        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         Set modifications = successHelper.getModifications();
         Modification[] mods = createModifications("username1", "username2");
         Map map = createMapByUserName(mods);
@@ -246,7 +228,7 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     private void assertDateEquals(Date expected, Date actual) {
-        assertEquals(DATE_FORMAT.format(expected), DATE_FORMAT.format(actual));
+        assertEquals(DateUtil.formatIso8601(expected), DateUtil.formatIso8601(actual));
     }
 
 }

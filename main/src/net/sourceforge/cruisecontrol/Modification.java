@@ -37,15 +37,15 @@
 
 package net.sourceforge.cruisecontrol;
 
+import net.sourceforge.cruisecontrol.util.DateUtil;
+
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -95,14 +95,14 @@ public class Modification implements Comparable, Serializable {
             this.action = action;
         }
         
-        public ModifiedFile(Element modification, DateFormat formatter) {
+        public ModifiedFile(Element modification) {
             fileName = modification.getChildText(TAGNAME_FILENAME);
             folderName = modification.getChildText(TAGNAME_FOLDERNAME);
             revision = modification.getChildText(TAGNAME_REVISION);
             action = modification.getAttributeValue(TAGNAME_ACTION);
         }
 
-        public Element toElement(DateFormat formatter) {
+        public Element toElement() {
 
             Element element = new Element(TAGNAME_FILE);
 
@@ -218,16 +218,16 @@ public class Modification implements Comparable, Serializable {
         return file;
     }
 
-    public Element toElement(DateFormat formatter) {
+    public Element toElement() {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
 
         for (Iterator i = files.iterator(); i.hasNext(); ) {
-            modificationElement.addContent(((ModifiedFile) i.next()).toElement(formatter));
+            modificationElement.addContent(((ModifiedFile) i.next()).toElement());
         }
 
         Element dateElement = new Element(TAGNAME_DATE);
-        dateElement.addContent(formatter.format(modifiedTime));
+        dateElement.addContent(DateUtil.formatIso8601(modifiedTime));
         Element userElement = new Element(TAGNAME_USER);
         userElement.addContent(userName);
         Element commentElement = new Element(TAGNAME_COMMENT);
@@ -261,16 +261,10 @@ public class Modification implements Comparable, Serializable {
         return modificationElement;
     }
 
-    public String toXml(DateFormat formatter) {
-        return new XMLOutputter().outputString(toElement(formatter));
-    }
-
     public String toString() {
-        SimpleDateFormat formatter =
-            new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
         sb.append("Type: ").append(type).append('\n');
-        sb.append("Last Modified: ").append(formatter.format(modifiedTime)).append('\n');
+        sb.append("Last Modified: ").append(DateUtil.formatIso8601(modifiedTime)).append('\n');
         sb.append("Revision: ").append(revision).append('\n');
         sb.append("UserName: ").append(userName).append('\n');
         sb.append("EmailAddress: ").append(emailAddress).append('\n');
@@ -278,10 +272,10 @@ public class Modification implements Comparable, Serializable {
         return sb.toString();
     }
 
-    public void log(DateFormat formatter) {
+    public void log() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Type: " + type);
-            LOG.debug("Last Modified: " + formatter.format(modifiedTime));
+            LOG.debug("Last Modified: " + DateUtil.formatIso8601(modifiedTime));
             LOG.debug("UserName: " + userName);
             LOG.debug("EmailAddress: " + emailAddress);
             LOG.debug("Comment: " + comment);
@@ -392,7 +386,7 @@ public class Modification implements Comparable, Serializable {
         return code;
     }
 
-    public void fromElement(Element modification, DateFormat formatter) {
+    public void fromElement(Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
         try {
@@ -402,8 +396,9 @@ public class Modification implements Comparable, Serializable {
                 LOG.info("XML: " + outputter.outputString(modification));
             }
 
-            modifiedTime = formatter.parse(s);
+            modifiedTime = DateUtil.parseIso8601(s);
         } catch (ParseException e) {
+            LOG.warn("exception parsing date from Modification Element", e);
             //maybe we should do something different
             modifiedTime = new Date();
         }
@@ -420,7 +415,7 @@ public class Modification implements Comparable, Serializable {
             Iterator it = modfiles.iterator();
             while (it.hasNext()) {
                 Element modfileElement = (Element) it.next();
-                ModifiedFile modfile = new ModifiedFile(modfileElement, formatter);
+                ModifiedFile modfile = new ModifiedFile(modfileElement);
                 files.add(modfile);
             }
         }

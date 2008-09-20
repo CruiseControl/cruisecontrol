@@ -37,10 +37,6 @@
 
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-
-import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +44,9 @@ import java.util.Map;
 import java.util.Vector;
 
 import net.sourceforge.cruisecontrol.Modification;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
 
 /**
  * data structure for holding data about a single modification
@@ -69,8 +68,8 @@ public class ClearCaseModification extends Modification {
         super("clearcase");
     }
 
-    public Element toElement(DateFormat formatter) {
-        Element modificationElement = super.toElement(formatter);
+    public Element toElement() {
+        Element modificationElement = super.toElement();
 
         if (labels != null) {
             for (Iterator it = labels.iterator(); it.hasNext(); ) {
@@ -110,9 +109,9 @@ public class ClearCaseModification extends Modification {
         return sb.toString();
     }
 
-    public void log(DateFormat formatter) {
+    public void log() {
         if (LOG.isDebugEnabled()) {
-            super.log(formatter);
+            super.log();
 
             if (labels != null) {
                 for (Iterator it = labels.iterator(); it.hasNext(); ) {
@@ -133,8 +132,8 @@ public class ClearCaseModification extends Modification {
         }
     }
 
-    public void fromElement(Element modification, DateFormat formatter) {
-        super.fromElement(modification, formatter);
+    public void fromElement(Element modification) {
+        super.fromElement(modification);
 
         List modLabels = modification.getChildren(TAGNAME_LABEL);
         if (modLabels != null && modLabels.size() > 0) {

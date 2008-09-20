@@ -36,13 +36,11 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.DateFormatFactory;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.jdom.Element;
@@ -84,15 +82,9 @@ import org.jdom.Element;
 public class XMLLogHelper {
 
     private Element log;
-    private DateFormat dateFormat;
 
     public XMLLogHelper(Element log) {
-        this(log, DateFormatFactory.getDateFormat());
-    }
-
-    XMLLogHelper(Element log, DateFormat dateFormat) {
         this.log = log;
-        this.dateFormat = dateFormat;
     }
 
     /**
@@ -152,35 +144,16 @@ public class XMLLogHelper {
      */
     public Set getBuildParticipants() {
         Set results = new HashSet();
-        if (isP4Modifications()) {
-
-            Iterator changelistIterator = log.getChild("modifications").getChildren("changelist").iterator();
-            while (changelistIterator.hasNext()) {
-                Element changelistElement = (Element) changelistIterator.next();
-                String val = changelistElement.getAttributeValue("email");
-                 if ((val == null) || (val.length() == 0)) {
-                   val = changelistElement.getAttributeValue("user");
-                 }
-                 results.add(val);
+        Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+        while (modificationIterator.hasNext()) {
+            Element modification = (Element) modificationIterator.next();
+            Element emailElement = modification.getChild("email");
+            if (emailElement == null) {
+                emailElement = modification.getChild("user");
             }
-        } else {
-            Iterator modificationIterator = log.getChild("modifications").getChildren("modification")
-                    .iterator();
-            while (modificationIterator.hasNext()) {
-                Element modification = (Element) modificationIterator.next();
-                Element emailElement = modification.getChild("email");
-                if (emailElement == null) {
-                    emailElement = modification.getChild("user");
-                }
-                results.add(emailElement.getText());
-            }
+            results.add(emailElement.getText());
         }
         return results;
-    }
-
-    private boolean isP4Modifications() {
-        return log.getChild("modifications").getChildren("changelist") != null
-                && !log.getChild("modifications").getChildren("changelist").isEmpty();
     }
 
     /**
@@ -209,17 +182,12 @@ public class XMLLogHelper {
 
     public Set getModifications() {
         Set results = new HashSet();
-        if (isP4Modifications()) {
-            //TODO: implement this
-        } else {
-            Iterator modificationIterator = log.getChild("modifications").getChildren("modification")
-                    .iterator();
-            while (modificationIterator.hasNext()) {
-                Element modification = (Element) modificationIterator.next();
-                Modification mod = new Modification();
-                mod.fromElement(modification, dateFormat);
-                results.add(mod);
-            }
+        Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+        while (modificationIterator.hasNext()) {
+            Element modification = (Element) modificationIterator.next();
+            Modification mod = new Modification();
+            mod.fromElement(modification);
+            results.add(mod);
         }
         return results;
     }
