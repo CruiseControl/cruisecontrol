@@ -5373,7 +5373,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
       &lt;veto&gt;</pre>
         </div>
 
-        <p>This plugin is designed to help enforce build order between dependent projects. It will check to see if a project is up to date and vetos the build attempt if it is not. Veto is configured by defining a nested set of sourcecontrols and a buildstatus element. If project foo depends on project bar then bar may have a &lt;veto&gt; with triggers that are the same as the modificationset for foo and a &lt;buildstatus&gt; that points to the logs for foo. If there is a change that would cause foo to build but bar is first in the build queue, then the &lt;veto&gt; in bar will detect that foo is out of date and abort the build attempt by throwing an exception.</p>
+        <p>This plugin is designed to help enforce build order between dependent projects. It will check to see if a project is up to date and vetos the build attempt if it is not. Veto is configured by defining a nested set of sourcecontrols and a buildstatus element. If project bar depends on project foo then bar may have a &lt;veto&gt; with triggers that are the same as the modificationset for foo and a &lt;buildstatus&gt; that points to the logs for foo. If there is a change that would cause foo to build but bar is first in the build queue, then the &lt;veto&gt; in bar will detect that foo is out of date and abort the build attempt by throwing an exception.</p>
 
 	<p>Unlike most source controls, Veto never returns any modifications. Its only job is to abort builds when another project is out of date with respect to some set of modifications.</p>
 
