@@ -47,11 +47,8 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.Modification.ModifiedFile;
 
 public class PlasticSCMTest extends TestCase {
-
-    private static final String QUERY_RESULT = "plasticscm-query.txt";
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat (PlasticSCM.DATEFORMAT);
 
@@ -173,13 +170,13 @@ public class PlasticSCMTest extends TestCase {
         assertEquals (2, list.size());
 
         Modification mod = new Modification ("plasticscm");
-        ModifiedFile modfile = mod.createModifiedFile("HelloWorld.java", (new File(workingDir + "/src")).getPath());
+        mod.createModifiedFile("HelloWorld.java", (new File(workingDir + "/src")).getPath());
         mod.userName = "testing01";
         mod.modifiedTime = dateFormat.parse("23.05.2007.15.41.30");
         assertEquals (mod, list.get(0));
 
         mod = new Modification ("plasticscm");
-        modfile = mod.createModifiedFile("build.xml", fileWorkingDir.getPath());
+        mod.createModifiedFile("build.xml", fileWorkingDir.getPath());
         mod.userName = "testing01";
         mod.modifiedTime = dateFormat.parse("23.05.2007.15.41.40");
         assertEquals (mod, list.get(1));

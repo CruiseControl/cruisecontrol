@@ -14,8 +14,8 @@ public class SfeeTestUtils {
         // this class will still compile and run when the REAL implementation of SFEE is used.
         try {
             Class inMemSfeeFactoryClass = Class.forName("com.vasoftware.sf.InMemorySfeeFactory");
-            Method resetMethod = inMemSfeeFactoryClass.getMethod("reset", null);
-            resetMethod.invoke(null, null);
+            Method resetMethod = inMemSfeeFactoryClass.getMethod("reset", (Class[]) null);
+            resetMethod.invoke(null, (Object[]) null);
             Method createMethod = inMemSfeeFactoryClass.getMethod("create", new Class[] { String.class, String.class,
                     String.class });
             inMemorySfee = createMethod.invoke(null, new Object[] { serverUrl, username, password });
