@@ -1,0 +1,3 @@
+<project name="Sametime" default="dist">
+  <import file="../common.xml"/>
+</project>
