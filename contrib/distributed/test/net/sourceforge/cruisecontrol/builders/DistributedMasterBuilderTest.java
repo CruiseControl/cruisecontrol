@@ -25,6 +25,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
@@ -485,7 +486,7 @@ public class DistributedMasterBuilderTest extends TestCase {
                     agentService.isBusy());
 
             assertTrue("Wrong progress value: " + progress.getValue(),
-                    progress.getValue().indexOf(" retrieving results from ") == 8);
+                    progress.getValue().indexOf(" retrieving results from ") == DateUtil.SIMPLE_DATE_FORMAT.length());
         } finally {
             // terminate JoinManager in BuildAgent
             BuildAgentTest.terminateTestAgent(agentAvailable);
