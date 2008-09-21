@@ -44,14 +44,16 @@ import java.util.TimeZone;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.apache.log4j.Logger;
+// @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+//import org.apache.log4j.Logger;
 import org.apache.tools.ant.util.DateUtils;
 
 public final class DateUtil {
 
     public static final SimpleDateFormat ISO8601_DATE_FORMATTER;
 
-    private static final Logger LOG = Logger.getLogger(DateUtil.class);
+    // @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+    //private static final Logger LOG = Logger.getLogger(DateUtil.class);
 
     public static final transient long ONE_SECOND = 1000;
 
@@ -167,7 +169,8 @@ public final class DateUtil {
         try {
             date = SIMPLE_DATE_FORMATTER.parse(timeString);
         } catch (ParseException e) {
-            LOG.error("Error parsing timestamp for [" + description + "]", e);
+            // @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+            //LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
         }
 
@@ -175,7 +178,8 @@ public final class DateUtil {
     }
 
     /**
-     * Return a String representation of a duration specified in milliseconds.
+     * @param buildLength the length of a build in millis.
+     * @return a String representation of a duration specified in milliseconds.
      */
     public static String getDurationAsString(final long buildLength) {
         long timeSeconds = buildLength / 1000;
