@@ -44,7 +44,7 @@ import java.util.TimeZone;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-// @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+// @todo Find alternative "logging" approach for classes where log4j may not be available
 //import org.apache.log4j.Logger;
 import org.apache.tools.ant.util.DateUtils;
 
@@ -52,7 +52,8 @@ public final class DateUtil {
 
     public static final SimpleDateFormat ISO8601_DATE_FORMATTER;
 
-    // @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+    // Can't use log4j since DateUtil is now used in reporting/jsp
+    // @todo Find alternative "logging" approach for classes where log4j may not be available
     //private static final Logger LOG = Logger.getLogger(DateUtil.class);
 
     public static final transient long ONE_SECOND = 1000;
@@ -169,7 +170,7 @@ public final class DateUtil {
         try {
             date = SIMPLE_DATE_FORMATTER.parse(timeString);
         } catch (ParseException e) {
-            // @todo Find alternative "logging" approach for classes used in reporting/jsp where log4j may not be available
+            // @todo Find alternative "logging" approach where log4j may not be available
             //LOG.error("Error parsing timestamp for [" + description + "]", e);
             throw new CruiseControlException("Cannot parse string for " + description + ":" + timeString);
         }
