@@ -32,6 +32,10 @@ ScriptRunner
 ---------------------
 * Change ScriptRunner/AntBuilder to only create antBuilderOutput.log when needed. Reported by Jared Tafralian.
 
+TFS
+---------------------
+* Add attributes to support connections profiles and non-default encodings (CC-853). Patch by Dmitry Malenok.
+
 UCM
 ---------------------
 * Logging contributor activities in UCM Modificationset throws a NullPointerException on Linux Platform (CC-815). Path by Patrick Jenner.
