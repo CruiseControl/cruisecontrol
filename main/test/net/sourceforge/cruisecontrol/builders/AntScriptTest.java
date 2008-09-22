@@ -45,6 +45,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.ProgressImplTest;
 import net.sourceforge.cruisecontrol.util.UtilLocator;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
@@ -583,18 +584,6 @@ public class AntScriptTest extends TestCase {
 
     }
 
-    static class MockProgress implements Progress {
-        private String value;
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
 
     public void testSetupResolvedLoggerClassname() throws Exception {
         // set to same default used by AntBuilder
@@ -603,7 +592,7 @@ public class AntScriptTest extends TestCase {
         script.setupResolvedLoggerClassname();
         assertEquals(AntBuilder.DEFAULT_LOGGER, script.getLoggerClassName());
 
-        final Progress progress = new AntScriptTest.MockProgress();
+        final Progress progress = new ProgressImplTest.MockProgress();
         script.setProgress(progress);
         script.setupResolvedLoggerClassname();
         assertEquals(AntProgressLogger.class.getName(), script.getLoggerClassName());
@@ -691,7 +680,7 @@ public class AntScriptTest extends TestCase {
         script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
-        script.setProgress(new MockProgress());
+        script.setProgress(new ProgressImplTest.MockProgress());
 
         final File fakeJar = createFakeProgressLoggerLib();
         try {
@@ -728,7 +717,7 @@ public class AntScriptTest extends TestCase {
         script.setUseLogger(USE_LOGGER);
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
-        script.setProgress(new MockProgress());
+        script.setProgress(new ProgressImplTest.MockProgress());
 
         final File fakeJar = createFakeProgressLoggerLib();
         try {
@@ -764,7 +753,7 @@ public class AntScriptTest extends TestCase {
         script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
-        script.setProgress(new MockProgress());
+        script.setProgress(new ProgressImplTest.MockProgress());
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
         TestUtil.assertArray(
@@ -797,7 +786,7 @@ public class AntScriptTest extends TestCase {
         script.setUseLogger(USE_LOGGER);
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
-        script.setProgress(new MockProgress());
+        script.setProgress(new ProgressImplTest.MockProgress());
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
         TestUtil.assertArray(
@@ -1077,25 +1066,25 @@ public class AntScriptTest extends TestCase {
      }
 
     public void testConsumeLine() throws Exception {
-        final Progress progress = new MockProgress();
+        final Progress progress = new ProgressImplTest.MockProgress();
         script.setProgress(progress);
 
-        assertNull(progress.getValue());
+        assertNull(progress.getText());
 
         script.consumeLine("non-matching prefix");
-        assertNull(progress.getValue());
+        assertNull(progress.getText());
 
         script.consumeLine("");
-        assertNull(progress.getValue());
+        assertNull(progress.getText());
 
         script.consumeLine(null);
-        assertNull(progress.getValue());
+        assertNull(progress.getText());
 
         script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS);
-        assertEquals("", progress.getValue());
+        assertEquals("", progress.getText());
 
         script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS + "valid progress msg");
-        assertEquals("valid progress msg", progress.getValue());
+        assertEquals("valid progress msg", progress.getText());
     }
 
     private static String getLib() {

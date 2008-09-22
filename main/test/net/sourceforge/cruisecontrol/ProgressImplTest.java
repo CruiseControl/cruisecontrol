@@ -14,10 +14,39 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
  */
 public class ProgressImplTest extends TestCase {
 
+    public static class MockProgress implements Progress {
+        private String value;
+        private Date lastUpdated;
+
+        public void setValue(String value) {
+            this.value = value;
+            lastUpdated = new Date();
+        }
+
+        /** @return current progress value represented as a String, prefixed with last update date. */
+        public String getValue() {
+            return DateUtil.getFormattedTime(lastUpdated) + " " + value;
+        }
+
+        /** @return the date when current progress value was set. */
+        public Date getLastUpdated() {
+            return lastUpdated;
+        }
+
+        /**
+         * @return the current progress value (not prefixed by last updated date).
+         */
+        public String getText() {
+            return value;
+        }
+    }
+
     public void testProgressInitState() throws Exception {
         final Progress progress = new ProgressImpl(null);
+        final Date lastUpdate = progress.getLastUpdated();
+
         assertEquals("New Progress should support call to getValue.",
-                DateUtil.getFormattedTime(new Date()) + " null",
+                DateUtil.getFormattedTime(lastUpdate) + " null",
                 progress.getValue());
     }
 

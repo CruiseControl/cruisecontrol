@@ -55,21 +55,9 @@ import org.jdom.output.XMLOutputter;
 
 public class ModificationSetTest extends TestCase {
 
-    private static class MockProgress implements Progress {
-        private String value;
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
     private final DateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
     
-    private final MockProgress mockProgress = new MockProgress();
+    private final ProgressImplTest.MockProgress mockProgress = new ProgressImplTest.MockProgress();
 
     private ModificationSet modSet;
 
@@ -162,9 +150,9 @@ public class ModificationSetTest extends TestCase {
         // Wait to ensure "now" used in getMods will detect mod in quiet period
         Thread.sleep((long) ((quietPeriod * 1000) * .5));
 
-        assertNull(mockProgress.getValue());
+        assertNull(mockProgress.getText());
         modSet.retrieveModificationsAsElement(new Date(), null);
-        assertNull(mockProgress.getValue());
+        assertNull(mockProgress.getText());
     }
 
     public void testProgressInQuietPeriod() throws Exception {
@@ -182,7 +170,7 @@ public class ModificationSetTest extends TestCase {
         // Wait to ensure "now" used in getMods will detect mod in quiet period
         Thread.sleep((long) ((quietPeriod * 1000) * .5));
 
-        assertNull(mockProgress.getValue());
+        assertNull(mockProgress.getText());
         modSet.retrieveModificationsAsElement(now, mockProgress);
         final String progressMsg = mockProgress.getValue();
         assertNotNull("Modset progress msg should not be null", progressMsg);
