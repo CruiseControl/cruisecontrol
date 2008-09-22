@@ -179,7 +179,7 @@ public class PVCSTest extends TestCase {
 
         BufferedReader brIn;
         try {
-            brIn = new BufferedReader(new FileReader(new File(new URI(getClass().getResource("vlog.txt")
+            brIn = new BufferedReader(new FileReader(new File(new URI(getClass().getResource("pvcs_output.txt")
                     .toExternalForm()))));
             String line;
             while ((line = brIn.readLine()) != null) {
@@ -187,7 +187,7 @@ public class PVCSTest extends TestCase {
             }
             brIn.close();
         } catch (IOException e) {
-            LOG.error("Error in reading vlog file of PVCS modifications : ", e);
+            LOG.error("Error in reading pvcs_output.txt file of PVCS modifications : ", e);
         }
 
         List mods = consumer.getModificationList();
