@@ -47,6 +47,13 @@
 
     <!--
     <context-param>
+      <param-name>download.threshhold</param-name>
+      <param-value>5242880</param-value>
+      <description>Number of bytes for a file to be served by the FileView before user is prompted to
+        download. Default value is 4 * 1024 * 1024 (4 MB).
+      </description>
+    </context-param>
+    <context-param>
       <param-name>cruisecontrol.artifacts</param-name>
       <param-value>absolute path here</param-value>
     </context-param>

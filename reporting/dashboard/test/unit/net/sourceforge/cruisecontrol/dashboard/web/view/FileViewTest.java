@@ -63,6 +63,7 @@ public class FileViewTest extends MockObjectTestCase {
         mockRequest = new MockHttpServletRequest();
         mockResponse = new MockHttpServletResponse();
         mockServletContext = mock(ServletContext.class);
+        mockServletContext.expects(once()).method("getInitParameter").will(returnValue(null));
         view = new FileView();
         view.setServletContext((ServletContext) mockServletContext.proxy());
     }
@@ -90,6 +91,7 @@ public class FileViewTest extends MockObjectTestCase {
     }
 
     public void testDefaultContentTypeShouldBeTextPlain() throws Exception {
+        mockServletContext.reset();
         assertEquals("application/octet-stream", view.getContentType());
     }
 
@@ -102,13 +104,23 @@ public class FileViewTest extends MockObjectTestCase {
                 .getHeader("Content-Disposition"));
     }
 
+    public void testShouldBeAbleToOverrideDownloadThreshhold() throws Exception {
+        File file = new MockFile(DataUtils.createTempFile("file", ".svg"));
+        Map model = new HashMap();
+        model.put("targetFile", file);
+        mockServletContext.reset();
+        mockServletContext.expects(once()).method("getInitParameter").will(returnValue("5000000"));
+        view.render(model, mockRequest, mockResponse);
+        assertNull(mockResponse.getHeader("Content-Disposition"));
+    }
+    
     private static class MockFile extends File {
         public MockFile(File realFile) {
             super(realFile.getPath());
         }
 
         public long length() {
-            return FileView.DOWNLOAD_THRESHHOLD + 1;
+            return FileView.DEFAULT_DOWNLOAD_THRESHHOLD + 1;
         }
     }
 }
