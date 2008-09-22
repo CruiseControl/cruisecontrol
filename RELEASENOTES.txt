@@ -20,6 +20,10 @@ Documentation
 build loop
 ======================
 
+ArtifactsPublisher
+---------------------
+* Add option to move instead of copy artifacts which can save time (CC-833). Patch by Grzegorz Oledzki.
+
 BuildStatus
 ---------------------
 * Add attribute 'vetoIfFailing'. Will abort the build if the project being monitored had the last build fail (CC-842).

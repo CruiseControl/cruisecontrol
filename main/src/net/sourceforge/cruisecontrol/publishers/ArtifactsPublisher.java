@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Copy;
+import org.apache.tools.ant.taskdefs.Move;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.util.FileUtils;
 import org.jdom.Element;
@@ -51,12 +52,11 @@ import java.io.IOException;
 
 public class ArtifactsPublisher implements Publisher {
 
-    private Copy copier = new Copy();
-
     private String destDir;
     private String targetDirectory;
     private String targetFile;
     private String subdirectory;
+    private boolean moveInsteadOfCopy = false;
     private boolean publishOnFailure = true;
 
     public void setDest(String dir) {
@@ -112,6 +112,11 @@ public class ArtifactsPublisher implements Publisher {
         FileUtils utils = FileUtils.getFileUtils();
         try {
             utils.copyFile(file, new File(uniqueDest, file.getName()));
+                if (moveInsteadOfCopy) {
+                    // utils.moveFile() should be used instead (but there's no such a method)
+                    FileUtils.delete(file);            
+                }
+
         } catch (IOException e) {
             throw new CruiseControlException(e);
         }
@@ -127,6 +132,7 @@ public class ArtifactsPublisher implements Publisher {
         }
         FileSet set = new FileSet();
         set.setDir(directory);
+        Copy copier = createCopier();
         copier.addFileset(set);
         copier.setTodir(uniqueDest);
         copier.setProject(project);
@@ -150,4 +156,13 @@ public class ArtifactsPublisher implements Publisher {
     public void setSubdirectory(String subdir) {
         subdirectory = subdir;
     }
+
+    public void setMoveInsteadOfCopy(boolean moveInsteadOfCopy) {
+        this.moveInsteadOfCopy = moveInsteadOfCopy;
+    }
+
+    public Copy createCopier() {
+        return moveInsteadOfCopy ? new Move() : new Copy();
+    }
+    
 }

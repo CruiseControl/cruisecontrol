@@ -51,6 +51,7 @@ public class ArtifactsPublisherTest extends TestCase {
 
     private ArtifactsPublisher publisher;
     private File tempFile;
+    private File temporaryDir;
     private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
@@ -58,6 +59,9 @@ public class ArtifactsPublisherTest extends TestCase {
         tempFile = File.createTempFile("temp", ".tmp");
         tempFile.deleteOnExit();
         filesToDelete.add(tempFile);
+        temporaryDir = new File(tempFile.getParentFile(), "tmpdir");
+        temporaryDir.mkdirs();
+        temporaryDir.deleteOnExit();
     }
 
     protected void tearDown() throws Exception {
@@ -164,5 +168,25 @@ public class ArtifactsPublisherTest extends TestCase {
         expected = tempDir + File.separatorChar + timestamp + File.separatorChar + subdir;
         assertEquals(expected, destinationDir.getPath());
 
+    }
+
+    public void testMoveInsteadOfCopy() {
+        publishing(true);
+    }
+    
+    public void testMoveInsteadOfCopyTurnedOff() {
+        publishing(false);
+    }
+
+    private void publishing(boolean withMoving) {
+        publisher.setMoveInsteadOfCopy(withMoving);
+        publisher.setFile(tempFile.getAbsolutePath());
+        try {
+            publisher.publishFile(temporaryDir);
+        } catch (CruiseControlException e) {
+            fail(e.toString());
+        }
+        assertTrue((!withMoving) == new File(tempFile.getAbsolutePath()).exists()); // source
+        assertTrue(new File(temporaryDir, tempFile.getName()).exists()); // destination
     }
 }
