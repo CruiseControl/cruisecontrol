@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8-dev
 
+general
+======================
+* End of support for compiling/running CruiseControl with JDK 1.4. New earliest supported JDK is 1.5/5.0.
+
 contrib
 ======================
 * Move plugins that require external libraries to build out of cruisecontrol/main. They are not under cruisecontrol/contrib/plugins. Affected plugins include:
