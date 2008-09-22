@@ -20,6 +20,10 @@ Documentation
 build loop
 ======================
 
+BuildStatus
+---------------------
+* Add attribute 'vetoIfFailing'. Will abort the build if the project being monitored had the last build fail (CC-842).
+
 Darcs
 ---------------------
 * Fix Darcs support (CC-847). Patch by Marc Fontaine.

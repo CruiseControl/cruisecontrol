@@ -179,4 +179,50 @@ public class BuildStatusTest extends TestCase {
         assertEquals("true", properties.get("property"));
         assertEquals(5, properties.size());
     }
+    
+    public void testVetoIfFailing() throws Exception {
+        buildStatus.setVetoIfFailing(true);
+
+        File tempDir = new File(System.getProperty("java.io.tmpdir"));
+
+        buildStatus.setLogDir(tempDir.getAbsolutePath());
+        buildStatus.validate();
+
+        Calendar calendar = Calendar.getInstance();
+        Date today = calendar.getTime();
+        calendar.add(Calendar.DATE, -1);
+        Date yesterday = calendar.getTime();
+        calendar.add(Calendar.DATE, -1);
+        Date twoDaysAgo = calendar.getTime();
+
+        // Should be no modifications at this point
+        List modifications = buildStatus.getModifications(twoDaysAgo, null);
+        assertEquals("Wrong number of modifications", 0, modifications.size());
+
+        // Verify an unsuccessful build causes veto
+        File yesterdayLog = new File(tempDir, Log.formatLogFileName(yesterday));
+        yesterdayLog.createNewFile();
+        filesToDelete.add(yesterdayLog);
+        try {
+            buildStatus.getModifications(twoDaysAgo, null);
+            fail("build should abort if last build is failing");
+        } catch (RuntimeException e) {
+            assertEquals("most recent build failed: " + yesterdayLog.getName(), e.getMessage());
+        }
+
+        // Verify build vetoed if last build failed, even if out of date range
+        try {
+            buildStatus.getModifications(today, null);
+            fail("build should abort if last build is failing");
+        } catch (RuntimeException e) {
+            assertEquals("most recent build failed: " + yesterdayLog.getName(), e.getMessage());
+        }
+
+        // Verify passing build prevents veto
+        File todayLog = new File(tempDir, Log.formatLogFileName(today, "good.1"));
+        todayLog.createNewFile();
+        filesToDelete.add(todayLog);
+
+        buildStatus.getModifications(twoDaysAgo, null);
+    }
 }
