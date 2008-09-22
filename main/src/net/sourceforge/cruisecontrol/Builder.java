@@ -75,6 +75,10 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
+        
+        if (timeSet) {
+          ValidationHelper.assertFalse(time < 0, "negative values for time are not allowed");
+        }
 
         ValidationHelper.assertFalse(timeSet && multipleSet,
             "Only one of 'time' or 'multiple' are allowed on builders.");
