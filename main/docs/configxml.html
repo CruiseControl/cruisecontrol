@@ -3329,6 +3329,12 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                <td>Will set this property if a modification has occurred.  For
                use in conditionally controlling the build later.</td>
             </tr>
+            <tr>
+               <td>vetoIfFailing</td>
+               <td>No</td>
+               <td>Will abort the build attempt if the last build of the monitored project is failing.
+		 Defaults to false.</td>
+            </tr>
             </tbody>
         </table>
 

@@ -90,6 +90,8 @@ public class BuildStatus implements SourceControl {
     private SourceControlProperties properties = new SourceControlProperties();
     private String logDir;
 
+    private boolean vetoIfFailing = false;
+
     /**
      * This method is used to make certain attributes of the most
      * recent modification available to Ant tasks.
@@ -154,6 +156,10 @@ public class BuildStatus implements SourceControl {
             LOG.error("path for log directory exists but isn't a directory: " + logDir);
             return modifications;
         }
+        
+        if (vetoIfFailing) {
+            vetoIfFailing(logDirectory);
+        }
 
         try {
             File[] newLogs = logDirectory.listFiles(new FilenameFilter() {
@@ -203,6 +209,50 @@ public class BuildStatus implements SourceControl {
         return modifications;
     }
 
+    private void vetoIfFailing(File logDirectory) {
+        NewestLogfileFilter filter = new NewestLogfileFilter();
+        logDirectory.listFiles(filter);
+        String mostRecentLogfileName = filter.mostRecent;
+        if (mostRecentLogfileName != null && !Log.wasSuccessfulBuild(mostRecentLogfileName)) {
+            throw new VetoException("most recent build failed: " + mostRecentLogfileName);
+        }
+    }
+    
+    private static class VetoException extends RuntimeException {
+        public VetoException(String message) {
+            super(message);
+        }
+    }
+
+    private static class NewestLogfileFilter implements FilenameFilter {
+        private String mostRecent;
+
+        public boolean accept(File dir, String name) {
+            boolean accept = name.startsWith("log") 
+                             && name.endsWith(".xml") 
+                             && name.length() >= minimumFilenameLength();
+            if (accept) {
+                cacheNewestFilename(name);
+            }
+            return accept;
+        }
+
+        private void cacheNewestFilename(String name) {
+            try {
+                Date logDate = Log.parseDateFromLogFileName(name);
+                if (mostRecent == null || logDate.after(Log.parseDateFromLogFileName(mostRecent))) {
+                    mostRecent = name;
+                }
+            } catch (CruiseControlException e) {
+                LOG.warn("exception getting date from filename: " + name, e);
+            }
+        }
+
+        private int minimumFilenameLength() {
+            return "log".length() + DateUtil.SIMPLE_DATE_FORMAT.length() + ".xml".length();
+        }
+    }
+    
     private String getProjectFromLog(File f) {
         LOG.info("Getting project from file: " + f.getName());
         try {
@@ -225,5 +275,10 @@ public class BuildStatus implements SourceControl {
         SAXBuilder sxb = new SAXBuilder();
         return sxb.build(f);
     }
+
+    public void setVetoIfFailing(boolean b) {
+        vetoIfFailing = b;
+    }
+
 }
 
