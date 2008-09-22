@@ -252,7 +252,7 @@ not part of the command.]]></message>
         <stacktrace><![CDATA[This is my stacktrace]]></stacktrace>
     </build>
     <testsuite errors="1" failures="3" name="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
-               tests="10" time="0.109">
+               tests="10" time="1,000.109">
         <testcase classname="net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest"
                   name="testFourConnected" time="0.016">
             <error message="org/objectweb/asm/CodeVisitor" type="java.lang.NoClassDefFoundError">java.lang.NoClassDefFoundError: org/objectweb/asm/CodeVisitor

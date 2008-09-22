@@ -60,6 +60,9 @@ UCM
 ---------------------
 * Logging contributor activities in UCM Modificationset throws a NullPointerException on Linux Platform (CC-815). Path by Patrick Jenner.
 
+Dashboard
+======================
+* Fix bug where tests that took > 1000 seconds would cause an exception that prevented the build detail page from displaying (CC-828).
 
 CruiseControl Release Notes - 2.7.3
 
