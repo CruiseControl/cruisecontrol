@@ -36,6 +36,10 @@ DateFormat
 ---------------------
 * The ability to set the date format in the build loop has been removed. This fixes the issue where setting the date format on one project would affect all of them (CC-355), would cause build status messages to not display in the reporting application (CC-797). Build loop now uses ISO 8601 format for storing date stamp information (CC-353) which is a change from the previous default format.
 
+Schedule
+---------------------
+* Fixed a bug where time builders could be hidden by a multiple builder earlier in the file (CC-839). Now Builders are evaluated by time, then by multiple and then by day.
+
 ScriptRunner
 ---------------------
 * Change ScriptRunner/AntBuilder to only create antBuilderOutput.log when needed. Reported by Jared Tafralian.

@@ -42,6 +42,8 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -82,9 +84,12 @@ public class Schedule implements Serializable {
     /** date formatting for time statements */
     private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
+    private Comparator<Builder> builderComparator = new BuilderComparitor();
+
     public void add(Builder builder) {
         checkParamNotNull("builder", builder);
         builders.add(builder);
+        Collections.sort(builders, builderComparator);
     }
 
     public void add(PauseBuilder pause) {
@@ -198,9 +203,8 @@ public class Schedule implements Serializable {
         Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
-            int buildTime = builder.getTime();
-            boolean isTimeBuilder = buildTime >= 0;
-            if (isTimeBuilder) {
+            if (builder.isTimeBuilder()) {
+                int buildTime = builder.getTime();
                 boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
                 int nowTime = DateUtil.getTimeFromDate(now);
                 boolean isAfterBuildTime = buildTime <= nowTime;
@@ -274,8 +278,7 @@ public class Schedule implements Serializable {
         Iterator iterator = builders.iterator();
         while (iterator.hasNext()) {
             Builder builder = (Builder) iterator.next();
-            boolean isTimeBuilder = builder.getTime() != Builder.NOT_SET;
-            if (!isTimeBuilder) {
+            if (!builder.isTimeBuilder()) {
                 if (builder.getMultiple() == 1) {
                     if (builder.isValidDay(then)) {
                         LOG.debug("multiple=1 builder found that could run on " + then);
@@ -325,8 +328,7 @@ public class Schedule implements Serializable {
         Iterator iterator = builders.iterator();
         while (iterator.hasNext()) {
             Builder builder = (Builder) iterator.next();
-            boolean isTimeBuilder = builder.getTime() != Builder.NOT_SET;
-            if (!isTimeBuilder) {
+            if (!builder.isTimeBuilder()) {
                 onlyTimeBuilders = false;
                 break;
             }
@@ -343,9 +345,7 @@ public class Schedule implements Serializable {
         Iterator builderIterator = builders.iterator();
         while (builderIterator.hasNext()) {
             Builder builder = (Builder) builderIterator.next();
-            int thisBuildTime = builder.getTime();
-            boolean isTimeBuilder = thisBuildTime != Builder.NOT_SET;
-            if (isTimeBuilder) {
+            if (builder.isTimeBuilder()) {
                 long timeToThisBuild = Long.MAX_VALUE;
                 Calendar cal = Calendar.getInstance();
                 long oneYear = 365;
@@ -355,6 +355,7 @@ public class Schedule implements Serializable {
                     Date future = cal.getTime();
                     boolean dayIsValid = builder.isValidDay(future);
                     if (dayIsValid) {
+                        int thisBuildTime = builder.getTime();
                         boolean timePassedToday = (daysInTheFuture == 0) && (nowTime > thisBuildTime);
                         if (!timePassedToday) {
                             int buildHour = thisBuildTime / 100;
@@ -523,5 +524,52 @@ public class Schedule implements Serializable {
 
     public List getBuilders() {
         return builders;
+    }
+
+    /**
+     * sort time builders before non-time builders, then by multiple (higher first)
+     * then ones with days before non-days
+     */
+    private static class BuilderComparitor implements Comparator<Builder> {
+
+        public int compare(Builder b1, Builder b2) {
+            if (b1.isTimeBuilder() && !b2.isTimeBuilder()) {
+                return -1;
+            }
+            
+            if (!b1.isTimeBuilder() && b2.isTimeBuilder()) {
+                return 1;
+            }
+            
+            if (b1.isTimeBuilder() && b2.isTimeBuilder()) {
+                return checkDays(b1, b2);
+            }
+            
+            if (b1.getMultiple() > b2.getMultiple()) {
+                return -1;
+            }
+            
+            if (b1.getMultiple() < b2.getMultiple()) {
+                return 1;
+            }
+            
+            return checkDays(b1, b2);
+        }
+
+        private int checkDays(Builder b1, Builder b2) {
+            boolean b1HasDaySet = b1.getDay() >= 0;
+            boolean b2HasDaySet = b2.getDay() >= 0;
+            
+            if (b1HasDaySet && !b2HasDaySet) {
+                return -1;
+            }
+            
+            if (!b1HasDaySet && b2HasDaySet) {
+                return 1;
+            }
+            
+            return 0;
+        }
+
     }
 }

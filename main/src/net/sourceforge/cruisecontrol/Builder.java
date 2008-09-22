@@ -156,4 +156,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         return integer2.compareTo(integer); //descending order
     }
 
+    public boolean isTimeBuilder() {
+        return time != NOT_SET;
+    }
+
 }
