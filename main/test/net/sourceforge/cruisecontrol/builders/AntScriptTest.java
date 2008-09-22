@@ -1069,16 +1069,16 @@ public class AntScriptTest extends TestCase {
         final Progress progress = new ProgressImplTest.MockProgress();
         script.setProgress(progress);
 
-        assertNull(progress.getText());
+        assertEquals("null", progress.getText());
 
         script.consumeLine("non-matching prefix");
-        assertNull(progress.getText());
+        assertEquals("null", progress.getText());
 
         script.consumeLine("");
-        assertNull(progress.getText());
+        assertEquals("null", progress.getText());
 
         script.consumeLine(null);
-        assertNull(progress.getText());
+        assertEquals("null", progress.getText());
 
         script.consumeLine(AntScript.MSG_PREFIX_ANT_PROGRESS);
         assertEquals("", progress.getText());
