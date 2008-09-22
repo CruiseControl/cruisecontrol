@@ -70,9 +70,6 @@ public class TestSuiteExtractor extends SAXBasedExtractor {
         } catch (ParseException e) {
             duration = (float) 0.0;
         }
-        int tests = Integer.parseInt(StringUtils.defaultString(attributes.getValue("tests"), "0"));
-        int failures = Integer.parseInt(StringUtils.defaultString(attributes.getValue("failures"), "0"));
-        int errors = Integer.parseInt(StringUtils.defaultString(attributes.getValue("errors"), "0"));
         return new BuildTestSuite(name, duration);
     }
 

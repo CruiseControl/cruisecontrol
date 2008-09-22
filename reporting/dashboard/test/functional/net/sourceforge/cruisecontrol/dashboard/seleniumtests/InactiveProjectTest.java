@@ -76,7 +76,7 @@ public class InactiveProjectTest extends SeleniumTestCase {
 
     public void testShouldNotHaveLongerThan() throws Exception {
         this.openBuildsPage();
-        String before = user.getText("statistics_building");
+        user.getText("statistics_building");
         forceBuildByClick("cc-live-2");
         textShouldAppearInCertainTime("Elapsed", 10 * AJAX_DURATION);
         shouldNotDisplayLongerThan();

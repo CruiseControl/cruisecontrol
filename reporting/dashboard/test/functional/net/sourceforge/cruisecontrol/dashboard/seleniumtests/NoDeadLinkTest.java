@@ -2,11 +2,11 @@ package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
 public class NoDeadLinkTest extends SeleniumTestCase {
     public void testShouldNotDisplay404WhenClickTheLink() throws Exception {
-        //clickTabs();
-        //clickBuildProfile();
-        //clickBuildBar();
-        //clickAllBuilds();
-        //clickAllPassedBuilds();
+        clickTabs();
+        clickBuildProfile();
+        clickBuildBar();
+        clickAllBuilds();
+        clickAllPassedBuilds();
     }
 
     private void clickBuildProfile() throws Exception {

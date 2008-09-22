@@ -37,51 +37,38 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 
-import net.sourceforge.cruisecontrol.dashboard.Build;
-import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
-import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
-import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
-import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
-import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardConfigFileFactory;
-import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
-import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
-import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
-import org.jmock.Mock;
-import org.jmock.cglib.MockObjectTestCase;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.ModelAndView;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
+import net.sourceforge.cruisecontrol.dashboard.BuildSummaryStatistics;
+import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
+import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
+import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
+import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
+import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
+import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
+
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
+
 public class LatestBuildsListingControllerTest extends MockObjectTestCase {
     private Mock latestBuildSummaryServiceMock;
 
     private Mock buildSummaryUIServiceMock;
 
-    private HistoricalBuildSummariesService buildSummaryService;
-
     private LatestBuildsListingController controller;
 
-    private Build ealiestFailed;
-
-    private Build lastSucceed;
-
-    private Mock mockHistoricalBuildSummaryService;
-
-    private Mock mockDashboardXmlConfigService;
-
     protected void setUp() throws Exception {
-        ealiestFailed = new BuildSummary("", PreviousResult.FAILED, DataUtils.FAILING_BUILD_XML);
-        lastSucceed = new BuildSummary("", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         setUpMock();
         controller = new LatestBuildsListingController(
                 (LatestBuildSummariesService) latestBuildSummaryServiceMock.proxy(),
@@ -106,10 +93,6 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
                 BuildSummaryUIService.class,
                 new Class[]{HistoricalBuildSummariesService.class, DashboardXmlConfigService.class},
                 new Object[]{null, null});
-        mockDashboardXmlConfigService =
-                mock(
-                        DashboardXmlConfigService.class, new Class[]{DashboardConfigFileFactory.class},
-                        new Object[]{null});
         latestBuildSummaryServiceMock.expects(once()).method("getLatestOfProjects").will(
                 returnValue(updatedBuildSummaries()));
         buildSummaryUIServiceMock.expects(once()).method("transformWithLevel").will(returnValue(getBuildCommands()));
@@ -166,22 +149,4 @@ public class LatestBuildsListingControllerTest extends MockObjectTestCase {
         return Arrays.asList(buildSummaries);
     }
 
-
-    private List originalBuilds() {
-        BuildSummary building =
-                new BuildSummary("project3", PreviousResult.FAILED, DataUtils.FAILING_BUILD_XML);
-        BuildSummary summary4 =
-                new BuildSummary("project4", PreviousResult.UNKNOWN, DataUtils.FAILING_BUILD_XML);
-        summary4.updateStatus(CurrentStatus.WAITING.getCruiseStatus());
-        BuildSummary summary5 =
-                new BuildSummary("project5", PreviousResult.UNKNOWN, DataUtils.FAILING_BUILD_XML);
-        summary5.updateStatus(CurrentStatus.WAITING.getCruiseStatus());
-        building.updateStatus(CurrentStatus.BUILDING.getCruiseStatus());
-        Build[] builds =
-                new Build[]{
-                        new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML),
-                        new BuildSummary("project2", PreviousResult.FAILED, DataUtils.FAILING_BUILD_XML),
-                        building, summary4, summary5};
-        return Arrays.asList(builds);
-    }
 }

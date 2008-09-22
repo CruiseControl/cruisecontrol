@@ -56,13 +56,8 @@ public final class CCDateFormatter {
 
     private static DateTimeFormatter yyyyMMddHHmmssPattern = DateTimeFormat.forPattern("yyyyMMddHHmmss");
 
-    private static DateTimeFormatter iso8601Pattern = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
-
     private static SimpleDateFormat yyyyMMddHHmmssSimpleDateFormat =
         new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
-
-    private static SimpleDateFormat iso8601SimpleDateFormat =
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH);
 
     private CCDateFormatter() {
     }

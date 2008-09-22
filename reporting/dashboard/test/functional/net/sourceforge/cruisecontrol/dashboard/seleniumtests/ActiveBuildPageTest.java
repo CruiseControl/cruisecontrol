@@ -36,9 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.seleniumtests;
 
-import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
-
-import java.io.File;
 
 public class ActiveBuildPageTest extends SeleniumTestCase {
     public void testShouldShowElapsedTimeOnActiveBuildPage() throws Exception {

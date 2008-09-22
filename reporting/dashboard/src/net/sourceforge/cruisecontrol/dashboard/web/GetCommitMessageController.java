@@ -78,7 +78,6 @@ public class GetCommitMessageController implements Controller {
     private List toJsonHeader(List commitMessages, String projectName) {
         List header = new ArrayList();
         if (CollectionUtils.isNotEmpty(commitMessages)) {
-            String result = "";
             Map storyTrackers = configService.getStoryTrackers();
             StoryTracker storyTracker = (StoryTracker) storyTrackers.get(projectName);
             for (Iterator iter = commitMessages.iterator(); iter.hasNext();) {

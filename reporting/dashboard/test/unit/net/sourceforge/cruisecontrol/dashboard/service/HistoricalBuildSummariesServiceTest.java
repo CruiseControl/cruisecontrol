@@ -36,18 +36,18 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
+import java.io.File;
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
-import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.FilesystemUtils;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
+
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 import org.joda.time.DateTime;
-
-import java.io.File;
-import java.util.List;
 
 public class HistoricalBuildSummariesServiceTest extends MockObjectTestCase {
 
@@ -59,15 +59,9 @@ public class HistoricalBuildSummariesServiceTest extends MockObjectTestCase {
 
     private Mock configurationMock;
 
-    private Mock buildLoopQueryServiceMock;
-
     private static final String NONMATCHING_FILE = "nonmatching_file.xml";
 
     protected void setUp() throws Exception {
-        buildLoopQueryServiceMock =
-                mock(
-                        BuildLoopQueryService.class, new Class[]{EnvironmentService.class,
-                        BuildInformationRepository.class}, new Object[]{null, null});
         projectName = "listingProject";
         projectDirectory = FilesystemUtils.createDirectory(projectName);
         createLogFiles(projectDirectory);

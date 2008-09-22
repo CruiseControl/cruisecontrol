@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Iterator;
-import java.util.HashSet;
 
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
@@ -18,14 +18,10 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation;
 import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXConnectorFactory;
 
-import org.apache.log4j.Logger;
-
 public class BuildInformationRepositoryInMemoImpl implements BuildInformationRepository {
     private Map data = new HashMap();
 
     private JMXConnectorFactory jmxConnectorFactory;
-
-    private static final Logger LOGGER = Logger.getLogger(BuildInformationRepositoryInMemoImpl.class);
 
     private Map info = new HashMap();
 

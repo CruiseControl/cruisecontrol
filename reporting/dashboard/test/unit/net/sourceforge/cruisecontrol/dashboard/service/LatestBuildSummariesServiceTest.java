@@ -49,8 +49,6 @@ public class LatestBuildSummariesServiceTest extends MockObjectTestCase {
     }
 
     public void testShouldBeAbleToReturnAllLastestBuildOfProjects() {
-        Mock mockBuildSummaryService = mock(BuildSummaryService.class);
-
         BuildSummary inactivebs = new BuildSummary("projec1");
         inactivebs.updateStatus(CurrentStatus.WAITING.getCruiseStatus());
         List inactives = new ArrayList();
