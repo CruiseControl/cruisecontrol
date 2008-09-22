@@ -42,9 +42,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.sourcecontrols.MockSourceControl;
@@ -463,5 +465,55 @@ public class ModificationSetTest extends TestCase {
         expectedModifications.add(mod3);
 
         assertEquals("The wrong modification has been filtered out", expectedModifications, modifications);
+    }
+    
+    public void testGetPropertiesReturnsGreatestValue() {
+        MockSourceControl sc = new MockSourceControl() {
+            @Override
+            public Map getProperties() {
+                Map properties = new HashMap();
+                properties.put("rev", "1");
+                properties.put("name", "able");
+                properties.put("date", "01/01/01");
+                return properties;
+            }
+        };
+
+        modSet.add(sc);
+        assertEquals("1", modSet.getProperties().get("rev"));
+        assertEquals("able", modSet.getProperties().get("name"));
+        assertEquals("01/01/01", modSet.getProperties().get("date"));        
+
+        sc = new MockSourceControl() {
+            @Override
+            public Map getProperties() {
+                Map properties = new HashMap();
+                properties.put("rev", "10");
+                properties.put("name", "charlie");
+                properties.put("date", "10/10/10");
+                return properties;
+            }
+        };
+
+        modSet.add(sc);
+        assertEquals("10", modSet.getProperties().get("rev"));
+        assertEquals("charlie", modSet.getProperties().get("name"));
+        assertEquals("10/10/10", modSet.getProperties().get("date"));
+        
+        sc = new MockSourceControl() {
+            @Override
+            public Map getProperties() {
+                Map properties = new HashMap();
+                properties.put("rev", "5");
+                properties.put("name", "baker");
+                properties.put("date", "05/05/05");
+                return properties;
+            }
+        };
+
+        modSet.add(sc);
+        assertEquals("10", modSet.getProperties().get("rev"));
+        assertEquals("charlie", modSet.getProperties().get("name"));
+        assertEquals("10/10/10", modSet.getProperties().get("date"));
     }
 }

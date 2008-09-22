@@ -39,11 +39,17 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
@@ -171,9 +177,91 @@ public class ModificationSet implements Serializable {
         Hashtable table = new Hashtable();
         for (Iterator iter = sourceControls.iterator(); iter.hasNext();) {
             SourceControl control = (SourceControl) iter.next();
-            table.putAll(control.getProperties());
+            mergeProperties(table, control);
         }
         return table;
+    }
+
+    private void mergeProperties(Hashtable properties, SourceControl control) {
+        Map newProperties = control.getProperties();
+        Set existingKeys = properties.keySet();
+        Set newKeys = newProperties.keySet();
+        if (Collections.disjoint(existingKeys, newKeys)) {
+            properties.putAll(newProperties);
+            return;
+        }
+
+        Set disjointKeys = new HashSet(newKeys);
+        Set unionKeys = new HashSet(newKeys);
+       
+        disjointKeys.removeAll(existingKeys);
+        unionKeys.retainAll(existingKeys);
+        
+        for (Iterator keys = disjointKeys.iterator(); keys.hasNext();) {
+            Object key = keys.next();
+            properties.put(key, newProperties.get(key));
+        }
+        
+        for (Iterator keys = unionKeys.iterator(); keys.hasNext();) {
+            Object key = keys.next();
+            Object oldValue = properties.get(key);
+            Object newValue = newProperties.get(key);
+            Object value = chooseValue(oldValue, newValue);
+            properties.put(key, value);
+        }        
+    }
+
+    private Object chooseValue(Object oldValue, Object newValue) {
+        if (oldValue.equals(newValue)) {
+            return newValue;
+        }
+        
+        if (!(oldValue instanceof String && newValue instanceof String)) {
+            return newValue;
+        }
+        
+        String oldString = (String) oldValue;
+        String newString = (String) newValue;
+        
+        Integer oldInt = getInteger(oldString);
+        Integer newInt = getInteger(newString);
+        
+        Date oldDate = getDate(oldString);
+        Date newDate = getDate(newString);
+        
+        boolean oldBigger = false;
+        
+        if (oldInt != null && newInt != null) {
+            oldBigger = oldInt.compareTo(newInt) > 0;
+        } else if (oldDate != null && newDate != null) {
+            oldBigger = oldDate.compareTo(newDate) > 0;            
+        } else {
+            oldBigger = oldString.compareTo(newString) > 0;
+        }
+
+        if (oldBigger) {
+            return oldValue;
+        }
+        
+        return newValue;
+    }
+
+    private Date getDate(String string) {
+        Date d = null;
+        try {
+            d = DateFormat.getDateInstance().parse(string);
+        } catch (ParseException e) {
+        }
+        return d;
+    }
+
+    private Integer getInteger(String string) {
+        Integer i = null;
+        try {
+            i = Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+        }
+        return i;
     }
 
     public List getCurrentModifications() {
