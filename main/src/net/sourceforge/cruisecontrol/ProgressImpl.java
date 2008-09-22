@@ -40,7 +40,7 @@ public class ProgressImpl implements Progress {
         project.notifyListeners(new ProgressChangedEvent(project.getName(), this));
     }
 
-    /** @return current progress value represented as a String, prefixed with last update date. */
+    /** @return current progress value represented as a String, prefixed with last update time. */
     public String getValue() {
         return DateUtil.getFormattedTime(lastUpdated) + " " + val;
     }
@@ -54,7 +54,7 @@ public class ProgressImpl implements Progress {
      * @return the current progress value (not prefixed by last updated date).
      */
     public String getText() {
-        return val.toString();
+        return val + "";  // handles val == null
     }
 }
 

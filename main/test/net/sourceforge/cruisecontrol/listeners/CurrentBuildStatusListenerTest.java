@@ -93,8 +93,8 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         final Progress progress = project.getProgress();
         project.setProjectConfig(projectConfig);
 
-        final String expectedProgressTime = DateUtil.getFormattedTime(new Date()) + " ";
-        final String expectedProgressMsgPrefix = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS + expectedProgressTime;
+        final String expectedProgressMsgPrefix = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS
+                + DateUtil.formatIso8601(new Date()) + " ";
 
         String testMsg = "test msg1";
         checkResultForProgress(fileName, testMsg, expectedProgressMsgPrefix + testMsg, project, progress);

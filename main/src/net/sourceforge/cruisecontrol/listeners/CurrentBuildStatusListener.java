@@ -43,6 +43,7 @@ import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.util.CurrentBuildFileWriter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.apache.log4j.Logger;
 
@@ -53,10 +54,6 @@ import java.io.File;
 /**
  * Writes a text snippet in a file (typically in a location where the reporting module can read it), indicating
  * the current build status.
- *
- * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
- *
- * @see net.sourceforge.cruisecontrol.DateFormatFactory
  * @author jfredrick
  */
 public class CurrentBuildStatusListener implements Listener {
@@ -74,7 +71,8 @@ public class CurrentBuildStatusListener implements Listener {
             CurrentBuildFileWriter.writefile(text, new Date(), fileName);
         } else if (event instanceof ProgressChangedEvent) {
             final ProgressChangedEvent progressChanged = (ProgressChangedEvent) event;
-            final String msgProgress = progressChanged.getProgress().getValue();
+            final String msgProgress = DateUtil.formatIso8601(progressChanged.getProgress().getLastUpdated())
+                    + " " + progressChanged.getProgress().getText();
             LOG.debug("updating progress to " + msgProgress  + " for project " + progressChanged.getProjectName());
             final String text = getStatusTextPrefix()
                     + MSG_PREFIX_PROGRESS + msgProgress;
