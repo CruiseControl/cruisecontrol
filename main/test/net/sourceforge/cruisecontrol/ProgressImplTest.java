@@ -23,7 +23,7 @@ public class ProgressImplTest extends TestCase {
             lastUpdated = new Date();
         }
 
-        /** @return current progress value represented as a String, prefixed with last update date. */
+        /** @return current progress value represented as a String, prefixed with last update time. */
         public String getValue() {
             return DateUtil.getFormattedTime(lastUpdated) + " " + value;
         }
@@ -34,10 +34,10 @@ public class ProgressImplTest extends TestCase {
         }
 
         /**
-         * @return the current progress value (not prefixed by last updated date).
+         * @return the current progress value (not prefixed by last updated).
          */
         public String getText() {
-            return value;
+            return value + "";
         }
     }
 
