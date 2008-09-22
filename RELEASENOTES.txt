@@ -67,6 +67,7 @@ UCM
 Dashboard
 ======================
 * Fix bug where tests that took > 1000 seconds would cause an exception that prevented the build detail page from displaying (CC-828).
+* Added ability for users to override the maximum artifact file size that can be viewed without downloading by setting the context parameter 'download.threshhold' (CC-821).
 
 CruiseControl Release Notes - 2.7.3
 

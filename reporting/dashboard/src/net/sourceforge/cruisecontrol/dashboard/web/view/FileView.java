@@ -85,7 +85,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class FileView extends BaseFileView {
 
-    public static final int DOWNLOAD_THRESHHOLD = 4 * 1024 * 1024;
+    public static final int DEFAULT_DOWNLOAD_THRESHHOLD = 4 * 1024 * 1024;
 
     public String getContentType() {
         return "application/octet-stream";
@@ -97,7 +97,7 @@ public class FileView extends BaseFileView {
         long filesize = file.length();
         String mimeType = getMimeType(filename);
         response.setContentType(mimeType);
-        if (filesize > DOWNLOAD_THRESHHOLD) {
+        if (filesize > getDownloadThreshhold()) {
             response.setHeader("Content-Disposition", "attachment; filename="
                     + filename);
         }
@@ -106,6 +106,14 @@ public class FileView extends BaseFileView {
         ServletOutputStream out = response.getOutputStream();
         IOUtils.copy(new FileInputStream(file), out);
         out.flush();
+    }
+
+    private int getDownloadThreshhold() {
+        String threshhold = getServletContext().getInitParameter("download.threshhold");
+        if (threshhold == null) {
+            return DEFAULT_DOWNLOAD_THRESHHOLD;
+        }
+        return Integer.parseInt(threshhold);
     }
 
     private String getMimeType(String filename) {
