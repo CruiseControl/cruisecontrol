@@ -24,6 +24,10 @@ BuildStatus
 ---------------------
 * Add attribute 'vetoIfFailing'. Will abort the build if the project being monitored had the last build fail (CC-842).
 
+CVS
+---------------------
+* Add attribute "skipEmailsFetching" for people who don't have CVSROOT/users and don't want the (harmless) messages in the log when that file isn't found (CC-841). Patch by Grzegorz Oledzki
+
 Darcs
 ---------------------
 * Fix Darcs support (CC-847). Patch by Marc Fontaine.

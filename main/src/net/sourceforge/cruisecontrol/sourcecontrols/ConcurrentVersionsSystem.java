@@ -182,6 +182,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
      * The version of the cvs server
      */
     private Version cvsServerVersion;
+    
+   /**
+     * If set to true, the mailAliases from CVSROOT/users are not fetched.  
+     */
+    private boolean skipEmailsFetching = false;
 
     /**
      * enable logging for this class
@@ -307,7 +312,14 @@ public class ConcurrentVersionsSystem implements SourceControl {
         compression = level;
     }
     
-    protected Version getCvsServerVersion() {
+    /**
+     * If set to true, the CVSROOT/users won't be fetched.
+     */
+    public void setSkipEmailsFetching(boolean skipEmailsFetching) {
+        this.skipEmailsFetching = skipEmailsFetching;
+    }
+
+     protected Version getCvsServerVersion() {
         if (cvsServerVersion == null) {
 
             Commandline commandLine = getCommandline();
@@ -486,6 +498,11 @@ public class ConcurrentVersionsSystem implements SourceControl {
      */
     private Hashtable getMailAliases() {
         if (mailAliases == null) {
+            if (skipEmailsFetching) {
+                mailAliases = new Hashtable();
+                return mailAliases;
+            }
+
             mailAliases = new Hashtable();
             Commandline commandLine = getCommandline();
             commandLine.setExecutable("cvs");

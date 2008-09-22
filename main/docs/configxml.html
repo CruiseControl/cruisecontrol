@@ -3949,6 +3949,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                     parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
                     low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
             </tr>
+            <tr>
+                <td>skipEmailsFetching</td>
+                <td>No (defaults to false)</td>
+                <td>If set to true, fetching of <code>CVSROOT/users</code> is skipped.</td>
+            </tr>
             </tbody>
         </table>
         </div>
