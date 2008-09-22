@@ -248,8 +248,8 @@
         final String msgTimeText = progressMsg.substring(prefixLen, startOfMessage);
         final Date msgTime;
         try {
-          msgTime = DateUtil.parseFormattedTime(msgTimeText, "progress message time");
-        } catch (CruiseControlException e) {
+          msgTime = DateUtil.parseIso8601(msgTimeText);
+        } catch (ParseException e) {
           return progressMsg;
         }
         return "(" + timeWithSecsOnlyFormat.format(msgTime) + ")" + progressMsg.substring(startOfMessage);
