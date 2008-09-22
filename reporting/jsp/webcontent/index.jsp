@@ -530,10 +530,11 @@
               }
 
               for (int i = 0; i < info.length; i++) {
+                  final String progressMsg = info[i].getProgressMsg();
             %>
             <tr class="<%= (i % 2 == 1) ? "even-row" : "odd-row" %> ">
               <td class="data"><a href="buildresults/<%=info[i].project%>"><%=info[i].project%></a></td>
-              <td class="data date status-<%= info[i].getStatus().getImportance() %>" <%= (info[i].getProgressMsg() != null) ? "title='" + info[i].getProgressMsg() + "'" : "" %> ><%= info[i].getStatus()%>  <em>(<%= info[i].getStatusSince() %>)</em></td>
+              <td class="data date status-<%= info[i].getStatus().getImportance() %>" <%= (progressMsg != null) ? "title='" + progressMsg + "'" : "" %> ><%= info[i].getStatus()%>  <em>(<%= info[i].getStatusSince() %>)</em></td>
               <td class="data date failure"><%= (info[i].failed()) ? info[i].getLastBuildTime() : "" %></td>
               <td class="data date"><%= info[i].getLastSuccessfulBuildTime() %></td>
               <td class="data"><%= info[i].getLabel()%></td>
