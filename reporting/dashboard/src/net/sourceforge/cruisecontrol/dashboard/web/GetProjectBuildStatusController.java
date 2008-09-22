@@ -55,8 +55,6 @@ import java.util.Map;
 public class GetProjectBuildStatusController implements Controller {
     public static final String PROJECT_STATUS_IN_BUILDING = "Building";
 
-    private static final int CACHE_MILLISECONDS = 5000;
-
     private static final Logger LOGGER = Logger.getLogger(GetProjectBuildStatusController.class);
 
     public static final String CACHE_CONTROL = "max-age=1, no-cache";

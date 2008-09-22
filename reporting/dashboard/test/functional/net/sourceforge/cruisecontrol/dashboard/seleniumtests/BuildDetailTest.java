@@ -112,11 +112,6 @@ public class BuildDetailTest extends SeleniumTestCase {
         textShouldPresent("No project specified");
     }
 
-    private void elementShouldBeVisibleUsingPrototype(String element) {
-		String isVisibleString = "this.browserbot.findElement('id=" + element + "').visible()";
-		assertEquals("true", user.getEval(isVisibleString));
-	}
-
     private void clickTab(String tabName, String textToBeShown) {
         clickElementWithText("span", tabName);
         textShouldAppearInCertainTime(textToBeShown, 10);
@@ -172,6 +167,12 @@ public class BuildDetailTest extends SeleniumTestCase {
 //        elementShouldBeVisibleUsingPrototype("errors_and_warnings_element");
 //        elementShouldContainText("errors_and_warnings_element", "No errors or warnings");
 //    }
+//    private void elementShouldBeVisibleUsingPrototype(String element) {
+//        String isVisibleString = "this.browserbot.findElement('id=" + element + "').visible()";
+//        assertEquals("true", user.getEval(isVisibleString));
+//    }
+
+
 
 }
 

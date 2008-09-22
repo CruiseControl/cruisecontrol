@@ -36,32 +36,29 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import net.sourceforge.cruisecontrol.dashboard.Build;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.cruisecontrol.dashboard.BuildSummary;
 import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
 import net.sourceforge.cruisecontrol.dashboard.PreviousResult;
-import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildSummaryUIService;
 import net.sourceforge.cruisecontrol.dashboard.service.DashboardXmlConfigService;
-import net.sourceforge.cruisecontrol.dashboard.service.EnvironmentService;
 import net.sourceforge.cruisecontrol.dashboard.service.HistoricalBuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.service.LatestBuildSummariesService;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import net.sourceforge.cruisecontrol.dashboard.web.command.BuildCommand;
 import net.sourceforge.cruisecontrol.dashboard.web.view.JsonView;
+
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
+import org.joda.time.DateTime;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
-import org.joda.time.DateTime;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
@@ -71,19 +68,11 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
 
     private GetProjectBuildStatusController controller;
 
-    private Build earliestFailed;
-
-    private Build lastPassed;
-
     private Mock latestBuildSummariesServiceMock;
-
-    private Mock buildLoopQueryMock;
 
     private Mock buildSummaryUIServiceMock;
 
     protected void setUp() throws Exception {
-        earliestFailed = new BuildSummary("project1", PreviousResult.FAILED, DataUtils.FAILING_BUILD_XML);
-        lastPassed = new BuildSummary("project1", PreviousResult.PASSED, DataUtils.PASSING_BUILD_LBUILD_0_XML);
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
         request.setMethod("GET");
@@ -97,10 +86,6 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
     }
 
     private void createMocks() {
-        buildLoopQueryMock =
-                mock(
-                        BuildLoopQueryService.class, new Class[]{EnvironmentService.class,
-                        BuildInformationRepository.class}, new Object[]{null, null});
         latestBuildSummariesServiceMock =
                 mock(
                         LatestBuildSummariesService.class,
@@ -205,16 +190,6 @@ public class GetProjectBuildStatusControllerTest extends MockObjectTestCase {
         Map model = mov.getModelMap();
         assertEquals(1, model.size());
         assertEquals("xyz", model.get("error"));
-    }
-
-    private Map returnedMap() {
-        Map map = new HashMap();
-        map.put("project1", "Passed");
-        map.put("project2", "Failed");
-        map.put("project3", "now building since 20070420170000");
-        map.put("project4", "Inactive");
-        map.put("project5", "Inactive");
-        return map;
     }
 
     private List buildSummaryCommands() {

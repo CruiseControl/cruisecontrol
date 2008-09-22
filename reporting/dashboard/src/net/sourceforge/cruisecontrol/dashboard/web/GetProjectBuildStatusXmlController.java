@@ -52,8 +52,6 @@ import java.util.List;
 public class GetProjectBuildStatusXmlController extends MultiActionController {
     private LatestBuildSummariesService buildSummariesService;
 
-    private BuildLoopQueryService buildLoopQueryService;
-
     private final BuildSummaryUIService uiService;
 
     public GetProjectBuildStatusXmlController(LatestBuildSummariesService buildSummarySerivce,
@@ -61,7 +59,6 @@ public class GetProjectBuildStatusXmlController extends MultiActionController {
                                               BuildSummaryUIService uiService) {
         super();
         this.buildSummariesService = buildSummarySerivce;
-        this.buildLoopQueryService = buildLoopQueryService;
         this.uiService = uiService;
         this.setSupportedMethods(new String[]{"GET"});
     }

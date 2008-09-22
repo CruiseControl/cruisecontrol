@@ -55,17 +55,11 @@ import java.util.List;
 import java.util.Map;
 
 public class BuildSummaryUIServiceTest extends MockObjectTestCase {
-    private static final String THREE_HOURS_AGO =
-            CCDateFormatter.format(new DateTime().minusHours(3), "yyyy-MM-dd HH:mm.ss");
     private static final String THREE_HOURS_AGO_LOG_FILE =
             "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime().minusHours(3)) + ".xml";
 
-    private static final String THREE_DAYS_AGO =
-            CCDateFormatter.format(new DateTime().minusDays(3), "yyyy-MM-dd HH:mm.ss");
     private static final String THREE_DAYS_AGO_LOG_FILE =
             "log" + CCDateFormatter.yyyyMMddHHmmss(new DateTime().minusDays(3)) + ".xml";
-
-    private static final String NOW = CCDateFormatter.format(new DateTime(), "yyyy-MM-dd HH:mm.ss");
 
     private Mock mockBuildSummariesService;
 
