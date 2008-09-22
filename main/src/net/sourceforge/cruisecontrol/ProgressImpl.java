@@ -22,16 +22,21 @@ public class ProgressImpl implements Progress {
     /** current progress value. */
     private Serializable val;
 
-    private Date lastUpdated = new Date();
+    private Date lastUpdated;
 
     ProgressImpl(final Project project) {
         this.project = project;
+        setLastUpdated();
+    }
+
+    private void setLastUpdated() {
+        lastUpdated = new Date();
     }
 
     /** @param value new progress value. */
     public void setValue(String value) {
         val = value;
-        lastUpdated = new Date();
+        setLastUpdated();
         project.notifyListeners(new ProgressChangedEvent(project.getName(), this));
     }
 
@@ -39,6 +44,17 @@ public class ProgressImpl implements Progress {
     public String getValue() {
         return DateUtil.getFormattedTime(lastUpdated) + " " + val;
     }
-}
 
+    /** @return the date when current progress value was set. */
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    /**
+     * @return the current progress value (not prefixed by last updated date).
+     */
+    public String getText() {
+        return val.toString();
+    }
+}
 
