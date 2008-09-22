@@ -166,7 +166,7 @@ public class BuildServiceTest extends MockObjectTestCase {
                 "net.sourceforge.cruisecontrol.sampleproject.connectfour.PlayingStandTest",
                 firstTestSuite.getName());
         assertEquals(12, firstTestSuite.getNumberOfTests());
-        assertEquals(0.109, firstTestSuite.getDurationInSeconds(), 0.001);
+        assertEquals(1000.109, firstTestSuite.getDurationInSeconds(), 0.001);
     }
 
     public void testShouldTellIfBuildPassed() throws Exception {
