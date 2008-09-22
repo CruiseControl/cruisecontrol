@@ -19,7 +19,7 @@ public interface ProgressRemote extends Remote {
     public void setValueRemote(String value) throws RemoteException;
 
     /**
-     * @return current progress value.
+     * @return current progress value, prefixed with last updated time..
      * @throws RemoteException if a remote call fails
      */
     public String getValueRemote() throws RemoteException;
@@ -31,7 +31,7 @@ public interface ProgressRemote extends Remote {
     public Date getLastUpdatedRemote() throws RemoteException;
 
     /**
-     * @return the current progress value (not prefixed by last updated date).
+     * @return the current progress value (not prefixed by last updated).
      * Goofy, but don't want to change behavior of {@link #getValueRemote()} to preserve backwards compatibility.
      * @throws RemoteException if a remote call fails
      */
