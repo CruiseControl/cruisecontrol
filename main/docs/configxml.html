@@ -3943,6 +3943,14 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                     Defaults to false.</td>
             </tr>
             <tr>
+                <td>recurseLocalWorkingCopy</td>
+                <td>No</td>
+                <td>Sets the behavior when a local working coppy is set which is not under control of CVS itself
+		  (that is, does not have a CVS subdirectory). If set to true all subdirectories are searched recursively.
+		  All subdirectories which are under control of CVS are searched for modifications in the usual manner.
+                    Defaults to false.</td>
+            </tr>
+            <tr>
                 <td>compression</td>
                 <td>No</td>
                 <td>Sets the compression level used for the call to cvs, corresponding to the "-z" command line

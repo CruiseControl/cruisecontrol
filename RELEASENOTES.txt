@@ -35,6 +35,7 @@ CompositeBuilder
 CVS
 ---------------------
 * Add attribute "skipEmailsFetching" for people who don't have CVSROOT/users and don't want the (harmless) messages in the log when that file isn't found (CC-841). Patch by Grzegorz Oledzki
+* Add attribute 'recurseLocalWorkingCopy' which allows localWorkingCopy to point at a directory not under version control; reduces effort when project has multiple projects in parallel directories under a non-versioned root (CC-820). Based on patch by Detlef Keil.
 
 Darcs
 ---------------------
