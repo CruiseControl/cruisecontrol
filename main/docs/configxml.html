@@ -5143,17 +5143,13 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
           </thead>
           <tbody>
             <tr>
-              <td>tfPath</td>
-              <td>No (defaults to &quot;tf&quot;)</td>
-              <td>Specify the full path to the tf command being used.&nbsp; If
-                not supplied then the plug-in will try to locate a command
-                called &quot;tf&quot; in the cruise control system path.&nbsp; By default,
-                the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code> </td>
+              <td>profile</td>
+              <td rowspan="2">One of these</td>
+              <td>Name of the profile to set. Supported by the Teamprise client.</td>
             </tr>
             <tr>
               <td>server</td>
-              <td>yes</td>
-              <td>URL to access the Team Foundation Server including port, for
+               <td>URL to access the Team Foundation Server including port, for
                 example <code><a href="http://tfserver:8080">http://tfserver:8080</a></code></td>
             </tr>
             <tr>
@@ -5162,6 +5158,19 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
               <td>Path i<span class="style1">n the TFS repository that is
                 recursively checked for modifications.&nbsp; Any changes under
                 that path will trigger a build.</span></td>
+            </tr>
+            <tr>
+              <td>tfPath</td>
+              <td>No (defaults to &quot;tf&quot;)</td>
+              <td>Specify the full path to the tf command being used.&nbsp; If
+                not supplied then the plug-in will try to locate a command
+                called &quot;tf&quot; in the cruise control system path.&nbsp; By default,
+                the Microsoft client is installed into <code>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE\TF.exe</code> </td>
+            </tr>
+            <tr>
+              <td>inputEncoding</td>
+              <td>No (defaults to UTF-8)</td>
+              <td>Required if file names or comments contains non-Latin symbols</td>
             </tr>
             <tr>
               <td>username</td>

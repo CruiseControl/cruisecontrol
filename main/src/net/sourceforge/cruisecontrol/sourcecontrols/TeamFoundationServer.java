@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
  * Microsoft Visual Studio Team Foundation Server
  * 
  * @author <a href="http://www.woodwardweb.com">Martin Woodward</a>
+ * @author Dmitry Malenok (Teamprise Command Line Client support)
  */
 public class TeamFoundationServer implements SourceControl {
 
@@ -47,6 +48,16 @@ public class TeamFoundationServer implements SourceControl {
     private String password;
     private String tfPath = "tf";
     private String options;
+    
+    /**
+     * The encoding of the Team Foundation Client console output stream.
+     */
+    private String inputEncoding = "UTF-8";
+
+    /**
+     * The name of the profile storing information needed to make a connection to a Team Foundation server.
+     */
+    private String profile;
 
     private final SourceControlProperties properties = new SourceControlProperties();
 
@@ -116,7 +127,14 @@ public class TeamFoundationServer implements SourceControl {
         command.setExecutable(tfPath);
         command.createArgument().setValue("history");
         command.createArgument().setValue("-noprompt");
-        command.createArgument().setValue("-server:" + server);
+
+        if (server != null) {
+            command.createArgument().setValue("-server:" + server);
+        }
+        if (profile != null) {
+            command.createArgument().setValue("-profile:" + profile);
+        }
+        
         command.createArgument().setValue(projectPath);
 
         command.createArgument().setValue("-version:D" + formatUTCDate(lastBuild) + "~D" + formatUTCDate(now));
@@ -168,7 +186,7 @@ public class TeamFoundationServer implements SourceControl {
     private List parseStream(InputStream tfStream, Date lastBuild)
             throws IOException, ParseException {
         
-        InputStreamReader reader = new InputStreamReader(tfStream, "UTF-8");
+        InputStreamReader reader = new InputStreamReader(tfStream, inputEncoding);
         return TFHistoryParser.parse(reader, lastBuild);
     }
 
@@ -196,7 +214,10 @@ public class TeamFoundationServer implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()
      */
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(server, "server", this.getClass());
+        ValidationHelper.assertFalse(profile == null && server == null, 
+                "One of the attributes 'server' or 'profile' should be set");
+        ValidationHelper.assertFalse(profile != null && server != null, 
+                "The combination of the attributes 'server' or 'profile' is prohibited");
         ValidationHelper.assertIsSet(projectPath, "projectPath", this.getClass());
         ValidationHelper.assertTrue(projectPath.startsWith("$/"), "A TFS server path must begin with $/");
     }
@@ -506,5 +527,27 @@ public class TeamFoundationServer implements SourceControl {
      */
     public void setOptions(String options) {
         this.options = options;
+    }
+    
+    /**
+     * The encoding of the Team Foundation Client console output stream.
+     * 
+     * @param inputEncoding
+     *            the encoding of the Team Foundation Client console output stream to set
+     */
+    public void setInputEncoding(final String inputEncoding) {
+        this.inputEncoding = inputEncoding;
+    }
+
+    /**
+     * The name of the profile storing information needed to make a connection to a Team Foundation server.
+     * <p>
+     * This feature is supported by Teamprise command line client only.
+     * 
+     * @param profile
+     *            the name of the profile to set
+     */
+    public void setProfile(final String profile) {
+        this.profile = profile;
     }
 }
