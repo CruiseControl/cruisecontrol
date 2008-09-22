@@ -60,7 +60,7 @@ public class CurrentBuildStatusTag extends CruiseControlTagSupport {
         String projectName = getProject();
         String currentBuildFileName = getFileName();
 
-        String status = null;
+        final String status;
 
         if (insertBreaks) {
             status = BuildStatus.getStatusHtml(isSingleProject, logDir, projectName, currentBuildFileName,
