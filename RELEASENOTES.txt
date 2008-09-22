@@ -28,6 +28,10 @@ BuildStatus
 ---------------------
 * Add attribute 'vetoIfFailing'. Will abort the build if the project being monitored had the last build fail (CC-842).
 
+CompositeBuilder
+---------------------
+* Improve processing of build results to make it faster with large log files (CC-826). Patch by David Webster.
+
 CVS
 ---------------------
 * Add attribute "skipEmailsFetching" for people who don't have CVSROOT/users and don't want the (harmless) messages in the log when that file isn't found (CC-841). Patch by Grzegorz Oledzki

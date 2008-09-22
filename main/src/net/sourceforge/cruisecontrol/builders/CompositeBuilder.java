@@ -66,14 +66,7 @@ public class CompositeBuilder extends Builder {
         // add child builder info to build log
         insertBuildLogHeader(buildResult, buildlogMsgPrefix + " - " + builder.getClass().getName(), childStartTime);
 
-        final Iterator elements = buildResult.getChildren().iterator();
-        while (elements.hasNext()) {
-            // combining the outputs
-            final Element elem = (Element) elements.next();
-            elements.remove();
-            elem.detach();
-            compositeBuildResult.addContent(elem);
-        }
+        compositeBuildResult.addContent(buildResult.removeContent());
 
         // check for error (if we found one, we will stop)
         if (!isBuildSuccessful(buildResult)) {
