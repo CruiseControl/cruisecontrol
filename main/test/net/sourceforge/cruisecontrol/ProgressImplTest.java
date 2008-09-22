@@ -37,7 +37,7 @@ public class ProgressImplTest extends TestCase {
          * @return the current progress value (not prefixed by last updated).
          */
         public String getText() {
-            return value + "";
+            return (value != null ? value.toString() : null);
         }
     }
 

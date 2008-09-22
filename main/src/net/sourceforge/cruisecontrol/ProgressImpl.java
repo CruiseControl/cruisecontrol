@@ -54,7 +54,7 @@ public class ProgressImpl implements Progress {
      * @return the current progress value (not prefixed by last updated date).
      */
     public String getText() {
-        return val + "";  // handles val == null
+        return (val != null ? val.toString() : null);
     }
 }
 
