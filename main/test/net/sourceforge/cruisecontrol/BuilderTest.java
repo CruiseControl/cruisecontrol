@@ -41,6 +41,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
+
 import org.jdom.Element;
 
 import junit.framework.TestCase;
@@ -81,9 +83,17 @@ public class BuilderTest extends TestCase {
             // should throw exception
         }
 
-        builder.setTime("-1");
+        builder.setTime("-1000");
+        try {
+          builder.validate();
+          fail("time can't be negative");
+        } catch (CruiseControlException e) {
+            // should throw exception
+        }
+        
+        builder.setTime(String.valueOf(PerDayScheduleItem.NOT_SET));
         builder.validate();
-    }
+  }
 
     public void testIsValidDay() {
         Date thursday = nov22nd2001.getTime();
