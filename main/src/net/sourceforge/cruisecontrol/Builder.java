@@ -109,6 +109,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         return multiple;
     }
 
+    // TODO: why do we have a group attribute? Remove?
     public String getGroup() {
         return group;
     }
