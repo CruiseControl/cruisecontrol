@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,6 +55,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification.ModifiedFile;
 import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.DiscardConsumer;
@@ -79,8 +81,9 @@ import org.apache.log4j.Logger;
  * @author Marc Paquette
  * @author <a href="mailto:johnny.cass@epiuse.com">Johnny Cass</a>
  * @author <a href="mailto:m@loonsoft.com">McClain Looney</a>
+ * @author Detlef Keil
  */
-public class ConcurrentVersionsSystem implements SourceControl {
+public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     private static final long serialVersionUID = -3714548093682602092L;
     /**
      * name of the official cvs as returned as part of the 'cvs version' command output
@@ -90,6 +93,15 @@ public class ConcurrentVersionsSystem implements SourceControl {
     public static final String LOG_DATE_FORMAT = "yyyy/MM/dd HH:mm:ss z";
     private boolean reallyQuiet;
     private String compression;
+
+    /**
+     * This paramter has only effect if local is set and is not itself
+     * a under control of CVS (that is, does not have a CVS subdirectory).
+     * If set to true all subdirectories are searched recursively.
+     * All subdirectories which are under control of CVS are searched for
+     * modifications in the usual manner.
+     */
+    private boolean recurseLocalWorkingCopy;
 
     /**
      * Represents the version of a CVS client or server
@@ -264,6 +276,18 @@ public class ConcurrentVersionsSystem implements SourceControl {
      */
     public void setLocalWorkingCopy(String local) {
         this.local = local;
+    }
+
+    /**
+     * Sets the behavior when a local working coppy is set which is
+     * not under control of CVS itself (that is, does not have a CVS
+     * subdirectory).
+     * If set to true all subdirectories are searched recursively.
+     * All subdirectories which are under control of CVS are searched for
+     * modifications in the usual manner.
+     */
+    public void setRecurseLocalWorkingCopy(boolean recurseLocalWorkingCopy) {
+        this.recurseLocalWorkingCopy = recurseLocalWorkingCopy;
     }
 
     /**
@@ -456,6 +480,10 @@ public class ConcurrentVersionsSystem implements SourceControl {
                 "must specify either 'localWorkingCopy' or 'cvsroot' and 'module' on CVS");
         ValidationHelper.assertFalse(local != null && (cvsroot != null || module != null),
                 "if 'localWorkingCopy' is specified then cvsroot and module are not allowed on CVS");
+
+        ValidationHelper.assertFalse(local == null && recurseLocalWorkingCopy,
+                "'recurseLocalWorkingCopy' can only be set to true when 'localWorkingCopy' is specified.");
+
         ValidationHelper.assertFalse(local != null && !new File(local).exists(), "Local working copy \"" + local
                 + "\" does not exist!");
 
@@ -468,13 +496,20 @@ public class ConcurrentVersionsSystem implements SourceControl {
     /**
      * Returns a List of Modifications detailing all the changes between the last build and the latest revision at the
      * repository
-     * 
+     *
      * @param lastBuild
      *            last build time
      * @return maybe empty, never null.
      */
     public List getModifications(Date lastBuild, Date now) {
+
         mailAliases = getMailAliases();
+
+        if (recurseLocalWorkingCopy) {
+            if (localDirectoryNotUnderCVS()) {
+                return getModificationsFromSubdirectories(lastBuild, now);
+            }
+        }
 
         List mods = null;
         try {
@@ -487,6 +522,46 @@ public class ConcurrentVersionsSystem implements SourceControl {
             return new ArrayList();
         }
         return mods;
+    }
+
+    private List<Modification> getModificationsFromSubdirectories(Date lastBuild, Date now) {
+        List<Modification> modifications = new ArrayList<Modification>();
+
+        File[] subDirectories = new File(local).listFiles(new FileFilter() {
+            public boolean accept(File pathname) {
+                return pathname.isDirectory();
+            }
+        });
+        
+        if (subDirectories == null) {
+            return modifications;
+        }
+
+        for (File dir : subDirectories) {
+            try {
+                ConcurrentVersionsSystem delegate = (ConcurrentVersionsSystem) this.clone();
+                delegate.setLocalWorkingCopy(dir.getPath());
+                delegate.setSkipEmailsFetching(true);
+                List<Modification> modsFromSubdirectory = delegate.getModifications(lastBuild, now);
+                for (Modification mod : modsFromSubdirectory) {
+                    for (Object o : mod.files) {
+                        ModifiedFile modfile = (ModifiedFile) o;
+                        modfile.folderName = dir.getName() + '/' + modfile.folderName;
+                    }
+                }
+                modifications.addAll(modsFromSubdirectory);
+            } catch (CloneNotSupportedException e) {
+                LOG.error("this should never happen", e);
+                throw new RuntimeException(e);
+            }
+        }
+        
+        return modifications;
+    }
+
+    private boolean localDirectoryNotUnderCVS() {
+        File cvsDir = new File(local, "CVS");
+        return !cvsDir.exists() || !cvsDir.isDirectory();
     }
 
     /**
@@ -658,7 +733,7 @@ public class ConcurrentVersionsSystem implements SourceControl {
         new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
-    private List execHistoryCommand(Commandline command) throws Exception {
+    List execHistoryCommand(Commandline command) throws Exception {
         Process p = command.execute();
 
         Thread stderr = logErrorStream(p);

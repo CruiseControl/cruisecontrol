@@ -38,12 +38,14 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -55,6 +57,7 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
@@ -65,17 +68,20 @@ import net.sourceforge.cruisecontrol.util.MockCommandline;
  */
 public class ConcurrentVersionsSystemTest extends TestCase {
 
-    private TimeZone originalTimeZone;
-
     private static final String[] CVS_VERSION_COMMANDLINE = new String[] { "cvs", "version" };
+    
+    private FilesToDelete filesToDelete;
+    private TimeZone originalTimeZone;
 
     protected void setUp() throws Exception {
         originalTimeZone = TimeZone.getDefault();
+        filesToDelete = new FilesToDelete();
     }
 
     protected void tearDown() throws Exception {
         TimeZone.setDefault(originalTimeZone);
         originalTimeZone = null;
+        filesToDelete.delete();
     }
 
     public void testParseStream() throws IOException, ParseException {
@@ -767,6 +773,36 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertCompressionLevelValid(null, cvs);
     }
 
+    public void testShouldRecurseToFindCvsDirectories() throws Exception {
+        File tmpDir = new File(System.getProperty("java.io.tmpdir"));
+        File rootDir = new File(tmpDir, "testShouldRecurseToFindCvsDirectories");
+        filesToDelete.add(rootDir);
+        File subDir = new File(rootDir, "subDir");
+        filesToDelete.add(subDir);
+        File subSubDir = new File(subDir, "subSubDir");
+        filesToDelete.add(subSubDir);
+        File cvsDir = new File(subSubDir, "CVS");
+        filesToDelete.add(cvsDir);
+        assertTrue(cvsDir.mkdirs());
+        
+        final Modification mod = new Modification();
+        
+        ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem() {
+            @Override
+            List execHistoryCommand(Commandline command) throws Exception {
+                List mods = new ArrayList();
+                mods.add(mod);
+                return mods;
+            }
+        };
+        cvs.setLocalWorkingCopy(rootDir.getAbsolutePath());
+        cvs.setRecurseLocalWorkingCopy(true);
+        cvs.setSkipEmailsFetching(true);
+
+        List modifications = cvs.getModifications(new Date(), new Date());
+        assertEquals(1, modifications.size());
+    }
+    
     private void assertCompressionLevelValid(String candidate, ConcurrentVersionsSystem cvs) {
         cvs.setCompression(candidate);
         try {
