@@ -12,7 +12,14 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip, update-zip, win-installer" description="Create release artifacts (zip, bin, installer)"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, update-zip, win-installer" description="Create release artifacts"/>
+
+    <target name="clean" description="Clean release and subprojects">
+        <delete dir="target" failonerror="false"/>
+        <ant inheritAll="false" dir="main" target="clean"/>
+        <ant inheritAll="false" dir="reporting/jsp" target="clean"/>
+        <ant inheritAll="false" dir="reporting/dashboard" target="clean"/>
+    </target>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined."/>
@@ -24,23 +31,18 @@
         <echo>CruiseControl: ${cc.release.label}</echo>
     </target>
 
-    <target name="clean" description="Clean dirs">
-        <delete dir="target" failonerror="false"/>
-        <ant inheritAll="false" dir="main" target="clean"/>
-        <ant inheritAll="false" dir="reporting/jsp" target="clean"/>
-        <ant inheritAll="false" dir="reporting/dashboard" target="clean"/>
-    </target>
-
     <target name="build" depends="checklabel" description="Create core lib and webapp">
         <ant inheritAll="false" dir="main">
             <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
+
         <ant inheritAll="false" dir="reporting/jsp">
             <property name="user.log.dir" value="logs"/>
             <property name="user.build.status.file" value="status.txt"/>
             <property name="cruise.build.artifacts.dir" value="artifacts"/>
             <property name="cruise.build.jmxport" value="8000"/>
         </ant>
+
         <ant inheritAll="false" dir="reporting/dashboard" target="dist" >
             <property name="cc.release.label" value="${cc.release.label}"/>
         </ant>
@@ -103,7 +105,7 @@
         </xmlvalidate>
     </target>
 
-    <target name="zip" depends="checklabel,build" description="Create zip files">
+    <target name="zip" depends="checklabel, build" description="Create zip files">
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true">
             <fileset dir=".">
@@ -120,8 +122,7 @@
         </replace>
 
         <property name="cc.zip.prefix" value="cruisecontrol-${cc.release.label}"/>
-        <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip"
-                duplicate="fail">
+        <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip" duplicate="fail">
             <zipfileset dir="target/zip" prefix="${cc.zip.prefix}"/>
             <zipfileset dir="." prefix="${cc.zip.prefix}">
                 <exclude name="**/*.html"/>
@@ -151,8 +152,7 @@
         </replace>
 
         <property name="cc.bin.zip.prefix" value="cruisecontrol-bin-${cc.release.label}"/>
-        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip"
-                duplicate="preserve">
+        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" duplicate="preserve">
             <zipfileset dir="binaryrelease" prefix="${cc.bin.zip.prefix}">
                 <exclude name="README.txt"/>
                 <exclude name="JETTY-WORKDIR-README.txt"/>
@@ -182,9 +182,9 @@
     </target>
 
     <target name="update-zip" unless="test.skip">
-         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" update="true">
+        <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" update="true">
             <zipfileset src="target/cc-config/dist/cc-config.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config" />
-	 </zip>
+        </zip>
     </target>
 
     <target name="prep-cc-config" unless="test.skip">
