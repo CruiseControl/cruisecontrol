@@ -50,6 +50,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -424,24 +426,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             // wrap progressRemote with a local progress
             final Progress progressLocal;
             if (progressRemote != null) {
-                progressLocal = new Progress() {
-                    public void setValue(String value) {
-                        try {
-                            progressRemote.setValueRemote(value);
-                            fireAgentStatusChanged(); // update UI
-                        } catch (RemoteException e) {
-                            throw new RuntimeException("Error setting progress", e);
-                        }
-                    }
-
-                    public String getValue() {
-                        try {
-                            return progressRemote.getValueRemote();
-                        } catch (RemoteException e) {
-                            throw new RuntimeException("Error getting progress", e);
-                        }
-                    }
-                };
+                progressLocal = new WrappedRemoteProgress(progressRemote);
             } else {
                 progressLocal = null;
             }
@@ -485,6 +470,49 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         }
     }
 
+    
+    private final class WrappedRemoteProgress implements Progress {
+        private final ProgressRemote progressRemote;
+
+        private WrappedRemoteProgress(final ProgressRemote progressRemote) {
+            this.progressRemote = progressRemote;
+        }
+
+        public void setValue(String value) {
+            try {
+                progressRemote.setValueRemote(value);
+                fireAgentStatusChanged(); // update UI
+            } catch (RemoteException e) {
+                throw new RuntimeException("Error setting progress", e);
+            }
+        }
+
+        public String getValue() {
+            try {
+                return progressRemote.getValueRemote();
+            } catch (RemoteException e) {
+                throw new RuntimeException("Error getting progress", e);
+            }
+        }
+
+        public Date getLastUpdated() {
+            try {
+                return progressRemote.getLastUpdatedRemote();
+            } catch (RemoteException e) {
+                throw new RuntimeException("Error getting progress", e);
+            }
+        }
+
+        public String getText() {
+            try {
+                return progressRemote.getTextRemote();
+            } catch (RemoteException e) {
+                throw new RuntimeException("Error getting progress", e);
+            }
+        }
+    }
+
+    
     static void injectAntProgressLoggerLibIfNeeded(final Builder builder) {
         if (builder instanceof AntBuilder) {
             doInjectAntProgressLoggerLibIfNeeded((AntBuilder) builder);
@@ -915,6 +943,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         fireAgentStatusChanged();
     }
 
+    private static final DateFormat DF_PROGRESS_LASTUPDATED = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+
     public String asString() {
         final StringBuffer sb = new StringBuffer();
         sb.append("Machine Name: ");
@@ -933,7 +963,11 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         if (buildProgressRemote != null) {
             sb.append("\n\tProgress: ");
             try {
-                sb.append(buildProgressRemote.getValueRemote());
+                // preserve former date format
+                //sb.append(buildProgressRemote.getValueRemote());
+                sb.append(DF_PROGRESS_LASTUPDATED.format(buildProgressRemote.getLastUpdatedRemote()));
+                sb.append(" ");
+                sb.append(buildProgressRemote.getTextRemote());
             } catch (RemoteException e) {
                 LOG.info("Error reading remote progress", e);
             }
