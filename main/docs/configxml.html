@@ -5588,9 +5588,9 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p><b>Note:</b> Only one builder is used for a given interval where
         modifications are found. Builds using the time attribute take precedence
         over builds using the multiple attribute. If no matching time builds are
-        found the multiple builds are evaluated <em>in the order they appear in
-        the file</em>, so a multiple='1' on the first builder will hide all the
-        subsequent builders.</p>
+        found the multiple builds are evaluated <em>by the value of their multiple
+        from high to low</em>. If there are multiple Builders with the same multiple
+	only one will build but which one is undefined.</p>
 
         <h3>Attributes</h3>
 

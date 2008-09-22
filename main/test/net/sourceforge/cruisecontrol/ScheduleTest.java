@@ -116,10 +116,10 @@ public class ScheduleTest extends TestCase {
     protected void setUp() {
         schedule = new Schedule();
 
+        schedule.add(MULTIPLE_1);
         schedule.add(NOON_BUILDER);
         schedule.add(MIDNIGHT_BUILDER);
         schedule.add(MULTIPLE_5);
-        schedule.add(MULTIPLE_1);
 
         defaultTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(LOS_ANGELES);
