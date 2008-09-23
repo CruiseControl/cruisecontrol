@@ -51,7 +51,6 @@ import javax.management.ObjectName;
 
 import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ModificationSet;
 import net.sourceforge.cruisecontrol.Project;
@@ -60,7 +59,6 @@ import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 
 import org.apache.log4j.Logger;
 
@@ -158,27 +156,6 @@ public class ProjectController extends NotificationBroadcasterSupport
 
     public String getLabel() {
         return project.getLabel();
-    }
-
-    public void setLabelIncrementer(String classname) throws CruiseControlException {
-        log("setting label incrementer to [" + classname + "]");
-        LabelIncrementer incrementer;
-        try {
-            incrementer =
-                (LabelIncrementer) Class.forName(classname).newInstance();
-        } catch (Exception e) {
-            LOG.error(
-                "Error instantiating label incrementer."
-                    + "  Using DefaultLabelIncrementer.",
-                e);
-            incrementer = new DefaultLabelIncrementer();
-        }
-
-        project.setLabelIncrementer(incrementer);
-    }
-
-    public String getLabelIncrementer() {
-        return project.getLabelIncrementer().getClass().getName();
     }
 
     public void setLastBuild(String date) throws CruiseControlException {
