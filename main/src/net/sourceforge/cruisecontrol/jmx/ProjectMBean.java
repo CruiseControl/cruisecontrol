@@ -90,19 +90,6 @@ public interface ProjectMBean {
     public String getLabel();
 
     /**
-     * Change the Project label incrementer; will only succeed if the existing
-     * label is valid for the new label incrementer
-     *
-     * @param classname fully qualified class name of the new label incrementer
-     */
-    public void setLabelIncrementer(String classname) throws CruiseControlException;
-
-    /**
-     * @return name of the current label incrementer
-     */
-    public String getLabelIncrementer();
-
-    /**
      * Change the last built date.  This can be used to manipulate whether
      * builds will be initiated.
      *

@@ -50,6 +50,7 @@ import javax.management.MBeanServer;
 
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -88,6 +89,10 @@ public class ProjectConfig implements ProjectInterface {
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
+        
+        if (labelIncrementer == null) {
+            labelIncrementer = new DefaultLabelIncrementer();
+        }
 
         if (bootstrappers != null) {
             bootstrappers.validate();
@@ -143,6 +148,10 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     public void add(LabelIncrementer labelIncrementer) {
+        if (this.labelIncrementer != null) {
+            LOG.warn("replacing existing label incrememnter [" + this.labelIncrementer.toString()
+                    + "] with new one [" + labelIncrementer.toString() + "]");
+        }
         this.labelIncrementer = labelIncrementer;
     }
 

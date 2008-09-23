@@ -16,7 +16,7 @@ contrib
   - StarTeam
   - Yahoo
 
-Documentation
+documentation
 ======================
 * Composite builder does not support Pause builder child element (CC-812). Reported by John Camerin
 * Add documentation on "Building Plugins That Need External Libraries".
@@ -35,6 +35,10 @@ BuildStatus
 CompositeBuilder
 ---------------------
 * Improve processing of build results to make it faster with large log files (CC-826). Patch by David Webster.
+
+CruiseControlConfig
+---------------------
+* LabelIncrementers are no longer special cased, they are now treated like any other plugin. They must now be added to a project to get a non-default label incrementer and they can be registered with any name; are no longer forced to be named 'labelincrementer'. You can no longer set the labelincrementer classname via JMX. This change is not backwards compatible for users that were registering an alternative label incrementer but not placing the <labelincrementer> element in each project.
 
 CVS
 ---------------------

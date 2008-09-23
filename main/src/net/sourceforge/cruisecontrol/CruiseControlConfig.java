@@ -48,14 +48,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
-import net.sourceforge.cruisecontrol.config.PluginPlugin;
-import net.sourceforge.cruisecontrol.config.XmlResolver;
-import net.sourceforge.cruisecontrol.config.SystemPlugin;
-import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
+import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.SystemPlugin;
+import net.sourceforge.cruisecontrol.config.XmlResolver;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -396,24 +395,6 @@ public class CruiseControlConfig {
         }
 
         add(project);
-
-        // TODO: get rid of this ProjectConfig special case
-        if (project instanceof ProjectConfig) {
-            ProjectConfig projectConfig = (ProjectConfig) project;
-
-            if (projectConfig.getLabelIncrementer() == null) {
-                LabelIncrementer labelIncrementer;
-                Class labelIncrClass = projectPlugins.getPluginClass(LABEL_INCREMENTER);
-                try {
-                    labelIncrementer = (LabelIncrementer) labelIncrClass.newInstance();
-                } catch (Exception e) {
-                    LOG.error("Error instantiating label incrementer named " + labelIncrClass.getName() + "in project "
-                            + projectName + ". Using DefaultLabelIncrementer instead.", e);
-                    labelIncrementer = new DefaultLabelIncrementer();
-                }
-                projectConfig.add(labelIncrementer);
-            }
-        }
 
         project.validate();
         LOG.debug("**************** end configuring project " + projectName + " *******************");

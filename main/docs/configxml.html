@@ -123,16 +123,19 @@
 <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
+<a href="#cvslabelincrementer">&lt;cvslabelincrementer&gt;</a>
 <a href="#darcs">&lt;darcs&gt;</a>
 <a href="#dashboard">&lt;dashboard&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#deleteartifacts">&lt;deleteartifacts&gt;</a>
 <a href="#email">&lt;email&gt;</a>
+<a href="#emptylabelincrementer">&lt;emptylabelincrementer&gt;</a>
 <a href="#exec">&lt;exec&gt;</a>
 <a href="#execbootstrapper">&lt;execbootstrapper&gt;</a>
 <a href="#execute">&lt;execute&gt;</a>
 <a href="#filesystem">&lt;filesystem&gt;</a>
 <a href="#forceonly">&lt;forceonly&gt;</a>
+<a href="#formattedlabelincrementer">&lt;formattedlabelincrementer&gt;</a>
 <a href="#ftppublisher">&lt;ftppublisher&gt;</a>
 <a href="#git">&lt;git&gt;</a>
 <a href="#gitbootstrapper">&lt;gitbootstrapper&gt;</a>
@@ -165,6 +168,7 @@
 <a href="#origo">&lt;origo&gt;</a>
 <a href="#p4">&lt;p4&gt;</a>
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
+<a href="#p4changelistlabelincrementer">&lt;p4changelistlabelincrementer&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
 <a href="#plasticscm">&lt;plasticscm&gt;</a>
 <a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a>
@@ -172,6 +176,7 @@
 <a href="#plugin">&lt;plugin&gt;</a>
 <a href="#project">&lt;project&gt;</a>
 <a href="#property">&lt;property&gt;</a>
+<a href="#propertyfilelabelincrementer">&lt;propertyfilelabelincrementer&gt;</a>
 <a href="#publishers">&lt;publishers&gt;</a>
 <a href="#pvcs">&lt;pvcs&gt;</a>
 <a href="#rake">&lt;rake&gt;</a>
@@ -192,6 +197,7 @@
 <a href="#surroundbootstrapper">&lt;surroundbootstrapper&gt;</a>
 <a href="#svn">&lt;svn&gt;</a>
 <a href="#svnbootstrapper">&lt;svnbootstrapper&gt;</a>
+<a href="#svnlabelincrementer">&lt;svnlabelincrementer&gt;</a>
 <a href="#compound">&lt;targets&gt;</a>
 <a href="#tfs">&lt;tfs&gt;</a>
 <a href="#tfsbootstrapper">&lt;tfsbootstrapper&gt;</a>
@@ -240,7 +246,13 @@
    <a href="#project">&lt;project&gt;</a>
       <a href="#property">&lt;property/&gt;</a>
       <a href="#plugin">&lt;plugin/&gt;</a>
+      <a href="#cvslabelincrementer">&lt;cvslabelincrementer&gt;</a>
+      <a href="#emptylabelincrementer">&lt;emptylabelincrementer&gt;</a>
+      <a href="#formattedlabelincrementer">&lt;formattedlabelincrementer&gt;</a>
       <a href="#labelincrementer">&lt;labelincrementer/&gt;</a>
+      <a href="#p4changelistlabelincrementer">&lt;p4changelistlabelincrementer&gt;</a>
+      <a href="#propertyfilelabelincrementer">&lt;propertyfilelabelincrementer&gt;</a>
+      <a href="#svnlabelincrementer">&lt;svnlabelincrementer&gt;</a>
       <a href="#listeners">&lt;listeners&gt;</a>
          <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor/&gt;</a>
          <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener/&gt;</a>
@@ -10114,13 +10126,14 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
     &lt;labelincrementer&gt;</pre>
         </div>
 
-        <p>Handle incrementing the label used to tag each build.</p>
+        <p>LabelIncrementers handle incrementing the label used to tag each build.
+	Only one LabelIncrementer can be used at a time per project.</p>
 
-        <h3>Attributes</h3>
+        <p>The default label incrementer (<code>&lt;labelincrementer&gt;</code>)
+	uses the format <code>string.number</code>,
+	providing the initial default label of <code>build.1</code>.</p>
 
-        <p>The following attributes are valid for the default label incrementer.
-        If the label incrementer plugin is overridden, other attributes may be
-        applicable.</p>
+	<h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -10151,47 +10164,104 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
         </table>
+    </div>
 
-        <h3>Overriding the Default Label Incrementer</h3>
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cvslabelincrementer">&lt;cvslabelincrementer&gt;</a></h2>
 
-        <p>If this element is not specified, the default label incrementer will
-        use the format <code>string.number</code>, providing the default label of
-        <code>build.1</code>.</p>
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;cvslabelincrementer&gt;</pre>
+        </div>
 
-        <p>To override the label incrementer used in a given project all you
-        need to do is register a different class as a <a href="#plugin">plugin</a>
-        with the name <code>labelincrementer</code>. Alternate label incrementer plugins distributed with
-        CruiseControl include:</p>
+        <p><code>&lt;cvslabelincrementer&gt;</code> is an extension of the default label
+	incrementer but with the separator set to "-" by default. Provides default label of
+	"build-1". Has all the same attributes as
+	<a href="#labelincrementer"><code>&lt;labelincrementer&gt;</code></a>.</p>
+    </div>
 
-        <h4>CVSLabelIncrementer</h4>
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="emptylabelincrementer">&lt;emptylabelincrementer&gt;</a></h2>
 
-        <p>An extension of the default label incrementer but with the separator
-        set to "-" by default. Provides default label of "build-1".</p>
-
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.CVSLabelIncrementer"/&gt;</pre>
-
-        <h4>EmptyLabelIncrementer</h4>
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;emptylabelincrementer&gt;</pre>
+        </div>
 
         <p>Always returns a label of "" (empty string).</p>
+    </div>
 
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer"/&gt;</pre>
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="formattedlabelincrementer">&lt;formattedlabelincrementer&gt;</a></h2>
 
-        <h4>FormattedLabelIncrementer</h4>
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;formattedlabelincrementer&gt;</pre>
+        </div>
 
         <p>A label incrementer for creating consistent, formatted upper
         case labels. This plugin expects the label format to be either "x_y_z" or "y_z"
         where x is any String, y is an integer and z is one of REL, INT or BLD, i.e.
         MYPROJ_1_INT or 1_REL.</p>
 
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.FormattedLabelIncrementer"/&gt;</pre>
+	<h3>Attributes</h3>
 
-        <h4>P4ChangelistLabelIncrementer</h4>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>defaultLabel</td>
+                <td>No</td>
+                <td>Set label to use if there is no saved label. Default is CC_1_INT.</td>
+            </tr>
+            <tr>
+                <td>preBuildIncrementer</td>
+                <td>No</td>
+                <td>If <code>true</code> the build number will be incremented
+                prior to the build attempt and thus each build attempt will have
+                a unique build number. Default is false.</td>
+            </tr>
+            <tr>
+                <td>prefix</td>
+                <td>No</td>
+                <td>Indications if a prefix is required (three part label) or not (two part label).
+		  Default is true.</td>
+            </tr>
+            <tr>
+                <td>separator</td>
+                <td>No</td>
+                <td>Specifies the separator to use between portions of the label.
+                Default is underscore <code>'_'</code></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="p4changelistlabelincrementer">&lt;p4changelistlabelincrementer&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;p4changelistlabelincrementer&gt;</pre>
+        </div>
 
         <p>Creates a label from either a given Perforce changelist number,
         or the most recently submitted changelist.  A changelist number can
@@ -10229,11 +10299,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         deleting the files by setting the <code>clean</code> attribute
         to <code>true</code>.</p>
 
-        <h5>Attributes</h5>
-
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.P4ChangelistLabelIncrementer"/&gt;</pre>
+        <h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -10305,16 +10371,22 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
         </table>
+    </div>
 
-        <h4>PropertyFileLabelIncrementer</h4>
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="propertyfilelabelincrementer">&lt;propertyfilelabelincrementer&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;propertyfilelabelincrementer&gt;</pre>
+        </div>
 
         <p>Returns a value for the label from a property file.</p>
 
-        <h5>Attributes</h5>
-
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.PropertyFileLabelIncrementer"/&gt;</pre>
+        <h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -10343,16 +10415,22 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
         </table>
+    </div>
 
-        <h4>SVNLabelIncrementer</h4>
+    <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="svnlabelincrementer">&lt;svnlabelincrementer&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    &lt;svnlabelincrementer&gt;</pre>
+        </div>
 
         <p>Returns a value for the label based on the SVN revision number.</p>
 
-        <h5>Attributes</h5>
-
-        <pre>
-&lt;plugin&nbsp;name="labelincrementer"
-        classname="net.sourceforge.cruisecontrol.labelincrementers.SVNLabelIncrementer"/&gt;</pre>
+        <h3>Attributes</h3>
 
         <table class="documentation">
             <thead>
@@ -10380,8 +10458,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
         </table>
-
-        </div>
+    </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
