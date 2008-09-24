@@ -39,6 +39,7 @@
 <%@ page import="net.sourceforge.cruisecontrol.*" %>
 <%@ page import="net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener" %>
 <%@ page import="net.sourceforge.cruisecontrol.util.DateUtil" %>
+<%@ page import="net.sourceforge.cruisecontrol.util.ServerNameSingleton" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
 <%@ page import="java.net.URL" %>
@@ -128,7 +129,7 @@
 <cruisecontrol:jmxbase id="jmxBase"/>
 <%
   String name = System.getProperty("ccname", "");
-  String hostname = InetAddress.getLocalHost().getHostName();
+  String hostname = ServerNameSingleton.getServerName();
   boolean jmxEnabled = true;
   URL jmxURLPrefix = new URL(jmxBase, "invoke?operation=build&objectname=CruiseControl+Project%3Aname%3D");
 

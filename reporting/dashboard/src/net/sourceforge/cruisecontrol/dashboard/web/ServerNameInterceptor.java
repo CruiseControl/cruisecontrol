@@ -36,18 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
+
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ServerNameInterceptor implements HandlerInterceptor {
-    private static final Logger LOGGER = Logger.getLogger(ServerNameInterceptor.class);
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
             Object handler, Exception ex) throws Exception {
@@ -56,13 +53,7 @@ public class ServerNameInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response,
             Object handler, ModelAndView modelAndView) throws Exception {
         if (modelAndView != null) {
-            String serverName = "Unknown";
-            try {
-                serverName = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (UnknownHostException e) {
-                LOGGER.warn("No IP bound to the host", e);
-            }
-            modelAndView.getModel().put("serverName", serverName);
+            modelAndView.getModel().put("serverName", ServerNameSingleton.getServerName());
         }
     }
 

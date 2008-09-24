@@ -36,9 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.web;
 
-import java.net.InetAddress;
-
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -61,7 +60,7 @@ public class ServerNameInterceptorTest extends TestCase {
     public void testShouldPutServerNameIntoModel() throws Exception {
         ModelAndView modelAndView = new ModelAndView();
         interceptor.postHandle(request, response, null, modelAndView);
-        assertEquals(InetAddress.getLocalHost().getCanonicalHostName(), modelAndView.getModel().get(
+        assertEquals(ServerNameSingleton.getServerName(), modelAndView.getModel().get(
                 "serverName"));
     }
 

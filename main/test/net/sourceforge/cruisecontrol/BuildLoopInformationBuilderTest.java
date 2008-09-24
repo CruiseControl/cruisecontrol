@@ -36,8 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,6 +43,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
 import net.sourceforge.cruisecontrol.util.UniqueBuildloopIdentifier;
 
 import org.apache.tools.ant.util.DateUtils;
@@ -79,7 +78,7 @@ public class BuildLoopInformationBuilderTest extends TestCase {
     }
 
     public void testShouldGetServerName() throws Exception {
-        String expected = InetAddress.getLocalHost().getCanonicalHostName();
+        String expected = ServerNameSingleton.getServerName();
         assertEquals(expected, buildLoopInformation.getServerName());
     }
 
@@ -103,8 +102,8 @@ public class BuildLoopInformationBuilderTest extends TestCase {
         assertEquals("123asd", jmxInfo.getPassword());
     }
 
-    private String expectedUrl(String protocol, String port) throws UnknownHostException {
-        return protocol + "://" + InetAddress.getLocalHost().getCanonicalHostName() + ":" + port;
+    private String expectedUrl(String protocol, String port) {
+        return protocol + "://" + ServerNameSingleton.getServerName() + ":" + port;
     }
 
     public void testShouldReturnTimestamp() throws Exception {

@@ -36,12 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
-import java.io.IOException;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
+
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
 
 /**
  * Extracts the base JMX HTTP URL from System properties and application context.
@@ -80,15 +81,7 @@ public class JmxBaseTag extends CruiseControlTagSupport {
     URL createJmxUrl() throws JspException, MalformedURLException {
         String jmxHost = getParameter(JMX_HOST);
         if (jmxHost == null) {
-            try {
-                jmxHost = InetAddress.getLocalHost().getCanonicalHostName();
-            } catch (IOException e) {
-                try {
-                    jmxHost = InetAddress.getLocalHost().getHostName();
-                } catch (IOException e2) {
-                    jmxHost = "localhost";
-                }
-            }
+            jmxHost = ServerNameSingleton.getServerName();
         }
 
         String jmxPortNumber = getParameter(JMX_PORT);
