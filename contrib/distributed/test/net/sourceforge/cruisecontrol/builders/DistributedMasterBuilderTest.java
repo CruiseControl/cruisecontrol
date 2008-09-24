@@ -1,53 +1,53 @@
 package net.sourceforge.cruisecontrol.builders;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.extensions.TestSetup;
-
-import java.util.Properties;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
-import java.io.EOFException;
-import java.net.URL;
-import java.net.InetAddress;
 import java.net.ConnectException;
-import java.net.SocketException;
 import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
-import net.sourceforge.cruisecontrol.util.DateUtil;
+import junit.extensions.TestSetup;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import net.jini.config.Configuration;
+import net.jini.config.ConfigurationException;
+import net.jini.config.ConfigurationProvider;
+import net.jini.core.discovery.LookupLocator;
+import net.jini.core.lookup.ServiceID;
+import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.discovery.DiscoveryEvent;
+import net.jini.discovery.DiscoveryListener;
+import net.jini.lookup.ServiceIDListener;
+import net.sourceforge.cruisecontrol.MockProject;
+import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentTest;
-import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
+import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
 import net.sourceforge.cruisecontrol.distributed.core.RemoteResultTest;
-import net.sourceforge.cruisecontrol.MockProject;
-import net.sourceforge.cruisecontrol.Progress;
-import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.core.lookup.ServiceID;
-import net.jini.core.discovery.LookupLocator;
-import net.jini.config.ConfigurationProvider;
-import net.jini.config.Configuration;
-import net.jini.config.ConfigurationException;
-import net.jini.discovery.DiscoveryListener;
-import net.jini.discovery.DiscoveryEvent;
-import net.jini.lookup.ServiceIDListener;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
+import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * @author Dan Rollo
@@ -228,7 +228,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             }
         }
         assertEquals("Unexpected local lookup _service host",
-            InetAddress.getLocalHost().getCanonicalHostName(),
+            ServerNameSingleton.getServerName(),
             serviceRegistrar.getLocator().getHost());
 
         LOG.info(MSG_PREFIX_STATS + "Jini Startup took: " + (System.currentTimeMillis() - begin) / 1000f + " sec");

@@ -1,19 +1,17 @@
 package net.sourceforge.cruisecontrol;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.BuildLoopInformation.JmxInfo;
 import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
 
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.util.DateUtils;
 
 public class BuildLoopInformationBuilder {
-    private static String serverName;
     private final CruiseControlController controller;
 
     public BuildLoopInformationBuilder(CruiseControlController controller) {
@@ -21,7 +19,8 @@ public class BuildLoopInformationBuilder {
     }
 
     public BuildLoopInformation buildBuildLoopInformation() {
-        return new BuildLoopInformation(getProjects(), getJmxInfo(), getServerName(), getTimestamp());
+        String serverName = ServerNameSingleton.getServerName();
+        return new BuildLoopInformation(getProjects(), getJmxInfo(), serverName, getTimestamp());
     }
 
     private BuildLoopInformation.ProjectInfo[] getProjects() {
@@ -58,18 +57,7 @@ public class BuildLoopInformationBuilder {
     }
 
     private JmxInfo getJmxInfo() {
-        return new JmxInfo(getServerName());
+        return new JmxInfo(ServerNameSingleton.getServerName());
     }
 
-    private String getServerName() {
-        if (serverName == null) {
-          try {
-             serverName = InetAddress.getLocalHost().getCanonicalHostName();
-          } catch (UnknownHostException e) {
-              Logger.getLogger(BuildLoopInformation.class).error(e);
-              serverName = "";
-          }
-        }
-        return serverName;
-    }
 }

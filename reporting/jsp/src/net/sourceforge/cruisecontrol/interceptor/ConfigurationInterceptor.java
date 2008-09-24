@@ -37,12 +37,12 @@
 package net.sourceforge.cruisecontrol.interceptor;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Map;
 
 import javax.management.MalformedObjectNameException;
 
 import net.sourceforge.cruisecontrol.Configuration;
+import net.sourceforge.cruisecontrol.util.ServerNameSingleton;
 
 import com.opensymphony.xwork.Action;
 import com.opensymphony.xwork.ActionInvocation;
@@ -92,12 +92,6 @@ public class ConfigurationInterceptor extends AroundInterceptor {
     }
 
     private String getJMXServer() {
-        String jmxServer;
-        try {
-            jmxServer = InetAddress.getLocalHost().getHostName();
-        } catch (IOException e) {
-            jmxServer = "localhost";
-        }
-        return jmxServer;
+        return ServerNameSingleton.getServerName();
     }
 }
