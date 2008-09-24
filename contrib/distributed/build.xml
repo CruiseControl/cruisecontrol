@@ -142,6 +142,12 @@
      </fileset>
 
 
+    <path id="main.lib.junit">
+        <fileset dir="${dir.main.lib}">
+            <include name="junit*.jar" />
+        </fileset>
+    </path>
+
     <path id="compile.classpath">
         <path refid="jini.core.classpath"/>
         <fileset dir="${dir.main.lib}">
@@ -223,7 +229,7 @@
         </fail>
 
         <!-- check for junit.jar -->
-        <available classname="junit.framework.TestCase" property="JUnit-present" />
+        <available classname="junit.framework.TestCase" property="JUnit-present" classpathref="main.lib.junit"/>
         <fail unless="JUnit-present" >
         Is the junit.jar in ant's library path?
         </fail>
@@ -473,6 +479,7 @@
             <classpath>
                 <path refid="ccdist.project.runtime.classpath"/>
                 <path refid="emma.classpath"/>
+                <path refid="main.lib.junit"/>
             </classpath>
             <formatter type="brief" usefile="false"/>
             <formatter type="xml" />
@@ -487,6 +494,7 @@
         <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath>
                 <path refid="ccdist.project.runtime.classpath" />
+                <path refid="main.lib.junit"/>
             </classpath>
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
