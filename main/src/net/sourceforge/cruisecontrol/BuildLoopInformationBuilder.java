@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.tools.ant.util.DateUtils;
 
 public class BuildLoopInformationBuilder {
+    private static String serverName;
     private final CruiseControlController controller;
 
     public BuildLoopInformationBuilder(CruiseControlController controller) {
@@ -61,11 +62,14 @@ public class BuildLoopInformationBuilder {
     }
 
     private String getServerName() {
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            Logger.getLogger(BuildLoopInformation.class).error(e);
-            return "";
+        if (serverName == null) {
+          try {
+             serverName = InetAddress.getLocalHost().getCanonicalHostName();
+          } catch (UnknownHostException e) {
+              Logger.getLogger(BuildLoopInformation.class).error(e);
+              serverName = "";
+          }
         }
+        return serverName;
     }
 }
