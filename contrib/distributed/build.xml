@@ -361,11 +361,11 @@
                 <patternset refid="ps.main.lib-common" />
                 <patternset refid="ps.jarnames-xml-libs"/>
                 <include name="jakarta-oro*.jar" />
-                    </fileset>
-                    <fileset dir="${dir.main.dist}">
-                        <include name="cruisecontrol.jar" />
-                        <include name="cruisecontrol-antprogresslogger.jar" />
-                    </fileset>
+            </fileset>
+            <fileset dir="${dir.main.dist}">
+                 <include name="cruisecontrol.jar" />
+                 <include name="cruisecontrol-antprogresslogger.jar" />
+            </fileset>
         </copy>
     </target>
 
