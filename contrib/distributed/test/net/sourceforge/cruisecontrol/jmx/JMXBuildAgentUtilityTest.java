@@ -23,7 +23,7 @@ public class JMXBuildAgentUtilityTest extends TestCase {
 
     public void testCreate() throws Exception {
         final JMXBuildAgentUtilityMBean mBean = new JMXBuildAgentUtility();
-        assertEquals("Found: 0 agents.\n", mBean.getBuildAgents());
+        assertTrue(mBean.getBuildAgents().startsWith("Found: "));
         TestUtil.assertArray("expected empty array", new String[]{}, mBean.getBuildAgentServiceIds());
 
         try {
@@ -39,5 +39,13 @@ public class JMXBuildAgentUtilityTest extends TestCase {
         } catch (IllegalArgumentException e) {
             assertEquals(JMXBuildAgentUtility.MSG_NULL_AGENT_SERVICEID, e.getMessage());
         }
+    }
+
+    public void testAfterBuildFinished() throws Exception {
+        final JMXBuildAgentUtilityMBean mBean = new JMXBuildAgentUtility();
+        assertTrue(mBean.isKillOrRestartAfterBuildFinished());
+
+        mBean.setKillOrRestartAfterBuildFinished(false);
+        assertFalse(mBean.isKillOrRestartAfterBuildFinished());
     }
 }
