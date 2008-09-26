@@ -536,6 +536,11 @@
             </manifest>
             <fileset dir="${classes}">
                 <include name="**/builders/**" />
+
+                <include name="**/jmx/**" />
+                <!-- @todo Clean this up to avoid BuildAgentUtility classes in multiple jars,
+                 ccdist-masterbuilder.jar and ccdist-util.jar -->
+                <include name="**/util/BuildAgentUtility**" />
             </fileset>
         </jar>
     </target>

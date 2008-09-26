@@ -71,14 +71,14 @@ public class CruiseControlControllerAgent {
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerAgent.class);
     private static final String JNDI_NAME = "/jndi/jrmp";
 
-    private HttpAdaptor httpAdaptor = new HttpAdaptor();
-    private int httpPort;
+    private final HttpAdaptor httpAdaptor = new HttpAdaptor();
+    private final int httpPort;
     private NamingServiceMBean rmiRegistry;
     private JMXConnectorServer connectorServer;
-    private int connectorServerPort;
-    private String path;
-    private String user;
-    private String password;
+    private final int connectorServerPort;
+    private final String path;
+    private final String user;
+    private final String password;
 
     public CruiseControlControllerAgent(CruiseControlController controller, int httpPort,
         int connectorServerPort, String user, String password, String xslPath) {
@@ -120,6 +120,26 @@ public class CruiseControlControllerAgent {
             server.registerMBean(new DashboardController(controller), name);
         } catch (Exception e) {
             LOG.error("Problem registering DashboardController for posting", e);
+        }
+
+        try {
+            ObjectName name = new ObjectName("CruiseControl Distributed:name=buildAgentUtility");
+            // use reflection to avoid dependency on DistCC
+            final String className = "net.sourceforge.cruisecontrol.jmx.JMXBuildAgentUtility";
+            Class clsBuildAgentMBeanImpl = null;
+            try {
+                clsBuildAgentMBeanImpl = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                // we expect this exception if NOT running with DistCC classes on the classpath
+                LOG.debug("Failed to load class: " + className);
+            }
+            if (clsBuildAgentMBeanImpl != null) {
+                final Object objBuildAgentMBeanImpl
+                        = clsBuildAgentMBeanImpl.getConstructor((Class[]) null).newInstance((Object[]) null);
+                server.registerMBean(objBuildAgentMBeanImpl, name);
+            }
+        } catch (Exception e) {
+            LOG.error("Problem registering Build Agent Utility jmx bean", e);
         }
     }
 
