@@ -324,7 +324,6 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
             <li>More secure default Jini policy files.</li>
             <li>The agent busy state logic is kludgy. Jini contains a transaction framework (mahalo) and a mailbox service (mercury), either of which might be a way of managing busy state. Or the attempted RMI method could be utilized. A solution should be chosen and pursued to completion.</li>
             <li>The code to start/stop the Jini Lookup Service during CCDist unit tests is pretty ugly. Any suggestions to improve it are welcome. (Maybe Jeff's JiniStarter...)</li>
-            <li>Add JMX Agent monitor.</li>
             <li>Add the following optional attributes to the &lt;distributed&gt; tag to support failing a build if an Agent can not be found in a timely fashion:
                 <ol type="1">
                     <li>AgentSearchRetryDelay - Corresponds directly to the message you see in the logs about "Couldn't find available agent. Waiting 30 seconds before retry.". There's a @todo comment on the field (DEFAULT_CACHE_MISS_WAIT). See usages of DistributedMasterBuilder.DEFAULT_CACHE_MISS_WAIT for more info in the source.</li>
@@ -341,6 +340,8 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
         </ol>
 
         <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
+        <h4>v2.8</h4>
+        Added JMX Build Agent Utility.
         <h4>v2.7.2</h4>
         The <code>ant</code> builder with <code>showProgress=true</code> issues (mentioned below in the 2.7.1 upgrade notes) have been solved via the use of a JNLP Extension to install the required <i>cruisecontrol-antprogresslogger.jar</i>.
         <p>

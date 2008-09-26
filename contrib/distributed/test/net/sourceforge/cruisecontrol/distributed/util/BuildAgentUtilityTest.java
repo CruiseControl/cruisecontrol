@@ -64,6 +64,9 @@ public class BuildAgentUtilityTest extends TestCase {
     }
 
 
+    public static void setFailFast() { System.setProperty(BuildAgentUtility.SYS_PROP_IS_FAIL_FAST, "true"); }
+    public static void clearFailFast() { System.getProperties().remove(BuildAgentUtility.SYS_PROP_IS_FAIL_FAST); }
+
     public void testDiscoveryInstanceReuse() throws Exception {
 
         final BuildAgentUtility buildAgentUtility = new BuildAgentUtility(mockUI);

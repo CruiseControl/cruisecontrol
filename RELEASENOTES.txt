@@ -54,6 +54,10 @@ DateFormat
 ---------------------
 * The ability to set the date format in the build loop has been removed. This fixes the issue where setting the date format on one project would affect all of them (CC-355), would cause build status messages to not display in the reporting application (CC-797). Build loop now uses ISO 8601 format for storing date stamp information (CC-353) which is a change from the previous default format.
 
+JMX
+----------------------
+* Add JMXBuildAgentUtility to control panel. Only loads if DistCC classes are available on the CC classpath.
+
 ModificationSet
 ---------------------
 * When there are multiple source controls attempt to merge conflicting properties by choosing the 'largest' value, to address situation where multiple source controls should return the newest version number or date (CC-830).

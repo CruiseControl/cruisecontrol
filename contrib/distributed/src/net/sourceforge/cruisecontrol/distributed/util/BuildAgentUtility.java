@@ -123,7 +123,7 @@ public final class BuildAgentUtility {
                                 ((ComboItemWrapper) cmbAgents.getSelectedItem()).getAgent()
                         );
                     } catch (RemoteException e1) {
-                        checkRestartRequiresWebStart(e1);
+                        checkAndShowRestartRequiresWebStart(e1);
                         LOG.info(e1.getMessage());
                         appendInfo(e1.getMessage());
                         throw new RuntimeException(e1);
@@ -159,7 +159,7 @@ public final class BuildAgentUtility {
                         try {
                             invokeOnAgent(((ComboItemWrapper) cmbAgents.getItemAt(i)).getAgent());
                         } catch (RemoteException e1) {
-                            checkRestartRequiresWebStart(e1);
+                            checkAndShowRestartRequiresWebStart(e1);
                             LOG.info(e1.getMessage());
                             appendInfo(e1.getMessage());
                             //throw new RuntimeException(e1); // allow remaining items to be invoked
@@ -208,12 +208,9 @@ public final class BuildAgentUtility {
             setVisible(true);
         }
 
-        private void checkRestartRequiresWebStart(RemoteException e) {
-            if (e.getCause() != null && e.getCause() instanceof ClassNotFoundException
-                    && "javax.jnlp.UnavailableServiceException".equals(e.getCause().getMessage())) {
-
-                final String msg = "\nNOTE: Restart feature is only available on Agents launched via WebStart.\n"
-                        + e.getCause().getMessage();
+        private void checkAndShowRestartRequiresWebStart(RemoteException e1) {
+            final String msg = checkRestartRequiresWebStart(e1);
+            if (msg != null) {
                 LOG.info(msg);
                 appendInfo(msg);
             }
@@ -298,10 +295,9 @@ public final class BuildAgentUtility {
 
         private void doRefreshAgentList() {
             try {
-                final List tmpList = new ArrayList();
+                final List<ServiceItem> tmpList = new ArrayList<ServiceItem>();
                 final String agentInfoAll = buildAgentUtility.getAgentInfoAll(tmpList);
-                final ServiceItem[] serviceItems
-                        = (ServiceItem[]) tmpList.toArray(new ServiceItem[tmpList.size()]);
+                final ServiceItem[] serviceItems = tmpList.toArray(new ServiceItem[tmpList.size()]);
                 final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
                         ComboItemWrapper.wrapArray(serviceItems));
                 SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
@@ -369,6 +365,24 @@ public final class BuildAgentUtility {
     private boolean isFailFast;
     private boolean isInited;
 
+    public static BuildAgentUtility createForJMX() {
+        return new BuildAgentUtility(true);
+    }
+
+    static final String SYS_PROP_IS_FAIL_FAST = "agentUtilFailFast";
+
+    private BuildAgentUtility(final boolean isHeadlessUtil) {
+        if (!isHeadlessUtil) {
+            throw new IllegalStateException("this contructor must be passed a param value of true");
+        }
+        ui = new UISetInfo() {
+            public void setInfo(String infoText) {
+                LOG.info(infoText);
+            }
+        };
+
+        isFailFast = Boolean.getBoolean(SYS_PROP_IS_FAIL_FAST);
+    }
     private BuildAgentUtility() {
         this(null);
     }
@@ -385,7 +399,13 @@ public final class BuildAgentUtility {
         }
     }
 
-    String getAgentInfoAll(final List lstServiceItems) {
+
+    public int getLastLUSCount() { return lastLUSCount; }
+
+    /** Number of seconds to wait for Lookup Services to report in. */
+    public static final int LUS_WAIT_SECONDS = 5;
+
+    public String getAgentInfoAll(final List<ServiceItem> lstServiceItems) {
 
         final StringBuffer result = new StringBuffer();
         try {
@@ -393,11 +413,11 @@ public final class BuildAgentUtility {
             if (!isInited && !isFailFast) {
                 try {
                     MulticastDiscovery.begin();
-                    final String msgWaitLUS = "Waiting 5 seconds for registrars to report in...";
+                    final String msgWaitLUS = "Waiting " + LUS_WAIT_SECONDS + " seconds for registrars to report in...";
                     ui.setInfo(msgWaitLUS);
                     LOG.info(msgWaitLUS);
 
-                    Thread.sleep(5000);
+                    Thread.sleep(LUS_WAIT_SECONDS * 1000);
                     isInited = true;
                 } catch (InterruptedException e1) {
                     LOG.warn("Sleep interrupted", e1);
@@ -422,11 +442,9 @@ public final class BuildAgentUtility {
                     .append(serviceItems.length != 1 ? "s" : "") 
                     .append(".\n");
 
-            ServiceItem serviceItem;
             BuildAgentService agent;
             String agentInfo;
-            for (int x = 0; x < serviceItems.length; x++) {
-                serviceItem = serviceItems[x];
+            for (ServiceItem serviceItem : serviceItems) {
                 agent = (BuildAgentService) serviceItem.service;
                 agentInfo = "Build Agent: " + serviceItem.serviceID + "\n"
                         + agent.asString()
@@ -442,6 +460,17 @@ public final class BuildAgentUtility {
         }
 
         return result.toString();
+    }
+
+
+    public static String checkRestartRequiresWebStart(final RemoteException e) {
+        if (e.getCause() != null && e.getCause() instanceof ClassNotFoundException
+                && "javax.jnlp.UnavailableServiceException".equals(e.getCause().getMessage())) {
+
+            return "\nNOTE: Restart feature is only available on Agents launched via WebStart.\n"
+                    + e.getCause().getMessage();
+        }
+        return null;
     }
 
     public static void main(final String[] args) {
