@@ -1,7 +1,6 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtilityTest;
 
@@ -24,7 +23,7 @@ public class JMXBuildAgentUtilityTest extends TestCase {
     public void testCreate() throws Exception {
         final JMXBuildAgentUtilityMBean mBean = new JMXBuildAgentUtility();
         assertTrue(mBean.getBuildAgents().startsWith("Found: "));
-        TestUtil.assertArray("expected empty array", new String[]{}, mBean.getBuildAgentServiceIds());
+        assertNotNull(mBean.getBuildAgentServiceIds());
 
         try {
             mBean.kill(null);
