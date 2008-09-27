@@ -58,7 +58,7 @@ public class JMXBuildAgentUtilityMBeanDescription extends MBeanDescriptionAdapte
     }
 
     public String getMBeanDescription() {
-        return "Controller for a CruiseControl project";
+        return "Distributed Build Agent utility";
     }
 }
 
