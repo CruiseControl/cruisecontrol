@@ -11,6 +11,8 @@ import java.rmi.RemoteException;
  */
 public interface JMXBuildAgentUtilityMBean {
 
+    void refresh() throws RemoteException;
+    
     int getLookupServiceCount() throws RemoteException;
 
     String getBuildAgents() throws RemoteException;

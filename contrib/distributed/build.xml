@@ -153,6 +153,7 @@
         <fileset dir="${dir.main.lib}">
             <patternset refid="ps.main.lib-common" />
             <include name="junit*.jar" />
+            <include name="mx4j*.jar" />
         </fileset>
         <fileset dir="${dir.main.dist}">
             <include name="cruisecontrol.jar" />

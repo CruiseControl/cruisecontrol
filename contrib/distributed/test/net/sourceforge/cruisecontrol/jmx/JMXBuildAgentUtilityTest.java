@@ -20,8 +20,13 @@ public class JMXBuildAgentUtilityTest extends TestCase {
         BuildAgentUtilityTest.clearFailFast();
     }
 
+    // NOTE: Do NOT call killAll() or restartAll() unless you update unit tests to avoid killing/restarting
+    // production agents.
+
     public void testCreate() throws Exception {
         final JMXBuildAgentUtilityMBean mBean = new JMXBuildAgentUtility();
+
+        assertTrue(mBean.getLookupServiceCount() >= 0);
         assertTrue(mBean.getBuildAgents().startsWith("Found: "));
         assertNotNull(mBean.getBuildAgentServiceIds());
 
@@ -46,5 +51,10 @@ public class JMXBuildAgentUtilityTest extends TestCase {
 
         mBean.setKillOrRestartAfterBuildFinished(false);
         assertFalse(mBean.isKillOrRestartAfterBuildFinished());
+    }
+
+    public void testRefresh() throws Exception {
+        final JMXBuildAgentUtilityMBean mBean = new JMXBuildAgentUtility();
+        mBean.refresh();
     }
 }
