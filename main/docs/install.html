@@ -165,6 +165,11 @@
                 <td>Sets a password for the JMX HTTP Adapter. This will require users to login to use the JMX Web interface.<i>The -user flag must also be set</i></td>
             </tr>
             <tr>
+                <td>-agentutil <i>[true/false]</i></td>
+                <td>No</td>
+                <td>Specify whether to load the JMX Build Agent Utility. Will only be loaded if the DistCC JMX Build Agent Utility classes are available. The default value is true. See: <a href="http://cruisecontrol.svn.sourceforge.net/viewvc/*checkout*/cruisecontrol/trunk/cruisecontrol/contrib/distributed/README.html">DistCC Readme</a> for details.</td>
+            </tr>
+            <tr>
                 <td>-debug</td>
                 <td>No</td>
                 <td>Changes the logging level of the internal log4j Logger to DEBUG.

@@ -144,7 +144,8 @@ public final class Main implements CruiseControlMain {
 
     private void startJmxAgent(String[] args) {
         agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(args),
-                parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args));
+                parseRmiPort(args), parseUser(args), parsePassword(args), parseXslPath(args), 
+                parseEnableJMXAgentUtility(args));
         agent.start();
     }
 
@@ -201,11 +202,12 @@ public final class Main implements CruiseControlMain {
         System.out.println("");
         System.out.println("Options when using JMX");
         System.out.println("  Note: JMX server only started if -jmxport and/or -rmiport specified");
-        System.out.println("  -jmxport [number]      port of the JMX HttpAdapter; default 8000");
-        System.out.println("  -rmiport [number]      RMI port of the Controller; default 1099");
-        System.out.println("  -user username         username for HttpAdapter; default no login required");
-        System.out.println("  -password pwd          password for HttpAdapter; default no login required");
-        System.out.println("  -xslpath directory     location of jmx xsl files; default files in package");
+        System.out.println("  -jmxport [number]       port of the JMX HttpAdapter; default 8000");
+        System.out.println("  -rmiport [number]       RMI port of the Controller; default 1099");
+        System.out.println("  -user username          username for HttpAdapter; default no login required");
+        System.out.println("  -password pwd           password for HttpAdapter; default no login required");
+        System.out.println("  -xslpath directory      location of jmx xsl files; default files in package");
+        System.out.println("  -" + ARG_JMX_AGENTUTIL + " [true/false] load JMX Build Agent utility; default is true");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
         System.out.println("  -webport [number]       port for the Reporting website; default 8080, removing");
@@ -380,6 +382,13 @@ public final class Main implements CruiseControlMain {
             }
         }
         return xslpath;
+    }
+
+    /** CC Command line arguement name. */
+    static final String ARG_JMX_AGENTUTIL = "agentutil";
+
+    static boolean parseEnableJMXAgentUtility(String[] args) {
+        return MainArgs.parseBoolean(args, ARG_JMX_AGENTUTIL, true, true);
     }
 
     /**
