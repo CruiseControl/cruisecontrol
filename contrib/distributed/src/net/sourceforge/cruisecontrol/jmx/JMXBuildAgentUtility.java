@@ -30,42 +30,53 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
     private long lastRefreshTime;
     // @todo make refresh timeout configurable
     private final long refreshTimeout = (BuildAgentUtility.LUS_WAIT_SECONDS + 1) * 1000;
-    private void doRefreshAgentList() throws RemoteException {
+    private void tryRefreshAgentList() throws RemoteException {
 
         // don't refresh until 5 seconds have elapsed since last refresh
-        if ((System.currentTimeMillis() - lastRefreshTime) > refreshTimeout) { 
-
-            lstServiceItems = new ArrayList<ServiceItem>();
-            agentInfoAll = buildAgentUtility.getAgentInfoAll(lstServiceItems);
-
-            agentServiceIds = new ArrayList<String>();
-            for (ServiceItem serviceItem : lstServiceItems) {
-                agentServiceIds.add(
-                        ((BuildAgentService) serviceItem.service).getMachineName()
-                                + ": " + serviceItem.serviceID);
-            }
-            lastRefreshTime = System.currentTimeMillis();
+        if ((System.currentTimeMillis() - lastRefreshTime) > refreshTimeout) {
+            doRefresh();
         } else {
-            LOG.debug("Skipping Agent Util refresh, using cached agent info. timeout(millis): " + refreshTimeout);
+            LOG.debug("Skipping JMX Agent Util refresh, using cached agent info. timeout(millis): " + refreshTimeout);
         }
+    }
+
+    private void doRefresh() throws RemoteException {
+        LOG.debug("JMX Agent Util refreshing...");
+
+        lstServiceItems = new ArrayList<ServiceItem>();
+        agentInfoAll = buildAgentUtility.getAgentInfoAll(lstServiceItems);
+
+        agentServiceIds = new ArrayList<String>();
+        for (ServiceItem serviceItem : lstServiceItems) {
+            agentServiceIds.add(
+                    ((BuildAgentService) serviceItem.service).getMachineName()
+                            + ": " + serviceItem.serviceID);
+        }
+        lastRefreshTime = System.currentTimeMillis();
+
+        LOG.debug("JMX Agent Util refresh complete.");
     }
 
     public JMXBuildAgentUtility() {
         buildAgentUtility = BuildAgentUtility.createForJMX();
     }
 
+    public void refresh() throws RemoteException {
+        doRefresh();
+    }
+
     public int getLookupServiceCount() throws RemoteException {
-        doRefreshAgentList();
+        tryRefreshAgentList();
         return buildAgentUtility.getLastLUSCount();
     }
 
     public String getBuildAgents() throws RemoteException {
-        doRefreshAgentList();
+        tryRefreshAgentList();
         return agentInfoAll;
     }
 
     public String[] getBuildAgentServiceIds() throws RemoteException {
-        doRefreshAgentList();
+        tryRefreshAgentList();
         return agentServiceIds.toArray(new String[agentServiceIds.size()]);
     }
 
