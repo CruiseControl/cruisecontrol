@@ -56,7 +56,7 @@ DateFormat
 
 JMX
 ----------------------
-* Add JMXBuildAgentUtility to control panel. Only loads if DistCC classes are available on the CC classpath.
+* Add JMXBuildAgentUtility to control panel. Only loads if DistCC classes are available on the CC classpath. Use "-agentutil false" command line option to disable automatic loading of JMX Build Agent Utility.
 
 ModificationSet
 ---------------------
