@@ -261,6 +261,13 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testParseEnableJMXAgentUtility() {
+        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {""}));
+        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL}));
+        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL, "true"}));
+        assertFalse(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL, "false"}));
+    }
+
     public void testUsage() {
         String[] usage = {"-?"};
         String[] notusage = {"-port", "8000"};

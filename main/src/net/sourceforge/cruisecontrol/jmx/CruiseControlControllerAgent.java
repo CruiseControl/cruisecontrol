@@ -80,8 +80,10 @@ public class CruiseControlControllerAgent {
     private final String user;
     private final String password;
 
-    public CruiseControlControllerAgent(CruiseControlController controller, int httpPort,
-        int connectorServerPort, String user, String password, String xslPath) {
+    public CruiseControlControllerAgent(final CruiseControlController controller, final int httpPort,
+        final int connectorServerPort, final String user, final String password, final String xslPath,
+        final boolean enableJMXAgentUtility) {
+
         this.httpPort = httpPort;
         this.connectorServerPort = connectorServerPort;
         path = xslPath;
@@ -122,24 +124,32 @@ public class CruiseControlControllerAgent {
             LOG.error("Problem registering DashboardController for posting", e);
         }
 
-        try {
-            ObjectName name = new ObjectName("CruiseControl Distributed:name=buildAgentUtility");
-            // use reflection to avoid dependency on DistCC
-            final String className = "net.sourceforge.cruisecontrol.jmx.JMXBuildAgentUtility";
-            Class clsBuildAgentMBeanImpl = null;
+        if (enableJMXAgentUtility) {
             try {
-                clsBuildAgentMBeanImpl = Class.forName(className);
-            } catch (ClassNotFoundException e) {
-                // we expect this exception if NOT running with DistCC classes on the classpath
-                LOG.debug("Failed to load class: " + className);
+                ObjectName name = new ObjectName("CruiseControl Distributed:name=buildAgentUtility");
+                // use reflection to avoid dependency on DistCC
+                final String className = "net.sourceforge.cruisecontrol.jmx.JMXBuildAgentUtility";
+                Class clsBuildAgentMBeanImpl = null;
+                try {
+                    clsBuildAgentMBeanImpl = Class.forName(className);
+                } catch (ClassNotFoundException e) {
+                    // we expect this exception if NOT running with DistCC classes on the classpath
+                    if (enableJMXAgentUtility) {
+                        LOG.error("Failed to load class: " + className + ". (DistCC) JMX Agent Utility classes are "
+                                + "not on the classpath. You need to include the contrib/distributed classes to use "
+                                + "this feature. Try using contrib/distributed/cruisecontrol[.bat][.sh].");
+                    } else {
+                        LOG.debug("Failed to load class: " + className);
+                    }
+                }
+                if (clsBuildAgentMBeanImpl != null) {
+                    final Object objBuildAgentMBeanImpl
+                            = clsBuildAgentMBeanImpl.getConstructor((Class[]) null).newInstance((Object[]) null);
+                    server.registerMBean(objBuildAgentMBeanImpl, name);
+                }
+            } catch (Exception e) {
+                LOG.error("Problem registering Build Agent Utility jmx bean", e);
             }
-            if (clsBuildAgentMBeanImpl != null) {
-                final Object objBuildAgentMBeanImpl
-                        = clsBuildAgentMBeanImpl.getConstructor((Class[]) null).newInstance((Object[]) null);
-                server.registerMBean(objBuildAgentMBeanImpl, name);
-            }
-        } catch (Exception e) {
-            LOG.error("Problem registering Build Agent Utility jmx bean", e);
         }
     }
 
