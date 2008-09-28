@@ -91,6 +91,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Commandline entry point into the application.
      *
+     * @param args command line arguments
      * @deprecated Use the Launcher class instead
      */
     public static void main(String[] args) {
@@ -171,6 +172,7 @@ public final class Main implements CruiseControlMain {
      * argument are not specified.
      *
      * @param args command line arguments
+     * @throws CruiseControlException if final configfile value is null
      */
     void startEmbeddedServer(final String[] args) throws CruiseControlException {
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(parseWebPort(args), parseWebappPath(args),
@@ -207,7 +209,8 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -user username          username for HttpAdapter; default no login required");
         System.out.println("  -password pwd           password for HttpAdapter; default no login required");
         System.out.println("  -xslpath directory      location of jmx xsl files; default files in package");
-        System.out.println("  -" + ARG_JMX_AGENTUTIL + " [true/false] load JMX Build Agent utility; default is true");
+        System.out.println("  -" + CruiseControlControllerAgent.ARG_JMX_AGENTUTIL
+                + " [true/false] load JMX Build Agent utility; default is true");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
         System.out.println("  -webport [number]       port for the Reporting website; default 8080, removing");
@@ -323,6 +326,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse configfile from arguments and override any existing configfile value from reading serialized Project info.
      *
+     * @param args command line arguments
      * @param configFileName existing configfile value read from serialized Project info
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is null
@@ -354,6 +358,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse port number from arguments.
      *
+     * @param args command line arguments
      * @return port number
      * @throws IllegalArgumentException if port argument is invalid
      */
@@ -384,16 +389,25 @@ public final class Main implements CruiseControlMain {
         return xslpath;
     }
 
-    /** CC Command line arguement name. */
-    static final String ARG_JMX_AGENTUTIL = "agentutil";
+    static CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL parseEnableJMXAgentUtility(String[] args) {
+        if (!MainArgs.argumentPresent(args, CruiseControlControllerAgent.ARG_JMX_AGENTUTIL)) {
+            /** default, if no command line arg present. Not an error if load fails. */
+            return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE;
+        }
 
-    static boolean parseEnableJMXAgentUtility(String[] args) {
-        return MainArgs.parseBoolean(args, ARG_JMX_AGENTUTIL, true, true);
+        if (MainArgs.parseBoolean(args, CruiseControlControllerAgent.ARG_JMX_AGENTUTIL, false, true)) {
+            /** -agentutil true. Considered an error if load fails. */
+            return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_LOAD;
+        }
+
+        /** -agentutil false. Do not attempt to load. */
+        return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_BYPASS;
     }
 
     /**
      * Parse password from arguments and override any existing password value from reading serialized Project info.
      *
+     * @param args command line arguments
      * @return final value of password.
      */
     static String parsePassword(String[] args) {
@@ -403,6 +417,7 @@ public final class Main implements CruiseControlMain {
     /**
      * Parse user from arguments and override any existing user value from reading serialized Project info.
      *
+     * @param args command line arguments
      * @return final value of user.
      */
     static String parseUser(String[] args) {
@@ -410,7 +425,7 @@ public final class Main implements CruiseControlMain {
     }
 
     /**
-     * Retrieves the current version information, as indicated in the version.properties file.
+     * @return the current version information, as indicated in the version.properties file.
      */
     private static Properties getBuildVersionProperties() {
         Properties props = new Properties();
@@ -424,6 +439,7 @@ public final class Main implements CruiseControlMain {
 
     /**
      * Writes the current version information to the logging information stream.
+     * @param props the current version information, as indicated in the version.properties file.
      */
     private static void printVersion(Properties props) {
         LOG.info("CruiseControl Version " + props.getProperty("version") + " " + props.getProperty("version.info"));
