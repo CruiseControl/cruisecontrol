@@ -53,7 +53,7 @@ public class ProjectWrapper implements WorkerThread {
   private ProjectInterface myProject = null;
   private static final Logger LOG = Logger.getLogger(ProjectWrapper.class);
   private boolean doneBuilding;
-  private Object doneBuildingMutex = new Object();
+  private final Object doneBuildingMutex = new Object();
 
   public ProjectWrapper(ProjectInterface thisProject) {
     if (thisProject == null) {
