@@ -43,6 +43,7 @@ import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.util.MainArgs;
 import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
@@ -52,6 +53,7 @@ import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class MainTest extends TestCase {
+    private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
     public void testParsePassword() {
         String[] correctArgs = new String[] {"-password", "password"};
@@ -262,10 +264,23 @@ public class MainTest extends TestCase {
     }
 
     public void testParseEnableJMXAgentUtility() {
-        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {""}));
-        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL}));
-        assertTrue(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL, "true"}));
-        assertFalse(Main.parseEnableJMXAgentUtility(new String[] {"-" + Main.ARG_JMX_AGENTUTIL, "false"}));
+        assertEquals("default, if no command line arg present. Not an error if load fails.",
+                CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE,
+                Main.parseEnableJMXAgentUtility(new String[] {""}));
+
+        assertEquals("-agentutil true. Considered an error if load fails.",
+                CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_LOAD,
+                Main.parseEnableJMXAgentUtility(
+                        new String[] {"-" + CruiseControlControllerAgent.ARG_JMX_AGENTUTIL}));
+        assertEquals("-agentutil true. Considered an error if load fails.",
+                CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_LOAD,
+                Main.parseEnableJMXAgentUtility(
+                        new String[] {"-" + CruiseControlControllerAgent.ARG_JMX_AGENTUTIL, "true"}));
+
+        assertEquals("-agentutil false. Do not attempt to load.",
+                CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_BYPASS,
+                Main.parseEnableJMXAgentUtility(
+                        new String[] {"-" + CruiseControlControllerAgent.ARG_JMX_AGENTUTIL, "false"}));
     }
 
     public void testUsage() {
@@ -297,7 +312,7 @@ public class MainTest extends TestCase {
         String[] bothArgs = new String[] {"-webport", "1234", "-webapppath", "/tmp/foo"};
         String[] webPort = new String[] {"-webport", "1234"};
         String[] webappPath = new String[] {"-webapppath", "/tmp/foo"};
-        String[] neitherArg = new String[] {};
+        String[] neitherArg = EMPTY_STRING_ARRAY;
 
         assertTrue(Main.shouldStartEmbeddedServer(bothArgs));
         assertTrue(Main.shouldStartEmbeddedServer(webPort));
@@ -309,7 +324,7 @@ public class MainTest extends TestCase {
     public void testShouldStartBuildLoopMonitor() throws Exception {
         BuildLoopMonitor buildLoopMonitor = BuildLoopMonitorRepository.getBuildLoopMonitor();
         assertNull(buildLoopMonitor);
-        new Main().startPostingToDashboard(new String[0]);
+        new Main().startPostingToDashboard(EMPTY_STRING_ARRAY);
         buildLoopMonitor = BuildLoopMonitorRepository.getBuildLoopMonitor();
         assertNotNull(buildLoopMonitor);
 
@@ -317,11 +332,11 @@ public class MainTest extends TestCase {
     }
 
     public void testShouldNOTRestartBuildLoopMonitorIfItAlreadyExisting() throws Exception {
-        assertTrue(Main.shouldPostDataToDashboard(new String[0]));
+        assertTrue(Main.shouldPostDataToDashboard(EMPTY_STRING_ARRAY));
 
-        new Main().startPostingToDashboard(new String[0]);
+        new Main().startPostingToDashboard(EMPTY_STRING_ARRAY);
 
-        assertFalse(Main.shouldPostDataToDashboard(new String[0]));
+        assertFalse(Main.shouldPostDataToDashboard(EMPTY_STRING_ARRAY));
 
         BuildLoopMonitorRepository.cancelPosting();
     }
@@ -358,7 +373,7 @@ public class MainTest extends TestCase {
         }
 
         public void doAppend(LoggingEvent event) {
-            myBuffer.append(event.getMessage() + "\n");
+            myBuffer.append(event.getMessage()).append("\n");
         }
 
         public String getName() {
