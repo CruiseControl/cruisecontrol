@@ -55,6 +55,7 @@
     <property name="dist" value="dist" />
     <property name="junit.results" value="${target}/test-results" />
     <property name="lib" value="${basedir}/lib" />
+    <property name="lib-buildtools" value="${basedir}/lib-buildtools" />
     <property name="src" value="${basedir}/src" />
     <property name="test" value="${basedir}/test" />
     <property name="functionaltest" value="${basedir}/functionaltest" />
@@ -316,6 +317,44 @@
         <exec executable="dot">
             <arg line="-Tpng ${target}/build.dot -o ${target}/build.png" />
         </exec>
+    </target>
+
+
+    <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
+     allow running on other jars (reporting, distcc, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
+    <target name="checkbinarycompatibility" depends="jar">
+
+        <!-- buildtools.classpath should either contain
+         clirr-core-uber.jar or alternatively
+         clirr-core.jar and the libraries it depends on -->
+        <path id="buildtools.classpath">
+            <fileset dir="${lib-buildtools}" includes="*.jar" />
+        </path>
+
+        <taskdef
+                classpathref="buildtools.classpath"
+                resource="clirrtask.properties"/>
+
+        <!--value="${ant.project.name}-${compatibility.baseline.version}.jar"/>-->
+        <property
+                name="jar.baseline"
+                value="cruisecontrol-bin-2.7.3.zip"/>
+
+        <!--src="${url.libbase}/${ant.project.name}/${jar.baseline}"-->
+        <get
+                src="http://downloads.sourceforge.net/cruisecontrol/cruisecontrol-bin-2.7.3.zip?modtime=1216237499&amp;big_mirror=0"
+                dest="${target}/tmp/${jar.baseline}"
+                verbose="on" usetimestamp="true"/>
+        <unzip src="${target}/tmp/${jar.baseline}" dest="${target}/tmp/cc-jar/" />
+
+        <clirr>
+            <origfiles dir="${target}/tmp/cc-jar" includes="cruisecontrol-bin-2.7.3/lib/cruisecontrol*.jar"/>
+            <newfiles dir="${dist}" includes="cruisecontrol*.jar"/>
+
+            <!-- <formatter type="xml" outfile="build/clirr.xml" /> -->
+            <!-- TODO: example for 3rd party classpath -->
+        </clirr>
+
     </target>
 
 </project>
