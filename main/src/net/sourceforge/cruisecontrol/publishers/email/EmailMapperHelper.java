@@ -55,31 +55,31 @@ public class EmailMapperHelper implements Serializable {
     /*
      * CACHE contains a Map with mapped users for each Publisher
      */
-    private static final Map CACHE = new Hashtable();
+    private static final Map<Object, Map<String, String>> CACHE = new Hashtable<Object, Map<String, String>>();
 
-    public static void addCacheEntry(Object cache, String user, String mappedUser) {
-        Map map = (Map) CACHE.get(cache);
+    public static void addCacheEntry(final Object cache, final String user, final String mappedUser) {
+        Map<String, String> map = CACHE.get(cache);
         if (map == null) {
-            map = new Hashtable();
+            map = new Hashtable<String, String>();
             CACHE.put(cache, map);
         }
         map.put(user, mappedUser);
     }
 
-    public static String getCachedUser(Object cache, String user) {
+    public static String getCachedUser(final Object cache, final String user) {
         String mappedUser = null;
-        Map map = (Map) CACHE.get(cache);
+        final Map<String, String> map = CACHE.get(cache);
         if (map != null) {
-            mappedUser = (String) map.get(user);
+            mappedUser = map.get(user);
         }
         return mappedUser;
     }
 
-    public void mapUsers(EmailPublisher publisher, Set users, Set mappedUsers) {
+    public void mapUsers(final EmailPublisher publisher, final Set<String> users, final Set<String> mappedUsers) {
         // first iterate over the users and check if mapping is cached
         for (Iterator userIterator = users.iterator(); userIterator.hasNext(); ) {
-            String user = (String) userIterator.next();
-            String mappedUser = getCachedUser(publisher, user);
+            final String user = (String) userIterator.next();
+            final String mappedUser = getCachedUser(publisher, user);
             if (mappedUser != null) {
                 LOG.debug("User " + user + " found in cache.  Mapped to: " + mappedUser);
                 userIterator.remove();
@@ -89,13 +89,13 @@ public class EmailMapperHelper implements Serializable {
 
         // iterate over each mapper,
         // put the mapping into the cache if a hit and partissapates in caching
-        EmailMapper[] mappers = publisher.getEmailMapper();
+        final EmailMapper[] mappers = publisher.getEmailMapper();
         for (int i = 0; i < mappers.length; i++) {
             mappers[i].mapUsers(users, mappedUsers);
         }
 
         // take the still unmapped users and move them into the mappedUsers set
-        for (Iterator userIterator = users.iterator(); userIterator.hasNext(); ) {
+        for (Iterator<String> userIterator = users.iterator(); userIterator.hasNext(); ) {
             mappedUsers.add(userIterator.next());
             userIterator.remove();
         }

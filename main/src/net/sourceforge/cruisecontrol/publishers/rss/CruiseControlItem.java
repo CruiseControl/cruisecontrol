@@ -63,7 +63,7 @@ public class CruiseControlItem extends Item {
     /**
      *  Construct from an XMLLogHelper.
      */
-    public CruiseControlItem(XMLLogHelper logHelper, String buildResultsURL) throws CruiseControlException {
+    public CruiseControlItem(final XMLLogHelper logHelper, final String buildResultsURL) throws CruiseControlException {
         super();
         this.setTitle(createTitle(logHelper));
         this.setLink(createLink(logHelper, buildResultsURL));
@@ -83,12 +83,12 @@ public class CruiseControlItem extends Item {
      *  Create a title based on the contents of an XML log file.  This method
      *  is largely copied from the e-mail publisher classes.
      */
-    private String createTitle(XMLLogHelper logHelper) throws CruiseControlException {
+    private String createTitle(final XMLLogHelper logHelper) throws CruiseControlException {
 
-        StringBuffer title = new StringBuffer();
+        final StringBuffer title = new StringBuffer();
         title.append(logHelper.getProjectName());
         if (logHelper.isBuildSuccessful()) {
-            String label = logHelper.getLabel();
+            final String label = logHelper.getLabel();
             if (label.length() > 0) {
                 title.append(" ");
                 title.append(label);
@@ -111,17 +111,18 @@ public class CruiseControlItem extends Item {
      *  Create a link to the build results URL based on the contents of the
      *  XML log file.  THis method is borrowed from the email publisher classes.
      */
-    private String createLink(XMLLogHelper logHelper, String buildResultsURL) throws CruiseControlException {
+    private String createLink(final XMLLogHelper logHelper, final String buildResultsURL)
+            throws CruiseControlException {
 
         if (buildResultsURL == null) {
             return "";
         }
-        String logFileName = logHelper.getLogFileName();
+        final String logFileName = logHelper.getLogFileName();
 
-        int startName = logFileName.lastIndexOf(File.separator) + 1;
-        int endName = logFileName.lastIndexOf(".");
-        String baseLogFileName = logFileName.substring(startName, endName);
-        StringBuffer url = new StringBuffer(buildResultsURL);
+        final int startName = logFileName.lastIndexOf(File.separator) + 1;
+        final int endName = logFileName.lastIndexOf(".");
+        final String baseLogFileName = logFileName.substring(startName, endName);
+        final StringBuffer url = new StringBuffer(buildResultsURL);
 
         if (buildResultsURL.indexOf("?") == -1) {
             url.append("?");
@@ -137,11 +138,9 @@ public class CruiseControlItem extends Item {
     /**
      * To compare modifications happening in the same project.
      */
-    static class ModificationComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            Modification mod1 = (Modification) o1;
-            Modification mod2 = (Modification) o2;
-            long modifiedTimeDifference = mod1.modifiedTime.getTime() - mod2.modifiedTime.getTime();
+    static class ModificationComparator implements Comparator<Modification> {
+        public int compare(final Modification mod1, final Modification mod2) {
+            final long modifiedTimeDifference = mod1.modifiedTime.getTime() - mod2.modifiedTime.getTime();
             if (modifiedTimeDifference != 0) {
                 return modifiedTimeDifference > 0 ? +1 : -1;
             }
@@ -149,8 +148,8 @@ public class CruiseControlItem extends Item {
         }
     }
 
-    private String createDescription(XMLLogHelper logHelper) throws CruiseControlException {
-        StringBuffer description = new StringBuffer();
+    private String createDescription(final XMLLogHelper logHelper) throws CruiseControlException {
+        final StringBuffer description = new StringBuffer();
 
         // Write out the build time and label
         description.append("<em>Build Time:</em> ");
@@ -175,12 +174,12 @@ public class CruiseControlItem extends Item {
         // Write out all of the modifications...
         description.append("<em>Modifications: </em>");
         try {
-            final List modifications = new ArrayList(logHelper.getModifications());
+            final List<Modification> modifications = new ArrayList<Modification>(logHelper.getModifications());
             Collections.sort(modifications, new ModificationComparator());
             description.append(modifications.size());
-            Iterator it = modifications.iterator();
+            final Iterator it = modifications.iterator();
             while (it.hasNext()) {
-                Modification mod = (Modification) it.next();
+                final Modification mod = (Modification) it.next();
                 description.append("<li>");
                 description.append(mod.getFileName());
                 description.append("  by ");

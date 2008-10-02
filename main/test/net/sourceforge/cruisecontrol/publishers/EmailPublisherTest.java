@@ -87,9 +87,12 @@ public class EmailPublisherTest extends TestCase {
         tmpFile = File.createTempFile("cruise", "Test");
         tmpFile.deleteOnExit();
         props.setProperty("always1", "always1");
-        FileOutputStream fos = new FileOutputStream(tmpFile);
-        props.store(fos, null);
-        fos.close();
+        final FileOutputStream fos = new FileOutputStream(tmpFile);
+        try {
+            props.store(fos, null);
+        } finally {
+            fos.close();
+        }
 
         String xml = generateXML(true);
         emailPublisher = initPublisher(propertiesMapper, xml);
@@ -380,12 +383,12 @@ public class EmailPublisherTest extends TestCase {
      * The following unit test ensures TestUtil.createModsElement
      * creates a full XMLLogHelper object
      *
-     * @throws Exception
+     * @throws Exception if a failure occurs
      */
     public void testCreateModsElement() throws Exception {
-        Set modSet = successLogHelper.getModifications();
-        Modification mod = null;
-        Iterator modIter = modSet.iterator();
+        final Set<Modification> modSet = successLogHelper.getModifications();
+        Modification mod;
+        final Iterator modIter = modSet.iterator();
 
         while (modIter.hasNext()) {
             mod = (Modification) modIter.next();
@@ -400,7 +403,7 @@ public class EmailPublisherTest extends TestCase {
 
     public void testCreateAlertUserSet() throws Exception {
         emailPublisher.validate();
-        Set alertUsers = emailPublisher.createAlertUserSet(successLogHelper);
+        Set<String> alertUsers = emailPublisher.createAlertUserSet(successLogHelper);
         //assertTrue(alertUsers.contains("anyFileMod@host.com"));
         assertTrue(alertUsers.contains("filename1@host.com"));
         assertTrue(alertUsers.contains("filename3@host.com"));
@@ -414,7 +417,7 @@ public class EmailPublisherTest extends TestCase {
     }
 
     public void testCreateEmailString() {
-        Set emailSet = new TreeSet();
+        final Set<String> emailSet = new TreeSet<String>();
         emailSet.add("always1@host.com");
         emailSet.add("always2@host.com");
         emailSet.add("always1@host.com");

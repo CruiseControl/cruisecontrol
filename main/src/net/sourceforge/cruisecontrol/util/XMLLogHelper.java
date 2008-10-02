@@ -81,21 +81,23 @@ import org.jdom.Element;
  */
 public class XMLLogHelper {
 
-    private Element log;
+    private final Element log;
 
     public XMLLogHelper(Element log) {
         this.log = log;
     }
 
     /**
-     *  @return the build log name
+     * @return the build log name
+     * @throws CruiseControlException if the "logfile" property name can not be found.
      */
     public String getLogFileName() throws CruiseControlException {
         return getCruiseControlInfoProperty("logfile");
     }
 
     /**
-     *  @return the label for this build
+     * @return the label for this build
+     * @throws CruiseControlException if the "label" property name can not be found.
      */
     public String getLabel() throws CruiseControlException {
         return getCruiseControlInfoProperty("label");
@@ -106,7 +108,8 @@ public class XMLLogHelper {
     }
 
     /**
-     *  @return true if the previous build was successful, false if it was not
+     * @return true if the previous build was successful, false if it was not
+     * @throws CruiseControlException if the "lastbuildsuccessful" property name can not be found.
      */
     public boolean wasPreviousBuildSuccessful() throws CruiseControlException {
         return getCruiseControlInfoProperty("lastbuildsuccessful").equals("true");
@@ -125,7 +128,8 @@ public class XMLLogHelper {
     }
 
     /**
-     *  @return project name as defined in the ant build file
+     * @return project name as defined in the ant build file
+     * @throws CruiseControlException if the "projectname" property name can not be found.
      */
     public String getProjectName() throws CruiseControlException {
         return getCruiseControlInfoProperty("projectname");
@@ -142,9 +146,9 @@ public class XMLLogHelper {
      *  Looks in modifications/changelist/ or modifications/modification/user depending on SouceControl implementation.
      *  @return <code>Set</code> of usernames that have modified code since the last build
      */
-    public Set getBuildParticipants() {
-        Set results = new HashSet();
-        Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+    public Set<String> getBuildParticipants() {
+        final Set<String> results = new HashSet<String>();
+        final Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
         while (modificationIterator.hasNext()) {
             Element modification = (Element) modificationIterator.next();
             Element emailElement = modification.getChild("email");
@@ -157,17 +161,18 @@ public class XMLLogHelper {
     }
 
     /**
-     *  @param propertyName the name of the ant property
-     *  @return the value of the ant property
+     * @param propertyName the name of the ant property
+     * @return the value of the ant property
+     * @throws CruiseControlException if the given ant property name can not be found.
      */
-    public String getAntProperty(String propertyName) throws CruiseControlException {
-        Iterator props = log.getChild("build").getChild("properties").getChildren("property").iterator();
+    public String getAntProperty(final String propertyName) throws CruiseControlException {
+        final Iterator props = log.getChild("build").getChild("properties").getChildren("property").iterator();
         return findProperty(props, propertyName);
     }
 
-    private String findProperty(Iterator props, String expected) throws CruiseControlException {
+    private String findProperty(final Iterator props, final String expected) throws CruiseControlException {
         while (props.hasNext()) {
-            Element property = (Element) props.next();
+            final Element property = (Element) props.next();
             if (property.getAttributeValue("name").equals(expected)) {
                 return property.getAttributeValue("value");
             }
@@ -175,17 +180,22 @@ public class XMLLogHelper {
         throw new CruiseControlException("Property: " + expected + " not found.");
     }
 
-    public String getCruiseControlInfoProperty(String name) throws CruiseControlException {
-        Iterator props = log.getChild("info").getChildren("property").iterator();
+    /**
+     * @param name the property name to search for
+     * @return the value of the property
+     * @throws CruiseControlException if the given property name can not be found.
+     */
+    public String getCruiseControlInfoProperty(final String name) throws CruiseControlException {
+        final Iterator props = log.getChild("info").getChildren("property").iterator();
         return findProperty(props, name);
     }
 
-    public Set getModifications() {
-        Set results = new HashSet();
-        Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
+    public Set<Modification> getModifications() {
+        final Set<Modification> results = new HashSet<Modification>();
+        final Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
         while (modificationIterator.hasNext()) {
-            Element modification = (Element) modificationIterator.next();
-            Modification mod = new Modification();
+            final Element modification = (Element) modificationIterator.next();
+            final Modification mod = new Modification();
             mod.fromElement(modification);
             results.add(mod);
         }

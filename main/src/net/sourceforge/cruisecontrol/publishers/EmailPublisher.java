@@ -91,13 +91,26 @@ public abstract class EmailPublisher implements Publisher {
     private String mailPort;
     private boolean useSSL;
     private String buildResultsURL;
-    private Always[] alwaysAddresses = new Always[0];
-    private Failure[] failureAddresses = new Failure[0];
-    private Success[] successAddresses = new Success[0];
-    private Alert[] alertAddresses = new Alert[0];
-    private Ignore[] ignoreUsers = new Ignore[0];
-    private EmailMapper[] emailMapper = new EmailMapper[0];
-    private EmailMapperHelper mapperHelper = new EmailMapperHelper();
+
+    private static final Always[] EMPTY_ALWAYS_ADDRESSES = new Always[0];
+    private Always[] alwaysAddresses = EMPTY_ALWAYS_ADDRESSES;
+
+    private static final Failure[] EMPTY_FAILURE_ADDRESSES = new Failure[0];
+    private Failure[] failureAddresses = EMPTY_FAILURE_ADDRESSES;
+
+    private static final Success[] EMPTY_SUCCESS_ADDRESSES = new Success[0];
+    private Success[] successAddresses = EMPTY_SUCCESS_ADDRESSES;
+
+    private static final Alert[] EMPTY_ALERT_ADDRESSES = new Alert[0];
+    private Alert[] alertAddresses = EMPTY_ALERT_ADDRESSES;
+
+    private static final Ignore[] EMPTY_IGNORE_ADDRESSES = new Ignore[0];
+    private Ignore[] ignoreUsers = EMPTY_IGNORE_ADDRESSES;
+
+    private static final EmailMapper[] EMPTY_EMAIL_MAPPERS = new EmailMapper[0];
+    private EmailMapper[] emailMapper = EMPTY_EMAIL_MAPPERS;
+    private final EmailMapperHelper mapperHelper = new EmailMapperHelper();
+
     private String returnAddress;
     private String returnName;
     private String defaultSuffix = "";
@@ -138,7 +151,7 @@ public abstract class EmailPublisher implements Publisher {
         }
     }
 
-    private void validateAddresses(Address[] addresses) throws CruiseControlException {
+    private void validateAddresses(final Address[] addresses) throws CruiseControlException {
         for (int i = 0; i < addresses.length; i++) {
             addresses[i].validate();
         }
@@ -150,15 +163,16 @@ public abstract class EmailPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return <code>String</code> containing the subject line.
+     * @throws CruiseControlException if an error occurs while building subject string
      */
-    protected String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
-        StringBuffer subjectLine = new StringBuffer();
+    protected String createSubject(final XMLLogHelper logHelper) throws CruiseControlException {
+        final StringBuffer subjectLine = new StringBuffer();
         if (subjectPrefix != null) {
             subjectLine.append(subjectPrefix).append(" ");
         }
         subjectLine.append(logHelper.getProjectName());
         if (logHelper.isBuildSuccessful()) {
-            String label = logHelper.getLabel();
+            final String label = logHelper.getLabel();
             if (label.trim().length() > 0) {
                 subjectLine.append(" ").append(logHelper.getLabel());
             }
@@ -183,8 +197,9 @@ public abstract class EmailPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
+     * @throws CruiseControlException if the "lastbuildsuccessful" property name can not be found.
      */
-    protected boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
+    protected boolean shouldSend(final XMLLogHelper logHelper) throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
             if (reportSuccess.equalsIgnoreCase("always")) {
                 return true;
@@ -221,10 +236,11 @@ public abstract class EmailPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return comma delimited <code>String</code> of email addresses to receive the email message.
+     * @throws CruiseControlException if an error occurs while building userList string
      */
-    protected String createUserList(XMLLogHelper logHelper) throws CruiseControlException {
+    protected String createUserList(final XMLLogHelper logHelper) throws CruiseControlException {
 
-        Set emails = createUserSet(logHelper);
+        final Set<String> emails = createUserSet(logHelper);
         return createEmailString(emails);
     }
 
@@ -240,10 +256,11 @@ public abstract class EmailPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return A <code>Set</code> of email addresses to receive the email message.
+     * @throws CruiseControlException if an error occurs while building userSet
      */
-    protected Set createUserSet(XMLLogHelper logHelper) throws CruiseControlException {
+    protected Set<String> createUserSet(final XMLLogHelper logHelper) throws CruiseControlException {
 
-        Set users = skipUsers ? new HashSet() : logHelper.getBuildParticipants();
+        final Set<String> users = skipUsers ? new HashSet<String>() : logHelper.getBuildParticipants();
 
         // remove users we want to exclude from the mail spam
         for (int i = 0; i < ignoreUsers.length; i++) {
@@ -278,7 +295,7 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
-        Set emails = new TreeSet();
+        final Set<String> emails = new TreeSet<String>();
         mapperHelper.mapUsers(this, users, emails);
 
         for (Iterator iterator = emails.iterator(); iterator.hasNext();) {
@@ -291,7 +308,7 @@ public abstract class EmailPublisher implements Publisher {
         return emails;
     }
 
-    boolean isValid(String address) {
+    boolean isValid(final String address) {
         return EmailValidator.getInstance().isValid(address);
     }
 
@@ -300,16 +317,16 @@ public abstract class EmailPublisher implements Publisher {
      * is supposed to receive a modification alert and a regular build email, they will only receive the modification
      * alert. This prevents duplicate emails (currently only the subject is different).
      */
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
-        boolean important = failAsImportant && !helper.isBuildSuccessful();
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
+        final XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        final boolean important = failAsImportant && !helper.isBuildSuccessful();
 
-        Set userSet = new HashSet();
-        Set alertSet = createAlertUserSet(helper);
-        String subject = createSubject(helper);
+        final Set<String> userSet = new HashSet<String>();
+        final Set<String> alertSet = createAlertUserSet(helper);
+        final String subject = createSubject(helper);
 
         if (!alertSet.isEmpty()) {
-            String alertSubject = "[MOD ALERT] " + subject;
+            final String alertSubject = "[MOD ALERT] " + subject;
             sendMail(createEmailString(alertSet), alertSubject, createMessage(helper), important);
         }
 
@@ -334,13 +351,13 @@ public abstract class EmailPublisher implements Publisher {
      * @return a properties object containing configured properties.
      */
     protected Properties getMailProperties() {
-        Properties props = System.getProperties();
+        final Properties props = System.getProperties();
         props.put("mail.smtp.host", mailHost);
         props.put("mail.smtp.sendpartial", "true");
         if (mailPort != null) {
             props.put("mail.smtp.port", mailPort);
         }
-        LOG.debug("mailHost is " + mailHost + ", mailPort is " + mailPort == null ? "default" : mailPort);
+        LOG.debug("mailHost is " + mailHost + ", mailPort is " + (mailPort == null ? "default" : mailPort));
         if (userName != null && password != null) {
             props.put("mail.smtp.auth", "true");
             if (useSSL) {
@@ -363,9 +380,12 @@ public abstract class EmailPublisher implements Publisher {
      *            subject line for the message
      * @param message
      *            body of the message
+     * @param important
+     *            if true, send mail with "High" importance.
      * @return Boolean value indicating if an email was sent.
+     * @throws CruiseControlException if a MessagingException occurs.
      */
-    protected boolean sendMail(String toList, String subject, String message, boolean important)
+    protected boolean sendMail(final String toList, final String subject, final String message, final boolean important)
             throws CruiseControlException {
 
         boolean emailSent = false;
@@ -374,23 +394,23 @@ public abstract class EmailPublisher implements Publisher {
 
             LOG.debug("Sending email to: " + toList);
 
-            Session session = Session.getDefaultInstance(getMailProperties(), null);
+            final Session session = Session.getDefaultInstance(getMailProperties(), null);
             session.setDebug(LOG.isDebugEnabled());
 
             try {
-                Message msg = new MimeMessage(session);
+                final Message msg = new MimeMessage(session);
                 msg.setFrom(getFromAddress());
                 msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList, false));
                 msg.setSubject(subject);
                 msg.setSentDate(new Date());
-                String importance = (important) ? "High" : "Normal";
+                final String importance = (important) ? "High" : "Normal";
                 msg.addHeader("Importance", importance);
 
                 addContentToMessage(message, msg);
 
                 if (userName != null && password != null) {
                     msg.saveChanges(); // implicit with send()
-                    Transport transport = session.getTransport("smtp");
+                    final Transport transport = session.getTransport("smtp");
                     transport.connect(mailHost, userName, password);
                     transport.sendMessage(msg, msg.getAllRecipients());
                     transport.close();
@@ -417,9 +437,9 @@ public abstract class EmailPublisher implements Publisher {
      *            content returned by createMessage
      * @param msg
      *            mail Message with headers and addresses added elsewhere
-     * @throws MessagingException
+     * @throws MessagingException see Message.setText()
      */
-    protected void addContentToMessage(String content, Message msg) throws MessagingException {
+    protected void addContentToMessage(final String content, final Message msg) throws MessagingException {
         msg.setText(content);
     }
 
@@ -435,7 +455,7 @@ public abstract class EmailPublisher implements Publisher {
         return fromAddress;
     }
 
-    public void setMailHost(String hostname) {
+    public void setMailHost(final String hostname) {
         mailHost = hostname;
     }
 
@@ -443,7 +463,7 @@ public abstract class EmailPublisher implements Publisher {
         return mailHost;
     }
 
-    public void setUsername(String name) {
+    public void setUsername(final String name) {
         userName = name;
     }
 
@@ -451,7 +471,7 @@ public abstract class EmailPublisher implements Publisher {
         return userName;
     }
 
-    public void setPassword(String passwd) {
+    public void setPassword(final String passwd) {
         password = passwd;
     }
 
@@ -459,7 +479,7 @@ public abstract class EmailPublisher implements Publisher {
         return password;
     }
 
-    public void setMailPort(String port) {
+    public void setMailPort(final String port) {
         mailPort = port;
     }
 
@@ -467,11 +487,11 @@ public abstract class EmailPublisher implements Publisher {
         return mailPort;
     }
 
-    public void setUseSSL(boolean useSSL) {
+    public void setUseSSL(final boolean useSSL) {
         this.useSSL = useSSL;
     }
 
-    public void setSubjectPrefix(String prefix) {
+    public void setSubjectPrefix(final String prefix) {
         subjectPrefix = prefix;
     }
 
@@ -483,7 +503,7 @@ public abstract class EmailPublisher implements Publisher {
         return buildResultsURL;
     }
 
-    public void setBuildResultsURL(String url) {
+    public void setBuildResultsURL(final String url) {
         buildResultsURL = url;
     }
 
@@ -495,7 +515,7 @@ public abstract class EmailPublisher implements Publisher {
         return returnAddress;
     }
 
-    public void setReturnAddress(String emailAddress) {
+    public void setReturnAddress(final String emailAddress) {
         returnAddress = emailAddress;
     }
 
@@ -503,7 +523,7 @@ public abstract class EmailPublisher implements Publisher {
         return returnName;
     }
 
-    public void setReturnName(String emailReturnName) {
+    public void setReturnName(final String emailReturnName) {
         returnName = emailReturnName;
     }
 
@@ -511,82 +531,82 @@ public abstract class EmailPublisher implements Publisher {
         return defaultSuffix;
     }
 
-    public void setDefaultSuffix(String defaultEmailSuffix) {
+    public void setDefaultSuffix(final String defaultEmailSuffix) {
         defaultSuffix = defaultEmailSuffix;
     }
 
-    public void setReportSuccess(String report) {
+    public void setReportSuccess(final String report) {
         reportSuccess = report;
     }
 
-    public void setSkipUsers(boolean skip) {
+    public void setSkipUsers(final boolean skip) {
         skipUsers = skip;
     }
 
-    public void setSpamWhileBroken(boolean spam) {
+    public void setSpamWhileBroken(final boolean spam) {
         spamWhileBroken = spam;
     }
 
-    public void setFailAsImportant(boolean important) {
+    public void setFailAsImportant(final boolean important) {
         failAsImportant = important;
     }
 
     public Ignore createIgnore() {
-        List ignoreList = new ArrayList();
+        final List<Ignore> ignoreList = new ArrayList<Ignore>();
         ignoreList.addAll(Arrays.asList(ignoreUsers));
 
-        Ignore ignore = new Ignore();
+        final Ignore ignore = new Ignore();
         ignoreList.add(ignore);
 
-        ignoreUsers = (Ignore[]) ignoreList.toArray(new Ignore[0]);
+        ignoreUsers = ignoreList.toArray(new Ignore[ignoreList.size()]);
 
         return ignore;
     }
 
     public Always createAlways() {
-        List alwaysList = new ArrayList();
+        final List<Always> alwaysList = new ArrayList<Always>();
         alwaysList.addAll(Arrays.asList(alwaysAddresses));
 
-        Always always = new Always();
+        final Always always = new Always();
         alwaysList.add(always);
 
-        alwaysAddresses = (Always[]) alwaysList.toArray(new Always[0]);
+        alwaysAddresses = alwaysList.toArray(new Always[alwaysList.size()]);
 
         return always;
     }
 
     public Failure createFailure() {
-        List failureList = new ArrayList();
+        final List<Failure> failureList = new ArrayList<Failure>();
         failureList.addAll(Arrays.asList(failureAddresses));
 
-        Failure failure = new Failure();
+        final Failure failure = new Failure();
         failureList.add(failure);
 
-        failureAddresses = (Failure[]) failureList.toArray(new Failure[0]);
+        failureAddresses = failureList.toArray(new Failure[failureList.size()]);
 
         return failure;
     }
 
     public Success createSuccess() {
-        List successList = new ArrayList();
+        final List<Success> successList = new ArrayList<Success>();
         successList.addAll(Arrays.asList(successAddresses));
 
-        Success success = new Success();
+        final Success success = new Success();
         successList.add(success);
 
-        successAddresses = (Success[]) successList.toArray(new Success[0]);
+        successAddresses = successList.toArray(new Success[successList.size()]);
 
         return success;
     }
 
     public Alert createAlert() {
-        List alertsList = new ArrayList();
+        final List<Alert> alertsList = new ArrayList<Alert>();
         alertsList.addAll(Arrays.asList(alertAddresses));
 
-        Alert alert = new Alert();
+        final Alert alert = new Alert();
         alertsList.add(alert);
 
-        alertAddresses = (Alert[]) alertsList.toArray(new Alert[0]);
+        alertAddresses = alertsList.toArray(new Alert[alertsList.size()]);
 
         return alert;
     }
@@ -594,18 +614,18 @@ public abstract class EmailPublisher implements Publisher {
     /*
      * for the <map ... /> entries, just stuff them into the cache in EmailMapperHelper
      */
-    public void add(EmailMapping mapping) {
+    public void add(final EmailMapping mapping) {
         EmailMapperHelper.addCacheEntry(this, mapping.getAlias(), mapping.getAddress());
     }
 
-    public void add(EmailMapper mapper) {
-        List mapperList = new ArrayList();
+    public void add(final EmailMapper mapper) {
+        final List<EmailMapper> mapperList = new ArrayList<EmailMapper>();
         mapperList.addAll(Arrays.asList(emailMapper));
 
         mapper.setPublisher(this);
         mapperList.add(mapper);
 
-        emailMapper = (EmailMapper[]) mapperList.toArray(new EmailMapper[0]);
+        emailMapper = mapperList.toArray(new EmailMapper[mapperList.size()]);
     }
 
     public static class Ignore implements Serializable {
@@ -622,7 +642,7 @@ public abstract class EmailPublisher implements Publisher {
             ValidationHelper.assertIsSet(user, "user", getClass());
         }
 
-        public void setUser(String theUser) {
+        public void setUser(final String theUser) {
             user = theUser;
         }
     }
@@ -637,7 +657,7 @@ public abstract class EmailPublisher implements Publisher {
             return address;
         }
 
-        public void setAddress(String theAddress) {
+        public void setAddress(final String theAddress) {
             address = theAddress;
         }
 
@@ -664,7 +684,7 @@ public abstract class EmailPublisher implements Publisher {
             return reportWhenFixed;
         }
 
-        public void setReportWhenFixed(boolean reportWhenFixed) {
+        public void setReportWhenFixed(final boolean reportWhenFixed) {
             this.reportWhenFixed = reportWhenFixed;
         }
     }
@@ -705,7 +725,7 @@ public abstract class EmailPublisher implements Publisher {
          * @param f
          *            A <code>String</code> representing the file that was modified
          */
-        public void setFileRegExpr(String f) {
+        public void setFileRegExpr(final String f) {
             this.fileRegExpr = f;
         }
     }
@@ -725,7 +745,7 @@ public abstract class EmailPublisher implements Publisher {
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return comma delimited <code>String</code> of email addresses to receive the email message.
      */
-    protected String createAlertUserList(XMLLogHelper logHelper) throws CruiseControlException {
+    protected String createAlertUserList(final XMLLogHelper logHelper) {
         return createEmailString(createAlertUserSet(logHelper));
     }
 
@@ -734,26 +754,25 @@ public abstract class EmailPublisher implements Publisher {
      * 
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
-     * @throws CruiseControlException
      * @return A <code>Set</code> of email addresses to receive the email message.
      */
-    protected Set createAlertUserSet(XMLLogHelper logHelper) throws CruiseControlException {
+    protected Set<String> createAlertUserSet(final XMLLogHelper logHelper)  {
         if (alertAddresses.length == 0) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
-        Set users = new HashSet();
-        Set modificationSet = logHelper.getModifications();
+        final Set<String> users = new HashSet<String>();
+        final Set<Modification> modificationSet = logHelper.getModifications();
 
         for (Iterator modificationIter = modificationSet.iterator(); modificationIter.hasNext();) {
-            Modification mod = (Modification) modificationIter.next();
-            String modifiedFile = mod.getFullPath();
+            final Modification mod = (Modification) modificationIter.next();
+            final String modifiedFile = mod.getFullPath();
 
             LOG.debug("Modified file: " + modifiedFile);
 
             // Compare the modified file to the regExpr's
             for (int i = 0; i < alertAddresses.length; i++) {
-                String emailAddress = alertAddresses[i].getAddress();
+                final String emailAddress = alertAddresses[i].getAddress();
 
                 if (emailAddress != null && !"".equals(emailAddress.trim()) && !users.contains(emailAddress)
                         && matchRegExpr(modifiedFile, alertAddresses[i].fileFilter)) {
@@ -767,7 +786,7 @@ public abstract class EmailPublisher implements Publisher {
             }
         }
 
-        Set emails = new TreeSet();
+        final Set<String> emails = new TreeSet<String>();
         mapperHelper.mapUsers(this, users, emails);
         return emails;
     }
@@ -779,12 +798,12 @@ public abstract class EmailPublisher implements Publisher {
      *            A <code>Set</code> containing <code>String</code>s of emails addresses
      * @return A comma delimited <code>String</code> of email addresses
      */
-    protected String createEmailString(Set emails) {
-        StringBuffer commaDelimitedString = new StringBuffer();
-        Iterator emailIterator = appendDefaultSuffix(emails).iterator();
+    protected String createEmailString(final Set<String> emails) {
+        final StringBuffer commaDelimitedString = new StringBuffer();
+        final Iterator emailIterator = appendDefaultSuffix(emails).iterator();
 
         while (emailIterator.hasNext()) {
-            String mappedUser = (String) emailIterator.next();
+            final String mappedUser = (String) emailIterator.next();
             commaDelimitedString.append(mappedUser);
             if (emailIterator.hasNext()) {
                 commaDelimitedString.append(",");
@@ -796,9 +815,9 @@ public abstract class EmailPublisher implements Publisher {
         return commaDelimitedString.toString();
     }
 
-    private Set appendDefaultSuffix(Set emails) {
-        Set result = new TreeSet();
-        Iterator emailIterator = emails.iterator();
+    private Set<String> appendDefaultSuffix(final Set emails) {
+        final Set<String> result = new TreeSet<String>();
+        final Iterator emailIterator = emails.iterator();
 
         while (emailIterator.hasNext()) {
             String mappedUser = (String) emailIterator.next();
@@ -820,8 +839,8 @@ public abstract class EmailPublisher implements Publisher {
      *            A <code>GlobFilenameFilter</code> pattern
      * @return True if the file matches the regular expression pattern. Otherwise false.
      */
-    protected boolean matchRegExpr(String input, GlobFilenameFilter pattern) {
-        File file = new File(input);
+    protected boolean matchRegExpr(final String input, final GlobFilenameFilter pattern) {
+        final File file = new File(input);
         String path = file.toString();
 
         // On systems with a '\' as pathseparator convert it to a forward slash '/'

@@ -187,8 +187,8 @@ public class XMLLogHelperTest extends TestCase {
     }
 
     public void testGetBuildParticipants() {
-        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
-        Set successHelperParticipants = successHelper.getBuildParticipants();
+        final XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        final Set<String> successHelperParticipants = successHelper.getBuildParticipants();
         assertEquals(true, successHelperParticipants.contains("username1"));
         assertEquals(true, successHelperParticipants.contains("username2"));
         assertEquals(false, successHelperParticipants.contains("notaperson"));
@@ -200,8 +200,8 @@ public class XMLLogHelperTest extends TestCase {
         //a date to a string and parse it back to a date the milliseconds will
         //be different.  Therefore the test gets all of the modifications
         //and sets the date on all of them to account for this, after it compares the date by string
-        XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
-        Set modifications = successHelper.getModifications();
+        final XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
+        final Set<Modification> modifications = successHelper.getModifications();
         Modification[] mods = createModifications("username1", "username2");
         Map map = createMapByUserName(mods);
         for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
@@ -212,8 +212,8 @@ public class XMLLogHelperTest extends TestCase {
         }
     }
 
-    private Map createMapByUserName(Modification[] modifications) {
-        Map map = new HashMap();
+    private Map createMapByUserName(final Modification[] modifications) {
+        final Map<String, Modification> map = new HashMap<String, Modification>();
         for (int i = 0; i < modifications.length; i++) {
             map.put(modifications[i].userName, modifications[i]);
         }
