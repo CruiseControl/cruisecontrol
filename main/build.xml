@@ -348,10 +348,17 @@
         <unzip src="${target}/tmp/${jar.baseline}" dest="${target}/tmp/cc-jar/" />
 
         <clirr>
-            <origfiles dir="${target}/tmp/cc-jar" includes="cruisecontrol-bin-2.7.3/lib/cruisecontrol*.jar"/>
-            <newfiles dir="${dist}" includes="cruisecontrol*.jar"/>
+            <origfiles dir="${target}/tmp/cc-jar/cruisecontrol-bin-2.7.3/lib" includes="cruisecontrol*.jar"/>
+            <origclasspath>
+                <fileset dir="${target}/tmp/cc-jar/cruisecontrol-bin-2.7.3/lib" includes="**/*.jar" excludes="cruisecontrol*.jar"/>
+            </origclasspath>
 
-            <!-- <formatter type="xml" outfile="build/clirr.xml" /> -->
+            <newfiles dir="${dist}" includes="cruisecontrol*.jar"/>
+            <newclasspath>
+                <fileset dir="${lib}" includes="**/*.jar" />
+            </newclasspath>
+
+             <!--<formatter type="xml" outfile="${target}/clirr.xml" />-->
             <!-- TODO: example for 3rd party classpath -->
         </clirr>
 
