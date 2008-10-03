@@ -539,11 +539,6 @@ public class AntBuilderTest extends TestCase {
         HashMap buildProperties = new HashMap();
         builder.build(buildProperties, null);
 
-        // ensure junit.jar is on invoked ant's classpath. fails on Fedora due to rpm ant not finding junit
-        //System.out.println("current dir: " + (new File(".")).getCanonicalPath());
-        final AntBuilder.Lib lib = (AntBuilder.Lib) builder.createLib();
-        lib.setSearchPath((new File("../lib/junit-4.4.jar")).getCanonicalPath());
-
         //Now verify a JUnit report was created
         File htmlJUnitReportFile = new File(tempSubdir, "reports/html/index.html");
         assertTrue("JUnit HTML Report was not created", htmlJUnitReportFile.exists());
