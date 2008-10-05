@@ -20,7 +20,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
 
     private static final Logger LOG = Logger.getLogger(JMXBuildAgentUtility.class);
 
-    private final BuildAgentUtility buildAgentUtility;
+    private static final BuildAgentUtility AGENT_UTIL_SINGLETON = BuildAgentUtility.createForJMX();
 
     private boolean isAfterBuildFinished = true;
 
@@ -44,7 +44,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         LOG.debug("JMX Agent Util refreshing...");
 
         lstServiceItems = new ArrayList<ServiceItem>();
-        agentInfoAll = buildAgentUtility.getAgentInfoAll(lstServiceItems);
+        agentInfoAll = AGENT_UTIL_SINGLETON.getAgentInfoAll(lstServiceItems);
 
         agentServiceIds = new ArrayList<String>();
         for (ServiceItem serviceItem : lstServiceItems) {
@@ -57,17 +57,13 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         LOG.debug("JMX Agent Util refresh complete.");
     }
 
-    public JMXBuildAgentUtility() {
-        buildAgentUtility = BuildAgentUtility.createForJMX();
-    }
-
     public void refresh() throws RemoteException {
         doRefresh();
     }
 
     public int getLookupServiceCount() throws RemoteException {
         tryRefreshAgentList();
-        return buildAgentUtility.getLastLUSCount();
+        return AGENT_UTIL_SINGLETON.getLastLUSCount();
     }
 
     public String getBuildAgents() throws RemoteException {
