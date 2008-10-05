@@ -394,7 +394,6 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 fireAgentStatusChanged(); // update UI
             }
 
-            // @todo Test under webstart 4, 5 and 6.0
             // must do Ant Logger Lib injection before validation
             injectAntProgressLoggerLibIfNeeded(nestedBuilder);
 
@@ -957,7 +956,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 LOG.info("Error reading remote progress", e);
             }
         }
-        
+
         sb.append("\n\tPending Restart: ");
         sb.append(isPendingRestart);
         sb.append(";\tPending Restart Since: ");
@@ -977,7 +976,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         return sb.toString();
     }
 
-    
+
     public void setEntryOverrides(PropertyEntry[] entryOverrides) {
         serviceContainer.setEntryOverrides(entryOverrides);
         // this is done only to update agent UI info with new entries info
