@@ -60,55 +60,82 @@ public interface BuildAgentService extends Remote {
      * @return the build log xml document
      * @throws RemoteException if the remote call fails
      */
-    public Element doBuild(Builder nestedBuilder, Map<String, String> projectProperties,
+    Element doBuild(Builder nestedBuilder, Map<String, String> projectProperties,
                            Map<String, String> distributedAgentProperties, ProgressRemote progressRemote,
                            RemoteResult[] remoteResults) throws RemoteException;
 
-    public String getMachineName() throws RemoteException;
+    /** @return the host name on which the Build Agent is running. */
+    String getMachineName() throws RemoteException;
 
     /**
      * @return the date this Build Agent started running (not when a specific build started).
      * @throws RemoteException if the remote call fails
      */
-    public Date getDateStarted() throws RemoteException;
+    Date getDateStarted() throws RemoteException;
 
-    public void claim() throws RemoteException;
 
-    public Date getDateClaimed() throws RemoteException;
-
-    public boolean isBusy() throws RemoteException;
-
+    void claim() throws RemoteException;
+    /**
+     * @return The date this Build Agent became busy.
+     * @throws RemoteException if the remote call fails
+     */
+    Date getDateClaimed() throws RemoteException;
+    /**
+     * @return true if this agent is busy.
+     * @throws RemoteException if the remote call fails
+     */
+    boolean isBusy() throws RemoteException;
     /**
      * @return the project being built now, or null if no project is being built.
      * @throws RemoteException if the remote call fails
      */
-    public String getProjectName() throws RemoteException;
+    String getProjectName() throws RemoteException;
 
 
-    public boolean resultsExist(String resultsType) throws RemoteException;
-    public byte[] retrieveResultsAsZip(String resultsType) throws RemoteException;
+    boolean resultsExist(String resultsType) throws RemoteException;
+    byte[] retrieveResultsAsZip(String resultsType) throws RemoteException;
 
-    public boolean remoteResultExists(int idx) throws RemoteException;
-    public byte[] retrieveRemoteResult(int resultIdx) throws RemoteException;
+    boolean remoteResultExists(int idx) throws RemoteException;
+    byte[] retrieveRemoteResult(int resultIdx) throws RemoteException;
+
+    void clearOutputFiles() throws RemoteException;
 
 
-    public void clearOutputFiles() throws RemoteException;
+    void kill(boolean afterBuildFinished) throws RemoteException;
+    /**
+     * @return true if a kill command is waiting to execute.
+     * @throws RemoteException if the remote call fails
+     */
+    boolean isPendingKill() throws RemoteException;
+    /**
+     * @return Date when kill was requested, null if no kill pending.
+     * @throws RemoteException if the remote call fails
+     */
+    Date getPendingKillSince() throws RemoteException;
 
-    public void kill(boolean afterBuildFinished) throws RemoteException;
 
-    public void restart(boolean afterBuildFinished) throws RemoteException;
+    void restart(boolean afterBuildFinished) throws RemoteException;
+    /**
+     * @return true if a restart command is waiting to execute.
+     * @throws RemoteException if the remote call fails
+     */
+    boolean isPendingRestart() throws RemoteException;
+    /**
+     * @return Date when restart was requested, null if no restart pending.
+     * @throws RemoteException if the remote call fails
+     */
+    Date getPendingRestartSince() throws RemoteException;
 
-    public boolean isPendingKill() throws RemoteException;
+    String asString() throws RemoteException;
 
-    public Date getPendingKillSince() throws RemoteException;
-
-    public boolean isPendingRestart() throws RemoteException;
-
-    public Date getPendingRestartSince() throws RemoteException;
-
-    public String asString() throws RemoteException;
-
-    public void setEntryOverrides(PropertyEntry[] entryOverrides) throws RemoteException;
-
-    public PropertyEntry[] getEntryOverrides() throws RemoteException;
+    /**
+     * @param entryOverrides additional entries defined for this agent.
+     * @throws RemoteException if the remote call fails
+     */
+    void setEntryOverrides(PropertyEntry[] entryOverrides) throws RemoteException;
+    /**
+     * @return additional entries defined for this agent. 
+     * @throws RemoteException if the remote call fails
+     */
+    PropertyEntry[] getEntryOverrides() throws RemoteException;
 }
