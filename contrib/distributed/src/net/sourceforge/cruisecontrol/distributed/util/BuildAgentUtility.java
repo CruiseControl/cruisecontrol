@@ -407,7 +407,7 @@ public final class BuildAgentUtility {
 
     public String getAgentInfoAll(final List<ServiceItem> lstServiceItems) {
 
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
         try {
 
             if (!isInited && !isFailFast) {
