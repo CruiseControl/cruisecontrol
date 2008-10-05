@@ -930,7 +930,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     private static final DateFormat DF_PROGRESS_LASTUPDATED = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 
     public String asString() {
-        final StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Machine Name: ");
         sb.append(machineName);
         sb.append(";\t");
