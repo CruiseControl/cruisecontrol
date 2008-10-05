@@ -439,7 +439,7 @@ public final class BuildAgentUtility {
 
             LOG.info("Agents found: " + serviceItems.length);
             result.append("Found: ").append(serviceItems.length).append(" agent")
-                    .append(serviceItems.length != 1 ? "s" : "") 
+                    .append(serviceItems.length != 1 ? "s" : "")
                     .append(".\n");
 
             BuildAgentService agent;
