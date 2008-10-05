@@ -120,7 +120,7 @@ public final class MulticastDiscovery {
     MulticastDiscovery(final LookupLocator[] unicastLocaters) {
         final String[] lookupGroups = LookupDiscovery.ALL_GROUPS;
 
-        LOG.debug("Starting multicast discovery for groups: " + lookupGroups);
+        LOG.debug("Starting multicast discovery for groups: " + Arrays.toString(lookupGroups));
         ReggieUtil.setupRMISecurityManager();
 
         try {
@@ -293,8 +293,8 @@ public final class MulticastDiscovery {
     private static void logDiscoveryEvent(final DiscEventType type, final DiscoveryEvent e) {
         final ServiceRegistrar[] regs = e.getRegistrars();
         String regMsg = ", " + regs.length + " LUS's: [";
-        for (int i = 0; i < regs.length; i++) {
-            regMsg += regs[i].getServiceID() + ", ";
+        for (ServiceRegistrar reg : regs) {
+            regMsg += reg.getServiceID() + ", ";
         }
         regMsg = regMsg.substring(0, regMsg.lastIndexOf(", ")) + "]";
         LOG.info("LUS " + type + regMsg);
@@ -375,7 +375,7 @@ public final class MulticastDiscovery {
     }
     */
 
-    private static String appendEntries(final StringBuffer sb, final Entry[] entries) {
+    private static String appendEntries(final StringBuilder sb, final Entry[] entries) {
         sb.append("\n\tEntries:\n\t");
         sb.append(Arrays.asList(entries).toString().replaceAll("\\), ", "\\), \n\t")
                     .replaceAll(PropertyEntry.class.getName(), ""));
@@ -383,6 +383,6 @@ public final class MulticastDiscovery {
         return sb.toString();
     }
     public static String toStringEntries(final Entry[] entries) {
-        return appendEntries(new StringBuffer(), entries);
+        return appendEntries(new StringBuilder(), entries);
     }
 }
