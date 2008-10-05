@@ -10,6 +10,7 @@ import java.awt.Window;
 
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.sourceforge.cruisecontrol.distributed.core.PreferencesHelper;
+import net.jini.core.lookup.ServiceItem;
 import org.apache.log4j.Logger;
 
 /**
@@ -70,7 +71,7 @@ public class BuildAgentUtilityTest extends TestCase {
     public void testDiscoveryInstanceReuse() throws Exception {
 
         final BuildAgentUtility buildAgentUtility = new BuildAgentUtility(mockUI);
-        final List agents = new ArrayList();
+        final List<ServiceItem> agents = new ArrayList<ServiceItem>();
 
         assertNull(mockUI.getLastInfo());
         buildAgentUtility.getAgentInfoAll(agents);
