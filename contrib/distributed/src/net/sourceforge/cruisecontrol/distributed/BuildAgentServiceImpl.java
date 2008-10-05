@@ -115,7 +115,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
     private String projectName;
     private ProgressRemote buildProgressRemote;
-    private final Map distributedAgentProps = new HashMap();
+    private final Map<String, String> distributedAgentProps = new HashMap<String, String>();
 
     private File logDir;
     private File outputDir;
@@ -124,7 +124,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     private File zippedLogs;
     private File zippedOutput;
 
-    private final List agentStatusListeners = new ArrayList();
+    private final List<BuildAgent.AgentStatusListener> agentStatusListeners
+            = new ArrayList<BuildAgent.AgentStatusListener>();
 
     private final String logMsgPrefix;
     /**
@@ -240,7 +241,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
         DelayedAction(final Type type) {
             delay = Integer.getInteger(
-                    SYSPROP_CCDIST_DELAY_MS_KILLRESTART, DEFAULT_DELAY_MS_KILLRESTART).intValue();
+                    SYSPROP_CCDIST_DELAY_MS_KILLRESTART, DEFAULT_DELAY_MS_KILLRESTART);
             this.type = type;
             start();
         }
@@ -326,22 +327,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         logPrefixInfo("agent busy status changed to: " + newIsBusy);
     }
 
-    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
-                           final Map distributedAgentProperties)
-            throws RemoteException {
-
-        return doBuild(nestedBuilder, projectPropertiesMap, distributedAgentProperties, null);
-    }
-
-    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
-                           final Map distributedAgentProperties, final ProgressRemote progressRemote)
-            throws RemoteException {
-
-        return doBuild(nestedBuilder, projectPropertiesMap, distributedAgentProperties, progressRemote, null);
-    }
-
-    public Element doBuild(final Builder nestedBuilder, final Map projectPropertiesMap,
-                           final Map distributedAgentProperties, final ProgressRemote progressRemote,
+    public Element doBuild(final Builder nestedBuilder, final Map<String, String> projectPropertiesMap,
+                           final Map<String, String> distributedAgentProperties, final ProgressRemote progressRemote,
                            final RemoteResult[] remoteResults)
             throws RemoteException {
 
@@ -351,7 +338,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             }
         }
 
-        projectName = (String) projectPropertiesMap.get(PropertiesHelper.PROJECT_NAME);
+        projectName = projectPropertiesMap.get(PropertiesHelper.PROJECT_NAME);
         if (null == projectName) {
             throw new RemoteException("Missing required property: " + PropertiesHelper.PROJECT_NAME
                     + " in projectProperties");
@@ -359,7 +346,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
         final Level origLogLevel = Logger.getRootLogger().getLevel();
         final boolean isDebugBuild = Boolean.valueOf(
-                (String) distributedAgentProperties.get(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG)).booleanValue();
+                distributedAgentProperties.get(PropertiesHelper.DISTRIBUTED_AGENT_DEBUG));
         boolean isDebugOverriden = false;
         try {
             // Override log level if needed
@@ -377,10 +364,10 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
             this.remoteResults = remoteResults;
 
-            String remoreResultsMsg = "";
+            String remoteResultsMsg = "";
             if (remoteResults != null) {
-                for (int i = 0; i < remoteResults.length; i++) {
-                    remoreResultsMsg += "\n\tRemoteResult: " + remoteResults[i].getAgentDir().getAbsolutePath();
+                for (final RemoteResult remoteResult : remoteResults) {
+                    remoteResultsMsg += "\n\tRemoteResult: " + remoteResult.getAgentDir().getAbsolutePath();
                 }
             }
             final String infoMessage = "Building project: " + projectName
@@ -388,7 +375,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                             PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR)
                     + "\n\tAgentOutputDir: " + distributedAgentProps.get(
                             PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR)
-                    + remoreResultsMsg;
+                    + remoteResultsMsg;
 
             logPrefixInfo(infoMessage);
 
@@ -420,8 +407,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 throw new RemoteException(message, e);
             }
 
-            final String overrideTarget = (String) distributedAgentProps.get(
-                    PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
+            final String overrideTarget = distributedAgentProps.get(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET);
 
             // wrap progressRemote with a local progress
             final Progress progressLocal;
@@ -518,8 +504,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             doInjectAntProgressLoggerLibIfNeeded((AntBuilder) builder);
         } else if (builder instanceof CompositeBuilder) {
             final Builder[] builders = ((CompositeBuilder) builder).getBuilders();
-            for (int i = 0; i < builders.length; i++) {
-                injectAntProgressLoggerLibIfNeeded(builders[i]);
+            for (final Builder childBuilder : builders) {
+                injectAntProgressLoggerLibIfNeeded(childBuilder);
             }
         }
     }
@@ -607,8 +593,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     }
 
     private File getAgentResultDir(final String resultType, final String resultProperty) {
-        String resultDir;
-        resultDir = (String) distributedAgentProps.get(resultProperty);
+        String resultDir = distributedAgentProps.get(resultProperty);
         logPrefixDebug("Result: " + resultType + "Prop value: " + resultDir);
 
         if (resultDir == null || "".equals(resultDir)) {
@@ -723,8 +708,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         }
 
         final File[] dirs = fileToCheck.listFiles();
-        for (int i = 0; i < dirs.length; i++) {
-            if (recursiveFilesExist(dirs[i])) {
+        for (final File dir : dirs) {
+            if (recursiveFilesExist(dir)) {
                 return true; // we found a file so return now, no need to keep looking.
             }
         }
@@ -770,9 +755,9 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
         RemoteResult remoteResult = null;
         if (remoteResults != null) {
-            for (int i = 0; i < remoteResults.length; i++) {
-                if (resultIdx == remoteResults[i].getIdx()) {
-                    remoteResult = remoteResults[i];
+            for (final RemoteResult remoteResultTry : remoteResults) {
+                if (resultIdx == remoteResultTry.getIdx()) {
+                    remoteResult = remoteResultTry;
                     break;
                 }
             }
@@ -830,11 +815,11 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
 
             if (remoteResults != null) {
-                for (int i = 0; i < remoteResults.length; i++) {
-                    logPrefixDebug("Deleting contents of " + remoteResults[i].getAgentDir().getAbsolutePath());
-                    IO.delete(remoteResults[i].getAgentDir());
+                for (final RemoteResult remoteResult : remoteResults) {
+                    logPrefixDebug("Deleting contents of " + remoteResult.getAgentDir().getAbsolutePath());
+                    IO.delete(remoteResult.getAgentDir());
 
-                    final File tempZippedFile = remoteResults[i].fetchTempZippedFile();
+                    final File tempZippedFile = remoteResult.fetchTempZippedFile();
                     if (tempZippedFile != null) {
                         logPrefixDebug("Deleting remote result zip " + tempZippedFile.getAbsolutePath());
                         tempZippedFile.deleteOnExit();
@@ -1011,8 +996,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         agentStatusListeners.remove(listener);
     }
     private void fireAgentStatusChanged() {
-        for (int i = 0; i < agentStatusListeners.size(); i++) {
-            ((BuildAgent.AgentStatusListener) agentStatusListeners.get(i)).statusChanged(this);
+        for (final BuildAgent.AgentStatusListener agentStatusListener : agentStatusListeners) {
+            agentStatusListener.statusChanged(this);
         }
     }
 }
