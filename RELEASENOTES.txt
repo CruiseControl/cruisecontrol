@@ -17,6 +17,10 @@ contrib
   - StarTeam
   - Yahoo
 
+distributed
+----------------------
+* Remove deprecated BuildAgentService.doBuild() methods.
+
 documentation
 ======================
 * Composite builder does not support Pause builder child element (CC-812). Reported by John Camerin
