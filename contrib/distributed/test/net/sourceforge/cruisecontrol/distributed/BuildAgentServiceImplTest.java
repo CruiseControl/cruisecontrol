@@ -168,9 +168,9 @@ public class BuildAgentServiceImplTest extends TestCase {
         
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
 
         hideAntProgressLoggerLib();
@@ -204,7 +204,8 @@ public class BuildAgentServiceImplTest extends TestCase {
                 agentImpl.doBuild(antBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY);
                 fail("build failure should have been forced");
             } catch (RemoteException e) {
-                assertTrue(e.getMessage().startsWith("Failed to complete build on agent"));
+                assertTrue("Wrong message: " + e.getMessage(),
+                        e.getMessage().startsWith("Failed to complete build on agent"));
                 assertTrue(e.getCause() instanceof CruiseControlException);
                 final CruiseControlException cce = (CruiseControlException) e.getCause();
                 assertEquals(MyAntBuilder.MSG_FORCED_FAILURE, cce.getMessage());                
@@ -295,14 +296,14 @@ public class BuildAgentServiceImplTest extends TestCase {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         // build w/out override to verify null target value after build
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
         final MockBuilder mockBuilder = createMockBuilder(false, REMOTE_RESULTS_EMPTY);
         assertNull(mockBuilder.getTarget());
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
 
         try {
@@ -351,9 +352,9 @@ public class BuildAgentServiceImplTest extends TestCase {
                 agentAsString.endsWith(expectedSuffix));
 
         
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         final String testProjectName = "testProjectName";
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
 
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
@@ -408,10 +409,10 @@ public class BuildAgentServiceImplTest extends TestCase {
                         + EXPECTED_SUFFIX_AS_STRING_VER));
 
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
 
         final String testProjectName = "testProjectName";
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
 
         try {
@@ -458,10 +459,10 @@ public class BuildAgentServiceImplTest extends TestCase {
 
         assertNull(agentImpl.getProjectName());
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
 
         final String testProjectName = "testProjectName";
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
 
         try {
@@ -653,7 +654,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir().deleteOnExit();
         Util.doMkDirs(REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].getAgentDir());
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testDirResult.getAbsolutePath());
         final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps, remoteResults);
@@ -706,7 +707,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         testDirResult.deleteOnExit();
         Util.doMkDirs(testDirResult);
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testDirResult.getAbsolutePath());
         final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, distributedAgentProps, remoteResults);
@@ -781,7 +782,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         testLogDir.deleteOnExit();
         Util.doMkDirs(testLogDir);
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR,
                 testLogDir.getAbsolutePath());
 
@@ -842,7 +843,8 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildSuccess() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false, new HashMap(), REMOTE_RESULTS_ONE);
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(false,
+                new HashMap<String, String>(), REMOTE_RESULTS_ONE);
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_OUTPUT));
@@ -876,7 +878,8 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRetrieveResultsAsZipBuildFail() throws Exception {
-        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(true, new HashMap(), REMOTE_RESULTS_ONE);
+        final BuildAgentServiceImpl agentImpl = createTestAgentDoBuild(true,
+                new HashMap<String, String>(), REMOTE_RESULTS_ONE);
         try {
             assertTrue(agentImpl.resultsExist(PropertiesHelper.RESULT_TYPE_LOGS));
             assertNonEmptyResultsZip(agentImpl, PropertiesHelper.RESULT_TYPE_LOGS);
@@ -910,10 +913,10 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     public void testClearOutputFilesBuildValidateError() throws Exception {
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_FAIL);
 
-        final HashMap distributedAgentProps = new HashMap();
+        final HashMap<String, String> distributedAgentProps = new HashMap<String, String>();
         final BuildAgentServiceImpl agentImpl = createTestAgent(distributedAgentProps);
         try {
             callTestDoBuild(projectProperties, agentImpl, distributedAgentProps, REMOTE_RESULTS_ONE, true);
@@ -939,13 +942,13 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     private static BuildAgentServiceImpl createTestAgentDoBuild(final boolean isBuildFailure,
-                                                         final Map distributedAgentProps,
+                                                         final Map<String, String> distributedAgentProps,
                                                          final RemoteResult[] remoteResults)
             throws RemoteException {
 
         final BuildAgentServiceImpl agentImpl = createTestAgent(distributedAgentProps);
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         if (isBuildFailure) {
             projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_FAIL);
         } else {
@@ -957,7 +960,7 @@ public class BuildAgentServiceImplTest extends TestCase {
         return agentImpl;
     }
 
-    private static BuildAgentServiceImpl createTestAgent(final Map distributedAgentProps) {
+    private static BuildAgentServiceImpl createTestAgent(final Map<String, String> distributedAgentProps) {
         final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
@@ -978,10 +981,10 @@ public class BuildAgentServiceImplTest extends TestCase {
     public static Element callTestDoBuildSuccess(final BuildAgentService agent)
             throws RemoteException {
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
 
-        final Map distributedAgentProps = new HashMap();
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
         // handle re-use case of DMB when overrideTarget is null
         distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, null);
 
@@ -998,9 +1001,9 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @return the build result jdom element
      * @throws RemoteException if something else dies
      */
-    private static Element callTestDoBuild(final Map projectProperties,
+    private static Element callTestDoBuild(final Map<String, String> projectProperties,
                                        final BuildAgentService agent,
-                                       final Map distributedAgentProps,
+                                       final Map<String, String> distributedAgentProps,
                                        final RemoteResult[] remoteResults,
                                        final boolean isValidateFailure)
             throws RemoteException {
@@ -1042,11 +1045,11 @@ public class BuildAgentServiceImplTest extends TestCase {
             if (!isBuildFailure) {
                 createExpectedBuildArtifact(new File("output/" + projectName + "/testoutputSuccess"));
 
-                for (int i = 0; i < remoteResults.length; i++) {
+                for (RemoteResult remoteResult : remoteResults) {
                     // skip artifact creation for empty RemoteResult test
-                    if (!REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].equals(remoteResults[i])) {
+                    if (!REMOTE_RESULTS_TWO_WITHEMPTYDIR[1].equals(remoteResult)) {
                         createExpectedBuildArtifact(
-                                new File(remoteResults[i].getAgentDir(), projectName + "/remoteResult"));
+                                new File(remoteResult.getAgentDir(), projectName + "/remoteResult"));
                     }
                 }
             }
