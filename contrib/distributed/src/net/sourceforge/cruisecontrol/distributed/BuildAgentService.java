@@ -50,32 +50,6 @@ import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 public interface BuildAgentService extends Remote {
 
     /**
-     * Exists for backwards compatibility.
-     * @deprecated use {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])} instead
-     * @param nestedBuilder the builder to execute on the agent
-     * @param projectProperties cc properties for the current project
-     * @param distributedAgentProperties ccdist properties for this remote build
-     * @return the build log xml document
-     * @throws RemoteException if the remote call fails
-     */
-    public Element doBuild(Builder nestedBuilder, Map projectProperties,
-                           Map distributedAgentProperties) throws RemoteException;
-
-    /**
-     * Performs a build on a build agent.
-     * @deprecated use {@link #doBuild(Builder, Map, Map, ProgressRemote, RemoteResult[])} instead
-     * @param nestedBuilder the builder to execute on the agent
-     * @param projectProperties cc properties for the current project
-     * @param distributedAgentProperties ccdist properties for this remote build
-     * @param progressRemote callback object to provide progress info as the build progresses,
-     * can be null.
-     * @return the build log xml document
-     * @throws RemoteException if the remote call fails
-     */
-    public Element doBuild(Builder nestedBuilder, Map projectProperties,
-                           Map distributedAgentProperties, ProgressRemote progressRemote) throws RemoteException;
-
-    /**
      * Performs a build on a build agent.
      * @param nestedBuilder the builder to execute on the agent
      * @param projectProperties cc properties for the current project
@@ -86,8 +60,8 @@ public interface BuildAgentService extends Remote {
      * @return the build log xml document
      * @throws RemoteException if the remote call fails
      */
-    public Element doBuild(Builder nestedBuilder, Map projectProperties,
-                           Map distributedAgentProperties, ProgressRemote progressRemote,
+    public Element doBuild(Builder nestedBuilder, Map<String, String> projectProperties,
+                           Map<String, String> distributedAgentProperties, ProgressRemote progressRemote,
                            RemoteResult[] remoteResults) throws RemoteException;
 
     public String getMachineName() throws RemoteException;
