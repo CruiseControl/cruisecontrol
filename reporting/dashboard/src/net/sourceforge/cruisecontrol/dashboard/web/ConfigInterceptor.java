@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.dashboard.web;
 
 import java.io.File;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,8 +63,17 @@ public class ConfigInterceptor implements HandlerInterceptor {
 
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             Object object, ModelAndView modelAndView) throws Exception {
-        modelAndView.getModel().put(FORCE_BUILD_ENABLED_KEY, String.valueOf(configuration.isForceBuildEnabled()));
-        modelAndView.getModel().put(HAS_DASHBOARD_CONFIG_KEY, String.valueOf(hasDashboardConfig()));
+        if (modelAndView == null) {
+            // error or warning?
+            return;
+        }
+        Map model = modelAndView.getModel();
+        if (model == null) {
+            // error or warning?
+            return;
+        }
+        model.put(FORCE_BUILD_ENABLED_KEY, String.valueOf(configuration.isForceBuildEnabled()));
+        model.put(HAS_DASHBOARD_CONFIG_KEY, String.valueOf(hasDashboardConfig()));
     }
 
     public void afterCompletion(HttpServletRequest httpServletRequest,
