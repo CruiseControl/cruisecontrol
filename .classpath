@@ -132,7 +132,6 @@
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jwebunit-htmlunit-plugin-1.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/nekohtml-0.9.5.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/selenium-java-client-driver.jar"/>
-	<classpathentry kind="lib" path="reporting/jsp/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/servlet-api-2.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/spring-mock.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/svnant.jar"/>
@@ -194,7 +193,6 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/xwork.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JAVA_1.5_HOME/lib/javaws.jar"/>
-	<classpathentry kind="lib" path="main/lib/org.mortbay.jetty.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jetty-6.1.1.jar"/>
 	<classpathentry kind="output" path="target/classes.from.eclipse"/>
 </classpath>

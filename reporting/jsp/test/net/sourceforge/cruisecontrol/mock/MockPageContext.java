@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.mock;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+
+import javax.el.ELContext;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -48,6 +50,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.el.ExpressionEvaluator;
+import javax.servlet.jsp.el.VariableResolver;
 
 /**
  *
@@ -156,4 +160,23 @@ public class MockPageContext extends PageContext {
     public void setHttpServletRequest(MockServletRequest mockRequest) {
         request = mockRequest;
     }
+
+    public void handlePageException(Throwable arg0) throws ServletException, IOException {
+    }
+
+    public void include(String arg0, boolean arg1) throws ServletException, IOException {
+    }
+
+    public ELContext getELContext() {
+        return null;
+    }
+
+    public ExpressionEvaluator getExpressionEvaluator() {
+        return null;
+    }
+
+    public VariableResolver getVariableResolver() {
+        return null;
+    }
+    
 }

@@ -89,7 +89,7 @@
     <target name="compile" depends="init">
         <javac srcdir="${src}" destdir="${classes}" debug="true" source="1.5" target="1.5">
             <classpath>
-            	<pathelement path="../../reporting/jsp/lib/servlet.jar"/>
+                <fileset dir="../../reporting/jsp/lib" includes="servlet*.jar"/>
             	<pathelement path="${main.jar}"/>
             	<pathelement path="${main.dir}/dist/cruisecontrol-launcher.jar"/>
             </classpath>
