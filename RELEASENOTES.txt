@@ -8,6 +8,7 @@ general
 ======================
 * End of support for compiling/running CruiseControl with JDK 1.4. New earliest supported JDK is 1.5/5.0.
 * Update JSP reporting application to Servlet API 2.5 and JSP API 2.1
+* Update Jetty to 6.1.11
 * Extracted out the utility class ServerNameSingleton to avoid mulitple slow calls to get the host name.
 
 contrib
