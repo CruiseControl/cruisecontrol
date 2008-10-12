@@ -64,12 +64,12 @@ public class ConfigInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
             Object object, ModelAndView modelAndView) throws Exception {
         if (modelAndView == null) {
-            // error or warning?
+            // TODO: error or warning?
             return;
         }
         Map model = modelAndView.getModel();
         if (model == null) {
-            // error or warning?
+            // TODO: error or warning?
             return;
         }
         model.put(FORCE_BUILD_ENABLED_KEY, String.valueOf(configuration.isForceBuildEnabled()));
