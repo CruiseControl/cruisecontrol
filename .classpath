@@ -3,14 +3,6 @@
 	<classpathentry kind="src" path="contrib/distributed/src"/>
 	<classpathentry kind="src" path="contrib/distributed/test"/>
 	<classpathentry kind="src" path="contrib/mainAsWar/src"/>
-	<classpathentry kind="src" path="contrib/plugins/AllFusionHarvest/src"/>
-	<classpathentry kind="src" path="contrib/plugins/AllFusionHarvest/test"/>
-	<classpathentry kind="src" path="contrib/plugins/Sametime/src"/>
-	<classpathentry kind="src" path="contrib/plugins/Sametime/test"/>
-	<classpathentry kind="src" path="contrib/plugins/StarTeam/src"/>
-	<classpathentry kind="src" path="contrib/plugins/StarTeam/test"/>
-	<classpathentry kind="src" path="contrib/plugins/Yahoo/src"/>
-	<classpathentry kind="src" path="contrib/plugins/Yahoo/test"/>
 	<classpathentry kind="src" path="gendoc/src"/>
 	<classpathentry kind="src" path="main/docs/helloWorld/src"/>
 	<classpathentry kind="src" path="main/functionaltest"/>
@@ -20,7 +12,6 @@
 	<classpathentry kind="src" path="reporting/dashboard/test/functional"/>
 	<classpathentry kind="src" path="reporting/dashboard/test/unit"/>
 	<classpathentry kind="src" path="reporting/jsp/src"/>
-	<classpathentry kind="src" path="reporting/jsp/target/jsp-precompile/src"/>
 	<classpathentry kind="src" path="reporting/jsp/test"/>
 	<classpathentry kind="src" path="webtest"/>
 	<classpathentry kind="lib" path="binaryrelease/lib/commons-el.jar"/>
@@ -214,5 +205,5 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/xml-apis-2.8.0.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/xwork.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="output" path="reporting/jsp/target/test-classes"/>
+	<classpathentry kind="output" path="target/classes.from.eclipse"/>
 </classpath>
