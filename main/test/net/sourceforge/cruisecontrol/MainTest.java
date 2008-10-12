@@ -87,7 +87,16 @@ public class MainTest extends TestCase {
         } catch (CruiseControlException e) {
             // expected
         }
-
+    }
+    
+    public void testParseJettyXml() throws CruiseControlException {
+        String[] correctArgs = new String[] {"-jettyxml", "myJetty.xml"};
+        String[] missingParam = new String[] {""};
+        String[] missingValue = new String[] {"-jettyxml"};
+        
+        assertEquals("myJetty.xml", Main.parseJettyXml(correctArgs));
+        assertEquals("jetty.xml", Main.parseJettyXml(missingParam));
+        assertEquals("jetty.xml", Main.parseJettyXml(missingValue));
     }
 
     public void testParseDashboardUrl() throws Exception {
@@ -182,7 +191,7 @@ public class MainTest extends TestCase {
         String[] invalidArgs = new String[] {"-webport", "ABC"};
 
         assertEquals(123, Main.parseWebPort(correctArgs));
-        assertEquals(MainArgs.NOT_FOUND, Main.parseWebPort(missingParam));
+        assertEquals(8080, Main.parseWebPort(missingParam));
         assertEquals(8080, Main.parseWebPort(defaultValue));
 
         try {
