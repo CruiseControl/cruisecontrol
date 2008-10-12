@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="binaryrelease/lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="binaryrelease/lib/jasper-compiler.jar"/>
 	<classpathentry kind="lib" path="binaryrelease/lib/jasper-runtime.jar"/>
-	<classpathentry kind="lib" path="binaryrelease/lib/javax.servlet.jar"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-core/jini-core.jar"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-core/jini-ext.jar"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-lib-dl/jsk-dl.jar"/>
@@ -54,7 +53,6 @@
 	<classpathentry kind="lib" path="main/lib/ant/ant-trax.jar"/>
 	<classpathentry kind="lib" path="main/lib/ant/ant.jar"/>
 	<classpathentry kind="lib" path="main/lib/ant/vizant.jar"/>
-	<classpathentry kind="lib" path="main/lib/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="main/lib/comm.jar"/>
 	<classpathentry kind="lib" path="main/lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="lib" path="main/lib/commons-httpclient-3.0.1.jar"/>
@@ -76,7 +74,6 @@
 	<classpathentry kind="lib" path="main/lib/mx4j-remote.jar"/>
 	<classpathentry kind="lib" path="main/lib/mx4j-tools.jar"/>
 	<classpathentry kind="lib" path="main/lib/mx4j.jar"/>
-	<classpathentry kind="lib" path="main/lib/org.mortbay.jetty.jar"/>
 	<classpathentry kind="lib" path="main/lib/saxon9-dom.jar"/>
 	<classpathentry kind="lib" path="main/lib/saxon9.jar"/>
 	<classpathentry kind="lib" path="main/lib/serializer-2.7.0.jar"/>
@@ -93,19 +90,16 @@
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/jasper-compiler.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/jasper-runtime.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/javax.servlet.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/jdom.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/jsunit.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/junit.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/ognl.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/org.mortbay.jetty.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/oscore.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/rife-continuations.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/start.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/stop.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/webwork-2.2-beta-4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/xercesImpl-2.6.2.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/jsunit/java/lib/xwork-1.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/ant.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/asm-2.2.3.jar"/>
@@ -127,7 +121,6 @@
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jakarta-regexp-1.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jaxen-1.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jdom-1.0.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jetty-6.1.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jetty-util-6.1.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jmock-1.1.0.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jmock-cglib-1.1.0.jar"/>
@@ -139,7 +132,7 @@
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jwebunit-htmlunit-plugin-1.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/nekohtml-0.9.5.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/selenium-java-client-driver.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/selenium-server.jar"/>
+	<classpathentry kind="lib" path="reporting/jsp/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/servlet-api-2.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/spring-mock.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/svnant.jar"/>
@@ -181,7 +174,6 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/batik-svggen.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/batik-util.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/cewolf.jar"/>
-	<classpathentry kind="lib" path="reporting/jsp/lib/checkstyle-all-4.3.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/commons-lang-2.1.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/commons-logging.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/jaxen-1.1-beta-8.jar"/>
@@ -195,7 +187,6 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/oscore.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/saxon9.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/serializer-2.7.0.jar"/>
-	<classpathentry kind="lib" path="reporting/jsp/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/velocity-dep.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/webwork-2.1.7.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/xercesImpl-2.8.0.jar"/>
@@ -203,5 +194,7 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/xwork.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="JAVA_1.5_HOME/lib/javaws.jar"/>
+	<classpathentry kind="lib" path="main/lib/org.mortbay.jetty.jar"/>
+	<classpathentry kind="lib" path="reporting/dashboard/lib/buildtime/jetty-6.1.1.jar"/>
 	<classpathentry kind="output" path="target/classes.from.eclipse"/>
 </classpath>
