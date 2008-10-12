@@ -94,9 +94,9 @@ public class MainTest extends TestCase {
         String[] missingParam = new String[] {""};
         String[] missingValue = new String[] {"-jettyxml"};
         
-        assertEquals("myJetty.xml", Main.parseJettyXml(correctArgs));
-        assertEquals("jetty.xml", Main.parseJettyXml(missingParam));
-        assertEquals("jetty.xml", Main.parseJettyXml(missingValue));
+        assertEquals("myJetty.xml", Main.parseJettyXml(correctArgs, "ccHome"));
+        assertEquals("ccHome/etc/jetty.xml", Main.parseJettyXml(missingParam, "ccHome"));
+        assertEquals("etc/jetty.xml", Main.parseJettyXml(missingValue, ""));
     }
 
     public void testParseDashboardUrl() throws Exception {

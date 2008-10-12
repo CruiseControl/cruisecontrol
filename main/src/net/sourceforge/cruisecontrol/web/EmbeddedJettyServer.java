@@ -99,7 +99,7 @@ public class EmbeddedJettyServer {
                 Connector connector = new SelectChannelConnector();
                 connector.setPort(webPort);
                 connector.setMaxIdleTime(30000);
-                jettyServer.addConnector(connector);
+                jettyServer.setConnectors(new Connector[]{connector});
             }
             
             jettyServer.start();

@@ -183,7 +183,7 @@ public final class Main implements CruiseControlMain {
         String ccHome = System.getProperty(Launcher.CCHOME_PROPERTY, ".");
         System.setProperty("jetty.home", ccHome);
         
-        File jettyXml = new File(parseJettyXml(args));
+        File jettyXml = new File(parseJettyXml(args, ccHome));
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, parseWebPort(args));
         embeddedJettyServer.start();
     }
@@ -354,8 +354,10 @@ public final class Main implements CruiseControlMain {
         return configFileName;
     }
 
-    static String parseJettyXml(String[] args) throws CruiseControlException {
-        return MainArgs.parseArgument(args, "jettyxml", "jetty.xml", "jetty.xml");
+    static String parseJettyXml(String[] args, String ccHome) throws CruiseControlException {
+        boolean nullOrEmpty = ccHome == null || ccHome.length() == 0; 
+        String defaultJettyXml = nullOrEmpty ? "etc/jetty.xml" : ccHome + "/etc/jetty.xml";
+        return MainArgs.parseArgument(args, "jettyxml", defaultJettyXml, defaultJettyXml);
     }
 
     static boolean shouldStartJmxAgent(String[] args) {
