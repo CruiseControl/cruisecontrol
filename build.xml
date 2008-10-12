@@ -12,7 +12,7 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip, update-zip, win-installer" description="Create release artifacts"/>
+    <target name="release" depends="clean, build, website, zip, bin-zip, add-cc-config, win-installer" description="Create release artifacts"/>
 
     <target name="clean" description="Clean release and subprojects">
         <delete dir="target" failonerror="false"/>
@@ -105,7 +105,7 @@
         </xmlvalidate>
     </target>
 
-    <target name="zip" depends="checklabel, build" description="Create zip files">
+    <target name="zip" depends="checklabel" description="Create zip files">
         <mkdir dir="target/zip"/>
         <copy todir="target/zip" overwrite="true">
             <fileset dir=".">
@@ -136,7 +136,7 @@
         </zip>
     </target>
 
-    <target name="bin-zip" depends="build, website, prep-cc-config" description="Create binary zip">
+    <target name="bin-zip" description="Create binary zip">
         <defaultexcludes remove="**/.svn"/>
         <defaultexcludes remove="**/.svn/**"/>
 
@@ -181,7 +181,7 @@
         </zip>
     </target>
 
-    <target name="update-zip" unless="test.skip">
+    <target name="add-cc-config" depends="prep-cc-config" unless="test.skip">
         <zip destfile="target/cruisecontrol-bin-${cc.release.label}.zip" update="true">
             <zipfileset src="target/cc-config/dist/cc-config.war" prefix="${cc.bin.zip.prefix}/webapps/cc-config" />
         </zip>
@@ -209,7 +209,7 @@
         </condition>
     </target>
 
-    <target name="win-installer" depends="check-win-installer, bin-zip, update-zip" if="should-create-win-installer" description="Create win installer">
+    <target name="win-installer" depends="check-win-installer" if="should-create-win-installer" description="Create win installer">
         <property name="win-installer-stage" location="target/windows-install"/>
         <mkdir dir="${win-installer-stage}"/>
         <unzip src="target/cruisecontrol-bin-${cc.release.label}.zip" dest="${win-installer-stage}"/>
