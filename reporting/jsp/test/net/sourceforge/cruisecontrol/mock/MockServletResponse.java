@@ -254,4 +254,10 @@ public class MockServletResponse implements HttpServletResponse {
     public Locale getLocale() {
         return null;
     }
+
+    public void resetBuffer() {
+    }
+
+    public void setCharacterEncoding(String arg0) {
+    }
 }

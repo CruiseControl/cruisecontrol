@@ -78,6 +78,7 @@
             <include name="cewolf*.jar"/>
             <include name="commons-lang*.jar"/>
             <include name="commons-logging*.jar"/>
+            <include name="el-api.jar"/>
             <include name="jcommon*.jar"/>
             <include name="jaxen*.jar"/>
             <include name="jdom*.jar"/>
@@ -95,6 +96,7 @@
             <include name="xwork*.jar"/>
         </fileset>
         <fileset dir="${lib}" includes="servlet*.jar"/>
+        <fileset dir="${lib}" includes="jsp*.jar"/>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
         <pathelement location="../../main/target/test-classes"/>

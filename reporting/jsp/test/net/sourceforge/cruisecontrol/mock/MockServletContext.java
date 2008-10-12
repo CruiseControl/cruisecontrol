@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.RequestDispatcher;
@@ -160,5 +161,17 @@ public class MockServletContext implements ServletContext {
      */
     public void setBaseResourceDir(File dir) {
         baseResourceDir = dir;
+    }
+
+    public String getContextPath() {
+        return null;
+    }
+
+    public Set getResourcePaths(String arg0) {
+        return null;
+    }
+
+    public String getServletContextName() {
+        return null;
     }
 }

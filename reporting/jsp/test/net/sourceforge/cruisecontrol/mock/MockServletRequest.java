@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.mock;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -287,5 +288,32 @@ public class MockServletRequest implements HttpServletRequest {
      */
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    public StringBuffer getRequestURL() {
+        return null;
+    }
+
+    public String getLocalAddr() {
+        return null;
+    }
+
+    public String getLocalName() {
+        return null;
+    }
+
+    public int getLocalPort() {
+        return 0;
+    }
+
+    public Map getParameterMap() {
+        return null;
+    }
+
+    public int getRemotePort() {
+        return 0;
+    }
+
+    public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
     }
 }
