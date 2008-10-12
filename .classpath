@@ -33,8 +33,6 @@
 	<classpathentry kind="lib" path="contrib/JavaServiceWrapper/lib/wrappertest.jar"/>
 	<classpathentry kind="lib" path="gendoc/lib/junit-4.4.jar"/>
 	<classpathentry kind="lib" path="gendoc/lib/qdox-1.6.1.jar"/>
-	<classpathentry kind="lib" path="gendoc/lib/velocity-1.5.jar"/>
-	<classpathentry kind="lib" path="gendoc/lib/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/httpunit-1.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/js-1.6R2.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.4.jar"/>
@@ -42,7 +40,6 @@
 	<classpathentry kind="lib" path="lib/nekohtml-0.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-2.8.0.jar"/>
-	<classpathentry kind="lib" path="main/lib-buildtools/clirr-core-0.6-uber.jar"/>
 	<classpathentry kind="lib" path="main/lib/activation.jar"/>
 	<classpathentry kind="lib" path="main/lib/ant/ant-apache-log4j.jar"/>
 	<classpathentry kind="lib" path="main/lib/ant/ant-apache-oro.jar"/>
