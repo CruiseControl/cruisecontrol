@@ -175,11 +175,29 @@ public final class Main implements CruiseControlMain {
      * @throws CruiseControlException if final configfile value is null
      */
     void startEmbeddedServer(final String[] args) throws CruiseControlException {
-        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(parseWebPort(args), parseWebappPath(args),
-                parseDashboardPath(args), parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME)
-                , parseJMXHttpPort(args), parseRmiPort(args));
+        String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
+        int jmxPort = parseJMXHttpPort(args);
+        int rmiPort = parseRmiPort(args);
+        setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort);
+        
+        String ccHome = System.getProperty(Launcher.CCHOME_PROPERTY, ".");
+        System.setProperty("jetty.home", ccHome);
+        
+        File jettyXml = new File(parseJettyXml(args));
+        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, parseWebPort(args));
         embeddedJettyServer.start();
-
+    }
+    
+    private void setUpSystemPropertiesForDashboard(String configFileName, int jmxPort, int rmiPort) {
+        if (configFileName != null) {
+            File configFile = new File(configFileName);
+            if (!configFile.exists()) {
+                throw new RuntimeException("Cannot find config file at " + configFile.getAbsolutePath());
+            }
+            System.setProperty("cc.config.file", configFile.getAbsolutePath());
+        }
+        System.setProperty("cc.rmiport", String.valueOf(rmiPort));
+        System.setProperty("cc.jmxport", String.valueOf(jmxPort));
     }
 
     protected static void checkDeprecatedArguments(String[] args, Logger logger) {
@@ -215,10 +233,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("Options when using embedded Jetty");
         System.out.println("  -webport [number]       port for the Reporting website; default 8080, removing");
         System.out.println("                          this propery will make cruisecontrol start without Jetty");
-        System.out.println("  -webapppath directory   location of the exploded WAR file for the legacy reporting");
-        System.out.println("                          application. default ./webapps/cruisecontrol");
-        System.out.println("  -dashboard directory    location of the exploded WAR file for the dashboard");
-        System.out.println("                          application. default ./webapps/dashboard");
+        System.out.println("  -jettyxml file          Jetty configuration xml. Defaults to jetty.xml");
         System.out.println("  -postenabled enabled    switch of posting current build information to dashboard");
         System.out.println("                          default is true");
         System.out.println("  -dashboardurl url       the url for dashboard (used for posting build information)");
@@ -260,7 +275,7 @@ public final class Main implements CruiseControlMain {
      * @return the webport if specified on the command line, otherwise DEFAULT_WEB_PORT.
      */
     static int parseWebPort(String[] args) {
-        return MainArgs.parseInt(args, "webport", MainArgs.NOT_FOUND, DEFAULT_WEB_PORT);
+        return MainArgs.parseInt(args, "webport", DEFAULT_WEB_PORT, DEFAULT_WEB_PORT);
     }
 
     /**
@@ -337,6 +352,10 @@ public final class Main implements CruiseControlMain {
             throw new CruiseControlException("'configfile' is a required argument to CruiseControl.");
         }
         return configFileName;
+    }
+
+    static String parseJettyXml(String[] args) throws CruiseControlException {
+        return MainArgs.parseArgument(args, "jettyxml", "jetty.xml", "jetty.xml");
     }
 
     static boolean shouldStartJmxAgent(String[] args) {
@@ -457,9 +476,6 @@ public final class Main implements CruiseControlMain {
 
     public static String parseDashboardUrl(String[] args) {
         int webport = parseWebPort(args);
-        if (webport == MainArgs.NOT_FOUND) {
-            webport = 8080;
-        }
         return MainArgs.parseArgument(args, "dashboardurl", defaultDashboardUrl(webport), defaultDashboardUrl(8080));
     }
 

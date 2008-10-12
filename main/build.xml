@@ -86,6 +86,7 @@
         <fileset dir="${lib}" includes="*.jar" />
         <!-- ant.jar is also needed to compile the ArtifactsPublisher,
              but is added automatically to the javac classpath -->
+        <fileset dir="../binaryrelease/lib" includes="jetty-*.jar" />
     </path>
 
     <path id="project.runtime.classpath">

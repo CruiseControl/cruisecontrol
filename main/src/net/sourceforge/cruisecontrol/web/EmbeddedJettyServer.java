@@ -36,13 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.web;
 
-import org.apache.log4j.Logger;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.ajp.AJP13Listener;
-import org.mortbay.jetty.Server;
-
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+
+import net.sourceforge.cruisecontrol.util.MainArgs;
+
+import org.apache.log4j.Logger;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.nio.SelectChannelConnector;
+import org.mortbay.xml.XmlConfiguration;
 
 /**
  * Provides functionality to run an embedded Jetty Server from within the CruiseControl instance. The embedded Jetty
@@ -56,22 +59,6 @@ public class EmbeddedJettyServer {
     public static final Logger LOG = Logger.getLogger(EmbeddedJettyServer.class);
 
     /**
-     * the port that the embedded Jetty server will listen on.
-     */
-    private int webPort;
-
-    /**
-     * the path to the CruiseControl webapp served by the embedded server.
-     */
-    private String webappPath;
-
-    /**
-     * the path to the CruiseControl new web dashboard served by the embedded server.
-     */
-    private String newWebappPath;
-    private String configFileName;
-
-    /**
      * the embedded Jetty server.
      */
     private Server jettyServer;
@@ -81,51 +68,18 @@ public class EmbeddedJettyServer {
      */
     private boolean isRunning;
 
-    private int jmxPort;
+    private File jettyXml;
 
-    private int rmiPort;
-
-    /**
-     * Creates a new embeded Jetty server with the given listen port and the given webapp path.
-     *
-     * @param webPort    the port the embedded Jetty server will listen on.
-     * @param webappPath the path to the CruiseControl web application served by the embedded server.
-     * @deprecated Use constructor that also sets up new dashboard
-     */
-    public EmbeddedJettyServer(int webPort, String webappPath) {
-        this.webPort = webPort;
-        this.webappPath = webappPath;
-    }
+    private int webPort;
 
     /**
-     * Creates a new embeded Jetty server with the given listen port and the given webapp path.
-     *
-     * @param webPort        the port the embedded Jetty server will listen on.
-     * @param webappPath     the path to the CruiseControl web application served by the embedded server.
-     * @param newWebappPath
-     * @param configFileName the name of the config file
+     * Creates a new embeded Jetty server using the supplied jetty.xml.
      */
-    public EmbeddedJettyServer(int webPort, String webappPath, String newWebappPath,
-                               String configFileName, int jmxPort, int rmiPort) {
+    public EmbeddedJettyServer(File jettyXml, int webPort) {
+        this.jettyXml = jettyXml;
         this.webPort = webPort;
-        this.webappPath = webappPath;
-        this.newWebappPath = newWebappPath;
-        this.configFileName = configFileName;
-        this.jmxPort = jmxPort;
-        this.rmiPort = rmiPort;
     }
 
-    private void setUpSystemPropertiesForDashboard() {
-        if (configFileName != null) {
-            File configFile = new File(configFileName);
-            if (!configFile.exists()) {
-                throw new RuntimeException("Cannot find config file at " + configFile.getAbsolutePath());
-            }
-            System.setProperty("cc.config.file", configFile.getAbsolutePath());
-        }
-        System.setProperty("cc.rmiport", String.valueOf(rmiPort));
-        System.setProperty("cc.jmxport", String.valueOf(jmxPort));
-    }
 
     /**
      * Starts the embedded Jetty server.
@@ -135,42 +89,24 @@ public class EmbeddedJettyServer {
             LOG.info("EmbeddedJettyServer.start() called, but server already running.");
             return;
         }
-        setUpSystemPropertiesForDashboard();
-        jettyServer = new Server();
-        SocketListener listener = new SocketListener();
-        listener.setPort(webPort);
-        jettyServer.addListener(listener);
 
-        int ajp13port = Integer.parseInt(System.getProperty("cc.ajp13port", "-1"));
-        if (ajp13port != -1) {
-            AJP13Listener ajp13Listener = new AJP13Listener();
-            ajp13Listener.setPort(ajp13port);
-            jettyServer.addListener(ajp13Listener);
-        }
+        jettyServer = new Server();
         
         try {
-            jettyServer.addWebApplication("/cruisecontrol", webappPath);
-            jettyServer.addWebApplication("/", webappPath);
-            if (newWebappPath != null) {
-                jettyServer.addWebApplication("/dashboard", newWebappPath);
-                
-                String ccConfigWebpath = newWebappPath + "/../cc-config";
-                if (new File(ccConfigWebpath).exists()) {
-                    jettyServer.addWebApplication("/cc-config", ccConfigWebpath);
-                }
+            XmlConfiguration configuration = new XmlConfiguration(new FileInputStream(jettyXml));
+            configuration.configure(jettyServer);
+            if (webPort != MainArgs.NOT_FOUND && webPort != 8080) {
+                Connector connector = new SelectChannelConnector();
+                connector.setPort(webPort);
+                connector.setMaxIdleTime(30000);
+                jettyServer.addConnector(connector);
             }
-        } catch (IOException e) {
-            String msg = "Exception adding cruisecontrol webapp to embedded Jetty server: " + e.getMessage();
-            LOG.error(msg, e);
-            throw new RuntimeException(msg);
-        }
-
-        try {
+            
             jettyServer.start();
         } catch (Exception e) {
             String msg = "Unable to start embedded Jetty server: " + e.getMessage();
             LOG.error(msg, e);
-            throw new RuntimeException();
+            throw new RuntimeException(msg, e);
         }
         isRunning = true;
     }
@@ -183,7 +119,7 @@ public class EmbeddedJettyServer {
             if (jettyServer != null) {
                 try {
                     jettyServer.stop();
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     String msg = "Exception occurred while stopping Embedded Jetty server";
                     LOG.error(msg);
                     throw new RuntimeException(e);
