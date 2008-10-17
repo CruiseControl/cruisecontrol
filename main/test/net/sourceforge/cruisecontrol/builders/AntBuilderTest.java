@@ -596,8 +596,24 @@ public class AntBuilderTest extends TestCase {
         contents.append("         <path id='test.classpath'>\n");
         contents.append("             <pathelement location='build' />\n");
         contents.append("         </path>\n");
-        contents.append("         <javac srcdir='src' destdir='build' />\n");
-        contents.append("         <javac srcdir='test' destdir='build' classpathref='test.classpath' />\n");
+
+        // For whatever reason, rpm versions of Ant on Fedora fail with: Error starting modern compiler
+        // unless we add fork="yes" to the javac line.
+        // Also, Fedora requires the 'ant-trax' package to build the unit test report, otherwise you get the error:
+        // Errors while applying transformations:
+        //                      java.lang.ClassNotFoundException: org.apache.tools.ant.taskdefs.optional.TraXLiaison
+        //  Here's my list of rpm ant
+        // packages needed the CC unit tests to work:
+        // ant.i386                                 1.7.0-1jpp.4.fc9       installed
+        // ant-junit.i386                           1.7.0-1jpp.4.fc9       installed
+        // ant-nodeps.i386                          1.7.0-1jpp.4.fc9       installed
+        // ant-scripts.i386                         1.7.0-1jpp.4.fc9       installed
+        // ant-trax.i386                            1.7.0-1jpp.4.fc9       installed
+//        contents.append("         <javac srcdir='src' destdir='build' />\n");
+//        contents.append("         <javac srcdir='test' destdir='build' classpathref='test.classpath' />\n");
+        contents.append("         <javac srcdir='src' destdir='build' fork='yes' />\n");
+        contents.append("         <javac srcdir='test' destdir='build' classpathref='test.classpath' fork='yes' />\n");
+
         contents.append("         <mkdir dir='reports/xml' />");
         contents.append("         <junit fork='yes'>\n");
         contents.append("             <classpath>\n");
