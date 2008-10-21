@@ -62,8 +62,8 @@
         build.bat (for Windows users) and a build.sh (for UNIX users) present
         in the <code>cruisecontrol/main</code> directory.  Execute the
         appropriate script, and CruiseControl should compile.  Look in the dist
-        directory, and you should find a cruisecontrol.jar file if the build
-        was successful.</p>
+        directory, and you should find cruisecontrol.jar, cruisecontrol-launcher.jar,
+        and cruisecontrol-antprogresslogger.jar files if the build was successful.</p>
 
         <h2><a name="createconfigfile">2. Create config file / Upgrade previous
         version</a></h2>
@@ -89,7 +89,7 @@
             <li>
                 <b>Executable jar.</b>   Type the following command:
                 <p><code>
-                  java -jar dist/cruisecontrol.jar
+                  java -jar dist/cruisecontrol-launcher.jar
                 </code></p><br/><ul>
                 <li>If you use this, make sure CruiseControl can find the classes it needs.
                 If you don't know which classes this are, you should just use the script.
