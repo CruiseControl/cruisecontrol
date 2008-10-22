@@ -55,6 +55,10 @@ import org.apache.log4j.spi.LoggingEvent;
 public class MainTest extends TestCase {
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
+    public static void setSkipUsage() {
+        System.setProperty(Main.SYSPROP_CCMAIN_SKIP_USAGE, "true");
+    }
+
     public void testParsePassword() {
         String[] correctArgs = new String[] {"-password", "password"};
         String[] missingValue = new String[] {"-password"};

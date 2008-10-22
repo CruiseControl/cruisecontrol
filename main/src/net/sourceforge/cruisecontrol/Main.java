@@ -200,13 +200,23 @@ public final class Main implements CruiseControlMain {
         System.setProperty("cc.jmxport", String.valueOf(jmxPort));
     }
 
-    protected static void checkDeprecatedArguments(String[] args, Logger logger) {
+    static void checkDeprecatedArguments(String[] args, Logger logger) {
         if (MainArgs.findIndex(args, "port") != MainArgs.NOT_FOUND) {
             logger.warn("WARNING: The port argument is deprecated. Use jmxport instead.");
         }
     }
 
+    /**
+     * System property name, when if true, bypasses the system.exit call when printing
+     * the usage message. Intended for unit tests only.
+     */
+    static final String SYSPROP_CCMAIN_SKIP_USAGE = "cc.main.skip.usage";
+
     public static void printUsage() {
+        if (Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE)) {
+            return;
+        }
+
         System.out.println("");
         System.out.println("Usage:");
         System.out.println("");
@@ -218,6 +228,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("");
         System.out.println("  -configfile file     configuration file; default config.xml");
         System.out.println("  -debug               set logging level to DEBUG");
+        System.out.println("  -" + Launcher.ARG_LOG4J_CONFIG + " file    relative path or url to log4j config");
         System.out.println("  -? or -help          print this usage message");
         System.out.println("");
         System.out.println("Options when using JMX");
@@ -354,7 +365,7 @@ public final class Main implements CruiseControlMain {
         return configFileName;
     }
 
-    static String parseJettyXml(String[] args, String ccHome) throws CruiseControlException {
+    static String parseJettyXml(String[] args, String ccHome)  {
         boolean nullOrEmpty = ccHome == null || ccHome.length() == 0; 
         String defaultJettyXml = nullOrEmpty ? "etc/jetty.xml" : ccHome + "/etc/jetty.xml";
         return MainArgs.parseArgument(args, "jettyxml", defaultJettyXml, defaultJettyXml);
