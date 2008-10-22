@@ -10,6 +10,7 @@ general
 * Update JSP reporting application to Servlet API 2.5 and JSP API 2.1
 * Update Jetty to 6.1.11
 * Extracted out the utility class ServerNameSingleton to avoid mulitple slow calls to get the host name.
+* Add -log4jconfig command line property to specify relative path (or URL) to log4j configuration file.
 
 contrib
 ======================
