@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.launch.util.Locator;
+import net.sourceforge.cruisecontrol.MainTest;
 
 /**
  * @author Dan Rollo
@@ -63,5 +64,43 @@ public class LauncherTest extends TestCase {
 
         // line below fails w/ NPE if sysprop "cc.home" doesn't exist
         launcher.run(args);
+    }
+
+    public void testArgLog4jconfig() throws Exception {
+        assertNull(System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+
+        final Launcher launcher = new Launcher();
+
+        // prevent printUsage msg from printing
+        MainTest.setSkipUsage();
+        // prevent system.exit calls from printUsage
+        System.setProperty(Launcher.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
+
+        launcher.run(new String[]{});
+        assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+
+        try {
+            launcher.run(new String[]{ "-" + Launcher.ARG_LOG4J_CONFIG });
+            fail("missing log4j config filename should have failed.");
+        } catch (LaunchException e) {
+            assertEquals("The -log4jconfig argument must be followed by a log4j configuration file or URL",
+                    e.getMessage());
+        }
+        assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+
+        final String bogusLog4jConfig = "bogusLog4jConfig";
+        final String[] args = new String[] { "-" + Launcher.ARG_LOG4J_CONFIG, bogusLog4jConfig };
+
+        try {
+            launcher.run(args);
+            assertEquals(bogusLog4jConfig, System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+
+            // ensure we override existing sys prop
+            System.setProperty(Launcher.PROP_LOG4J_CONFIGURATION, "dummy");
+            launcher.run(args);
+            assertEquals(bogusLog4jConfig, System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+        } finally {
+            System.getProperties().remove(Launcher.PROP_LOG4J_CONFIGURATION);
+        }
     }
 }

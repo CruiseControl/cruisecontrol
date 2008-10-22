@@ -57,9 +57,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.Arrays;
 
 import net.sourceforge.cruisecontrol.launch.util.Locator;
 
@@ -97,6 +97,11 @@ public class Launcher {
     /** The startup class that is to be run */
     public static final String MAIN_CLASS = "net.sourceforge.cruisecontrol.Main";
 
+    /** CC Command line arguement name. */
+    public static final String ARG_LOG4J_CONFIG = "log4jconfig";
+    /** Log4j system property name. */
+    public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
+
     /**
      *  Entry point for starting CruiseControl from the command line
      *
@@ -118,10 +123,12 @@ public class Launcher {
      *
      * @param args the command line arguments
      *
-     * @exception MalformedURLException if the URLs required for the classloader
+     * @throws LaunchException if CruiseControl home is not set or could not be located, or if other
+     *            invalid argument values are given.
+     * @throws MalformedURLException if the URLs required for the classloader
      *            cannot be created.
      */
-    void run(String[] args) throws LaunchException, MalformedURLException {
+    void run(final String[] args) throws LaunchException, MalformedURLException {
 
         final File sourceJar = Locator.getClassSource(this.getClass());
         final File distJarDir = sourceJar.getParentFile();
@@ -131,9 +138,9 @@ public class Launcher {
         // Process the command line arguments. We will handle the classpath
         // related switches ourself. All other arguments will be repackaged
         // and passed on the the Main class for processing.
-        List libPaths = new ArrayList();
-        List argList = new ArrayList();
-        boolean  noUserLib = false;
+        final List<String> libPaths = new ArrayList<String>();
+        final List<String> argList = new ArrayList<String>();
+        boolean noUserLib = false;
 
         for (int i = 0; i < args.length; ++i) {
             if (args[i].equals("-lib")) {
@@ -144,24 +151,29 @@ public class Launcher {
                 libPaths.add(args[++i]);
             } else if (args[i].equals("--nouserlib") || args[i].equals("-nouserlib")) {
                 noUserLib = true;
+            } else if (args[i].equals("-" + ARG_LOG4J_CONFIG)) {
+                if (i == args.length - 1) {
+                    throw new LaunchException("The -" + ARG_LOG4J_CONFIG + " argument must "
+                        + "be followed by a log4j configuration file or URL");
+                }
+                System.setProperty(PROP_LOG4J_CONFIGURATION, args[++i]);
             } else {
                 argList.add(args[i]);
             }
         }
 
         // Process the lib dir entries found on the command line
-        List libPathURLs = new ArrayList();
-        for (Iterator i = libPaths.iterator(); i.hasNext();) {
-            String libPath = (String) i.next();
+        final List<URL> libPathURLs = new ArrayList<URL>();
+        for (final String libPath : libPaths) {
             addPath(libPath, true, libPathURLs);
         }
-        URL[] libJars = (URL[]) libPathURLs.toArray(new URL[0]);
+        final URL[] libJars = libPathURLs.toArray(new URL[libPathURLs.size()]);
 
         // Determine the CruiseControl directory for the distribution jars.
         // Use the system property if it was provided, otherwise make a guess
         // based upon the location of the launcher jar.
         File ccDistDir = null;
-        String ccDistDirProperty = System.getProperty(CCDISTDIR_PROPERTY);
+        final String ccDistDirProperty = System.getProperty(CCDISTDIR_PROPERTY);
         if (ccDistDirProperty != null) {
             ccDistDir = new File(ccDistDirProperty);
         }
@@ -169,13 +181,13 @@ public class Launcher {
             ccDistDir = distJarDir;
             System.setProperty(CCDISTDIR_PROPERTY, ccDistDir.getAbsolutePath());
         }
-        URL[] distJars = Locator.getLocationURLs(ccDistDir);
+        final URL[] distJars = Locator.getLocationURLs(ccDistDir);
 
         // Determine CruiseControl library directory for third party jars.
         // Use the system property if it was provided, otherwise make a guess
         // based upon the CruiseControl home dir we found earlier.
         File ccLibDir = null;
-        String ccLibDirProperty = System.getProperty(CCLIBDIR_PROPERTY);
+        final String ccLibDirProperty = System.getProperty(CCLIBDIR_PROPERTY);
         if (ccLibDirProperty != null) {
             ccLibDir = new File(ccLibDirProperty);
         }
@@ -183,16 +195,16 @@ public class Launcher {
             ccLibDir = new File(ccHome, "lib");
             System.setProperty(CCLIBDIR_PROPERTY, ccLibDir.getAbsolutePath());
         }
-        URL[] supportJars = Locator.getLocationURLs(ccLibDir);
-        URL[] antJars = Locator.getLocationURLs(new File(ccLibDir, "ant"));
+        final URL[] supportJars = Locator.getLocationURLs(ccLibDir);
+        final URL[] antJars = Locator.getLocationURLs(new File(ccLibDir, "ant"));
 
         // Locate any jars in the per-user lib directory
-        File userLibDir = new File(System.getProperty(USER_HOMEDIR),
+        final File userLibDir = new File(System.getProperty(USER_HOMEDIR),
                 USER_LIBDIR);
-        URL[] userJars = noUserLib ? new URL[0] : Locator.getLocationURLs(userLibDir);
+        final URL[] userJars = noUserLib ? new URL[0] : Locator.getLocationURLs(userLibDir);
 
         // Locate the Java tools jar
-        File toolsJar = Locator.getToolsJar();
+        final File toolsJar = Locator.getToolsJar();
 
         // Concatenate our jar lists - order of precedence will be those jars
         // specified on the command line followed by jars in the per-user
@@ -202,7 +214,7 @@ public class Launcher {
         if (toolsJar != null) {
             numJars++;
         }
-        URL[] jars = new URL[numJars];
+        final URL[] jars = new URL[numJars];
         copyJarUrls(libJars, jars, 0);
         copyJarUrls(userJars, jars, libJars.length);
         copyJarUrls(distJars, jars, userJars.length + libJars.length);
@@ -213,15 +225,15 @@ public class Launcher {
         }
 
         // Update the JVM java.class.path property
-        StringBuffer baseClassPath
+        final StringBuffer baseClassPath
             = new StringBuffer(System.getProperty("java.class.path"));
         if (baseClassPath.charAt(baseClassPath.length() - 1)
                 == File.pathSeparatorChar) {
             baseClassPath.setLength(baseClassPath.length() - 1);
         }
-        for (int i = 0; i < jars.length; ++i) {
+        for (final URL jar : jars) {
             baseClassPath.append(File.pathSeparatorChar);
-            baseClassPath.append(Locator.fromURI(jars[i].toString()));
+            baseClassPath.append(Locator.fromURI(jar.toString()));
         }
         baseClassPath.append(File.pathSeparatorChar);
         baseClassPath.append(".");
@@ -234,14 +246,14 @@ public class Launcher {
         System.out.println("Classpath: " + baseClassPath.toString());
 
         // Create a new class loader which has access to our jars
-        URLClassLoader loader = new URLClassLoader(jars);
+        final URLClassLoader loader = new URLClassLoader(jars);
         Thread.currentThread().setContextClassLoader(loader);
 
         // Launch CruiseControl!
         try {
-            Class mainClass = loader.loadClass(MAIN_CLASS);
-            CruiseControlMain main = (CruiseControlMain) mainClass.newInstance();
-            boolean normalExit = main.start((String[]) argList.toArray(new String[argList.size()]));
+            final Class mainClass = loader.loadClass(MAIN_CLASS);
+            final CruiseControlMain main = (CruiseControlMain) mainClass.newInstance();
+            final boolean normalExit = main.start(argList.toArray(new String[argList.size()]));
             if (!normalExit) {
                 exitWithErrorCode();
             }
@@ -312,23 +324,24 @@ public class Launcher {
      * @param getJars     if true and a path is a directory, add the jars in
      *                    the directory to the path urls
      * @param libPathURLs the list of paths to add to
+     * @throws MalformedURLException if the URLs required for the classloader
+     *            cannot be created.
      */
-   private void addPath(String path, boolean getJars, List libPathURLs)
+   private void addPath(final String path, final boolean getJars, final List<URL> libPathURLs)
        throws MalformedURLException {
-       StringTokenizer myTokenizer
+
+       final StringTokenizer myTokenizer
            = new StringTokenizer(path, System.getProperty("path.separator"));
        while (myTokenizer.hasMoreElements()) {
-           String elementName = myTokenizer.nextToken();
-           File element = new File(elementName);
+           final String elementName = myTokenizer.nextToken();
+           final File element = new File(elementName);
            if (elementName.indexOf("%") != -1 && !element.exists()) {
                continue;
            }
            if (getJars && element.isDirectory()) {
                // add any jars in the directory
-               URL[] dirURLs = Locator.getLocationURLs(element);
-               for (int j = 0; j < dirURLs.length; ++j) {
-                   libPathURLs.add(dirURLs[j]);
-               }
+               final URL[] dirURLs = Locator.getLocationURLs(element);
+               libPathURLs.addAll(Arrays.asList(dirURLs));
            }
 
            libPathURLs.add(element.toURI().toURL());
