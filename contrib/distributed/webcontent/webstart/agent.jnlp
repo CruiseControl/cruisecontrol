@@ -39,8 +39,8 @@
         <jar href="lib/xml-apis-2.8.0.jar"/>
         <jar href="lib/xercesImpl-2.8.0.jar"/>
         <!-- Avoid agent use of saxon jars to workaround Sun Bug ID: 6568540 "(prefs) Preferences not saved in Webstart app, even after synch()" -->
-        <!--<jar href="lib/saxon8.jar"/>-->
-        <!--<jar href="lib/saxon8-dom.jar"/>-->
+        <!--<jar href="lib/saxon9.jar"/>-->
+        <!--<jar href="lib/saxon9-dom.jar"/>-->
 
         <jar href="jini-core/jini-core.jar"/>
         <jar href="jini-core/jini-ext.jar"/>
