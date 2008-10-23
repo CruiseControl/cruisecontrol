@@ -39,7 +39,7 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time-1.4.jar"/>
-	<classpathentry kind="lib" path="lib/log4j-1.2.12.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/p4.jar"/>
 	<classpathentry kind="lib" path="lib/spring-aop.jar"/>
 	<classpathentry kind="lib" path="lib/spring-beans.jar" sourcepath="/home/khu/spring-framework-2.0.6/dist/spring-src.zip"/>

@@ -14,7 +14,7 @@ jmxri.jar :sun-binary-code-license.txt
 
 joda-time-1.4.jar : Apache License Version 2.0
 
-log4j-1.2.12.jar : Apache License Version 2.0
+log4j-1.2.15.jar : Apache License Version 2.0
 
 sitemesh-2.3.jar : The OpenSymphony Software License, Version 1.1 (this license is derived and fully compatible with the Apache Software License - see http://www.apache.org/LICENSE.txt)
 
