@@ -58,9 +58,9 @@ http://saxon.sourceforge.net/
 jarfile			ver		license		full license (in licenses-dir)
 ------------------------------------------------------------------------------------------
 activation.jar		1.0.2?		Sun BCLA	activation-license.txt (for 1.0.2)
-ant.jar			1.6.2		ASL v2.0	apache-license-2.0.txt
-ant-launcher.jar	1.6.2		ASL v2.0	apache-license-2.0.txt
-ant-junit.jar		1.6.2		ASL v2.0	apache-license-2.0.txt
+ant.jar			    1.7.0		ASL v2.0	apache-license-2.0.txt
+ant-launcher.jar	1.7.0		ASL v2.0	apache-license-2.0.txt
+ant-junit.jar		1.7.0		ASL v2.0	apache-license-2.0.txt
 checkstyle-all-4.3.jar	4.3		LGPL v2.1 & ASL v1.1?
 							lgpl-license.txt (from 3.4)
 							apache-license-1.1.txt (from 3.4)
@@ -72,7 +72,7 @@ commons-net-1.1.0.jar	1.1.0		ASL v1.1	apache-license-1.1.txt
 jakarta-oro-2.0.8.jar	2.0.8		ASL v2.0	apache-license-2.0.txt
 jdom.jar		1.0				jdom-license.txt
 junit.jar		3.8.1		CPL v1.0	cpl-license.txt
-log4j.jar		1.2.15		ASL v.1.1	apache-license-2.0.txt
+log4j.jar		1.2.15		ASL v2.0	apache-license-2.0.txt
 mail.jar		1.2		Sun BCLA	mail-license.txt
 mx4j.jar		3.0.1		MX4J v1.0	mx4j-license.txt
 mx4j-remote.jar		3.0.1		MX4J v1.0	mx4j-license.txt
