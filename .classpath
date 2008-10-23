@@ -141,7 +141,7 @@
 	<classpathentry kind="lib" path="reporting/dashboard/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/joda-time-1.4.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/jug-lgpl-2.0.0.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/lib/log4j-1.2.12.jar"/>
+	<classpathentry kind="lib" path="reporting/dashboard/lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/mx4j-remote.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/mx4j-tools.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/mx4j.jar"/>
