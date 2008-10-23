@@ -11,6 +11,7 @@ general
 * Update Jetty to 6.1.11
 * Extracted out the utility class ServerNameSingleton to avoid mulitple slow calls to get the host name.
 * Add -log4jconfig command line property to specify relative path (or URL) to log4j configuration file.
+* Update log4j to v1.2.15.
 
 contrib
 ======================
