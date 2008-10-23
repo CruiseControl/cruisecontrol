@@ -142,7 +142,7 @@
     </dependency>
     <dependency>
       <id>log4j</id>
-      <version>1.2.4</version>
+      <version>1.2.15</version>
       <url>http://log4j.apache.org/</url>
     </dependency>
     <dependency>
