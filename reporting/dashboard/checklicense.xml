@@ -78,7 +78,7 @@
 			<param name="production.license.file" value="apache-license-2.0.txt" />
 		</antcall>
 		<antcall target="-check.license.exist">
-			<param name="production.library.file" value="log4j-1.2.12.jar" />
+			<param name="production.library.file" value="log4j-1.2.15.jar" />
 			<param name="production.license.file" value="apache-license-2.0.txt" />
 		</antcall>
         <antcall target="-check.license.exist">
