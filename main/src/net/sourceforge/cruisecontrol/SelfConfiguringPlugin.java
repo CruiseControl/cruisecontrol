@@ -43,6 +43,9 @@ public interface SelfConfiguringPlugin {
 
     /**
      * @param element
+     * @deprecated We hope to remove the SelfConfiguringPlugin api soon (as it leads to more problems than it solves).
+     * If you really need the this api, please discuss why you need it on the user or dev lists (and hopefully we can
+     * find a way to use the standard plugin configuration instead.)  
      */
     void configure(Element element) throws CruiseControlException;
 
