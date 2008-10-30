@@ -12,6 +12,8 @@ import net.sourceforge.cruisecontrol.MainTest;
  */
 public class LauncherTest extends TestCase {
 
+    private static final String[] EMPTY_STRING_ARRAY = new String[]{};
+
     private Properties origSysProps;
     private ClassLoader origClassLoader;
 
@@ -76,15 +78,14 @@ public class LauncherTest extends TestCase {
         // prevent system.exit calls from printUsage
         System.setProperty(Launcher.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
 
-        launcher.run(new String[]{});
+        launcher.run(EMPTY_STRING_ARRAY);
         assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
 
         try {
             launcher.run(new String[]{ "-" + Launcher.ARG_LOG4J_CONFIG });
             fail("missing log4j config filename should have failed.");
         } catch (LaunchException e) {
-            assertEquals("The -log4jconfig argument must be followed by a log4j configuration file or URL",
-                    e.getMessage());
+            assertEquals(Launcher.ERR_MSG_LOG4J_CONFIG, e.getMessage());
         }
         assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
 

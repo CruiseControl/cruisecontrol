@@ -228,7 +228,8 @@ public final class Main implements CruiseControlMain {
         System.out.println("");
         System.out.println("  -configfile file     configuration file; default config.xml");
         System.out.println("  -debug               set logging level to DEBUG");
-        System.out.println("  -" + Launcher.ARG_LOG4J_CONFIG + " file    relative path or url to log4j config");
+        System.out.println("  -"
+                + Launcher.ARG_LOG4J_CONFIG + " url     URL to a log4j config (example: \"file:/c:/mylog4j.xml\")");
         System.out.println("  -? or -help          print this usage message");
         System.out.println("");
         System.out.println("Options when using JMX");
