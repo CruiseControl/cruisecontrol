@@ -99,8 +99,12 @@ public class Launcher {
 
     /** CC Command line arguement name. */
     public static final String ARG_LOG4J_CONFIG = "log4jconfig";
+    static final String ERR_MSG_LOG4J_CONFIG = "The -" + ARG_LOG4J_CONFIG + " argument must "
+                        + "be followed by a log4j configuration URL (for example: \"file:/c:/mylog4j.xml\")";
     /** Log4j system property name. */
     public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
+
+    private static final URL[] EMPTY_URL_ARRAY = new URL[0];
 
     /**
      *  Entry point for starting CruiseControl from the command line
@@ -153,8 +157,7 @@ public class Launcher {
                 noUserLib = true;
             } else if (args[i].equals("-" + ARG_LOG4J_CONFIG)) {
                 if (i == args.length - 1) {
-                    throw new LaunchException("The -" + ARG_LOG4J_CONFIG + " argument must "
-                        + "be followed by a log4j configuration file or URL");
+                    throw new LaunchException(ERR_MSG_LOG4J_CONFIG);
                 }
                 System.setProperty(PROP_LOG4J_CONFIGURATION, args[++i]);
             } else {
@@ -201,7 +204,7 @@ public class Launcher {
         // Locate any jars in the per-user lib directory
         final File userLibDir = new File(System.getProperty(USER_HOMEDIR),
                 USER_LIBDIR);
-        final URL[] userJars = noUserLib ? new URL[0] : Locator.getLocationURLs(userLibDir);
+        final URL[] userJars = noUserLib ? EMPTY_URL_ARRAY : Locator.getLocationURLs(userLibDir);
 
         // Locate the Java tools jar
         final File toolsJar = Locator.getToolsJar();
