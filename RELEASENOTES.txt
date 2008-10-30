@@ -10,7 +10,7 @@ general
 * Update JSP reporting application to Servlet API 2.5 and JSP API 2.1
 * Update Jetty to 6.1.11
 * Extracted out the utility class ServerNameSingleton to avoid mulitple slow calls to get the host name.
-* Add -log4jconfig command line property to specify relative path (or URL) to log4j configuration file.
+* Add -log4jconfig command line property to specify URL (for example: "file:/c:/mylog4j.xml") to log4j configuration file.
 * Update log4j to v1.2.15.
 * Marked SelfConfiguringPlugin api as deprecated. We hope to remove the SelfConfiguringPlugin api soon (as it leads to more problems than it solves). If you really need the this api, please discuss why you need it on the user or dev lists (and hopefully we can find a way to use the standard plugin configuration instead.)
 
