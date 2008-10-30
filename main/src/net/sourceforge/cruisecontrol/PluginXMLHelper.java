@@ -56,14 +56,14 @@ import java.util.Set;
  */
 public class PluginXMLHelper {
     private static final Logger LOG = Logger.getLogger(PluginXMLHelper.class);
-    private ProjectHelper projectHelper;
+    private final ProjectHelper projectHelper;
     private final CruiseControlController controller;
 
-    public PluginXMLHelper(ProjectHelper plugins) {
+    public PluginXMLHelper(final ProjectHelper plugins) {
         this(plugins, null);
     }
 
-    public PluginXMLHelper(ProjectHelper plugins, CruiseControlController controller) {
+    public PluginXMLHelper(final ProjectHelper plugins, final CruiseControlController controller) {
         projectHelper = plugins;
         this.controller = controller;
     }
@@ -86,23 +86,23 @@ public class PluginXMLHelper {
      *   if the plugin class cannot be instantiated,
      *   if the configuration fails
      */
-    public Object configure(Element objectElement, Class pluginClass,
-                            boolean skipChildElements)
+    public Object configure(final Element objectElement, final Class pluginClass,
+                            final boolean skipChildElements)
             throws CruiseControlException {
 
-        Object pluginInstance = instantiatePlugin(pluginClass);
+        final Object pluginInstance = instantiatePlugin(pluginClass);
         return configure(objectElement, pluginInstance, skipChildElements);
 
     }
 
     /**
      * Instantiate a plugin
-     * @param pluginClass
+     * @param pluginClass the class of the plugin to construct
      * @return The instantiated plugin
      * @throws CruiseControlException if the plugin class cannot be instantiated
      */
-    private Object instantiatePlugin(Class pluginClass) throws CruiseControlException {
-        Object pluginInstance;
+    private Object instantiatePlugin(final Class pluginClass) throws CruiseControlException {
+        final Object pluginInstance;
         try {
             pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
             if (pluginInstance instanceof ControllerAware) {
@@ -119,10 +119,14 @@ public class PluginXMLHelper {
     /**
      * Same as {@link #configure(org.jdom.Element, Class, boolean)}, except that
      * the client already has a pluginInstance.
+     * @param objectElement the JDOM Element defining the plugin configuration
+     * @param pluginInstance a live plugin instance
+     * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
+     * @return fully configured Object
      * @throws CruiseControlException if the configuration fails
      */
-    public Object configure(Element objectElement, Object pluginInstance,
-                            boolean skipChildElements) throws CruiseControlException {
+    public Object configure(final Element objectElement, final Object pluginInstance,
+                            final boolean skipChildElements) throws CruiseControlException {
 
         LOG.debug("configure " + objectElement.getName() + " instance " + pluginInstance.getClass()
                   + " self configuring: " + (pluginInstance instanceof SelfConfiguringPlugin)
@@ -150,20 +154,21 @@ public class PluginXMLHelper {
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param object the instance to configure to instantiate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
+     * @throws CruiseControlException if an error occurs while configuring the object, like if a child element is not
+     * supported.
      */
-    protected void configureObject(Element objectElement, Object object, boolean skipChildElements)
+    protected void configureObject(final Element objectElement, final Object object, final boolean skipChildElements)
             throws CruiseControlException {
 
         LOG.debug("configuring object " + objectElement.getName()
             + " object " + object.getClass() + " skip " + skipChildElements);
 
-        Map setters = new HashMap();
-        Map creators = new HashMap();
-        Set adders = new HashSet();
+        final Map<String, Method> setters = new HashMap<String, Method>();
+        final Map<String, Method> creators = new HashMap<String, Method>();
+        final Set<Method> adders = new HashSet<Method>();
 
-        Method[] methods = object.getClass().getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            final Method method = methods[i];
+        final Method[] methods = object.getClass().getMethods();
+        for (final Method method : methods) {
             final String name = method.getName();
             if (name.startsWith("set")) {
                 setters.put(name.substring("set".length()).toLowerCase(), method);
@@ -177,27 +182,26 @@ public class PluginXMLHelper {
         setFromAttributes(objectElement, setters, object);
 
         if (!skipChildElements) {
-            Iterator childElementIterator = objectElement.getChildren().iterator();
+            final Iterator childElementIterator = objectElement.getChildren().iterator();
             while (childElementIterator.hasNext()) {
-                Element childElement = (Element) childElementIterator.next();
+                final Element childElement = (Element) childElementIterator.next();
                 if (creators.containsKey(childElement.getName().toLowerCase())) {
                     LOG.debug("treating child with creator " + childElement.getName());
                     try {
-                        Method method = (Method) creators.get(childElement.getName().toLowerCase());
-                        Object childObject = method.invoke(object, (Object[]) null);
+                        final Method method = creators.get(childElement.getName().toLowerCase());
+                        final Object childObject = method.invoke(object, (Object[]) null);
                         configureObject(childElement, childObject, false);
                     } catch (Exception e) {
                         throw new CruiseControlException(e.getMessage());
                     }
                 } else {
                     // instanciate object from element via registry
-                    Object childObject = projectHelper.configurePlugin(childElement, false);
+                    final Object childObject = projectHelper.configurePlugin(childElement, false);
 
                     Method adder = null;
                     // iterate over adders to find one that will take the object
-                    for (Iterator iterator = adders.iterator(); iterator.hasNext();) {
-                        Method method = (Method) iterator.next();
-                        Class type = method.getParameterTypes()[0];
+                    for (final Method method : adders) {
+                        final Class type = method.getParameterTypes()[0];
                         if (type.isAssignableFrom(childObject.getClass())) {
                             adder = method;
                             break;
@@ -207,7 +211,7 @@ public class PluginXMLHelper {
                     if (adder != null) {
                         try {
                             LOG.debug("treating child with adder " + childElement.getName() + " adding " + childObject);
-                            adder.invoke(object, new Object[]{childObject});
+                            adder.invoke(object, childObject);
                         } catch (Exception e) {
                             LOG.fatal("Error configuring plugin.", e);
                         }
@@ -220,30 +224,32 @@ public class PluginXMLHelper {
         }
     }
 
-    private void setFromAttributes(Element objectElement, Map setters, Object object) throws CruiseControlException {
+    private void setFromAttributes(final Element objectElement, final Map<String, Method> setters, final Object object)
+            throws CruiseControlException {
+
         for (Iterator iter = objectElement.getAttributes().iterator(); iter.hasNext(); ) {
             Attribute attribute = (Attribute) iter.next();
             callSetter(attribute.getName(), attribute.getValue(), setters, object);
         }
     }
 
-    private void callSetter(String propName, String propValue, Map setters, Object object)
+    private void callSetter(final String propName, final String propValue,
+                            final Map<String, Method> setters, final Object object)
         throws CruiseControlException {
 
         if (setters.containsKey(propName.toLowerCase())) {
             LOG.debug("Setting " + propName.toLowerCase() + " to " + propValue);
             try {
-                Method method = (Method) setters.get(propName.toLowerCase());
-                Class[] parameters = method.getParameterTypes();
+                final Method method = setters.get(propName.toLowerCase());
+                final Class[] parameters = method.getParameterTypes();
                 if (String.class.isAssignableFrom(parameters[0])) {
-                    method.invoke(object, new Object[]{propValue});
+                    method.invoke(object, propValue);
                 } else if (int.class.isAssignableFrom(parameters[0])) {
-                    method.invoke(object, new Object[]{Integer.valueOf(propValue)});
+                    method.invoke(object, Integer.valueOf(propValue));
                 } else if (long.class.isAssignableFrom(parameters[0])) {
-                    method.invoke(object, new Object[]{Long.valueOf(propValue)});
+                    method.invoke(object, Long.valueOf(propValue));
                 } else if (boolean.class.isAssignableFrom(parameters[0])) {
-                    method.invoke(object,
-                            new Object[]{Boolean.valueOf(propValue)});
+                    method.invoke(object, Boolean.valueOf(propValue));
                 } else {
                     LOG.error("rCouldn't invoke setter " + propName.toLowerCase());
                 }
