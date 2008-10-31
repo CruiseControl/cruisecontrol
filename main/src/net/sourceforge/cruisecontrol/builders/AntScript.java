@@ -163,12 +163,12 @@ public class AntScript implements Script, StreamConsumer {
         }
 
 
-        if (AntBuilder.isDashboardLoggerRequired(showAntOutput, useLogger)) {
+        if (AntBuilder.shouldAddDashboardLoggerJarToCommandLine(showAntOutput, useLogger)) {
             cmdLine.createArguments("-listener", CLASSNAME_DASHBOARD_LISTENER);
         }
 
         if ((progress != null)
-                || AntBuilder.isDashboardLoggerRequired(showAntOutput, useLogger)) {
+                || AntBuilder.shouldAddDashboardLoggerJarToCommandLine(showAntOutput, useLogger)) {
             // we need to add the custom logger jar {@link #LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar}
             // to the ant VM class path as a lib
 

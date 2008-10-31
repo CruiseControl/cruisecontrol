@@ -212,11 +212,11 @@ public class AntBuilderTest extends TestCase {
     public void testIsDashboardLoggerRequired() throws Exception {
         // Dashboard logger is ONLY required if both showAntOutput==true and useLogger==true
         
-        assertFalse(AntBuilder.isDashboardLoggerRequired(false, false));
-        assertFalse(AntBuilder.isDashboardLoggerRequired(false, true));
-        assertFalse(AntBuilder.isDashboardLoggerRequired(true, false));
+        assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(false, false));
+        assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(false, true));
+        assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(true, false));
 
-        assertTrue(AntBuilder.isDashboardLoggerRequired(true, true));
+        assertTrue(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(true, true));
     }
 
     public void testValidateShowAntOutput() throws Exception {
