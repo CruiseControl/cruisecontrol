@@ -120,7 +120,7 @@ public class AntBuilder extends Builder {
         // the AntBuilder.build() method is called (as parent Builders/Schedule may override the showProgress value).
 
         // Validate showAntOutput
-        if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
+        if (shouldAddDashboardLoggerJarToCommandLine(showAntOutput, useLogger)) {
             if (progressLoggerLib == null) {
                 // since progressLoggerLib is not specified in the config.xml,
                 // we must be able to find the path to {@link AntScript#LIBNAME_PROGRESS_LOGGER}
@@ -195,7 +195,7 @@ public class AntBuilder extends Builder {
 
         // only create "antBuilderOutput.log" file if needed.
         final BuildOutputLogger buildOutputConsumer;
-        if (isDashboardLoggerRequired(showAntOutput, useLogger)) {
+        if (showAntOutput) {
             final File antBuilderOutput = new File(workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
             buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(antBuilderOutput);
             buildOutputConsumer.clear();
@@ -399,7 +399,7 @@ public class AntBuilder extends Builder {
      * @return true if the jar containing the custom Dashboard logger class must be added to the command line used
      * to execute Ant.
      */
-    static boolean isDashboardLoggerRequired(final boolean showAntOutput, final boolean useLogger) {
+    static boolean shouldAddDashboardLoggerJarToCommandLine(final boolean showAntOutput, final boolean useLogger) {
         return showAntOutput && useLogger;
     }
 
