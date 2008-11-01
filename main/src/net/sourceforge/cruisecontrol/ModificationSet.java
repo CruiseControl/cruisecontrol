@@ -118,10 +118,6 @@ public class ModificationSet implements Serializable {
         }
     }
 
-    protected List getIgnoreFiles() {
-        return this.ignoreFiles;
-    }
-
     public void add(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
