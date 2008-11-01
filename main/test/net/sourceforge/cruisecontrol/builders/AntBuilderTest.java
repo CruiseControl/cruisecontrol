@@ -43,8 +43,8 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -114,12 +114,6 @@ public class AntBuilderTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
-
-        /*
-        // required if showAntOutput defaults to true
-        fakeProgressLoggerLibJar = AntScriptTest.createFakeProgressLoggerLib();
-        filesToDelete.add(fakeProgressLoggerLibJar);
-        */
     }
 
     public void tearDown() {
@@ -209,9 +203,7 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
-    public void testIsDashboardLoggerRequired() throws Exception {
-        // Dashboard logger is ONLY required if both showAntOutput==true and useLogger==true
-        
+    public void testShouldAddDashboardLoggerJarToCommandLine() throws Exception {
         assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(false, false));
         assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(false, true));
         assertFalse(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(true, false));
@@ -290,7 +282,7 @@ public class AntBuilderTest extends TestCase {
 
     public void testGetAntLogAsElement() throws CruiseControlException {
         Element buildLogElement = new Element("build");
-        File logFile = new File("_tempAntLog.xml");
+        File logFile = new File(TestUtil.getTargetDir(), "_tempAntLog.xml");
         filesToDelete.add(logFile);
         IO.write(logFile,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
@@ -298,13 +290,13 @@ public class AntBuilderTest extends TestCase {
 
         assertEquals(
                 buildLogElement.toString(),
-                AntBuilder.getAntLogAsElement(logFile).toString());
+                builder.getAntLogAsElement(logFile).toString());
     }
 
     public void testGetAntLogAsElement_NoLogFile() {
         File doesNotExist = new File("blah blah blah does not exist");
         try {
-            AntBuilder.getAntLogAsElement(doesNotExist);
+            builder.getAntLogAsElement(doesNotExist);
             fail();
         } catch (CruiseControlException expected) {
             assertEquals("ant logfile " + doesNotExist.getAbsolutePath() + " does not exist.", expected.getMessage());
@@ -312,7 +304,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        File buildFile = File.createTempFile("testbuild", ".xml");
+        File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
         writeBuildFile(buildFile);
         filesToDelete.add(buildFile);
 
@@ -331,7 +323,7 @@ public class AntBuilderTest extends TestCase {
         assertEquals(2, initCount);
     }
 
-    private void writeBuildFile(File buildFile) throws CruiseControlException {
+    private static void writeBuildFile(File buildFile) throws CruiseControlException {
         StringBuffer contents = new StringBuffer();
         contents.append("<project name='testbuild' default='init'>");
         contents.append("<target name='init'><echo message='called testbulid.xml init target'/></target>");
@@ -354,7 +346,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-        File buildFile = File.createTempFile("testbuild", ".xml");
+        File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
         writeBuildFile(buildFile);
         filesToDelete.add(buildFile);
 
@@ -543,7 +535,7 @@ public class AntBuilderTest extends TestCase {
         File htmlJUnitReportFile = new File(tempSubdir, "reports/html/index.html");
         assertTrue("JUnit HTML Report was not created", htmlJUnitReportFile.exists());
     }
-
+    
     private void createFakeProjectInTempDir(File dir, File buildFile) throws CruiseControlException {        
         File srcDir = new File(dir, "src");
         File srcPackageDir = new File(srcDir, "apackage");
