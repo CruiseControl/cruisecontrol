@@ -122,11 +122,6 @@ public class ModificationSet implements Serializable {
         return this.ignoreFiles;
     }
 
-    /** @deprecated * */
-    public void addSourceControl(SourceControl sourceControl) {
-        add(sourceControl);
-    }
-
     public void add(SourceControl sourceControl) {
         sourceControls.add(sourceControl);
     }
