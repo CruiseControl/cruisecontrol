@@ -193,7 +193,6 @@ public class AntBuilder extends Builder {
 
         final File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
-        // only create "antBuilderOutput.log" file if needed.
         final BuildOutputLogger buildOutputConsumer;
         if (showAntOutput) {
             final File antBuilderOutput = new File(workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
@@ -203,7 +202,7 @@ public class AntBuilder extends Builder {
             buildOutputConsumer = null;
         }
 
-        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout, buildOutputConsumer);
+        final boolean scriptCompleted = runScript(script, workingDir, buildOutputConsumer);
 
         final File logFile = new File(antWorkingDir, tempFileName);
         final Element buildLogElement;
@@ -227,6 +226,11 @@ public class AntBuilder extends Builder {
             logFile.delete();
         }
         return buildLogElement;
+    }
+
+    boolean runScript(final AntScript script, final File workingDir, final BuildOutputLogger outputLogger)
+            throws CruiseControlException {
+        return new ScriptRunner().runScript(workingDir, script, timeout, outputLogger);
     }
 
     public Element buildWithTarget(final Map properties, final String buildTarget, final Progress progress)
@@ -431,7 +435,7 @@ public class AntBuilder extends Builder {
       return System.getProperty("java.class.path");
     }
 
-    protected static Element getAntLogAsElement(File file) throws CruiseControlException {
+    protected Element getAntLogAsElement(File file) throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException("ant logfile " + file.getAbsolutePath() + " does not exist.");
         } else if (file.length() == 0) {
