@@ -193,6 +193,9 @@ public class Modification implements Comparable, Serializable {
     public Date modifiedTime;
     public List files = new ArrayList();
 
+    // TODO: after CMSynergyModification$ModifiedObject is an instance of ModifiedFile
+    //    public List<ModifiedFile> files = new ArrayList<ModifiedFile>();
+
     public Modification() {
         this("unknown");
     }
@@ -386,6 +389,8 @@ public class Modification implements Comparable, Serializable {
         return code;
     }
 
+    // TODO: remove this after we have a ModifationSet returning
+    // Modificaitons rather than an Element.
     public void fromElement(Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
