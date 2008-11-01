@@ -333,20 +333,6 @@ public class ModificationSetTest extends TestCase {
         }
     }
 
-    public void testSetIgnoreFiles() {
-
-        final String correctPattern = "*.txt,dir1/*/file*.txt";
-        try {
-            modSet.setIgnoreFiles(correctPattern);
-        } catch (CruiseControlException e) {
-            fail("Exception while setting pattern");
-        }
-
-        final List globPatterns = modSet.getIgnoreFiles();
-        assertEquals("The number of parsed patterns is not correct", 2, globPatterns.size());
-
-    }
-
     public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
         final List modifications = new ArrayList();
 
