@@ -3495,7 +3495,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         </div>
 
         <p>Triggers a build if tasks have been added to any folder within a
-           CM Synergy project's reconfigure properties since the last build.</p>
+           CM Synergy project's reconfigure properties since the last build.
+           If used to check for modifications to a System Testing or
+           Insulated Development project, this will also check for any 
+           completed tasks included in the latest baseline for
+           the projects release value since the last build.</p>
 
         <h3>Attributes</h3>
 
