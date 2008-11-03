@@ -42,6 +42,10 @@ BuildStatus
 ---------------------
 * Add attribute 'vetoIfFailing'. Will abort the build if the project being monitored had the last build fail (CC-842).
 
+CMSynergy
+---------------------
+* Allow reconfiguring of "system testing", "insulated development" purpose-based projects. Patch by David Corley
+
 CompositeBuilder
 ---------------------
 * Improve processing of build results to make it faster with large log files (CC-826). Patch by David Webster.

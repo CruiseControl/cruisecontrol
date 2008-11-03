@@ -517,7 +517,35 @@ public class CMSynergy implements SourceControl {
         // Note that the format used to submit commands differs from the
         // format used in the results of that command!?!
         SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
+        boolean isBaselineBasedProject = false;
+        
+        // Determine if the project has a System Testing purpose
+        cmd.clearArgs();
+        cmd.createArgument("prop");
+        cmd.createArgument("-p");
+        cmd.createArgument(projectFourPartName);
+        cmd.createArgument("-f");
+        cmd.createArgument("%purpose");
+        try {
+            cmd.execute();
+        } catch (Exception e) {
+            String message = "Could not query for new tasks.";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
+        }
 
+        // Determine if the project is either of a System Testing or
+        // Insulated Development purpose. If it is, set the appropriate flag
+        if (cmd.getStdoutAsString().startsWith("System Testing")) {
+            isBaselineBasedProject = true;
+        } else if (cmd.getStdoutAsString().startsWith("Insulated Development")) {
+            isBaselineBasedProject = true;
+        }
+        
+        // get the release of the project
+        String release = getProjectRelease(projectFourPartName);
+        String latestBaseline = getLatestBaseline(release);
+        
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument("query");
@@ -532,16 +560,32 @@ public class CMSynergy implements SourceControl {
                 "%task_synopsis" + CCM_END_OBJECT); // 4
 
         // Construct the query string
-        if (useBindTime) {
+        if ((useBindTime & (!isBaselineBasedProject))) {
                 cmd.createArgument(
                         "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName
                                 + "'), '>', time('"
                                 + toCcmDate.format(lastBuild) + "'))");
-        } else {
+        } else if ((!isBaselineBasedProject)) {
                 cmd.createArgument(
                         "is_task_in_folder_of(is_folder_in_rp_of('" + projectFourPartName
                                 + "')) and completion_date>time('"
                                 + toCcmDate.format(lastBuild) + "')");
+        } else if ((useBindTime & isBaselineBasedProject)) {
+                cmd.createArgument(
+                        "is_task_in_baseline_of('" + latestBaseline
+                        + "'), '>', time('"
+                        + toCcmDate.format(lastBuild) 
+                        + "') or is_task_in_folder_of(is_folder_in_rp_of('" 
+                        + projectFourPartName + "'), '>', time('"
+                        + toCcmDate.format(lastBuild) + "'))");
+        } else {
+                cmd.createArgument(
+                        "is_task_in_baseline_of('" + latestBaseline 
+                        + "') and completion_date>time('"
+                        + toCcmDate.format(lastBuild) 
+                        + "') or is_task_in_folder_of(is_folder_in_rp_of('" 
+                        + projectFourPartName + "')) and completion_date>time('"
+                        + toCcmDate.format(lastBuild) + "')");
         }
 
         // Execute the command
@@ -582,6 +626,73 @@ public class CMSynergy implements SourceControl {
         }
 
         return modificationList;
+    }
+    
+    /**
+     * Get the latest baseline name for a given release value
+     * @param release
+     *     The release value for which to find the latest baseline
+     * @return The name of the latest Synergy baseline for the supplied release value
+     */
+    
+    private String getLatestBaseline(String release) {
+        String baseline = new String();
+        String nextBaseline = new String();
+        // The format used for converting Java dates into CM Synergy dates
+        // Note that the format used to submit commands differs from the
+        // format used in the results of that command!?!
+        SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
+
+        // Construct the CM Synergy command
+        cmd.clearArgs();
+        cmd.createArgument("query");
+        cmd.createArgument("-u");
+        cmd.createArgument("-ns");
+        
+        // Set up the output format
+        cmd.createArgument("-f");
+        cmd.createArgument("%objectname");
+
+        // Construct the query string
+        cmd.createArgument("status='published_baseline' and release='" + release + "'");
+
+        // Execute the command
+        try {
+            cmd.execute();
+        } catch (Exception e) {
+            String message = "Could not query for latest baseline";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
+        }
+        String baselineString = cmd.getStdoutAsString();
+        String[] baselineList = baselineString.split("\r\n|\r|\n");
+        return baselineList[baselineList.length - 1].trim();
+    }
+    
+    /**
+     * Get the Synergy Release value for a given project
+     * @param projectFourPartName
+     *      The project whose release you wish to obtain
+     * @return The release value for the given project
+     */
+    
+    private String getProjectRelease(String projectFourPartName) {
+        
+        cmd.clearArgs();
+        cmd.createArgument("prop");
+        cmd.createArgument("-p");
+        cmd.createArgument(projectFourPartName);
+        cmd.createArgument("-f");
+        cmd.createArgument("%release");
+        try {
+            cmd.execute();
+        } catch (Exception e) {
+            String message = "Could not get project release";
+            LOG.error(message, e);
+            throw new OpperationFailedException(message, e);
+        }
+        String[] release = cmd.getStdoutAsString().split("\r\n|\r|\n");
+        return release[0].trim();
     }
 
     /**
