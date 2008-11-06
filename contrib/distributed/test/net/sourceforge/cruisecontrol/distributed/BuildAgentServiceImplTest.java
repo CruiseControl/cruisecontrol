@@ -1033,8 +1033,8 @@ public class BuildAgentServiceImplTest extends TestCase {
             }
         }
 
-        public Element build(Map properties, Progress progress) {
-            final String projectName = (String) properties.get(PropertiesHelper.PROJECT_NAME);
+        public Element build(final Map<String, String> properties, final Progress progress) {
+            final String projectName = properties.get(PropertiesHelper.PROJECT_NAME);
 
             final boolean isBuildFailure = TEST_PROJECT_FAIL.equals(projectName);
 

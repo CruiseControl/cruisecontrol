@@ -122,13 +122,13 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         masterBuilder.add(nestedBuilder);
 
         try {
-            masterBuilder.build(new HashMap(), null);
+            masterBuilder.build(new HashMap<String, String>(), null);
             fail("Missing projectname property should have failed.");
         } catch (CruiseControlException e) {
             assertEquals(DistributedMasterBuilder.MSG_MISSING_PROJECT_NAME, e.getMessage());
         }
 
-        final Map projectProperties = new HashMap();
+        final Map<String, String> projectProperties = new HashMap<String, String>();
         projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
         try {
             masterBuilder.build(projectProperties, null);
