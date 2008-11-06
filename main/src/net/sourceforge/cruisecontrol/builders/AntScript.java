@@ -82,9 +82,9 @@ public class AntScript implements Script, StreamConsumer {
 
     private boolean isWindows;
     private String antScript;
-    private List args;
-    private List libs;
-    private List listeners;
+    private List<AntBuilder.JVMArg> args;
+    private List<AntBuilder.Lib> libs;
+    private List<AntBuilder.Listener> listeners;
     private String loggerClassName;
     private boolean isLoggerClassNameSet;
     private boolean showAntOutput;
@@ -95,7 +95,7 @@ public class AntScript implements Script, StreamConsumer {
     private boolean useDebug;
     private boolean keepGoing;
     private String buildFile = "build.xml";
-    private List properties;
+    private List<Property> properties;
     private String target = "";
     private String systemClassPath;
     private int exitCode;
@@ -110,7 +110,7 @@ public class AntScript implements Script, StreamConsumer {
      * @throws CruiseControlException on unquotable attributes
      */
     public Commandline buildCommandline() throws CruiseControlException {
-        Commandline cmdLine = new Commandline();
+        final Commandline cmdLine = new Commandline();
 
         if (useScript) {
             cmdLine.setExecutable(antScript);
@@ -120,15 +120,15 @@ public class AntScript implements Script, StreamConsumer {
             } else {
                 cmdLine.setExecutable("java");
             }
-            for (Iterator argsIterator = args.iterator(); argsIterator.hasNext(); ) {
-                String arg = ((AntBuilder.JVMArg) argsIterator.next()).getArg();
+            for (final AntBuilder.JVMArg jvmArg : args) {
+                final String arg = jvmArg.getArg();
                 // empty args may break the command line
                 if (arg != null && arg.length() > 0) {
                     cmdLine.createArgument(arg);
                 }
             }
 
-            final List classpathItems = getClasspathItems(systemClassPath, isWindows);
+            final List<String> classpathItems = getClasspathItems(systemClassPath, isWindows);
             final String antLauncherJarLocation = getAntLauncherJarLocation(systemClassPath, classpathItems);
             cmdLine.createArguments("-classpath", antLauncherJarLocation);
             cmdLine.createArgument("org.apache.tools.ant.launch.Launcher");
@@ -190,24 +190,23 @@ public class AntScript implements Script, StreamConsumer {
             cmdLine.createArgument("-keep-going");
         }
 
-        for (Iterator antLibsIterator = libs.iterator(); antLibsIterator.hasNext(); ) {
-            cmdLine.createArguments("-lib", ((AntBuilder.Lib) antLibsIterator.next()).getSearchPath());
+        for (final AntBuilder.Lib lib : libs) {
+            cmdLine.createArguments("-lib", lib.getSearchPath());
         }
 
-        for (Iterator antListenersIterator = listeners.iterator(); antListenersIterator.hasNext(); ) {
-            cmdLine.createArguments("-listener", ((AntBuilder.Listener) antListenersIterator.next()).getClassName());
+        for (final AntBuilder.Listener listener : listeners) {
+            cmdLine.createArguments("-listener", listener.getClassName());
         }
 
-        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
-            Map.Entry property = (Map.Entry) propertiesIter.next();
-            String value = (String) property.getValue();
+        for (final Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
+            final Map.Entry property = (Map.Entry) propertiesIter.next();
+            final String value = (String) property.getValue();
             if (!"".equals(value)) {
                 cmdLine.createArgument("-D" + property.getKey() + "=" + value);
             }
         }
 
-        for (Iterator antPropertiesIterator = properties.iterator(); antPropertiesIterator.hasNext(); ) {
-            Property property = (Property) antPropertiesIterator.next();
+        for (final Property property : properties) {
             cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
@@ -217,7 +216,7 @@ public class AntScript implements Script, StreamConsumer {
 
         cmdLine.createArguments("-buildfile", buildFile);
 
-        StringTokenizer targets = new StringTokenizer(target);
+        final StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument(targets.nextToken());
         }
@@ -230,7 +229,7 @@ public class AntScript implements Script, StreamConsumer {
      * @return the path to ant-launcher*.jar taken from the given path
      * @throws CruiseControlException if path to ant-launcher.jar could not be found.
      */
-    String getAntLauncherJarLocation(String path, boolean isWindows) throws CruiseControlException {
+    String getAntLauncherJarLocation(final String path, final boolean isWindows) throws CruiseControlException {
         return getAntLauncherJarLocation(path, getClasspathItems(path, isWindows));
     }
 
@@ -240,10 +239,10 @@ public class AntScript implements Script, StreamConsumer {
      * @return the path to ant-launcher*.jar taken from the given path
      * @throws CruiseControlException if path to ant-launcher.jar could not be found.
      */
-    private String getAntLauncherJarLocation(String path, List classpathItems)
+    private String getAntLauncherJarLocation(final String path, final List<String> classpathItems)
         throws CruiseControlException {
-        for (Iterator iterator = classpathItems.iterator(); iterator.hasNext();) {
-            final String pathElement = (String) iterator.next();
+
+        for (final String pathElement : classpathItems) {
             if (pathElement.indexOf("ant-launcher") != -1 && pathElement.endsWith(".jar")) {
                 return pathElement;
             }
@@ -256,8 +255,8 @@ public class AntScript implements Script, StreamConsumer {
      * @param isWindows true if running on Windows
      * @return a List containing each element in the classpath
      */
-    List getClasspathItems(String path, boolean isWindows) {
-        List ret = new ArrayList();
+    List<String> getClasspathItems(final String path, final boolean isWindows) {
+        final List<String> ret = new ArrayList<String>();
         final String separator = getSeparator(isWindows);
         final StringTokenizer pathTokenizer = new StringTokenizer(path, separator);
         while (pathTokenizer.hasMoreTokens()) {
@@ -274,13 +273,12 @@ public class AntScript implements Script, StreamConsumer {
      * @param isWindows true if running on Windows
      * @return a String containing all the jars in the classpath minus the Saxon jars
      */
-    String removeSaxonJars(List classpathItems, boolean isWindows) {
-        StringBuffer path = new StringBuffer();
+    String removeSaxonJars(final List<String> classpathItems, final boolean isWindows) {
+        final StringBuilder path = new StringBuilder();
 
         final String separator = getSeparator(isWindows);
-        for (Iterator iterator = classpathItems.iterator(); iterator.hasNext();) {
-            String pathElement = (String) iterator.next();
-            File elementFile = new File(pathElement);
+        for (final String pathElement : classpathItems) {
+            final File elementFile = new File(pathElement);
             if (!elementFile.getName().startsWith("saxon")) {
                 if (path.length() > 0) {
                     path.append(separator);
@@ -291,7 +289,7 @@ public class AntScript implements Script, StreamConsumer {
         return path.toString();
     }
     
-    String removeSaxonJars(String path, boolean isWindows) {
+    String removeSaxonJars(final String path, final boolean isWindows) {
         return removeSaxonJars(getClasspathItems(path, isWindows), isWindows);
     }
     
@@ -442,7 +440,7 @@ public class AntScript implements Script, StreamConsumer {
     /**
      * @param args The args to set.
      */
-    public void setArgs(List args) {
+    public void setArgs(final List<AntBuilder.JVMArg> args) {
         this.args = args;
     }
     /**
@@ -499,19 +497,19 @@ public class AntScript implements Script, StreamConsumer {
     /**
      * @param properties The properties to set.
      */
-    public void setProperties(List properties) {
+    public void setProperties(final List<Property> properties) {
         this.properties = properties;
     }
     /**
      * @param libs The set of library paths to use.
      */
-    public void setLibs(List libs) {
+    public void setLibs(final List<AntBuilder.Lib> libs) {
         this.libs = libs;
     }
     /**
      * @param listeners The set of listener classes to use.
      */
-    public void setListeners(List listeners) {
+    public void setListeners(final List<AntBuilder.Listener> listeners) {
         this.listeners = listeners;
     }
     /**

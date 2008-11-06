@@ -80,10 +80,10 @@ public class AntBuilder extends Builder {
     private String antScript;
     private String antHome;
     private boolean useLogger;
-    private final List args = new ArrayList();
-    private final List libs = new ArrayList();
-    private final List listeners = new ArrayList();
-    private final List properties = new ArrayList();
+    private final List<JVMArg> args = new ArrayList<JVMArg>();
+    private final List<Lib> libs = new ArrayList<Lib>();
+    private final List<Listener> listeners = new ArrayList<Listener>();
+    private final List<Property> properties = new ArrayList<Property>();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private boolean keepGoing = false;
@@ -408,25 +408,25 @@ public class AntBuilder extends Builder {
     }
 
     public Object createJVMArg() {
-        JVMArg arg = new JVMArg();
+        final JVMArg arg = new JVMArg();
         args.add(arg);
         return arg;
     }
 
     public Object createLib() {
-        Lib lib = new Lib();
+        final Lib lib = new Lib();
         libs.add(lib);
         return lib;
     }
 
     public Object createListener() {
-        Listener listener = new Listener();
+        final Listener listener = new Listener();
         listeners.add(listener);
         return listener;
     }
 
     public Property createProperty() {
-        Property property = new Property();
+        final Property property = new Property();
         properties.add(property);
         return property;
     }

@@ -304,15 +304,15 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuild() throws Exception {
-        File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
-        writeBuildFile(buildFile);
+        final File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
+        writeBuildFile(buildFile, 0);
         filesToDelete.add(buildFile);
 
         builder.setBuildFile(buildFile.getAbsolutePath());
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         builder.validate();
-        HashMap buildProperties = new HashMap();
+        final HashMap buildProperties = new HashMap();
         Element buildElement = builder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
@@ -323,18 +323,18 @@ public class AntBuilderTest extends TestCase {
         assertEquals(2, initCount);
     }
 
-    private static void writeBuildFile(File buildFile) throws CruiseControlException {
-        StringBuffer contents = new StringBuffer();
+    private static void writeBuildFile(final File buildFile, final int sleepSeconds) throws CruiseControlException {
+        final StringBuilder contents = new StringBuilder();
         contents.append("<project name='testbuild' default='init'>");
         contents.append("<target name='init'><echo message='called testbulid.xml init target'/></target>");
-        contents.append("<target name='time.out'><sleep seconds='10'/></target>");
+        contents.append("<target name='time.out'><sleep seconds='").append(sleepSeconds).append("'/></target>");
         contents.append("</project>");
         IO.write(buildFile, contents.toString());
     }
 
-    private int getInitCount(Element buildElement) {
+    private int getInitCount(final Element buildElement) {
         int initFoundCount = 0;
-        Iterator targetIterator = buildElement.getChildren("target").iterator();
+        final Iterator targetIterator = buildElement.getChildren("target").iterator();
         String name;
         while (targetIterator.hasNext()) {
             name = ((Element) targetIterator.next()).getAttributeValue("name");
@@ -346,23 +346,28 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testBuildTimeout() throws Exception {
-        File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
-        writeBuildFile(buildFile);
+        final File buildFile = File.createTempFile("testbuild", ".xml", TestUtil.getTargetDir());
+        final int buildSleepSecs = 2;
+        writeBuildFile(buildFile, buildSleepSecs);
         filesToDelete.add(buildFile);
 
         builder.setBuildFile(buildFile.getAbsolutePath());
         builder.setTarget("time.out");
-        builder.setTimeout(5);
+        final int testTimeoutSecs = buildSleepSecs / 2;
+        builder.setTimeout(testTimeoutSecs);
         builder.setUseDebug(true);
         builder.setUseLogger(true);
         builder.setShowAntOutput(false); // required to bypass Dashboard logger
         builder.validate();
 
-        HashMap buildProperties = new HashMap();
-        long startTime = System.currentTimeMillis();
+        final HashMap buildProperties = new HashMap();
+        final long startTime = System.currentTimeMillis();
         filesToDelete.add(new File(TestUtil.getTargetDir(), "log.xml"));
         Element buildElement = builder.build(buildProperties, null);
-        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        final long elapsedMillis = System.currentTimeMillis() - startTime;
+        assertTrue("Too much time has elapsed (" + elapsedMillis + " millis) for AntBuilder timeout of "
+                + testTimeoutSecs + " secs.",
+                elapsedMillis < ((testTimeoutSecs + 2) * 1000L));
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
 
         // test we don't fail when there is no ant log file
@@ -548,11 +553,11 @@ public class AntBuilderTest extends TestCase {
         writeSimpleBuildFile(buildFile);
     }
     
-    private void writeSimpleClassFile(File srcPackageDir) throws CruiseControlException {
+    private void writeSimpleClassFile(final File srcPackageDir) throws CruiseControlException {
         srcPackageDir.mkdirs();
-        File simpleClassFile = new File(srcPackageDir, "Simple.java");
+        final File simpleClassFile = new File(srcPackageDir, "Simple.java");
 
-        StringBuffer contents = new StringBuffer();
+        final StringBuilder contents = new StringBuilder();
         contents.append("package apackage;");
         contents.append("public class Simple {");
         contents.append("    public void call() {}");
@@ -560,11 +565,11 @@ public class AntBuilderTest extends TestCase {
         IO.write(simpleClassFile, contents.toString());
     }
     
-    private void writeSimpleTestFile(File testPackageDir) throws CruiseControlException {
+    private void writeSimpleTestFile(final File testPackageDir) throws CruiseControlException {
         testPackageDir.mkdirs();
-        File simpleTestFile = new File(testPackageDir, "SimpleTest.java");
+        final File simpleTestFile = new File(testPackageDir, "SimpleTest.java");
 
-        StringBuffer contents = new StringBuffer();
+        final StringBuilder contents = new StringBuilder();
         contents.append("package apackage;");
         contents.append("import junit.framework.TestCase;");
         contents.append("public class SimpleTest extends TestCase {");
@@ -576,12 +581,12 @@ public class AntBuilderTest extends TestCase {
         IO.write(simpleTestFile, contents.toString());
     }
     
-    private void writeSimpleBuildFile(File buildFile) throws CruiseControlException {
+    private void writeSimpleBuildFile(final File buildFile) throws CruiseControlException {
         /*
          * This compiles the Simple and SimpleTest classes, runs JUnit, and generates a junitreport
          */
 
-        StringBuffer contents = new StringBuffer();
+        final StringBuilder contents = new StringBuilder();
         contents.append("<project name='Simple' basedir='.' default='all'>\n");
         contents.append("    <target name='all'>\n");
         contents.append("         <mkdir dir='build' />\n");
