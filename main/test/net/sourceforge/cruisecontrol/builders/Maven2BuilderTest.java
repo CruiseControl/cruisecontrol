@@ -44,9 +44,9 @@ import org.jdom.Element;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class Maven2BuilderTest extends TestCase {
 
@@ -279,7 +279,7 @@ public class Maven2BuilderTest extends TestCase {
         // this time let's test multiple runs
         mb.setGoal("fakegoal|otherfakegoal");
         // this should "double succeed"
-        logElement = mb.build(new Hashtable(), null);
+        logElement = mb.build(new HashMap<String, String>(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
@@ -358,8 +358,8 @@ public class Maven2BuilderTest extends TestCase {
         assertNotNull(statusType + " missing 'time' attribute", logElement.getAttribute("time"));
     }
 
-    private static Map getUnitTestBuildProperties() {
-        final Map buildProperties = new Hashtable();
+    private static Map<String, String> getUnitTestBuildProperties() {
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         buildProperties.put("cclastbuildtimestamp", "20070614095818");
         buildProperties.put("cclastgoodbuildtimestamp", "20070607114812");
         buildProperties.put("label", "build.11");

@@ -45,8 +45,8 @@ import net.sourceforge.cruisecontrol.util.Util;
 import org.jdom.Element;
 
 import java.io.File;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.HashMap;
 
 public class MavenBuilderTest extends TestCase {
 
@@ -184,7 +184,7 @@ public class MavenBuilderTest extends TestCase {
         // some fake goal is still needed to start working (no '|' here!)
         mb.setGoal("fakegoal");
         // this should "succeed"
-        Element logElement = mb.build(new Hashtable(), null);
+        Element logElement = mb.build(new HashMap<String, String>(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
@@ -202,7 +202,7 @@ public class MavenBuilderTest extends TestCase {
         // this time let's test multiple runs
         mb.setGoal("fakegoal|otherfakegoal");
         // this should "double succeed"
-        logElement = mb.build(new Hashtable(), null);
+        logElement = mb.build(new HashMap<String, String>(), null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
