@@ -365,10 +365,10 @@ public class AntBuilderTest extends TestCase {
         filesToDelete.add(new File(TestUtil.getTargetDir(), "log.xml"));
         Element buildElement = builder.build(buildProperties, null);
         final long elapsedMillis = System.currentTimeMillis() - startTime;
+        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
         assertTrue("Too much time has elapsed (" + elapsedMillis + " millis) for AntBuilder timeout of "
                 + testTimeoutSecs + " secs.",
-                elapsedMillis < ((testTimeoutSecs + 2) * 1000L));
-        assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+                elapsedMillis < ((testTimeoutSecs + 3) * 1000L));
 
         // test we don't fail when there is no ant log file
         builder.setTimeout(1);
