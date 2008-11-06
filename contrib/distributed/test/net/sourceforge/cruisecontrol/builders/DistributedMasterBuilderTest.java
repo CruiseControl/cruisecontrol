@@ -468,7 +468,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             masterBuilder.add(mockBuilder);
             masterBuilder.validate();
             
-            final Map projectProperties = new HashMap();
+            final Map<String, String> projectProperties = new HashMap<String, String>();
             projectProperties.put(PropertiesHelper.PROJECT_NAME, "testProjectName");
 
             final MockProject mockProject = new MockProject();

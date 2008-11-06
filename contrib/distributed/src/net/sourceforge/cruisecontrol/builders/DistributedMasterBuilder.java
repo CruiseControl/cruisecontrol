@@ -88,7 +88,8 @@ public class DistributedMasterBuilder extends Builder {
     private boolean isFailFast;
 
     private String entriesRaw;
-    private Entry[] entries = new Entry[] {};
+    private static final Entry[] EMPTY_ENTRIES = new Entry[] {};
+    private Entry[] entries = EMPTY_ENTRIES;
 
     private String agentLogDir;
     private String agentOutputDir;
@@ -98,7 +99,7 @@ public class DistributedMasterBuilder extends Builder {
 
     private RemoteResult[] remoteResults;
 
-    private final List tmpNestedBuilders = new ArrayList();
+    private final List<Builder> tmpNestedBuilders = new ArrayList<Builder>();
     private Builder nestedBuilder;
 
     private String overrideTarget;
@@ -160,15 +161,15 @@ public class DistributedMasterBuilder extends Builder {
         }
         ValidationHelper.assertHasChild(tmpNestedBuilders.get(0), Builder.class, "ant, maven2, etc.",
                 DistributedMasterBuilder.class);
-        nestedBuilder = (Builder) tmpNestedBuilders.get(0);
+        nestedBuilder = tmpNestedBuilders.get(0);
 
         // In order to support Build Agents who's build tree does not exactly match the Master, only validate
         // the nested builder on the Build Agent (so don't validate it here).
         //nestedBuilder.validate();
 
         if (remoteResults != null) {
-            for (int i = 0; i < remoteResults.length; i++) {
-                remoteResults[i].validate();
+            for (final RemoteResult remoteResult : remoteResults) {
+                remoteResult.validate();
             }
         }
     }
@@ -189,7 +190,7 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     
-    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
         
         final String oldOverideTarget = overrideTarget;
@@ -201,9 +202,11 @@ public class DistributedMasterBuilder extends Builder {
         }
     }
 
-    public Element build(final Map projectProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> projectProperties, final Progress progressIn)
+            throws CruiseControlException {
+
         try {
-            final String projectName = (String) projectProperties.get(PropertiesHelper.PROJECT_NAME);
+            final String projectName = projectProperties.get(PropertiesHelper.PROJECT_NAME);
             if (null == projectName) {
                 throw new CruiseControlException(MSG_MISSING_PROJECT_NAME);
             }
@@ -225,7 +228,7 @@ public class DistributedMasterBuilder extends Builder {
 
             final Element buildResults;
             try {
-                final Map distributedAgentProps = new HashMap();
+                final Map<String, String> distributedAgentProps = new HashMap<String, String>();
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET, overrideTarget);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_LOGDIR, agentLogDir);
                 distributedAgentProps.put(PropertiesHelper.DISTRIBUTED_AGENT_OUTPUTDIR, agentOutputDir);
@@ -364,8 +367,8 @@ public class DistributedMasterBuilder extends Builder {
 
         if (remoteResults != null) {
 
-            for (int i = 0; i < remoteResults.length; i++) {
-                getRemoteResult(agent, workDir, projectName, remoteResults[i]);
+            for (final RemoteResult remoteResult : remoteResults) {
+                getRemoteResult(agent, workDir, projectName, remoteResult);
             }
         }
 
@@ -538,15 +541,15 @@ public class DistributedMasterBuilder extends Builder {
     public Object createRemoteResult() {
         final RemoteResult remoteResult = new RemoteResult(remoteResultIdxCounter++);
 
-        final ArrayList newList;
+        final ArrayList<RemoteResult> newList;
         if (remoteResults != null) {
-            newList = new ArrayList(Arrays.asList(remoteResults));
+            newList = new ArrayList<RemoteResult>(Arrays.asList(remoteResults));
         } else {
-            newList = new ArrayList();
+            newList = new ArrayList<RemoteResult>();
         }
         newList.add(remoteResult);
         
-        remoteResults = (RemoteResult[]) newList.toArray(new RemoteResult[newList.size()]);
+        remoteResults = newList.toArray(new RemoteResult[newList.size()]);
 
         return remoteResult;
     }

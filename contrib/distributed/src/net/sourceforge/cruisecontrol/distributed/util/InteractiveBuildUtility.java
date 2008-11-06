@@ -45,7 +45,7 @@ import java.io.InputStreamReader;
 import java.rmi.RemoteException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+import java.util.HashMap;
 
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.entry.Entry;
@@ -288,7 +288,7 @@ public class InteractiveBuildUtility {
             distributedBuildMaster = (DistributedMasterBuilder) pluginXMLHelper.configure(
                     distributedBuilderElement, DistributedMasterBuilder.class, false);
             XMLOutputter xmlOutputter = new XMLOutputter();
-            xmlOutputter.output(distributedBuildMaster.build(new Properties(), null), System.out);
+            xmlOutputter.output(distributedBuildMaster.build(new HashMap<String, String>(), null), System.out);
         } catch (CruiseControlException e) {
             String message = "Oops...";
             LOG.error(message, e);
@@ -316,8 +316,8 @@ public class InteractiveBuildUtility {
             
             final RemoteResult[] remoteResults = distributedBuildMaster.getRemoteResultsInfo();
             if (remoteResults != null) {
-                for (int i = 0; i < remoteResults.length; i++) {
-                    DistributedMasterBuilder.getRemoteResult(agent, currentDir, "projectInteractive", remoteResults[i]);
+                for (final RemoteResult remoteResult : remoteResults) {
+                    DistributedMasterBuilder.getRemoteResult(agent, currentDir, "projectInteractive", remoteResult);
                 }
             }
             agent.clearOutputFiles();
