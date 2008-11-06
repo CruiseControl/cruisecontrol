@@ -66,7 +66,7 @@ public class AntPublisher extends AbstractAntBuilderDelegate implements Publishe
      */
     public void publish(final Element log) throws CruiseControlException {
 
-        final Map properties = new HashMap();
+        final Map<String, String> properties = new HashMap<String, String>();
 
         populatePropertesForAntBuilder(log, properties);
 
@@ -87,7 +87,7 @@ public class AntPublisher extends AbstractAntBuilderDelegate implements Publishe
     }
 
 
-    void populatePropertesForAntBuilder(final Element log, final Map properties) {
+    void populatePropertesForAntBuilder(final Element log, final Map<String, String> properties) {
         final XMLLogHelper helper = new XMLLogHelper(log);
         if (helper.isBuildSuccessful()) {
             properties.put("thisbuildsuccessful", "true");

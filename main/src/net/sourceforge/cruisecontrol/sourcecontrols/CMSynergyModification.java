@@ -88,7 +88,7 @@ public class CMSynergyModification extends Modification {
     /**
      * A list of change requests associated with this modification
      */
-    public List changeRequests = new ArrayList();
+    public List<ChangeRequest> changeRequests = new ArrayList<ChangeRequest>();
 
     /**
      * Creates a new <code>CMSynergyModification</code> object and sets it's
@@ -162,7 +162,7 @@ public class CMSynergyModification extends Modification {
      *
      * @see net.sourceforge.cruisecontrol.Modification#toElement(java.text.DateFormat)
      */
-    public Element toElement(DateFormat formatter) {
+    public Element toElement(final DateFormat formatter) {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
 
@@ -209,16 +209,13 @@ public class CMSynergyModification extends Modification {
             modificationElement.addContent(emailAddressElement);
         }
 
-        Iterator i = files.iterator();
-        while (i.hasNext()) {
-            ModifiedObject obj = (ModifiedObject) i.next();
-            modificationElement.addContent(obj.toElement(formatter));
+        for (final ModifiedFile file : files) {
+            final ModifiedObject obj = (ModifiedObject) file;
+            modificationElement.addContent(obj.toElement());
         }
 
-        i = changeRequests.iterator();
-        while (i.hasNext()) {
-            ChangeRequest cr = (ChangeRequest) i.next();
-            modificationElement.addContent(cr.toElement(formatter));
+        for (final ChangeRequest cr : changeRequests) {
+            modificationElement.addContent(cr.toElement());
         }
 
         return modificationElement;
@@ -239,15 +236,12 @@ public class CMSynergyModification extends Modification {
         sb.append("Completion Date: ").append(formatter.format(modifiedTime)).append('\n');
         sb.append("Synopsis: ").append(comment).append('\n');
 
-        Iterator i = changeRequests.iterator();
-        while (i.hasNext()) {
-            ChangeRequest cr = (ChangeRequest) i.next();
+        for (final ChangeRequest cr : changeRequests) {
             sb.append("\tChange Request: ").append(cr.number).append('\n');
         }
 
-        i = files.iterator();
-        while (i.hasNext()) {
-            ModifiedObject obj = (ModifiedObject) i.next();
+        for (final ModifiedFile file : files) {
+            ModifiedObject obj = (ModifiedObject) file;
             sb.append("\tAssociated Object: ").append(obj.name).append('\n');
             sb.append("\tVersion: ").append(obj.version).append('\n');
             sb.append("\tType: ").append(obj.type).append('\n');
@@ -265,7 +259,7 @@ public class CMSynergyModification extends Modification {
      *
      * @see net.sourceforge.cruisecontrol.Modification#log(java.text.DateFormat)
      */
-    public void log(DateFormat formatter) {
+    public void log(final DateFormat formatter) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Task Number: " + taskNumber);
             LOG.debug("Owner: " + userName);
@@ -273,15 +267,12 @@ public class CMSynergyModification extends Modification {
             LOG.debug("Completion Date: " + formatter.format(modifiedTime));
             LOG.debug("Synopsis: " + comment);
 
-            Iterator i = changeRequests.iterator();
-            while (i.hasNext()) {
-                ChangeRequest cr = (ChangeRequest) i.next();
+            for (final ChangeRequest cr : changeRequests) {
                 LOG.debug("\tChange Request: " + cr.number + "\n");
             }
 
-            i = files.iterator();
-            while (i.hasNext()) {
-                ModifiedObject obj = (ModifiedObject) i.next();
+            for (final ModifiedFile file : files) {
+                final ModifiedObject obj = (ModifiedObject) file;
                 LOG.debug("\tAssociated Object: " + obj.name);
                 LOG.debug("\tVersion: " + obj.version);
                 LOG.debug("\tType: " + obj.type);
@@ -300,7 +291,7 @@ public class CMSynergyModification extends Modification {
      * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
      *      java.text.DateFormat)
      */
-    public void fromElement(Element modification, DateFormat formatter) {
+    public void fromElement(final Element modification, final DateFormat formatter) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
 
@@ -328,7 +319,7 @@ public class CMSynergyModification extends Modification {
             while (it.hasNext()) {
                 Element modfileElement = (Element) it.next();
                 ModifiedObject modfile = new ModifiedObject();
-                modfile.fromElement(modfileElement, formatter);
+                modfile.fromElement(modfileElement);
                 files.add(modfile);
             }
         }
@@ -340,7 +331,7 @@ public class CMSynergyModification extends Modification {
             while (it.hasNext()) {
                 Element crElement = (Element) it.next();
                 ChangeRequest cr = new ChangeRequest();
-                cr.fromElement(crElement, formatter);
+                cr.fromElement(crElement);
                 changeRequests.add(cr);
             }
         }
@@ -371,7 +362,7 @@ public class CMSynergyModification extends Modification {
      *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
-    public class ModifiedObject {
+    public class ModifiedObject extends Modification.ModifiedFile {
 
         // Let's not deal with possible null values
         public String name = "";
@@ -383,6 +374,7 @@ public class CMSynergyModification extends Modification {
 
         // Only the parent class should call the constructor
         protected ModifiedObject() {
+            super(null, null, null, null);
         }
 
         /*
@@ -391,7 +383,7 @@ public class CMSynergyModification extends Modification {
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
          *      java.text.DateFormat)
          */
-        public Element toElement(DateFormat formatter) {
+        public Element toElement() {
             Element element = new Element(TAGNAME_OBJECT);
 
             Element nameElement = new Element(TAGNAME_NAME);
@@ -434,7 +426,7 @@ public class CMSynergyModification extends Modification {
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
          *      java.text.DateFormat)
          */
-        public void fromElement(Element modification, DateFormat formatter) {
+        public void fromElement(Element modification) {
             name = modification.getChildText(TAGNAME_NAME);
             version = modification.getChildText(TAGNAME_VERSION);
             type = modification.getChildText(TAGNAME_TYPE);
@@ -466,7 +458,7 @@ public class CMSynergyModification extends Modification {
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
          *      java.text.DateFormat)
          */
-        public Element toElement(DateFormat formatter) {
+        public Element toElement() {
             Element element = new Element(TAGNAME_CHANGEREQUEST);
 
             if (href != null) {
@@ -489,7 +481,7 @@ public class CMSynergyModification extends Modification {
          * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
          *      java.text.DateFormat)
          */
-        public void fromElement(Element modification, DateFormat formatter) {
+        public void fromElement(Element modification) {
             Element linkElement = modification.getChild(TAGNAME_HTML_LINK);
             if (linkElement != null) {
                 href = linkElement.getAttributeValue(TAGNAME_HTML_LINK_HREF);

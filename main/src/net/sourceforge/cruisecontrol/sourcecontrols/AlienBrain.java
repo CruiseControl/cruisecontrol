@@ -81,7 +81,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
     /**
      * Any properties that have been set in this sourcecontrol.
      */
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
     
@@ -101,8 +101,8 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      *@param  now
      *@return List of Modification objects
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List mods = new ArrayList();
+    public List<Modification> getModifications(Date lastBuild, Date now) {
+        List<Modification> mods = new ArrayList<Modification>();
         try {
             validate();
             mods = getModificationsFromAlienBrain(lastBuild, now);
@@ -163,7 +163,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      *@param  lastBuild
      *@param  now
      */
-    protected List getModificationsFromAlienBrain(Date lastBuild, Date now)
+    protected List<Modification> getModificationsFromAlienBrain(Date lastBuild, Date now)
         throws IOException, CruiseControlException {
 
         if (getBranch() != null) {
@@ -181,8 +181,8 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      * Turn a stream containing the results of running the AlienBrain
      * command-line client into a list of Modifications.
      */
-    protected List parseModifications(List modifications) {
-        List mods = new ArrayList();
+    protected List<Modification> parseModifications(List modifications) {
+        final List<Modification> mods = new ArrayList<Modification>();
 
         for (Iterator it = modifications.iterator(); it.hasNext(); ) {
             String line = (String) it.next();

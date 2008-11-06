@@ -10,10 +10,10 @@ public class SourceControlProperties implements Serializable {
     
     private String property;
     private String propertyOnDelete;
-    private Map properties = new HashMap();
+    private Map<String, String> properties = new HashMap<String, String>();
 
-    public Map getPropertiesAndReset() {
-        Map lvalue = new HashMap();
+    public Map<String, String> getPropertiesAndReset() {
+        final Map<String, String> lvalue = new HashMap<String, String>();
         lvalue.putAll(properties);
         properties.clear();
         return lvalue;
@@ -43,7 +43,7 @@ public class SourceControlProperties implements Serializable {
         properties.put(key, value);
     }
 
-    public void putAll(Map moreProperties) {
+    public void putAll(Map<String, String> moreProperties) {
         properties.putAll(moreProperties);
     }
 }
