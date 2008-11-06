@@ -65,7 +65,6 @@ public class RakeBuilder extends Builder {
     private String workingDir = null;
     private String buildFile = "rakefile.rb";
     private String target = "";
-    private String args;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
 
@@ -82,7 +81,9 @@ public class RakeBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
+            throws CruiseControlException {
+        
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -96,15 +97,14 @@ public class RakeBuilder extends Builder {
         final RakeScript script = this.getRakeScript();
         script.setBuildLogHeader(buildLogElement);
         script.setWindows(Util.isWindows());
-        script.setArgs(args);
         script.setBuildFile(buildFile);
         script.setTarget(target);
         script.setProgress(progress);
         long startTime = System.currentTimeMillis();
 
-        File workDir = workingDir != null ? new File(workingDir) : null;
+        final File workDir = workingDir != null ? new File(workingDir) : null;
         final boolean scriptCompleted = new ScriptRunner().runScript(workDir, script, timeout);
-        long endTime = System.currentTimeMillis();
+        final long endTime = System.currentTimeMillis();
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
@@ -119,7 +119,8 @@ public class RakeBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(final Map properties, final String buildTarget, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
+                                   final Progress progress)
             throws CruiseControlException {
         
         final String origTarget = target;

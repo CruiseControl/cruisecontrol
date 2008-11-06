@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -50,8 +49,8 @@ import net.sourceforge.cruisecontrol.util.Commandline;
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
 public class NantScript implements Script {
-    private Map buildProperties;
-    private List nantProperties;
+    private Map<String, String> buildProperties;
+    private List<Property> nantProperties;
 
     private String loggerClassName;
     private String tempFileName = "log.xml";
@@ -93,15 +92,13 @@ public class NantScript implements Script {
             cmdLine.createArgument("-t:" + targetFramework);
         }
 
-        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext();) {
-            Map.Entry property = (Map.Entry) propertiesIter.next();
-            String value = (String) property.getValue();
+        for (final Map.Entry property : buildProperties.entrySet()) {
+            final String value = (String) property.getValue();
             if (!"".equals(value)) {
                 cmdLine.createArgument("-D:" + property.getKey() + "=" + value);
             }
         }
-        for (Iterator nantPropertiesIterator = nantProperties.iterator(); nantPropertiesIterator.hasNext(); ) {
-            Property property = (Property) nantPropertiesIterator.next();
+        for (final Property property : nantProperties) {
             cmdLine.createArgument("-D:" + property.getName() + "=" + property.getValue());
         }
 
@@ -122,11 +119,11 @@ public class NantScript implements Script {
     /**
      * @param buildProperties The buildProperties to set.
      */
-    public void setBuildProperties(Map buildProperties) {
+    public void setBuildProperties(Map<String, String> buildProperties) {
         this.buildProperties = buildProperties;
     }
 
-    public void setNantProperties(List properties) {
+    public void setNantProperties(List<Property> properties) {
         this.nantProperties = properties;
     }
 
