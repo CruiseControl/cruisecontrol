@@ -40,9 +40,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class ModificationKey {
-    private String comment;
+    private final String comment;
 
-    private String user;
+    private final String user;
 
     private static final int HASH_SEED = 31;
 

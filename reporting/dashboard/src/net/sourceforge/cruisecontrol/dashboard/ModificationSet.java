@@ -43,12 +43,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ModificationSet {
-    private Map store = new LinkedHashMap();
 
-    public void add(String type, String user, String comment, String revision, ModificationAction action,
-            String filename) {
-        ModificationKey key = new ModificationKey(comment, user);
-        Modification modification = null;
+    private final Map<ModificationKey, Modification> store = new LinkedHashMap<ModificationKey, Modification>();
+
+    public void add(final String type, final String user, final String comment, final String revision,
+                    final ModificationAction action, final String filename) {
+
+        final ModificationKey key = new ModificationKey(comment, user);
+        final Modification modification;
         if (!store.containsKey(key)) {
             modification = new Modification();
             modification.type = type;
@@ -56,12 +58,12 @@ public class ModificationSet {
             modification.comment = comment;
             store.put(key, modification);
         } else {
-            modification = (Modification) store.get(key);
+            modification = store.get(key);
         }
         modification.files.add(new Modification.ModifiedFile(filename, revision, "", action.toString()));
     }
 
-    public Collection getModifications() {
+    public Collection<Modification> getModifications() {
         return store.values();
     }
 }

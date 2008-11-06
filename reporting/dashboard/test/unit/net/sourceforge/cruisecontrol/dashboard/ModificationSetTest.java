@@ -47,31 +47,31 @@ import net.sourceforge.cruisecontrol.Modification;
 public class ModificationSetTest extends TestCase {
 
     public void testShouldGroupModificationsByCommentAndUser() {
-        ModificationSet set = new ModificationSet();
+        final ModificationSet set = new ModificationSet();
 
-        String firstUser = "Boris";
-        String secondUser = "Norman";
+        final String firstUser = "Boris";
+        final String secondUser = "Norman";
 
-        String initialCheckinComment = "Initial Checkin";
+        final String initialCheckinComment = "Initial Checkin";
         set.add("cvs", firstUser, initialCheckinComment, "1.2", ModificationAction.ADD, "somefile.xml");
         set.add("cvs", firstUser, initialCheckinComment, "1.3", ModificationAction.MODIFIED, "anotherfile.xml");
         set.add("cvs", secondUser, initialCheckinComment, "1.4", ModificationAction.ADD, "anotherfile.xml");
 
-        Collection modifications = set.getModifications();
+        final Collection<Modification> modifications = set.getModifications();
 
         assertEquals(2, modifications.size());
 
-        Iterator iterator = modifications.iterator();
-        Modification firstChangeSet = (Modification) iterator.next();
+        final Iterator<Modification> iterator = modifications.iterator();
+        final Modification firstChangeSet = iterator.next();
 
         assertEquals("cvs", firstChangeSet.type);
         assertEquals(initialCheckinComment, firstChangeSet.comment);
 
-        List files = firstChangeSet.getModifiedFiles();
+        final List<Modification.ModifiedFile> files = firstChangeSet.getModifiedFiles();
         assertEquals(2, files.size());
 
-        Modification.ModifiedFile firstFile = (Modification.ModifiedFile) files.get(0);
-        Modification.ModifiedFile secondFile = (Modification.ModifiedFile) files.get(1);
+        final Modification.ModifiedFile firstFile = files.get(0);
+        final Modification.ModifiedFile secondFile = files.get(1);
 
         assertEquals("somefile.xml", firstFile.fileName);
         assertEquals("1.2", firstFile.revision);
