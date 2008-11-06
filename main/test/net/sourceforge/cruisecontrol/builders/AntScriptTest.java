@@ -37,8 +37,9 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
 
@@ -54,7 +55,7 @@ public class AntScriptTest extends TestCase {
     private AntScript script;
     private AntBuilder unixBuilder;
     private AntBuilder windowsBuilder;
-    private Hashtable properties;
+    private Map<String, String> properties;
     private static final boolean USE_LOGGER = true;
     private static final boolean USE_SCRIPT = true;
     private static final boolean IS_WINDOWS = true;
@@ -113,7 +114,7 @@ public class AntScriptTest extends TestCase {
         script = new AntScript();
 
 
-        properties = new Hashtable();
+        properties = new HashMap<String, String>();
         properties.put("label", "200.1.23");
 
         // default setup of script

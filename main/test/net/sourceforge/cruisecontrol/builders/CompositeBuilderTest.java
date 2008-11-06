@@ -133,7 +133,7 @@ public class CompositeBuilderTest extends TestCase {
         final Element buildLogSuccess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
 
         builder = new CompositeBuilder();
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         MockBuilder mock1 = new MockBuilder("builder1");
         MockBuilder mock2 = new MockBuilder("builder2");
 
@@ -155,7 +155,7 @@ public class CompositeBuilderTest extends TestCase {
         final Element buildLogSucess = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_SUCCESS);
 
         builder = new CompositeBuilder();
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         MockBuilder mock1 = new MockBuilder("builder1");
         MockBuilder mock2 = new MockBuilder("builder2");
 
@@ -183,7 +183,7 @@ public class CompositeBuilderTest extends TestCase {
         final Element buildLogFailed = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_FAILED);
 
         builder = new CompositeBuilder();
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         MockBuilder mock1 = new MockBuilder("builder1");
         MockBuilder mock2WithError = new MockBuilder("builder2-Fail");
         MockBuilder mock3NotRun = new MockBuilder("builder3-NotRun");
@@ -213,7 +213,7 @@ public class CompositeBuilderTest extends TestCase {
         final Element buildLogFailed = CruiseControlConfigIncludeTest.elementFromString(BUILD_LOG_TXT_FAILED);
 
         builder = new CompositeBuilder();
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         MockBuilder mock1 = new MockBuilder("builder1");
         MockBuilder mock2WithError = new MockBuilder("builder2-Fail");
         MockBuilder mock3NotRun = new MockBuilder("builder3-NotRun");
@@ -318,7 +318,7 @@ public class CompositeBuilderTest extends TestCase {
         final int timeoutSecs = 1;
         builder.setTimeout(timeoutSecs);
         final MockBuilder mock1 = new MockBuilder("builder1-timeout") {
-            public Element build(final Map properties, final Progress progress) {
+            public Element build(final Map<String, String> properties, final Progress progress) {
                 final Element result = super.build(properties, progress);
 
                 // wait for longer than timeout
