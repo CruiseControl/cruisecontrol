@@ -40,6 +40,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -78,7 +79,7 @@ public class NantBuilderTest extends TestCase {
 
     // process that times out...
     static class TimeoutProcess extends MockProcess {
-        private long timeoutMillis;
+        private final long timeoutMillis;
         TimeoutProcess(long timeoutMillis) {
             this.timeoutMillis = timeoutMillis;
         }
@@ -240,7 +241,7 @@ public class NantBuilderTest extends TestCase {
         mybuilder.setBuildFile("test.build");
         mybuilder.setTempFile("notLog.xml");
         mybuilder.setTarget("init");
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         Element buildElement = mybuilder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
@@ -309,7 +310,7 @@ public class NantBuilderTest extends TestCase {
         mybuilder.setUseDebug(true);
         mybuilder.setUseLogger(true);
 
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         long startTime = System.currentTimeMillis();
         Element buildElement = mybuilder.build(buildProperties, null);
         assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);

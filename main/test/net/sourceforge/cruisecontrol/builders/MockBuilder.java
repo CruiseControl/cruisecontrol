@@ -70,7 +70,7 @@ public class MockBuilder extends Builder {
         this.name = name;
     }
 
-    public Element build(final Map properties, final Progress progress) {
+    public Element build(final Map<String, String> properties, final Progress progress) {
         buildCalled = true;
         if (progress != null) {
             progress.setValue("Build called");
@@ -82,7 +82,7 @@ public class MockBuilder extends Builder {
         this.buildLog = buildLog;
     }
 
-    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
         
         this.target = target;
