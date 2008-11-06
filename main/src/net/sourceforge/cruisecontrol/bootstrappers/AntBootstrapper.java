@@ -59,7 +59,7 @@ public class AntBootstrapper extends AbstractAntBuilderDelegate implements Boots
      * @see net.sourceforge.cruisecontrol.Bootstrapper#bootstrap()
      */
     public void bootstrap() throws CruiseControlException {
-        final Element result = getDelegate().build(new HashMap(), null);
+        final Element result = getDelegate().build(new HashMap<String, String>(), null);
         if (result == null) {
             throw new CruiseControlException("Build returned null.  Bootstrap failed.");
         } else {

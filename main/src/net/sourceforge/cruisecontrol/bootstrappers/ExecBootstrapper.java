@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.bootstrappers;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -68,9 +67,8 @@ public class ExecBootstrapper implements Bootstrapper {
 
     public void bootstrap() throws CruiseControlException {
 
-        final Map properties = new HashMap();
         // Run ExecuteBuilder
-        final Element result = delegate.build(properties, null);
+        final Element result = delegate.build(new HashMap<String, String>(), null);
         if (result == null) {
             LOG.error("ExecBootstrapper failed.\n\n");
             throw new CruiseControlException("ExecBootstrapper failed with null result");
