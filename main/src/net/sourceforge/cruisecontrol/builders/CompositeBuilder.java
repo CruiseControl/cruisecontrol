@@ -20,7 +20,7 @@ public class CompositeBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(CompositeBuilder.class);
 
-    private final List builders = new ArrayList();
+    private final List<Builder> builders = new ArrayList<Builder>();
 
     private long startTime = 0;
     private long timeoutSeconds = ScriptRunner.NO_TIMEOUT;
@@ -133,13 +133,14 @@ public class CompositeBuilder extends Builder {
         return (buildResult.getAttribute("error") == null);
     }
 
-    public Element build(final Map properties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> properties, final Progress progressIn)
+            throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
-        final Iterator iter = builders.iterator();
+        final Iterator<Builder> iter = builders.iterator();
 
         int i = 0;
         final int totalBuilders = builders.size();
@@ -153,7 +154,7 @@ public class CompositeBuilder extends Builder {
                 progress.setValue(buildlogMsgPrefix);
             }
 
-            final Builder builder = (Builder) iter.next();
+            final Builder builder = iter.next();
             startChild();
             final Element buildResult = builder.build(properties, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult,
@@ -165,14 +166,14 @@ public class CompositeBuilder extends Builder {
         return compositeBuildResult;
     }
 
-    public Element buildWithTarget(final Map properties, final String target, final Progress progressIn)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progressIn)
             throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
         boolean errorOcurred = false;
         final Element compositeBuildResult = new Element("build");
-        final Iterator iter = builders.iterator();
+        final Iterator<Builder> iter = builders.iterator();
 
         int i = 0;
         final int totalBuilders = builders.size();
@@ -186,7 +187,7 @@ public class CompositeBuilder extends Builder {
                 progress.setValue(buildlogMsgPrefix);
             }
 
-            final Builder builder = (Builder) iter.next();
+            final Builder builder = iter.next();
             startChild();
             final Element buildResult = builder.buildWithTarget(properties, target, progress);
             errorOcurred = processBuildResult(buildResult, compositeBuildResult,
@@ -204,16 +205,14 @@ public class CompositeBuilder extends Builder {
         super.validate();
 
         // validate all child builders
-        final Iterator iter = builders.iterator();
-        while (iter.hasNext()) {
-            final Builder builder = (Builder) iter.next();
+        for (final Builder builder : builders) {
             builder.validate();
         }
     }
 
     /** @return array of the builders in this composite. */
     public Builder[] getBuilders() {
-        return (Builder[]) builders.toArray(new Builder[builders.size()]);
+        return builders.toArray(new Builder[builders.size()]);
     }
 
 

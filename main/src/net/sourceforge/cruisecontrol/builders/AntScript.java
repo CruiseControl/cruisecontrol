@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -78,7 +77,7 @@ public class AntScript implements Script, StreamConsumer {
      */
     static final String MSG_PREFIX_ANT_PROGRESS = "ccAntProgress -- ";
 
-    private Map buildProperties;
+    private Map<String, String> buildProperties;
 
     private boolean isWindows;
     private String antScript;
@@ -198,8 +197,7 @@ public class AntScript implements Script, StreamConsumer {
             cmdLine.createArguments("-listener", listener.getClassName());
         }
 
-        for (final Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
-            final Map.Entry property = (Map.Entry) propertiesIter.next();
+        for (final Map.Entry property : buildProperties.entrySet()) {
             final String value = (String) property.getValue();
             if (!"".equals(value)) {
                 cmdLine.createArgument("-D" + property.getKey() + "=" + value);
@@ -399,7 +397,7 @@ public class AntScript implements Script, StreamConsumer {
     /**
      * @param buildProperties The buildProperties to set.
      */
-    public void setBuildProperties(Map buildProperties) {
+    public void setBuildProperties(final Map<String, String> buildProperties) {
         this.buildProperties = buildProperties;
     }
 

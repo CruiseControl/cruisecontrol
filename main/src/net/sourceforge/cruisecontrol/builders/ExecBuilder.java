@@ -90,7 +90,8 @@ public class ExecBuilder extends Builder {
     /**
      * execute the command and return the results as XML
      */
-    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
+            throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
@@ -191,7 +192,7 @@ public class ExecBuilder extends Builder {
     }
 
 
-    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
 
         final String origArgs = args;

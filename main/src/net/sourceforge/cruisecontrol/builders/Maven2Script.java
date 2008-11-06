@@ -34,9 +34,9 @@ public final class Maven2Script implements Script, StreamConsumer {
     private final String settingsFile;
     private final String flags;
     private final Element buildLogElement; //Log to store result of the execution for CC
-    private Map buildProperties;
+    private Map<String, String> buildProperties;
     private final String activateProfiles;
-    private List properties;
+    private List<Property> properties;
     private final Progress progress;
 
     private int exitCode;
@@ -109,10 +109,8 @@ public final class Maven2Script implements Script, StreamConsumer {
             }
         }
 
-        Iterator propertiesIterator = buildProperties.keySet().iterator();
-        while (propertiesIterator.hasNext()) {
-            final String key = (String) propertiesIterator.next();
-            final String value = (String) buildProperties.get(key);
+        for (final String key : buildProperties.keySet()) {
+            final String value = buildProperties.get(key);
             if (value.indexOf(' ') == -1) {
                 cmdLine.createArgument("-D" + key + "=" + value);
             } else {
@@ -130,18 +128,16 @@ public final class Maven2Script implements Script, StreamConsumer {
             }
         }
 
-        for (Iterator propsIterator = properties.iterator(); propsIterator.hasNext(); ) {
-            Property property = (Property) propsIterator.next();
+        for (final Property property : properties) {
             cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
 
         //If log is enabled, log the command line
         if (LOG.isDebugEnabled()) {
-            StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append("Executing Command: ");
-            String[] args = cmdLine.getCommandline();
-            for (int i = 0; i < args.length; i++) {
-                String arg = args[i];
+            final String[] args = cmdLine.getCommandline();
+            for (final String arg : args) {
                 sb.append(arg);
                 sb.append(" ");
             }
@@ -254,7 +250,7 @@ public final class Maven2Script implements Script, StreamConsumer {
     /**
      * @param buildProperties The buildProperties to set.
      */
-    public void setBuildProperties(Map buildProperties) {
+    public void setBuildProperties(final Map<String, String> buildProperties) {
         this.buildProperties = buildProperties;
     }
     /**
@@ -278,7 +274,7 @@ public final class Maven2Script implements Script, StreamConsumer {
     /**
      * @param properties The properties to set.
      */
-    public void setProperties(List properties) {
+    public void setProperties(final List<Property> properties) {
         this.properties = properties;
     }
 

@@ -39,7 +39,7 @@ public class Maven2Builder extends Builder {
     private String activateProfiles;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private String flags;
-    private final List properties = new ArrayList();
+    private final List<Property> properties = new ArrayList<Property>();
 
     /**
      * Set an Alternate path for the user settings file.
@@ -109,7 +109,7 @@ public class Maven2Builder extends Builder {
     }
 
     public Property createProperty() {
-        Property property = new Property();
+        final Property property = new Property();
         properties.add(property);
         return property;
     }
@@ -161,7 +161,8 @@ public class Maven2Builder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
+            throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
@@ -177,10 +178,8 @@ public class Maven2Builder extends Builder {
 
         Element buildLogElement = new Element("build");
 
-        final List goalSets = getGoalSets();
-        for (int i = 0; i < goalSets.size(); i++) {
-
-            final String goals = (String) goalSets.get(i);
+        final List<String> goalSets = getGoalSets();
+        for (final String goals : goalSets) {
 
             final Maven2Script script = new Maven2Script(this, buildLogElement, goals, progress);
             script.setBuildProperties(buildProperties);
@@ -222,7 +221,7 @@ public class Maven2Builder extends Builder {
                         + "; Check the 'pomfile' attribute: " + pomFile);
     }
 
-    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
 
         final String origGoal = goal;
@@ -240,13 +239,13 @@ public class Maven2Builder extends Builder {
      *
      * @return a List containing String elements
      */
-    List getGoalSets() {
+    List<String> getGoalSets() {
 
-        List list = new ArrayList();
+        final List<String> list = new ArrayList<String>();
         if (goal != null) {
-            StringTokenizer stok = new StringTokenizer(goal, "|");
+            final StringTokenizer stok = new StringTokenizer(goal, "|");
             while (stok.hasMoreTokens()) {
-                String subSet = stok.nextToken().trim();
+                final String subSet = stok.nextToken().trim();
                 if (subSet == null || subSet.length() == 0) {
                     continue;
                 }

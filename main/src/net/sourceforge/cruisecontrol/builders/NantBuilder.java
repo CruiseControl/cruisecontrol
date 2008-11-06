@@ -60,7 +60,7 @@ public class NantBuilder extends Builder {
     private String target = "";
     private String tempFileName = "log.xml";
     private boolean useLogger;
-    private final List properties = new ArrayList();
+    private final List<Property> properties = new ArrayList<Property>();
     private boolean useDebug = false;
     private boolean useQuiet = false;
     private String loggerClassName = DEFAULT_LOGGER;
@@ -85,10 +85,11 @@ public class NantBuilder extends Builder {
      * Build and return the results via xml. Debug status can be determined from
      * log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progress)
+            throws CruiseControlException {
 
-        File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
-        NantScript script = getNantScript();
+        final File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
+        final NantScript script = getNantScript();
         script.setBuildFile(buildFile);
         script.setBuildProperties(buildProperties);
         script.setNantProperties(properties);
@@ -101,14 +102,14 @@ public class NantBuilder extends Builder {
         script.setUseLogger(useLogger);
         script.setUseQuiet(useQuiet);
 
-        long startTime = System.currentTimeMillis();
+        final long startTime = System.currentTimeMillis();
 
-        ScriptRunner scriptRunner = new ScriptRunner();
-        boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
-        long endTime = System.currentTimeMillis();
+        final ScriptRunner scriptRunner = new ScriptRunner();
+        final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+        final long endTime = System.currentTimeMillis();
 
-        File logFile = new File(nantWorkingDir, tempFileName);
-        Element buildLogElement;
+        final File logFile = new File(nantWorkingDir, tempFileName);
+        final Element buildLogElement;
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
@@ -124,10 +125,11 @@ public class NantBuilder extends Builder {
         return element;
     }
 
-    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
+                                   final Progress progress)
             throws CruiseControlException {
         
-        String origTarget = target;
+        final String origTarget = target;
         try {
             target = buildTarget;
             return build(properties, progress);
@@ -241,7 +243,7 @@ public class NantBuilder extends Builder {
     }
 
     public Property createProperty() {
-        Property property = new Property();
+        final Property property = new Property();
         properties.add(property);
         return property;
     }

@@ -79,7 +79,9 @@ public class PhingBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(Map buildProperties, Progress progress) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progress)
+            throws CruiseControlException {
+        
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -87,7 +89,7 @@ public class PhingBuilder extends Builder {
 
         validateBuildFileExists();
 
-        PhingScript script = new PhingScript();
+        final PhingScript script = new PhingScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
         script.setUseLogger(useLogger);
@@ -99,12 +101,12 @@ public class PhingBuilder extends Builder {
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
 
-        File workingDir = phingWorkingDir != null ? new File(phingWorkingDir) : null;
+        final File workingDir = phingWorkingDir != null ? new File(phingWorkingDir) : null;
 
-        boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
+        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
 
-        File logFile = new File(phingWorkingDir, tempFileName);
-        Element buildLogElement;
+        final File logFile = new File(phingWorkingDir, tempFileName);
+        final Element buildLogElement;
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
             buildLogElement = new Element("build");
@@ -126,10 +128,11 @@ public class PhingBuilder extends Builder {
         return buildLogElement;
     }
     
-    public Element buildWithTarget(Map properties, String buildTarget, Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
+                                   final Progress progress)
             throws CruiseControlException {
         
-        String origTarget = target;
+        final String origTarget = target;
         try {
             target = buildTarget;
             return build(properties, progress);

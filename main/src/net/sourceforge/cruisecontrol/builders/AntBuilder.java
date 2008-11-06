@@ -157,7 +157,9 @@ public class AntBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
+            throws CruiseControlException {
+        
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -233,7 +235,8 @@ public class AntBuilder extends Builder {
         return new ScriptRunner().runScript(workingDir, script, timeout, outputLogger);
     }
 
-    public Element buildWithTarget(final Map properties, final String buildTarget, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
+                                   final Progress progress)
             throws CruiseControlException {
         
         final String origTarget = target;

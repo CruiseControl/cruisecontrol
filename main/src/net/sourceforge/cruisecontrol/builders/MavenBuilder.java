@@ -103,9 +103,8 @@ public class MavenBuilder extends Builder {
 
         Element buildLogElement = new Element("build");
 
-        final List runs = getGoalSets();
-        for (int runidx = 0; runidx < runs.size(); runidx++) {
-            String goalset = (String) runs.get(runidx);
+        final List<String> runs = getGoalSets();
+        for (final String goalset : runs) {
             final MavenScript script = new MavenScript(buildLogElement, progress);
             script.setGoalset(goalset);
             script.setBuildProperties(buildProperties);
@@ -139,7 +138,7 @@ public class MavenBuilder extends Builder {
         return buildLogElement;
     }
 
-    public Element buildWithTarget(final Map properties, final String target, final Progress progress)
+    public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
 
         final String origGoal = goal;
@@ -190,12 +189,12 @@ public class MavenBuilder extends Builder {
      *
      * @return a List containing String elements
      */
-    protected List getGoalSets() {
-        List al = new ArrayList();
+    protected List<String> getGoalSets() {
+        final List<String> al = new ArrayList<String>();
         if (goal != null) {
-            StringTokenizer stok = new StringTokenizer(goal, "|");
+            final StringTokenizer stok = new StringTokenizer(goal, "|");
             while (stok.hasMoreTokens()) {
-                String subSet = stok.nextToken().trim();
+                final String subSet = stok.nextToken().trim();
                 if (subSet == null || subSet.length() == 0) {
                     continue;
                 }

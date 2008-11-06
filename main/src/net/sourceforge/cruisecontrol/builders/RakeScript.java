@@ -55,7 +55,6 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
 public class RakeScript implements Script, StreamConsumer {
 
     private boolean isWindows;
-    private String args;
     private String buildFile = null;
     private String target = "";
     private Progress progress;
@@ -81,12 +80,6 @@ public class RakeScript implements Script, StreamConsumer {
              //does this work for *nix? Needs to be tested.
              cmdLine.setExecutable("rake");
          }
-         if (args != null) {
-             StringTokenizer stok = new StringTokenizer(args, " \t\r\n");
-             while (stok.hasMoreTokens()) {
-                 cmdLine.createArgument().setValue(stok.nextToken());
-             }
-         }
 
         if (buildFile != null) {
             cmdLine.createArgument().setValue("-f");
@@ -106,13 +99,6 @@ public class RakeScript implements Script, StreamConsumer {
      */
     public void setBuildLogHeader(Element buildLogElement) {
         this.buildLogElement = buildLogElement;
-    }
-
-    /**
-     * @param args The args to set.
-     */
-    public void setArgs(String args) {
-        this.args = args;
     }
 
     /**
