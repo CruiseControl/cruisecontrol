@@ -43,13 +43,13 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.HashMap;
 
 public class MockSourceControl implements SourceControl {
 
     private int version;
-    private final Hashtable properties = new Hashtable();
+    private final Map<String, String> properties = new HashMap<String, String>();
     private String property = null;
     private String propertyOnDelete = null;
 
@@ -69,7 +69,7 @@ public class MockSourceControl implements SourceControl {
         this.propertyOnDelete = propertyOnDelete;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
@@ -80,8 +80,8 @@ public class MockSourceControl implements SourceControl {
     public void validate() throws CruiseControlException {
     }
 
-    public List getModifications(Date lastBuild, Date now) {
-        ArrayList result = new ArrayList();
+    public List<Modification> getModifications(Date lastBuild, Date now) {
+        final ArrayList<Modification> result = new ArrayList<Modification>();
 
         if (version == 1) {
             //build up a couple Modification objects

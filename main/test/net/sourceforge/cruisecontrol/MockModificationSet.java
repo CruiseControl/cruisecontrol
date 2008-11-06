@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol;
 import org.jdom.Element;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 
 public class MockModificationSet extends ModificationSet {
 
@@ -60,8 +62,8 @@ public class MockModificationSet extends ModificationSet {
         modified = isModified;
     }
 
-    public java.util.Hashtable getProperties() {
-        java.util.Hashtable table = new java.util.Hashtable();
+    public Map<String, String> getProperties() {
+        final Map<String, String> table = new HashMap<String, String>();
         table.put("filemodified", "true");
         table.put("fileremoved", "true");
         return table;

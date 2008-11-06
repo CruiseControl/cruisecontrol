@@ -43,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -79,14 +78,14 @@ public class ModificationSetTest extends TestCase {
         Modification modInFuture = new Modification();
         modInFuture.modifiedTime = DateUtil.parseFormattedTime("30020731150000", "testIsLastModificationInQuietPeriod");
 
-        List mods1 = new ArrayList();
+        final List<Modification> mods1 = new ArrayList<Modification>();
         mods1.add(mod1);
         mods1.add(mod2);
 
-        List mods2 = new ArrayList();
+        final List<Modification> mods2 = new ArrayList<Modification>();
         mods2.add(mod1);
 
-        List hasModInFuture = new ArrayList();
+        final List<Modification> hasModInFuture = new ArrayList<Modification>();
         hasModInFuture.add(mod1);
         hasModInFuture.add(mod2);
         hasModInFuture.add(modInFuture);
@@ -106,7 +105,7 @@ public class ModificationSetTest extends TestCase {
         Modification mod2 = new Modification();
         mod2.modifiedTime = DateUtil.parseFormattedTime("20020621140100", "testGetLastModificationMillis");
 
-        List mods1 = new ArrayList();
+        final List<Modification> mods1 = new ArrayList<Modification>();
         mods1.add(mod2);
         mods1.add(mod1);
 
@@ -120,10 +119,10 @@ public class ModificationSetTest extends TestCase {
         Modification mod2 = new Modification();
         mod2.modifiedTime = DateUtil.parseFormattedTime("20020621140100", "testGetQuietPeriodDifference");
 
-        List mods1 = new ArrayList();
+        final List<Modification> mods1 = new ArrayList<Modification>();
         mods1.add(mod1);
 
-        List mods2 = new ArrayList();
+        final List<Modification> mods2 = new ArrayList<Modification>();
         mods2.add(mod2);
 
         modSet.setQuietPeriod(5);
@@ -231,14 +230,14 @@ public class ModificationSetTest extends TestCase {
         Modification.ModifiedFile mod2file = mod1.createModifiedFile("file4", "dir4");
         mod2file.action = "Checkin";
 
-        final List<Modification> result = new ArrayList();
+        final List<Modification> result = new ArrayList<Modification>();
         result.add(mod1);
         result.add(mod2);
 
         assertEquals(mod1.modifiedTime.getTime(), modSet.getLastModificationMillis(result));
 
         modSet.add(new MockSourceControl() {
-            public List getModifications(Date lastBuild, Date now) {
+            public List<Modification> getModifications(Date lastBuild, Date now) {
                 return result;
             }
         });
@@ -268,7 +267,7 @@ public class ModificationSetTest extends TestCase {
         // care about the
         // date
 
-        Hashtable table = modSet.getProperties();
+        Map<String, String> table = modSet.getProperties();
         assertNotNull("Properties shouldn't be null.", table);
         assertEquals("Properties should be empty.", 0, table.size());
 
@@ -334,7 +333,7 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testFilterIgnoredFiles() throws CruiseControlException, ParseException {
-        final List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
 
         final Modification mod1 = new Modification();
         mod1.type = "Checkin";
@@ -368,7 +367,7 @@ public class ModificationSetTest extends TestCase {
         modSet.filterIgnoredModifications(modifications);
         assertEquals("No modification have been filtered out", 2, modifications.size());
 
-        final List expectedModifications = new ArrayList();
+        final List<Modification> expectedModifications = new ArrayList<Modification>();
         expectedModifications.add(mod1);
         expectedModifications.add(mod2);
 
@@ -376,7 +375,7 @@ public class ModificationSetTest extends TestCase {
     }
 
     public void testFilterIgnoredFilesInMultipleSubdirectories() throws CruiseControlException, ParseException {
-        final List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
 
         final Modification mod1 = new Modification();
         mod1.type = "Checkin";
@@ -414,7 +413,7 @@ public class ModificationSetTest extends TestCase {
      * Tests ignoring files when multiple files exist in the modification sets.
      */
     public void testFilterIgnoredFilesMultipleFiles() throws CruiseControlException, ParseException {
-        final List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
 
         final Modification mod1 = new Modification();
         mod1.type = "Checkin";
@@ -446,7 +445,7 @@ public class ModificationSetTest extends TestCase {
         modSet.filterIgnoredModifications(modifications);
         assertEquals("Incorrect number of modifications were filtered out", 2, modifications.size());
 
-        final List expectedModifications = new ArrayList();
+        final List<Modification> expectedModifications = new ArrayList<Modification>();
         expectedModifications.add(mod2);
         expectedModifications.add(mod3);
 
@@ -456,8 +455,8 @@ public class ModificationSetTest extends TestCase {
     public void testGetPropertiesReturnsGreatestValue() {
         MockSourceControl sc = new MockSourceControl() {
             @Override
-            public Map getProperties() {
-                Map properties = new HashMap();
+            public Map<String, String> getProperties() {
+                Map<String, String> properties = new HashMap<String, String>();
                 properties.put("rev", "1");
                 properties.put("name", "able");
                 properties.put("date", "01/01/01");
@@ -472,8 +471,8 @@ public class ModificationSetTest extends TestCase {
 
         sc = new MockSourceControl() {
             @Override
-            public Map getProperties() {
-                Map properties = new HashMap();
+            public Map<String, String> getProperties() {
+                Map<String, String> properties = new HashMap<String, String>();
                 properties.put("rev", "10");
                 properties.put("name", "charlie");
                 properties.put("date", "10/10/10");
@@ -488,8 +487,8 @@ public class ModificationSetTest extends TestCase {
         
         sc = new MockSourceControl() {
             @Override
-            public Map getProperties() {
-                Map properties = new HashMap();
+            public Map<String, String> getProperties() {
+                Map<String, String> properties = new HashMap<String, String>();
                 properties.put("rev", "5");
                 properties.put("name", "baker");
                 properties.put("date", "05/05/05");

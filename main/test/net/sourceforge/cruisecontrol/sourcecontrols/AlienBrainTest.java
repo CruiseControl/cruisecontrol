@@ -83,10 +83,10 @@ public class AlienBrainTest extends TestCase {
     public void testProperty() {
         AlienBrain ab = new AlienBrain() {
 
-            protected List getModificationsFromAlienBrain(Date lastBuild, Date now)
+            protected List<Modification> getModificationsFromAlienBrain(Date lastBuild, Date now)
               throws IOException, CruiseControlException {
-                List mods = new ArrayList();
-                mods.add("modification");
+                List<Modification> mods = new ArrayList<Modification>();
+                mods.add(new Modification("modification"));
                 return mods;
             }
             
@@ -168,19 +168,18 @@ public class AlienBrainTest extends TestCase {
         //therefore each modified file results in a modification containing
         //one file.
         assertEquals(1, m.files.size());
-        assertEquals("/a/path/to/a/file.cpp",
-            ((Modification.ModifiedFile) (m.files.get(0))).fileName);
+        assertEquals("/a/path/to/a/file.cpp", m.files.get(0).fileName);
     }
 
     /**
      * Returns a file as a List of Strings, one String per line.
      */
-    private List loadTestLog(String name) throws IOException {
+    private List<String> loadTestLog(String name) throws IOException {
         InputStream testStream = getClass().getResourceAsStream(name);
         assertNotNull("failed to load resource " + name + " in class "
             + getClass().getName(), testStream);
 
-        List lines = new ArrayList();
+        List<String> lines = new ArrayList<String>();
         String line;
         BufferedReader reader = new BufferedReader(new InputStreamReader(testStream));
         while ((line = reader.readLine()) != null) {
@@ -195,7 +194,7 @@ public class AlienBrainTest extends TestCase {
 
         AlienBrain ab = new AlienBrain();
 
-        List modifications = ab.parseModifications(results);
+        final List<Modification> modifications = ab.parseModifications(results);
 
         assertEquals(
             "Returned wrong number of modifications.",
@@ -205,35 +204,35 @@ public class AlienBrainTest extends TestCase {
         SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yyyy HH:mm:ss z");
         assertEquals("Wrong modification time",
             dateFormat.parse("4/19/2005 16:51:55 -0400"),
-            ((Modification) modifications.get(0)).modifiedTime);
+            modifications.get(0).modifiedTime);
 
         assertEquals("Wrong path",
             "/FooProject/Code/Vehicles/Src/Position.cpp",
-            ((Modification.ModifiedFile) (((Modification) modifications.get(0)).files.get(0))).fileName);
+            modifications.get(0).files.get(0).fileName);
 
         assertEquals("Wrong user",
             "User 1",
-            ((Modification) modifications.get(0)).userName);
+            modifications.get(0).userName);
 
         assertEquals("Wrong comment",
             "Passenger Animatoin",
-            ((Modification) modifications.get(0)).comment);
+            modifications.get(0).comment);
 
         assertEquals("Wrong modification time",
             dateFormat.parse("5/7/2005 7:44:45 -0400"),
-            ((Modification) modifications.get(6)).modifiedTime);
+            modifications.get(6).modifiedTime);
 
         assertEquals("Wrong path",
             "/FooProject/Code/Vehicles/Src/Materialnfo.cpp",
-            ((Modification.ModifiedFile) (((Modification) modifications.get(6)).files.get(0))).fileName);
+            modifications.get(6).files.get(0).fileName);
 
         assertEquals("Wrong user",
             "User 1",
-            ((Modification) modifications.get(6)).userName);
+            modifications.get(6).userName);
 
         assertEquals("Wrong comment",
             "Import from 2004",
-            ((Modification) modifications.get(6)).comment);
+            modifications.get(6).comment);
     }
 
     /**
@@ -243,7 +242,7 @@ public class AlienBrainTest extends TestCase {
 
         AlienBrain ab = new AlienBrain();
 
-        List modifications = ab.parseModifications(results);
+        final List<Modification> modifications = ab.parseModifications(results);
         assertEquals(0, modifications.size());
     }
 
