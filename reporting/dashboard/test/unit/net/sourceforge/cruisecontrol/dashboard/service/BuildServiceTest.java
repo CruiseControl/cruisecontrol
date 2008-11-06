@@ -126,21 +126,21 @@ public class BuildServiceTest extends MockObjectTestCase {
     }
 
     public void testCanReadModificationsFromLogFile() throws Exception {
-        BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getPassingBuildLbuildAsFile());
-        ModificationSet modificationSet = build.getModificationSet();
+        final BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getPassingBuildLbuildAsFile());
+        final ModificationSet modificationSet = build.getModificationSet();
 
-        Collection modifications = modificationSet.getModifications();
+        final Collection<Modification> modifications = modificationSet.getModifications();
         assertEquals(2, modifications.size());
-        Modification modification = (Modification) modifications.iterator().next();
+        final Modification modification = modifications.iterator().next();
 
         assertEquals("cvs", modification.type);
         assertEquals("story123 project name changed to cache", modification.comment);
         assertEquals("readcb", modification.userName);
 
-        List files = modification.getModifiedFiles();
+        final List<Modification.ModifiedFile> files = modification.getModifiedFiles();
         assertEquals(1, files.size());
 
-        Modification.ModifiedFile firstFile = (Modification.ModifiedFile) files.get(0);
+        final Modification.ModifiedFile firstFile = files.get(0);
 
         assertEquals(ModificationAction.MODIFIED, ModificationAction.fromDisplayName(firstFile.action));
         assertEquals("build.xml", firstFile.fileName);

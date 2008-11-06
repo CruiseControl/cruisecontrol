@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.dashboard.web.command;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Modification;
@@ -56,9 +55,9 @@ import org.joda.time.DateTime;
 public class BuildCommand {
     public static final String CSS_LEVEL = "level";
 
-    private Build build;
+    private final Build build;
 
-    private Map jsonParams = new HashMap();
+    private final Map jsonParams = new HashMap();
 
     private static final int MILLI_SECOND_TO_SECOND = 1000;
 
@@ -77,12 +76,11 @@ public class BuildCommand {
     }
 
     public Collection getModifications() {
-        Collection modificationCmds = new ArrayList();
-        ModificationSet modificationSet = build.getModificationSet();
+        final Collection<ModificationCommand> modificationCmds = new ArrayList<ModificationCommand>();
+        final ModificationSet modificationSet = build.getModificationSet();
         if (modificationSet != null) {
-            Collection modifications = modificationSet.getModifications();
-            for (Iterator iterator = modifications.iterator(); iterator.hasNext();) {
-                Modification modification = (Modification) iterator.next();
+            final Collection<Modification> modifications = modificationSet.getModifications();
+            for (final Modification modification : modifications) {
                 modificationCmds.add(new ModificationCommand(modification, storyTracker));
             }
         }

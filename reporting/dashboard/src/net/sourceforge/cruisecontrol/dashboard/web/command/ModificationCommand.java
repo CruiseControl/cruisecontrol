@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ModificationCommand {
-    private Modification modification;
+    private final Modification modification;
 
     private final StoryTracker storyTracker;
 
@@ -81,15 +81,15 @@ public class ModificationCommand {
     }
 
     public Map toJsonData() {
-        Map data = new HashMap();
+        final Map<String, Object> data = new HashMap<String, Object>();
         data.put("type", modification.getType());
         data.put("user", modification.getUserName());
         data.put("comment", getComment());
         data.put("modifiedtime", new Long(modification.getModifiedTime().getTime()));
-        ArrayList files = new ArrayList();
+        final ArrayList<Map> files = new ArrayList<Map>();
         for (int i = 0; i < modification.files.size(); i++) {
-            Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(i);
-            Map fileMap = new HashMap();
+            final Modification.ModifiedFile file = modification.files.get(i);
+            final Map<String, Object> fileMap = new HashMap<String, Object>();
             fileMap.put("filename", file.getFileName());
             fileMap.put("revision", file.getRevision());
             fileMap.put("folder", file.getFolderName());
