@@ -728,25 +728,25 @@ public class ProjectTest extends TestCase {
     }
 
     public void testGetProjectPropertiesMap() throws CruiseControlException {
-        String label = "labeL.1";
+        final String label = "labeL.1";
         project.setLabel(label);
-        String lastBuild = "20000101120000";
+        final String lastBuild = "20000101120000";
         project.setLastBuild(lastBuild);
-        String lastGoodBuild = "19990101120000";
+        final String lastGoodBuild = "19990101120000";
         project.setLastSuccessfulBuild(lastGoodBuild);
         project.setWasLastBuildSuccessful(true);
-        TimeZone cest = TimeZone.getTimeZone("Europe/Copenhagen");
-        Calendar now = new GregorianCalendar(cest);
+        final TimeZone cest = TimeZone.getTimeZone("Europe/Copenhagen");
+        final Calendar now = new GregorianCalendar(cest);
         now.set(2005, Calendar.AUGUST, 10, 13, 7, 43);
-        String cvstimestamp = "2005-08-10 11:07:43 GMT";
+        final String cvstimestamp = "2005-08-10 11:07:43 GMT";
 
         projectConfig.add(new MockSchedule());
         project.init();
 
         // The returned time is dependent on the default timezone hence
         // the use of DateUtil.getFormattedTime()
-        String cctimestamp = DateUtil.getFormattedTime(now.getTime());
-        Map map = project.getProjectPropertiesMap(now.getTime());
+        final String cctimestamp = DateUtil.getFormattedTime(now.getTime());
+        final Map<String, String> map = project.getProjectPropertiesMap(now.getTime());
 
         assertEquals(label, map.get("label"));
         assertEquals(cctimestamp, map.get("cctimestamp"));
@@ -859,10 +859,10 @@ public class ProjectTest extends TestCase {
         /*
          * This is to simulate what happens when the config file changes during a build.
          */
-        public Element build(Map properties, Progress progress) {
-            ProjectConfig newProjectConfig = new ProjectConfig();
+        public Element build(final Map<String, String> properties, final Progress progress) {
+            final ProjectConfig newProjectConfig = new ProjectConfig();
             newProjectConfig.add(new DefaultLabelIncrementer());
-            Schedule schedule = new Schedule();
+            final Schedule schedule = new Schedule();
             schedule.add(new MockBuilder());
             newProjectConfig.add(schedule);
             newProjectConfig.add(new MockLog());
