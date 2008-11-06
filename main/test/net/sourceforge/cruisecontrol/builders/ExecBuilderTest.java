@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -194,7 +193,7 @@ public class ExecBuilderTest extends TestCase {
                 eb.setErrorStr(MOCK_OUTPUT_FAILURE);
             }
             eb.validate();
-            logElement = eb.build(new Hashtable(), null);
+            logElement = eb.build(new HashMap<String, String>(), null);
         } catch (CruiseControlException e) {
             e.printStackTrace();
             fail("ExecBuilder should not throw exceptions when build()-ing.");
@@ -254,13 +253,13 @@ public class ExecBuilderTest extends TestCase {
       } // makeTestFile
 
     public void testArgumentsShouldHavePropertySubstituion() throws CruiseControlException {
-        MockExecScript script = new MockExecScript();
-        ExecBuilder builder = new TestExecBuilder(script);
+        final MockExecScript script = new MockExecScript();
+        final ExecBuilder builder = new TestExecBuilder(script);
         builder.setCommand("cmd");
         builder.setArgs("${label}");
         builder.validate();
 
-        Map buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         buildProperties.put("label", "foo");
         builder.build(buildProperties, null);
         
@@ -269,7 +268,7 @@ public class ExecBuilderTest extends TestCase {
     
     private class TestExecBuilder extends ExecBuilder {
 
-        private MockExecScript script;
+        private final MockExecScript script;
 
         public TestExecBuilder(MockExecScript script) {
             this.script = script;

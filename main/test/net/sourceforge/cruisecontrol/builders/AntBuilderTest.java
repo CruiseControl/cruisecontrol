@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -312,7 +313,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         builder.validate();
-        final HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         Element buildElement = builder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
@@ -360,7 +361,7 @@ public class AntBuilderTest extends TestCase {
         builder.setShowAntOutput(false); // required to bypass Dashboard logger
         builder.validate();
 
-        final HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         final long startTime = System.currentTimeMillis();
         filesToDelete.add(new File(TestUtil.getTargetDir(), "log.xml"));
         Element buildElement = builder.build(buildProperties, null);
@@ -533,7 +534,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("all");
         builder.setTempFile("notLog.xml");
         builder.validate();
-        HashMap buildProperties = new HashMap();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
         builder.build(buildProperties, null);
 
         //Now verify a JUnit report was created
