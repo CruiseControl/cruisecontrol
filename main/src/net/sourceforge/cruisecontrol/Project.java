@@ -180,7 +180,7 @@ public class Project implements Serializable, Runnable {
 
         try {
             setBuildStartTime(new Date());
-            Schedule schedule = projectConfig.getSchedule();
+            final Schedule schedule = projectConfig.getSchedule();
             if (schedule == null) {
                 throw new IllegalStateException("project must have a schedule");
             }
@@ -193,26 +193,28 @@ public class Project implements Serializable, Runnable {
             // @todo Add Progress param to Bootstrapper API?
             bootstrap();
 
-            String target = useAndResetBuildTargetIfBuildWasForced(buildWasForced);
+            final String target = useAndResetBuildTargetIfBuildWasForced(buildWasForced);
 
             // @todo Add Progress param to ModificationSet API?
             // getModifications will only return null if we don't need to build
-            Element modifications = getModifications(buildWasForced);
+            final Element modifications = getModifications(buildWasForced);
 
             if (modifications == null) {
                 return;
             }
 
             // Using local reference to avoid NPE if config.xml is updated during build
-            Log buildLog = projectConfig.getLog();
+            final Log buildLog = projectConfig.getLog();
 
             buildLog.addContent(modifications);
 
-            Date now = new Date();
+            final Date now;
             if (projectConfig.getModificationSet() != null
                     && projectConfig.getModificationSet().getTimeOfCheck() != null) {
 
                 now = projectConfig.getModificationSet().getTimeOfCheck();
+            } else {
+                now = new Date();
             }
 
             if (getLabelIncrementer().isPreBuildIncrementer()) {
@@ -223,8 +225,8 @@ public class Project implements Serializable, Runnable {
             buildLog.addContent(getProjectPropertiesElement(now));
 
             setState(ProjectState.BUILDING);
-            Element builderLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now), target,
-                    progress);
+            final Element builderLog = schedule.build(buildCounter, lastBuild, now, getProjectPropertiesMap(now),
+                    target, progress);
 
             buildLog.addContent(builderLog.detach());
 
@@ -705,8 +707,8 @@ public class Project implements Serializable, Runnable {
         parent.addContent(propertyElement);
     }
 
-    protected Map getProjectPropertiesMap(Date now) {
-        Map buildProperties = new HashMap();
+    protected Map<String, String> getProjectPropertiesMap(final Date now) {
+        Map<String, String> buildProperties = new HashMap<String, String>();
 
         buildProperties.put("projectname", name);
 
