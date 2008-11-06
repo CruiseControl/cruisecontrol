@@ -61,7 +61,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * @return the log resulting from executing the build
      * @throws CruiseControlException if something breaks
      */
-    public abstract Element build(Map properties, Progress progress) throws CruiseControlException;
+    public abstract Element build(Map<String, String> properties, Progress progress) throws CruiseControlException;
     /**
      * Execute a build with the given target.
      * @param properties build properties
@@ -70,7 +70,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * @return the log resulting from executing the build
      * @throws CruiseControlException if something breaks
      */
-    public abstract Element buildWithTarget(Map properties, String target, Progress progress)
+    public abstract Element buildWithTarget(Map<String, String> properties, String target, Progress progress)
             throws CruiseControlException;
 
     public void validate() throws CruiseControlException {

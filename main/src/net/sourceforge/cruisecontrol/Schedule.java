@@ -45,7 +45,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -75,8 +74,8 @@ public class Schedule implements Serializable {
     static final long MAX_INTERVAL_SECONDS = 60 * 60 * 24 * 365;
     static final long MAX_INTERVAL_MILLISECONDS = MAX_INTERVAL_SECONDS * 1000;
 
-    private final List builders = new ArrayList();
-    private final List pauseBuilders = new ArrayList();
+    private final List<Builder> builders = new ArrayList<Builder>();
+    private final List<PauseBuilder> pauseBuilders = new ArrayList<PauseBuilder>();
     private long interval = 300 * ONE_SECOND;
 
     private boolean showProgress = true;
@@ -84,15 +83,15 @@ public class Schedule implements Serializable {
     /** date formatting for time statements */
     private final DateFormat timeFormatter = new SimpleDateFormat("HH:mm");
 
-    private Comparator<Builder> builderComparator = new BuilderComparitor();
+    private final Comparator<Builder> builderComparator = new BuilderComparitor();
 
-    public void add(Builder builder) {
+    public void add(final Builder builder) {
         checkParamNotNull("builder", builder);
         builders.add(builder);
         Collections.sort(builders, builderComparator);
     }
 
-    public void add(PauseBuilder pause) {
+    public void add(final PauseBuilder pause) {
         checkParamNotNull("pauseBuilder", pause);
         pauseBuilders.add(pause);
     }
@@ -121,19 +120,17 @@ public class Schedule implements Serializable {
      *            the <code>PauseBuilder</code> to be considered.
      * @return a String representing the time following the end time of the <code>PauseBuilder</code>.
      */
-    private String getEndTimeString(PauseBuilder builder) {
-        Calendar cal = Calendar.getInstance();
+    private String getEndTimeString(final PauseBuilder builder) {
+        final Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, builder.getEndTime() / 100);
         cal.set(Calendar.MINUTE, builder.getEndTime() % 100);
         cal.add(Calendar.MINUTE, 1);
         return timeFormatter.format(cal.getTime());
     }
 
-    PauseBuilder findPause(Date date) {
+    PauseBuilder findPause(final Date date) {
         checkParamNotNull("date", date);
-        Iterator pauseBuilderIterator = pauseBuilders.iterator();
-        while (pauseBuilderIterator.hasNext()) {
-            PauseBuilder pause = (PauseBuilder) pauseBuilderIterator.next();
+        for (final PauseBuilder pause : pauseBuilders) {
             if (pause.isPaused(date)) {
                 return pause;
             }
@@ -159,10 +156,12 @@ public class Schedule implements Serializable {
      * @return JDOM Element representation of build log.
      * @throws CruiseControlException if something fails
      */
-    public Element build(int buildNumber, Date lastBuild, Date now, Map properties, String buildTarget,
-                         Progress progress)
+    public Element build(final int buildNumber, final Date lastBuild, final Date now,
+                         final Map<String, String> properties, final String buildTarget,
+                         final Progress progress)
             throws CruiseControlException {
-        Builder builder = selectBuilder(buildNumber, lastBuild, now);
+
+        final Builder builder = selectBuilder(buildNumber, lastBuild, now);
         if (buildTarget != null) {
             LOG.info("Overriding build target with \"" + buildTarget + "\"");
             return builder.buildWithTarget(properties, buildTarget, (getShowProgress() ? progress : null));
@@ -182,12 +181,14 @@ public class Schedule implements Serializable {
      * @return The <code>Builder</code> that should be run.
      * @throws CruiseControlException if something fails
      */
-    protected Builder selectBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
+    protected Builder selectBuilder(final int buildNumber, final Date lastBuild, final Date now)
+            throws CruiseControlException {
+
         Builder builder = findBuilder(buildNumber, lastBuild, now);
 
         if (builder == null) {
-            long timeToNextBuild = getTimeToNextBuild(now, ONE_MINUTE);
-            Date futureDate = getFutureDate(now, timeToNextBuild);
+            final long timeToNextBuild = getTimeToNextBuild(now, ONE_MINUTE);
+            final Date futureDate = getFutureDate(now, timeToNextBuild);
             builder = findBuilder(buildNumber, now, futureDate);
         }
 
@@ -199,16 +200,16 @@ public class Schedule implements Serializable {
         return builder;
     }
 
-    private Builder findBuilder(int buildNumber, Date lastBuild, Date now) throws CruiseControlException {
-        Iterator builderIterator = builders.iterator();
-        while (builderIterator.hasNext()) {
-            Builder builder = (Builder) builderIterator.next();
+    private Builder findBuilder(final int buildNumber, final Date lastBuild, final Date now)
+            throws CruiseControlException {
+
+        for (final Builder builder : builders) {
             if (builder.isTimeBuilder()) {
-                int buildTime = builder.getTime();
-                boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
-                int nowTime = DateUtil.getTimeFromDate(now);
-                boolean isAfterBuildTime = buildTime <= nowTime;
-                boolean isValidDay = builder.isValidDay(now);
+                final int buildTime = builder.getTime();
+                final boolean didntBuildToday = builderDidntBuildToday(lastBuild, now, buildTime);
+                final int nowTime = DateUtil.getTimeFromDate(now);
+                final boolean isAfterBuildTime = buildTime <= nowTime;
+                final boolean isValidDay = builder.isValidDay(now);
                 if (didntBuildToday && isAfterBuildTime && isValidDay) {
                     return builder;
                 }
@@ -266,7 +267,7 @@ public class Schedule implements Serializable {
         return timeToNextBuild;
     }
 
-    private long checkMultipleBuilders(Date now, long interval) {
+    private long checkMultipleBuilders(final Date now, final long interval) {
         if (hasOnlyTimeBuilders()) {
             LOG.debug("has only time builders, so no correction for multiple builders.");
             return interval;
@@ -274,10 +275,8 @@ public class Schedule implements Serializable {
 
         Date then = getFutureDate(now, interval);
 
-        List buildersForOtherDays = new ArrayList();
-        Iterator iterator = builders.iterator();
-        while (iterator.hasNext()) {
-            Builder builder = (Builder) iterator.next();
+        final List<Builder> buildersForOtherDays = new ArrayList<Builder>();
+        for (final Builder builder : builders) {
             if (!builder.isTimeBuilder()) {
                 if (builder.getMultiple() == 1) {
                     if (builder.isValidDay(then)) {
@@ -300,9 +299,7 @@ public class Schedule implements Serializable {
         for (int i = 1; i < 7; i++) {
             long daysPastInitialInterval = i * ONE_DAY;
             then = getFutureDate(now, interval + daysPastInitialInterval);
-            iterator = builders.iterator();
-            while (iterator.hasNext()) {
-                Builder builder = (Builder) iterator.next();
+            for (final Builder builder : builders) {
                 if (builder.isValidDay(then)) {
                     LOG.debug("multiple=1 builder found that could run on " + then);
                     long correctionToMidnight = getTimePastMidnight(then);
@@ -325,9 +322,7 @@ public class Schedule implements Serializable {
 
     private boolean hasOnlyTimeBuilders() {
         boolean onlyTimeBuilders = true;
-        Iterator iterator = builders.iterator();
-        while (iterator.hasNext()) {
-            Builder builder = (Builder) iterator.next();
+        for (final Builder builder : builders) {
             if (!builder.isTimeBuilder()) {
                 onlyTimeBuilders = false;
                 break;
@@ -336,24 +331,22 @@ public class Schedule implements Serializable {
         return onlyTimeBuilders;
     }
 
-    long checkTimeBuilders(Date now, long proposedTime) {
+    long checkTimeBuilders(final Date now, final long proposedTime) {
         long timeToNextBuild = proposedTime;
         if (hasOnlyTimeBuilders()) {
             timeToNextBuild = Long.MAX_VALUE;
         }
-        int nowTime = DateUtil.getTimeFromDate(now);
-        Iterator builderIterator = builders.iterator();
-        while (builderIterator.hasNext()) {
-            Builder builder = (Builder) builderIterator.next();
+        final int nowTime = DateUtil.getTimeFromDate(now);
+        for (final Builder builder : builders) {
             if (builder.isTimeBuilder()) {
                 long timeToThisBuild = Long.MAX_VALUE;
-                Calendar cal = Calendar.getInstance();
-                long oneYear = 365;
+                final Calendar cal = Calendar.getInstance();
+                final long oneYear = 365;
                 for (int daysInTheFuture = 0; daysInTheFuture < oneYear; daysInTheFuture++) {
                     cal.setTime(now);
                     cal.add(Calendar.DATE, daysInTheFuture);
                     Date future = cal.getTime();
-                    boolean dayIsValid = builder.isValidDay(future);
+                    final boolean dayIsValid = builder.isValidDay(future);
                     if (dayIsValid) {
                         int thisBuildTime = builder.getTime();
                         boolean timePassedToday = (daysInTheFuture == 0) && (nowTime > thisBuildTime);
@@ -454,12 +447,12 @@ public class Schedule implements Serializable {
 
         if (hasOnlyTimeBuilders()) {
             LOG.warn("schedule has all time based builders: interval value will be ignored.");
-            ValidationHelper.assertFalse(checkWithinPause(new ArrayList(builders)), "all build times during pauses.");
+            ValidationHelper.assertFalse(checkWithinPause(new ArrayList<Builder>(builders)),
+                    "all build times during pauses.");
         }
 
         // Validate the child builders, since no one else seems to be doing it.
-        for (Iterator iterator = builders.iterator(); iterator.hasNext();) {
-            Builder next = (Builder) iterator.next();
+        for (final Builder next : builders) {
             next.validate();
         }
     }
@@ -467,8 +460,7 @@ public class Schedule implements Serializable {
     private boolean checkWithinPause(List timeBuilders) {
         for (int i = 0; i < timeBuilders.size(); i++) {
             Builder builder = (Builder) timeBuilders.get(i);
-            for (int j = 0; j < pauseBuilders.size(); j++) {
-                PauseBuilder pauseBuilder = (PauseBuilder) pauseBuilders.get(j);
+            for (final PauseBuilder pauseBuilder : pauseBuilders) {
                 if (buildDaySameAsPauseDay(builder, pauseBuilder) && buildTimeWithinPauseTime(builder, pauseBuilder)) {
                     timeBuilders.remove(builder);
                     StringBuffer message = new StringBuffer();

@@ -88,14 +88,16 @@ public class Modification implements Comparable, Serializable {
         public String folderName;
         public String action = "unknown";
 
-        public ModifiedFile(String fileName, String revision, String folderName, String action) {
+        public ModifiedFile(final String fileName, final String revision, final String folderName,
+                            final String action) {
+
             this.fileName = fileName;
             this.revision = revision;
             this.folderName = folderName;
             this.action = action;
         }
         
-        public ModifiedFile(Element modification) {
+        public ModifiedFile(final Element modification) {
             fileName = modification.getChildText(TAGNAME_FILENAME);
             folderName = modification.getChildText(TAGNAME_FOLDERNAME);
             revision = modification.getChildText(TAGNAME_REVISION);
@@ -104,10 +106,10 @@ public class Modification implements Comparable, Serializable {
 
         public Element toElement() {
 
-            Element element = new Element(TAGNAME_FILE);
+            final Element element = new Element(TAGNAME_FILE);
 
             if (revision != null && revision.trim().length() > 0) {
-                Element revisionElement = new Element(TAGNAME_REVISION);
+                final Element revisionElement = new Element(TAGNAME_REVISION);
                 revisionElement.addContent(revision);
                 element.addContent(revisionElement);
             }
@@ -116,12 +118,12 @@ public class Modification implements Comparable, Serializable {
                 element.setAttribute(TAGNAME_ACTION, action);
             }
 
-            Element fileElement = new Element(TAGNAME_FILENAME);
+            final Element fileElement = new Element(TAGNAME_FILENAME);
             fileElement.addContent(fileName);
             element.addContent(fileElement);
 
             if (folderName != null && folderName.trim().length() > 0) {
-                Element folderElement = new Element(TAGNAME_FOLDERNAME);
+                final Element folderElement = new Element(TAGNAME_FOLDERNAME);
                 folderElement.addContent(folderName);
                 element.addContent(folderElement);
             }
@@ -130,12 +132,12 @@ public class Modification implements Comparable, Serializable {
 
         }
 
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof ModifiedFile)) {
                 return false;
             }
 
-            ModifiedFile mod = (ModifiedFile) o;
+            final ModifiedFile mod = (ModifiedFile) o;
 
             boolean folderNamesAreEqual = (folderName != null)
                 ? folderName.equals(mod.folderName)
@@ -191,7 +193,7 @@ public class Modification implements Comparable, Serializable {
     public String emailAddress;
     public String revision;
     public Date modifiedTime;
-    public List files = new ArrayList();
+    public List<ModifiedFile> files = new ArrayList<ModifiedFile>();
 
     // TODO: after CMSynergyModification$ModifiedObject is an instance of ModifiedFile
     //    public List<ModifiedFile> files = new ArrayList<ModifiedFile>();
@@ -204,8 +206,8 @@ public class Modification implements Comparable, Serializable {
         this.type = type;
     }
 
-    public Modification(String type, String user, String comment, String email, 
-            Date datetime, String revision, List files) {
+    public Modification(final String type, final String user, final String comment, final String email,
+            final Date datetime, final String revision, final List<ModifiedFile> files) {
         this.type = type;
         this.userName = user;
         this.comment = comment;
@@ -222,18 +224,18 @@ public class Modification implements Comparable, Serializable {
     }
 
     public Element toElement() {
-        Element modificationElement = new Element(TAGNAME_MODIFICATION);
+        final Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
 
-        for (Iterator i = files.iterator(); i.hasNext(); ) {
-            modificationElement.addContent(((ModifiedFile) i.next()).toElement());
+        for (final ModifiedFile file : files) {
+            modificationElement.addContent(file.toElement());
         }
 
-        Element dateElement = new Element(TAGNAME_DATE);
+        final Element dateElement = new Element(TAGNAME_DATE);
         dateElement.addContent(DateUtil.formatIso8601(modifiedTime));
-        Element userElement = new Element(TAGNAME_USER);
+        final Element userElement = new Element(TAGNAME_USER);
         userElement.addContent(userName);
-        Element commentElement = new Element(TAGNAME_COMMENT);
+        final Element commentElement = new Element(TAGNAME_COMMENT);
 
         CDATA cd;
         try {
@@ -249,14 +251,14 @@ public class Modification implements Comparable, Serializable {
         modificationElement.addContent(commentElement);
 
         if (revision != null && revision.trim().length() > 0) {
-            Element revisionElement = new Element(TAGNAME_REVISION);
+            final Element revisionElement = new Element(TAGNAME_REVISION);
             revisionElement.addContent(revision);
             modificationElement.addContent(revisionElement);
         }
 
         // not all sourcecontrols guarantee a non-null email address
         if (emailAddress != null) {
-            Element emailAddressElement = new Element(TAGNAME_EMAIL);
+            final Element emailAddressElement = new Element(TAGNAME_EMAIL);
             emailAddressElement.addContent(emailAddress);
             modificationElement.addContent(emailAddressElement);
         }
@@ -287,24 +289,26 @@ public class Modification implements Comparable, Serializable {
     }
 
     /**
-     * Convenience method for getting the filename of the first file
+     * Convenience method for getting the filename of the first file.
+     * @return the filename of the first file
      */
     public String getFileName() {
         if (files.isEmpty()) {
             return null;
         } else {
-            return ((ModifiedFile) files.get(0)).fileName;
+            return files.get(0).fileName;
         }
     }
 
     /**
-     * Convenience method for getting the foldername of the first file
+     * Convenience method for getting the foldername of the first file.
+     * @return the foldername of the first file
      */
     public String getFolderName() {
         if (files.isEmpty()) {
             return null;
         } else {
-            return ((ModifiedFile) files.get(0)).folderName;
+            return files.get(0).folderName;
         }
     }
 
@@ -315,7 +319,7 @@ public class Modification implements Comparable, Serializable {
      * @return  list of {@link ModifiedFile} objects. If there are no files, this returns an empty list
      * (<code>null</code> is never returned).
      */
-    public List getModifiedFiles() {
+    public List<ModifiedFile> getModifiedFiles() {
         return Collections.unmodifiableList(files);
     }
 
@@ -382,20 +386,18 @@ public class Modification implements Comparable, Serializable {
 
     private int fileHashComponent() {
         int code = 1;
-        for (int i = 0; i < files.size(); i++) {
-            Modification.ModifiedFile file = (ModifiedFile) files.get(i);
+        for (final ModifiedFile file : files) {
             code += file.hashCode();
         }
         return code;
     }
 
-    // TODO: remove this after we have a ModifationSet returning
-    // Modificaitons rather than an Element.
-    public void fromElement(Element modification) {
+    // TODO: remove this after we have a ModifationSet returning Modificaitons rather than an Element.
+    public void fromElement(final Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
         try {
-            String s = modification.getChildText(TAGNAME_DATE);
+            final String s = modification.getChildText(TAGNAME_DATE);
             if (s == null) {
                 XMLOutputter outputter = new XMLOutputter();
                 LOG.info("XML: " + outputter.outputString(modification));
@@ -414,7 +416,7 @@ public class Modification implements Comparable, Serializable {
         emailAddress = modification.getChildText(TAGNAME_EMAIL);
 
         files.clear();
-        List modfiles = modification.getChildren(TAGNAME_FILE);
+        final List modfiles = modification.getChildren(TAGNAME_FILE);
         if (modfiles != null && modfiles.size() > 0) {
 
             Iterator it = modfiles.iterator();

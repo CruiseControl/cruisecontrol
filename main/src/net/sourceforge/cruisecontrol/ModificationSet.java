@@ -45,12 +45,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -73,15 +73,15 @@ public class ModificationSet implements Serializable {
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
     private static final int ONE_SECOND = 1000;
 
-    private List modifications = new ArrayList();
-    private final List sourceControls = new ArrayList();
+    private List<Modification> modifications = new ArrayList<Modification>();
+    private final List<SourceControl> sourceControls = new ArrayList<SourceControl>();
     private int quietPeriod = 60 * ONE_SECOND;
     private Date timeOfCheck;
 
     /**
      * File-Patterns (as org.apache.oro.io.GlobFilenameFilter) to be ignored
      */
-    private List ignoreFiles;
+    private List<GlobFilenameFilter> ignoreFiles;
 
     static final String MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP = "quiet period modification, sleep ";
 
@@ -105,7 +105,7 @@ public class ModificationSet implements Serializable {
     public void setIgnoreFiles(String filePatterns) throws CruiseControlException {
         if (filePatterns != null) {
             StringTokenizer st = new StringTokenizer(filePatterns, ",");
-            ignoreFiles = new ArrayList();
+            ignoreFiles = new ArrayList<GlobFilenameFilter>();
             while (st.hasMoreTokens()) {
                 String pattern = st.nextToken();
                 // Compile the pattern
@@ -122,12 +122,14 @@ public class ModificationSet implements Serializable {
         sourceControls.add(sourceControl);
     }
 
-    public List getSourceControls() {
+    public List<SourceControl> getSourceControls() {
         return sourceControls;
     }
 
-    protected boolean isLastModificationInQuietPeriod(Date timeOfCheck, List modificationList) {
-        long lastModificationTime = getLastModificationMillis(modificationList);
+    protected boolean isLastModificationInQuietPeriod(final Date timeOfCheck,
+                                                      final List<Modification> modificationList) {
+
+        final long lastModificationTime = getLastModificationMillis(modificationList);
         final long quietPeriodStart = timeOfCheck.getTime() - quietPeriod;
         final boolean modificationInFuture = new Date().getTime() < lastModificationTime;
         if (modificationInFuture) {
@@ -136,12 +138,10 @@ public class ModificationSet implements Serializable {
         return (quietPeriodStart <= lastModificationTime) && !modificationInFuture;
     }
 
-    protected long getLastModificationMillis(List<Modification> modificationList) {
+    protected long getLastModificationMillis(final List<Modification> modificationList) {
         Date timeOfLastModification = new Date(0);
-        Iterator<Modification> iterator = modificationList.iterator();
-        while (iterator.hasNext()) {
-            Modification modification = iterator.next();
-            Date modificationDate = modification.modifiedTime;
+        for (final Modification modification : modificationList) {
+            final Date modificationDate = modification.modifiedTime;
             if (modificationDate.after(timeOfLastModification)) {
                 timeOfLastModification = modificationDate;
             }
@@ -154,80 +154,74 @@ public class ModificationSet implements Serializable {
         return timeOfLastModification.getTime();
     }
 
-    protected long getQuietPeriodDifference(Date now, List modificationList) {
+    protected long getQuietPeriodDifference(final Date now, final List<Modification> modificationList) {
         long diff = quietPeriod - (now.getTime() - getLastModificationMillis(modificationList));
         return Math.max(0, diff);
     }
 
     /**
-     * Returns a Hashtable of name-value pairs representing any properties set by the SourceControl.
+     * Returns a Map of name-value pairs representing any properties set by the SourceControl.
      *
-     * @return Hashtable of properties.
+     * @return Map of properties.
      */
-    public Hashtable getProperties() {
-        Hashtable table = new Hashtable();
-        for (Iterator iter = sourceControls.iterator(); iter.hasNext();) {
-            SourceControl control = (SourceControl) iter.next();
+    public Map<String, String> getProperties() {
+        final Map<String, String> table = new HashMap<String, String>();
+        for (final SourceControl control : sourceControls) {
             mergeProperties(table, control);
         }
         return table;
     }
 
-    private void mergeProperties(Hashtable properties, SourceControl control) {
-        Map newProperties = control.getProperties();
-        Set existingKeys = properties.keySet();
-        Set newKeys = newProperties.keySet();
+    private void mergeProperties(final Map<String, String> properties, final SourceControl control) {
+        final Map<String, String> newProperties = control.getProperties();
+        final Set<String> existingKeys = properties.keySet();
+        final Set<String> newKeys = newProperties.keySet();
         if (Collections.disjoint(existingKeys, newKeys)) {
             properties.putAll(newProperties);
             return;
         }
 
-        Set disjointKeys = new HashSet(newKeys);
-        Set unionKeys = new HashSet(newKeys);
+        final Set<String> disjointKeys = new HashSet<String>(newKeys);
+        final Set<String> unionKeys = new HashSet<String>(newKeys);
        
         disjointKeys.removeAll(existingKeys);
         unionKeys.retainAll(existingKeys);
-        
-        for (Iterator keys = disjointKeys.iterator(); keys.hasNext();) {
-            Object key = keys.next();
+
+        for (final String key : disjointKeys) {
             properties.put(key, newProperties.get(key));
         }
-        
-        for (Iterator keys = unionKeys.iterator(); keys.hasNext();) {
-            Object key = keys.next();
-            Object oldValue = properties.get(key);
-            Object newValue = newProperties.get(key);
-            Object value = chooseValue(oldValue, newValue);
+
+        for (final String key : unionKeys) {
+            final String oldValue = properties.get(key);
+            final String newValue = newProperties.get(key);
+            final String value = chooseValue(oldValue, newValue);
             properties.put(key, value);
         }        
     }
 
-    private Object chooseValue(Object oldValue, Object newValue) {
+    private String chooseValue(final String oldValue, final String newValue) {
         if (oldValue.equals(newValue)) {
             return newValue;
         }
         
-        if (!(oldValue instanceof String && newValue instanceof String)) {
+        if (!(newValue != null)) {
             return newValue;
         }
+
+        final Integer oldInt = getInteger(oldValue);
+        final Integer newInt = getInteger(newValue);
         
-        String oldString = (String) oldValue;
-        String newString = (String) newValue;
+        Date oldDate = getDate(oldValue);
+        Date newDate = getDate(newValue);
         
-        Integer oldInt = getInteger(oldString);
-        Integer newInt = getInteger(newString);
-        
-        Date oldDate = getDate(oldString);
-        Date newDate = getDate(newString);
-        
-        boolean oldBigger = false;
+        final boolean oldBigger;
         
         if (oldInt != null && newInt != null) {
             oldBigger = oldInt.compareTo(newInt) > 0;
         } else if (oldDate != null && newDate != null) {
             oldBigger = oldDate.compareTo(newDate) > 0;            
         } else {
-            oldBigger = oldString.compareTo(newString) > 0;
+            oldBigger = oldValue.compareTo(newValue) > 0;
         }
 
         if (oldBigger) {
@@ -237,22 +231,20 @@ public class ModificationSet implements Serializable {
         return newValue;
     }
 
-    private Date getDate(String string) {
-        Date d = null;
+    private Date getDate(final String string) {
         try {
-            d = DateFormat.getDateInstance().parse(string);
+            return DateFormat.getDateInstance().parse(string);
         } catch (ParseException e) {
+            return null;
         }
-        return d;
     }
 
-    private Integer getInteger(String string) {
-        Integer i = null;
+    private Integer getInteger(final String string) {
         try {
-            i = Integer.parseInt(string);
+            return Integer.parseInt(string);
         } catch (NumberFormatException e) {
+            return null;
         }
-        return i;
     }
 
     public List getCurrentModifications() {
@@ -260,31 +252,27 @@ public class ModificationSet implements Serializable {
     }
 
     /**
+     * Returns the modifications as of lastBuild as an XML element.
+     * @param lastBuild date of last build
+     * @return modifications element
      * @deprecated As of 10-Oct-2007, replaced by {@link #retrieveModificationsAsElement(java.util.Date, Progress)}
      */
     public Element getModifications(final Date lastBuild) {
-        return getModifications(lastBuild, null);
-    }
-    /**
-     * @param lastBuild date of last build
-     * @param progress ModificationSet progress message callback object
-     * @return modifications element
-     */
-    public Element getModifications(final Date lastBuild, final Progress progress) {
         return retrieveModificationsAsElement(lastBuild, null);
     }
 
     /**
      * Returns the modifications as of lastBuild as an XML element.
+     * @param lastBuild date of last build
+     * @param progress ModificationSet progress message callback object
+     * @return modifications element
      */
     public Element retrieveModificationsAsElement(final Date lastBuild, final Progress progress) {
         Element modificationsElement;
         do {
             timeOfCheck = new Date();
             modifications = new ArrayList<Modification>();
-            Iterator sourceControlIterator = sourceControls.iterator();
-            while (sourceControlIterator.hasNext()) {
-                SourceControl sourceControl = (SourceControl) sourceControlIterator.next();
+            for (final SourceControl sourceControl : sourceControls) {
                 modifications.addAll(sourceControl.getModifications(lastBuild, timeOfCheck));
             }
 
@@ -297,10 +285,8 @@ public class ModificationSet implements Serializable {
                                 : " modification has been detected."));
             }
             modificationsElement = new Element("modifications");
-            Iterator<Modification> modificationIterator = modifications.iterator();
-            while (modificationIterator.hasNext()) {
-                Modification modification = modificationIterator.next();
-                Element modificationElement = modification.toElement();
+            for (final Modification modification : modifications) {
+                final Element modificationElement = modification.toElement();
                 modification.log();
                 modificationsElement.addContent(modificationElement);
             }
@@ -312,8 +298,8 @@ public class ModificationSet implements Serializable {
                     LOG.debug(DateUtil.formatIso8601(quietPeriodStart) + " <= Quiet Period <= "
                             + DateUtil.formatIso8601(timeOfCheck));
                 }
-                Date now = new Date();
-                long timeToSleep = getQuietPeriodDifference(now, modifications);
+                final Date now = new Date();
+                final long timeToSleep = getQuietPeriodDifference(now, modifications);
                 LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");
 
                 // @todo Remove "if (progress != null)" when deprecated getModifications(Date lastBuild) is removed
@@ -335,11 +321,12 @@ public class ModificationSet implements Serializable {
 
     /**
      * Remove all Modifications that match any of the ignoreFiles-patterns
+     * @param modifications the list of modifications to be filtered (altered).
      */
-    protected void filterIgnoredModifications(List<Modification> modifications) {
-        if (this.ignoreFiles != null) {
+    protected void filterIgnoredModifications(final List<Modification> modifications) {
+        if (ignoreFiles != null) {
             for (Iterator<Modification> iterator = modifications.iterator(); iterator.hasNext();) {
-                Modification modification = iterator.next();
+                final Modification modification = iterator.next();
                 if (isIgnoredModification(modification)) {
                     iterator.remove();
                 }
@@ -347,14 +334,12 @@ public class ModificationSet implements Serializable {
         }
     }
 
-    private boolean isIgnoredModification(Modification modification) {
+    private boolean isIgnoredModification(final Modification modification) {
         boolean foundAny = false;
 
         // Go through all the files in the modification. If all are ignored, ignore this modification.
-        for (final Iterator modFileIter = modification.getModifiedFiles().iterator(); modFileIter.hasNext();) {
-            final Modification.ModifiedFile modFile = (Modification.ModifiedFile) modFileIter.next();
-
-            File file;
+        for (final Modification.ModifiedFile modFile : modification.getModifiedFiles()) {
+            final File file;
             if (modFile.folderName == null) {
                 if (modification.getFileName() == null) {
                     continue;
@@ -374,8 +359,8 @@ public class ModificationSet implements Serializable {
             }
 
             boolean useThisFile = true;
-            for (Iterator iterator = ignoreFiles.iterator(); iterator.hasNext() && useThisFile;) {
-                GlobFilenameFilter pattern = (GlobFilenameFilter) iterator.next();
+            for (Iterator<GlobFilenameFilter> iterator = ignoreFiles.iterator(); iterator.hasNext() && useThisFile;) {
+                final GlobFilenameFilter pattern = iterator.next();
 
                 // We have to use a little tweak here, since GlobFilenameFilter only matches the filename, but not
                 // the path, so we use the complete path as the 'filename'-argument.
@@ -402,8 +387,7 @@ public class ModificationSet implements Serializable {
         ValidationHelper.assertFalse(sourceControls.isEmpty(),
                 "modificationset element requires at least one nested source control element");
 
-        for (Iterator i = sourceControls.iterator(); i.hasNext();) {
-            SourceControl sc = (SourceControl) i.next();
+        for (final SourceControl sc : sourceControls) {
             sc.validate();
         }
     }
@@ -413,10 +397,10 @@ public class ModificationSet implements Serializable {
     }
 
     /**
-     * @param isModifiedAccurate
+     * @param isModifiedAccurate if true, don't lie on isModified
      * @deprecated
      */
-    public void setRequireModification(boolean isModifiedAccurate) {
+    public void setRequireModification(final boolean isModifiedAccurate) {
         LOG.warn("<modificationset requiremodification=\"true|false\" is deprecated. "
                 + "Use <project requiremodification=\"true|false\".");
         lieOnIsModified = !isModifiedAccurate;

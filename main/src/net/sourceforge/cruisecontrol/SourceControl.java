@@ -71,8 +71,8 @@ public interface SourceControl extends Serializable {
      *  Get a List of Modifications detailing all the changes between now and
      *  the last build
      *
-     *@param  lastBuild
-     *@param  now
+     *@param  lastBuild date of last build
+     *@param  now current date
      *@return List of Modification objects
      */
     public List<Modification> getModifications(Date lastBuild, Date now);
@@ -85,6 +85,7 @@ public interface SourceControl extends Serializable {
      * Will be passed onto the Builder, which may then pass the properties to the underlying
      * build implementation. For example, the Ant builder will define these properties so that
      * the underlying Ant script can use them.
+     * @return a Map of name, value pairs
      */
-    public Map getProperties();
+    public Map<String, String> getProperties();
 }
