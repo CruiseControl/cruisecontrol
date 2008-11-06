@@ -118,10 +118,10 @@ public class AntScriptTest extends TestCase {
 
         // default setup of script
         script.setBuildProperties(properties);
-        script.setArgs(new ArrayList());
-        script.setProperties(new ArrayList());
-        script.setLibs(new ArrayList());
-        script.setListeners(new ArrayList());
+        script.setArgs(new ArrayList<AntBuilder.JVMArg>());
+        script.setProperties(new ArrayList<Property>());
+        script.setLibs(new ArrayList<AntBuilder.Lib>());
+        script.setListeners(new ArrayList<AntBuilder.Listener>());
         script.setBuildFile("buildfile");
         script.setTarget("target");
 
@@ -146,13 +146,13 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testGetClasspathItemsForWindows() throws Exception {
-        List list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
+        final List<String> list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
         assertEquals(WINDOWS_PATH_LENGTH, list.size());
         assertEquals("C:\\Progra~1\\IBM\\WSAD\\tools.jar", list.get(0));
     }
 
     public void testGetClasspathItemsForUnix() throws Exception {
-        List list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
+        final List<String> list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
         assertEquals(UNIX_PATH_LENGTH, list.size());
         assertEquals("/usr/java/jdk1.5.0/lib/tools.jar", list.get(0));
     }
@@ -175,16 +175,16 @@ public class AntScriptTest extends TestCase {
             return;
         }
 
-        List list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
-        String path = script.removeSaxonJars(list, IS_WINDOWS);
+        List<String> list = script.getClasspathItems(WINDOWS_PATH, IS_WINDOWS);
+        final String path = script.removeSaxonJars(list, IS_WINDOWS);
         assertFalse(path.indexOf("saxon") >= 0);
         list = script.getClasspathItems(path, IS_WINDOWS);
         assertEquals(WINDOWS_PATH_LENGTH - NUMBER_OF_SAXON_JARS, list.size());
     }
 
     public void testRemoveSaxonJarsForUnix() throws Exception {
-        List list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
-        String path = script.removeSaxonJars(list, IS_WINDOWS);
+        List<String> list = script.getClasspathItems(UNIX_PATH, !IS_WINDOWS);
+        final String path = script.removeSaxonJars(list, IS_WINDOWS);
         assertFalse(path.indexOf("saxon") >= 0);
         list = script.getClasspathItems(path, IS_WINDOWS);
         assertEquals(UNIX_PATH_LENGTH - NUMBER_OF_SAXON_JARS, list.size());
@@ -429,7 +429,7 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
-        String[] resultWithMaxMemory =
+        final String[] resultWithMaxMemory =
             {
                 "java",
                 "-Xmx256m",
@@ -445,9 +445,9 @@ public class AntScriptTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
+        final AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
-        List args = new ArrayList();
+        final List<AntBuilder.JVMArg> args = new ArrayList<AntBuilder.JVMArg>();
         args.add(arg);
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -464,7 +464,7 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
-        String[] resultWithMaxMemoryAndProperty =
+        final String[] resultWithMaxMemoryAndProperty =
             {
                 "java",
                 "-Xmx256m",
@@ -481,15 +481,15 @@ public class AntScriptTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
+        final AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
-        Property prop = unixBuilder.createProperty();
+        final Property prop = unixBuilder.createProperty();
         prop.setName("foo");
         prop.setValue("bar");
 
-        List args = new ArrayList();
+        final List<AntBuilder.JVMArg> args = new ArrayList<AntBuilder.JVMArg>();
         args.add(arg);
-        List props = new ArrayList();
+        final List<Property> props = new ArrayList<Property>();
         props.add(prop);
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -996,7 +996,7 @@ public class AntScriptTest extends TestCase {
     }
 
     public void testGetCommandLineArgs_MultipleLibs() throws CruiseControlException {
-        String[] args =
+        final String[] args =
          {
              "java.exe",
              "-classpath",
@@ -1015,9 +1015,9 @@ public class AntScriptTest extends TestCase {
              "target" };
         script.setLoggerClassName("com.canoo.Logger");
         script.setBuildProperties(properties);
-        AntBuilder.Lib lib = windowsBuilder.new Lib();
+        final AntBuilder.Lib lib = windowsBuilder.new Lib();
         lib.setSearchPath("c:\\somedir");
-        List libs = new ArrayList();
+        final List<AntBuilder.Lib> libs = new ArrayList<AntBuilder.Lib>();
         libs.add(lib);
         script.setLibs(libs);
         script.setWindows(IS_WINDOWS);
@@ -1031,7 +1031,7 @@ public class AntScriptTest extends TestCase {
      }
 
     public void testGetCommandLineArgs_MultipleListeners() throws CruiseControlException {
-        String[] args =
+        final String[] args =
          {
              "java.exe",
              "-classpath",
@@ -1050,9 +1050,9 @@ public class AntScriptTest extends TestCase {
              "target" };
         script.setLoggerClassName("com.canoo.Logger");
         script.setBuildProperties(properties);
-        AntBuilder.Listener listener = windowsBuilder.new Listener();
+        final AntBuilder.Listener listener = windowsBuilder.new Listener();
         listener.setClassName("org.apache.tools.ant.listener.Log4jListener");
-        List listeners = new ArrayList();
+        final List<AntBuilder.Listener> listeners = new ArrayList<AntBuilder.Listener>();
         listeners.add(listener);
         script.setListeners(listeners);
         script.setWindows(IS_WINDOWS);
