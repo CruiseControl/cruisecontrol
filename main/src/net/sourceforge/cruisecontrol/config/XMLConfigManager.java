@@ -40,14 +40,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectInterface;
-import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -67,7 +65,7 @@ public class XMLConfigManager {
     private final File configFile;
     private CruiseControlConfig config;
     private String hash;
-    private Resolver resolver = new Resolver();
+    private final Resolver resolver = new Resolver();
     private final CruiseControlController controller;
 
     public XMLConfigManager(File configurationFile) throws CruiseControlException {
@@ -112,45 +110,46 @@ public class XMLConfigManager {
         return fileChanged;
     }
 
-    private String calculateMD5(File file) throws CruiseControlException {
+    private String calculateMD5(final File file)  {
         LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
         String md5 = calculatePartialMD5(file);
-        Set includedFiles = resolver.getResolvedFiles();
-        for (Iterator iter = includedFiles.iterator(); iter.hasNext();) {
-            md5 += calculatePartialMD5((File) iter.next());
+        final Set<File> includedFiles = resolver.getResolvedFiles();
+        for (final File includedFile : includedFiles) {
+            md5 += calculatePartialMD5(includedFile);
         }
         return md5;
     }
 
-    private String calculatePartialMD5(File file) {
+    private String calculatePartialMD5(final File file) {
         String md5 = "";
-        MD5OutputStream stream = null;
         try {
-            Element element = Util.loadRootElement(file);
-            stream = new MD5OutputStream(new ByteArrayOutputStream());
-            XMLOutputter outputter = new XMLOutputter();
-            outputter.output(element, stream);
-            md5 = stream.getMD5().asHex();
+            final Element element = Util.loadRootElement(file);
+            final MD5OutputStream stream = new MD5OutputStream(new ByteArrayOutputStream());
+            try {
+                final XMLOutputter outputter = new XMLOutputter();
+                outputter.output(element, stream);
+                md5 = stream.getMD5().asHex();
+            } finally {
+                stream.close();
+            }
         } catch (IOException e) {
             LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
         } catch (CruiseControlException e) {
             LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
-        } finally {
-            IO.close(stream);
         }
         return md5;
     }
 
     class Resolver implements XmlResolver {
-        private Set resolvedFiles = new HashSet();
+        private final Set<File> resolvedFiles = new HashSet<File>();
 
-        public Element getElement(String path) throws CruiseControlException {
-            File file = new File(configFile.getParentFile(), path);
+        public Element getElement(final String path) throws CruiseControlException {
+            final File file = new File(configFile.getParentFile(), path);
             resolvedFiles.add(file);
             return Util.loadRootElement(file);
         }
 
-        public Set getResolvedFiles() {
+        public Set<File> getResolvedFiles() {
             return resolvedFiles;
         }
 
