@@ -39,10 +39,15 @@ package net.sourceforge.cruisecontrol;
 
 import org.jdom.Element;
 
+/**
+ * @deprecated 11-07-2008, will be deleted asap. NOTE: Also make
+ * {@link net.sourceforge.cruisecontrol.PluginRegistry#register} non-public when we remove this class.
+ */
 public interface SelfConfiguringPlugin {
 
     /**
-     * @param element
+     * @param element dom element
+     * @throws CruiseControlException if something breaks 
      * @deprecated We hope to remove the SelfConfiguringPlugin api soon (as it leads to more problems than it solves).
      * If you really need the this api, please discuss why you need it on the user or dev lists (and hopefully we can
      * find a way to use the standard plugin configuration instead.)  
