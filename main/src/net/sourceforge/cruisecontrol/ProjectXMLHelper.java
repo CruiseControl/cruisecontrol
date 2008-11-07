@@ -54,20 +54,22 @@ public class ProjectXMLHelper implements ProjectHelper {
     // TODO: extract out generic Helper methods
     private static final Logger LOG = Logger.getLogger(ProjectXMLHelper.class);
 
-    private Map projectProperties;
-    private PluginRegistry projectPlugins;
+    private final Map<String, String> projectProperties;
+    private final PluginRegistry projectPlugins;
 
     private final CruiseControlController controller;
 
     public ProjectXMLHelper() {
-        this(new HashMap(), PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry()), null);
+        this(new HashMap<String, String>(), PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry()),
+                null);
     }
 
-    public ProjectXMLHelper(Map projectProperties, PluginRegistry projectPlugins) {
+    public ProjectXMLHelper(final Map<String, String> projectProperties, final PluginRegistry projectPlugins) {
         this(projectProperties, projectPlugins, null);
     }
     
-    public ProjectXMLHelper(Map projectProperties, PluginRegistry projectPlugins, CruiseControlController controller) {
+    public ProjectXMLHelper(final Map<String, String> projectProperties, final PluginRegistry projectPlugins,
+                            final CruiseControlController controller) {
         this.projectProperties = projectProperties;
         this.projectPlugins = projectPlugins;
         this.controller = controller;
@@ -76,16 +78,16 @@ public class ProjectXMLHelper implements ProjectHelper {
     /**
      *  TODO: also check that instantiated class implements/extends correct interface/class
      */
-    public Object configurePlugin(Element pluginElement, boolean skipChildElements)
+    public Object configurePlugin(final Element pluginElement, final boolean skipChildElements)
             throws CruiseControlException {
-        String name = pluginElement.getName();
-        PluginXMLHelper pluginHelper = new PluginXMLHelper(this, controller);
-        String pluginName = pluginElement.getName();
+        final String name = pluginElement.getName();
+        final PluginXMLHelper pluginHelper = new PluginXMLHelper(this, controller);
+        final String pluginName = pluginElement.getName();
 
         LOG.debug("configuring plugin " + pluginElement.getName() + " skip " + skipChildElements);
 
         if (projectPlugins.isPluginRegistered(pluginName)) {
-            Object pluginInstance = getConfiguredPlugin(pluginHelper, pluginElement.getName());
+            final Object pluginInstance = getConfiguredPlugin(pluginHelper, pluginElement.getName());
             if (pluginInstance != null) { // preconfigured
                 return pluginHelper.configure(pluginElement, pluginInstance, skipChildElements);
             }
@@ -98,20 +100,23 @@ public class ProjectXMLHelper implements ProjectHelper {
 
     /**
      * Get a [partially] configured plugin instance given its plugin name.
-     * @param pluginName
+     * @param pluginHelper xml helper
+     * @param pluginName the plugin name
      * @return <code>null</code> if the plugin was never configured.
      * @throws CruiseControlException
      *   if the registered class cannot be loaded,
      *   if a property cannot be resolved,
      *   if the plugin configuration fails
      */
-    private Object getConfiguredPlugin(PluginXMLHelper pluginHelper, String pluginName) throws CruiseControlException {
+    private Object getConfiguredPlugin(final PluginXMLHelper pluginHelper, final String pluginName)
+            throws CruiseControlException {
+        
         final Class pluginClass = projectPlugins.getPluginClass(pluginName);
         if (pluginClass == null) {
             return null;
         }
         Object configuredPlugin = null;
-        Element pluginElement = projectPlugins.getPluginConfig(pluginName);
+        final Element pluginElement = projectPlugins.getPluginConfig(pluginName);
         if (pluginElement != null) {
             // FIXME
             // the only reason we have to do this here
@@ -139,27 +144,29 @@ public class ProjectXMLHelper implements ProjectHelper {
      * Registers one or more properties as defined in a property element.
      *
      * @param propertyElement The element from which we will register properties
-     * @throws CruiseControlException
+     * @throws CruiseControlException if registraion fails
      */
-    public static DefaultPropertiesPlugin registerProperty(Map props, Element propertyElement,
-                                         boolean failIfMissing) throws CruiseControlException {
+    public static DefaultPropertiesPlugin registerProperty(final Map<String, String> props,
+                                                           final Element propertyElement,
+                                                           final boolean failIfMissing)
+          throws CruiseControlException {
 
         parsePropertiesInElement(propertyElement, props, failIfMissing);
 
-        Object o = new ProjectXMLHelper().configurePlugin(propertyElement, false);
+        final Object o = new ProjectXMLHelper().configurePlugin(propertyElement, false);
         if (!(o instanceof DefaultPropertiesPlugin)) {
           throw new CruiseControlException("Properties element does not extend DefaultPropertiesPlugin interface."
                   + " Check your CC global plugin configuration.");
         }
-        DefaultPropertiesPlugin propertiesObject = (DefaultPropertiesPlugin) o;
+        final DefaultPropertiesPlugin propertiesObject = (DefaultPropertiesPlugin) o;
         propertiesObject.loadProperties(props, failIfMissing);
         return propertiesObject;
     }
 
     // FIXME Helper extract ?
-    public static void parsePropertiesInElement(Element element,
-                                                Map props,
-                                                boolean failIfMissing)
+    public static void parsePropertiesInElement(final Element element,
+                                                final Map<String, String> props,
+                                                final boolean failIfMissing)
         throws CruiseControlException {
 
         // Recurse through the element tree - depth first
@@ -174,13 +181,13 @@ public class ProjectXMLHelper implements ProjectHelper {
         }
 
         // Parse the element's text
-        String text = element.getTextTrim();
+        final String text = element.getTextTrim();
         if (text.length() > 0) {
             element.setText(Util.parsePropertiesInString(props, text, failIfMissing));
         }
     }
 
-    public static void setProperty(Map props, String name, String parsedValue) {
+    public static void setProperty(final Map<String, String> props, final String name, final String parsedValue) {
         ProjectXMLHelper.LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
         props.put(name, parsedValue);
     }

@@ -76,18 +76,17 @@ public class GenericPluginDetail implements PluginDetail {
     }
     
     private static Attribute[] lookupRequiredAttributes(Class plugin) {
-        List attrs = new LinkedList();
-        Method[] methods = plugin.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        final List<Attribute> attrs = new LinkedList<Attribute>();
+        final Method[] methods = plugin.getMethods();
+        for (final Method method : methods) {
             if (isRequiredAttribute(method)) {
-                String methodName = method.getName();
-                String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+                final String methodName = method.getName();
+                final String attributeName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
                 attrs.add(new Attribute(attributeName, method.getParameterTypes()[0]));
             }
         }
 
-        return (Attribute[]) attrs.toArray(new Attribute[attrs.size()]);
+        return attrs.toArray(new Attribute[attrs.size()]);
     }
 
     private static boolean isRequiredAttribute(Method method) {

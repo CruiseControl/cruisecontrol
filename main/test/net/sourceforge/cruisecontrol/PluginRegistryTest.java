@@ -164,11 +164,11 @@ public class PluginRegistryTest extends TestCase {
 
         List wrappers = pluginConfig.getChildren("stringwrapper");
         assertEquals(2, wrappers.size());
-        Set expectedWrapperAttributes = new TreeSet();
+        final Set<String> expectedWrapperAttributes = new TreeSet<String>();
         expectedWrapperAttributes.add("wrapper");
         expectedWrapperAttributes.add("overriden");
 
-        Set wrapperAttributes = new TreeSet();
+        final Set<String> wrapperAttributes = new TreeSet<String>();
         for (int i = 0; i < wrappers.size(); i++) {
             org.jdom.Element element = (org.jdom.Element) wrappers.get(i);
             wrapperAttributes.add(element.getAttributeValue("string"));

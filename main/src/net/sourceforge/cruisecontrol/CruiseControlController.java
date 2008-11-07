@@ -40,7 +40,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -56,14 +55,14 @@ public class CruiseControlController {
     private static final Logger LOG = Logger.getLogger(CruiseControlController.class);
     public static final String DEFAULT_CONFIG_FILE_NAME = "config.xml";
     private File configFile;
-    private List projects = new ArrayList();
-    private BuildQueue buildQueue = new BuildQueue();
+    private final List<ProjectInterface> projects = new ArrayList<ProjectInterface>();
+    private final BuildQueue buildQueue = new BuildQueue();
     private Properties versionProperties;
 
-    private List listeners = new ArrayList();
+    private final List<Listener> listeners = new ArrayList<Listener>();
     private XMLConfigManager configManager;
 
-    private ParsingConfigMutex parsingConfigMutex = new ParsingConfigMutex();
+    private final ParsingConfigMutex parsingConfigMutex = new ParsingConfigMutex();
 
     public CruiseControlController() {
         buildQueue.addListener(new BuildQueueListener());
@@ -81,7 +80,7 @@ public class CruiseControlController {
        return versionProperties;
     }
 
-    public void setConfigFile(File configFile) throws CruiseControlException {
+    public void setConfigFile(final File configFile) throws CruiseControlException {
         if (configFile == null) {
             throw new CruiseControlException("No config file");
         }
@@ -97,23 +96,21 @@ public class CruiseControlController {
         loadConfig();
     }
 
-    private void addProject(ProjectInterface project) throws CruiseControlException {
+    private void addProject(final ProjectInterface project) throws CruiseControlException {
         project.configureProject();
         projects.add(project);
-        for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
+        for (final Listener listener : listeners) {
             LOG.debug("Informing listener of added project " + project.getName());
-            Listener listener = (Listener) listenIter.next();
             listener.projectAdded(project);
         }
         project.setBuildQueue(buildQueue);
         project.start();
     }
 
-    private void removeProject(ProjectInterface project) {
+    private void removeProject(final ProjectInterface project) {
         projects.remove(project);
-        for (Iterator listenIter = listeners.iterator(); listenIter.hasNext();) {
+        for (final Listener listener : listeners) {
             LOG.debug("Informing listener of removed project " + project.getName());
-            Listener listener = (Listener) listenIter.next();
             listener.projectRemoved(project);
         }
         project.stop();
@@ -121,8 +118,7 @@ public class CruiseControlController {
 
     public void resume() {
         buildQueue.start();
-        for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
-            ProjectInterface currentProject = (ProjectInterface) iterator.next();
+        for (final ProjectInterface currentProject : projects) {
             currentProject.setBuildQueue(buildQueue);
             currentProject.start();
         }
@@ -130,8 +126,7 @@ public class CruiseControlController {
 
     public void pause() {
         buildQueue.stop();
-        for (Iterator iterator = projects.iterator(); iterator.hasNext();) {
-            ProjectInterface currentProject = (ProjectInterface) iterator.next();
+        for (final ProjectInterface currentProject : projects) {
             currentProject.stop();
         }
     }
@@ -157,13 +152,12 @@ public class CruiseControlController {
         return Collections.unmodifiableList(projects);
     }
 
-    private List getAllProjects(XMLConfigManager configManager) {
-        Set projectNames = configManager.getCruiseControlConfig().getProjectNames();
-        List allProjects = new ArrayList(projectNames.size());
-        for (Iterator it = projectNames.iterator(); it.hasNext();) {
-            String projectName = (String) it.next();
+    private List<ProjectInterface> getAllProjects(XMLConfigManager configManager) {
+        final Set<String> projectNames = configManager.getCruiseControlConfig().getProjectNames();
+        final List<ProjectInterface> allProjects = new ArrayList<ProjectInterface>(projectNames.size());
+        for (final String projectName : projectNames) {
             LOG.info("projectName = [" + projectName + "]");
-            ProjectInterface projectConfig = getConfigManager().getProject(projectName);
+            final ProjectInterface projectConfig = getConfigManager().getProject(projectName);
             allProjects.add(projectConfig);
         }
         if (allProjects.size() == 0) {
@@ -176,7 +170,7 @@ public class CruiseControlController {
         return configManager;
     }
 
-    public void addListener(Listener listener) {
+    public void addListener(final Listener listener) {
         LOG.debug("Listener added");
         listeners.add(listener);
     }
@@ -215,33 +209,30 @@ public class CruiseControlController {
 
     private void loadConfig() {
         try {
-            List projectsFromFile = getAllProjects(configManager);
+            final List<ProjectInterface> projectsFromFile = getAllProjects(configManager);
 
-            List removedProjects = new ArrayList(projects);
+            final List<ProjectInterface> removedProjects = new ArrayList<ProjectInterface>(projects);
             removedProjects.removeAll(projectsFromFile);
 
-            List newProjects = new ArrayList(projectsFromFile);
+            final List<ProjectInterface> newProjects = new ArrayList<ProjectInterface>(projectsFromFile);
             newProjects.removeAll(projects);
 
-            List retainedProjects = new ArrayList(projects);
+            final List<ProjectInterface> retainedProjects = new ArrayList<ProjectInterface>(projects);
             retainedProjects.removeAll(removedProjects);
 
             //Handled removed projects
-            Iterator removed = removedProjects.iterator();
-            while (removed.hasNext()) {
-                removeProject((ProjectInterface) removed.next());
+            for (final ProjectInterface removedProject : removedProjects) {
+                removeProject(removedProject);
             }
 
             //Handle added projects
-            Iterator added = newProjects.iterator();
-            while (added.hasNext()) {
-                addProject((ProjectInterface) added.next());
+            for (final ProjectInterface newProject : newProjects) {
+                addProject(newProject);
             }
 
             //Handle retained projects
-            Iterator retained = retainedProjects.iterator();
-            while (retained.hasNext()) {
-                updateProject((ProjectInterface) retained.next());
+            for (final ProjectInterface retainedProject : retainedProjects) {
+                updateProject(retainedProject);
             }
 
         } catch (CruiseControlException e) {
@@ -279,11 +270,12 @@ public class CruiseControlController {
         return getPluginsByType(getAvailablePlugins(), PluginType.SOURCE_CONTROL);
     }
 
+    private static final PluginDetail[] EMPTY_PLUGIN_DETAIL = new PluginDetail[0];
     public PluginDetail[] getAvailablePlugins() {
         try {
             return getPluginRegistry().getPluginDetails();
         } catch (CruiseControlException e) {
-            return new PluginDetail[0];
+            return EMPTY_PLUGIN_DETAIL;
         }
     }
 
@@ -295,19 +287,19 @@ public class CruiseControlController {
         return configManager.getCruiseControlConfig().getRootPlugins();
     }
 
-    private static PluginDetail[] getPluginsByType(PluginDetail[] details, PluginType type) {
-        List plugins = new ArrayList();
-        for (int i = 0; i < details.length; i++) {
-            if (details[i].getType().equals(type)) {
-                plugins.add(details[i]);
+    private static PluginDetail[] getPluginsByType(final PluginDetail[] details, final PluginType type) {
+        final List<PluginDetail> plugins = new ArrayList<PluginDetail>();
+        for (final PluginDetail detail : details) {
+            if (detail.getType().equals(type)) {
+                plugins.add(detail);
             }
         }
 
-        return (PluginDetail[]) plugins.toArray(new PluginDetail[plugins.size()]);
+        return plugins.toArray(new PluginDetail[plugins.size()]);
     }
 
     private class ParsingConfigMutex {
-        private Object mutex = new Object();
+        private final Object mutex = new Object();
         private boolean inUse;
 
         boolean getPermissionToParse() {
