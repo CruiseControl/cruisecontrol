@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
@@ -117,14 +118,14 @@ public class ProjectTest extends TestCase {
     }
 
     public void testBuild() throws CruiseControlException, IOException {
-        Date now = new Date();
-        MockModificationSet modSet = new MockModificationSet();
+        final Date now = new Date();
+        final MockModificationSet modSet = new MockModificationSet();
         modSet.setTimeOfCheck(now);
-        MockSchedule sched = new MockSchedule();
+        final MockSchedule sched = new MockSchedule();
         projectConfig.add(sched);
 
-        Log log = new Log();
-        File logDir = new File(TEST_DIR + File.separator + "test-results");
+        final Log log = new Log();
+        final File logDir = new File(TEST_DIR + File.separator + "test-results");
         logDir.mkdir();
         filesToDelete.add(logDir);
         final String myProjectName = "myproject";
@@ -156,21 +157,21 @@ public class ProjectTest extends TestCase {
         project.setLastBuild(formatTime(now));
         project.setLastSuccessfulBuild(formatTime(now));
         writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
-        File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
+        final File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
         auxLogsDirectory.mkdir();
         filesToDelete.add(auxLogsDirectory);
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog2.xml",
                 "<testsuite><properties><property/></properties><testcase/></testsuite>");
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog3.xml", "<testsuite/>");
 
-        final ArrayList resultEvents = new ArrayList();
+        final List<BuildResultEvent> resultEvents = new ArrayList<BuildResultEvent>();
         project.addBuildResultListener(new BuildResultListener() {
             public void handleBuildResult(BuildResultEvent event) {
                 resultEvents.add(event);
             }
         });
 
-        final ArrayList progressEvents = new ArrayList();
+        final List<BuildProgressEvent> progressEvents = new ArrayList<BuildProgressEvent>();
         project.addBuildProgressListener(new BuildProgressListener() {
             public void handleBuildProgress(BuildProgressEvent event) {
                 progressEvents.add(event);
@@ -183,13 +184,13 @@ public class ProjectTest extends TestCase {
         project.start();
         project.build();
         project.stop();
-        File expectedLogFile = new File(logDir, "log" + DateUtil.getFormattedTime(now) + "L1.2.2.xml");
+        final File expectedLogFile = new File(logDir, "log" + DateUtil.getFormattedTime(now) + "L1.2.2.xml");
         assertTrue(expectedLogFile.isFile());
         filesToDelete.add(expectedLogFile);
 
         assertTrue(project.isLastBuildSuccessful());
 
-        String expected =
+        final String expected =
                 "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><cruisecontrol><modifications />"
                 + "<info>"
                 + "<property name=\"projectname\" value=\"myproject\" />"
@@ -220,7 +221,7 @@ public class ProjectTest extends TestCase {
         assertEquals("Didn't increment the label", "1.2.3", project.getLabel().intern());
 
         //look for sourcecontrol properties
-        java.util.Map props = sched.getBuildProperties();
+        final Map<String, String> props = sched.getBuildProperties();
         assertNotNull("Build properties were null.", props);
         assertEquals("Build property count.", 10, props.size());
         assertTrue("projectname not found.", props.containsKey("projectname"));
@@ -233,7 +234,7 @@ public class ProjectTest extends TestCase {
 
         // check that the proper events were fired
         assertEquals("Should be exactly one build result event", 1, resultEvents.size());
-        BuildResultEvent resultEvent = (BuildResultEvent) resultEvents.get(0);
+        final BuildResultEvent resultEvent = resultEvents.get(0);
         assertTrue("Should be successful build result event", resultEvent.isBuildSuccessful());
         assertTrue("Should have at least one of each project state except queued", progressEvents.size() >= 8);
     }

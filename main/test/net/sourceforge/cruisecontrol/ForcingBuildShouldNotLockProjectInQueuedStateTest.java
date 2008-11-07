@@ -147,7 +147,8 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
             return 999999999;
         }
 
-        public synchronized Element build(int buildNumber, Date lastBuild, Date now, Map propMap, String buildTarget,
+        public synchronized Element build(int buildNumber, Date lastBuild, Date now,
+                                          Map<String, String> propMap, String buildTarget,
                 Progress progress)
                 throws CruiseControlException {
 

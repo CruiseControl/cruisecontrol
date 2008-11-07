@@ -43,7 +43,7 @@ import java.util.Map;
 
 public class MockSchedule extends Schedule {
 
-    private Map properties = null;
+    private Map<String, String> properties = null;
     private boolean validateWasCalled = false;
 
     public MockSchedule() {
@@ -55,7 +55,7 @@ public class MockSchedule extends Schedule {
         });
     }
 
-    public Element build(int buildNumber, Date lastBuild, Date now, Map propMap, String buildTarget,
+    public Element build(int buildNumber, Date lastBuild, Date now, Map<String, String> propMap, String buildTarget,
                          Progress progress)
       throws CruiseControlException {
         this.properties = propMap;
@@ -66,7 +66,7 @@ public class MockSchedule extends Schedule {
         return false;
     }
 
-    protected Map getBuildProperties() {
+    protected Map<String, String> getBuildProperties() {
         return properties;
     }
 
