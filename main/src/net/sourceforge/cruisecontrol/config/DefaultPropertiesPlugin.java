@@ -157,7 +157,9 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
       }
   }
 
-  public void loadProperties(final Map props, final boolean failIfMissing) throws CruiseControlException {
+  public void loadProperties(final Map<String, String> props, final boolean failIfMissing)
+          throws CruiseControlException {
+      
     final boolean toUpperValue = "true".equals(toupper);
     if (file != null && file.trim().length() > 0) {
         final File theFile = new File(this.file);
@@ -202,19 +204,19 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
                 continue;
             }
             // If the toupper attribute was set, upcase the variables
-            StringBuffer propName = new StringBuffer(environment);
+            final StringBuilder propName = new StringBuilder(environment);
             propName.append(".");
             if (toUpperValue) {
                 propName.append(line.substring(0, index).toUpperCase());
             } else {
                 propName.append(line.substring(0, index));
             }
-            String parsedValue
+            final String parsedValue
                     = Util.parsePropertiesInString(props, line.substring(index + 1), failIfMissing);
             ProjectXMLHelper.setProperty(props, propName.toString(), parsedValue);
         }
     } else {
-        String parsedValue = Util.parsePropertiesInString(props, value, failIfMissing);
+        final String parsedValue = Util.parsePropertiesInString(props, value, failIfMissing);
         ProjectXMLHelper.setProperty(props, name, parsedValue);
     }
   }

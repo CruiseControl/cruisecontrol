@@ -36,7 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -45,25 +46,25 @@ import junit.framework.TestCase;
 public class ProjectXMLHelperTest extends TestCase {
 
     public void testParsePropertiesInString1() throws CruiseControlException {
-        Properties properties = new Properties();
+        final Map<String, String> properties = new HashMap<String, String>();
         properties.put("property", "value");
-        String s = Util.parsePropertiesInString(properties, "${property}", false);
+        final String s = Util.parsePropertiesInString(properties, "${property}", false);
         assertEquals("value", s);
 
         properties.put("one", "1");
         properties.put("two", "2");
-        String s2 = Util.parsePropertiesInString(properties, "a${one}b${two}c", false);
+        final String s2 = Util.parsePropertiesInString(properties, "a${one}b${two}c", false);
         assertEquals("a1b2c", s2);
 
         properties.put("one", "1");
         properties.put("two", "2");
 
-        String s3 = Util.parsePropertiesInString(properties, "a${oneb${two}}c", false);
+        final String s3 = Util.parsePropertiesInString(properties, "a${oneb${two}}c", false);
         assertEquals("a${oneb2}c", s3);
 
         properties.put("foo-bar", "b");
         properties.put("two", "bar");
-        String s4 = Util.parsePropertiesInString(properties, "a${foo-${two}}c", false);
+        final String s4 = Util.parsePropertiesInString(properties, "a${foo-${two}}c", false);
         assertEquals("abc", s4);
 
         try {
@@ -73,13 +74,13 @@ public class ProjectXMLHelperTest extends TestCase {
            // expected
         }
 
-        String s5 = Util.parsePropertiesInString(properties, "${}", false);
+        final String s5 = Util.parsePropertiesInString(properties, "${}", false);
         assertEquals("", s5);
     }
 
     public void testParsePropertiesInString2() throws CruiseControlException {
-        Properties properties = new Properties();
-        String s = Util.parsePropertiesInString(properties, "${missing}", false);
+        final Map<String, String> properties = new HashMap<String, String>();
+        final String s = Util.parsePropertiesInString(properties, "${missing}", false);
         assertEquals("${missing}", s);
     }
 }

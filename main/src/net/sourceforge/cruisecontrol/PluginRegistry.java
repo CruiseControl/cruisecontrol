@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +88,10 @@ public final class PluginRegistry implements Serializable {
     }
 
     /**
+     * @param parent parent registry of the new plugin registry
      * @return PluginRegistry with the specified registry as its parent.
      */
-    public static PluginRegistry createRegistry(PluginRegistry parent) {
+    public static PluginRegistry createRegistry(final PluginRegistry parent) {
         return new PluginRegistry(parent);
     }
 
@@ -106,20 +106,21 @@ public final class PluginRegistry implements Serializable {
      * the fully qualified classname
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
      */
-    private final Map plugins = new HashMap();
+    private final Map<String, String> plugins = new HashMap<String, String>();
 
     /**
      * Map that holds the DOM element representing the plugin declaration.
      * Key is the plugin name (as taken from the DOM element),
      * value is the Element representing the plugin configuration.
      */
-    private final Map pluginConfigs = new HashMap();
+    private final Map<String, Element> pluginConfigs = new HashMap<String, Element>();
 
     /**
      * Creates a new PluginRegistry with no plugins registered, with the given parent registry.
      * Only used internally for now, Projects should call createRegistry instead.
+     * @param parentRegistry parent registry of the new plugin registry
      */
-    private PluginRegistry(PluginRegistry parentRegistry) {
+    private PluginRegistry(final PluginRegistry parentRegistry) {
         this.parentRegistry = parentRegistry;
     }
 
@@ -130,16 +131,18 @@ public final class PluginRegistry implements Serializable {
      *
      * @param pluginClassname The fully qualified classname for the
      * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
+     * @deprecated 11-07-2008, will become non-public asap, only existed to support deprecated
+     * {@link net.sourceforge.cruisecontrol.SelfConfiguringPlugin} interface.
      */
-    public void register(String pluginName, String pluginClassname) {
+    public void register(final String pluginName, final String pluginClassname) {
         // TODO hide from public interface
         plugins.put(pluginName.toLowerCase(), pluginClassname);
     }
 
-    public void register(PluginPlugin plugin) throws CruiseControlException {
-      String pluginName = plugin.getName();
-      String pluginClassName = plugin.getClassname();
-      Element transformedElement = plugin.getTransformedElement();
+    public void register(final PluginPlugin plugin) throws CruiseControlException {
+      final String pluginName = plugin.getName();
+      final String pluginClassName = plugin.getClassname();
+      final Element transformedElement = plugin.getTransformedElement();
       if (pluginClassName != null) {
         register(pluginName, pluginClassName);
       } else {
@@ -160,10 +163,11 @@ public final class PluginRegistry implements Serializable {
      * Registers the given plugin, including plugin configuration.
      *
      * @param pluginElement the JDom element that contains the plugin definition.
+     * @throws CruiseControlException if operation fails
      * @deprecated use {@link #register(PluginPlugin)}
      */
-    public void register(Element pluginElement) throws CruiseControlException {
-      PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(pluginElement, false);
+    public void register(final Element pluginElement) throws CruiseControlException {
+      final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(pluginElement, false);
       register(plugin);
     }
 
@@ -171,9 +175,10 @@ public final class PluginRegistry implements Serializable {
   /**
      * Registers the given plugin in the root registry, so it will be
      * available to all projects.
-     *
+     * @param pluginElement the plugin to register
+     * @throws CruiseControlException if operation fails
      */
-    static void registerToRoot(Element pluginElement) throws CruiseControlException {
+    static void registerToRoot(final Element pluginElement) throws CruiseControlException {
         ROOTREGISTRY.register(pluginElement);
     }
 
@@ -188,6 +193,7 @@ public final class PluginRegistry implements Serializable {
     }
 
     /**
+     * @param pluginName the case insensitive plugin name.
      * @return Returns null if no plugin has been registered with the specified
      * name, otherwise a String representing the fully qualified classname
      * for the plugin class. Note that plugin
@@ -205,14 +211,16 @@ public final class PluginRegistry implements Serializable {
     }
 
     /**
+     * @param pluginName lower case plugin name.
      * @return the class name for this plugin on this registry. May be <code>null</code>
      * Assumes the pluginName is lower case
      */
-    private String internalGetPluginClassname(String pluginName) {
-        return (String) plugins.get(pluginName);
+    private String internalGetPluginClassname(final String pluginName) {
+        return plugins.get(pluginName);
     }
 
     /**
+     * @param pluginName the plugin name
      * @return Returns null if no plugin has been registered with the specified
      * name, otherwise the Class representing the plugin class. Note that
      * plugin names are always treated as case insensitive, so Ant, ant,
@@ -220,21 +228,23 @@ public final class PluginRegistry implements Serializable {
      *
      * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public Class getPluginClass(String pluginName) throws CruiseControlException {
+    public Class getPluginClass(final String pluginName) throws CruiseControlException {
         if (!isPluginRegistered(pluginName)) {
             return null;
         }
-        String pluginClassname = getPluginClassname(pluginName);
+        final String pluginClassname = getPluginClassname(pluginName);
         return instanciatePluginClass(pluginClassname, pluginName);
     }
 
     /**
-     * @param pluginClassname
-     * @param pluginName
+     * @param pluginClassname fully qualified plugin class name
+     * @param pluginName plugin name
      * @return instantiate the Class representing the plugin class name.
      * @throws CruiseControlException If the class provided cannot be loaded.
      */
-    public Class instanciatePluginClass(String pluginClassname, String pluginName) throws CruiseControlException {
+    public Class instanciatePluginClass(final String pluginClassname, final String pluginName)
+            throws CruiseControlException {
+
         try {
             return Class.forName(pluginClassname);
         } catch (ClassNotFoundException e) {
@@ -245,7 +255,7 @@ public final class PluginRegistry implements Serializable {
         }
     }
 
-    public String getPluginName(Class pluginClass) {
+    public String getPluginName(final Class pluginClass) {
         String pluginName = null;
 
         if (parentRegistry != null) {
@@ -253,11 +263,10 @@ public final class PluginRegistry implements Serializable {
         }
 
         if (pluginName == null) {
-            for (Iterator i = plugins.entrySet().iterator(); i.hasNext();) {
-                Map.Entry entry = (Map.Entry) i.next();
-                String value = (String) entry.getValue();
+            for (final Map.Entry<String, String> entry : plugins.entrySet()) {
+                final String value = entry.getValue();
                 if (value.equals(pluginClass.getName())) {
-                    pluginName = ((String) entry.getKey());
+                    pluginName = entry.getKey();
                     break;
                 }
             }
@@ -267,14 +276,13 @@ public final class PluginRegistry implements Serializable {
     }
 
     public PluginDetail[] getPluginDetails() throws CruiseControlException {
-        List availablePlugins = new LinkedList();
+        final List<PluginDetail> availablePlugins = new LinkedList<PluginDetail>();
 
         if (parentRegistry != null) {
             availablePlugins.addAll(Arrays.asList(parentRegistry.getPluginDetails()));
         }
 
-        for (Iterator i = plugins.keySet().iterator(); i.hasNext();) {
-            String pluginName = (String) i.next();
+        for (final String pluginName : plugins.keySet()) {
             try {
                 Class pluginClass = getPluginClass(pluginName);
                 availablePlugins.add(new GenericPluginDetail(pluginName, pluginClass));
@@ -287,7 +295,7 @@ public final class PluginRegistry implements Serializable {
             }
         }
 
-        return (PluginDetail[]) availablePlugins.toArray(new PluginDetail[availablePlugins.size()]);
+        return availablePlugins.toArray(new PluginDetail[availablePlugins.size()]);
     }
 
     public PluginType[] getPluginTypes() {
@@ -295,6 +303,7 @@ public final class PluginRegistry implements Serializable {
     }
 
     /**
+     * @param pluginName the short name for the plugin.
      * @return True if this registry or its parent contains
      * an entry for the plugin specified by the name.
      * The name is the short name for the plugin, not
@@ -306,7 +315,7 @@ public final class PluginRegistry implements Serializable {
      * a NullPointerException will occur. It's recommended to not pass a
      * null pluginName.
      */
-    public boolean isPluginRegistered(String pluginName) {
+    public boolean isPluginRegistered(final String pluginName) {
         boolean isRegistered = plugins.containsKey(pluginName.toLowerCase());
         if (!isRegistered && parentRegistry != null) {
             isRegistered = parentRegistry.isPluginRegistered(pluginName);
@@ -319,30 +328,31 @@ public final class PluginRegistry implements Serializable {
      * The key is the plugin name (e.g. ant) and the value is
      * the fully qualified classname
      * (e.g. net.sourceforge.cruisecontrol.builders.AntBuilder).
+     * @return a PluginRegistry containing all the default plugins.
      * @throws RuntimeException in case of IOException during the reading of the properties-file
      */
     static PluginRegistry loadDefaultPluginRegistry() {
-        PluginRegistry rootRegistry = new PluginRegistry(null);
-        Properties pluginDefinitions = new Properties();
+        final PluginRegistry rootRegistry = new PluginRegistry(null);
+        final Properties pluginDefinitions = new Properties();
         try {
             pluginDefinitions.load(PluginRegistry.class.getResourceAsStream("default-plugins.properties"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load plugin-definitions from default-plugins.properties: " + e);
         }
-        for (Iterator iter = pluginDefinitions.entrySet().iterator(); iter.hasNext(); ) {
-            Map.Entry entry = (Map.Entry) iter.next();
+        for (final Map.Entry entry : pluginDefinitions.entrySet()) {
             rootRegistry.register((String) entry.getKey(), (String) entry.getValue());
         }
         return rootRegistry;
     }
 
     /**
-     * Get the plugin configuration particular to this plugin, merged with the parents
+     * @param pluginName the plugin name
+     * @return the plugin configuration particular to this plugin, merged with the parents
      * @throws NullPointerException if pluginName is null
      */
     public Element getPluginConfig(String pluginName) {
         pluginName = pluginName.toLowerCase();
-        String className = getPluginClassname(pluginName);
+        final String className = getPluginClassname(pluginName);
         return overridePluginConfig(pluginName, className, null);
     }
 
@@ -365,7 +375,7 @@ public final class PluginRegistry implements Serializable {
      * the same plugin, following the hierarchy.
      */
     private Element overridePluginConfig(final String pluginName, final String pluginClass, Element pluginConfig) {
-        Element pluginElement = (Element) this.pluginConfigs.get(pluginName);
+        Element pluginElement = this.pluginConfigs.get(pluginName);
         // clone the first found plugin config
         if (pluginElement != null && pluginConfig == null) {
             pluginElement = (Element) pluginElement.clone();
@@ -376,18 +386,18 @@ public final class PluginRegistry implements Serializable {
             // do not override if class names do not match
             if (pluginElement != null && pluginClass.equals(this.internalGetPluginClassname(pluginName))) {
                 // override properties
-                List attributes = pluginElement.getAttributes();
+                final List attributes = pluginElement.getAttributes();
                 for (int i = 0; i < attributes.size(); i++) {
-                    Attribute attribute = (Attribute) attributes.get(i);
-                    String name = attribute.getName();
+                    final Attribute attribute = (Attribute) attributes.get(i);
+                    final String name = attribute.getName();
                     if (pluginConfig.getAttribute(name) == null) {
                         pluginConfig.setAttribute(name, attribute.getValue());
                     }
                 }
                 // combine child elements
-                List children = pluginElement.getChildren();
+                final List children = pluginElement.getChildren();
                 for (int i = 0; i < children.size(); i++) {
-                    Element child = (Element) children.get(i);
+                    final Element child = (Element) children.get(i);
                     pluginConfig.addContent((Element) child.clone());
                 }
             }

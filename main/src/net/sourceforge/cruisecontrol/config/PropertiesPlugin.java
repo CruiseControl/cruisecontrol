@@ -44,5 +44,5 @@ import java.util.Map;
  * A plugin that represents the properties.
  */
 public interface PropertiesPlugin {
-  void loadProperties(Map properties, boolean failIfMissing) throws CruiseControlException;
+  void loadProperties(Map<String, String> properties, boolean failIfMissing) throws CruiseControlException;
 }

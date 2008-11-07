@@ -56,7 +56,7 @@ public class PluginXMLHelperTest extends TestCase {
 
     protected void setUp() throws CruiseControlException {
         registry = PluginRegistry.loadDefaultPluginRegistry();
-        projectXmlHelper = new ProjectXMLHelper(new HashMap(), registry);
+        projectXmlHelper = new ProjectXMLHelper(new HashMap<String, String>(), registry);
         helper = new PluginXMLHelper(projectXmlHelper);
     }
 
@@ -131,6 +131,7 @@ class MockBadBuilder extends Builder {
 
     /**
      * A constructor that violates the rules for a Builder.
+     * @param ruleBreakingArg a bad arg
      */
     public MockBadBuilder(String ruleBreakingArg) {
 

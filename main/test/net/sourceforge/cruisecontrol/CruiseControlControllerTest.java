@@ -445,16 +445,16 @@ public final class CruiseControlControllerTest extends TestCase {
     }
 
     final class MyListener implements CruiseControlController.Listener {
-        private final List added = new ArrayList();
-        private final List removed = new ArrayList();
+        private final List<ProjectInterface> added = new ArrayList<ProjectInterface>();
+        private final List<ProjectInterface> removed = new ArrayList<ProjectInterface>();
         public void clear() {
             added.clear();
             removed.clear();
         }
-        public void projectAdded(ProjectInterface project) {
+        public void projectAdded(final ProjectInterface project) {
             added.add(project);
         }
-        public void projectRemoved(ProjectInterface project) {
+        public void projectRemoved(final ProjectInterface project) {
             removed.add(project);
         }
     }
