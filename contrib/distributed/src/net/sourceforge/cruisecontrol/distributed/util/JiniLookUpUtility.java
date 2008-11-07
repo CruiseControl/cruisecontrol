@@ -70,16 +70,15 @@ public final class JiniLookUpUtility {
             }
             final ServiceRegistrar[] registrars = MulticastDiscovery.getRegistrars();
             System.out.println("\nFound " + registrars.length + " Lookup Services.");
-            for (int x = 0; x < registrars.length; x++) {
-                final ServiceRegistrar registrar = registrars[x];
-                final String registrarInfo = "Registrar: " + registrar.getServiceID();                
+            for (final ServiceRegistrar registrar : registrars) {
+                final String registrarInfo = "Registrar: " + registrar.getServiceID();
                 System.out.println(registrarInfo);
                 LOG.debug(registrarInfo);
                 final ServiceTemplate template = new ServiceTemplate(null, null, null);
                 final ServiceMatches matches = registrar.lookup(template, Integer.MAX_VALUE);
                 final ServiceItem[] items = matches.items;
-                for (int i = 0; i < items.length; i++) {
-                    final String serviceInfo = "  Service: " + items[i].service;
+                for (final ServiceItem item : items) {
+                    final String serviceInfo = "  Service: " + item.service;
                     System.out.println(serviceInfo);
                     LOG.debug(serviceInfo);
                 }
