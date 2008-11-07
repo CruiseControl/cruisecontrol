@@ -88,11 +88,10 @@ public class ExecScript implements Script, StreamConsumer {
 
         // log the command if debug is enabled
         if (LOG.isDebugEnabled()) {
-            StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append("Executing Command: ");
-            String[] args = cmdLine.getCommandline();
-            for (int i = 0; i < args.length; i++) {
-                String arg = args[i];
+            final String[] args = cmdLine.getCommandline();
+            for (final String arg : args) {
                 sb.append(arg);
                 sb.append(" ");
             }
