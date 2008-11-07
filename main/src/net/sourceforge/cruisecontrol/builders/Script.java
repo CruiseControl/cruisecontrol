@@ -50,16 +50,18 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 public interface Script {
 
     /**
-     * This method will return the command line for a specific build tool
+     * This method will return the command line for a specific build tool.
      * @return commandline for a scripted build.
+     * @throws CruiseControlException when building the command line fails.
      */
     public Commandline buildCommandline() throws CruiseControlException;
 
     /**
-     * exitCode is what is returned from running the script
-     * @param result
+     * exitCode is what is returned from running the script.
+     * @param result the return value from running the script
      */
     public void setExitCode(int result);
+    /** @return  the return value from running the script. */
     public int getExitCode();
 }
 
