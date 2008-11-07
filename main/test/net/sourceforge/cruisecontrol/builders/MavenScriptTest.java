@@ -36,7 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.Hashtable;
+import java.util.Map;
+import java.util.HashMap;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -92,12 +93,12 @@ public class MavenScriptTest extends TestCase {
     }
 
     private MavenScript getScript() {
-      MavenScript script = new MavenScript(null, null);
+      final MavenScript script = new MavenScript(null, null);
       // none should exist for this test
       script.setMavenScript("testmaven.sh");
       script.setProjectFile("testproject.xml");
 
-      Hashtable properties = new Hashtable();
+      final Map<String, String> properties = new HashMap<String, String>();
       properties.put("label", "200.1.23");
       script.setBuildProperties(properties);
       return script;
