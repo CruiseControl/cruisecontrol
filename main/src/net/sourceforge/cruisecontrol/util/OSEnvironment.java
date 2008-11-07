@@ -112,7 +112,7 @@ public class OSEnvironment {
     /**
      * Internal representation of the system environment
      */
-    private Properties variables = new Properties();
+    private final Properties variables = new Properties();
 
     /**
      * Constructor
@@ -130,10 +130,10 @@ public class OSEnvironment {
      */
     private void parse() {
 
-        String command;
+        final String command;
 
         // Detemine the correct command to run based on OS name
-        String os = System.getProperty("os.name").toLowerCase();
+        final String os = System.getProperty("os.name").toLowerCase();
         if (isWindows9x(os)) {
             command = "command.com /c set";
         } else if ((os.indexOf("nt") > -1) || (os.indexOf("windows") > -1)
@@ -146,37 +146,37 @@ public class OSEnvironment {
 
         // Get our environment
         try {
-            Process p = Runtime.getRuntime().exec(command);
+            final Process p = Runtime.getRuntime().exec(command);
             p.getOutputStream().close();
 
             // Capture the output of the command
-            BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader stderrStream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-            // Parse the output
-            String line;
-            String key = null;
-            while ((line = stdoutStream.readLine()) != null) {
-                int idx = line.indexOf('=');
-                String value;
-                if (idx == -1) {
-                    if (key == null) {
-                        continue;
+            final BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            final BufferedReader stderrStream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            try {
+                // Parse the output
+                String line;
+                String key = null;
+                while ((line = stdoutStream.readLine()) != null) {
+                    int idx = line.indexOf('=');
+                    String value;
+                    if (idx == -1) {
+                        if (key == null) {
+                            continue;
+                        }
+                        // potential multi-line property. Let's rebuild it
+                        value = variables.getProperty(key);
+                        value += "\n" + line;
+                    } else {
+                        key = line.substring(0, idx);
+                        value = line.substring(idx + 1);
                     }
-                    // potential multi-line property. Let's rebuild it
-                    value = variables.getProperty(key);
-                    value += "\n" + line;
-                } else {
-                    key = line.substring(0, idx);
-                    value = line.substring(idx + 1);
+                    variables.setProperty(key, value);
                 }
-                variables.setProperty(key, value);
+            } finally {
+                // Close down our streams
+                stdoutStream.close();
+                stderrStream.close();
             }
-
-            // Close down our streams
-            stdoutStream.close();
-            stderrStream.close();
-
         } catch (Exception e) {
             LOG.error("Failed to parse the OS environment.", e);
         }
@@ -228,13 +228,15 @@ public class OSEnvironment {
      * @param variable
      *            the variable for which you wish the value
      *
+     * @return the value of an environment variable
+     *
      * @see #getVariable(String variable)
      * @see #getVariable(String variable, String defaultValue)
      */
-    public String getVariableIgnoreCase(String variable) {
-        Enumeration keys = variables.keys();
+    public String getVariableIgnoreCase(final String variable) {
+        final Enumeration keys = variables.keys();
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            final String key = (String) keys.nextElement();
             if (key.equalsIgnoreCase(variable)) {
                 return variables.getProperty(key);
             }
@@ -265,8 +267,8 @@ public class OSEnvironment {
      *
      * @see #toArray()
      */
-    public List getEnvironment() {
-        List env = new ArrayList();
+    public List<String> getEnvironment() {
+        final List<String> env = new ArrayList<String>();
         Enumeration keys = variables.keys();
         while (keys.hasMoreElements()) {
             String key = (String) keys.nextElement();
@@ -287,8 +289,8 @@ public class OSEnvironment {
      * @see java.lang.Runtime
      */
     public String[] toArray() {
-        List list = getEnvironment();
-        return (String[]) list.toArray(new String[list.size()]);
+        final List<String> list = getEnvironment();
+        return list.toArray(new String[list.size()]);
     }
 
     /**
