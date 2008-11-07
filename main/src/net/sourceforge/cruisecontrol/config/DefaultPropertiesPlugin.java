@@ -43,7 +43,6 @@ import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 import java.util.Map;
-import java.util.Iterator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -92,7 +91,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
    private String toupper;
 
   /**
-   * The name of the property to set.
+   * @param name name of the property to set.
    * @required Exactly one of name, environment, or file.
    */
   public void setName(String name) {
@@ -104,6 +103,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
    * The prefix to use when retrieving environment variables.
    * Thus if you specify environment="myenv" you will be able to access OS-specific environment variables
    * via property names such as "myenv.PATH" or "myenv.MAVEN_HOME".
+   * @param environment The prefix to use when retrieving environment variables.
    * @required Exactly one of name, environment, or file.
    */
   public void setEnvironment(String environment) {
@@ -112,6 +112,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
 
   /**
    * The filename of the property file to load.
+   * @param file filename of the property file to load.
    * @required Exactly one of name, environment, or file.
    */
   public void setFile(String file) {
@@ -119,8 +120,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
   }
 
   /**
-   *
-   * @param value
+   * @param value must be set if name was set.
    * @required Yes, if name was set.
    */
   public void setValue(String value) {
@@ -130,22 +130,22 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
   /**
    * Used in conjunction with <code>environment</code>. If set to <code>true</code>, all
    * environment variable names will be converted to upper case.
-   * @param toupper
+   * @param toupper If set to <code>true</code>, all
+   * environment variable names will be converted to upper case.
    */
   public void setToupper(String toupper) {
     this.toupper = toupper;
   }
   /**
-  * Called after the configuration is read to make sure that all the mandatory parameters were specified.. @throws
-  * CruiseControlException if there was a configuration error.
-  */
+   * Called after the configuration is read to make sure that all the mandatory parameters were specified..
+   * @throws CruiseControlException if there was a configuration error.
+   */
   public void validate() throws CruiseControlException {
       if (name == null && file == null && environment == null) {
         ValidationHelper.fail("At least one of name, file or environment must be set.");
       }
       if ((name != null && (file != null || environment != null)
-       || (file != null && (name != null || environment != null))
-       || (environment != null && (file != null || name != null)))) {
+       || (file != null && (environment != null)))) {
         ValidationHelper.fail("At most one of name, file or environment can be set.");
       }
 
@@ -157,33 +157,36 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
       }
   }
 
-  public void loadProperties(Map props, boolean failIfMissing) throws CruiseControlException {
-    boolean toUpperValue = "true".equals(toupper);
+  public void loadProperties(final Map props, final boolean failIfMissing) throws CruiseControlException {
+    final boolean toUpperValue = "true".equals(toupper);
     if (file != null && file.trim().length() > 0) {
-        File theFile = new File(this.file);
+        final File theFile = new File(this.file);
         // TODO FIXME add exists check.
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(theFile));
-            // Read the theFile line by line, expanding macros
-            // as we go. We must do this manually to preserve the
-            // order of the properties.
-            String line;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.length() == 0 || line.charAt(0) == '#') {
-                    continue;
+            final BufferedReader reader = new BufferedReader(new FileReader(theFile));
+            try {
+                // Read the theFile line by line, expanding macros
+                // as we go. We must do this manually to preserve the
+                // order of the properties.
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.length() == 0 || line.charAt(0) == '#') {
+                        continue;
+                    }
+                    final int index = line.indexOf('=');
+                    if (index < 0) {
+                        continue;
+                    }
+                    final String parsedName
+                        = Util.parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
+                    final String parsedValue
+                        = Util.parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
+                    ProjectXMLHelper.setProperty(props, parsedName, parsedValue);
                 }
-                int index = line.indexOf('=');
-                if (index < 0) {
-                    continue;
-                }
-                String parsedName
-                    = Util.parsePropertiesInString(props, line.substring(0, index).trim(), failIfMissing);
-                String parsedValue
-                    = Util.parsePropertiesInString(props, line.substring(index + 1).trim(), failIfMissing);
-                ProjectXMLHelper.setProperty(props, parsedName, parsedValue);
+            } finally {
+                reader.close();
             }
-            reader.close();
         } catch (FileNotFoundException e) {
             throw new CruiseControlException("Could not load properties from theFile \"" + this.file
                     + "\". The theFile does not exist", e);
@@ -193,9 +196,7 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
         }
     } else if (environment != null) {
         // Load the environment into the project's properties
-        Iterator variables = new OSEnvironment().getEnvironment().iterator();
-        while (variables.hasNext()) {
-            String line = (String) variables.next();
+        for (final String line : new OSEnvironment().getEnvironment()) {
             int index = line.indexOf('=');
             if (index < 0) {
                 continue;
