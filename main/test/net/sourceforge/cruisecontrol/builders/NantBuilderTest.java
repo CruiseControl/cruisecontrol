@@ -278,7 +278,9 @@ public class NantBuilderTest extends TestCase {
 
     public void testBuildTimeout() throws Exception {
 
-        final MockProcess timeoutProcess = new TimeoutProcess(20000);
+        final int buildSleepSecs = 2;
+
+        final MockProcess timeoutProcess = new TimeoutProcess(buildSleepSecs * 1000);
         final MockCommandline timeoutCommandline = new MockCommandline() {
             public MockProcess getMockProcess()  {
                 return timeoutProcess;
@@ -306,15 +308,19 @@ public class NantBuilderTest extends TestCase {
 
         mybuilder.setBuildFile("test.build");
         mybuilder.setTarget("timeout-test-target");
-        mybuilder.setTimeout(5);
+        final int testTimeoutSecs = buildSleepSecs / 2;
+        mybuilder.setTimeout(testTimeoutSecs);
         mybuilder.setUseDebug(true);
         mybuilder.setUseLogger(true);
 
         final Map<String, String> buildProperties = new HashMap<String, String>();
         long startTime = System.currentTimeMillis();
         Element buildElement = mybuilder.build(buildProperties, null);
-        assertTrue((System.currentTimeMillis() - startTime) < 9 * 1000L);
+        final long elapsedMillis = System.currentTimeMillis() - startTime;
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
+        assertTrue("Too much time has elapsed (" + elapsedMillis + " millis) for NantBuilder timeout of "
+                + testTimeoutSecs + " secs.",
+                elapsedMillis < ((testTimeoutSecs + 3) * 1000L));
 
         // test we don't fail when there is no NAnt log file
         mybuilder.setTimeout(1);
