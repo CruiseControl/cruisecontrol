@@ -44,7 +44,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +58,6 @@ import net.sourceforge.cruisecontrol.jmx.ProjectController;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -90,8 +88,8 @@ public class Project implements Serializable, Runnable {
     private transient Object scheduleMutex;
     private transient Object waitMutex;
     private transient BuildQueue queue;
-    private transient List progressListeners;
-    private transient List resultListeners;
+    private transient List<BuildProgressListener> progressListeners;
+    private transient List<BuildResultListener> resultListeners;
     private transient Progress progress;
 
     private int buildCounter = 0;
@@ -118,13 +116,13 @@ public class Project implements Serializable, Runnable {
         pausedMutex = new Object();
         scheduleMutex = new Object();
         waitMutex = new Object();
-        progressListeners = new ArrayList();
-        resultListeners = new ArrayList();
+        progressListeners = new ArrayList<BuildProgressListener>();
+        resultListeners = new ArrayList<BuildResultListener>();
 
         progress = new ProgressImpl(this);
     }
 
-    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    private void readObject(final ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         initializeTransientFields();
     }
@@ -176,7 +174,7 @@ public class Project implements Serializable, Runnable {
         }
 
 
-        boolean buildWasForced = buildForced;
+        final boolean buildWasForced = buildForced;
 
         try {
             setBuildStartTime(new Date());
@@ -271,7 +269,7 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    private String useAndResetBuildTargetIfBuildWasForced(boolean buildWasForced) {
+    private String useAndResetBuildTargetIfBuildWasForced(final boolean buildWasForced) {
         String target = null;
         if (buildWasForced) {
             target = buildTarget;
@@ -280,13 +278,13 @@ public class Project implements Serializable, Runnable {
         return target;
     }
 
-    private void resetBuildForcedOnlyIfBuildWasForced(boolean buildWasForced) {
+    private void resetBuildForcedOnlyIfBuildWasForced(final boolean buildWasForced) {
         if (buildWasForced) {
             buildForced = false;
         }
     }
 
-    void setBuildStartTime(Date date) {
+    void setBuildStartTime(final Date date) {
         buildStartTime = date;
     }
 
@@ -307,7 +305,7 @@ public class Project implements Serializable, Runnable {
                         }
                     }
                 } catch (InterruptedException e) {
-                    String message = "Project " + name + ".run() interrupted";
+                    final String message = "Project " + name + ".run() interrupted";
                     LOG.error(message, e);
                     throw new RuntimeException(message);
                 }
@@ -401,9 +399,8 @@ public class Project implements Serializable, Runnable {
      */
     Element getModifications(final boolean buildWasForced) {
         setState(ProjectState.MODIFICATIONSET);
-        Element modifications;
 
-        ModificationSet modificationSet = projectConfig.getModificationSet();
+        final ModificationSet modificationSet = projectConfig.getModificationSet();
         if (modificationSet == null) {
             debug("no modification set, nothing to detect.");
             if (buildWasForced) {
@@ -417,7 +414,8 @@ public class Project implements Serializable, Runnable {
             return null;
         }
 
-        boolean checkNewChangesFirst = checkOnlySinceLastBuild();
+        final boolean checkNewChangesFirst = checkOnlySinceLastBuild();
+        Element modifications;
         if (checkNewChangesFirst) {
             debug("getting changes since last build");
             modifications = modificationSet.retrieveModificationsAsElement(lastBuild, progress);
@@ -463,9 +461,9 @@ public class Project implements Serializable, Runnable {
             return false;
         }
 
-        long lastBuildLong = lastBuild.getTime();
-        long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
-        boolean moreThanASecond = timeDifference > DateUtil.ONE_SECOND;
+        final long lastBuildLong = lastBuild.getTime();
+        final long timeDifference = lastBuildLong - lastSuccessfulBuild.getTime();
+        final boolean moreThanASecond = timeDifference > DateUtil.ONE_SECOND;
 
         return !buildAfterFailed && moreThanASecond;
     }
@@ -474,21 +472,23 @@ public class Project implements Serializable, Runnable {
      * Serialize the project to allow resumption after a process bounce
      */
     public void serializeProject() {
-        ObjectOutputStream s = null;
+
         try {
-            s = new ObjectOutputStream(new FileOutputStream(name + ".ser"));
-            s.writeObject(this);
-            s.flush();
-            debug("Serializing project to [" + name + ".ser]");
+            final ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(name + ".ser"));
+            try {
+                s.writeObject(this);
+                s.flush();
+                debug("Serializing project to [" + name + ".ser]");
+            } finally {
+                s.close();
+            }
         } catch (Exception e) {
             LOG.warn("Error serializing project to [" + name + ".ser]: "
                     + e.getMessage(), e);
-        } finally {
-            IO.close(s);
         }
     }
 
-    public void setLabelIncrementer(LabelIncrementer incrementer) throws CruiseControlException {
+    public void setLabelIncrementer(final LabelIncrementer incrementer) throws CruiseControlException {
         if (incrementer == null) {
             throw new IllegalArgumentException("label incrementer can't be null");
         }
@@ -503,7 +503,7 @@ public class Project implements Serializable, Runnable {
         return labelIncrementer;
     }
 
-    public void setName(String projectName) {
+    public void setName(final String projectName) {
         name = projectName;
     }
 
@@ -511,7 +511,7 @@ public class Project implements Serializable, Runnable {
         return name;
     }
 
-    public void setLabel(String newLabel) {
+    public void setLabel(final String newLabel) {
         label = newLabel;
     }
 
@@ -525,7 +525,7 @@ public class Project implements Serializable, Runnable {
      * @throws CruiseControlException if the date cannot be extracted from the
      *                                input string
      */
-    public void setLastBuild(String newLastBuild) throws CruiseControlException {
+    public void setLastBuild(final String newLastBuild) throws CruiseControlException {
         lastBuild = DateUtil.parseFormattedTime(newLastBuild, "lastBuild");
     }
 
@@ -535,7 +535,7 @@ public class Project implements Serializable, Runnable {
      * @throws CruiseControlException if the date cannot be extracted from the
      *                                input string
      */
-    public void setLastSuccessfulBuild(String newLastSuccessfulBuild)
+    public void setLastSuccessfulBuild(final String newLastSuccessfulBuild)
             throws CruiseControlException {
         lastSuccessfulBuild = DateUtil.parseFormattedTime(newLastSuccessfulBuild, "lastSuccessfulBuild");
     }
@@ -581,7 +581,7 @@ public class Project implements Serializable, Runnable {
         if (overrideBuildInterval == null) {
             return projectConfig.getSchedule().getInterval();
         } else {
-            return overrideBuildInterval.longValue();
+            return overrideBuildInterval;
         }
     }
 
@@ -590,15 +590,15 @@ public class Project implements Serializable, Runnable {
      * overrides the value initially specified in the Schedule attribute.
      * @param sleepMillis the number of milliseconds to sleep between build attempts
      */
-    public void overrideBuildInterval(long sleepMillis) {
-        overrideBuildInterval = new Long(sleepMillis);
+    public void overrideBuildInterval(final long sleepMillis) {
+        overrideBuildInterval = sleepMillis;
     }
 
     public boolean isPaused() {
         return isPaused;
     }
 
-    public void setPaused(boolean paused) {
+    public void setPaused(final boolean paused) {
         synchronized (pausedMutex) {
             if (isPaused && !paused) {
                 pausedMutex.notifyAll();
@@ -607,7 +607,7 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    public void setBuildAfterFailed(boolean rebuildEvenWithNoNewModifications) {
+    public void setBuildAfterFailed(final boolean rebuildEvenWithNoNewModifications) {
         buildAfterFailed = rebuildEvenWithNoNewModifications;
     }
 
@@ -627,14 +627,14 @@ public class Project implements Serializable, Runnable {
         return state;
     }
 
-    private void setState(ProjectState newState) {
+    private void setState(final ProjectState newState) {
         state = newState;
         info(getStatus());
         notifyListeners(new ProjectStateChangedEvent(name, getState()));
         fireProgressEvent(new BuildProgressEvent(this, getState()));
     }
 
-    public void setBuildQueue(BuildQueue buildQueue) {
+    public void setBuildQueue(final BuildQueue buildQueue) {
         queue = buildQueue;
     }
 
@@ -683,12 +683,12 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    protected Element getProjectPropertiesElement(Date now) {
-        Element infoElement = new Element("info");
+    protected Element getProjectPropertiesElement(final Date now) {
+        final Element infoElement = new Element("info");
         addProperty(infoElement, "projectname", name);
-        String lastBuildString = DateUtil.getFormattedTime(lastBuild == null ? now : lastBuild);
+        final String lastBuildString = DateUtil.getFormattedTime(lastBuild == null ? now : lastBuild);
         addProperty(infoElement, "lastbuild", lastBuildString);
-        String lastSuccessfulBuildString =
+        final String lastSuccessfulBuildString =
                 DateUtil.getFormattedTime(lastSuccessfulBuild == null ? now : lastSuccessfulBuild);
         addProperty(infoElement, "lastsuccessfulbuild", lastSuccessfulBuildString);
         addProperty(infoElement, "builddate", DateUtil.formatIso8601(now));
@@ -700,8 +700,8 @@ public class Project implements Serializable, Runnable {
         return infoElement;
     }
 
-    private void addProperty(Element parent, String key, String value) {
-        Element propertyElement = new Element("property");
+    private void addProperty(final Element parent, final String key, final String value) {
+        final Element propertyElement = new Element("property");
         propertyElement.setAttribute("name", key);
         propertyElement.setAttribute("value", value);
         parent.addContent(propertyElement);
@@ -734,15 +734,14 @@ public class Project implements Serializable, Runnable {
      * @param buildLog the content to publish
      * @throws CruiseControlException if an error occurs during publishing
      */
-    protected void publish(Log buildLog) throws CruiseControlException {
+    protected void publish(final Log buildLog) throws CruiseControlException {
         setState(ProjectState.PUBLISHING);
-        for (Iterator i = projectConfig.getPublishers().iterator(); i.hasNext(); ) {
-            Publisher publisher = (Publisher) i.next();
+        for (final Publisher publisher : projectConfig.getPublishers()) {
             // catch all errors, Publishers shouldn't cause failures in the build method
             try {
                 publisher.publish(buildLog.getContent());
             } catch (Throwable t) {
-                StringBuffer message = new StringBuffer("exception publishing results");
+                final StringBuilder message = new StringBuilder("exception publishing results");
                 message.append(" with ").append(publisher.getClass().getName());
                 message.append(" for project ").append(name);
                 LOG.error(message.toString(), t);
@@ -757,8 +756,8 @@ public class Project implements Serializable, Runnable {
      */
     protected void bootstrap() throws CruiseControlException {
         setState(ProjectState.BOOTSTRAPPING);
-        for (Iterator i = projectConfig.getBootstrappers().iterator(); i.hasNext(); ) {
-            ((Bootstrapper) i.next()).bootstrap();
+        for (final Bootstrapper bootstrapper : projectConfig.getBootstrappers()) {
+            bootstrapper.bootstrap();
         }
     }
 
@@ -769,7 +768,7 @@ public class Project implements Serializable, Runnable {
      * @param incrementer target LabelIncrementer
      * @throws CruiseControlException if label is not valid
      */
-    protected void validateLabel(String oldLabel, LabelIncrementer incrementer)
+    protected void validateLabel(final String oldLabel, final LabelIncrementer incrementer)
             throws CruiseControlException {
         if (!incrementer.isValidLabel(oldLabel)) {
             final String message = oldLabel + " is not a valid label for labelIncrementer "
@@ -783,7 +782,7 @@ public class Project implements Serializable, Runnable {
         return wasLastBuildSuccessful;
     }
 
-    void setWasLastBuildSuccessful(boolean buildSuccessful) {
+    void setWasLastBuildSuccessful(final boolean buildSuccessful) {
         wasLastBuildSuccessful = buildSuccessful;
     }
 
@@ -792,11 +791,11 @@ public class Project implements Serializable, Runnable {
      * CruiseControl build log.
      * @param message the application message to log
      */
-    private void info(String message) {
+    private void info(final String message) {
         LOG.info("Project " + name + ":  " + message);
     }
 
-    private void debug(String message) {
+    private void debug(final String message) {
         LOG.debug("Project " + name + ":  " + message);
     }
 
@@ -810,7 +809,7 @@ public class Project implements Serializable, Runnable {
     }
 
     protected void createNewSchedulingThread() {
-        Thread projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
+        final Thread projectSchedulingThread = new Thread(this, "Project " + getName() + " thread");
         projectSchedulingThread.start();
 
         // brief nap to allow thread to start
@@ -837,7 +836,7 @@ public class Project implements Serializable, Runnable {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer("Project ");
+        final StringBuilder sb = new StringBuilder("Project ");
         sb.append(getName());
         sb.append(": ");
         sb.append(getStatus());
@@ -847,41 +846,39 @@ public class Project implements Serializable, Runnable {
         return sb.toString();
     }
 
-    public void addBuildProgressListener(BuildProgressListener listener) {
+    public void addBuildProgressListener(final BuildProgressListener listener) {
         synchronized (progressListeners) {
             progressListeners.add(listener);
         }
     }
 
-    protected void fireProgressEvent(BuildProgressEvent event) {
+    protected void fireProgressEvent(final BuildProgressEvent event) {
         synchronized (progressListeners) {
-            for (Iterator i = progressListeners.iterator(); i.hasNext();) {
-                BuildProgressListener listener = (BuildProgressListener) i.next();
+            for (final BuildProgressListener listener : progressListeners) {
                 listener.handleBuildProgress(event);
             }
         }
     }
 
-    public void addBuildResultListener(BuildResultListener listener) {
+    public void addBuildResultListener(final BuildResultListener listener) {
         synchronized (resultListeners) {
             resultListeners.add(listener);
         }
     }
 
-    protected void fireResultEvent(BuildResultEvent event) {
+    protected void fireResultEvent(final BuildResultEvent event) {
         synchronized (resultListeners) {
-            for (Iterator i = resultListeners.iterator(); i.hasNext();) {
-                BuildResultListener listener = (BuildResultListener) i.next();
+            for (final BuildResultListener listener : resultListeners) {
                 listener.handleBuildResult(event);
             }
         }
     }
 
-    List getListeners() {
+    List<Listener> getListeners() {
         return projectConfig.getListeners();
     }
 
-    public void setProjectConfig(ProjectConfig projectConfig) throws CruiseControlException {
+    public void setProjectConfig(final ProjectConfig projectConfig) throws CruiseControlException {
         if (projectConfig == null) {
             throw new IllegalArgumentException("project config can't be null");
         }
@@ -889,17 +886,16 @@ public class Project implements Serializable, Runnable {
         setLabelIncrementer(projectConfig.getLabelIncrementer());
     }
 
-    void notifyListeners(ProjectEvent event) {
+    void notifyListeners(final ProjectEvent event) {
         if (projectConfig == null) {
             throw new IllegalStateException("projectConfig is null");
         }
 
-        for (Iterator i = projectConfig.getListeners().iterator(); i.hasNext();) {
-            Listener listener = (Listener) i.next();
+        for (final Listener listener : projectConfig.getListeners()) {
             try {
                 listener.handleEvent(event);
             } catch (CruiseControlException e) {
-                StringBuffer message = new StringBuffer("exception notifying listener ");
+                final StringBuilder message = new StringBuilder("exception notifying listener ");
                 message.append(listener.getClass().getName());
                 message.append(" for project ").append(name);
                 LOG.error(message.toString(), e);
@@ -907,13 +903,13 @@ public class Project implements Serializable, Runnable {
         }
     }
 
-    public boolean equals(Object arg0) {
+    public boolean equals(final Object arg0) {
         if (arg0 == null) {
             return false;
         }
 
         if (arg0.getClass().getName().equals(getClass().getName())) {
-            Project thatProject = (Project) arg0;
+            final Project thatProject = (Project) arg0;
             return thatProject.name.equals(name);
         }
 
@@ -924,9 +920,9 @@ public class Project implements Serializable, Runnable {
         return name.hashCode();
     }
 
-    public void register(MBeanServer server) throws JMException {
+    public void register(final MBeanServer server) throws JMException {
         LOG.debug("Registering project mbean");
-        ProjectController projectController = new ProjectController(this);
+        final ProjectController projectController = new ProjectController(this);
         projectController.register(server);
     }
 

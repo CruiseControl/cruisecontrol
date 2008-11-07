@@ -42,7 +42,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.management.JMException;
@@ -187,16 +186,16 @@ public class ProjectConfig implements ProjectInterface {
         return log;
     }
 
-    public List getBootstrappers() {
-        return bootstrappers == null ? Collections.EMPTY_LIST : bootstrappers.getBootstrappers();
+    public List<Bootstrapper> getBootstrappers() {
+        return bootstrappers == null ? Collections.<Bootstrapper>emptyList() : bootstrappers.getBootstrappers();
     }
 
-    public List getListeners() {
-        return listeners == null ? Collections.EMPTY_LIST : listeners.getListeners();
+    public List<Listener> getListeners() {
+        return listeners == null ? Collections.<Listener>emptyList() : listeners.getListeners();
     }
 
-    public List getPublishers() {
-        return publishers == null ? Collections.EMPTY_LIST : publishers.getPublishers();
+    public List<Publisher> getPublishers() {
+        return publishers == null ? Collections.<Publisher>emptyList() : publishers.getPublishers();
     }
 
     public ModificationSet getModificationSet() {
@@ -217,19 +216,18 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Bootstrappers implements Serializable {
         private static final long serialVersionUID = 7428779281399848035L;
-        private final List bootstrappers = new ArrayList();
+        private final List<Bootstrapper> bootstrappers = new ArrayList<Bootstrapper>();
 
-        public void add(Bootstrapper bootstrapper) {
+        public void add(final Bootstrapper bootstrapper) {
             bootstrappers.add(bootstrapper);
         }
 
-        public List getBootstrappers() {
+        public List<Bootstrapper> getBootstrappers() {
             return bootstrappers;
         }
 
         public void validate() throws CruiseControlException {
-            for (Iterator iterator = bootstrappers.iterator(); iterator.hasNext();) {
-                Bootstrapper nextBootstrapper = (Bootstrapper) iterator.next();
+            for (final Bootstrapper nextBootstrapper : bootstrappers) {
                 nextBootstrapper.validate();
             }
         }
@@ -237,19 +235,18 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Listeners implements Serializable {
         private static final long serialVersionUID = -3816080104514876038L;
-        private final List listeners = new ArrayList();
+        private final List<Listener> listeners = new ArrayList<Listener>();
 
         public void add(Listener listener) {
             listeners.add(listener);
         }
 
-        public List getListeners() {
+        public List<Listener> getListeners() {
             return listeners;
         }
 
         public void validate() throws CruiseControlException {
-            for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-                Listener nextListener = (Listener) iterator.next();
+            for (final Listener nextListener : listeners) {
                 nextListener.validate();
             }
         }
@@ -257,19 +254,18 @@ public class ProjectConfig implements ProjectInterface {
 
     public static class Publishers implements Serializable {
         private static final long serialVersionUID = -410933401108345152L;
-        private final List publishers = new ArrayList();
+        private final List<Publisher> publishers = new ArrayList<Publisher>();
 
         public void add(Publisher publisher) {
             publishers.add(publisher);
         }
 
-        public List getPublishers() {
+        public List<Publisher> getPublishers() {
             return publishers;
         }
 
         public void validate() throws CruiseControlException {
-            for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
-                Publisher nextPublisher = (Publisher) iterator.next();
+            for (final Publisher nextPublisher : publishers) {
                 nextPublisher.validate();
             }
 
@@ -323,7 +319,7 @@ public class ProjectConfig implements ProjectInterface {
      * @return Deserialized Project or a new Project if there are any problems reading the serialized Project; should
      *         never return null
      */
-    Project readProject(String projectName) {
+    Project readProject(final String projectName) {
         File serializedProjectFile = new File(projectName + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
 
@@ -347,8 +343,12 @@ public class ProjectConfig implements ProjectInterface {
         }
 
         try {
-            ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
-            return (Project) s.readObject();
+            final ObjectInputStream s = new ObjectInputStream(new FileInputStream(serializedProjectFile));
+            try {
+                return (Project) s.readObject();
+            } finally {
+                s.close();
+            }
         } catch (Exception e) {
             LOG.warn("Error deserializing project file from " + serializedProjectFile.getAbsolutePath(), e);
             return new Project();
