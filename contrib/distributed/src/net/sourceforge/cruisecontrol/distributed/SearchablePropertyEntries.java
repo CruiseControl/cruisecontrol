@@ -112,12 +112,12 @@ class SearchablePropertyEntries {
     }
 
     public static PropertyEntry[] getPropertiesAsEntryArray(final Properties properties) {
-        final List entries = new ArrayList();
+        final List<PropertyEntry> entries = new ArrayList<PropertyEntry>();
         for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
             Map.Entry entry = (Map.Entry) iter.next();
             entries.add(new PropertyEntry((String) entry.getKey(), (String) entry.getValue()));
         }
-        return (PropertyEntry[]) entries.toArray(new PropertyEntry[entries.size()]);
+        return entries.toArray(new PropertyEntry[entries.size()]);
     }
 
 }

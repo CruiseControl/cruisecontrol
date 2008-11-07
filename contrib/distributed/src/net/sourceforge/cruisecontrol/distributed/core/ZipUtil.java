@@ -64,6 +64,8 @@ public final class ZipUtil {
         validateParams(outFilename, folderToZip);
         BufferedOutputStream bos = null;
         ZipOutputStream zipOut = null;
+        String errMsgsFromFinallyBlock = "";
+        Exception exceptionFromFinally = null;
         try {
             bos = new BufferedOutputStream(new FileOutputStream(outFilename));
             zipOut = new ZipOutputStream(bos);
@@ -95,7 +97,11 @@ public final class ZipUtil {
                     }
                     // delete the empty zip file
                     if (!file.delete()) {
-                        throw new RuntimeException("Error deleting empty zip file: " + file.getAbsolutePath());
+                        final String msg = "Error deleting empty zip file: " + file.getAbsolutePath();
+                        // DO NOT throw exceptions from inside a finally block - bad things happen!
+                        //throw new RuntimeException(msg);
+                        LOG.error(msg);
+                        errMsgsFromFinallyBlock += msg + "\n";
                     }
                     final String message2 = "Deleted empty zip file: " + outFilename;
                     LOG.debug(message2);
@@ -103,8 +109,14 @@ public final class ZipUtil {
             } catch (IOException ioe) {
                 final String message = "Error occured while closing zip file: " + outFilename;
                 LOG.error(message, ioe);
-                throw new RuntimeException(message, ioe);
+                // DO NOT throw exceptions from inside a finally block - bad things happen!
+                //throw new RuntimeException(message, ioe);
+                errMsgsFromFinallyBlock += message + "\n";
+                exceptionFromFinally = ioe;
             }
+        }
+        if (!"".equals(errMsgsFromFinallyBlock)) {
+            throw new RuntimeException(errMsgsFromFinallyBlock, exceptionFromFinally);
         }
     }
 
@@ -116,12 +128,12 @@ public final class ZipUtil {
         FileInputStream in;
         final File[] files = folderToZip.listFiles();
 
-        for (int i = 0; i < files.length; i++) {
-            final String filename = files[i].getName();
-            if (files[i].isDirectory()) {
+        for (final File file : files) {
+            final String filename = file.getName();
+            if (file.isDirectory()) {
                 final String dirName = relativePath + File.separator + filename;
                 LOG.debug("adding dir [" + dirName + "]");
-                zipFiles(rootDir, files[i], zipOutputStream);
+                zipFiles(rootDir, file, zipOutputStream);
             } else {
                 String filePath = relativePath + File.separator + filename;
                 if (filePath.charAt(0) == File.separatorChar) {

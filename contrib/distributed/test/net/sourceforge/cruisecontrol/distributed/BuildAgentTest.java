@@ -24,6 +24,8 @@ public class BuildAgentTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentTest.class);
 
+    private static final PropertyEntry[] EMPTY_PROP_ENTRIES = new PropertyEntry[]{};
+
 
     /**
      * Use LUSTestSetup decorator to run Jini LUS once for this test class.
@@ -252,7 +254,7 @@ public class BuildAgentTest extends TestCase {
             assertEquals(expectedOrigEntryCount + 1, buildAgent.getEntries().length);
 
             // set to empty array
-            buildAgent.setEntryOverrides(new PropertyEntry[]{});
+            buildAgent.setEntryOverrides(EMPTY_PROP_ENTRIES);
             assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);
 
             // test clear overrides

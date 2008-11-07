@@ -62,7 +62,7 @@ public final class ReggieUtil {
      */
     public static Entry[] convertStringEntries(final String searchString) {
         final StringTokenizer tokenizer = new StringTokenizer(searchString.trim(), ";");
-        final List entriesList = new ArrayList();
+        final List<PropertyEntry> entriesList = new ArrayList<PropertyEntry>();
         while (tokenizer.hasMoreElements()) {
             final String token = tokenizer.nextToken();
             final PropertyEntry entry = new PropertyEntry();
@@ -77,7 +77,7 @@ public final class ReggieUtil {
         if (entriesList.size() == 0) {
             arrEntries = null;
         } else {
-            arrEntries = (Entry[]) entriesList.toArray(new Entry[entriesList.size()]);
+            arrEntries = entriesList.toArray(new Entry[entriesList.size()]);
         }
         return arrEntries;
     }

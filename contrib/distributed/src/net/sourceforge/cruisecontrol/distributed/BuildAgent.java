@@ -107,7 +107,7 @@ public class BuildAgent implements DiscoveryListener,
     static interface LUSCountListener {
         public void lusCountChanged(final int newLUSCount);
     }
-    private final List lusCountListeners = new ArrayList();
+    private final List<LUSCountListener> lusCountListeners = new ArrayList<LUSCountListener>();
     void addLUSCountListener(final LUSCountListener listener) {
         lusCountListeners.add(listener);
     }
@@ -118,8 +118,8 @@ public class BuildAgent implements DiscoveryListener,
     private int registrarCount = 0;
 
     private void fireLUSCountChanged() {
-        for (int i = 0; i < lusCountListeners.size(); i++) {
-            ((LUSCountListener) lusCountListeners.get(i)).lusCountChanged(registrarCount);
+        for (final LUSCountListener lusCountListener : lusCountListeners) {
+            lusCountListener.lusCountChanged(registrarCount);
         }
     }
     private void setRegCount(final int regCount) {
@@ -257,8 +257,8 @@ public class BuildAgent implements DiscoveryListener,
         clearOverridePrefs();
 
         // store override props using Preferences api
-        for (int i = 0; i < entryOverrides.length; i++) {
-            prefsEntryOverrides.put(entryOverrides[i].name, entryOverrides[i].value);
+        for (final PropertyEntry entryOverride : entryOverrides) {
+            prefsEntryOverrides.put(entryOverride.name, entryOverride.value);
         }
 
         // publish using entries reloaded via getEntries, which adds entry overrides from prefs
@@ -295,10 +295,8 @@ public class BuildAgent implements DiscoveryListener,
         }
         final Properties overrideEntryProps = new Properties();
         if (overrideKeys.length > 0) {
-            String key;
-            for (int i = 0; i < overrideKeys.length; i++) {
-                key = overrideKeys[i];
-                overrideEntryProps.put(key, prefsEntryOverrides.get(key, "unknown value"));
+            for (final String overrideKey : overrideKeys) {
+                overrideEntryProps.put(overrideKey, prefsEntryOverrides.get(overrideKey, "unknown value"));
             }
         }
         return overrideEntryProps;
@@ -489,9 +487,7 @@ public class BuildAgent implements DiscoveryListener,
 
     public void discovered(final DiscoveryEvent evt) {
         final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar;
-        for (int n = 0; n < registrarsArray.length; n++) {
-            registrar = registrarsArray[n];
+        for (final ServiceRegistrar registrar : registrarsArray) {
             logRegistration(registrar);
             LOG.debug("Registered with registrar: " + registrar.getServiceID());
         }
@@ -505,9 +501,7 @@ public class BuildAgent implements DiscoveryListener,
 
     public void discarded(final DiscoveryEvent evt) {
         final ServiceRegistrar[] registrarsArray = evt.getRegistrars();
-        ServiceRegistrar registrar;
-        for (int n = 0; n < registrarsArray.length; n++) {
-            registrar = registrarsArray[n];
+        for (final ServiceRegistrar registrar : registrarsArray) {
             LOG.debug("Discarded registrar: " + registrar.getServiceID());
         }
 

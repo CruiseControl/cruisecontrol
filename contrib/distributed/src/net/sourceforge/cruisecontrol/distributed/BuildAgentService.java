@@ -64,7 +64,10 @@ public interface BuildAgentService extends Remote {
                            Map<String, String> distributedAgentProperties, ProgressRemote progressRemote,
                            RemoteResult[] remoteResults) throws RemoteException;
 
-    /** @return the host name on which the Build Agent is running. */
+    /**
+     * @return the host name on which the Build Agent is running.
+     * @throws RemoteException if the remote call fails
+     */
     String getMachineName() throws RemoteException;
 
     /**

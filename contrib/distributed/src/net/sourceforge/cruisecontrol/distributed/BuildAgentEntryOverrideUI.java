@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.List;
 
 /**
  * Allow editing of entry overrides for a Build Agent
@@ -47,7 +48,7 @@ public class BuildAgentEntryOverrideUI extends JDialog {
 
     private static final class PropertyTableModel extends AbstractTableModel {
 
-        private final ArrayList rows = new ArrayList();
+        private final List<PropRow> rows = new ArrayList<PropRow>();
         private final int colCount = 2;
 
         private void addRow(final PropRow propRow) {
@@ -85,7 +86,7 @@ public class BuildAgentEntryOverrideUI extends JDialog {
         }
 
         private PropRow getPropRow(int rowIndex) {
-            return (PropRow) rows.get(rowIndex);
+            return rows.get(rowIndex);
         }
 
         public boolean isCellEditable(int rowIndex, int columnIndex) { return true; }        
@@ -129,8 +130,8 @@ public class BuildAgentEntryOverrideUI extends JDialog {
 
         final PropertyEntry[] entryOverrides = agent.getEntryOverrides();
         final PropertyTableModel mdlTable = new PropertyTableModel();
-        for (int i = 0; i < entryOverrides.length; i++) {
-            mdlTable.addRow(new PropRow(entryOverrides[i].name, entryOverrides[i].value));
+        for (final PropertyEntry entryOverride : entryOverrides) {
+            mdlTable.addRow(new PropRow(entryOverride.name, entryOverride.value));
         }
         mdlTable.addTableModelListener(new TableModelListener() {
             public void tableChanged(TableModelEvent e) {
