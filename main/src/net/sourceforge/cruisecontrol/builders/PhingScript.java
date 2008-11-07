@@ -1,6 +1,5 @@
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -9,7 +8,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 
 public class PhingScript implements Script {
-    private Map buildProperties;
+    private Map<String, String> buildProperties;
 
     private String phingScript;
     private String loggerClassName;
@@ -51,9 +50,8 @@ public class PhingScript implements Script {
             cmdLine.createArgument("-quiet");
         }
 
-        for (Iterator propertiesIter = buildProperties.entrySet().iterator(); propertiesIter.hasNext(); ) {
-            Map.Entry property = (Map.Entry) propertiesIter.next();
-            String value = (String) property.getValue();
+        for (final Map.Entry<String, String> property : buildProperties.entrySet()) {
+            final String value = property.getValue();
             if (!"".equals(value)) {
                 cmdLine.createArgument("-D" + property.getKey() + "=" + value);
             }
@@ -78,7 +76,7 @@ public class PhingScript implements Script {
     /**
      * @param buildProperties The buildProperties to set.
      */
-    public void setBuildProperties(Map buildProperties) {
+    public void setBuildProperties(final Map<String, String> buildProperties) {
         this.buildProperties = buildProperties;
     }
 
