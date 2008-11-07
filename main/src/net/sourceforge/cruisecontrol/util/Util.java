@@ -237,14 +237,19 @@ public final class Util {
      * the resolved value of the property. Nested macros are allowed - the
      * inner most macro will be resolved first, moving out from there.
      *
+     * @param props the properties to search for
      * @param string The string to be parsed
+     * @param failIfMissing if true, fail if the property is not defined
      * @return The parsed string
      * @throws CruiseControlException if a property cannot be resolved
      */
-    public static String parsePropertiesInString(Map props, String string,
-                                          boolean failIfMissing) throws CruiseControlException {
+    public static String parsePropertiesInString(final Map<String, String> props,
+                                                 String string,
+                                                 final boolean failIfMissing)
+            throws CruiseControlException {
+
         if (string != null) {
-            int startIndex = string.indexOf("${");
+            final int startIndex = string.indexOf("${");
             if (startIndex != -1) {
                 int openedBrackets = 1;
                 int lastStartIndex = startIndex + 2;
@@ -266,10 +271,10 @@ public final class Util {
                 if (endIndex < startIndex + 2) {
                     throw new CruiseControlException("Unclosed brackets in " + string);
                 }
-                String property = string.substring(startIndex + 2, endIndex);
+                final String property = string.substring(startIndex + 2, endIndex);
                 // not necessarily resolved
-                String propertyName = parsePropertiesInString(props, property, failIfMissing);
-                String value = "".equals(propertyName) ? "" : (String) props.get(propertyName);
+                final String propertyName = parsePropertiesInString(props, property, failIfMissing);
+                String value = "".equals(propertyName) ? "" : props.get(propertyName);
                 if (value == null) {
                     if (failIfMissing) {
                         throw new CruiseControlException("Property \"" + propertyName
