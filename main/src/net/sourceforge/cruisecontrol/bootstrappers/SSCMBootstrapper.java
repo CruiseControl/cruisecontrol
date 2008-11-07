@@ -44,6 +44,8 @@ import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.IO;
 import org.apache.log4j.Logger;
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *  Bootstrapper for Surround SCM. Accepts one Branch/Repository path for fetching files
@@ -55,8 +57,8 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
    public void validate() throws CruiseControlException { /* nothing is required */ }
 
    public void bootstrap() throws CruiseControlException {
-      java.util.ArrayList paramList = new java.util.ArrayList();
-      SSCM.SSCMCLIStringParam strparamFile = new SSCM.SSCMCLIStringParam("file", "", false);
+      final List<SSCM.SSCMCLIParam> paramList = new ArrayList<SSCM.SSCMCLIParam>();
+      final SSCM.SSCMCLIStringParam strparamFile = new SSCM.SSCMCLIStringParam("file", "", false);
       strparamFile.setData("/");
       paramList.add(strparamFile);
       paramList.add(strparamBranch);
@@ -121,20 +123,18 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
 
     private static final Logger LOG = Logger.getLogger(SSCMBootstrapper.class);
 
-    protected void executeCLICommand(java.util.List paramList) throws CruiseControlException {
-        Commandline command = new Commandline();
+    protected void executeCLICommand(final List<SSCM.SSCMCLIParam> paramList) throws CruiseControlException {
+        final Commandline command = new Commandline();
         command.setExecutable("sscm");
         command.createArgument().setValue("get");
 
         // Next, we just iterate through the list, adding entries.
-        for (int i = 0; i < paramList.size(); ++i) {
-            SSCM.SSCMCLIParam param = (SSCM.SSCMCLIParam) paramList.get(i);
-
+        for (final SSCM.SSCMCLIParam param : paramList) {
             if (param == null) {
                 throw new IllegalArgumentException("paramList may not contain null values");
             }
             if (param.checkRequired()) {
-                String str = param.getFormatted();
+                final String str = param.getFormatted();
                 if (str != null) {
                     command.createArgument().setValue(str);
                     LOG.debug("Added cmd part: " + str);
@@ -145,7 +145,7 @@ public class SSCMBootstrapper implements net.sourceforge.cruisecontrol.Bootstrap
         }
 
         try {
-            Process process = command.execute();
+            final Process process = command.execute();
             new Thread(new StreamPumper(process.getInputStream(),
                     StreamLogger.getInfoLogger(LOG))).start();
             // logs process error stream at info level
