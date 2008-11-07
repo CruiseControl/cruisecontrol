@@ -61,7 +61,7 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
 public class MavenScript implements Script, StreamConsumer {
     private static final Logger LOG = Logger.getLogger(MavenScript.class);
 
-    private Map buildProperties;
+    private Map<String, String> buildProperties;
     private String goalset;
     private String mavenScript;
     private String projectFile;
@@ -97,9 +97,7 @@ public class MavenScript implements Script, StreamConsumer {
                     + "As of 1.0-beta-10 Maven startup mechanism is still changing...");
         }
 
-        Iterator propertiesIterator = buildProperties.keySet().iterator();
-        while (propertiesIterator.hasNext()) {
-            String key = (String) propertiesIterator.next();
+        for (final String key : buildProperties.keySet()) {
             cmdLine.createArgument("-D" + key + "=" + buildProperties.get(key));
         }
 
@@ -121,11 +119,10 @@ public class MavenScript implements Script, StreamConsumer {
         }
 
         if (LOG.isDebugEnabled()) {
-            StringBuffer sb = new StringBuffer();
+            final StringBuilder sb = new StringBuilder();
             sb.append("Executing Command: ");
-            String[] args = cmdLine.getCommandline();
-            for (int i = 0; i < args.length; i++) {
-                String arg = args[i];
+            final String[] args = cmdLine.getCommandline();
+            for (final String arg : args) {
                 sb.append(arg);
                 sb.append(" ");
             }
@@ -216,7 +213,7 @@ public class MavenScript implements Script, StreamConsumer {
     /**
      * @param buildProperties The buildProperties to set.
      */
-    public void setBuildProperties(Map buildProperties) {
+    public void setBuildProperties(final Map<String, String> buildProperties) {
         this.buildProperties = buildProperties;
     }
     /**
