@@ -81,11 +81,11 @@ public final class DateUtil {
      *            The date to get the timestamp from.
      * @return The time as an integer formatted as "HHmm".
      */
-    public static int getTimeFromDate(Date date) {
-        Calendar calendar = Calendar.getInstance();
+    public static int getTimeFromDate(final Date date) {
+        final Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY) * 100;
-        int minute = calendar.get(Calendar.MINUTE);
+        final int hour = calendar.get(Calendar.HOUR_OF_DAY) * 100;
+        final int minute = calendar.get(Calendar.MINUTE);
         return hour + minute;
     }
 
@@ -98,9 +98,9 @@ public final class DateUtil {
      *            integer time value of format "HHmm"
      * @return long millisecond time difference
      */
-    public static long milliTimeDifference(int earlier, int later) {
-        long earlierMillis = convertToMillis(earlier);
-        long laterMillis = convertToMillis(later);
+    public static long milliTimeDifference(final int earlier, final int later) {
+        final long earlierMillis = convertToMillis(earlier);
+        final long laterMillis = convertToMillis(later);
         return laterMillis - earlierMillis;
     }
 
@@ -111,9 +111,9 @@ public final class DateUtil {
      *            where hh are hours and mm are minutes
      * @return hhmm in milliseconds
      */
-    public static long convertToMillis(int hhmm) {
-        int minutes = hhmm % 100;
-        int hours = (hhmm - minutes) / 100;
+    public static long convertToMillis(final int hhmm) {
+        final int minutes = hhmm % 100;
+        final int hours = (hhmm - minutes) / 100;
         return hours * ONE_HOUR + minutes * ONE_MINUTE;
     }
 
@@ -122,13 +122,13 @@ public final class DateUtil {
      *            time in milliseconds
      * @return Time formatted as X hours Y minutes Z seconds
      */
-    public static String formatTime(long time) {
+    public static String formatTime(final long time) {
         long seconds = time / 1000;
-        long hours = seconds / 3600;
-        long minutes = (seconds % 3600) / 60;
+        final long hours = seconds / 3600;
+        final long minutes = (seconds % 3600) / 60;
         seconds = seconds % 60;
 
-        StringBuffer sb = new StringBuffer();
+        final StringBuilder sb = new StringBuilder();
         if (hours != 0) {
             sb.append(hours).append(" hours ");
         }
@@ -146,7 +146,7 @@ public final class DateUtil {
      * @return midnight on today's date
      */
     public static Date getMidnight() {
-        Calendar midnight = Calendar.getInstance();
+        final Calendar midnight = Calendar.getInstance();
         midnight.set(Calendar.HOUR_OF_DAY, 0);
         midnight.set(Calendar.MINUTE, 0);
         midnight.set(Calendar.SECOND, 0);
@@ -154,19 +154,20 @@ public final class DateUtil {
         return midnight.getTime();
     }
 
-    public static String getFormattedTime(Date date) {
+    public static String getFormattedTime(final Date date) {
         if (date == null) {
             return null;
         }
         return SIMPLE_DATE_FORMATTER.format(date);
     }
 
-    public static Date parseFormattedTime(String timeString, String description) throws CruiseControlException {
+    public static Date parseFormattedTime(final String timeString, final String description)
+            throws CruiseControlException {
 
-        Date date;
         if (timeString == null) {
             throw new IllegalArgumentException("Null date string for " + description);
         }
+        final Date date;
         try {
             date = SIMPLE_DATE_FORMATTER.parse(timeString);
         } catch (ParseException e) {
@@ -189,11 +190,11 @@ public final class DateUtil {
         return minutes + " minute(s) " + seconds + " second(s)";
     }
 
-    public static Date parseIso8601(String timestamp) throws ParseException {
+    public static Date parseIso8601(final String timestamp) throws ParseException {
         return ISO8601_DATE_FORMATTER.parse(timestamp);
     }
     
-    public static String formatIso8601(Date date) {
+    public static String formatIso8601(final Date date) {
         if (date == null) {
             return null;
         }

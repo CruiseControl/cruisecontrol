@@ -75,7 +75,7 @@ public class ProjectController extends NotificationBroadcasterSupport
     private static int sequence = 0;
     private static final Object SEQUENCE_LOCK = new Object();
 
-    public ProjectController(Project project) {
+    public ProjectController(final Project project) {
         this.project = project;
         project.addBuildProgressListener(this);
         project.addBuildResultListener(this);
@@ -87,25 +87,25 @@ public class ProjectController extends NotificationBroadcasterSupport
         }
     }
 
-    public void handleBuildProgress(BuildProgressEvent event) {
+    public void handleBuildProgress(final BuildProgressEvent event) {
         log("build progress event: " + event.getState().getDescription());
         if (checkSourceProject(event.getProject())) {
-            Notification notification = new Notification("cruisecontrol.progress.event", this, nextSequence());
+            final Notification notification = new Notification("cruisecontrol.progress.event", this, nextSequence());
             notification.setUserData(event.getState().getName());
             sendNotification(notification);
         }
     }
 
-    public void handleBuildResult(BuildResultEvent event) {
+    public void handleBuildResult(final BuildResultEvent event) {
         log("build result event: build " + String.valueOf(event.isBuildSuccessful() ? "successful" : "failed"));
         if (checkSourceProject(event.getProject())) {
-            Notification notification = new Notification("cruisecontrol.result.event", this, nextSequence());
+            final Notification notification = new Notification("cruisecontrol.result.event", this, nextSequence());
             notification.setUserData((event.isBuildSuccessful()) ? Boolean.TRUE : Boolean.FALSE);
             sendNotification(notification);
         }
     }
 
-    private boolean checkSourceProject(Project sourceProject) {
+    private boolean checkSourceProject(final Project sourceProject) {
         boolean projectsMatch = false;
         if (project == sourceProject) {
             projectsMatch = true;
@@ -135,7 +135,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         project.setBuildForced(true);
     }
 
-    public void buildWithTarget(String buildTarget) {
+    public void buildWithTarget(final String buildTarget) {
         log("forcing build with target \"" + buildTarget + "\"");
         project.forceBuildWithTarget(buildTarget);
     }
@@ -149,7 +149,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.isPaused();
     }
 
-    public void setLabel(String label) {
+    public void setLabel(final String label) {
         log("setting label to [" + label + "]");
         project.setLabel(label);
     }
@@ -158,7 +158,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLabel();
     }
 
-    public void setLastBuild(String date) throws CruiseControlException {
+    public void setLastBuild(final String date) throws CruiseControlException {
         log("setting last build to [" + date + "]");
         project.setLastBuild(date);
     }
@@ -171,7 +171,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.isLastBuildSuccessful();
     }
 
-    public void setLastSuccessfulBuild(String date)
+    public void setLastSuccessfulBuild(final String date)
         throws CruiseControlException {
         log("setting last successful build to [" + date + "]");
         project.setLastSuccessfulBuild(date);
@@ -182,11 +182,11 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     public String getBuildStartTime() {
-        String buildStartTime = project.getBuildStartTime();
+        final String buildStartTime = project.getBuildStartTime();
         return buildStartTime == null ? "" : buildStartTime;
     }
 
-    public void setLogDir(String logdir) throws CruiseControlException {
+    public void setLogDir(final String logdir) throws CruiseControlException {
         log("setting log dir to [" + logdir + "]");
         project.getLog().setDir(logdir);
     }
@@ -195,7 +195,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLogDir();
     }
 
-    public void setProjectName(String name) {
+    public void setProjectName(final String name) {
         log("setting project name to [" + name + "]");
         project.setName(name);
     }
@@ -217,12 +217,12 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getStatusWithQueuePosition();
     }
 
-    private void log(String message) {
+    private void log(final String message) {
         LOG.info(project.getName() + " Controller: " + message);
     }
 
-    public void register(MBeanServer server) throws JMException {
-        ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+    public void register(final MBeanServer server) throws JMException {
+        final ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
 
         // Need to attempt to unregister the old mbean with the same name since
         // CruiseControlControllerJMXAdaptor keeps calling every time a change
@@ -241,18 +241,19 @@ public class ProjectController extends NotificationBroadcasterSupport
      *  string[user name][commit message].
      */
     public String[][] commitMessages() {
-        ModificationSet modificationSet = project.getProjectConfig().getModificationSet();
-        List sourceControls = modificationSet.getSourceControls();
-        Iterator iterator = sourceControls.iterator();
-        List modifications = new ArrayList();
+        final ModificationSet modificationSet = project.getProjectConfig().getModificationSet();
+        final List<SourceControl> sourceControls = modificationSet.getSourceControls();
+        final Iterator<SourceControl> iterator = sourceControls.iterator();
+        final List<Modification> modifications = new ArrayList<Modification>();
         while (iterator.hasNext()) {
-            SourceControl sourcecontrol = (SourceControl) iterator.next();
-            modifications.addAll(sourcecontrol.getModifications(project.getLastBuildDate(),
-                    new Date()));
+            final SourceControl sourcecontrol = iterator.next();
+            modifications.addAll(
+                    sourcecontrol.getModifications(project.getLastBuildDate(), new Date())
+            );
         }
-        String[][] commitMessages = new String[modifications.size()][];
+        final String[][] commitMessages = new String[modifications.size()][];
         for (int i = 0; i < modifications.size(); i++) {
-            Modification modication = (Modification) modifications.get(i);
+            final Modification modication = modifications.get(i);
             commitMessages[i] = new String[2];
             commitMessages[i][0] = modication.userName;
             commitMessages[i][1] = modication.comment;
@@ -264,8 +265,8 @@ public class ProjectController extends NotificationBroadcasterSupport
      * Ouptut from the build output buffer, after line specified (inclusive).
      * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger
      */
-    public String[] getBuildOutput(Integer firstLine) {
+    public String[] getBuildOutput(final Integer firstLine) {
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
-        return  BuildOutputLoggerManager.INSTANCE.lookup().retrieveLines(firstLine.intValue());
+        return  BuildOutputLoggerManager.INSTANCE.lookup().retrieveLines(firstLine);
     }
 }

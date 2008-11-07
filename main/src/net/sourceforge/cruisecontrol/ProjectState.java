@@ -46,7 +46,7 @@ import java.util.Map;
  * pattern in Java.
  */
 public final class ProjectState implements Serializable {
-    private static final Map ALL_STATES = new HashMap();
+    private static final Map<String, ProjectState> ALL_STATES = new HashMap<String, ProjectState>();
 
     public static final ProjectState QUEUED = new ProjectState(1, "queued", "in build queue");
     public static final ProjectState IDLE = new ProjectState(0, "idle", "idle");
@@ -60,11 +60,11 @@ public final class ProjectState implements Serializable {
     public static final ProjectState STOPPED = new ProjectState(8, "stopped", "stopped");
     public static final ProjectState WAITING = new ProjectState(9, "waiting", "waiting for next time to build");
 
-    private String description;
-    private String name;
-    private int code;
+    private final String description;
+    private final String name;
+    private final int code;
 
-    private ProjectState(int code, String name, String desc) {
+    private ProjectState(final int code, final String name, final String desc) {
         this.code = code;
         this.name = name;
         this.description = desc;
