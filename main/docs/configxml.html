@@ -5343,7 +5343,9 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <tr>
                     <td>pvob</td>
                     <td>No (unless rebases is true)</td>
-                    <td>The name of the pvob to use for queries. Required if rebases = true</td>
+                    <td>The name of the pvob to use for queries. Required if rebases = true.
+		    Required if multiVob is true and the pvob for the project is not loaded
+		    or mounted.</td>
                 </tr>
                 <tr>
                     <td>contributors</td>
