@@ -46,6 +46,8 @@ import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
+import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
@@ -260,5 +262,33 @@ public abstract class CMSynergyPublisher implements Publisher {
         }
 
         return true;
+    }
+    
+    /**
+     * Finds out which version of Synergy is in use. Useful to set flags for features
+     * available only to newer Synergy versions. 
+     *  
+     * @return A double representing the version of Synergy
+     */
+    public double getVersion() {
+        //Initialise the version
+        double version = 0.0;
+        ManagedCommandline versionCmd = CMSynergy.createCcmCommand(
+                getCcmExe(), getSessionName(), getSessionFile());
+        versionCmd.clearArgs();
+        versionCmd.createArgument("version");
+        versionCmd.createArgument("-c");
+
+        // Execute the command
+        try {
+            versionCmd.execute();
+        } catch (Exception e) {
+            LOG.warn("Could not get Synergy version", e);
+        }
+
+        String versionString = versionCmd.getStdoutAsString();
+        String[] versionList = versionString.split("\r\n|\r|\n");
+        version = Double.parseDouble(versionList[versionList.length - 1]);
+        return version;
     }
 }

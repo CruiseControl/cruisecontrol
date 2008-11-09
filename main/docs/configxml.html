@@ -108,6 +108,7 @@
 <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a>
 <a href="#cmsynergy">&lt;cmsynergy&gt;</a>
 <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a>
+<a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper&gt;</a>
 <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
 <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
 <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher&gt;</a>
@@ -267,6 +268,7 @@
          <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper/&gt;</a>
          <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper/&gt;</a>
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
+         <a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper/&gt;</a>
          <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
          <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
@@ -1442,6 +1444,11 @@ password=P@ssW0rd!
                 <td>Bootstraps resources from CM Synergy</td>
             </tr>
             <tr>
+                <td><a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Creates a Synergy baseline prior to build</td>
+            </tr>
+            <tr>
                 <td><a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Writes a build status snippet to the filesystem</td>
@@ -1900,6 +1907,113 @@ password=P@ssW0rd!
     &lt;cmsynergybootstrapper project="j2ee~1.0_int"
                            sessionname="j2ee_session"
                            recurse="false"/&gt;
+&lt;bootstrappers&gt;</pre>
+            </li>
+        </ol>
+
+
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;cmsynergybaselinebootstrapper&gt;</pre>
+        </div>
+
+        <p>Due to the nature of certain Synergy project types basing their reconfigure on baselines
+           it may sometimes be necessary to create a baseline prior to the build.
+           This bootstrapper works almost identically to the <a href="#cmsynergybaselinepublisher"><code>cmsynergybaselinepublisher</code></a>
+           with the exception that is will not depend on modifications being found due to its execution 
+           before any <a href="#modificationset"><code>modificationset<code></a> is run.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>ccmexe</td>
+                <td>No</td>
+                <td>The name of the CM Synergy command line client. If not provided, the
+                    plugin will search the system path for an executable called "ccm"
+                    (or "ccm.exe" for Windows).</td>
+            </tr>
+            <tr>
+                <td>sessionfile</td>
+                <td>No</td>
+                <td>The session file used by the
+                    <a href="#cmsynergysessionmonitor">&lt;cmsynergysessionmonitor&gt;</a>
+                    to persist your CM Synergy session information. If this attribute is
+                    not set, it defaults to the file ".ccmsessionmap" in your home directory.</td>
+            </tr>
+            <tr>
+                <td>sessionname</td>
+                <td>No</td>
+                <td>The session name of the CM Synergy session you wish to use. This name
+                    must appear in the session file. If not set, the plugin will attempt
+                    to use the default (current) session as returned by the "ccm status"
+                    command.</td>
+            </tr>
+            <tr>
+            <tr>
+                <td>baselinename</td>
+                <td>No</td>
+                <td>An optional name for the baseline. If not provided, CM Synergy will assign a default name based upon the current date.</td>
+            </tr>
+                <td>project</td>
+                <td>Yes</td>
+                <td>The project spec (two part name) of the project you wish to reconfigure.</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>No</td>
+                <td>An optional description of the baseline</td>
+            </tr>
+            <tr>
+                <td>build</td>
+                <td>No</td>
+                <td>Value to specify for the build attribute of the baseline</td>
+            </tr>
+             <tr>
+                <td>purpose</td>
+                <td>No</td>
+                <td>Value to specify for the purpose of the baseline</td>
+            </tr>
+             <tr>
+                <td>state</td>
+                <td>No</td>
+                <td>Value to specify for the state of the baseline. Valid values are:
+                    "published_baseline","test_baseline" or "released".
+                    Default state is "published_baseline"</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Examples</h3>
+        <ol>
+            <li>Create a baseline called "test_baseline" for project "test_project_1~dev410"
+                with purpose "System Testing", status "released" and build "QA432", re-using
+                existing Synergy session "cc_session"
+            <pre>
+&lt;bootstrappers&gt;
+    &lt;cmsynergybootstrapper project="test_project~dev410"
+                           sessionname="cc_session"
+                           build="QA432"
+                           purpose="System Testing"
+                           state="released"
+                           baselinename="test_baseline"/&gt;
 &lt;bootstrappers&gt;</pre>
             </li>
         </ol>
@@ -7822,7 +7936,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
            all of it's subprojects. This publisher will only run if the build was
            successful and the modification set contains at least one new CM Synergy
            task. <b>This publisher will <i>only</i> work with CM Synergy version 6.3
-           or later.</b></p>
+           or later. The <code>build</code> and <code>state</code> attributes are only
+           used if Synergy 6.4+ is detected</b></p>
 
         <h3>Attributes</h3>
 
@@ -7883,6 +7998,20 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                     a default name based upon the current date. You may incorporate the value
                     of any property set by CruiseControl (in the "info" section of the log)
                     by using the macro "@{property}".</td>
+            </tr>
+            <tr>
+                <td>build</td>
+                <td>No</td>
+                <td>A value for the build attribute introduced for baselines since Synergy
+                    6.4.</td>
+            </tr>
+            <tr>
+                <td>state</td>
+                <td>No</td>
+                <td>A value specifying the state the the baseline should be created with.
+                    The state attribute is new since Synergy 6.4 and will only be used if
+                    6.4 is detected. Acceptable values for the attribute are "published_baseline,
+                    "test_baseline",and "released". The default value is "published_baseline".</td>
             </tr>
             </tbody>
         </table>
