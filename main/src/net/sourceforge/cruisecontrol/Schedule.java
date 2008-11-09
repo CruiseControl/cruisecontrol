@@ -394,13 +394,9 @@ public class Schedule implements Serializable {
         }
 
         int endPause = pause.getEndTime();
-        int currentTime = DateUtil.getTimeFromDate(now);
-
-        long timeToEndOfPause = DateUtil.milliTimeDifference(currentTime, endPause);
-
-        while (timeToEndOfPause < proposedTime) {
-            timeToEndOfPause += ONE_DAY;
-        }
+        int futureTime = DateUtil.getTimeFromDate(futureDate);
+        
+        long timeToEndOfPause = proposedTime + DateUtil.milliTimeDifference(futureTime, endPause);
 
         timeToEndOfPause = checkMaximumInterval(timeToEndOfPause);
 
