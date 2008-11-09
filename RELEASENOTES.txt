@@ -78,6 +78,7 @@ ModificationSet
 Schedule
 ---------------------
 * Fixed a bug where time builders could be hidden by a multiple builder earlier in the file (CC-839). Now Builders are evaluated by time, then by multiple and then by day.
+* Fixed a bug related to adjusting for a pause at the end of Daylight Savings Time (CC-863).
 
 ScriptRunner
 ---------------------

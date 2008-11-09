@@ -240,7 +240,6 @@ public class ScheduleTest extends TestCase {
     }
 
     public void testGetTimeToNextBuild() {
-        long fiveSeconds = 5 * 1000;
         long elevenHours = 11 * ONE_HOUR;
         long oneHourFiftyNineMinutes = (2 * ONE_HOUR) - ONE_MINUTE;
 
@@ -251,8 +250,8 @@ public class ScheduleTest extends TestCase {
 
         assertEquals(
             "next time build > build interval",
-            fiveSeconds,
-            schedule.getTimeToNextBuild(THURSDAY_1001, fiveSeconds));
+            ONE_MINUTE,
+            schedule.getTimeToNextBuild(THURSDAY_1001, ONE_MINUTE));
 
         assertEquals(
             "next time build < build interval",
@@ -272,7 +271,7 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             "wait till after pause we're in",
             ONE_HOUR - ONE_MINUTE,
-            schedule.getTimeToNextBuild(THURSDAY_2301, fiveSeconds));
+            schedule.getTimeToNextBuild(THURSDAY_2301, ONE_MINUTE));
 
         pause = new PauseBuilder();
         pause.setStartTime(0000);
@@ -287,7 +286,7 @@ public class ScheduleTest extends TestCase {
         assertEquals(
             "two back-to-back pauses",
             2 * ONE_HOUR,
-            schedule.getTimeToNextBuild(THURSDAY_2301, fiveSeconds));
+            schedule.getTimeToNextBuild(THURSDAY_2301, ONE_MINUTE));
 
         pause = new PauseBuilder();
         pause.setStartTime(0000);
@@ -388,6 +387,52 @@ public class ScheduleTest extends TestCase {
         long dstEndingAdjustment = ONE_HOUR;
         assertEquals(((ONE_DAY * 6) + (ONE_HOUR * 23) + (ONE_MINUTE * 55) + dstEndingAdjustment),
                         scheduledByDay.getTimeToNextBuild(now, ONE_MINUTE));
+    }
+    
+    //  http://jira.public.thoughtworks.org/browse/CC-863
+    //    <!-- no activity on weekends --> 
+    //    <pause day="saturday" starttime="0000" endtime="2359"/> 
+    //    <pause day="sunday" starttime="0000" endtime="2359"/> 
+    //    <!-- only run between 11:50pm-midnight Mon-Thu --> 
+    //    <pause day="monday" starttime="0000" endtime="2349"/> 
+    //    <pause day="friday" starttime="2350" endtime="2359"/> 
+    public void testGetTimeToNextBuild_WithPausesAndEndOfDST() {
+        Schedule scheduleWithPauses = new Schedule();
+        scheduleWithPauses.setInterval(ONE_MINUTE * 10);
+        
+        Builder builder = new MockBuilder();
+        scheduleWithPauses.add(builder);
+        
+        PauseBuilder pause = new PauseBuilder();
+        pause.setDay("saturday");
+        pause.setStartTime(0);
+        pause.setEndTime(2359);
+        scheduleWithPauses.add(pause);
+
+        pause = new PauseBuilder();
+        pause.setDay("sunday");
+        pause.setStartTime(0);
+        pause.setEndTime(2359);
+        scheduleWithPauses.add(pause);
+
+        pause = new PauseBuilder();
+        pause.setDay("monday");
+        pause.setStartTime(0);
+        pause.setEndTime(2349);
+        scheduleWithPauses.add(pause);
+        
+        pause = new PauseBuilder();
+        pause.setDay("friday");
+        pause.setStartTime(2350);
+        pause.setEndTime(2359);
+        scheduleWithPauses.add(pause);
+
+        Calendar fridayBeforeDstEnd = Calendar.getInstance();
+        fridayBeforeDstEnd.set(2006, Calendar.OCTOBER, 27);
+
+        Date now = getDate(fridayBeforeDstEnd, 23, 50);
+        long dstEndingAdjustment = ONE_HOUR;
+        assertEquals(((ONE_DAY * 3) + dstEndingAdjustment), scheduleWithPauses.getTimeToNextBuild(now, ONE_MINUTE));
     }
 
     public void testGetTimeToNextBuild_MonthlyBuild() {
