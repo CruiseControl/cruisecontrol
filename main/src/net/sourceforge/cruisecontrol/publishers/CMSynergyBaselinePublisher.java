@@ -66,13 +66,16 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * The default CM Synergy project purpose for the baseline
      */
     public static final String CCM_BASELINE_PURPOSE = "Integration Testing";
+    public static final String CCM_BASELINE_STATE = "published_baseline";
 
     private static final Logger LOG = Logger.getLogger(CMSynergyBaselinePublisher.class);
     private static final Pattern LOG_PROPERTY_PATTERN;
     private String purpose = CCM_BASELINE_PURPOSE;
     private String name;
     private String description;
-
+    private String build;
+    private String state = CCM_BASELINE_STATE;
+    
     static {
         // Create a Perl 5 pattern matcher to find embedded properties
         PatternCompiler compiler = new Perl5Compiler();
@@ -120,6 +123,24 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
     public void setDescription(String description) {
         this.description = description;
     }
+    
+    /**
+     * Sets the build of the baseline.
+     *
+     * @param build The build number
+     */
+    public void setBuild(String build) {
+        this.build = build;
+    }
+    
+    /**
+     * Sets the state of the baseline.
+     *
+     * @param state The state (published_baseline, test_baseline, released)
+     */
+    public void setState(String state) {
+        this.state = state;
+    }
 
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
@@ -133,6 +154,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
 
         // Extract the build properties from the log
         Properties logProperties = getBuildProperties(log);
+        
 
         // If a baseline name was provided, parse it
         String baselineName = null;
@@ -156,9 +178,20 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         cmd.createArguments("-purpose", purpose);
         cmd.createArguments("-project", getProject());
         cmd.createArgument("-subprojects");
-
+        
+        double version = getVersion();
+        // If the build switch is available and the attribute is
+        // set to a non-null value, use the build and state attribute values
+        // in the baseline creation
+        if (version >= 6.4 & !build.equals(null)) {
+            cmd.createArguments("-build", build);
+        }
+        if (version >= 6.4) {
+            cmd.createArguments("-state", state);
+        }
         // Create the baseline
         try {
+            LOG.info("Creating Synergy baseline...");
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
@@ -190,7 +223,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @return The release value of the project.
      */
-    private String getProjectRelease() throws CruiseControlException {
+    public String getProjectRelease() throws CruiseControlException {
         String release;
 
         // Create the CM Synergy command line
@@ -212,6 +245,37 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
 
         return release;
     }
+    
+    /**
+     * Queries CM Synergy for the release value of the project
+     *
+     * @return The release value of the project.
+     * @param project The 2-part project name
+     */
+    public String getProjectRelease(String project, String sessionName) throws CruiseControlException {
+        String release;
+
+        // Create the CM Synergy command line
+        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+                getCcmExe(), sessionName, getSessionFile());
+        cmd.createArgument("attribute");
+        cmd.createArguments("-show", "release");
+        cmd.createArguments("-project", project);
+
+        try {
+            cmd.execute();
+            cmd.assertExitCode(0);
+            release = cmd.getStdoutAsString().trim();
+        } catch (Exception e) {
+            throw new CruiseControlException(
+                    "Could not determine the release value of project \""
+                            + project + "\".", e);
+        }
+
+        return release;
+    }
+    
+    
 
     /**
      * Parses a string by replacing all occurrences of a property macro with

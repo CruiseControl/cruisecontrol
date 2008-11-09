@@ -46,6 +46,10 @@ CMSynergy
 ---------------------
 * Allow reconfiguring of "system testing", "insulated development" purpose-based projects. Patch by David Corley
 
+CMSynergyBaselineBootstrapper
+---------------------
+* New plugin for creating new baselines prior to building (CC-862). Submitted by David Corely
+
 CompositeBuilder
 ---------------------
 * Improve processing of build results to make it faster with large log files (CC-826). Patch by David Webster.
