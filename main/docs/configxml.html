@@ -1967,11 +1967,12 @@ password=P@ssW0rd!
                     command.</td>
             </tr>
             <tr>
-            <tr>
+
                 <td>baselinename</td>
                 <td>No</td>
                 <td>An optional name for the baseline. If not provided, CM Synergy will assign a default name based upon the current date.</td>
             </tr>
+            <tr>
                 <td>project</td>
                 <td>Yes</td>
                 <td>The project spec (two part name) of the project you wish to reconfigure.</td>
@@ -4635,6 +4636,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>Yes</td>
                 <td>Local directory for the sandbox.</td>
             </tr>
+            <tr>
+                <td>hgcommand</td>
+                <td>No</td>
+                <td>The hg command used to check changes. Either 'incoming' or 'log'. Default is 'incoming'</td>
+            </tr>
             </tbody>
         </table>
 
@@ -4959,7 +4965,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>starteamurl</td>
                 <td>Yes</td>
-                <td></td>
+                <td/>
             </tr>
             <tr>
                 <td>username</td>
@@ -8991,7 +8997,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         <tr>
                             <td>rootdn</td>
                             <td>Yes</td>
-                            <td></td>
+                            <td/>
                         </tr>
                         <tr>
                             <td>binddn</td>

@@ -36,27 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.util.Commandline;
-import net.sourceforge.cruisecontrol.util.IO;
-import net.sourceforge.cruisecontrol.util.StreamLogger;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -68,6 +57,20 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+import org.jdom.input.SAXBuilder;
+
 /**
  * This class implements the SourceControl methods for a Mercurial repository.
  *
@@ -75,6 +78,8 @@ import java.util.regex.Pattern;
  * @see <a href="http://www.selenic.com/mercurial">Mercurial web site</a>
  */
 public class Mercurial implements SourceControl {
+    
+    static final DateFormat HG_DATE_PARSER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 
     private static final Logger LOG = Logger.getLogger(Mercurial.class);
 
@@ -83,22 +88,26 @@ public class Mercurial implements SourceControl {
     /**
      * Configuration parameters
      */
-    private String localWorkingCopy;
+    private String localWorkingCopy = ".";
+    private String hgCommand = INCOMING_CMD;
+    
+    private static final String INCOMING_CMD = "incoming"; 
+    private static final String LOG_CMD = "log"; 
 
-    static final String INCOMING_XML_TEMPLATE = "<hgChange>\n\t<author>{author}</author>\n\t<rev>{rev}</rev>\n\t"
+    static final String MODIFICATION_XML_TEMPLATE = "<hgChange>\n\t<author>{author}</author>\n\t<rev>{rev}</rev>\n\t"
             + "<node>{node}</node>\n\t<description>{desc|escape}</description>\n\t<date>{date|hgdate}</date>\n\t"
             + "<addedFiles>{file_adds}</addedFiles>\n\t<removedFiles>{file_dels}</removedFiles>\n\t"
             + "<changedFiles>{files}</changedFiles>\n</hgChange>\n";
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
-    public void setProperty(String property) {
+    public void setProperty(final String property) {
         properties.assignPropertyName(property);
     }
 
-    public void setPropertyOnDelete(String propertyOnDelete) {
+    public void setPropertyOnDelete(final String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
@@ -109,13 +118,21 @@ public class Mercurial implements SourceControl {
      *                         to the local working copy of the mercurial
      *                         repository of which to find the log history.
      */
-    public void setLocalWorkingCopy(String localWorkingCopy) {
+    public void setLocalWorkingCopy(final String localWorkingCopy) {
         this.localWorkingCopy = localWorkingCopy;
+    }
+    
+    /**
+     * Sets the hg command to use when checking modifications.
+     *
+     * @param hgCommand String either "incoming" or "log".
+     */
+    public void setHgCommand(final String hgCommand) {
+        this.hgCommand = hgCommand;
     }
 
     /**
-     * This method validates that at least the repository location or the local
-     * working copy location has been specified.
+     * This method validates that the local working copy location has been specified.
      *
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      *          Thrown when the repository location and
@@ -123,28 +140,31 @@ public class Mercurial implements SourceControl {
      *          null
      */
     public void validate() throws CruiseControlException {
-        if (localWorkingCopy != null) {
-            File workingDir = new File(localWorkingCopy);
-            ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
-                    "'localWorkingCopy' must be an existing directory. Was "
-                            + workingDir.getAbsolutePath());
-        }
+        final File workingDir = new File(localWorkingCopy);
+        ValidationHelper.assertTrue(workingDir.exists() && workingDir.isDirectory(),
+                "'localWorkingCopy' must be an existing directory. Was " + workingDir.getAbsolutePath());
+        
+        ValidationHelper.assertTrue(INCOMING_CMD.equals(hgCommand) || LOG_CMD.equals(hgCommand),
+                "'hgCommand' must be either " + INCOMING_CMD + " or " + LOG_CMD);
     }
 
     /**
      * Returns a list of modifications detailing all the changes between
      * the last build and the latest revision in the repository.
      *
+     * @param  lastBuildDate date of last build
+     * @param  now current date
      * @return the list of modifications, or an empty list if we failed
      *         to retrieve the changes.
      */
-    public List getModifications(Date lastBuildDate, Date now) {
-        String version = getMercurialVersion();
+    public List<Modification> getModifications(final Date lastBuildDate, final Date now) {
+        final String version = getMercurialVersion();
         LOG.info("Using Mercurial: '" + version + "'");
+
         Commandline command = null;
-        List modifications = Collections.EMPTY_LIST;
+        List<Modification> modifications = Collections.emptyList();
         try {
-            command = buildHistoryCommand();
+            command = buildHistoryCommand(lastBuildDate, now);
 
             modifications = execHistoryCommand(command);
 
@@ -171,45 +191,59 @@ public class Mercurial implements SourceControl {
     }
 
     /**
-     * Generates the command line for the hg incoming command.
+     * Generates the command line for the hg incoming or log command.
      * <p/>
      * For example:
      * <p/>
      * 'hg incoming --template "........."'
      *
+     * @param  from date of last build
+     * @param  to current date
      * @return history command
      * @throws net.sourceforge.cruisecontrol.CruiseControlException
      *          exception
      */
-    Commandline buildHistoryCommand()
+    Commandline buildHistoryCommand(final Date from, final Date to)
             throws CruiseControlException {
 
-        Commandline command = new Commandline();
+        final Commandline command = new Commandline();
+        command.setWorkingDirectory(localWorkingCopy);
         command.setExecutable("hg");
-
-        if (localWorkingCopy != null) {
-            command.setWorkingDirectory(localWorkingCopy);
+        
+        if (INCOMING_CMD.equals(hgCommand)) {
+            usingIncomingToGetModifications(command);
+        } else {
+            usingLogToGetModifications(from, to, command);
         }
-
-        command.createArgument("incoming");
-        // --debug required to get file_adds and file_dels to work in this version of mercurial (0.9.4+20070830)
-        command.createArgument("--debug");
-        command.createArgument("--template");
-        command.createArgument(INCOMING_XML_TEMPLATE);
 
         return command;
     }
 
-    private static List execHistoryCommand(Commandline command)
+    private void usingIncomingToGetModifications(final Commandline command) {
+        command.createArgument(INCOMING_CMD);
+        command.createArgument("--debug");
+        command.createArgument("--template");
+        command.createArgument(MODIFICATION_XML_TEMPLATE);
+    }
+
+    private void usingLogToGetModifications(final Date from, final Date to, final Commandline command) {
+        command.createArgument(LOG_CMD);
+        command.createArgument("--debug");
+        command.createArguments("--date", HG_DATE_PARSER.format(from) + " to " + HG_DATE_PARSER.format(to));
+        command.createArguments("--template", MODIFICATION_XML_TEMPLATE);
+        command.createArgument(new File(localWorkingCopy).getAbsolutePath());
+    }
+
+    private static List<Modification> execHistoryCommand(final Commandline command)
             throws InterruptedException, IOException, ParseException, JDOMException {
 
         LOG.debug("Executing command: " + command);
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread stderr = logErrorStream(p);
-        InputStream commandOutputStream = p.getInputStream();
-        List modifications = parseStream(commandOutputStream);
+        final Thread stderr = logErrorStream(p);
+        final InputStream commandOutputStream = p.getInputStream();
+        final List<Modification> modifications = parseStream(commandOutputStream);
 
         p.waitFor();
         stderr.join();
@@ -230,28 +264,23 @@ public class Mercurial implements SourceControl {
     Commandline buildVersionCommand()
             throws CruiseControlException {
 
-        Commandline command = new Commandline();
+        final Commandline command = new Commandline();
+        command.setWorkingDirectory(localWorkingCopy);
         command.setExecutable("hg");
-
-        if (localWorkingCopy != null) {
-            command.setWorkingDirectory(localWorkingCopy);
-        }
-
         command.createArgument("version");
-
         return command;
     }
 
-    private String execVersionCommand(Commandline command) throws CruiseControlException {
+    private String execVersionCommand(final Commandline command) throws CruiseControlException {
 
         LOG.debug("Executing command: " + command);
 
         try {
-            Process p = command.execute();
+            final Process p = command.execute();
 
-            Thread stderr = logErrorStream(p);
-            InputStream svnStream = p.getInputStream();
-            String revision = parseVersionStream(svnStream);
+            final Thread stderr = logErrorStream(p);
+            final InputStream svnStream = p.getInputStream();
+            final String revision = parseVersionStream(svnStream);
 
             p.waitFor();
             stderr.join();
@@ -267,24 +296,23 @@ public class Mercurial implements SourceControl {
         }
     }
 
-    static String parseVersionStream(InputStream svnStream) throws ParseException, IOException {
-        InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
+    static String parseVersionStream(final InputStream svnStream) throws ParseException, IOException {
+        final InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
         return HgVersionParser.parse(reader);
     }
 
-    private static Thread logErrorStream(Process p) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
+    private static Thread logErrorStream(final Process p) {
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
         stderr.start();
         return stderr;
     }
 
-    static List/*Modification*/ parseStream(InputStream inputStream)
+    static List<Modification> parseStream(final InputStream inputStream)
             throws JDOMException, IOException, ParseException {
 
-        Reader reader = new InputStreamReader(inputStream, "UTF-8");
-        BufferedReader br = new BufferedReader(reader);
+        final BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
         String line;
-        StringBuffer buffer = new StringBuffer();
+        final StringBuffer buffer = new StringBuffer();
         boolean startFound = false;
         while ((line = br.readLine()) != null) {
             startFound |= line.startsWith("<");
@@ -292,7 +320,8 @@ public class Mercurial implements SourceControl {
                 buffer.append(line).append("\n");
             }
         }
-        reader = new StringReader("<hgChanges>" + buffer.toString() + "</hgChanges>");
+
+        final Reader reader = new StringReader("<hgChanges>" + buffer.toString() + "</hgChanges>");
         try {
             return HgLogParser.parse(reader);
         } finally {
@@ -300,14 +329,14 @@ public class Mercurial implements SourceControl {
         }
     }
 
-    void fillPropertiesIfNeeded(List modifications) {
+    void fillPropertiesIfNeeded(final List modifications) {
         if (!modifications.isEmpty()) {
             properties.modificationFound();
 
             String maxRevision = "";
             for (int i = 0; i < modifications.size(); i++) {
-                Modification modification = (Modification) modifications.get(i);
-                Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
+                final Modification modification = (Modification) modifications.get(i);
+                final Modification.ModifiedFile file = modification.files.get(0);
                 if (i == modifications.size() - 1) {
                     maxRevision = modification.revision;
                 }
@@ -329,43 +358,43 @@ public class Mercurial implements SourceControl {
         private HgLogParser() {
         }
 
-        static List/*Modification*/ parse(Reader reader)
+        static List<Modification> parse(final Reader reader)
                 throws ParseException, JDOMException, IOException {
 
-            SAXBuilder builder = new SAXBuilder(false);
-            Document document = builder.build(reader);
+            final SAXBuilder builder = new SAXBuilder(false);
+            final Document document = builder.build(reader);
             return parseDOMTree(document);
         }
 
 
-        static List/*Modification*/ parseDOMTree(Document document)
+        static List<Modification> parseDOMTree(final Document document)
                 throws ParseException {
-            List modifications = new ArrayList();
+            final List<Modification> modifications = new ArrayList<Modification>();
 
-            Element rootElement = document.getRootElement();
-            List logEntries = rootElement.getChildren("hgChange");
+            final Element rootElement = document.getRootElement();
+            final List logEntries = rootElement.getChildren("hgChange");
             for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
-                Element logEntry = (Element) iterator.next();
+                final Element logEntry = (Element) iterator.next();
 
-                List/*Modification*/ modificationsOfRevision = parseLogEntry(logEntry);
+                final List<Modification> modificationsOfRevision = parseLogEntry(logEntry);
                 modifications.addAll(modificationsOfRevision);
             }
 
             return modifications;
         }
 
-        static List/*Modification*/ parseLogEntry(Element logEntry)
+        static List<Modification> parseLogEntry(final Element logEntry)
                 throws ParseException {
-            List modifications = new ArrayList();
+            final List<Modification> modifications = new ArrayList<Modification>();
 
-            String userName = logEntry.getChildText("author");
-            String revision = logEntry.getChildText("rev") + ":" + logEntry.getChildText("node");
-            String comment = logEntry.getChildText("description");
-            // Date modifiedTime = convertIso8601Date(logEntry.getChildText("date"));
-            Date modifiedTime = convertHgDate(logEntry.getChildText("date"));
-            String[] addedFiles = getFiles(logEntry.getChildText("addedFiles"));
-            String[] removedFiles = getFiles(logEntry.getChildText("removedFiles"));
-            String[] changedFiles = getFiles(logEntry.getChildText("changedFiles"));
+            final String userName = logEntry.getChildText("author");
+            final String revision = logEntry.getChildText("rev") + ":" + logEntry.getChildText("node");
+            final String comment = logEntry.getChildText("description");
+            // final Date modifiedTime = convertIso8601Date(logEntry.getChildText("date"));
+            final Date modifiedTime = convertHgDate(logEntry.getChildText("date"));
+            final String[] addedFiles = getFiles(logEntry.getChildText("addedFiles"));
+            final String[] removedFiles = getFiles(logEntry.getChildText("removedFiles"));
+            final String[] changedFiles = getFiles(logEntry.getChildText("changedFiles"));
 
             addModifications(modifications, userName, revision, comment, modifiedTime, addedFiles, "added");
             addModifications(modifications, userName, revision, comment, modifiedTime, changedFiles, "modified");
@@ -374,31 +403,35 @@ public class Mercurial implements SourceControl {
             return modifications;
         }
 
-        private static void addModifications(List modifications, String userName, String revision,
-                                             String comment, Date modifiedTime, String[] files, String action) {
+        private static void addModifications(final List<Modification> modifications,
+                                             final String userName, final String revision,
+                                             final String comment, final Date modifiedTime,
+                                             final String[] files, final String action) {
             for (int i = 0; i < files.length; i++) {
-                String filePath = files[i];
+                final String filePath = files[i];
                 addModifications(modifications, userName, revision, comment, modifiedTime, filePath, action);
             }
         }
 
-        private static void addModifications(List modifications, String userName, String revision,
-                                             String comment, Date modifiedTime, String filePath, String action) {
-            Modification modification = new Modification("mercurial");
+        private static void addModifications(final List<Modification> modifications,
+                                             final String userName, final String revision,
+                                             final String comment, final Date modifiedTime,
+                                             final String filePath, final String action) {
+            final Modification modification = new Modification("mercurial");
 
             modification.modifiedTime = modifiedTime;
             modification.userName = userName;
             modification.comment = comment;
             modification.revision = revision;
 
-            Modification.ModifiedFile modfile = modification.createModifiedFile(filePath, null);
+            final Modification.ModifiedFile modfile = modification.createModifiedFile(filePath, null);
             modfile.action = action;
             modfile.revision = modification.revision;
 
             modifications.add(modification);
         }
 
-        private static String[] getFiles(String childText) {
+        private static String[] getFiles(final String childText) {
             if (childText.length() == 0) {
                 return new String[0];
             }
@@ -429,11 +462,11 @@ public class Mercurial implements SourceControl {
          * @return converted date
          * @throws java.text.ParseException if specified date doesn't match the expected format
          */
-        static Date convertHgDate(String date) throws ParseException {
+        static Date convertHgDate(final String date) throws ParseException {
             try {
                 return HgDateParser.parse(date);
             } catch (IllegalArgumentException e) {
-                ParseException parseException = new ParseException(e.getMessage(), 0);
+                final ParseException parseException = new ParseException(e.getMessage(), 0);
                 parseException.initCause(e);
                 throw parseException;
             }
@@ -462,13 +495,13 @@ public class Mercurial implements SourceControl {
         private HgDateParser() {
         }
 
-        private static Date parse(String date) throws ParseException {
-            Pattern p = Pattern.compile("([0-9]*) (.*)");
-            Matcher m = p.matcher(date);
+        private static Date parse(final String date) throws ParseException {
+            final Pattern p = Pattern.compile("([0-9]*) (.*)");
+            final Matcher m = p.matcher(date);
             if (!m.matches()) {
                 throw new ParseException("HgDateParser: no match of " + date, 0);
             }
-            Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            final Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             c.setTimeInMillis(Long.parseLong(m.group(1)) * 1000);
             return c.getTime();
         }
@@ -478,15 +511,15 @@ public class Mercurial implements SourceControl {
         private HgVersionParser() {
         }
 
-        public static String parse(Reader reader) throws ParseException, IOException {
-            BufferedReader myReader = new BufferedReader(reader);
-            String versionLine = myReader.readLine();
+        public static String parse(final Reader reader) throws ParseException, IOException {
+            final BufferedReader myReader = new BufferedReader(reader);
+            final String versionLine = myReader.readLine();
             if (versionLine == null) {
                 throw new IllegalStateException("hg version returned nothing");
             }
 
-            Pattern p = Pattern.compile("Mercurial Distributed SCM \\((.*)\\)");
-            Matcher m = p.matcher(versionLine);
+            final Pattern p = Pattern.compile("Mercurial Distributed SCM \\((.*)\\)");
+            final Matcher m = p.matcher(versionLine);
             if (!m.matches()) {
                 throw new ParseException("HgVersionParser: no match of " + versionLine, 0);
             }
