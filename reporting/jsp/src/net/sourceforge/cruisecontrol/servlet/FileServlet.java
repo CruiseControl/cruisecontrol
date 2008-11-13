@@ -51,6 +51,8 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Collections;
@@ -61,28 +63,28 @@ import java.util.Date;
 public class FileServlet extends HttpServlet {
 
     private File rootDir;
-    private List indexFiles;
+    private List<String> indexFiles;
 
     public File getRootDir() {
         return rootDir;
     }
 
-    public void init(ServletConfig servletconfig) throws ServletException {
+    public void init(final ServletConfig servletconfig) throws ServletException {
         super.init(servletconfig);
         rootDir = getRootDir(servletconfig);
         indexFiles = getIndexFiles(servletconfig);
     }
 
-    protected File getRootDir(ServletConfig servletconfig) throws ServletException {
-        String root = servletconfig.getInitParameter("rootDir");
+    protected File getRootDir(final ServletConfig servletconfig) throws ServletException {
+        final String root = servletconfig.getInitParameter("rootDir");
         File rootDirectory = getDirectoryFromName(root);
         if (rootDirectory == null) {
             rootDirectory = getLogDir(servletconfig);
             if (rootDirectory == null) {
-                String message = "ArtifactServlet not configured correctly in web.xml.\n"
-                     + "Either rootDir or logDir must point to existing directory.\n"
-                     + "rootDir is currently set to <" + root + "> "
-                     + "while logDir is <" + getLogDirParameter(servletconfig) + ">";
+                final String message = "ArtifactServlet not configured correctly in web.xml.\n"
+                        + "Either rootDir or logDir must point to existing directory.\n"
+                        + "rootDir is currently set to <" + root + "> "
+                        + "while logDir is <" + getLogDirParameter(servletconfig) + ">";
                 throw new ServletException(message);
             }
         }
@@ -90,25 +92,26 @@ public class FileServlet extends HttpServlet {
         return rootDirectory;
     }
 
-    protected String getLogDirParameter(ServletConfig servletconfig) throws ServletException {
-        ServletContext context = servletconfig.getServletContext();
+    protected String getLogDirParameter(final ServletConfig servletconfig) throws ServletException {
+        final ServletContext context = servletconfig.getServletContext();
         return context.getInitParameter("logDir");
     }
-    protected File getLogDir(ServletConfig servletconfig) throws ServletException {
-        String logDir = getLogDirParameter(servletconfig);
+
+    protected File getLogDir(final ServletConfig servletconfig) throws ServletException {
+        final String logDir = getLogDirParameter(servletconfig);
         return getDirectoryFromName(logDir);
     }
 
 
-    List getIndexFiles(ServletConfig servletconfig) {
-        ServletContext context = servletconfig.getServletContext();
-        String logDir = context.getInitParameter("fileServlet.welcomeFiles");
-        List indexes = Collections.EMPTY_LIST;
+    List<String> getIndexFiles(final ServletConfig servletconfig) {
+        final ServletContext context = servletconfig.getServletContext();
+        final String logDir = context.getInitParameter("fileServlet.welcomeFiles");
+        List<String> indexes = Collections.emptyList();
         if (logDir != null) {
-            StringTokenizer tokenizer = new StringTokenizer(logDir);
-            indexes = new ArrayList();
+            final StringTokenizer tokenizer = new StringTokenizer(logDir);
+            indexes = new ArrayList<String>();
             while (tokenizer.hasMoreTokens()) {
-                String indexFile = ((String) tokenizer.nextElement());
+                final String indexFile = ((String) tokenizer.nextElement());
                 // note: I am pretty sure there's a known issue with StringTokenizer returning "" (cf ant)
                 // but am offline right now and cannot check.
                 if (!"".equals(indexFile)) {
@@ -119,12 +122,12 @@ public class FileServlet extends HttpServlet {
         return indexes;
     }
 
-    private static File getDirectoryFromName(String dir) {
-        File rootDirectory;
+    private static File getDirectoryFromName(final String dir) {
         if (dir == null) {
             return null;
         }
-        rootDirectory = new File(dir);
+
+        final File rootDirectory = new File(dir);
         if (!rootDirectory.exists() || rootDirectory.isFile()) {
             return null;
         }
@@ -132,7 +135,7 @@ public class FileServlet extends HttpServlet {
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         WebFile file = getSubWebFile(request.getPathInfo());
 
         if (file.isDir()) {
@@ -141,21 +144,21 @@ public class FileServlet extends HttpServlet {
                 response.sendRedirect(response.encodeRedirectURL(request.getRequestURI() + '/'));
                 return;
             }
-            String index = getIndexFile(file);
+            final String index = getIndexFile(file);
             if (index != null) {
                 file = getSubWebFile(request.getPathInfo() + index);
             }
         }
 
         if (file.isFile()) {
-            String filename = file.getName();
-            String mimeType;
+            final String filename = file.getName();
+            final String mimeType;
             if (request.getParameter("mimetype") != null) {
                 mimeType = request.getParameter("mimetype");
             } else {
                 mimeType = getMimeType(filename);
             }
-            Date date = new Date(file.getFile().lastModified());
+            final Date date = new Date(file.getFile().lastModified());
             response.addDateHeader("Last-Modified", date.getTime());
             response.setContentType(mimeType);
             response.setContentLength((int) file.getFile().length());
@@ -164,7 +167,7 @@ public class FileServlet extends HttpServlet {
         }
 
         response.setContentType("text/html");
-        Writer writer = response.getWriter();
+        final Writer writer = response.getWriter();
         writer.write("<html>");
         writer.write("<body>");
         writer.write("<h1>" + file + "</h1>");
@@ -178,7 +181,7 @@ public class FileServlet extends HttpServlet {
         writer.write("</html>");
     }
 
-    protected String getMimeType(String filename) {
+    protected String getMimeType(final String filename) {
         String mimeType = getServletContext().getMimeType(filename);
         if (mimeType == null) {
             mimeType = getDefaultMimeType();
@@ -191,19 +194,20 @@ public class FileServlet extends HttpServlet {
     }
 
     /**
+     * @param dir the directory in which to search.
      * @return the name of the first found known index file under the
      *         specified directory or <code>null</code> if none found
      * @throws IllegalArgumentException if the specified WebFile is not a directory
-     **/
-    private String getIndexFile(WebFile dir) {
+     */
+    private String getIndexFile(final WebFile dir) {
         if (!dir.isDir()) {
             throw new IllegalArgumentException(dir + " is not a directory");
         }
-        for (int i = 0; i < indexFiles.size(); i++) {
-            final File file = new File(dir.getFile(), (String) indexFiles.get(i));
+        for (final String indexFile : indexFiles) {
+            final File file = new File(dir.getFile(), indexFile);
             // what about hidden files? let's display them...
             if (file.exists() && file.isFile()) {
-                return (String) indexFiles.get(i);
+                return indexFile;
             }
         }
         return null;
@@ -211,42 +215,73 @@ public class FileServlet extends HttpServlet {
 
     /**
      * Returns an HTML snippet that allows the browsing of the directory's content.
-     * @param request
-     * @param file
-     * @param writer
-     * @throws IOException
+     *
+     * @param request incoming http request
+     * @param file directory to browse
+     * @param writer place to write html output
+     * @throws IOException if an error occurs
      */
-    void printDirs(HttpServletRequest request, WebFile file, Writer writer)
-        throws IOException {
-        String[] files = file.list();
-        writer.write("<ul>");
-        for (int i = 0; i < files.length; i++) {
+    void printDirs(final HttpServletRequest request, final WebFile file, final Writer writer)
+            throws IOException {
+        final File[] files = file.list();
+        writer.write("<table border='black' borderwidth='1' cellpadding='5'>");
+        writer.write("<tr><th>name</th><th>file size</th><th>modified date</th></tr>");
+        for (final File currentFile : files) {
             final String requestURI = request.getRequestURI();
-            int jsessionidIdx = requestURI.indexOf(";jsessionid");
-            String shortRequestURI;
-            String jsessionid;
+            final int jsessionidIdx = requestURI.indexOf(";jsessionid");
+            final String shortRequestURI;
+            final String jsessionid;
             if (jsessionidIdx >= 0) {
-              shortRequestURI = requestURI.substring(0, jsessionidIdx);
-              jsessionid = requestURI.substring(jsessionidIdx);
+                shortRequestURI = requestURI.substring(0, jsessionidIdx);
+                jsessionid = requestURI.substring(jsessionidIdx);
             } else {
-              shortRequestURI = requestURI;
-              jsessionid = "";
+                shortRequestURI = requestURI;
+                jsessionid = "";
             }
 
-            final String subFilePath = request.getPathInfo() + '/' + files[i];
-            WebFile sub = getSubWebFile(subFilePath);
+            final String subFilePath = request.getPathInfo() + '/' + currentFile.getName();
+            final WebFile sub = getSubWebFile(subFilePath);
+            writer.write("\n<tr><td>");
             writer.write(
-                "<li><a href=\""
-                    + shortRequestURI
-                    + (shortRequestURI.endsWith("/") ? "" : "/")
-                    + files[i]
-                    + jsessionid
-                    + "\">"
-                    + files[i]
-                    + (sub.isDir() ? "/" : "")
-                    + "</a></li>");
+                    "<a href=\""
+                            + shortRequestURI
+                            + (shortRequestURI.endsWith("/") ? "" : "/")
+                            + currentFile.getName()
+                            + jsessionid
+                            + "\">"
+                            + currentFile.getName()
+                            + (sub.isDir() ? "/" : "")
+                            + "</a>");
+            writer.write("</td><td align='right'>");
+            writer.write(formatFileSize(currentFile.length()));
+            writer.write("</td><td align='right'>");
+            writer.write(formatFileDate(currentFile.lastModified()));
+            writer.write("</td></tr>");
         }
-        writer.write("</ul>");
+        writer.write("</table>");
+    }
+
+    private String formatFileDate(final long date) {
+        return new Date(date).toString();
+    }
+
+    private static final BigDecimal TEN = BigDecimal.valueOf(10);
+    private static final BigDecimal KB = BigDecimal.valueOf(1024);
+    private static final BigDecimal MB = BigDecimal.valueOf(1024 * 1024);
+    private static final BigDecimal GB = BigDecimal.valueOf(1024 * 1024 * 1024);
+
+    private String formatFileSize(final long argL) {
+
+        if (argL < 1024) {
+            return String.valueOf(argL);
+        }
+        if (argL < 1024 * 1024) {
+            return BigDecimal.valueOf(argL).multiply(TEN).divideToIntegralValue(KB).divide(TEN) + "K";
+        }
+        if (argL < 1024 * 1024 * 1024) {
+            return BigDecimal.valueOf(argL).multiply(TEN).divideToIntegralValue(MB).divide(TEN) + "M";
+        }
+        return BigDecimal.valueOf(argL).multiply(TEN).divideToIntegralValue(GB).divide(TEN) + "G";
     }
 
     protected WebFile getSubWebFile(final String subFilePath) {
@@ -306,12 +341,12 @@ class WebFile {
         return new File(rootDir, filename);
     }
 
-    public String[] list() {
-        String[] files = file.list();
+    public File[] list() {
+        File[] files = file.listFiles();
         if (files == null) {
-            files = new String[0];
+            files = new File[0];
         } else {
-            Arrays.sort(files);
+            Arrays.sort(files, new FileNameComparator());
         }
         return files;
     }
@@ -322,5 +357,20 @@ class WebFile {
 
     public File getFile() {
         return file;
+    }
+
+    class FileNameComparator
+            implements Comparator<File> {
+
+        /* (non-Javadoc)
+        * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+        */
+        /**
+         * {@inheritDoc}
+         */
+        public int compare(final File f1, final File f2) {
+            return f1.getName().compareTo(f2.getName());
+        }
+
     }
 }
