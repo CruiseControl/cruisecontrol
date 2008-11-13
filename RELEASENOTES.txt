@@ -75,6 +75,10 @@ JMX
 ----------------------
 * Add JMXBuildAgentUtility to control panel. Only loads if DistCC classes are available on the CC classpath. Use "-agentutil false" command line option to disable automatic loading of JMX Build Agent Utility.
 
+Mercurial
+---------------------
+* a new attribute "hgcommand" for the <mercurial> source control plugin, which has two options: "incoming" or "log". Use "log" to use <mercurial> and <mercurialbootstrapper> together (CC-864). Patch by Guanglei Li.
+
 ModificationSet
 ---------------------
 * When there are multiple source controls attempt to merge conflicting properties by choosing the 'largest' value, to address situation where multiple source controls should return the newest version number or date (CC-830).

@@ -36,23 +36,23 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
-import org.jdom.JDOMException;
-
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
+
+import org.jdom.JDOMException;
 
 
 /**
@@ -66,6 +66,7 @@ public class MercurialTest extends TestCase {
 
     protected void setUp() throws Exception {
         mercurial = new Mercurial();
+        mercurial.setLocalWorkingCopy(".");
         originalTimeZone = TimeZone.getDefault();
         tempFile = File.createTempFile("temp", "txt");
         tempFile.deleteOnExit();
@@ -77,7 +78,7 @@ public class MercurialTest extends TestCase {
 
     public void testValidateNoAttributesSet() throws IOException {
         try {
-            mercurial.validate();
+            new Mercurial().validate();
         } catch (CruiseControlException e) {
             fail("should not throw an exception when no attributes are set " + e.getMessage());
         }
@@ -94,8 +95,6 @@ public class MercurialTest extends TestCase {
     }
 
     public void testValidateValidLocalWorkingCopy() throws IOException {
-
-        mercurial = new Mercurial();
         mercurial.setLocalWorkingCopy(tempFile.getParent());
         try {
             mercurial.validate();
@@ -107,7 +106,6 @@ public class MercurialTest extends TestCase {
     }
 
     public void testValidateFailWhenLocalWorkingCopyIsAFile() throws IOException {
-        mercurial = new Mercurial();
         mercurial.setLocalWorkingCopy(tempFile.getAbsolutePath());
         try {
             mercurial.validate();
@@ -116,9 +114,51 @@ public class MercurialTest extends TestCase {
             // expected
         }
     }
+    
+    public void testValidatePassIfHgCommandIsIncomingOrLog() throws Exception {
+        try {
+            mercurial.setHgCommand("incoming");
+            mercurial.validate();
+            mercurial.setHgCommand("log");
+            mercurial.validate();
+        } catch (CruiseControlException e) {
+            fail("should not throw an exception when hgcommand is either incoming or log");
+        }
+    }
+    
+    public void testValidateFailIfHgCommandIsNeitherIncomingNorLog() throws Exception {
+        try {
+            mercurial.setHgCommand("in");
+            mercurial.validate();
+            fail("should throw an exception when hgcommand is neither incoming nor log");
+        } catch (CruiseControlException e) {
+            // expected, even the command is in, which's the alias of incoming
+        }
+    }
+    
+    public void testShouldUseLogToGetModificationsIfHgCommandIsLog() throws Exception {
+        Date from = Mercurial.HG_DATE_PARSER.parse("1978-03-06 17:33:55 +0000");
+        Date to = Mercurial.HG_DATE_PARSER.parse("2978-03-06 17:33:55 +0000");
 
-    public void testBuildHistoryCommand() throws CruiseControlException {
-        mercurial.setLocalWorkingCopy(".");
+        String[] expectedCmd = new String[] { 
+            "hg", 
+            "log", 
+            "--debug", 
+            "--date",
+            Mercurial.HG_DATE_PARSER.format(from) + " to " + Mercurial.HG_DATE_PARSER.format(to), 
+            "--template",
+            Mercurial.MODIFICATION_XML_TEMPLATE, new File(".").getAbsolutePath() 
+        };
+
+        mercurial.setHgCommand("log");
+        String[] actualCmd = mercurial.buildHistoryCommand(from, to).getCommandline();
+        TestUtil.assertArray("", expectedCmd, actualCmd);
+    }
+    
+    public void testShouldUseIncomingToGetModificationsByDefaultSoThatItWontBreakExistingConfig()
+            throws Exception {
+        Date from = Mercurial.HG_DATE_PARSER.parse("1978-03-06 17:33:55 +0000");
+        Date to = Mercurial.HG_DATE_PARSER.parse("2978-03-06 17:33:55 +0000");
 
         String[] expectedCmd =
             new String[] {
@@ -126,9 +166,9 @@ public class MercurialTest extends TestCase {
                 "incoming",
                 "--debug",
                 "--template",
-                Mercurial.INCOMING_XML_TEMPLATE
+                Mercurial.MODIFICATION_XML_TEMPLATE
             };
-        String[] actualCmd = mercurial.buildHistoryCommand().getCommandline();
+        String[] actualCmd = mercurial.buildHistoryCommand(from, to).getCommandline();
         TestUtil.assertArray("", expectedCmd, actualCmd);
     }
 
@@ -220,19 +260,8 @@ public class MercurialTest extends TestCase {
     }
 
     private Date parseIso8601Format(String iso8601Date) throws ParseException {
-        return Iso8601DateParser.parse(iso8601Date);
+        return Mercurial.HG_DATE_PARSER.parse(iso8601Date);
     }
-
-    // 2007-08-29 21:44:19 +0200
-    private static final class Iso8601DateParser {
-        private Iso8601DateParser() { }
-        public static final SimpleDateFormat ISO8601_DATE_PARSER = new SimpleDateFormat("yyyy-MM-d HH:mm:ss Z");
-
-        private static Date parse(String date) throws ParseException {
-            return ISO8601_DATE_PARSER.parse(date);
-        }
-    }
-
 
     private InputStream loadTestLog(String name) {
         InputStream testStream = getClass().getResourceAsStream(name);
@@ -253,7 +282,7 @@ public class MercurialTest extends TestCase {
     public void testSetPropertyHasChanges() throws ParseException {
         mercurial.setProperty("hasChanges?");
 
-        List hasModifications = new ArrayList();
+        final List<Modification> hasModifications = new ArrayList<Modification>();
         hasModifications.add(createModification(
                 parseIso8601Format("2007-08-27 16:11:19 +0200"),
                 "ET4642@localhost",
@@ -273,7 +302,7 @@ public class MercurialTest extends TestCase {
                 "modified"));
 
         mercurial.fillPropertiesIfNeeded(hasModifications);
-        Map properties = mercurial.getProperties();
+        final Map<String, String> properties = mercurial.getProperties();
         assertEquals("true", properties.get("hasChanges?"));
         assertEquals("4:1da89ee88532fddb21235b2d21e4a46424adbe39", properties.get("hgrevision"));
     }
@@ -297,7 +326,7 @@ public class MercurialTest extends TestCase {
     public void testSetPropertyOnDeleteNoDeletion() throws ParseException {
         mercurial.setPropertyOnDelete("hasDeletions?");
 
-        List noDeletions = new ArrayList();
+        final List<Modification> noDeletions = new ArrayList<Modification>();
         noDeletions.add(createModification(
                 parseIso8601Format("2007-08-27 16:11:19 +0200"),
                 "ET4642@localhost",
@@ -315,7 +344,7 @@ public class MercurialTest extends TestCase {
     public void testSetPropertyOnDeleteHasDeletion() throws ParseException {
         mercurial.setPropertyOnDelete("hasDeletions?");
 
-        List hasDeletions = new ArrayList();
+        final List<Modification> hasDeletions = new ArrayList<Modification>();
         hasDeletions.add(createModification(
                 parseIso8601Format("2007-08-27 16:11:19 +0200"),
                 "ET4642@localhost",
