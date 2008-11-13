@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Date;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -249,23 +250,41 @@ public class FileServletTest extends TestCase {
         assertEquals("index.htm", indexes.get(1));
     }
 
+
+    private static class MockFile extends File {
+        private final long lastModified;
+        private final long length;
+
+        public MockFile(final String mockFileName, final long lastModified, final long length) {
+            super(mockFileName);
+            this.lastModified = lastModified;
+            this.length = length;
+        }
+
+        @Override public long length() {
+            return length;
+        }
+        @Override public long lastModified() {
+            return lastModified;
+        }
+    }
     /** a mock that allows to specify the names of the files returned by {@link #list()}**/
     static class MockWebFile extends WebFile {
-        private String[] subFiles;
+        private final File[] subFiles;
 
-        public MockWebFile(File root, String path, String[] subFiles) {
+        public MockWebFile(final File root, final String path, final File[] subFiles) {
             super(root, path);
             this.subFiles = subFiles;
         }
 
-        public String[] list() {
+        public File[] list() {
             return subFiles;
         }
     }
 
     /**
      * Simulates both a request with or without a sessionid attached.
-     * @throws IOException
+     * @throws IOException if test fails
      */
     public void testPrintDirs() throws IOException {
         FileServlet fileServlet = new FileServlet() {
@@ -273,17 +292,16 @@ public class FileServletTest extends TestCase {
                 return new WebFile(getRootDir(), subFilePath) {
                     public boolean isDir() {
                         String lastPathElt = subFilePath.substring(subFilePath.lastIndexOf('/') + 1);
-                        final boolean b = lastPathElt.indexOf(".") == -1;
-                        return b;
+                        return lastPathElt.indexOf(".") == -1;
                     }
                 };
             }
         };
 
-        String[] files =
+        MockFile[] files =
             {
-                new String("log1.txt"),
-                new String("log2")
+                new MockFile("log1.txt", 10000, 100),
+                new MockFile("log2", 20000, 200),
             };
 
         final StringWriter writer1 = new StringWriter();
@@ -296,10 +314,15 @@ public class FileServletTest extends TestCase {
         fileServlet.printDirs(request1, new MockWebFile(new File("notimportant"), "notimportant", files), writer1);
 
         final String expectedOutput1 =
-            "<ul>"
-            + "<li><a href=\"/artifacts/abc/log1.txt\">log1.txt</a></li>"
-            + "<li><a href=\"/artifacts/abc/log2\">log2/</a></li>"
-            + "</ul>";
+            "<table border='black' borderwidth='1' cellpadding='5'><tr><th>name</th><th>file size</th>"
+                    + "<th>modified date</th></tr>\n"
+            + "<tr><td><a href=\"/artifacts/abc/log1.txt\">log1.txt</a></td><td align='right'>"
+                    + files[0].length() + "</td><td align='right'>"
+                    + new Date(files[0].lastModified()) + "</td></tr>\n"
+            + "<tr><td><a href=\"/artifacts/abc/log2\">log2/</a></td><td align='right'>"
+                    + files[1].length() + "</td><td align='right'>"
+                    + new Date(files[1].lastModified()) + "</td></tr>"
+            + "</table>";
 
         assertEquals(expectedOutput1, writer1.getBuffer().toString());
 
@@ -313,10 +336,16 @@ public class FileServletTest extends TestCase {
         fileServlet.printDirs(request2, new MockWebFile(new File("/tmp"), "test", files), writer2);
 
         final String expectedOutput2 =
-            "<ul>"
-            + "<li><a href=\"/artifacts/abc/log1.txt;jsessionid=012456789ABCDEF\">log1.txt</a></li>"
-            + "<li><a href=\"/artifacts/abc/log2;jsessionid=012456789ABCDEF\">log2/</a></li>"
-            + "</ul>";
+            "<table border='black' borderwidth='1' cellpadding='5'><tr><th>name</th><th>file size</th>"
+                    + "<th>modified date</th></tr>\n"
+            + "<tr><td><a href=\"/artifacts/abc/log1.txt;jsessionid=012456789ABCDEF\">log1.txt</a></td>"
+                    + "<td align='right'>"
+                    + files[0].length() + "</td><td align='right'>"
+                    + new Date(files[0].lastModified()) + "</td></tr>\n"
+            + "<tr><td><a href=\"/artifacts/abc/log2;jsessionid=012456789ABCDEF\">log2/</a></td><td align='right'>"
+                    + files[1].length() + "</td><td align='right'>"
+                    + new Date(files[1].lastModified()) + "</td></tr>"
+            + "</table>";
 
         assertEquals(expectedOutput2, writer2.getBuffer().toString());
     }
@@ -401,7 +430,7 @@ public class FileServletTest extends TestCase {
     }
 
     private final class TestFileServlet extends FileServlet {
-        private MockServletContext context;
+        private final MockServletContext context;
 
         private TestFileServlet(MockServletContext msc) {
             super();
