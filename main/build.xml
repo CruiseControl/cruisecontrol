@@ -48,8 +48,6 @@
 
     <property name="target" value="${basedir}/target" />
     <property name="reports.dir" value="${target}/reports" />
-    <property name="docs" value="${target}/docs" />
-    <property name="apidocs" value="${docs}/api" />
 
     <property name="classes" value="${target}/classes" />
     <property name="dist" value="dist" />
@@ -271,13 +269,8 @@
     </target>
 
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
-        <mkdir dir="${docs}" />
-        <copy todir="${docs}">
-            <fileset dir="docs" />
-        </copy>
-
-        <mkdir dir="${apidocs}" />
-        <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*" breakiterator="yes" failonerror="true">
+        <mkdir dir="target/javadoc" />
+        <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*" breakiterator="yes" failonerror="true">
             <classpath>
                 <path refid="project.classpath" />
                 <pathelement location="${lib}/ant/ant.jar" />

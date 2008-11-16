@@ -61,18 +61,8 @@
             />
 
         <delete dir="target/website" failonerror="no"/>
-        <mkdir dir="target/website/reporting/jsp"/>
         <copy todir="target/website">
-            <fileset dir="docs"/>
-        </copy>
-
-        <ant inheritAll="false" dir="main" target="javadoc"/>
-        <copy todir="target/website/main">
-            <fileset dir="main/target/docs"/>
-        </copy>
-        <ant inheritAll="false" dir="reporting/jsp" target="javadoc"/>
-        <copy todir="target/website/reporting/jsp">
-            <fileset dir="reporting/jsp/target/docs"/>
+            <fileset dir="documentation"/>
         </copy>
 
         <replace dir="target/website" token="%%VERSION%%" value="${cc.release.label}">
@@ -80,21 +70,6 @@
         </replace>
 
         <replace dir="target/website" token="%%APACHE_ANT%%" value="${apache.ant}">
-            <include name="**/*.html"/>
-        </replace>
-
-        <replace dir="target/website" token="../main/docs/" value="main/">
-            <include name="**/*.html"/>
-        </replace>
-        <replace dir="target/website" token="../reporting/jsp/docs/" value="reporting/jsp/">
-            <include name="**/*.html"/>
-        </replace>
-
-        <replace dir="target/website/main" token="../../docs/" value="../">
-            <include name="**/*.html"/>
-        </replace>
-
-        <replace dir="target/website/reporting/jsp" token="../../../docs/" value="../../">
             <include name="**/*.html"/>
         </replace>
     </target>
@@ -107,15 +82,8 @@
 
     <target name="zip" depends="checklabel" description="Create zip files">
         <mkdir dir="target/zip"/>
-        <copy todir="target/zip" overwrite="true">
-            <fileset dir=".">
-                <include name="**/*.html"/>
-                <exclude name="**/target/**"/>
-                <exclude name="reporting/jsp/samplelogs/_cache/**"/>
-                <exclude name="release*"/>
-                <exclude name="**/binaryrelease/**"/>
-                <exclude name=".pc/**"/>
-            </fileset>
+        <copy todir="target/zip/documentation" overwrite="true">
+            <fileset dir="documentation"/>
         </copy>
         <replace dir="target/zip" token="%%VERSION%%" value="${cc.release.label}">
             <include name="**/*.html"/>
@@ -125,8 +93,8 @@
         <zip zipfile="target/cruisecontrol-src-${cc.release.label}.zip" duplicate="fail">
             <zipfileset dir="target/zip" prefix="${cc.zip.prefix}"/>
             <zipfileset dir="." prefix="${cc.zip.prefix}">
-                <exclude name="**/*.html"/>
                 <exclude name="**/target/**"/>
+                <exclude name="documentation/**/*"/>
                 <exclude name="reporting/jsp/samplelogs/_cache/**"/>
                 <exclude name="reporting/jsp/testresults.xml"/>
                 <exclude name="release*"/>
@@ -177,7 +145,7 @@
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
-            <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/docs"/>
+            <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/documentation"/>
         </zip>
     </target>
 
