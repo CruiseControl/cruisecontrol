@@ -19,6 +19,7 @@ public class JMXBuildAgentUtilityMBeanDescription extends MBeanDescriptionAdapte
     static {
         METHOD_DESCRIPTIONS = new HashMap<String, String>();
 
+        METHOD_DESCRIPTIONS.put("destroyLUS", "Stop the Lookup Service with the given ServiceId.");
         METHOD_DESCRIPTIONS.put("refresh", "Reload information about Build Agents.");
         METHOD_DESCRIPTIONS.put("kill", "Kill the Build Agent who's ServiceId is specified.");
         METHOD_DESCRIPTIONS.put("killAll", "Kill all Build Agents.");
@@ -32,6 +33,7 @@ public class JMXBuildAgentUtilityMBeanDescription extends MBeanDescriptionAdapte
     static {
         ATTR_DESCRIPTIONS = new HashMap<String, String>();
         ATTR_DESCRIPTIONS.put("LookupServiceCount", "The number of Lookup Services (Registrars) found.");
+        ATTR_DESCRIPTIONS.put("LUSServiceIds", "The ServiceId of Lookup Services (Registrars) found.");
         ATTR_DESCRIPTIONS.put("BuildAgents", "A big knarly string representation of all Build Agents found.");
         ATTR_DESCRIPTIONS.put("BuildAgentServiceIds", "Use the ServiceId (the part after '<hostname>: ') as the "
                 + "parameter value to kill() or restart() calls. The ServiceId uniquely identifies a Build Agent.");

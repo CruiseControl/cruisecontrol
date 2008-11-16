@@ -14,17 +14,19 @@ public interface JMXBuildAgentUtilityMBean {
     void refresh() throws RemoteException;
     
     int getLookupServiceCount() throws RemoteException;
+    String[] getLUSServiceIds() throws RemoteException;
+    void destroyLUS(final String lusServiceId) throws RemoteException, CruiseControlException;
 
     String getBuildAgents() throws RemoteException;
 
     String[] getBuildAgentServiceIds() throws RemoteException;
 
-    public boolean isKillOrRestartAfterBuildFinished();
-    public void setKillOrRestartAfterBuildFinished(final boolean afterBuildFinished);
-    public void kill(final String agentServiceId) throws CruiseControlException, RemoteException;
-    public void killAll() throws CruiseControlException;
-    public void restart(final String agentServiceId) throws CruiseControlException, RemoteException;
-    public void restartAll() throws CruiseControlException;
+    boolean isKillOrRestartAfterBuildFinished();
+    void setKillOrRestartAfterBuildFinished(final boolean afterBuildFinished);
+    void kill(final String agentServiceId) throws CruiseControlException, RemoteException;
+    void killAll() throws CruiseControlException;
+    void restart(final String agentServiceId) throws CruiseControlException, RemoteException;
+    void restartAll() throws CruiseControlException;
 
 }
 
