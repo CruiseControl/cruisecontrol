@@ -25,6 +25,8 @@ contrib
 distributed
 ----------------------
 * Remove deprecated BuildAgentService.doBuild() methods.
+* Added Lookup Services control feature to the Agent Utility. Allows you to stop a LookupService and it's ClassServer.
+NOTE: We can always stop a LookupService, but the Swing Agent Utility can only stop the ClassServer on the localhost and the JMX Agent Utility can only stop the ClassServer on the host running the JMX server.
 
 documentation
 ======================
