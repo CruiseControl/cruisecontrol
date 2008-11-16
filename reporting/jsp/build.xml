@@ -50,8 +50,6 @@
     <property name="classes" value="${target}/classes"/>
     <property name="test.classes" value="${target}/test-classes"/>
     <property name="temp.dir" value="${target}/tmp"/>
-    <property name="docs" value="${target}/docs"/>
-    <property name="apidocs" value="${docs}/api"/>
     <property name="test" value="test"/>
     <property name="test.results" value="${target}/test-results"/>
     <property name="tests" value="*Test"/>
@@ -251,13 +249,8 @@
     </target>
 
     <target name="javadoc" depends="init,compile" description="Generate the javadocs">
-        <mkdir dir="${docs}"/>
-        <copy todir="${docs}">
-            <fileset dir="docs"/>
-        </copy>
-
-       <mkdir dir="${apidocs}"/>
-       <javadoc sourcepath="${src}" destdir="${apidocs}" packagenames="net.sourceforge.cruisecontrol.*"
+       <mkdir dir="target/javadoc"/>
+       <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*"
            breakiterator="yes" failonerror="true" source="1.5">
            <classpath>
                <path refid="project.classpath" />
