@@ -98,9 +98,10 @@ CCDIST=$CCDIR/../contrib/distributed
 CCDIST_BUILDER=$CCDIST/dist/builder/
 CCDIST_CORE=$CCDIST/dist/core/
 CCDIST_JINICORE=$CCDIST/jini-core/
+CCDIST_JINILIBDL=$CCDIST/jini-lib-dl/jsk-dl.jar
 CCDIST_CONF=$CCDIST/conf
 
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $LAUNCHER -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_CONF $@"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $LAUNCHER -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_JINILIBDL:$CCDIST_CONF $@"
 echo $EXEC
 $EXEC &
 echo $! > cc.pid
