@@ -1,0 +1,60 @@
+li.success {
+	background: url('dashboard/success.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.success-long {
+	background: url('dashboard/success-long.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.failed-long {
+	background: url('dashboard/failed-long.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.failed {
+	background: url('dashboard/failed.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.inactive {
+	background: url('dashboard/inactive.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.building {
+	background: url('dashboard/building.gif') left center no-repeat;
+	padding-left: 45px;
+	line-height: 46px;
+}
+
+li.view-all-successful {
+	background: url('dashboard/view-all-successful-builds.gif') left center no-repeat;
+	padding-left: 25px;
+	line-height: 26px;
+}
+
+li.view-all-builds {
+	background: url('dashboard/view-all-builds.gif') left center no-repeat;
+	padding-left: 25px;
+	line-height: 26px;
+}
+
+li.force-build {
+	background: url('dashboard/force-build.gif') left center no-repeat;
+	padding-left: 25px;
+	line-height: 26px;
+}
+
+li.control-panel {
+	background: url('dashboard/configure.gif') left center no-repeat;
+	padding-left: 40px;
+	line-height: 26px;
+}
+

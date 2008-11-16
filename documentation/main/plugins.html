@@ -1,0 +1,747 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+   <title>CruiseControl Plugins</title>
+   <style type="text/css" media="all">
+       @import "../cruisecontrol.css";
+   </style>
+   <link href="../print.css" type="text/css" rel="stylesheet" media="print"/>
+   <script type="text/javascript" src="../tables.js"></script>
+</head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net">
+          <img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/>
+        </a>
+    </div>
+    <div class="logo"><img alt="CruiseControl" src="../banner.png"/></div>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li class="top"><a href="../index.html">home</a></li>
+            <li><a href="../download.html">download</a></li>
+            <li><a href="../license.html">license</a></li>
+            <li><h2>documentation</h2></li>
+            <li><a href="../overview.html">overview</a></li>
+            <li><a class="expandedmenu" href="index.html">build loop</a>
+                <ul>
+                    <li><a href="install.html">install</a></li>
+                    <li><p id="menuselected">plugins</p></li>
+                </ul>
+            </li>
+            <li><a class="expandmenu" href="../reporting/jsp/index.html">results jsp</a></li>
+            <li><a class="expandmenu" href="../dashboard.html">dashboard</a></li>
+            <li><a class="expandmenu" href="../gettingstarted.html">getting started</a></li>
+            <li><a href="configxml.html">config ref</a></li>
+            <li><a href="../faq.html">faq</a></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="../developers.html">developers</a></li>
+            <li><a href="../contact.html">mailing lists</a></li>
+            <li><a href="../svn.html">source repository</a></li>
+            <li><p id="menubottom">Release: %%VERSION%%</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1><span class="printonly">CruiseControl</span> Plugins</h1>
+
+        <h2>Introduction</h2>
+
+        <p>
+        It's tough to imagine all of the ways that CruiseControl can be used.
+        Different tools and subtle nuances in team style make it difficult to
+        code a "one-size-fits-all" solution.  As a result, CruiseControl has
+        been designed as a small core with a very high-level implementation of
+        continuous integration, with most of the implementation details
+        delegated to plugins.  This makes it easy to create new functionality,
+        modify existing functionality, or remove unwanted functionality.
+        Plugins also create a shallower learning curve when digging in the
+        codebase, as you can be assured that all of the cvs functionality, for
+        example, exists in one place.  Encapsulating all of the functionality
+        into plugins also makes testing easier.</p>
+
+        <ol>
+            <li><a href="#designoverview">Design overview</a></li>
+            <li><a href="#types">Types</a></li>
+            <li><a href="#initialization">Initialization</a>
+                <ul>
+                    <li><a href="#normalconfiguration">Plugin configuration</a></li>
+                    <li><a href="#selfconfiguring">Self-configuring plugins</a></li>
+                    <li><a href="#validation">Plugin validation</a></li>
+                </ul>
+            </li>
+            <li><a href="#execution">Execution</a></li>
+            <li><a href="#registration">Registration</a></li>
+            <li>
+                <ul>
+                    <li><a href="#preconfiguration">Preconfiguration</a></li>
+                </ul>
+            </li>
+            <li><a href="#xmldocumentation">Plugin XML Documentation</a></li>
+            <li><a href="#defaultregistry">Default Registry</a></li>
+        </ol>
+
+        <h2><a name="designoverview"/>Plugin Design Overview</h2>
+        <p>Plugins are represented by beans. Plugin classes are mapped to element names
+        in the XML config file thanks to a process known as <a href="#registration">
+        registration</a>. Plugins distributed with cruisecontrol are all
+        <a href="#defaultregistry">registered by default</a>.</p>
+
+        <p>The configuration will be initiated by the <code>
+        <a class="javadoc" href="api/net/sourceforge/cruisecontrol/ProjectXMLHelper.html">
+        ProjectXMLHelper</a></code> class which handles the mapping of the registered
+        plugin and delegates the plugin <a href="#initialization">initialization</a> to the <code>
+        <a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a>
+        </code> class. Once configured, the plugin is <a href="#validation">validated</a>, and
+        <a href="#execution">executed</a> at the appropriate time in the build cycle. This
+        execution time will depend on the plugin type.</p>
+
+        <h2><a name="types"/>Plugin Types</h2>
+        <p>There are currently six different types of plugins that
+        CruiseControl supports. Each has a slightly different role, but all are
+        designed similarly. While they all implement different interfaces and
+        have slightly different method names, we will refer to them collectively
+        as plugins when discussing their similarities. The plugin types are:</p>
+
+        <ul><li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Bootstrapper.html">Bootstrapper</a></code>: run before the build</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SourceControl.html">SourceControl</a></code>: poll a code repository and determine if anything has changed</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Builder.html">Builder</a></code>: perform the actual building and testing of your code</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/LabelIncrementer.html">LabelIncrementer</a></code>: handles incrementing the label for you to use to tag your source</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Publisher.html">Publisher</a></code>: publish the results of your build, via email for example</li>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/Listener.html">Listener</a></code>: handles project events</li>
+        </ul>
+
+        <h2><a name="initialization"/>Plugin Initialization</h2>
+        <p>The <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will usually use introspection to
+        configure the bean. The exception to this rule is when the plugin is
+        <a href="#selfconfiguring">self-configuring</a>.</p>
+
+        <h3><a name="normalconfiguration"/>Plugin configuration</h3>
+        <p>In the case of normal initialization, the <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will call setter methods that correspond to
+        attributes on your xml tag in the config file.
+        For example, the method <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html#setTarget(java.lang.String)">setTarget(String target)</a></code> on the
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html">AntBuilder</a></code> class corresponds to the attribute
+        <code>target</code> on the <code>&lt;ant/&gt;</code> element in the
+        config file.  The parser is case insensitive, so the case need not match
+        from your attributes to your method names, so the standard
+        capitalization rules should apply.</p>
+
+        <p>It is possible for you to declare nested elements within your
+        plugin's declaration in the config file.  In this case, CruiseControl
+        will expect your plugin class to implement an <code>add</code> or
+        <code>create</code> method for each nested element, depending whether your
+        nested element is itself a plugin or not:</p>
+        <ul>
+            <li>for nested elements that are also plugins, the <code><a
+                    class="javadoc"
+                    href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code>
+                doesn't know to which class the element should map and then asks the
+                <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/ProjectXMLHelper.html">
+                    ProjectXMLHelper</a></code> to configure the element.</li>
+            <li>for simple (non plugins) nested elements, the plugin knows the
+                type that will map to the config element name. Returning to our example
+                <code>AntBuilder</code> class, we will see a
+                <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html#createJVMArg()">createJVMArg()</a></code>
+                method. We'll also see that <code>AntBuilder</code> has a nested JVMArg class.
+                This create method is responsible for creating an instance of <code>JVMArg</code>
+                and keeping a reference to that object for <code>AntBuilder</code> to use
+                later. It returns a reference to the newly created <code>JVMArg</code>
+                object, so that
+                <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code>
+                can configure the nested element in the same way as the parent element. In theory, there is no
+                limit to the depth of your nesting, as long as the appropriate create
+                methods have been written.</li>
+        </ul>
+
+
+        <h3><a name="selfconfiguring"/>Self-configuring plugins</h3>
+        In some cases, one may want to skip the default configuration facilities offered
+        by the framework. This can be achieved by making the plugin class implement the
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html">SelfConfiguringPlugin</a></code> interface.
+        In that case the <code><a
+        class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">
+        PluginXMLHelper</a></code> will delegate plugin configuration to the
+        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html#configure(org.jdom.Element)">configure(Element element)</a></code> defined by this interface.
+
+        <h3><a name="validation"/>Plugin Validation</h3>
+        <p>Immediately after the parser has configured your plugin, we will
+        validate the plugin using it's own <code>validate()</code> method.
+        This will enable us to fail quickly if your plugin has been incorrectly
+        configured, saving you the time of waiting for your plugin to execute to
+        determine whether your CruiseControl installation has been
+        successful.</p>
+
+        <h2><a name="execution"/>Plugin Execution</h2>
+
+        <p>After we have configured and validated all of the plugins, we will
+        begin executing them according to their type. Each plugin has an
+        "action" method that is the one method that CruiseControl will call when
+        executing your plugin. Let's take the example of the bootstrappers.  At
+        the beginning of the build cycle, the first thing that we need to do is
+        to run the bootstrappers.  We've already initialized and validated each
+        of these, so now we will just call the <code>bootstrap()</code> method
+        as we iterate over the list of registered bootstrappers.  It's fairly
+        similar for each of the other types of plugins.</p>
+
+        <h2><a name="registration"/>Plugin Registration</h2>
+
+        <p>The registration of plugins is a simple and straightforward task.
+        Directly under the <code>&lt;cruisecontrol&gt;</code> element, or
+        within a <code>&lt;project&gt;</code> element, simply add a
+        <code>&lt;plugin&nbsp;name=""&nbsp;classname=""/&gt;</code> element,
+        where the name corresponds to the name you wish to use within the config
+        file, and the classname corresponds to the actual plugin Java class.</p>
+
+        <p>Plugins specified directly under the root element will be available
+        to all your projects, plugins under a project element will be only
+        available within that project. This is useful to override a plugin
+        like the <code>labelincrementer</code> for a single project.</p>
+
+        <p>In the interest of keeping config file sizes to a minimum, all
+        plugins that ship with CruiseControl will be automatically registered.
+        Should you wish to use one of the registered plugin names with your own
+        custom plugin class, you can just explicitly register the plugin name
+        and that will override the <a href="#defaultregistry">default registration</a>.</p>
+
+        <h3><a name="preconfiguration"/>Plugin Preconfiguration</h3>
+
+        <p>On registering plugins, you can also define default values for some
+        of the properties and nested elements of the plugins. You can do this by simply
+        using the same attributes and child nodes as you would when using the plugin itself.</p>
+
+        <p>Defaults can be overridden when you actually use the plugin within a
+        project. Note: when nested elements have a multiple cardinality, overriding an
+        already pre-configured child element might accumulate them.</p>
+
+        <p>If you want to preconfigure an already registered plugin (whether <a href="#defaultregistry">
+        default plugin</a>, or plugin registered at the root of the config), you may
+        leave out the <code>classname</code> attribute of the plugin element.</p>
+
+        <p>An example: to define some default values for the <code>htmlemail</code>
+        publisher, you can specify something like this in your config file:</p>
+<pre>
+  &lt;plugin name="htmlemail"
+          mailhost="smtp.example.com"
+          returnaddress="buildmaster@example.com"
+          subjectprefix="[CC]"
+          xsldir="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\xsl"
+          css="C:\java\cruisecontrol-2.2.1\report\jsp\webcontent\css\cruisecontrol.css"&gt;
+     &lt;always address="project-dev@domain.com"/&gt;
+  &lt;plugin/&gt;
+</pre>
+
+        <p>Combined with <a href="configxml.html#property">ant style
+        properties</a> this can greatly reduce the size of your config files. In the extreme
+        case you can create a template project where all that needs to be supplied is the
+        project name:</p>
+<pre>
+&lt;cruisecontrol&gt;
+  &lt;plugin name="project"&gt;
+    &lt;bootstrappers&gt;
+      &lt;cvsbootstrapper localworkingcopy="projects/${project.name}"/&gt;
+    &lt;/bootstrappers&gt;
+    ...
+  &lt;/plugin&gt;
+
+  &lt;project name="foo" /&gt;
+  &lt;project name="bar" /&gt;
+  ...
+&lt;/cruisecontrol&gt;
+</pre>
+
+        <p>More information and examples can be found on <a class="external"
+        href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">the wiki</a>.
+        </p>
+
+        <h2><a name="xmldocumentation"/>Plugin XML Documentation</h2>
+
+        <p>The <a href="configxml.html">config reference</a> is automatically generated from
+        comments and tags contained in the plugins code.</p>
+
+        Here's a simple self-commented example:
+<pre>
+/**
+ * This will make it into the plugin description.
+ * &lt;p&gt;You can also have HTML code &lt;/p&gt;
+ * @cc-plugin
+ * @see other javadoc tags are not taken into account.
+ */
+public class MyPlugin {
+    /** The default value is automatically identified whenever possible */
+    private String myField = "defaultValue";
+
+    /**
+     * A comment that will describe the entry in the parameter table for the plugin.
+     * @required "the comment that will make it into the required column"
+     * @defaultValue "forceDefaultValue"
+     */
+    public void setMyField(String myField) {
+        this.myField = myField;
+    }
+
+    /**
+     * A comment that will describe the entry in the Child table for the plugin.
+     * @cardinality 0..*
+     */
+    public void addObject(Object object) {
+        ...
+    }
+}
+</pre>
+
+    For more information look at the gendoc API (FIXME link).
+
+        <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
+
+        <p>The following tables outlines the default plugin registry:</p>
+
+        <h3>Bootstrappers</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#accurevbootstrapper">accurevbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AccurevBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AccurevBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#alienbrainbootstrapper">alienbrainbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AlienBrainBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AlienBrainBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#antbootstrapper">antbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AntBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#clearcasebootstrapper">clearcasebootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/ClearCaseBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.ClearCaseBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#clearcaseviewstrapper">clearcaseviewstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/ClearCaseViewstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.ClearCaseViewstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cmsynergybootstrapper">cmsynergybootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CMSynergyBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CMSynergyBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#currentbuildstatusbootstrapper">currentbuildstatusbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CurrentBuildStatusBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cvsbootstrapper">cvsbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/CVSBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#execbootstrapper">execbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/ExecBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.ExecBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#gitbootstrapper">gitbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/GitBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.GitBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#harvestbootstrapper">harvestbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/AllFusionHarvestBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.AllFusionHarvestBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#lockfilebootstrapper">lockfilebootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/LockFileBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.LockFileBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#mercurialbootstrapper">mercurialbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/MercurialBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.MercurialBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#p4bootstrapper">p4bootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/P4Bootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#plasticscmbootstrapper">plasticscmbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/PlasticSCMBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.PlasticSCMBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#snapshotcmbootstrapper">snapshotcmbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/SnapshotCMBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.SnapshotCMBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#starteambootstrapper">starteambootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/StarTeamBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.StarTeamBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#surroundbootstrapper">surroundbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/SSCMBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.SSCMBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#svnbootstrapper">svnbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/SVNBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#tfsbootstrapper">tfsbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/TFSBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.TFSBootstrapper</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#vssbootstrapper">vssbootstrapper</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/bootstrappers/VssBootstrapper.html">net.sourceforge.cruisecontrol.bootstrappers.VssBootstrapper</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Source Controls</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#accurev">accurev</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Accurev.html">net.sourceforge.cruisecontrol.sourcecontrols.Accurev</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#alienbrain">alienbrain</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/AlienBrain.html">net.sourceforge.cruisecontrol.sourcecontrols.AlienBrain</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#alwaysbuild">alwaysbuild</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/AlwaysBuild.html">net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#buildstatus">buildstatus</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/BuildStatus.html">net.sourceforge.cruisecontrol.sourcecontrols.BuildStatus</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#clearcase">clearcase</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/ClearCase.html">net.sourceforge.cruisecontrol.sourcecontrols.ClearCase</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cmsynergy">cmsynergy</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/CMSynergy.html">net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#compound">compound</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Compound.html">net.sourceforge.cruisecontrol.sourcecontrols.Compound</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cvs">cvs</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/ConcurrentVersionsSystem.html">net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#darcs">darcs</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Darcs.html">net.sourceforge.cruisecontrol.sourcecontrols.Darcs</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#filesystem">filesystem</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/FileSystem.html">net.sourceforge.cruisecontrol.sourcecontrols.FileSystem</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#forceonly">forceonly</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/ForceOnly.html">net.sourceforge.cruisecontrol.sourcecontrols.ForceOnly</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#git">git</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Git.html">net.sourceforge.cruisecontrol.sourcecontrols.Git</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#harvest">harvest</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/AllFusionHarvest.html">net.sourceforge.cruisecontrol.sourcecontrols.AllFusionHarvest</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#httpfile">httpfile</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/HttpFile.html">net.sourceforge.cruisecontrol.sourcecontrols.HttpFile</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#mavensnapshotdependency">mavensnapshotdependency</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/MavenSnapshotDependency.html">net.sourceforge.cruisecontrol.sourcecontrols.MavenSnapshotDependency</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#maven2snapshotdependency">maven2snapshotdependency</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Maven2SnapshotDependency.html">net.sourceforge.cruisecontrol.sourcecontrols.Maven2SnapshotDependency</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#mks">mks</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/MKS.html">net.sourceforge.cruisecontrol.sourcecontrols.MKS</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#p4">p4</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/P4.html">net.sourceforge.cruisecontrol.sourcecontrols.P4</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#plasticscm">plasticscm</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/PlasticSCM.html">net.sourceforge.cruisecontrol.sourcecontrols.PlasticSCM</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#pvcs">pvcs</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/PVCS.html">net.sourceforge.cruisecontrol.sourcecontrols.PVCS</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#snapshotcm">snapshotcm</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/SnapshotCM.html">net.sourceforge.cruisecontrol.sourcecontrols.SnapshotCM</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#starteam">starteam</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/StarTeam.html">net.sourceforge.cruisecontrol.sourcecontrols.StarTeam</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#store">store</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Store.html">net.sourceforge.cruisecontrol.sourcecontrols.Store</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#surround">surround</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/SSCM.html">net.sourceforge.cruisecontrol.sourcecontrols.SSCM</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#svn">svn</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/SVN.html">net.sourceforge.cruisecontrol.sourcecontrols.SVN</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#tfs">tfs</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/TeamFoundationServer.html">net.sourceforge.cruisecontrol.sourcecontrols.TeamFoundationServer</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#timebuild">timebuild</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/TimeBuild.html">net.sourceforge.cruisecontrol.sourcecontrols.TimeBuild</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#ucm">ucm</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/UCM.html">net.sourceforge.cruisecontrol.sourcecontrols.UCM</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#veto">veto</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Veto.html">net.sourceforge.cruisecontrol.sourcecontrols.Veto</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#vss">vss</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/Vss.html">net.sourceforge.cruisecontrol.sourcecontrols.Vss</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#vssjournal">vssjournal</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/sourcecontrols/VssJournal.html">net.sourceforge.cruisecontrol.sourcecontrols.VssJournal</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Builders</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#ant">ant</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/AntBuilder.html">net.sourceforge.cruisecontrol.builders.AntBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#composite">composite</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/CompositeBuilder.html">net.sourceforge.cruisecontrol.builders.CompositeBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#exec">exec</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/ExecBuilder.html">net.sourceforge.cruisecontrol.builders.ExecBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#maven">maven</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/MavenBuilder.html">net.sourceforge.cruisecontrol.builders.MavenBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#maven2">maven2</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/Maven2Builder.html">net.sourceforge.cruisecontrol.builders.Maven2Builder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#nant">nant</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/NantBuilder.html">net.sourceforge.cruisecontrol.builders.NantBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#pause">pause</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PauseBuilder.html">net.sourceforge.cruisecontrol.PauseBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#phing">phing</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PhingBuilder.html">net.sourceforge.cruisecontrol.PhingBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#rake">rake</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/RakeBuilder.html">net.sourceforge.cruisecontrol.RakeBuilder</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Label Incrementers</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#labelincrementer">labelincrementer</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/labelincrementers/DefaultLabelIncrementer.html">net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Publishers</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#antpublisher">antpublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/AntPublisher.html">net.sourceforge.cruisecontrol.publishers.AntPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#artifactspublisher">artifactspublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/ArtifactsPublisher.html">net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#clearcasebaselinepublisher">clearcasebaselinepublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/ClearCaseBaselinePublisher.html">net.sourceforge.cruisecontrol.publishers.ClearCaseBaselinePublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cmsynergybaselinepublisher">cmsynergybaselinepublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CMSynergyBaselinePublisher.html">net.sourceforge.cruisecontrol.publishers.CMSynergyBaselinePublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cmsynergytaskpublisher">cmsynergytaskpublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CMSynergyTaskPublisher.html">net.sourceforge.cruisecontrol.publishers.CMSynergyTaskPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#compoundpublisher">compoundpublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/CompoundPublisher.html">net.sourceforge.cruisecontrol.publishers.CompoundPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#email">email</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/LinkEmailPublisher.html">net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#execute">execute</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/ExecutePublisher.html">net.sourceforge.cruisecontrol.publishers.ExecutePublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#ftppublisher">ftppublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/FTPPublisher.html">net.sourceforge.cruisecontrol.publishers.FTPPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#htmlemail">htmlemail</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/HTMLEmailPublisher.html">net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#http">http</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/HTTPPublisher.html">net.sourceforge.cruisecontrol.publishers.HTTPPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#jabber">jabber</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/LinkJabberPublisher.html">net.sourceforge.cruisecontrol.publishers.LinkJabberPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#onfailure">onfailure</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/OnFailurePublisher.html">net.sourceforge.cruisecontrol.publishers.OnFailurePublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#onsuccess">onsuccess</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/OnSuccessPublisher.html">net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#origo">origo</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/OrigoPublisher.html">net.sourceforge.cruisecontrol.publishers.OrigoPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#rss">rss</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/RSSPublisher.html">net.sourceforge.cruisecontrol.publishers.RSSPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#sametimeannouncement">sametimeannouncement</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/SametimeAnnouncementPublisher.html">net.sourceforge.cruisecontrol.publishers.SametimeAnnouncementPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#scp">scp</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/SCPPublisher.html">net.sourceforge.cruisecontrol.publishers.SCPPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#sfeefrs">sfeefrs</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/sfee/SfeeFrsPublisher.html">net.sourceforge.cruisecontrol.publishers.sfee.SfeeFrsPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#sfeetracker">sfeetracker</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/sfee/SfeeTrackerPublisher.html">net.sourceforge.cruisecontrol.publishers.sfee.SfeeTrackerPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#sfeedocman">sfeedocman</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/sfee/SfeeDocumentManagerPublisher.html">net.sourceforge.cruisecontrol.publishers.sfee.SfeeDocumentManagerPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#socket">socket</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/SocketPublisher.html">net.sourceforge.cruisecontrol.publishers.SocketPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#weblogpublisher">weblog</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/WeblogPublisher.html">net.sourceforge.cruisecontrol.publishers.WeblogPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#x10">x10</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/X10Publisher.html">net.sourceforge.cruisecontrol.publishers.X10Publisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#xsltlogpublisher">xsltlogpublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/XSLTLogPublisher.html">net.sourceforge.cruisecontrol.publishers.XSLTLogPublisher</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#yahoopublisher">yahoopublisher</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/publishers/YahooPublisher.html">net.sourceforge.cruisecontrol.publishers.YahooPublisher</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Listeners</h3>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Plugin Name</th>
+                <th>Class Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="configxml.html#lockfilelistener">lockfilelistener</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/LockFileListener.html">net.sourceforge.cruisecontrol.listeners.LockFileListener</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#cmsynergysessionmonitor">cmsynergysessionmonitor</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CMSynergySessionMonitor.html">net.sourceforge.cruisecontrol.listeners.CMSynergySessionMonitor</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#currentbuildstatuslistener">currentbuildstatuslistener</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CurrentBuildStatusListener.html">net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#currentbuildstatusftplistener">currentbuildstatusftplistener</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CurrentBuildStatusFTPListener.html">net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusFTPListener</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#currentbuildstatuspagelistener">currentbuildstatuspagelistener</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/listeners/CurrentBuildStatusPageListener.html">net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusPageListener</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

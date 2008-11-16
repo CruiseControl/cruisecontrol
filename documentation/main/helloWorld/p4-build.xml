@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<!--********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 
+ *     + Redistributions of source code must retain the above copyright 
+ *       notice, this list of conditions and the following disclaimer. 
+ *       
+ *     + Redistributions in binary form must reproduce the above 
+ *       copyright notice, this list of conditions and the following 
+ *       disclaimer in the documentation and/or other materials provided 
+ *       with the distribution. 
+ *       
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the 
+ *       names of its contributors may be used to endorse or promote 
+ *       products derived from this software without specific prior 
+ *       written permission. 
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************-->
+<project name="HelloWorld" basedir="." default="all">
+
+    <property name="build.compiler" value="jikes"/>
+    <property name="build.compiler.emacs" value="true"/>
+    <property name="build.dir" value="classes"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="logdir" value="logs"/>
+    <property name="source.dir" value="src"/>
+    <property name="junit.results" value="test-results"/>
+
+    <!-- ***** P4 ***** -->
+    <property name="p4.port" value="host.name.com:1666"/>
+    <property name="p4.user" value="username"/>
+    <property name="p4.client" value="client_name"/>
+    <property name="p4.view" value="//depot/test/..."/>
+    <!-- 
+        The next property (p4.base) is a pointer to where P4 puts the local files.
+        I use this to bootstrap the build.xml file that we probably sync
+        from P4, and use that for building instead. But this is overkill for
+        a project like helloWorld. Look at the example in the end of the file
+        and mail me if interested in this setup (quite important for a P4 user).
+        There is also a rather lengthy message on the cruisecontrol-user mail list
+        that you can read. Info, mail -> Niclas Olofsson -> gurun@acc.umu.se
+    -->
+    <property name="p4.base" value=""/>
+
+    <target name="init" description="Prepare for build">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${logdir}"/>
+    </target>
+
+    <target name="clean" description="Clean all build products">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compile application without cleaning">
+        <javac srcdir="${source.dir}" destdir="${build.dir}"
+         includes="**/*.java" debug="true" deprecation="true"/>
+    </target>
+
+    <target name="test" depends="init" description="Run unit tests">
+        <delete dir="${junit.results}"/>
+        <mkdir dir="${junit.results}"/>
+        <junit fork="yes" haltonfailure="yes">
+            <classpath>
+                <pathelement location="${build.dir}"/>
+            </classpath>
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="${junit.results}">
+                <fileset dir="${build.dir}" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="jar">
+        <jar jarfile="${dist.dir}\helloWorld.jar">
+            <fileset dir="${build.dir}"/>
+        </jar>
+    </target>
+
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
+
+    <!-- P4 sync to get the source out of the repository (uses sync -force) -->
+    <taskdef name="sync" classname="org.apache.tools.ant.taskdefs.optional.perforce.P4Sync" />
+    <target name="sync">        
+        <p4sync view="${p4.view}" force="true" />
+    </target>
+
+    <target name="masterbuild" depends="sync,compile,test,jar" description="Cruise control master build"/>
+
+    <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
+
+    <!-- ******* P4 typical project setup ****** -->
+
+    <!-- Should acctually work with this setup too, but I didn't test it. -->
+    
+    <!-- run build from target build.xml -->
+    <target name="p4-build"  depends="sync">
+    	<ant dir="${p4.base}" target="build"/>
+    </target>
+
+    <!-- run clean build from target build.xml -->
+    <target name="p4-cleanbuild"  depends="sync">
+        <ant dir="${p4.base}" target="clean"/>
+        <ant dir="${p4.base}"/>
+    </target>
+    
+    <!--
+        These last two examples adds P4 labeling as yet annother means of communication
+        to the developers. P4 users can view this in their clients if they want to.
+        TODO: Missing the p4label tasdef (don't know where that went). 
+    -->
+    
+    <target name="p4-auto" depends="p4-build">
+        <!--
+        <p4label name="Build:${DSTAMP}:${TSTAMP}:${label}" desc="Auto build of XXXX" view="${p4.view}" />
+        -->
+    </target>
+
+    <target name="p4-cleanauto" depends="p4-cleanbuild">
+    	<!--
+    	<p4label name="Build:${DSTAMP}:${TSTAMP}:${label}" desc="Clean auto build of XXXX" view="${p4.view}" />
+    	-->
+    </target>
+    
+</project>

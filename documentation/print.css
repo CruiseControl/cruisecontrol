@@ -1,0 +1,37 @@
+body {
+    font-size: 12pt;
+}
+
+.header,
+#menu {
+    display: none;
+}
+
+.content {
+    margin: 0;
+    padding: 0;
+    width: auto;
+    max-width: none;
+}
+
+html>body .content {
+    margin: 0;
+    padding: 0;
+    width: auto;
+    max-width: none;
+}
+
+.printonly {
+    display: block;
+}
+
+span.printonly {
+    display: inline;
+}
+
+a:link, a:visited {
+    color: #520;
+    background: transparent;
+    font-weight: bold;
+    text-decoration: underline;
+}
