@@ -1,0 +1,24 @@
+<cruisecontrol>
+   <project name="helloworld">
+      <bootstrappers>
+         <currentbuildstatusbootstrapper file="currentbuild.txt" />
+      </bootstrappers>
+      <modificationset quietperiod="30" >
+         <cvs cvsroot="REPLACE WITH CVSROOT" />
+      </modificationset>
+      <schedule interval="30" >
+         <ant buildfile="build.xml" target="cleanbuild" multiple="5" />
+         <ant buildfile="build.xml" target="masterbuild" multiple="1" />
+      </schedule>
+      <log dir="logs">
+         <merge dir="test-results"/>
+      </log>  
+      <publishers>
+         <currentbuildstatuspublisher file="currentbuild.txt" />
+         <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
+            <always address="REPLACE WITH BUILD MASTER EMAIL ADDRESS" />
+            <failure address="REPLACE WITH FAILURE EMAIL ADDRESS" />
+         </email>
+      </publishers>
+   </project>
+</cruisecontrol>

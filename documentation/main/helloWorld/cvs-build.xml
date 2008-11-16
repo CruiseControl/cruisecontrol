@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *     + Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *
+ *     + Redistributions in binary form must reproduce the above
+ *       copyright notice, this list of conditions and the following
+ *       disclaimer in the documentation and/or other materials provided
+ *       with the distribution.
+ *
+ *     + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *       names of its contributors may be used to endorse or promote
+ *       products derived from this software without specific prior
+ *       written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************-->
+<project name="HelloWorld" basedir="." default="all">
+
+    <property name="build.compiler" value="jikes"/>
+    <property name="build.compiler.emacs" value="true"/>
+    <property name="build.dir" value="classes"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="logdir" value="logs"/>
+    <property name="source.dir" value="src"/>
+    <property name="junit.results" value="test-results"/>
+    <property name="cvs.repository" value="REPLACE WITH CVSROOT"/>
+    <property name="cvs.package" value="REPLACE WITH CVS PACKAGE"/>
+
+    <target name="init" description="Prepare for build">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+        <mkdir dir="${logdir}"/>
+    </target>
+
+    <target name="clean" description="Clean all build products">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compile application without cleaning">
+        <javac srcdir="${source.dir}" destdir="${build.dir}"
+         includes="**/*.java" debug="true" deprecation="true"/>
+    </target>
+
+    <target name="test" depends="init" description="Run unit tests">
+        <delete dir="${junit.results}"/>
+        <mkdir dir="${junit.results}"/>
+        <junit fork="yes" haltonfailure="yes">
+            <classpath>
+                <pathelement location="${build.dir}"/>
+            </classpath>
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="${junit.results}">
+                <fileset dir="${build.dir}" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="jar">
+        <jar jarfile="${dist.dir}\helloWorld.jar">
+            <fileset dir="${build.dir}"/>
+        </jar>
+    </target>
+
+    <target name="all" depends="init,clean,compile,test,jar" description="Build application"/>
+
+    <target name="checkout" description="Update package from CVS">
+        <cvs cvsroot="${cvs.repository}" package="${cvs.package}" dest=".."/>
+    </target>
+
+    <target name="masterbuild" depends="checkout,compile,test,jar"
+     description="Cruise control master build"/>
+
+    <target name="cleanbuild" depends="clean,masterbuild" description="Cruise control clean build"/>
+
+</project>

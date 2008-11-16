@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+   <title>CruiseControl Installation Instructions</title>
+   <style type="text/css" media="all">
+       @import "../cruisecontrol.css";
+   </style>
+   <link href="../print.css" type="text/css" rel="stylesheet" media="print"/>
+   <script type="text/javascript" src="../tables.js"></script>
+</head>
+<body>
+<div class="header">
+    <div class="hostedby">
+        Hosted By:<br/>
+        <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
+    </div>
+    <div class="logo"><img alt="CruiseControl" src="../banner.png"/></div>
+</div>
+<div class="container">&nbsp;
+    <div id="menu">
+        <ul id="menulist">
+            <li class="top"><a href="../index.html">home</a></li>
+            <li><a href="../download.html">download</a></li>
+            <li><a href="../license.html">license</a></li>
+            <li><h2>documentation</h2></li>
+            <li><a href="../overview.html">overview</a></li>
+            <li><a class="expandedmenu" href="index.html">build loop</a>
+                <ul>
+                    <li><p id="menuselected">install</p></li>
+                    <li><a href="plugins.html">plugins</a></li>
+                </ul>
+            </li>
+            <li><a class="expandmenu" href="../reporting/jsp/index.html">results jsp</a></li>
+            <li><a class="expandmenu" href="../dashboard.html">dashboard</a></li>
+            <li><a class="expandmenu" href="../gettingstarted.html">getting started</a></li>
+            <li><a href="configxml.html">config ref</a></li>
+            <li><a href="../faq.html">faq</a></li>
+            <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+            <li><h2>contributing</h2></li>
+            <li><a class="expandmenu" href="../developers.html">developers</a></li>
+            <li><a href="../contact.html">mailing lists</a></li>
+            <li><a href="../svn.html">source repository</a></li>
+            <li><p id="menubottom">Release: %%VERSION%%</p></li>
+        </ul>
+    </div>
+    <div class="content">
+        <h1>Installation Instructions</h1>
+		<p>Note that this is a brief guide to installation from the source code. For basic CruiseControl installation, go to the <a href="../gettingstarted.html">Getting Started</a> page.</p>
+        <h2>Installing the main build loop</h2>
+
+        <ol>
+            <li><a href="#downloadsource">Download src/build</a></li>
+            <li><a href="#createconfigfile">Create config file</a></li>
+            <li><a href="#startupcruisecontrol">Startup cruisecontrol</a></li>
+        </ol>
+
+        <h2><a name="downloadsource">1. Download Source/Build</a></h2>
+
+        <p><a href="../download.html">Download</a> the source.</p>
+
+        <p>If you examine the code you just downloaded, there will be a
+        build.bat (for Windows users) and a build.sh (for UNIX users) present
+        in the <code>cruisecontrol/main</code> directory.  Execute the
+        appropriate script, and CruiseControl should compile.  Look in the dist
+        directory, and you should find cruisecontrol.jar, cruisecontrol-launcher.jar,
+        and cruisecontrol-antprogresslogger.jar files if the build was successful.</p>
+
+        <h2><a name="createconfigfile">2. Create config file / Upgrade previous
+        version</a></h2>
+
+        <p>All of the cruisecontrol configuration exists in a single config
+        file.  If you're new to cruisecontrol, you'll have to create this file;
+        please read the explanation of the
+        <a href="configxml.html">config file format</a></p>
+
+        <p>Several basic examples are provided with the distribution in the
+        docs/helloWorld directory</p>
+
+        <h2><a name="startupcruisecontrol">3. Startup CruiseControl</a></h2>
+
+        <p>CruiseControl can be started using two approaches:</p>
+
+        <ul>
+            <li>
+            <b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br/>
+               This is the preferred approach, since the scripts will take care
+               of providing you with the correct classpath and such.
+            </li>
+            <li>
+                <b>Executable jar.</b>   Type the following command:
+                <p><code>
+                  java -jar dist/cruisecontrol-launcher.jar
+                </code></p><br/><ul>
+                <li>If you use this, make sure CruiseControl can find the classes it needs.
+                If you don't know which classes this are, you should just use the script.
+                As of CruiseControl version 2.2.1, the MANIFEST.MF file is updated to
+                contain a Class-Path entry with all the jars needed, so using
+                java&nbsp;-jar should just work.</li>
+                <li>If you're using Java 1.5/5.0, you should also provide a system property
+                to enable CruiseControl to use its own MX4J as JMX Server instead of the
+                JMX server that comes with the JVM: have a look at the startup scripts
+                for more details.</li>
+                <li>If you want CruiseControl to start up the reporting application using its
+                embedded Jetty server, be sure to add the flag <code>-webport</code> as an
+                argument. By default, the dashboard will be on port 8080. See the table
+                below for more information.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <p>In either approach, the following command line arguments can be specified:</p>
+
+        <table class="documentation">
+            <thead><tr>
+                <th>Flag</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr></thead>
+            <tbody>
+            <tr>
+              <td>-jmxport&nbsp;<i>[port&nbsp;number]</i></td>
+                <td>No</td>
+                <td>Port number for the JMX HTTP adaptor.  This will activate
+                  the JMX admin functionality of CruiseControl.
+                  If no number is specified, this will default to 8000,
+                  which means you can access the site at
+                  <a href="http://localhost:8000">http://localhost:8000</a>.
+                  This is also the default that the reporting application
+                  expects for the ControlPanel JSP tab.</td>
+            </tr>
+            <tr>
+              <td>-rmiport&nbsp;<i>[port&nbsp;number]</i></td>
+                <td>No</td>
+                <td>Port number for the JMX RMI adaptor and Connector Server.
+                  This will activate the JMX admin functionality of CruiseControl.
+                  If no number is specified, this will default to 1099,
+                  which is the default RMI port. If no RMI registry is
+                  running on the specified port, a registry will be started
+                  for you. You can read about the Connector Server and remoting
+                  via JSR 160
+                  <a href="http://mx4j.sourceforge.net/docs/ch03.html">here</a></td>
+            </tr>
+            <tr>
+                <td>-configfile&nbsp;<i>filename</i></td>
+                <td>No</td>
+                <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
+            </tr>
+            <tr>
+              <td>-xslpath&nbsp;<i>directory</i></td>
+                <td>No</td>
+                <td>The location of your custom XSLT files for use with the JMX HTML adaptor.
+                 Normally, you don't need to specify this and CruiseControl will use the
+                 style sheets that come with the distribution. This can be used to specify
+                 a directory containing your own customized versions of this stylesheets.
+                 </td>
+            </tr>
+            <tr>
+                <td>-user <i>&nbsp;user&nbsp;id</i></td>
+                <td>No</td>
+                <td>Sets a user for the JMX HTTP Adapter. This will require users to login with this user (and password see below) to use the JMX Web interface.<i>The -password flag must also be set</i></td>
+            </tr>
+            <tr>
+                <td>-password <i>password</i></td>
+                <td>No</td>
+                <td>Sets a password for the JMX HTTP Adapter. This will require users to login to use the JMX Web interface.<i>The -user flag must also be set</i></td>
+            </tr>
+            <tr>
+                <td>-agentutil <i>[true/false]</i></td>
+                <td>No</td>
+                <td>Specify whether to load the JMX Build Agent Utility. Will only be loaded if the DistCC JMX Build Agent Utility classes are available. See: <a href="http://cruisecontrol.svn.sourceforge.net/viewvc/*checkout*/cruisecontrol/trunk/cruisecontrol/contrib/distributed/README.html">DistCC Readme</a> for details.</td>
+            </tr>
+            <tr>
+                <td>-debug</td>
+                <td>No</td>
+                <td>Changes the logging level of the internal log4j Logger to DEBUG.
+                  Please note that this will NOT cause your ant scripts to run as if
+                  using 'ant -debug', you need to specify that in your config.xml file</td>
+            </tr>
+            <tr>
+                <td>-log4jconfig&nbsp;<i>filename</i></td>
+                <td>No</td>
+                <td>URL to a log4j configuration file (for example: "file:/c:/mylog4j.xml").
+                    Equivalent to setting the <i>log4j.configuration</i> system property.
+                    See <a class="external" href="http://logging.apache.org/log4j/1.2/manual.html#defaultInit">Log4j Default Initialization Procedure</a> for details.</td>
+            </tr>
+            <tr>
+              <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+                <td>No</td>
+                <td>DEPRECATED: Use -jmxport instead.</td>
+            </tr>
+            <tr>
+              <td>-dashboardurl&nbsp;<i>[dashboard&nbsp;url]</i></td>
+                <td>No</td>
+                <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
+            </tr>
+            <tr>
+              <td>-postinterval&nbsp;<i>[interval&nbsp;number]</i></td>
+                <td>No</td>
+                <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
+            </tr>
+            <tr>
+              <td>-postenabled&nbsp;<i>[true/false]</i></td>
+                <td>No</td>
+                <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
+            </tr>
+            <tr>
+              <td>-lib&nbsp;<i>[search path]</i></td>
+                <td>No</td>
+                <td>Specify additional directories to be included on the CruiseControl classpath.
+                    A Launcher class is used to build the full classpath used when running CruiseControl.
+                    If you are familiar with Ant, then this will seem very familiar.<br />
+                    Typically, <i>[search path]</i> is a jar file or a directory containing jar files.
+                    Any jars or classes in the <i>[search path]</i> will be added to CruiseControl's classloader.
+                    The order in which jars are added to the classpath is as follows:
+                    <ul>
+                        <li>Anything given on the command line using '-lib'.</li>
+                        <li>Any jars in the per-user directory ($HOME/.cruisecontrol/lib).</li>
+                        <li>All jars in the installation dist dir.</li>
+                        <li>All jars in the installation lib dir</li>
+                    </ul>
+                </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>If you specify the -jmxport and/or the -rmiport parameter, a JMX Server will be started
+        which can be used to control CruiseControl (force project builds, monitor the state
+        of projects, change the logging level used internally, etc.).</p>
+
+        <p>If you specify the -webport parameter, a web server will be started
+        with the CruiseControl reporting application.</p>
+
+        <p>Note that all parameters all optional; if you want to start CruiseControl using the
+        config.xml file in the current working directory and do not want to use JMX to
+        control CruiseControl, you don't need to specify any parameters.
+        <br />
+        Most users will specify (only) the -jmxport parameter, since the HTML interface to the
+        JMX server is very convenient.</p>
+
+        <p>More information on getting CruiseControl up and running can be found on the
+        <a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a>.</p>
+
+        <p>If you need more help, subscribe to the
+        <a href="../contact.html">user mailing list</a> and ask your question there.</p>
+    </div>
+</div>
+</body>
+</html>
