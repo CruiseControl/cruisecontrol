@@ -158,7 +158,7 @@ public final class BuildAgentUtility {
             atnListLookupServices = new AbstractAction("Lookup Services") {
                 public void actionPerformed(final ActionEvent e) {
                     final LookupServiceUI lookupServiceUI
-                            = new LookupServiceUI(BuildAgentUtility.UI.this, buildAgentUtil, atnListLookupServices);
+                            = new LookupServiceUI(BuildAgentUtility.UI.this);
                     lookupServiceUI.setVisible(true);
                     lookupServiceUI.pack();
                     atnListLookupServices.setEnabled(false);
@@ -316,8 +316,7 @@ public final class BuildAgentUtility {
                         ComboItemWrapper.wrapArray(serviceItems));
                 SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
                     public void run() {
-                        UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
-                        UI.this.atnListLookupServices.setEnabled(buildAgentUtility.lastLUSCount > 0);
+                        updateLUSCountUI(buildAgentUtility.lastLUSCount);
                         cmbAgents.setModel(comboBoxModel);
                     }
                 });
@@ -332,6 +331,15 @@ public final class BuildAgentUtility {
                 });
             }
         }
+
+        void updateLUSCountUI(final int lusCount) {
+            // make sure lastLUSCount matches the on given, could be different when called from LookupServiceUI
+            buildAgentUtility.lastLUSCount = lusCount;
+
+            UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
+            UI.this.atnListLookupServices.setEnabled(buildAgentUtility.lastLUSCount > 0);
+        }
+
 
         private void exitForm() {
             // save screen info

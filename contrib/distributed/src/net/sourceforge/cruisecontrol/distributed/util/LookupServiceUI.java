@@ -11,7 +11,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -101,8 +100,8 @@ class LookupServiceUI extends JDialog {
 
         final JPanel pnlView = new JPanel(new GridLayout(0, 1));
 
-        final ServiceRegistrar[] registrars = MulticastDiscovery.getValidRegistrars();
-        for (final ServiceRegistrar lus : registrars) {
+        final ServiceRegistrar[] validRegistrars = MulticastDiscovery.getValidRegistrars();
+        for (final ServiceRegistrar lus : validRegistrars) {
             final LUSInfo lusInfo = new LUSInfo(lus);
             pnlView.add(new LUSInfoUI(this, lusInfo));
         }
@@ -115,20 +114,21 @@ class LookupServiceUI extends JDialog {
         
         pnlMain.add(pnlAllLUS);
         pnlMain.validate();
+
+        // update parent UI to show correct LUS counts
+        owner.updateLUSCountUI(validRegistrars.length);
     }
 
 
+    private final BuildAgentUtility.UI owner;
     private final JPanel pnlMain;
-    private final BuildAgentUtility agentUtil;
-    private final Action callingAction;
     private JPanel pnlAllLUS;
 
-    LookupServiceUI(final Frame owner, final BuildAgentUtility agentUtil, final Action callingAction) {
+    LookupServiceUI(final BuildAgentUtility.UI owner) {
         super(owner, "Lookup Services");
         setLocationRelativeTo(owner);
 
-        this.agentUtil = agentUtil;
-        this.callingAction = callingAction;
+        this.owner = owner;
 
         pnlMain = new JPanel(new BorderLayout(5, 5));
         getContentPane().add(pnlMain);
@@ -166,6 +166,5 @@ class LookupServiceUI extends JDialog {
 
     private void doExit() {
         LookupServiceUI.this.dispose();
-        callingAction.setEnabled(agentUtil.getLastLUSCount() > 0);
     }
 }
