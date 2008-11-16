@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
 import net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.jini.core.lookup.ServiceRegistrar;
@@ -26,7 +27,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
 
     private boolean isAfterBuildFinished = true;
 
-    final List<ServiceRegistrar> lstRegistrars = new ArrayList<ServiceRegistrar>();
+    private final List<ServiceRegistrar> lstRegistrars = new ArrayList<ServiceRegistrar>();
     private final List<String> lusIds = new ArrayList<String>();
 
     private List<ServiceItem> lstServiceItems = new ArrayList<ServiceItem>();
@@ -93,6 +94,11 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
 
         final ServiceRegistrar lus = findLUSViaServiceId(lusServiceId);
         if (lus != null) {
+            LOG.debug("JMXBuildAgentUtility : LUS to destroy: " + lus.toString());
+
+            // @todo Find a better way to get jini.httpPort sys prop set in main CC vm from cruise.properties
+            DistributedMasterBuilder.loadJiniHttpPortIfNeeded();
+
             try {
                 AGENT_UTIL_SINGLETON.destroyLookupService(lus);
             } catch (RemoteException e) {

@@ -121,14 +121,7 @@ public class DistributedMasterBuilder extends Builder {
     }
 
     private void loadRequiredProps() throws CruiseControlException {
-        final Properties cruiseProperties;
-        try {
-            cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
-        } catch (RuntimeException e) {
-            LOG.error(e.getMessage(), e);
-            System.err.println(e.getMessage());
-            throw new CruiseControlException(e.getMessage(), e);
-        }
+        final Properties cruiseProperties = loadCruiseProps();
         rootDir = new File(cruiseProperties.getProperty(CRUISE_RUN_DIR));
         LOG.debug("CRUISE_RUN_DIR: " + rootDir);
         if (!rootDir.exists()
@@ -143,6 +136,36 @@ public class DistributedMasterBuilder extends Builder {
             throw new CruiseControlException(message);
         }
     }
+
+    private static Properties loadCruiseProps() throws CruiseControlException {
+        final Properties cruiseProperties;
+        try {
+            cruiseProperties = (Properties) PropertiesHelper.loadRequiredProperties(CRUISE_PROPERTIES);
+        } catch (RuntimeException e) {
+            LOG.error(e.getMessage(), e);
+            System.err.println(e.getMessage());
+            throw new CruiseControlException(e.getMessage(), e);
+        }
+        return cruiseProperties;
+    }
+
+    // @todo Find a better way to get jini.httpPort sys prop set in main CC vm from cruise.properties
+    private static boolean isJiniHttpPortKnown;
+    public static void loadJiniHttpPortIfNeeded() throws CruiseControlException {
+        if (!isJiniHttpPortKnown) {
+            try {
+                final Properties cruiseProperties = DistributedMasterBuilder.loadCruiseProps();
+                final String jiniHttpPort = cruiseProperties.getProperty("jini.port");
+                System.setProperty(MulticastDiscovery.SYS_PROP_CLASSSERVER_HTTP_PORT, jiniHttpPort);
+                LOG.debug("set sys prop " + MulticastDiscovery.SYS_PROP_CLASSSERVER_HTTP_PORT + "=" + jiniHttpPort);
+                isJiniHttpPortKnown = true;
+            } catch (Exception e) {
+                LOG.error("Error loading " + MulticastDiscovery.SYS_PROP_CLASSSERVER_HTTP_PORT + " for JMX", e);
+                throw new CruiseControlException(e);
+            }
+        }
+    }
+
 
 
     public void validate() throws CruiseControlException {

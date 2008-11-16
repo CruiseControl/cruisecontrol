@@ -82,7 +82,9 @@ public final class MulticastDiscovery {
      * The system property name which holds the port of the ClassServer, should be set on the command line,
      * and is used to shutdown the ClassServer when the LookupServer on that host is destoyed.
      */
-    private static final String SYS_PROP_CLASSSERVER_HTTP_PORT = "jini.httpPort";
+    // @todo Make private when hack in DistributedMasterBuilder.loadJiniHttpPortIfNeeded() is fixed
+    //private static final String SYS_PROP_CLASSSERVER_HTTP_PORT = "jini.httpPort";
+    public static final String SYS_PROP_CLASSSERVER_HTTP_PORT = "jini.httpPort";
 
     private final ServiceDiscoveryManager clientMgr;
 
@@ -284,14 +286,20 @@ public final class MulticastDiscovery {
         try {                                 // minMatches must be > 0
             serviceItems = clientMgr.lookup(tmpl, 1, Integer.MAX_VALUE, null, waitDurMillis);
         } catch (InterruptedException e) {
-            throw new RuntimeException("Error finding Lookup service: " + registrar, e);
+            final String msg = "Error finding Lookup service: " + registrar;
+            LOG.error(msg, e);
+            throw new RuntimeException(msg, e);
         }
 
         if (serviceItems.length == 0) {
-            throw new IllegalStateException("Failed to get Administrable service for registrar: " + registrar);
+            final String msg = "Failed to get Administrable service for registrar: " + registrar;
+            LOG.error(msg);
+            throw new IllegalStateException(msg);
         } else if (serviceItems.length > 1) {
-            throw new IllegalStateException("Found too many Administrable services for registrar: " + registrar
-                    + ", serviceItems: " + Arrays.asList(serviceItems).toString());
+            final String msg = "Found too many Administrable services for registrar: " + registrar
+                    + ", serviceItems: " + Arrays.asList(serviceItems).toString();
+            LOG.error(msg);
+            throw new IllegalStateException(msg);
         }
         final Administrable administrableLUS = (Administrable) serviceItems[0].service;
         final DestroyAdmin adminLUS = (DestroyAdmin) administrableLUS.getAdmin();
