@@ -62,6 +62,7 @@ public final class BuildAgentUtility {
         private final JComboBox cmbAgents = new JComboBox();
         private final Action atnInvoke;
         private final Action atnEditEntries;
+        private final Action atnListLookupServices;
         private static final String METH_RESTART = "restart";
         private static final String METH_KILL = "kill";
         private final JComboBox cmbRestartOrKill = new JComboBox(new String[] {METH_RESTART, METH_KILL});
@@ -83,6 +84,7 @@ public final class BuildAgentUtility {
             buildAgentUtility = null;
             atnInvoke = null;
             atnEditEntries = null;
+            atnListLookupServices = null;
         }
 
         private UI(final BuildAgentUtility buildAgentUtil) {
@@ -153,6 +155,17 @@ public final class BuildAgentUtility {
             };
             atnEditEntries.setEnabled(false);
 
+            atnListLookupServices = new AbstractAction("Lookup Services") {
+                public void actionPerformed(final ActionEvent e) {
+                    final LookupServiceUI lookupServiceUI
+                            = new LookupServiceUI(BuildAgentUtility.UI.this, buildAgentUtil, atnListLookupServices);
+                    lookupServiceUI.setVisible(true);
+                    lookupServiceUI.pack();
+                    atnListLookupServices.setEnabled(false);
+                }
+            };
+            atnListLookupServices.setEnabled(false);
+
             btnInvokeOnAll.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     for (int i = 0; i < cmbAgents.getItemCount(); i++) {
@@ -188,6 +201,7 @@ public final class BuildAgentUtility {
             pnlNN.add(pnlButtonsTop, BorderLayout.EAST);
 
             final JPanel pnlNS = new JPanel(new BorderLayout());
+            pnlNS.add(new JButton(atnListLookupServices), BorderLayout.WEST);
             pnlNS.add(btnClose, BorderLayout.EAST);
 
             pnlEdit.add(cmbRestartOrKill, BorderLayout.WEST);
@@ -303,6 +317,7 @@ public final class BuildAgentUtility {
                 SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
                     public void run() {
                         UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
+                        UI.this.atnListLookupServices.setEnabled(buildAgentUtility.lastLUSCount > 0);
                         cmbAgents.setModel(comboBoxModel);
                     }
                 });

@@ -165,6 +165,11 @@
         <!--<fileset dir="${dir.main.target.test-classes}"> @todo Fixme -->
             <!--<include  name="**/*MockBuilder"/>-->
         <!--</fileset>-->
+
+        <!-- provides Administrable interface -->
+        <fileset id="fs.jini.lib-dl.jsk-dl" dir="jini-lib-dl">
+            <include name="jsk-dl.jar" />
+        </fileset>        
     </path>
 
     <path id="ccdist.project.runtime.classpath">
@@ -356,6 +361,10 @@
         </copy>
         <copy todir="dist/util/${jini.lib.DirName}">
             <fileset refid="fs.jini.lib.jsk-platform"/>
+        </copy>
+        <!-- provides Administrable interface -->
+        <copy todir="dist/util/${jini.libDownload.DirName}">
+            <fileset refid="fs.jini.lib-dl.jsk-dl"/>
         </copy>
         <copy todir="dist/util/lib">
             <fileset dir="${dir.main.lib}">

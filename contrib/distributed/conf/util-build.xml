@@ -62,6 +62,10 @@
         <fileset id="fs.jini.lib.jsk-platform" dir="jini-lib">
             <include name="jsk-platform.jar" />
         </fileset>
+        <!-- provides Administrable interface -->
+        <fileset id="fs.jini.lib-dl.jsk-dl" dir="jini-lib-dl">
+            <include name="jsk-dl.jar" />
+        </fileset>
     </path>
 
 
@@ -88,12 +92,19 @@
 	</target>
 
 	<target name="agent-util" description="Show active Agent info" >
-		<echo message="Starting BuildAgentUtility..." level="info" />
+
+        <!-- These properties are ONLY loaded to read the jini.port value used to shutdown the ClassServer -->
+        <property file="conf/cruise.properties" />
+
+        <echo message="Starting BuildAgentUtility..." level="info" />
 		<java classname="net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility" fork="true">
 			<jvmarg value="-Djava.security.policy=conf/${jini.policy.file}" />
 
             <jvmarg value="-Djava.util.logging.manager=com.sun.jini.logging.LogManager"/>
             <jvmarg value="-Djava.util.logging.config.file=conf/${jini.logging.file}"/>
+
+            <!-- This system property is set ONLY to allow the utility to shutdown the ClassServer at the LUS. -->
+            <jvmarg value="-Djini.httpPort=${jini.port}" />
 
             <classpath refid="path.util.lookup"/>
 		</java>

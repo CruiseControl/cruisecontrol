@@ -40,7 +40,10 @@ package net.sourceforge.cruisecontrol.distributed.core;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilderTest;
 import net.jini.core.discovery.LookupLocator;
+import net.jini.core.lookup.ServiceRegistrar;
+import net.jini.core.lookup.ServiceTemplate;
 import net.jini.discovery.DiscoveryListener;
+import net.jini.discovery.DiscoveryEvent;
 
 import java.net.MalformedURLException;
 
@@ -50,55 +53,87 @@ public class MulticastDiscoveryTest extends TestCase {
 
     private static final Logger LOG = Logger.getLogger(MulticastDiscoveryTest.class);
 
-    /*
-    private MulticastDiscovery discovery;
 
+    /** Common error message if multicast is being blocked. */
+    public static final String MSG_DISOCVERY_CHECK_FIREWALL =
+            "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
+            + "2. No Firewall is blocking multicasts.\n"
+            + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n";
+
+
+    private static DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
+
+
+    public static void locateLocalhostMulticastDiscovery() throws MalformedURLException, InterruptedException {
+        if (!isDiscoverySet()) {
+            final long begin = System.currentTimeMillis();
+
+            final MulticastDiscovery discovery = getLocalDiscovery();
+            setDiscovery(discovery);
+            // wait to discover lookupservice
+            final DiscoveryListener discoveryListener = new DiscoveryListener() {
+
+                public void discovered(DiscoveryEvent e) {
+                    synchronized (discovery) {
+                        discovery.notifyAll();
+                    }
+                }
+
+                public void discarded(DiscoveryEvent e) {
+                    synchronized (discovery) {
+                        discovery.notifyAll();
+                    }
+                }
+            };
+            addDiscoveryListener(discoveryListener);
+            try {
+                synchronized (discovery) {
+                    int count = 0;
+                    while (!isDiscovered() && count < 6) {
+                        discovery.wait(10 * 1000);
+                        count++;
+                    }
+                }
+            } finally {
+                removeDiscoveryListener(discoveryListener);
+            }
+
+            final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
+
+            assertTrue("MulticastDiscovery was not discovered before timeout. elapsed: \n" + elapsedSecs + " sec\n"
+                    + MSG_DISOCVERY_CHECK_FIREWALL,
+                    isDiscovered());
+
+            LOG.info(DistributedMasterBuilderTest.MSG_PREFIX_STATS + "Unit test MulticastDiscovery took: "
+                    + elapsedSecs + " sec");
+        }
+    }
+
+
+    // Do not alter this test case to use a single TestDecorator to start a LUS, even though doing so would reduce
+    // the number of times LUS needs to be started. Since this test destroys the LUS, it must be run by a class that
+    // always starts a LUS before every test case.
     protected void setUp() throws Exception {
-        DistributedMasterBuilderTest.setupInsecurePolicy();
-        discovery = new MulticastDiscovery();
+        jiniProcessPump = DistributedMasterBuilderTest.startJini();
+        locateLocalhostMulticastDiscovery();
     }
-
     protected void tearDown() throws Exception {
-        discovery.terminate();
+        DistributedMasterBuilderTest.killJini(jiniProcessPump);
     }
-    */
 
-    /*
-    public void testMulticastDiscovery()  throws Exception {
-        // TODO: There are certainly tests that could be written here, but without automating startup and shutdown of
-        // Jini these shouldn't be run with the rest of the the Cruise Control tests. Should we look into this
-        // automation for purposes of testing?
-        // NOTE: I've added nasty, but working Jini startup/shutdown methods to DistributedMasterBuilderTest
 
-        assertNull(discovery.findMatchingServiceAndClaim());
+    /**
+     * Do not relocate this test case in MulticastDiscoveryTest, even though doing so would reduce the number of times
+     * LUS needs to be started. Since this test destroys the LUS, it must be run by a class that always starts a LUS
+     * before every test case.
+     * @throws Exception if the test fails
+     */
+    public void testDestroyLocalLUS() throws Exception {
+        destroyLocalLUS();
     }
-    */
 
-    /*
-    public void testServiceDiscListenerToString() throws Exception {
-        final MulticastDiscovery.ServiceDiscListener serviceDiscListener = discovery.getServiceDiscListener();
 
-        final ServiceID serviceID = new ServiceID(1, 1);
-        final PropertyEntry entry1 = new PropertyEntry("name1", "value1");
-        final String service = "fakeService";
-        final ServiceItem serviceItem = new ServiceItem(serviceID, service, new Entry[] { entry1 });
-        final Object source = "fakeSource";
-        final String action = "fakeAction";
-        final ServiceDiscoveryEvent event = new ServiceDiscoveryEvent(source, serviceItem, serviceItem);
-
-        assertEquals(getExpectedToString(action, service, entry1),
-                serviceDiscListener.buildDiscoveryMsg(event, action));
-    }
-    private static String getExpectedToString(final String action, final Object service, final PropertyEntry entry) {
-        return "\nService " + action + ": PostEvent: class " + service.getClass().getName()
-                + "; ID:00000000-0000-0001-0000-000000000001\n"
-                + "\tEntries:\n"
-                + "\t[(name=" + entry.name + ",value=" + entry.value + ")]\n";
-    }
-    */
-
-    public void testDummy() { }
-
+    
     public static MulticastDiscovery getLocalDiscovery() throws MalformedURLException {
         final LookupLocator[] unicastLocators = new LookupLocator[] {
                 new LookupLocator(DistributedMasterBuilderTest.JINI_URL_LOCALHOST)
@@ -120,7 +155,7 @@ public class MulticastDiscoveryTest extends TestCase {
                 + (System.currentTimeMillis() - begin) / 1000f + " sec");
     }
     /** @return true if the discovery singleton variable is set, intended only for unit tests.  */
-    public static boolean isDiscoverySet() {
+    private static boolean isDiscoverySet() {
         return MulticastDiscovery.isDiscoverySet();
     }
     
@@ -128,15 +163,29 @@ public class MulticastDiscoveryTest extends TestCase {
      * Expose method intended only for use by unit tests.
      * @return true if any LUS has been found.
      */
-    public static boolean isDiscovered() {
+    private static boolean isDiscovered() {
         return MulticastDiscovery.isDiscovered();
     }
 
-    public static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
+    private static void addDiscoveryListener(final DiscoveryListener discoveryListener) {
         MulticastDiscovery.addDiscoveryListener(discoveryListener);
     }
-    public static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
+    private static void removeDiscoveryListener(final DiscoveryListener discoveryListener) {
         MulticastDiscovery.removeDiscoveryListener(discoveryListener);
     }
 
+    public static void destroyLocalLUS() throws Exception {
+        final ServiceRegistrar localLUS = DistributedMasterBuilderTest.findTestLookupService(1000);
+
+        MulticastDiscovery.destroyLookupService(localLUS, 0);
+
+        // Note: destroy() call is asynchronous
+
+        try {
+            localLUS.lookup(new ServiceTemplate(null, null, null));
+            fail("Call to destroyed local LUS should have failed.");
+        } catch (Exception e) {
+            // ignore, LUS call should fail
+        }
+    }
 }

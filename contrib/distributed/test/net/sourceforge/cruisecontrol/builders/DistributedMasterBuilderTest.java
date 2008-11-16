@@ -22,8 +22,6 @@ import net.jini.config.ConfigurationProvider;
 import net.jini.core.discovery.LookupLocator;
 import net.jini.core.lookup.ServiceID;
 import net.jini.core.lookup.ServiceRegistrar;
-import net.jini.discovery.DiscoveryEvent;
-import net.jini.discovery.DiscoveryListener;
 import net.jini.lookup.ServiceIDListener;
 import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.Progress;
@@ -32,7 +30,6 @@ import net.sourceforge.cruisecontrol.distributed.BuildAgent;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentServiceImplTest;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentTest;
-import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscoveryTest;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
@@ -105,12 +102,6 @@ public class DistributedMasterBuilderTest extends TestCase {
     private static final OSEnvironment OS_ENV = new OSEnvironment();
 
     private static ProcessInfoPump jiniProcessPump;
-
-    /** Common error message if multicast is being blocked. */
-    private static final String MSG_DISOCVERY_CHECK_FIREWALL =
-            "1. Make sure MULTICAST is enabled on your network devices (ifconfig -a).\n"
-            + "2. No Firewall is blocking multicasts.\n"
-            + "3. Using an IDE? See @todo in setUp/tearDown (LUS normally started by LUSTestSetup decorator).\n";
 
     public static final String MSG_PREFIX_STATS = "STATS: ";
 
@@ -344,6 +335,13 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             final long begin = System.currentTimeMillis();
 
+            // first, attempt gracefull LUS.destroy()
+            try {
+                MulticastDiscoveryTest.destroyLocalLUS();
+            } catch (Throwable t) {
+                LOG.error("Warning: Failed to gracefully destroy Local LUS in unit test. Will force kill of LUS.");
+            }
+
             jiniProcessPump.kill();
             LOG.debug("Jini process killed.");
 
@@ -481,7 +479,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             masterBuilder.build(projectProperties, progress);
 
             final BuildAgentService agentService = masterBuilder.pickAgent(null, null);
-            assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentService);
+            assertNotNull("Couldn't find released agent.\n" + MulticastDiscoveryTest.MSG_DISOCVERY_CHECK_FIREWALL,
+                    agentService);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentService.isBusy());
 
@@ -505,7 +504,8 @@ public class DistributedMasterBuilderTest extends TestCase {
 
             // try to find agents
             final BuildAgentService agentFoundFirst = masterBuilder.pickAgent(null, null);
-            assertNotNull("Couldn't find first agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentFoundFirst);
+            assertNotNull("Couldn't find first agent.\n" + MulticastDiscoveryTest.MSG_DISOCVERY_CHECK_FIREWALL,
+                    agentFoundFirst);
             assertTrue(agentFoundFirst.isBusy());
 
             final BuildAgentService agentFoundSecond = masterBuilder.pickAgent(null, null);
@@ -552,7 +552,8 @@ public class DistributedMasterBuilderTest extends TestCase {
             RemoteResultTest.resetTempZippedFile(BuildAgentServiceImplTest.REMOTE_RESULTS_ONE[0]);
 
             final BuildAgentService agentRefound = masterBuilder.pickAgent(null, null);
-            assertNotNull("Couldn't find released agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agentRefound);
+            assertNotNull("Couldn't find released agent.\n" + MulticastDiscoveryTest.MSG_DISOCVERY_CHECK_FIREWALL,
+                    agentRefound);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agentRefound.isBusy());
 
@@ -571,7 +572,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             final DistributedMasterBuilder masterBuilder = getMasterBuilder_LocalhostONLY();
 
             final BuildAgentService agent = masterBuilder.pickAgent(null, null);
-            assertNotNull("Couldn't find agent.\n" + MSG_DISOCVERY_CHECK_FIREWALL, agent);
+            assertNotNull("Couldn't find agent.\n" + MulticastDiscoveryTest.MSG_DISOCVERY_CHECK_FIREWALL, agent);
             assertTrue("Claimed agent should show as busy. (Did we find a better way?)",
                     agent.isBusy());
 
@@ -601,7 +602,6 @@ public class DistributedMasterBuilderTest extends TestCase {
 
         assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
     }
-
 
     private static int testAgentID = 0;
 
@@ -656,7 +656,7 @@ public class DistributedMasterBuilderTest extends TestCase {
             final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
 
             assertNotNull("Unit test Agent was not discovered before timeout. elapsed: " + elapsedSecs + " sec \n"
-                    + MSG_DISOCVERY_CHECK_FIREWALL,
+                    + MulticastDiscoveryTest.MSG_DISOCVERY_CHECK_FIREWALL,
                     utestListener.myServiceID);
 
             LOG.info(MSG_PREFIX_STATS + "Unit test Agent (agentID: " + thisAgentID + ") discovery took: "
@@ -669,47 +669,7 @@ public class DistributedMasterBuilderTest extends TestCase {
     static DistributedMasterBuilder getMasterBuilder_LocalhostONLY()
             throws MalformedURLException, InterruptedException {
 
-        if (!MulticastDiscoveryTest.isDiscoverySet()) {
-            final long begin = System.currentTimeMillis();
-
-            final MulticastDiscovery discovery = MulticastDiscoveryTest.getLocalDiscovery();
-            MulticastDiscoveryTest.setDiscovery(discovery);
-            // wait to discover lookupservice
-            final DiscoveryListener discoveryListener = new DiscoveryListener() {
-
-                public void discovered(DiscoveryEvent e) {
-                    synchronized (discovery) {
-                        discovery.notifyAll();
-                    }
-                }
-
-                public void discarded(DiscoveryEvent e) {
-                    synchronized (discovery) {
-                        discovery.notifyAll();
-                    }
-                }
-            };
-            MulticastDiscoveryTest.addDiscoveryListener(discoveryListener);
-            try {
-                synchronized (discovery) {
-                    int count = 0;
-                    while (!MulticastDiscoveryTest.isDiscovered() && count < 6) {
-                        discovery.wait(10 * 1000);
-                        count++;
-                    }
-                }
-            } finally {
-                MulticastDiscoveryTest.removeDiscoveryListener(discoveryListener);
-            }
-
-            final float elapsedSecs = (System.currentTimeMillis() - begin) / 1000f;
-
-            assertTrue("MulticastDiscovery was not discovered before timeout. elapsed: \n" + elapsedSecs + " sec\n"
-                    + MSG_DISOCVERY_CHECK_FIREWALL,
-                    MulticastDiscoveryTest.isDiscovered());
-
-            LOG.info(MSG_PREFIX_STATS + "Unit test MulticastDiscovery took: " + elapsedSecs + " sec");
-        }
+        MulticastDiscoveryTest.locateLocalhostMulticastDiscovery();
 
         final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
         // need to set Entries to prevent finding non-local LUS and/or non-local Build Agents
