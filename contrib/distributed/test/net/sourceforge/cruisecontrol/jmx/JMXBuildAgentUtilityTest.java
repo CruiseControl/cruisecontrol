@@ -34,14 +34,21 @@ public class JMXBuildAgentUtilityTest extends TestCase {
             mBean.kill(null);
             fail("should have failed");
         } catch (IllegalArgumentException e) {
-            assertEquals(JMXBuildAgentUtility.MSG_NULL_AGENT_SERVICEID, e.getMessage());
+            assertEquals(JMXBuildAgentUtility.MSG_NULL_SERVICEID, e.getMessage());
         }
 
         try {
             mBean.restart(null);
             fail("should have failed");
         } catch (IllegalArgumentException e) {
-            assertEquals(JMXBuildAgentUtility.MSG_NULL_AGENT_SERVICEID, e.getMessage());
+            assertEquals(JMXBuildAgentUtility.MSG_NULL_SERVICEID, e.getMessage());
+        }
+
+        try {
+            mBean.destroyLUS(null);
+            fail("should have failed");
+        } catch (IllegalArgumentException e) {
+            assertEquals(JMXBuildAgentUtility.MSG_NULL_SERVICEID, e.getMessage());
         }
     }
 

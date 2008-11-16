@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol.jmx;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.distributed.util.BuildAgentUtility;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.jini.core.lookup.ServiceRegistrar;
 import net.jini.core.lookup.ServiceItem;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
     private static final BuildAgentUtility AGENT_UTIL_SINGLETON = BuildAgentUtility.createForJMX();
 
     private boolean isAfterBuildFinished = true;
+
+    private final List<String> lusIds = new ArrayList<String>();
 
     private List<ServiceItem> lstServiceItems = new ArrayList<ServiceItem>();
     private List<String> agentServiceIds = new ArrayList<String>();
@@ -52,6 +55,15 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
                     ((BuildAgentService) serviceItem.service).getMachineName()
                             + ": " + serviceItem.serviceID);
         }
+
+        // build list of LUS's after the above call to AGENT_UTIL_SINGLETON.getAgentInfoAll() to have recent data
+        final ServiceRegistrar[] registrars = AGENT_UTIL_SINGLETON.getValidRegistrars();
+        lusIds.clear();
+        for (final ServiceRegistrar lus : registrars) {
+            lusIds.add(lus.getLocator().getHost() + ": "
+                    + lus.getServiceID().toString());
+        }
+
         lastRefreshTime = System.currentTimeMillis();
 
         LOG.debug("JMX Agent Util refresh complete.");
@@ -61,10 +73,33 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         doRefresh();
     }
 
+
     public int getLookupServiceCount() throws RemoteException {
         tryRefreshAgentList();
         return AGENT_UTIL_SINGLETON.getLastLUSCount();
     }
+
+    public String[] getLUSServiceIds() throws RemoteException {
+        tryRefreshAgentList();
+        return lusIds.toArray(new String[lusIds.size()]);
+    }
+
+    public void destroyLUS(final String lusServiceId) throws RemoteException, CruiseControlException {
+
+        final ServiceRegistrar lus = findLUSViaServiceId(lusServiceId);
+        if (lus != null) {
+            try {
+                AGENT_UTIL_SINGLETON.destroyLookupService(lus);
+            } catch (RemoteException e) {
+                LOG.error("Error killing LookupService via JMX", e);
+                throw e;
+            } catch (Exception e) {
+                LOG.error("Error killing LookupService via JMX", e);
+                throw new CruiseControlException(e);
+            }
+        }
+    }
+
 
     public String getBuildAgents() throws RemoteException {
         tryRefreshAgentList();
@@ -81,7 +116,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         isAfterBuildFinished = afterBuildFinished;
     }
 
-    public void kill(String agentServiceId) throws RemoteException, CruiseControlException {
+    public void kill(final String agentServiceId) throws RemoteException, CruiseControlException {
 
         final BuildAgentService buildAgentService = findAgentViaServiceId(agentServiceId);
         if (buildAgentService != null) {
@@ -107,7 +142,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         }
     }
 
-    public void restart(String agentServiceId) throws RemoteException, CruiseControlException {
+    public void restart(final String agentServiceId) throws RemoteException, CruiseControlException {
 
         final BuildAgentService buildAgentService = findAgentViaServiceId(agentServiceId);
         if (buildAgentService != null) {
@@ -143,11 +178,11 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
     }
 
 
-    static final String MSG_NULL_AGENT_SERVICEID = "agentServiceId must not be null";
+    static final String MSG_NULL_SERVICEID = "ServiceId must not be null";
     
     private static String validateServiceId(final String agentServiceId) {
         if (agentServiceId == null) {
-            throw new IllegalArgumentException(MSG_NULL_AGENT_SERVICEID);
+            throw new IllegalArgumentException(MSG_NULL_SERVICEID);
         }
         return agentServiceId.trim(); // JMX page can add spaces to values sent
     }
@@ -162,6 +197,19 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
         }
 
         LOG.error("JMXBuildAgentUtility : Could not find Agent via serviceID: " + serviceId);
+        return null;
+    }
+
+    private ServiceRegistrar findLUSViaServiceId(final String serviceIdUnTrimmed) {
+        final String serviceId = validateServiceId(serviceIdUnTrimmed);
+
+        for (ServiceItem serviceItem : lstServiceItems) {
+            if (serviceItem.serviceID.toString().equals(serviceId)) {
+                return (ServiceRegistrar) serviceItem.service;
+            }
+        }
+
+        LOG.error("JMXBuildAgentUtility : Could not find LookupService via serviceID: " + serviceId);
         return null;
     }
 }

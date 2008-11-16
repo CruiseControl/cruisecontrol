@@ -100,7 +100,7 @@ class LookupServiceUI extends JDialog {
 
         final JPanel pnlView = new JPanel(new GridLayout(0, 1));
 
-        final ServiceRegistrar[] validRegistrars = MulticastDiscovery.getValidRegistrars();
+        final ServiceRegistrar[] validRegistrars = buildAgentUtil.getValidRegistrars();
         for (final ServiceRegistrar lus : validRegistrars) {
             final LUSInfo lusInfo = new LUSInfo(lus);
             pnlView.add(new LUSInfoUI(this, lusInfo));
@@ -121,15 +121,20 @@ class LookupServiceUI extends JDialog {
 
 
     private final BuildAgentUtility.UI owner;
+    private final BuildAgentUtility buildAgentUtil;
     private final Action atnListLookupServices;
     private final JPanel pnlMain;
     private JPanel pnlAllLUS;
 
-    LookupServiceUI(final BuildAgentUtility.UI owner, final Action atnListLookupServices) {
+    LookupServiceUI(final BuildAgentUtility.UI owner,
+                    final BuildAgentUtility buildAgentUtil,
+                    final Action atnListLookupServices) {
+
         super(owner, "Lookup Services");
         setLocationRelativeTo(owner);
 
         this.owner = owner;
+        this.buildAgentUtil = buildAgentUtil;
         this.atnListLookupServices = atnListLookupServices;
 
         pnlMain = new JPanel(new BorderLayout(5, 5));

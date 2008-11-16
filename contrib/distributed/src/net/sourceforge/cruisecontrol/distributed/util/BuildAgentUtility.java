@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol.distributed.util;
 import org.apache.log4j.Logger;
 import net.jini.core.lookup.ServiceItem;
 import net.jini.core.lookup.ServiceID;
+import net.jini.core.lookup.ServiceRegistrar;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentEntryOverrideUI;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
@@ -158,7 +159,7 @@ public final class BuildAgentUtility {
             atnListLookupServices = new AbstractAction("Lookup Services") {
                 public void actionPerformed(final ActionEvent e) {
                     final LookupServiceUI lookupServiceUI
-                            = new LookupServiceUI(BuildAgentUtility.UI.this, atnListLookupServices);
+                            = new LookupServiceUI(BuildAgentUtility.UI.this, buildAgentUtil, atnListLookupServices);
                     lookupServiceUI.setVisible(true);
                     lookupServiceUI.pack();
                     atnListLookupServices.setEnabled(false);
@@ -481,6 +482,13 @@ public final class BuildAgentUtility {
         }
 
         return result.toString();
+    }
+
+    public ServiceRegistrar[] getValidRegistrars() {
+        return MulticastDiscovery.getValidRegistrars();
+    }
+    public void destroyLookupService(final ServiceRegistrar registrar) throws RemoteException {
+        MulticastDiscovery.destroyLookupService(registrar, MulticastDiscovery.DEFAULT_FIND_WAIT_DUR_MILLIS);
     }
 
 
