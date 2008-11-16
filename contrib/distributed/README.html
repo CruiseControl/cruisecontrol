@@ -342,6 +342,7 @@ export ANT_ARGS="-lib ~/devtools/cruisecontrol/main/lib/junit-3.8.2.jar"
         <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
         <h4>v2.8</h4>
         Added <a href="#advancedConfigAgentUtility">JMX Build Agent Utility</a>.
+        <p>Added <i>Lookup Services</i> control feature to the Build Agent Utility. Allows you to stop a LookupService (and it's ClassServer, but currently can only stop the ClassServer on the local host).</p>
         <p>Remove deprecated BuildAgentService.doBuild() methods.</p>
         <h4>v2.7.2</h4>
         The <code>ant</code> builder with <code>showProgress=true</code> issues (mentioned below in the 2.7.1 upgrade notes) have been solved via the use of a JNLP Extension to install the required <i>cruisecontrol-antprogresslogger.jar</i>.
