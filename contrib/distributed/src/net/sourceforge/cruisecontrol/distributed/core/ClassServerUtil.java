@@ -80,6 +80,11 @@ final class ClassServerUtil {
         LOG.warn(MessageFormat.format(fmt, (Object) vals));
     }
 
+    /**
+     * Shutsdown the Jini ClassServer on the given host and port ONLY if host is the local host.
+     * @param host hostname of the ClassServer to stop
+     * @param port port of the ClassServer to sop
+     */
     static void shutdownClassServer(final String host, final int port) {
         try {
             final Socket sock = new Socket(host, port);
