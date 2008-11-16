@@ -121,14 +121,16 @@ class LookupServiceUI extends JDialog {
 
 
     private final BuildAgentUtility.UI owner;
+    private final Action atnListLookupServices;
     private final JPanel pnlMain;
     private JPanel pnlAllLUS;
 
-    LookupServiceUI(final BuildAgentUtility.UI owner) {
+    LookupServiceUI(final BuildAgentUtility.UI owner, final Action atnListLookupServices) {
         super(owner, "Lookup Services");
         setLocationRelativeTo(owner);
 
         this.owner = owner;
+        this.atnListLookupServices = atnListLookupServices;
 
         pnlMain = new JPanel(new BorderLayout(5, 5));
         getContentPane().add(pnlMain);
@@ -166,5 +168,6 @@ class LookupServiceUI extends JDialog {
 
     private void doExit() {
         LookupServiceUI.this.dispose();
+        atnListLookupServices.setEnabled(true);
     }
 }
