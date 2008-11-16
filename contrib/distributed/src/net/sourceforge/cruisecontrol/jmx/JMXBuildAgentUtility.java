@@ -8,6 +8,7 @@ import net.jini.core.lookup.ServiceItem;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.rmi.RemoteException;
 
 import org.apache.log4j.Logger;
@@ -25,6 +26,7 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
 
     private boolean isAfterBuildFinished = true;
 
+    final List<ServiceRegistrar> lstRegistrars = new ArrayList<ServiceRegistrar>();
     private final List<String> lusIds = new ArrayList<String>();
 
     private List<ServiceItem> lstServiceItems = new ArrayList<ServiceItem>();
@@ -58,6 +60,9 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
 
         // build list of LUS's after the above call to AGENT_UTIL_SINGLETON.getAgentInfoAll() to have recent data
         final ServiceRegistrar[] registrars = AGENT_UTIL_SINGLETON.getValidRegistrars();
+        lstRegistrars.clear();
+        lstRegistrars.addAll(Arrays.asList(registrars));
+        
         lusIds.clear();
         for (final ServiceRegistrar lus : registrars) {
             lusIds.add(lus.getLocator().getHost() + ": "
@@ -203,9 +208,9 @@ public class JMXBuildAgentUtility implements JMXBuildAgentUtilityMBean {
     private ServiceRegistrar findLUSViaServiceId(final String serviceIdUnTrimmed) {
         final String serviceId = validateServiceId(serviceIdUnTrimmed);
 
-        for (ServiceItem serviceItem : lstServiceItems) {
-            if (serviceItem.serviceID.toString().equals(serviceId)) {
-                return (ServiceRegistrar) serviceItem.service;
+        for (ServiceRegistrar lus : lstRegistrars) {
+            if (lus.getServiceID().toString().equals(serviceId)) {
+                return lus;
             }
         }
 
