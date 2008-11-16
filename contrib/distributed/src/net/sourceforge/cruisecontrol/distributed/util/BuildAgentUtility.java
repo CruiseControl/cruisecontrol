@@ -158,13 +158,12 @@ public final class BuildAgentUtility {
             atnListLookupServices = new AbstractAction("Lookup Services") {
                 public void actionPerformed(final ActionEvent e) {
                     final LookupServiceUI lookupServiceUI
-                            = new LookupServiceUI(BuildAgentUtility.UI.this);
+                            = new LookupServiceUI(BuildAgentUtility.UI.this, atnListLookupServices);
                     lookupServiceUI.setVisible(true);
                     lookupServiceUI.pack();
                     atnListLookupServices.setEnabled(false);
                 }
             };
-            atnListLookupServices.setEnabled(false);
 
             btnInvokeOnAll.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
@@ -337,7 +336,6 @@ public final class BuildAgentUtility {
             buildAgentUtility.lastLUSCount = lusCount;
 
             UI.this.setTitle(origTitle + ", LUS's: " + buildAgentUtility.lastLUSCount);
-            UI.this.atnListLookupServices.setEnabled(buildAgentUtility.lastLUSCount > 0);
         }
 
 
