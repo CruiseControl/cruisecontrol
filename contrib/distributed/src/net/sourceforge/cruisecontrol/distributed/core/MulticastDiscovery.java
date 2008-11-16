@@ -40,6 +40,8 @@ package net.sourceforge.cruisecontrol.distributed.core;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 import net.jini.core.lookup.ServiceTemplate;
 import net.jini.core.lookup.ServiceItem;
@@ -53,10 +55,12 @@ import net.jini.discovery.DiscoveryListener;
 import net.jini.discovery.DiscoveryEvent;
 import net.jini.lookup.ServiceDiscoveryManager;
 import net.jini.lookup.ServiceItemFilter;
+import net.jini.admin.Administrable;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.PropertyEntry;
 
 import org.apache.log4j.Logger;
+import com.sun.jini.admin.DestroyAdmin;
 
 /**
  * Synchronizes access to shared ServiceDiscoveryManager to allow multiple threads to
@@ -69,7 +73,16 @@ public final class MulticastDiscovery {
     /** Service Type array used to find BuildAgent services. */
     private static final Class[] SERVICE_CLASSES_BUILDAGENT = new Class[] {BuildAgentService.class};
 
+    /** Service Type array used to find Administtrable Lookup services (in order to shutdown a LUS). */
+    private static final Class[] SERVICE_CLASSES_ADMINISTRABLE = new Class[] {Administrable.class};
+
     public static final int DEFAULT_FIND_WAIT_DUR_MILLIS = 5000;
+
+    /**
+     * The system property name which holds the port of the ClassServer, should be set on the command line,
+     * and is used to shutdown the ClassServer when the LookupServer on that host is destoyed.
+     */
+    private static final String SYS_PROP_CLASSSERVER_HTTP_PORT = "jini.httpPort";
 
     private final ServiceDiscoveryManager clientMgr;
 
@@ -160,7 +173,6 @@ public final class MulticastDiscovery {
      * @return an array of discovered LUS's
      */
     private ServiceRegistrar[] getRegistrarsImpl() {
-        //@todo remove ?
         return clientMgr.getDiscoveryManager().getRegistrars();
     }
     /**
@@ -168,8 +180,26 @@ public final class MulticastDiscovery {
      * @return an array of discovered LUS's
      */
     public static synchronized ServiceRegistrar[] getRegistrars() {
-        //@todo remove ?
+        //@todo remove, or at least decrease to package visible?
         return getDiscovery().getRegistrarsImpl();
+    }
+    /**
+     * Validates each LUS found by calling a method on the LUS.
+     * @return an array of discovered LUS's that appear to be working.
+     */
+    public static synchronized ServiceRegistrar[] getValidRegistrars() {
+        final ServiceRegistrar[] registrars = getDiscovery().getRegistrarsImpl();
+        final List<ServiceRegistrar> lstRegistrars = new ArrayList<ServiceRegistrar>();
+        for (final ServiceRegistrar lus : registrars) {
+            // make any call to the LUS to see if it repsonds, or if errors occur
+            try {
+                lus.getGroups();
+                lstRegistrars.add(lus);
+            } catch (Exception e) {
+                // ignore exception from bad LUS
+            }
+        }
+        return lstRegistrars.toArray(new ServiceRegistrar[lstRegistrars.size()]);
     }
 
     private int getLUSCountImpl() {
@@ -234,6 +264,76 @@ public final class MulticastDiscovery {
 
     private static final BuildAgentFilter FLTR_AVAILABLE = new BuildAgentFilter(true);
     private static final BuildAgentFilter FLTR_ANY = new BuildAgentFilter(false);
+
+    /**
+     * Destroys the given LookupService. NOTE: the LUS.destroy() call is asynchronous, so the service may still be
+     * shutting down after this call returns. 
+     * @param registrar the Lookup Service to stop.
+     * @param waitDurMillis the maxium number of milliseconds to wait for a LUS.Administrable for the given Registrar
+     * to be discovered.
+     * @throws RemoteException if a remote call fails.
+     */
+    private void destroyLookupServiceImpl(final ServiceRegistrar registrar, final long waitDurMillis)
+            throws RemoteException {
+
+        // save LUS hostname for later use in killing ClassServer
+        final String lusHost = registrar.getLocator().getHost();
+
+        final ServiceItem[] serviceItems;
+        final ServiceTemplate tmpl = new ServiceTemplate(registrar.getServiceID(), SERVICE_CLASSES_ADMINISTRABLE, null);
+        try {                                 // minMatches must be > 0
+            serviceItems = clientMgr.lookup(tmpl, 1, Integer.MAX_VALUE, null, waitDurMillis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Error finding Lookup service: " + registrar, e);
+        }
+
+        if (serviceItems.length == 0) {
+            throw new IllegalStateException("Failed to get Administrable service for registrar: " + registrar);
+        } else if (serviceItems.length > 1) {
+            throw new IllegalStateException("Found too many Administrable services for registrar: " + registrar
+                    + ", serviceItems: " + Arrays.asList(serviceItems).toString());
+        }
+        final Administrable administrableLUS = (Administrable) serviceItems[0].service;
+        final DestroyAdmin adminLUS = (DestroyAdmin) administrableLUS.getAdmin();
+        // Note: destroy() call is asynchronous
+        adminLUS.destroy();
+
+
+        // Try to also destroy ClassServer from same host, ignore (and log) failures
+        // because some day there may not be a ClassServer on each LUS host
+        // (and there currently is no ClassServer started for CC unit tests).
+        final int classServerHttpPort;
+        try {
+            classServerHttpPort = Integer.getInteger(SYS_PROP_CLASSSERVER_HTTP_PORT);
+        } catch (Exception e) {
+            LOG.warn("Error reading ClassServer port for: " + lusHost
+                    + ", using System property: " + SYS_PROP_CLASSSERVER_HTTP_PORT
+                    + "=" + System.getProperty(SYS_PROP_CLASSSERVER_HTTP_PORT));
+            return;
+        }
+        try {
+            ClassServerUtil.shutdownClassServer(lusHost, classServerHttpPort);
+        } catch (Exception e) {
+            LOG.warn("Error shutting down ClassServer at: " + lusHost, e);
+        }
+    }
+
+
+
+    /**
+     * Destroys the given LookupService. NOTE: the LUS.destroy() call is asynchronous, so the service may still be
+     * shutting down after this call returns.
+     * @param registrar the Lookup Service to stop.
+     * @param waitDurMillis the maxium number of milliseconds to wait for a LUS.Administrable for the given Registrar
+     * to be discovered.
+     * @throws RemoteException if a remote call fails.
+     */
+    public static void destroyLookupService(final ServiceRegistrar registrar, final long waitDurMillis)
+            throws RemoteException {
+        getDiscovery().destroyLookupServiceImpl(registrar, waitDurMillis);
+    }
+
+
 
     static final class BuildAgentFilter implements ServiceItemFilter {
         private final boolean findOnlyNonBusy;
@@ -325,55 +425,6 @@ public final class MulticastDiscovery {
     }
     // For unit tests only - end
 
-    /*
-    public final class ServiceDiscListener implements ServiceDiscoveryListener {
-        private final MulticastDiscovery discovery;
-
-        private ServiceDiscListener(final MulticastDiscovery discovery) {
-            this.discovery = discovery;
-        }
-
-        String buildDiscoveryMsg(final ServiceDiscoveryEvent event, final String actionName) {
-
-            final StringBuffer msg = new StringBuffer("\nService ");
-            msg.append(actionName).append(": ");
-
-            final ServiceItem postItem = event.getPostEventServiceItem();
-            if (postItem != null) {
-                appendEvent(msg, postItem, "PostEvent: ");
-            } else {
-                final ServiceItem preItem = event.getPreEventServiceItem();
-                if (preItem != null) {
-                     appendEvent(msg, preItem, "PreEvent: ");
-                } else {
-                    msg.append("NOT SURE WHAT THIS EVENT IS!!!");
-                }
-            }
-            return msg.toString();
-        }
-
-        public void serviceAdded(final ServiceDiscoveryEvent event) {
-            discovery.setDiscoveredImpl(true);
-            LOG.info(buildDiscoveryMsg(event, "Added"));
-        }
-
-        public void serviceRemoved(final ServiceDiscoveryEvent event) {
-            discovery.setDiscoveredImpl(false);
-            LOG.info(buildDiscoveryMsg(event, "Removed"));
-        }
-
-        public void serviceChanged(final ServiceDiscoveryEvent event) {
-            LOG.info(buildDiscoveryMsg(event, "Changed"));
-        }
-    }
-
-    private static void appendEvent(final StringBuffer msg, final ServiceItem serviceItem, String eventType) {
-        msg.append(eventType);
-        msg.append(serviceItem.service.getClass().toString());
-        msg.append("; ID:").append(serviceItem.serviceID);
-        appendEntries(msg, serviceItem.attributeSets);
-    }
-    */
 
     private static String appendEntries(final StringBuilder sb, final Entry[] entries) {
         sb.append("\n\tEntries:\n\t");
