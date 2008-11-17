@@ -478,7 +478,6 @@ CompoundPublisher
 ----------------------
 * New publisher which allows multiple publishers internally. (CC-656)
 
-
 ConcurrentVersionsSystem/CVSBootstrapper
 ----------------------
 * Added the ability to set the cvs compression level (CC-579). Patch by Maxim Butov.
@@ -536,10 +535,10 @@ Veto
 * Improvement to provide detail in log as to what changes caused the veto (CC-676). Patch by Barrett Nuzum.
 
 
-Reporting (legacy)
+reporting jsp
 ======================
 
-* Force build when already building could end up not going into the build queue(CC-436). Patch by Szczepan Faber
+* Force build when already building could end up not going into the build queue (CC-436). Patch by Szczepan Faber
 
 
 CruiseControl Release Notes - 2.7
@@ -550,32 +549,6 @@ NOTE: The dashboard has known issues when using it on CruiseControl installation
 distribution (or the windows installer). There will be a subsequent 2.7.1 release that fixes these issues.
 NOTE: The dashboard has known display issues in Internet Explorer 6.
 * Initial checkin of new CruiseControl dashboard.
-* Tidied the failed and building pages, so that the text is aligned accordingly and does not leak out of the colored box.
-* Performance enhancements to the active build page.
-* Documentation enhancements, and updated to use newest screenshots.
-* Reorganize the modifications tab so that messages are ordered.
-* Clarified the administration page so that the difference between the config file location and config file editor is clear.
-* Made hyperlinks clearly delineated.
-* Fixed issue with refs to default servlet which would break in other web containers.
-* Fixed bug with newly added projects reporting incorrect build times.
-* Fixed broken link from active build page after build completed.
-* Disabled configuration panel for inactive projects.
-* CSS commenting to make clearer.
-* Created documentation on writing "widgets".
-* Enhanced reds and greens on the dashboard to provide a better sense of the state of the entire enterprise.
-* Renamed "Last 25 Builds" to "Latest Builds" to more accurate.
-* Fixed bug in project summation reporting the wrong number of builds.
-* Fixed bug with remaining time calculation.
-* Fixed bug where forcing a build wouldn't update the project statistics.
-* Swapped the All Builds and All Successful Builds icons so that the wording and placement would make them more intuitive.
-* Indicates when the Cruise server is down, such that force build will take no action.
-* Ignoring non-cruise xml files in the log directories.
-* Added ability to disable the force build button.
-* Fixed the bug that rc2 does not support the pre-config project
-* Fixed the bug that rc2 does not support the included project
-* Fixed the bug that rc2 does not support the white space in the project name
-* Fixed the bug that rc2 does not support that log directory cannot contain log.xml
-* Fixed the text in Modification tab should not leak out of the tab
 
 documentation
 ======================
@@ -2502,7 +2475,7 @@ PVCS
 
 StatusHelper
 ----------------------
-* Build dates now formatted according to the locale of the user's browser.a
+* Build dates now formatted according to the locale of the user's browser.
 
 SVN
 ----------------------
@@ -2742,7 +2715,7 @@ AntBuilder
 
 ArtifactsPublisher
 ----------------------
-* Added to the default plugin registrya
+* Added to the default plugin registry
 
 build.sh
 ----------------------
