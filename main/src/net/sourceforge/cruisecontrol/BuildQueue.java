@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.ArrayList;
 import java.util.EventListener;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,18 +57,18 @@ import org.apache.log4j.Logger;
 public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);
 
-    private final LinkedList queue = new LinkedList();
+    private final LinkedList<ProjectInterface> queue = new LinkedList<ProjectInterface>();
 
     private boolean waiting = false;
 
     private Thread buildQueueThread;
 
-    private final List listeners = new ArrayList();
+    private final List<Listener> listeners = new ArrayList<Listener>();
 
     /**
      * @param project the project to build
      */
-    public void requestBuild(ProjectInterface project) {
+    public void requestBuild(final ProjectInterface project) {
         LOG.debug("BuildQueue.requestBuild Thread = " + Thread.currentThread().getName());
 
         notifyListeners();
@@ -83,9 +82,9 @@ public class BuildQueue implements Runnable {
      * @param project The project to find in the queues
      * @return String representing this project's position in the various queues, e.g. IDLE[ 5 / 24 ]
      */
-    public String findPosition(ProjectInterface project) {
-        int position;
-        int length;
+    public String findPosition(final ProjectInterface project) {
+        final int position;
+        final int length;
         synchronized (queue) {
             position = queue.indexOf(project);
             length = queue.size();
@@ -100,10 +99,10 @@ public class BuildQueue implements Runnable {
     private void serviceQueue() {
         synchronized (queue) {
             while (!queue.isEmpty()) {
-                ProjectInterface nextProject = (ProjectInterface) queue.remove(0);
+                final ProjectInterface nextProject = queue.remove(0);
                 if (nextProject != null) {
                     LOG.info("now adding to the thread queue: " + nextProject.getName());
-                    ProjectWrapper pw = new ProjectWrapper(nextProject);
+                    final ProjectWrapper pw = new ProjectWrapper(nextProject);
                     ThreadQueue.addTask(pw);
                 }
             }
@@ -166,7 +165,7 @@ public class BuildQueue implements Runnable {
         return waiting;
     }
 
-    public void addListener(Listener listener) {
+    public void addListener(final Listener listener) {
         synchronized (listeners) {
             listeners.add(listener);
         }
@@ -174,10 +173,9 @@ public class BuildQueue implements Runnable {
 
     private void notifyListeners() {
         synchronized (listeners) {
-            Iterator toNotify = listeners.iterator();
-            while (toNotify.hasNext()) {
+            for (final Listener listener : listeners) {
                 try {
-                    ((Listener) toNotify.next()).buildRequested();
+                    listener.buildRequested();
                 } catch (Exception e) {
                     LOG.error("exception notifying listener before project queued", e);
                 }
