@@ -16,7 +16,7 @@ general
 
 contrib
 ======================
-* Move plugins that require external libraries to build out of cruisecontrol/main. They are not under cruisecontrol/contrib/plugins. Affected plugins include:
+* Move plugins that require external libraries to build out of cruisecontrol/main. They are now under cruisecontrol/contrib/plugins. Affected plugins include:
   - AllFusionHarvest
   - Sametime
   - StarTeam
@@ -33,6 +33,7 @@ documentation
 ======================
 * Composite builder does not support Pause builder child element (CC-812). Reported by John Camerin
 * Add documentation on "Building Plugins That Need External Libraries".
+* Have documentation served by Jetty as part of the binary release, context of "documentation".
 
 build loop
 ======================
