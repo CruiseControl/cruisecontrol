@@ -73,7 +73,7 @@
         Including <b>reggie-dl.jar</b> in a Build Agent's classpath results in the Agent never downloading new versions of classes in that jar from any Lookup Service. This leads to problems where CC 2.6 Agents and DistributedMasterBuilders can only register with CC 2.6 Lookup Services.
         <p>The quick and dirty solution is to just keep an old 2.6 version of the Lookup Service running until you've upgraded all older builds to the current CCDist.</p>
         <p>If that is not an option, to allow CCDist 2.6 Build Agents to function properly on a network with current CCDist, you should edit the <b>CCDist v 2.6</b> source tree using one of the solutions described below (listed below in preferred order). The goal is to remove <b>reggie-dl.jar</b> and <b>reggie.jar</b> (since reggie.jar includes some classes that should only be downloaded) from all classpaths, <b>except</b> that of the 2.6 Lookup Service.</p>
-        <ol type="N">
+        <ol>
         <li>Open the <b>contrib/distributed/build.xml</b> file and edit the <b>init-agent</b> target, commenting out the fileset include for reggie-dl.jar.
 <pre>
 &lt;copy todir="dist/agent/lib"&gt;
@@ -95,7 +95,7 @@
             </li>
             </ol>
             You also need to exclude <b>reggie-dl.jar</b> AND <b>reggie.jar</b> from the classpath of the main CC VM running the DistributedMasterBuilder.
-            <ol type="N">
+            <ol>
             <li>Copy the contents of <b>contrib/distributed/lib</b> to a new directory, say <b>contrib/distributed/nodl</b>. Delete <b>reggie-dl.jar</b> AND <b>reggie.jar</b> from this new dir. Then edit your CCDist startup script to use only the new directory. For example, in cruisecontrol.sh, change
 <pre>
 DISTRIB_LIBDIR=$DISTRIBDIR/lib
