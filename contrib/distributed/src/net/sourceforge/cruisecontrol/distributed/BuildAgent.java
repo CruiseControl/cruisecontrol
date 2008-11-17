@@ -469,7 +469,7 @@ public class BuildAgent implements DiscoveryListener,
         try {
             host = registrar.getLocator().getHost();
         } catch (RemoteException e) {
-            LOG.warn("Failed to get registrar's hostname");
+            LOG.warn("Failed to get registrar's hostname.", e);
         }
         LOG.info("Registering BuildAgentService with Registrar: " + host);
 
