@@ -145,7 +145,7 @@
             <zipfileset src="reporting/jsp/dist/cruisecontrol.war" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol"/>
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
-            <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/documentation"/>
+            <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/webapps/documentation"/>
         </zip>
     </target>
 
