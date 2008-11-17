@@ -12,7 +12,7 @@
          properties file would still be capable of overidding this one -->
     <property name="cc.release.label" value="${cc.version}"/>
 
-    <target name="release" depends="clean, build, website, zip, bin-zip, add-cc-config, win-installer" description="Create release artifacts"/>
+    <target name="release" depends="clean, build, website, validate-website, zip, bin-zip, add-cc-config, win-installer" description="Create release artifacts"/>
 
     <target name="clean" description="Clean release and subprojects">
         <delete dir="target" failonerror="false"/>
@@ -74,9 +74,9 @@
         </replace>
     </target>
 
-    <target name="validate-website" depends="website">
+    <target name="validate-website">
         <xmlvalidate>
-            <fileset dir="target/website" includes="**/*.html" excludes="**/api/**"/>
+            <fileset dir="target/website" includes="**/*.html"/>
         </xmlvalidate>
     </target>
 
