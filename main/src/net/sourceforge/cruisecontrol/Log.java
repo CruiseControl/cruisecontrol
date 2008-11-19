@@ -165,6 +165,7 @@ public class Log implements Serializable {
         setDir(logDir);
     }
 
+    // @todo Remove throws CruiseControlException?
     public void setDir(final String logDir) throws CruiseControlException {
         this.logDir = logDir;
     }

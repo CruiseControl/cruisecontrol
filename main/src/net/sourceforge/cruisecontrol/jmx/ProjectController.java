@@ -188,6 +188,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return buildStartTime == null ? "" : buildStartTime;
     }
 
+    // @todo Remove throws CruiseControlException?
     public void setLogDir(final String logdir) throws CruiseControlException {
         log("setting log dir to [" + logdir + "]");
         project.getLog().setDir(logdir);

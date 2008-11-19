@@ -57,7 +57,7 @@ public interface ProjectMBean {
 
     /**
      * Runs a build now, overriding the target of the used builder
-     *
+     * @param target the target to build
      */
     public void buildWithTarget(String target);
 
@@ -94,6 +94,7 @@ public interface ProjectMBean {
      * builds will be initiated.
      *
      * @param date date string in the form yyyyMMddHHmmss
+     * @throws CruiseControlException if an invalid date string is given
      */
     public void setLastBuild(String date) throws CruiseControlException;
 
@@ -106,6 +107,7 @@ public interface ProjectMBean {
      * builds will be initiated.
      *
      * @param date date string in the form yyyyMMddHHmmss
+     * @throws CruiseControlException if an invalid date string is given
      */
     public void setLastSuccessfulBuild(String date) throws CruiseControlException;
 
@@ -115,14 +117,17 @@ public interface ProjectMBean {
      * Change the directory where CruiseControl logs are kept
      *
      * @param logdir Relative or absolute path to the log directory
+     * @throws CruiseControlException well...never
      */
+    // @todo Remove throws CruiseControlException?
     public void setLogDir(String logdir) throws CruiseControlException;
 
     public String getLogDir();
 
     /**
      * Change the project name.  May cause problems if configuration file is
-     * not also changed
+     * not also changed.
+     * @param name the new project name
      */
     public void setProjectName(String name);
 
@@ -138,7 +143,8 @@ public interface ProjectMBean {
     public long getBuildInterval();
 
     /**
-     * Gets the human-readable version of the project status
+     * Gets the human-readable version of the project status.
+     * @return the human-readable version of the project status
      */
     public String getStatus();
 

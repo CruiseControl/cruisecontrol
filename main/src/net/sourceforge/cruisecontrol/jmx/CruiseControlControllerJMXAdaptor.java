@@ -44,7 +44,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -192,15 +191,15 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
     }
 
-    public List getProjects() {
+    public List<ProjectInterface> getProjects() {
         return controller.getProjects();
     }
 
-    public List getBusyTasks() {
+    public List<String> getBusyTasks() {
         return ThreadQueue.getBusyTaskNames();
     }
 
-    public List getIdleTasks() {
+    public List<String> getIdleTasks() {
         return ThreadQueue.getIdleTaskNames();
     }
 
@@ -248,7 +247,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         controller.halt();
     }
 
-    public void register(MBeanServer server) throws JMException {
+    public void register(final MBeanServer server) throws JMException {
         this.server = server;
         this.registeredName = new ObjectName("CruiseControl Manager:id=unique");
         server.registerMBean(this, this.registeredName);
@@ -258,29 +257,28 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
     private void updateProjectMBeans() {
         LOG.debug("Updating project mbeans");
         if (server != null) {
-            for (Iterator iterator = controller.getProjects().iterator(); iterator.hasNext();) {
-                ProjectInterface project = (ProjectInterface) iterator.next();
+            for (final ProjectInterface project : controller.getProjects()) {
                 projectAdded(project);
             }
         }
     }
 
-    public void projectAdded(ProjectInterface project) {
+    public void projectAdded(final ProjectInterface project) {
         try {
             project.register(server);
         } catch (JMException e) {
             LOG.error("Could not register project " + project.getName(), e);
         }
-        String name = "CruiseControl Project:name=" + project.getName();
+        final String name = "CruiseControl Project:name=" + project.getName();
         LOG.debug("Adding project " + project.getName());
         notifyChanged("projectAdded", name);
     }
 
-    public void projectRemoved(ProjectInterface project) {
-        String name = "CruiseControl Project:name=" + project.getName();
+    public void projectRemoved(final ProjectInterface project) {
+        final String name = "CruiseControl Project:name=" + project.getName();
         LOG.debug("Removing project " + name);
         try {
-            ObjectName projectName = new ObjectName(name);
+            final ObjectName projectName = new ObjectName(name);
             server.unregisterMBean(projectName);
         } catch (InstanceNotFoundException noProblem) {
         } catch (MBeanRegistrationException noProblem) {
@@ -298,9 +296,11 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
      * <p/>
      * At the moment, we only absolutely know when a project is added or
      * removed, but not when the configuration file is reloaded or changed.
+     * @param event event type
+     * @param data event info
      */
-    private void notifyChanged(String event, String data) {
-        Notification notification = new Notification(
+    private void notifyChanged(final String event, final String data) {
+        final Notification notification = new Notification(
                 "cruisecontrol." + event + ".event", this.registeredName,
                 nextSequence());
         notification.setUserData(data);
@@ -315,12 +315,15 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
     }
 
-    public Map getAllProjectsStatus() {
-        Map allStatus = new HashMap();
-        for (Iterator iter = getProjects().iterator(); iter.hasNext();) {
-            ProjectConfig projectConfig = (ProjectConfig) iter.next();
+    public Map<String, String> getAllProjectsStatus() {
 
-            String projectName = projectConfig.getName();
+        final Map<String, String> allStatus = new HashMap<String, String>();
+
+        for (final ProjectInterface projectInterface : getProjects()) {
+            // @todo Is this cast always safe, and if so, do we need to clear up the typing of these?
+            final ProjectConfig projectConfig = (ProjectConfig) projectInterface;
+
+            final String projectName = projectConfig.getName();
             String status = projectConfig.getStatus();
             if (ProjectState.BUILDING.hasDescription(status)) {
                 status = status + " since " + projectConfig.getBuildStartTime();
