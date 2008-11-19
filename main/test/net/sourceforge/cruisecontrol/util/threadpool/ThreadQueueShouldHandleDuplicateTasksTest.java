@@ -43,7 +43,9 @@ public class ThreadQueueShouldHandleDuplicateTasksTest extends TestCase {
 
         scheduledWorkerThread.completeBuild();
 
-        Thread.sleep(150);
+        // This required length of this sleep may vary depending on thread scheduling...maybe we need some kind of
+        // queueListener to be sure of such state changes?
+        Thread.sleep(250);
 
         assertTrue("now the second scheduledWorkerThread should be busy/started, so number of threads should be 1",
                 StubWorkerThread.numberOfRunningThreads == 1);
