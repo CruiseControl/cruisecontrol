@@ -55,6 +55,7 @@ public class FileSystem extends FakeUserSourceControl {
     private List<Modification> modifications;
     private File folder;
     //TODO: change folder attribute to path. Can be file or directory.
+    private boolean includeDirectories;
 
     /**
      * @param s the root folder of the directories that we are going to scan.
@@ -122,9 +123,15 @@ public class FileSystem extends FakeUserSourceControl {
             }
         }
 
-        if (file.lastModified() > lastBuild) {
+        boolean modified = file.lastModified() > lastBuild;
+        boolean isFile = !file.isDirectory();
+        if (modified && (isFile || includeDirectories)) {
             addRevision(file);
         }
+    }
+
+    public void setIncludeDirectories(boolean b) {
+        includeDirectories = b;
     }
 
 }
