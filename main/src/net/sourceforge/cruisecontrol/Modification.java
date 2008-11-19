@@ -195,8 +195,6 @@ public class Modification implements Comparable, Serializable {
     public Date modifiedTime;
     public List<ModifiedFile> files = new ArrayList<ModifiedFile>();
 
-    // TODO: after CMSynergyModification$ModifiedObject is an instance of ModifiedFile
-    //    public List<ModifiedFile> files = new ArrayList<ModifiedFile>();
 
     public Modification() {
         this("unknown");
