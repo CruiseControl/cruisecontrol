@@ -36,14 +36,13 @@
  ********************************************************************************--%>
 <%@page import="java.io.File, java.util.Arrays"%>
 <%@ taglib uri="/WEB-INF/cruisecontrol-jsp11.tld" prefix="cruisecontrol"%>
-        <img src="images/blank8.gif" border="0"/><br/>
-        <a href="http://cruisecontrol.sourceforge.net" border="0"><img src="images/logo.gif" border="0"/></a><p>
-        <table border="0" align="center" width="98%">
+    <div id="menu">
+    	<ul id="menulist">
 <%
     String singleProjectMode = application.getInitParameter("singleProject");
     if (Boolean.valueOf(singleProjectMode).booleanValue() == false) {  %>
-            <tr><td><a class="link" href="index">Project</a></td></tr>
-            <tr><td>
+            <li><a href="index">Status Page</a></li>
+
               <form action="index" >
                 <select name="projecttarget" onchange="self.location.href = this.form.projecttarget.options[this.form.projecttarget.selectedIndex].value">
                   <cruisecontrol:projectnav>
@@ -51,21 +50,17 @@
                   </cruisecontrol:projectnav>
                 </select>
               </form>
-            </td></tr>
-            <tr><td>&nbsp;</td></tr>
     <%
     } 
  %>
-            <tr><td><span class="link"><cruisecontrol:currentbuildstatus/></span></td></tr>
-            <tr><td>&nbsp;</td></tr>
+            <li><p><cruisecontrol:currentbuildstatus/></p></li>
 
             <cruisecontrol:link id="baseUrl" />
-            <tr><td><a class="link" href="<%=baseUrl%>">Latest Build</a></td></tr>
+            <li><a href="<%=baseUrl%>">Latest Build</a></li>
             <cruisecontrol:nav startingBuildNumber="0" finalBuildNumber="9" >
-              <tr><td><a class="link" href="<%= url %>"><%= linktext %></a></td></tr>
+              <li><a href="<%= url %>"><%= linktext %></a></li>
             </cruisecontrol:nav>
             <cruisecontrol:navCount startingBuildNumber="10">
-              <tr><td>
                 <form method="GET" action="<%=baseUrl%>" >
                   <select name="log" onchange="form.submit()">
                     <option>More builds</option>
@@ -74,9 +69,7 @@
                     </cruisecontrol:nav>
                   </select>
                 </form>
-              </td></tr>
             </cruisecontrol:navCount>
-            <tr><td>&nbsp;</td></tr>
-
-            <tr><td><a href="rss/<%= request.getPathInfo().substring(1) %>"><img border="0" src="images/rss.png"/></a></td></tr>
-        </table>
+            <li><a href="rss/<%= request.getPathInfo().substring(1) %>"><img border="0" src="images/rss.png"/></a></li>
+        </ul>
+    </div>

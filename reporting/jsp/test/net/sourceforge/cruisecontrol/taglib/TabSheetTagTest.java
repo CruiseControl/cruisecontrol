@@ -70,14 +70,8 @@ public class TabSheetTagTest extends TestCase {
     private MockServletRequest request;
     private MockPageContext pageContext;
     private static final String START_SHEET = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-            + "<tbody>\r\n"
-            + "  <tr>\r\n"
-            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripestop.gif\"></td>\r\n"
-            + "  </tr>\r\n";
-    private static final String END_OF_TABLE = "  <tr>\r\n"
-            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripesbottom.gif\"></td>\r\n"
-            + "  </tr>\r\n"
-            + "</tbody></table>\r\n";
+            + "<tbody>\r\n";
+    private static final String END_OF_TABLE = "\r\n</tbody></table>\r\n";
     private static final String START_OF_HEADERS = "<tr><td bgcolor=\"#FFFFFF\"><div align=\"left\"><table"
             + " class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\""
             + " cellpadding=\"0\" border=\"1\"><tbody><tr>";

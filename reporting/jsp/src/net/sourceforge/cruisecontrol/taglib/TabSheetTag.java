@@ -60,22 +60,8 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
     private static final Tab NONE_SELECTED = null;
     private static final String EOL = "\r\n";
     private static final String START_SHEET = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">"
-            + "<tbody>"
-            + EOL
-            + "  <tr>"
-            + EOL
-            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripestop.gif\"></td>"
-            + EOL
-            + "  </tr>"
-            + EOL;
-    private static final String END_SHEET = "  <tr>"
-            + EOL
-            + "    <td bgcolor=\"#FFFFFF\"><img border=\"0\" src=\"images/bluestripesbottom.gif\"></td>"
-            + EOL
-            + "  </tr>"
-            + EOL
-            + "</tbody></table>"
-            + EOL;
+            + "<tbody>" + EOL;
+    private static final String END_SHEET = EOL + "</tbody></table>" + EOL;
 
     /**
      * On starting the tag, we clear out the per-instance state (should be clear already, but hey).

@@ -111,6 +111,7 @@ UCM
 reporting jsp app
 ======================
 * Display file size and date on artifacts page (CC-731). Patch by Doug Berkland.
+* Change look and feel to be more similar to documentation.
 
 Dashboard
 ======================

@@ -51,17 +51,15 @@
   <link type="text/css" rel="stylesheet" href="css/cruisecontrol.css"/>
   <link type="application/rss+xml" rel="alternate" href="<%= request.getContextPath() %>/rss/<%= project %>" title="RSS"/>
 </head>
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
-  <table border="0" align="center" cellpadding="0" cellspacing="0" width="98%">
-    <tr>
-      <td valign="top">
+<body>
+<div class="header">
+    <div class="logo"><img alt="CruiseControl" src="images/banner.png"/></div>
+</div>
+<div class="container">&nbsp;
         <%@ include file="navigation.jsp" %>
-      </td>
-      <td valign="top">
-        &nbsp;<br/>
+    <div class="content main"> 
+
         <cruisecontrol:tabsheet>
-          <tr>
-            <td bgcolor="white" >
 
               <cruisecontrol:tab name="buildResults" label="Build Results" >
                 <%@ include file="buildresults.jsp" %>
@@ -99,11 +97,8 @@
               </cruisecontrol:tab>
 --%>
 
-            </td>
-          </tr>
         </cruisecontrol:tabsheet>
-      </td>
-    </tr>
-  </table>
+</div>
+</div>
 </body>
 </html>
