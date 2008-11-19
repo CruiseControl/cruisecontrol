@@ -46,6 +46,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 
 /**
  *
@@ -62,8 +63,8 @@ public interface CruiseControlMBean {
     void setConfigFileContents(String contents) throws CruiseControlException;
     //void validateConfigFile(String contents) throws CruiseControlException;
 
-    List getProjects();
-    Map getAllProjectsStatus();
+    List<ProjectInterface> getProjects();
+    Map<String, String> getAllProjectsStatus();
 
     PluginDetail[] getAvailableBootstrappers();
     PluginDetail[] getAvailablePublishers();

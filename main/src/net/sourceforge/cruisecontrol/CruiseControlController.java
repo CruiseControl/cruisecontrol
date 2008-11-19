@@ -148,7 +148,7 @@ public class CruiseControlController {
         }
     }
 
-    public List getProjects() {
+    public List<ProjectInterface> getProjects() {
         return Collections.unmodifiableList(projects);
     }
 

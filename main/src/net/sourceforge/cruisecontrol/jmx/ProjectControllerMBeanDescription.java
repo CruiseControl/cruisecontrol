@@ -47,10 +47,10 @@ import mx4j.MBeanDescriptionAdapter;
  */
 public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
 
-    private static final Map METHOD_DESCRIPTIONS;
+    private static final Map<String, String> METHOD_DESCRIPTIONS;
 
     static {
-        METHOD_DESCRIPTIONS = new HashMap();
+        METHOD_DESCRIPTIONS = new HashMap<String, String>();
 
         METHOD_DESCRIPTIONS.put("pause", "Pauses the project");
         METHOD_DESCRIPTIONS.put("resume", "Resumes the project when it's paused");
@@ -61,10 +61,10 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
                  + " include the user name and the message.");
     }
 
-    private static final Map ATTR_DESCRIPTIONS;
+    private static final Map<String, String> ATTR_DESCRIPTIONS;
 
     static {
-        ATTR_DESCRIPTIONS = new HashMap();
+        ATTR_DESCRIPTIONS = new HashMap<String, String>();
         ATTR_DESCRIPTIONS.put("ConfigFileName",
                               "The name of the config file this project reads its settings from");
 
@@ -100,14 +100,14 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
     public String getOperationDescription(Method method) {
         String methodName = method.getName();
         if (METHOD_DESCRIPTIONS.containsKey(methodName)) {
-            return (String) METHOD_DESCRIPTIONS.get(methodName);
+            return METHOD_DESCRIPTIONS.get(methodName);
         }
         return super.getOperationDescription(method);
     }
 
     public String getAttributeDescription(String attr) {
         if (ATTR_DESCRIPTIONS.containsKey(attr)) {
-            return (String) ATTR_DESCRIPTIONS.get(attr);
+            return ATTR_DESCRIPTIONS.get(attr);
         }
         return super.getAttributeDescription(attr);
     }
