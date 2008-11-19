@@ -69,6 +69,8 @@ import org.apache.log4j.Logger;
 public class ProjectController extends NotificationBroadcasterSupport
                                implements ProjectControllerMBean, BuildProgressListener, BuildResultListener {
 
+    public static final String OBJECT_NAME_PREFIX = "CruiseControl Project:name=";
+
     private static final Logger LOG = Logger.getLogger(ProjectController.class);
 
     private final Project project;
@@ -222,7 +224,7 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     public void register(final MBeanServer server) throws JMException {
-        final ObjectName projectName = new ObjectName("CruiseControl Project:name=" + project.getName());
+        final ObjectName projectName = new ObjectName(OBJECT_NAME_PREFIX + project.getName());
 
         // Need to attempt to unregister the old mbean with the same name since
         // CruiseControlControllerJMXAdaptor keeps calling every time a change
