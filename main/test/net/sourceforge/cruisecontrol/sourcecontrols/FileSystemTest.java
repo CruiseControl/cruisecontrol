@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +51,6 @@ import net.sourceforge.cruisecontrol.util.IO;
 public class FileSystemTest extends TestCase {
     private FileSystem fs;
     private File tempDirectory;
-    private File tempFile;
     private final FilesToDelete filesToDelete = new FilesToDelete();
 
     protected void setUp() throws Exception {
@@ -101,11 +99,11 @@ public class FileSystemTest extends TestCase {
     public void testGettingModifications() throws Exception {
 
         // Check for modifications...there shouldn't be any
-        Date startTime = new GregorianCalendar(2000, 0, 1).getTime();
-        Date timeOne = new Date(startTime.getTime() + 2000);
-        Date timeTwo = new Date(timeOne.getTime() + 2000);
-        Date timeThree = new Date(timeTwo.getTime() + 2000);
-        List mods = fs.getModifications(startTime, timeOne);
+        final Date startTime = new Date(tempDirectory.lastModified() + 1);
+        final Date timeOne = new Date(startTime.getTime() + 2000);
+        final Date timeTwo = new Date(timeOne.getTime() + 2000);
+        final Date timeThree = new Date(timeTwo.getTime() + 2000);
+        List<Modification> mods = fs.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(0, mods.size());
         assertEquals(0, fs.getProperties().size());
@@ -116,7 +114,7 @@ public class FileSystemTest extends TestCase {
         // Check for mods...there should be some, one for each file written.
         mods = fs.getModifications(startTime, timeOne);
         assertNotNull(mods);
-        assertEquals(2, mods.size());
+        assertTrue(mods.size() >= 2);
         assertEquals(0, fs.getProperties().size());
 
         writeNewFile(timeTwo, "testing3");
@@ -127,30 +125,48 @@ public class FileSystemTest extends TestCase {
         fs.setProperty("property");
         mods = fs.getModifications(timeOne, timeTwo);
         assertNotNull(mods);
-        assertEquals(3, mods.size());
-        Map properties = fs.getProperties();
+        assertTrue(mods.size() >= 3);
+        final Map<String, String> properties = fs.getProperties();
         assertEquals(1, properties.size());
         assertTrue(properties.containsKey("property"));
 
-        writeNewFile(timeThree, "testing6");
+        final File tempFile = writeNewFile(timeThree, "testing6");
 
         // Checking for mods again should turn up only the one file
         mods = fs.getModifications(timeTwo, timeThree);
         assertNotNull(mods);
-        assertEquals(1, mods.size());
+        assertTrue(mods.size() >= 1);
 
         // Using this one mod, check the modification information for
         // correctness.
-        Modification modification = (Modification) mods.get(0);
+        final Modification modification = mods.get(0);
         assertEquals(tempFile.getName(), modification.getFileName());
         assertEquals(tempFile.getParent(), modification.getFolderName());
         assertEquals(tempFile.lastModified(), modification.modifiedTime.getTime());
     }
+    
+    public void testShouldReturnModificationsIfTheLastModifiedTimeChanged() {
+        final Date lastBuildTime = new Date(tempDirectory.lastModified() + 2000);
+        final Date checkTime = new Date(lastBuildTime.getTime() + 2000);
+        
+        List<Modification> mods = fs.getModifications(lastBuildTime, checkTime);
+        assertEquals(0, mods.size());
+        
+        final long timeBetweenLastBuildAndCheckTime = lastBuildTime.getTime() + 1000;
+        tempDirectory.setLastModified(timeBetweenLastBuildAndCheckTime);
+        
+        mods = fs.getModifications(lastBuildTime, checkTime);
 
-    private void writeNewFile(Date modifiedTime, String content) throws IOException, CruiseControlException {
-        tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
+        assertEquals(1, mods.size());
+    }
+
+    private File writeNewFile(final Date modifiedTime, final String content)
+            throws IOException, CruiseControlException {
+        
+        final File tempFile = File.createTempFile("CruiseControl", "TEST", tempDirectory);
         filesToDelete.add(tempFile);
         IO.write(tempFile, content);
         tempFile.setLastModified(modifiedTime.getTime());
+        return tempFile;
     }
 }

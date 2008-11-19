@@ -52,14 +52,14 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  */
 public class FileSystem extends FakeUserSourceControl {
 
-    private List modifications;
+    private List<Modification> modifications;
     private File folder;
     //TODO: change folder attribute to path. Can be file or directory.
 
     /**
-     * Set the root folder of the directories that we are going to scan
+     * @param s the root folder of the directories that we are going to scan.
      */
-    public void setFolder(String s) {
+    public void setFolder(final String s) {
         folder = new File(s);
     }
 
@@ -76,8 +76,8 @@ public class FileSystem extends FakeUserSourceControl {
      * @param lastBuild date of last build
      * @param now IGNORED
      */
-    public List getModifications(Date lastBuild, Date now) {
-        modifications = new ArrayList();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        modifications = new ArrayList<Modification>();
 
         visit(folder, lastBuild.getTime());
         
@@ -93,13 +93,14 @@ public class FileSystem extends FakeUserSourceControl {
      * behavior is assigned here because we don't have a repository to query the
      * modification.  All modifications will be set to type "change" and
      * userName "User".
+     * @param revision the file to add to the list of modifications.
      */
-    private void addRevision(File revision) {
-        Modification mod = new Modification("filesystem");
+    private void addRevision(final File revision) {
+        final Modification mod = new Modification("filesystem");
 
         mod.userName = getUserName();
 
-        Modification.ModifiedFile modfile = mod.createModifiedFile(revision.getName(), revision.getParent());
+        final Modification.ModifiedFile modfile = mod.createModifiedFile(revision.getName(), revision.getParent());
         modfile.action = "change";
 
         mod.modifiedTime = new Date(revision.lastModified());
@@ -109,18 +110,20 @@ public class FileSystem extends FakeUserSourceControl {
 
     /**
      * Recursively visit all files below the specified one.  Check for newer
-     * timestamps
+     * timestamps.
+     * @param file the first file to visit
+     * @param lastBuild the timestamp of the last build
      */
-    private void visit(File file, long lastBuild) {
-        if ((!file.isDirectory()) && (file.lastModified() > lastBuild)) {
-            addRevision(file);
+    private void visit(final File file, final long lastBuild) {
+        if (file.isDirectory()) {
+            final String[] children = file.list();
+            for (final String child : children) {
+                visit(new File(file, child), lastBuild);
+            }
         }
 
-        if (file.isDirectory()) {
-            String[] children = file.list();
-            for (int i = 0; i < children.length; i++) {
-                visit(new File(file, children[i]), lastBuild);
-            }
+        if (file.lastModified() > lastBuild) {
+            addRevision(file);
         }
     }
 
