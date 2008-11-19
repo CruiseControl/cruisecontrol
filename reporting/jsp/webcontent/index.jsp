@@ -40,18 +40,19 @@
 <%@ page import="net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener" %>
 <%@ page import="net.sourceforge.cruisecontrol.util.DateUtil" %>
 <%@ page import="net.sourceforge.cruisecontrol.util.ServerNameSingleton" %>
+<%@ page import="java.io.BufferedReader" %>
+<%@ page import="java.io.File" %>
+<%@ page import="java.io.FileReader" %>
+<%@ page import="java.io.FilenameFilter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.net.InetAddress" %>
 <%@ page import="java.net.URL" %>
 <%@ page import="java.text.DateFormat" %>
-<%@ page import="java.io.File" %>
-<%@ page import="java.util.Arrays" %>
 <%@ page import="java.text.ParseException" %>
-<%@ page import="java.io.BufferedReader" %>
-<%@ page import="java.io.FileReader" %>
-<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Arrays" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.Comparator" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 
 
@@ -405,11 +406,6 @@
       color: darkblue;
     }
 
-    .dateNow {
-      font-size: smaller;
-      font-style: italic;
-    }
-
     .odd-row {
       background-color: #CCCCCC;
     }
@@ -457,45 +453,44 @@
 </head>
 
 
-<body background="images/bluebg.gif" topmargin="0" leftmargin="0" marginheight="0" marginwidth="0"
-      onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
-<p>&nbsp;</p>
+<body onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
+<div class="header">
+    <div class="logo"><a href="http://cruisecontrol.sourceforge.net/"><img alt="CruiseControl" src="images/banner.png"/></a></div>
+</div>
+<div class="container">&nbsp;
+    <div class="content">
 
-<h1 class="white" align="center"><%= name%> CruiseControl at <%= hostname %>
-           <span class="dateNow">[<%= dateNow %>]</span></h1>
+        <h1 align="center"><%= name%><%= hostname %> [<%= dateNow %>]</h1>
 
-<div id="serverData" class="hidden"></div>
+        <div id="serverData" class="hidden"></div>
 
-<form>
-  <table align="center" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-
-      <tr><td colspan="2">&nbsp;</td></tr>
-      <tr>
-        <td class="header-row"><img border="0" src="images/bluestripestop.gif"/></td>
-        <td class="header-row" align="right"><img border="0" src="images/bluestripestopright.gif"/></td>
-      </tr>
-
-
-      <tr><td colspan="2">
+        <form>
         <table class="index" width="100%">
-          <%
-            String logDirPath = application.getInitParameter("logDir");
-            if (logDirPath == null) {
-          %><tr><td>You need to provide a value for the context parameter <code>&quot;logDir&quot;</code></td></tr><%
-        }
-        else {
-          java.io.File logDir = new java.io.File(logDirPath);
-          if (!logDir.isDirectory()) {
-        %><tr><td>Context parameter logDir needs to be set to a directory. Currently set to &quot;<%=logDirPath%>
-          &quot;</td></tr><%
-        }
-        else {
-          String[] projectDirs = logDir.list(new java.io.FilenameFilter() {
-            public boolean accept(File dir, String name) {
-              return (new File(dir, name).isDirectory());
-            }
-          });
+            <%
+                String logDirPath = application.getInitParameter("logDir");
+                if (logDirPath == null) {
+             %>
+            <tr>
+                <td>You need to provide a value for the context parameter <code>&quot;logDir&quot;</code></td>
+            </tr>
+            <%
+                }
+                else {
+                    java.io.File logDir = new java.io.File(logDirPath);
+                    if (!logDir.isDirectory()) {
+            %>
+            <tr>
+                <td>Context parameter logDir needs to be set to a directory. Currently set to &quot;<%=logDirPath%>&quot;</td>
+            </tr>
+            <%
+                }
+                else {
+                    FilenameFilter directoryFilter = new FilenameFilter() {
+                        public boolean accept(File dir, String name) {
+                            return (new File(dir, name).isDirectory());
+                        }
+                    };
+                    String[] projectDirs = logDir.list(directoryFilter);
 
           if (projectDirs.length == 0) {
         %><tr><td>no project directories found under <%=logDirPath%></td></tr><%
@@ -553,24 +548,17 @@
                 }
               }
             }
-          %></table>
-
-
-      </td></tr>
-      <tr>
-        <td bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottom.gif"/></td>
-        <td align="right" bgcolor="#FFFFFF"><img border="0" src="images/bluestripesbottomright.gif"/></td>
-      </tr>
-      <tr><td colspan="2">&nbsp;</td></tr>
-
-    </tbody>
+          %>
     <tfoot>
         <tr>
-            <td colspan="2" align="right"><a href="rss"><img border="0" src="images/rss.png"/></a></td>
+            <td colspan="6" align="left"><a href="rss"><img src="images/rss.png"/></a></td>
         </tr>
     </tfoot>
-  </table>
+
+</table>
 </form>
+</div>
+</div>
 </body>
 </html>
 

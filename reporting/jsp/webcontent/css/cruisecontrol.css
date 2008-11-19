@@ -1,3 +1,178 @@
+body {
+    font-family: arial,helvetica,sans-serif;
+    color: black;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    overflow: auto;
+    color: black;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    border-bottom:1px solid black;
+}
+
+.logo {
+    padding-top: 10px;
+    padding-left: 30px;
+}
+
+a img {
+    border: 0;
+}
+
+.container {
+    position: relative;
+    margin: 0;
+    padding: 0;
+}
+
+#menu {
+    width: 13em;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #020253;
+    background-color: white;
+    font-weight: bold;
+    font-size: smaller;
+    border-right: 1px solid black;
+}
+
+#menu form {
+    border-top: 1px solid black;
+    padding: 0px 0 0 0;
+    width: auto;
+}
+
+#menu form select {
+    margin: 15px 5px 5px 13px;
+    width: auto;
+}
+
+#menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menu ul#menulist {
+    padding: 0 0 0 0;
+    border-bottom: 1px solid black;
+    background: top right no-repeat;
+}
+
+#menu li {
+    border-top: 1px solid black;
+    margin: 0;
+    padding: 0;
+}
+#menu ul#menulist .top {
+  border-top: 0px solid black;
+}
+#menu li li {
+    padding-left: 0.75em;
+}
+
+#menu li li li  {
+    padding-left: 1em;
+    font-style: italic;
+}
+
+#menu li p {
+    margin: 0;
+    width: 100%;
+    padding: 5px 5px 5px 5px;
+}
+
+#menu li p#menuselected {
+    padding: 5px 5px 5px 13px;
+    border-left: 10px solid #020253;
+    background-color: #8dc3d7;
+}
+
+#menu li a {
+    display: block;
+    padding: 5px 5px 5px 13px;
+    border-left: 10px solid #020253;
+    border-right: 1px solid black;
+    text-decoration: none;
+    width: 100%;
+    color:#020253;
+}
+
+#menu li a.external {
+    background-position: 95% 50%;
+}
+
+#menu li a.expandmenu {
+    background: 2px center no-repeat url(expandmenu.png);
+}
+
+#menu li a.expandedmenu,
+#menu li p.expandedmenu {
+    background: 2px center no-repeat url(expandedmenu.png);
+}
+
+html>body #menu li a,
+html>body #menu li p,
+html>body #menu li h2 {
+    width: auto;
+}
+
+#menu li a:hover {
+    border-left: 10px solid #020253;
+    background-color: #8dc3d7;
+    color: #020253;
+}
+
+
+.content {
+    margin: 0;
+    padding: 0 1em 1em 17em;
+}
+
+html>body .content {
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+html>body .main {
+    padding-left: 13em;
+}
+
+.content h1 {
+    font-weight: bold;
+    font-size: 1.4em;
+    margin-bottom: 1em;
+}
+
+.content h2 {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-top: 2em;
+    border-bottom: 1px solid #cccccc;
+}
+
+.content h3 {
+    font-weight: bold;
+    font-size: 1.1em;
+    font-style: italic;
+    clear: both;
+}
+
+
+.content pre {
+    border: 1px solid black;
+    background-color: #cccccc;
+    padding: 1em;
+    width: auto;
+}
 
 .white { color:#FFFFFF }
 
@@ -60,8 +235,6 @@ table.header th.big { font-size:12pt; }
 .macker-data { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#000000; }
 .macker-data-error { font-family:arial,helvetica,sans-serif; font-size:8pt; color:#FF0000; }
 .macker-sectionheader { background-color:#000066; font-family:arial,helvetica,sans-serif; font-size:10pt; color:#FFFFFF; }
-
-a img { border: 0 }
 
 .hidden { visibility: hidden }
 
