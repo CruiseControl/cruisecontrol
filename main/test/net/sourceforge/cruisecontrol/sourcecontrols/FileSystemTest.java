@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 
 public class FileSystemTest extends TestCase {
+    private static final int ONE_SECOND = 1000;
     private FileSystem fs;
     private File tempDirectory;
     private final FilesToDelete filesToDelete = new FilesToDelete();
@@ -67,6 +68,7 @@ public class FileSystemTest extends TestCase {
     protected void tearDown() {
         filesToDelete.delete();
         fs = null;
+        tempDirectory = null;
     }
 
     public void testValidateFailsWhenFolderNotSet() {
@@ -100,9 +102,9 @@ public class FileSystemTest extends TestCase {
 
         // Check for modifications...there shouldn't be any
         final Date startTime = new Date(tempDirectory.lastModified() + 1);
-        final Date timeOne = new Date(startTime.getTime() + 2000);
-        final Date timeTwo = new Date(timeOne.getTime() + 2000);
-        final Date timeThree = new Date(timeTwo.getTime() + 2000);
+        final Date timeOne = new Date(startTime.getTime() + 2 * ONE_SECOND);
+        final Date timeTwo = new Date(timeOne.getTime() + 2 * ONE_SECOND);
+        final Date timeThree = new Date(timeTwo.getTime() + 2 * ONE_SECOND);
         List<Modification> mods = fs.getModifications(startTime, timeOne);
         assertNotNull(mods);
         assertEquals(0, mods.size());
@@ -146,18 +148,31 @@ public class FileSystemTest extends TestCase {
     }
     
     public void testShouldReturnModificationsIfTheLastModifiedTimeChanged() {
-        final Date lastBuildTime = new Date(tempDirectory.lastModified() + 2000);
-        final Date checkTime = new Date(lastBuildTime.getTime() + 2000);
+        fs.setIncludeDirectories(true);
+        final Date lastBuildTime = new Date(tempDirectory.lastModified() + 2 * ONE_SECOND);
+        final Date checkTime = new Date(lastBuildTime.getTime() + 2 * ONE_SECOND);
         
         List<Modification> mods = fs.getModifications(lastBuildTime, checkTime);
         assertEquals(0, mods.size());
         
-        final long timeBetweenLastBuildAndCheckTime = lastBuildTime.getTime() + 1000;
+        final long timeBetweenLastBuildAndCheckTime = lastBuildTime.getTime() + ONE_SECOND;
         tempDirectory.setLastModified(timeBetweenLastBuildAndCheckTime);
         
         mods = fs.getModifications(lastBuildTime, checkTime);
 
         assertEquals(1, mods.size());
+    }
+    
+    public void testShouldOnlyIncludeDirectoriesIfOptionIsSet() {
+        long directoryModifiedTime = tempDirectory.lastModified();
+        final Date earlierTime = new Date(directoryModifiedTime - 2 * ONE_SECOND);
+        
+        List<Modification> mods = fs.getModifications(earlierTime, null);
+        assertEquals(0, mods.size());
+        
+        fs.setIncludeDirectories(true);
+        mods = fs.getModifications(earlierTime, null);
+        assertEquals(1, mods.size());        
     }
 
     private File writeNewFile(final Date modifiedTime, final String content)

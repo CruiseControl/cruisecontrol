@@ -4161,12 +4161,12 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
       &lt;filesystem&gt;</pre>
         </div>
 
-        <p>Returns all files and directories beneath the specified folder than have been
+        <p>Returns all files beneath the specified path than have been
         modified since the last build time. Any modified files are reported as
         modifications of type "changed" by user "User". Can also have folder
         be just a single file. Only looks at timestamp, not for actual changes
-        to the file. Detects changes to directory timestamps, and will show modification if
-        any files were deleted</p>
+        to the file. If includedirectories is set it detects changes to directory
+	timestamps, and will show modification if any files were deleted</p>
 
         <h3>Attributes</h3>
 
@@ -4184,6 +4184,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>Yes</td>
                 <td>Root folder of the directories to scan, or path to file to
                 check for modifications.</td>
+            </tr>
+            <tr>
+                <td>includedirectories</td>
+                <td>No</td>
+                <td>Include modified directories. Defaults to false.</td>
             </tr>
             <tr>
                 <td>property</td>
