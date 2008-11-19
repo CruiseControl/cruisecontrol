@@ -42,14 +42,14 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
         Thread.sleep(500);
         try {
 
-            Project forcedProject = simulateForcingBuild();
+            final Project forcedProject = simulateForcingBuild();
 
             if (ProjectState.QUEUED == forcedProject.getState()) {
                 fail(msgRunCount + "Project must NOT be in queued state. "
                         + "This means project is lost and will remain in this state until CC restart.");
             }
 
-            String failure = msgRunCount + "Totally unexpected project state. "
+            final String failure = msgRunCount + "Totally unexpected project state. "
                     + "It has to be either QUEUED (which means it should be detected by previous assertion) "
                     + "or WAITING (which means that we are lucky and race condition is not exposed this time";
             assertEquals(failure, ProjectState.WAITING.getName(), forcedProject.getState().getName());
@@ -59,16 +59,17 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
     }
 
     Project simulateForcingBuild() throws Exception {
-        MockProject projectToForce = new MockProject();
+        final MockProject projectToForce = new MockProject();
         projectToForce.setBuildQueue(buildQueue);
-        MockScheduleThatAllowsControllingBuilder schedule = new MockScheduleThatAllowsControllingBuilder();
-        ProjectConfig projectConfig = new MockProjectConfig(projectToForce, schedule);
+        final MockScheduleThatAllowsControllingBuilder schedule = new MockScheduleThatAllowsControllingBuilder();
+        final ProjectConfig projectConfig = new MockProjectConfig(projectToForce, schedule);
         projectConfig.setName("forcing-build-test-project");
         projectConfig.configureProject();
         schedule.setBuilderToBuildForever();
         projectToForce.start();
 
-        Thread.sleep(150);
+        // @todo Sleep time here may not be enough...maybe we need a state change listener?
+        Thread.sleep(250);
 
         assertEquals(ProjectState.BUILDING.getName(), projectToForce.getState().getName());
 
@@ -106,7 +107,7 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
         private final Project project;
         private final Schedule schedule;
 
-        public MockProjectConfig(Project project, Schedule schedule) {
+        public MockProjectConfig(final Project project, final Schedule schedule) {
             this.project = project;
             this.schedule = schedule;
         }
@@ -129,7 +130,7 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
             };
         }
 
-        Project readProject(String projectName) {
+        Project readProject(final String projectName) {
             return project;
         }
     }
@@ -138,7 +139,7 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
         private boolean ihibitBuild = true;
         private boolean scheduledBuildFired = false;
 
-        public long getTimeToNextBuild(Date date, long interval) {
+        public long getTimeToNextBuild(final Date date, final long interval) {
             // build only once
             if (!scheduledBuildFired) {
                 scheduledBuildFired = true;
@@ -147,9 +148,9 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
             return 999999999;
         }
 
-        public synchronized Element build(int buildNumber, Date lastBuild, Date now,
-                                          Map<String, String> propMap, String buildTarget,
-                Progress progress)
+        public synchronized Element build(final int buildNumber, final Date lastBuild, final Date now,
+                                          final Map<String, String> propMap, final String buildTarget,
+                final Progress progress)
                 throws CruiseControlException {
 
             while (ihibitBuild) {
