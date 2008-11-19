@@ -67,24 +67,25 @@ public class ThreadQueue extends Thread {
     /**
      * The list of WorkerThreads that are waiting to run (currently idle)
      */
-    private final List idleTasks = Collections.synchronizedList(new LinkedList());
+    private final List<WorkerThread> idleTasks = Collections.synchronizedList(new LinkedList<WorkerThread>());
 
     /**
      * The list of WorkerThreads that are running now (currently busy)
      */
-    private final List busyTasks = Collections.synchronizedList(new LinkedList());
+    private final List<WorkerThread> busyTasks = Collections.synchronizedList(new LinkedList<WorkerThread>());
 
     /**
      * the resultList from each WorkerThread's run
      */
-    private final Map resultList = Collections.synchronizedMap(new HashMap());
+    private final Map<String, Object> resultList = Collections.synchronizedMap(new HashMap<String, Object>());
 
     /**
      * Retains a handle to all the running Threads
      * to handle all sorts of interesting situations
      */
 
-    private final Map runningThreads = Collections.synchronizedMap(new HashMap());
+    private final Map<WorkerThread, Thread> runningThreads
+            = Collections.synchronizedMap(new HashMap<WorkerThread, Thread>());
 
     /**
      * The number of java.lang.Threads to be launched by the pool at one time
@@ -92,7 +93,7 @@ public class ThreadQueue extends Thread {
     private final int threadCount = ThreadQueueProperties.getMaxThreadCount();
 
     /**
-     * The amount to time to sleep between loops
+     * The amount of time (millis) to sleep between loops
      */
     private static final int SLEEP_TIME = 100;
 
@@ -101,11 +102,6 @@ public class ThreadQueue extends Thread {
      */
     private static ThreadQueue threadQueue;
 
-    /**
-     * tells the main process when to exit
-     */
-    private static boolean terminate = false;
-
     /*
      fetch tasks to be executed from the idle list,
      put them on the busy list, and
@@ -113,10 +109,6 @@ public class ThreadQueue extends Thread {
      */
     public void run() {
         while (true) {
-            if (ThreadQueue.terminate) {
-                LOG.info("terminating ThreadQueue.run()");
-                return;
-            }
 
             final boolean nothingWaiting = idleTasks.size() == 0;
             final boolean maxedOut = busyTasks.size() >= threadCount;
@@ -135,7 +127,7 @@ public class ThreadQueue extends Thread {
         LOG.debug("handling waiting task");
         synchronized (busyTasks) {
             synchronized (idleTasks) {
-                WorkerThread firstIdleWorkerThread = (WorkerThread) idleTasks.get(0);
+                final WorkerThread firstIdleWorkerThread = idleTasks.get(0);
                 //Since idleTasks allows duplicates, lets make sure this project is not already building
                 if (getBusyTask(firstIdleWorkerThread.getName()) != null) {
                     LOG.debug("The idle task is already running, it will not be moved to busy tasks yet");
@@ -144,7 +136,7 @@ public class ThreadQueue extends Thread {
                     idleTasks.remove(firstIdleWorkerThread);
                 }
 
-                Thread thisThread = new Thread(loggingGroup, firstIdleWorkerThread);
+                final Thread thisThread = new Thread(loggingGroup, firstIdleWorkerThread);
                 busyTasks.add(firstIdleWorkerThread);
                 runningThreads.put(firstIdleWorkerThread, thisThread);
                 thisThread.start();
@@ -154,10 +146,10 @@ public class ThreadQueue extends Thread {
 
     private void cleanCompletedTasks() {
         synchronized (busyTasks) {
-            Iterator tasks = busyTasks.iterator();
+            final Iterator<WorkerThread> tasks = busyTasks.iterator();
             while (tasks.hasNext()) {
-                WorkerThread task = (WorkerThread) tasks.next();
-                Object result = task.getResult();
+                final WorkerThread task = tasks.next();
+                final Object result = task.getResult();
                 final boolean taskDone = result != null;
                 if (taskDone) {
                     LOG.debug("Found a finished task");
@@ -175,6 +167,7 @@ public class ThreadQueue extends Thread {
     /**
      * An internal wrapper around the creation of the
      * Thread Pool singleton
+     * @return ThreadQueuse singleton
      */
 
     private static ThreadQueue getThreadQueue() {
@@ -187,8 +180,9 @@ public class ThreadQueue extends Thread {
 
     /**
      * Adds a task to the idleList to be executed
+     * @param task a task to add to the idleList to be executed
      */
-    public static void addTask(WorkerThread task) {
+    public static void addTask(final WorkerThread task) {
         LOG.debug("Preparing to add worker task " + task.getName());
 
         synchronized (getThreadQueue().busyTasks) {
@@ -206,8 +200,10 @@ public class ThreadQueue extends Thread {
      * This may not *always* work -- a task may slip by us between queue checks.
      * That's OK.  We'd rather have transient results than block the busy queue
      *    until we're done just to get a position report on a task.
+     * @param taskName the taskName to look for
+     * @return the tasks position in the queue
      */
-    public static String findPosition(String taskName) {
+    public static String findPosition(final String taskName) {
         WorkerThread task = getIdleTask(taskName);
         if (task != null) {
             return getTaskPosition(task, getThreadQueue().idleTasks, "IDLE");
@@ -216,16 +212,16 @@ public class ThreadQueue extends Thread {
         if (task != null) {
             return getTaskPosition(task, getThreadQueue().busyTasks, "BUSY");
         }
-        Object result = getResult(taskName);
+        final Object result = getResult(taskName);
         if (result != null) {
             return "[ COMPLETE ]";
         }
         return "[ not found in queues ]";
     }
 
-    private static String getTaskPosition(WorkerThread task, List queue, String queueName) {
-        int position;
-        int length;
+    private static String getTaskPosition(final WorkerThread task, final List queue, final String queueName) {
+        final int position;
+        final int length;
         synchronized (getThreadQueue().busyTasks) {
             position = queue.indexOf(task);
             length = queue.size();
@@ -233,7 +229,7 @@ public class ThreadQueue extends Thread {
         return formatPosition(position, length, queueName);
     }
 
-    private static String formatPosition(int position, int length, String queueName) {
+    private static String formatPosition(final int position, final int length, final String queueName) {
         if (position < 0) {
             return "[ NONE ]";
         }
@@ -242,11 +238,12 @@ public class ThreadQueue extends Thread {
     }
 
     /**
-     * Checks to see if a specific task is either running or waiting in our system
+     * Checks to see if a specific task is either running or waiting in our system.
      *
+     * @param taskName the task name to check
      * @return TRUE if task is waiting or running, FALSE if it is finished
      */
-    public static boolean isActive(String taskName) {
+    public static boolean isActive(final String taskName) {
         synchronized (getThreadQueue().busyTasks) {
             // it's either busy or idle
             return !((getBusyTask(taskName) == null) && (getIdleTask(taskName) == null));
@@ -255,30 +252,34 @@ public class ThreadQueue extends Thread {
 
     /**
      * fetch a result from a completed WorkerThread
-     * a null result means it's not done yet
+     * a null result means it's not done yet.
+     *
+     * @param workerName the worker name to check
+     * @return a result from a completed WorkerThread, or null if not yet done.
      */
-
-    private static Object getResult(String workerName) {
+    private static Object getResult(final String workerName) {
         return getThreadQueue().resultList.get(workerName);
     }
 
     /**
-     * retrieves an active task from the busy list
+     * retrieves an active task from the busy list.
      *
+     * @param taskName the task name to check
      * @return the active task (if present) or null if it cannot be found
      */
-    private static WorkerThread getBusyTask(String taskName) {
+    private static WorkerThread getBusyTask(final String taskName) {
         synchronized (getThreadQueue().busyTasks) {
             return getTask(taskName, getThreadQueue().busyTasks.iterator());
         }
     }
 
     /**
-     * retrieves an idle task from the idle list
+     * retrieves an idle task from the idle list.
      *
+     * @param taskName the task name to check
      * @return the idle task (if present) or null if it cannot be found
      */
-    private static WorkerThread getIdleTask(String taskName) {
+    private static WorkerThread getIdleTask(final String taskName) {
         synchronized (getThreadQueue().idleTasks) {
             return getTask(taskName, getThreadQueue().idleTasks.iterator());
         }
@@ -287,12 +288,14 @@ public class ThreadQueue extends Thread {
     /**
      * retrieves a task from the list
      *
+     * @param taskName the task name to get
+     * @param taskIter a WorkerThread iterator
      * @return the task (if present) or null if it cannot be found
      */
-    private static WorkerThread getTask(String taskName, Iterator myIt) {
-        while (myIt.hasNext()) {
-            WorkerThread thisWorker = (WorkerThread) myIt.next();
-            String tempString = thisWorker.getName();
+    private static WorkerThread getTask(final String taskName, final Iterator<WorkerThread> taskIter) {
+        while (taskIter.hasNext()) {
+            final WorkerThread thisWorker = taskIter.next();
+            final String tempString = thisWorker.getName();
             if (tempString.equalsIgnoreCase(taskName)) {
                 return thisWorker;
             }
@@ -303,8 +306,8 @@ public class ThreadQueue extends Thread {
     /**
      * @return the names of the tasks in the busy list; may be empty
      */
-    public static List getBusyTaskNames() {
-        List names;
+    public static List<String> getBusyTaskNames() {
+        final List<String> names;
         synchronized (getThreadQueue().busyTasks) {
             names = getTaskNames(getThreadQueue().busyTasks.iterator());
         }
@@ -314,8 +317,8 @@ public class ThreadQueue extends Thread {
     /**
      * @return the names of the tasks in the idle list; may be empty
      */
-    public static List getIdleTaskNames() {
-        List names;
+    public static List<String> getIdleTaskNames() {
+        final List<String> names;
         synchronized (getThreadQueue().busyTasks) {
             names = getTaskNames(getThreadQueue().idleTasks.iterator());
         }
@@ -323,21 +326,23 @@ public class ThreadQueue extends Thread {
     }
 
     /**
+     * @param taskIter a WorkerThread iterator
      * @return the names of the tasks in the list; may be empty
      */
-    private static List getTaskNames(Iterator taskIter) {
-        List names = new LinkedList();
+    private static List<String> getTaskNames(final Iterator<WorkerThread> taskIter) {
+        final List<String> names = new LinkedList<String>();
         while (taskIter.hasNext()) {
-            WorkerThread thisWorker = (WorkerThread) taskIter.next();
+            final WorkerThread thisWorker = taskIter.next();
             names.add(thisWorker.getName());
         }
         return names;
     }
 
     /**
-     * Utility call for sleeps
+     * Utility call for sleeps.
+     * @param ms milliseconds to sleep.
      */
-    private static void sleep(int ms) {
+    private static void sleep(final int ms) {
         try {
             Thread.sleep(ms);
         } catch (Exception ignored) {
