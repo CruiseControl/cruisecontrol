@@ -44,6 +44,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  *
@@ -57,15 +58,15 @@ import net.sourceforge.cruisecontrol.SourceControl;
  */
 public class ForceOnly implements SourceControl {
 
-    public List getModifications(Date lastBuild, Date now) {
-        return Collections.EMPTY_LIST;
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        return Collections.emptyList();
     }
 
     public void validate() throws CruiseControlException {
         // nothing to validate
     }
 
-    public Map getProperties() {
-        return Collections.EMPTY_MAP;
+    public Map<String, String> getProperties() {
+        return Collections.emptyMap();
     }
 }

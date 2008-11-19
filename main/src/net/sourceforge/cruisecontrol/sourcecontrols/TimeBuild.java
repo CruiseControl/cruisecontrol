@@ -72,7 +72,7 @@ public class TimeBuild extends FakeUserSourceControl {
      * @param timeString
      *            The time in hhmm format
      */
-    public void setTime(String timeString) {
+    public void setTime(final String timeString) {
         time = Integer.parseInt(timeString);
     }
 
@@ -89,9 +89,9 @@ public class TimeBuild extends FakeUserSourceControl {
      * @param now
      *            current time
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         LOG.debug("LastBuild:" + lastBuild + ", now:" + now);
-        List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
 
         /*
          *
@@ -104,8 +104,8 @@ public class TimeBuild extends FakeUserSourceControl {
          *
          */
         // TODO trigger at time, not just after it
-        int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);
-        int nowTime = DateUtil.getTimeFromDate(now);
+        final int lastBuildTime = DateUtil.getTimeFromDate(lastBuild);
+        final int nowTime = DateUtil.getTimeFromDate(now);
         if (onSameDay(lastBuild, now)) {
             if (lastBuildTime < time && time < nowTime) {
                 modifications.add(getMod(now));
@@ -123,21 +123,21 @@ public class TimeBuild extends FakeUserSourceControl {
         return modifications;
     }
 
-    private boolean onSameDay(Date date1, Date date2) {
-        Calendar calendar = Calendar.getInstance();
+    private boolean onSameDay(final Date date1, final Date date2) {
+        final Calendar calendar = Calendar.getInstance();
         calendar.setTime(date1);
-        int day1 = calendar.get(Calendar.DAY_OF_MONTH);
+        final int day1 = calendar.get(Calendar.DAY_OF_MONTH);
         calendar.setTime(date2);
-        int day2 = calendar.get(Calendar.DAY_OF_MONTH);
+        final int day2 = calendar.get(Calendar.DAY_OF_MONTH);
         return day1 == day2;
     }
 
-    private Modification getMod(Date now) {
-        Modification mod = new Modification("always");
-        Modification.ModifiedFile modfile = mod.createModifiedFile("time build", "time build");
+    private Modification getMod(final Date now) {
+        final Modification mod = new Modification("always");
+        final Modification.ModifiedFile modfile = mod.createModifiedFile("time build", "time build");
         modfile.action = "change";
         mod.userName = getUserName();
-        Calendar nowTimeBuild = Calendar.getInstance();
+        final Calendar nowTimeBuild = Calendar.getInstance();
         nowTimeBuild.setTime(now);
         final int modifHour = this.time / 100;
         final int modifMinute = this.time - modifHour * 100;

@@ -110,8 +110,8 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         }
     }
 
-    public List getModifications(Date lastBuild, Date now) {
-        java.util.List paramList = new java.util.ArrayList();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final List<SSCMCLIParam> paramList = new ArrayList<SSCMCLIParam>();
         if (!strparamFile.isSet()) {
             strparamFile.setData("/");
         }
@@ -123,10 +123,10 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         paramList.add(strparamServerLogin);
         paramList.add(strparamServerConnect);
 
-        List listMods = executeCLICommand(paramList, buildDateTimeRangeCLIParam(lastBuild, now));
+        List<Modification> listMods = executeCLICommand(paramList, buildDateTimeRangeCLIParam(lastBuild, now));
 
         if (listMods == null) {
-            listMods = Collections.EMPTY_LIST;
+            listMods = Collections.emptyList();
         }
 
         if (!listMods.isEmpty()) {
@@ -136,7 +136,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         return listMods;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -144,19 +144,19 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         properties.assignPropertyName(property);
     }
 
-    protected List executeCLICommand(java.util.List paramList, String strDTRangeParam) {
-        List listMods = null;
-        Commandline command = new Commandline();
+    protected List<Modification> executeCLICommand(final List<SSCMCLIParam> paramList, final String strDTRangeParam) {
+        List<Modification> listMods = null;
+        final Commandline command = new Commandline();
         command.setExecutable("sscm");
         command.createArgument().setValue("cc");
 
         // Next, we just iterate through the list, adding entries.
         boolean fAllRequirementsMet = true;
         for (int i = 0; i < paramList.size() && fAllRequirementsMet; ++i) {
-            SSCMCLIParam param = (SSCMCLIParam) paramList.get(i);
+            final SSCMCLIParam param = paramList.get(i);
             if (param != null) {
                 if (param.checkRequired()) {
-                    String str = param.getFormatted();
+                    final String str = param.getFormatted();
                     if (str != null) {
                         command.createArgument().setValue(str);
                         LOG.debug("Added cmd part: " + str);
@@ -174,13 +174,13 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
             LOG.debug("Added DTRangeParam: " + strDTRangeParam);
 
             try {
-                Process process = command.execute();
+                final Process process = command.execute();
                 // logs process error stream at info level
                 final Thread stderr = new Thread(new StreamPumper(process.getErrorStream(),
                             StreamLogger.getInfoLogger(LOG)));
                 stderr.start();
 
-                InputStream input = process.getInputStream();
+                final InputStream input = process.getInputStream();
                 listMods = parseCLIOutput(input);
 
                 process.waitFor();
@@ -197,9 +197,9 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         return listMods;
     }
 
-    protected List parseCLIOutput(InputStream input) throws IOException {
-        List listMods = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+    protected List<Modification> parseCLIOutput(final InputStream input) throws IOException {
+        final List<Modification> listMods = new ArrayList<Modification>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
         String line = reader.readLine();
         LOG.debug("\nSSCM mod line: " + line + "\n");
@@ -207,7 +207,7 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         // -meh. Kind of lame, but total-0 will work.
         if (!"total-0".equals(line)) {
             while ((line = reader.readLine()) != null) {
-                Modification mod = parseOutputLine(line);
+                final Modification mod = parseOutputLine(line);
                 if (mod != null) {
                     listMods.add(mod);
                 }
@@ -217,17 +217,17 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         return listMods;
     }
 
-    protected Modification parseOutputLine(String str) {
+    protected Modification parseOutputLine(final String str) {
         LOG.debug("Output-" + str + "-\n");
 
         if (str == null || str.length() == 0) {
             return null;
         }
         Modification mod = new Modification("sscm");
-        Modification.ModifiedFile modfile = mod.createModifiedFile(null, null);
+        final Modification.ModifiedFile modfile = mod.createModifiedFile(null, null);
 
         boolean fValid = false;
-        String strToken = "><";
+        final String strToken = "><";
         int iLeft = 1;
 
         // Repository
@@ -293,13 +293,13 @@ public class SSCM implements net.sourceforge.cruisecontrol.SourceControl {
         return (mod);
     }
 
-    protected String buildDateTimeRangeCLIParam(Date lastBuild, Date now) {
-        String strLast = formatter.format(lastBuild);
-        String strNow = formatter.format(now);
+    protected String buildDateTimeRangeCLIParam(final Date lastBuild, final Date now) {
+        final String strLast = formatter.format(lastBuild);
+        final String strNow = formatter.format(now);
         return "-d" + strLast + ":" + strNow;
     }
 
-    protected Date buildDateTimeFromCLIOutput(String str) {
+    protected Date buildDateTimeFromCLIOutput(final String str) {
         Date dt;
         try {
             dt = formatter.parse(str);

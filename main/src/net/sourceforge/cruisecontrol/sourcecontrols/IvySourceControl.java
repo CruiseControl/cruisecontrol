@@ -68,14 +68,14 @@ public class IvySourceControl extends FakeUserSourceControl {
      * @param now IGNORED
      */
     @Override
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         try {
             return getModifications(lastBuild, artifacts());
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
@@ -84,12 +84,12 @@ public class IvySourceControl extends FakeUserSourceControl {
         ValidationHelper.assertExists(ivySettings, "ivySettings", getClass());
     }
 
-    protected List<Modification> getModifications(Date lastBuild, Collection<Artifact> artifacts) {
+    protected List<Modification> getModifications(final Date lastBuild, final Collection<Artifact> artifacts) {
         if (artifacts == null) {
             throw new IllegalArgumentException("Cannot process null artifact collection");
         }
 
-        ArrayList<Modification> mods = new ArrayList<Modification>();
+        final ArrayList<Modification> mods = new ArrayList<Modification>();
         for (Artifact artifact : artifacts) {
             if (artifact.getPublicationDate().compareTo(lastBuild) > 0) {
                 mods.add(modificationFor(artifact));
@@ -100,23 +100,23 @@ public class IvySourceControl extends FakeUserSourceControl {
 
     @SuppressWarnings ("unchecked")
     Collection<Artifact> artifacts() throws IOException, ParseException {
-        Ivy ivy = Ivy.newInstance();
+        final Ivy ivy = Ivy.newInstance();
         ivy.configure(ivySettings.toURI().toURL());
         return ivy.resolve(ivyXml.toURI().toURL()).getArtifacts();
     }
 
-    private Modification modificationFor(Artifact artifact) {
-        Modification modification =
+    private Modification modificationFor(final Artifact artifact) {
+        final Modification modification =
                 new Modification("ivy", getUserName(), "", null, artifact.getPublicationDate(),
-                        artifact.getId().toString(), new ArrayList());
-        Modification.ModifiedFile modfile =
+                        artifact.getId().toString(), new ArrayList<Modification.ModifiedFile>());
+        final Modification.ModifiedFile modfile =
                 modification.createModifiedFile(artifact.getName(),
                         folderFor(artifact.getUrl(), artifact.getName()));
         modfile.action = "change";
         return modification;
     }
 
-    private String folderFor(URL url, String name) {
+    private String folderFor(final URL url, final String name) {
         return url.toString().replace("/" + name, "");
     }
 
@@ -124,11 +124,11 @@ public class IvySourceControl extends FakeUserSourceControl {
         return ivyXml.getAbsolutePath();
     }
 
-    public void setIvyXml(String ivyXml) {
+    public void setIvyXml(final String ivyXml) {
         this.ivyXml = new File(ivyXml);
     }
 
-    public void setIvySettings(String ivySettings) {
+    public void setIvySettings(final String ivySettings) {
         this.ivySettings = new File(ivySettings);
     }
 

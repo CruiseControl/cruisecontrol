@@ -87,7 +87,7 @@ public class BuildStatus implements SourceControl {
      */
     public static final String MOST_RECENT_LOGLABEL_KEY = "most.recent.loglabel";
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
     private String logDir;
 
     private boolean vetoIfFailing = false;
@@ -101,7 +101,7 @@ public class BuildStatus implements SourceControl {
      *         class), or five is the property attribute was set.
      *         Never returns null.
      */
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
     
@@ -141,10 +141,10 @@ public class BuildStatus implements SourceControl {
      * @param unused The timestamp of the current build is passed here
      *        (as per SourceControl interface) but we don't use it.
      */
-    public List getModifications(Date lastBuild, Date unused) {
+    public List<Modification> getModifications(final Date lastBuild, final Date unused) {
         properties.put(MOST_RECENT_LOGDIR_KEY, logDir);
-        List modifications = new ArrayList();
-        File logDirectory = new File(logDir);
+        final List<Modification> modifications = new ArrayList<Modification>();
+        final File logDirectory = new File(logDir);
         final String filename = Log.formatLogFileName(lastBuild);
 
         if (!logDirectory.exists()) {
@@ -170,16 +170,16 @@ public class BuildStatus implements SourceControl {
 
             Modification mostRecent = null;
 
-            for (int i = 0; i < newLogs.length; i++) {
-                Modification modification = new Modification("buildstatus");
-                String name = newLogs[i].getName();
+            for (final File newLog : newLogs) {
+                final Modification modification = new Modification("buildstatus");
+                final String name = newLog.getName();
 
                 modification.modifiedTime = Log.parseDateFromLogFileName(name);
-                modification.userName = "cc-" + getProjectFromLog(newLogs[i]);
+                modification.userName = "cc-" + getProjectFromLog(newLog);
                 modification.comment = logDir.substring(logDir.lastIndexOf('/') + 1);
                 modification.revision = Log.parseLabelFromLogFileName(name);
 
-                Modification.ModifiedFile modfile = modification.createModifiedFile(name, null);
+                final Modification.ModifiedFile modfile = modification.createModifiedFile(name, null);
                 modfile.revision = modification.revision;
                 modfile.action = "add";
 
@@ -193,7 +193,7 @@ public class BuildStatus implements SourceControl {
             // This makes information about the most recent modification
             // available to Ant tasks
             if (mostRecent != null) {
-                properties.put(MOST_RECENT_LOGFILE_KEY, ((Modification.ModifiedFile) mostRecent.files.get(0)).fileName);
+                properties.put(MOST_RECENT_LOGFILE_KEY, mostRecent.files.get(0).fileName);
                 properties.put(MOST_RECENT_LOGTIME_KEY, DateUtil.getFormattedTime(mostRecent.modifiedTime));
                 properties.put(MOST_RECENT_LOGLABEL_KEY, mostRecent.revision);
             }

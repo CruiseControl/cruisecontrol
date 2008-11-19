@@ -79,24 +79,24 @@ public class HttpFile extends FakeUserSourceControl {
      * @param lastBuild date of last build
      * @param now IGNORED
      */
-    public List getModifications(Date lastBuild, Date now) {
-        long lastModified;
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final long lastModified;
         final URL url;
         try {
             url = new URL(this.urlString);
         } catch (MalformedURLException e) {
             // already checked
-            return new ArrayList();
+            return new ArrayList<Modification>();
         }
         try {
             lastModified = getURLLastModified(url);
         } catch (IOException e) {
             LOG.error("Could not connect to 'url'", e);
-            return new ArrayList();
+            return new ArrayList<Modification>();
         }
-        List modifiedList = new ArrayList();
+        final List<Modification> modifiedList = new ArrayList<Modification>();
         if (lastModified > lastBuild.getTime()) {
-            Modification mod = new Modification("http");
+            final Modification mod = new Modification("http");
             mod.createModifiedFile(getFilename(url), url.getHost()); 
 
             mod.userName = getUserName();

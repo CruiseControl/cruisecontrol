@@ -61,9 +61,9 @@ public class AlwaysBuild extends FakeUserSourceControl {
      * @param lastBuild date of last build
      * @param now       IGNORED
      */
-    public List getModifications(Date lastBuild, Date now) {
-        Modification mod = new Modification("always");
-        Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final Modification mod = new Modification("always");
+        final Modification.ModifiedFile modfile = mod.createModifiedFile("force build", "force build");
         modfile.action = "change";
 
         mod.userName = getUserName();

@@ -3,7 +3,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,31 +22,30 @@ public class Veto implements SourceControl {
 
     private BuildStatus buildStatus;
 
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
 
-        List triggerMods = triggers.getModifications(lastBuild, now);
+        final List<Modification> triggerMods = triggers.getModifications(lastBuild, now);
         if (triggerMods.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
 
-        List buildStatusMods = buildStatus.getModifications(lastBuild, now);
+        final List<Modification> buildStatusMods = buildStatus.getModifications(lastBuild, now);
         if (buildStatusMods.isEmpty()) {
             throw new OutOfDateException("trigger changes with no buildstatus changes");
         }
 
-        Modification latestBuildStatusMod = getLatestModification(buildStatusMods);
+        final Modification latestBuildStatusMod = getLatestModification(buildStatusMods);
 
         if (!getNewerModifications(triggerMods, latestBuildStatusMod).isEmpty()) {
             throw new OutOfDateException("buildstatus out of date compared to trigger changes");
         }
 
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    private Modification getLatestModification(List mods) {
+    private Modification getLatestModification(final List<Modification> mods) {
         Modification latest = null;
-        for (Iterator iter = mods.iterator(); iter.hasNext();) {
-            Modification mod = (Modification) iter.next();
+        for (final Modification mod : mods) {
             if (latest == null || mod.modifiedTime.after(latest.modifiedTime)) {
                 latest = mod;
             }
@@ -55,11 +53,10 @@ public class Veto implements SourceControl {
         return latest;
     }
 
-    private List getNewerModifications(List mods, Modification buildStatusMod) {
-        List newerMods = new ArrayList();
+    private List getNewerModifications(final List<Modification> mods, final Modification buildStatusMod) {
+        List<Modification> newerMods = new ArrayList<Modification>();
         LOG.debug("Comparing all trigger mods against buildStatusMod with date [" + buildStatusMod.modifiedTime + "]");
-        for (Iterator iter = mods.iterator(); iter.hasNext();) {
-            Modification mod = (Modification) iter.next();
+        for (final Modification mod : mods) {
             if (mod.modifiedTime.after(buildStatusMod.modifiedTime)) {
                 newerMods.add(mod);
                 LOG.debug("Newer file : " + mod.getFullPath() + " at [" + mod.modifiedTime + "]");
@@ -71,8 +68,8 @@ public class Veto implements SourceControl {
         return newerMods;
     }
 
-    public Map getProperties() {
-        return Collections.EMPTY_MAP;
+    public Map<String, String> getProperties() {
+        return Collections.emptyMap();
     }
 
     public void validate() throws CruiseControlException {
@@ -108,7 +105,7 @@ public class Veto implements SourceControl {
 
     private class OutOfDateException extends RuntimeException {
 
-        public OutOfDateException(String string) {
+        public OutOfDateException(final String string) {
             super(string);
         }
     }

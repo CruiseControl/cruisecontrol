@@ -42,6 +42,7 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification;
 
 /**
  * Abstract superclass for SourceControls that use a static user
@@ -52,7 +53,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 public abstract class FakeUserSourceControl implements SourceControl {
 
     private String userName = "User";
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
     
     protected SourceControlProperties getSourceControlProperties() {
         return properties;
@@ -62,15 +63,15 @@ public abstract class FakeUserSourceControl implements SourceControl {
         return userName;
     }
 
-    public void setUserName(String userName) {
+    public void setUserName(final String userName) {
         this.userName = userName;
     }
     
-    public void setProperty(String propertyName) {
+    public void setProperty(final String propertyName) {
         properties.assignPropertyName(propertyName);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -79,7 +80,7 @@ public abstract class FakeUserSourceControl implements SourceControl {
      * 
      * @see net.sourceforge.cruisecontrol.SourceControl#getModifications(java.util.Date, java.util.Date)
      */
-    public abstract List getModifications(Date lastBuild, Date now);
+    public abstract List<Modification> getModifications(Date lastBuild, Date now);
 
     /**
      * @see net.sourceforge.cruisecontrol.SourceControl#validate()

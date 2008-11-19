@@ -38,12 +38,12 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
@@ -85,7 +85,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  */
 public class Compound implements SourceControl {
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
     private Triggers triggers = null;
     private Targets targets = null;
     private boolean includeTriggerChanges = false;
@@ -94,7 +94,7 @@ public class Compound implements SourceControl {
         properties.assignPropertyName(propertyName);
     }
     
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -111,9 +111,9 @@ public class Compound implements SourceControl {
      *
      * @return  a list of the modifications
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List triggerMods;
-        List targetMods = new ArrayList();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final List<Modification> triggerMods;
+        List<Modification> targetMods = new ArrayList<Modification>();
 
         triggerMods = triggers.getModifications(lastBuild, now);
 
@@ -192,8 +192,8 @@ public class Compound implements SourceControl {
      */
     protected static class Entry implements SourceControl {
 
-        private SourceControlProperties properties = new SourceControlProperties();
-        private List sourceControls = new ArrayList();
+        private final SourceControlProperties properties = new SourceControlProperties();
+        private final List<SourceControl> sourceControls = new ArrayList<SourceControl>();
         private SourceControl parent;
 
         /**
@@ -210,11 +210,11 @@ public class Compound implements SourceControl {
          * @param parent    the parent of this object (an
          *                  object of class Compound)
          */
-        public Entry(SourceControl parent) {
+        public Entry(final SourceControl parent) {
             this.parent = parent;
         }
 
-        public Map getProperties() {
+        public Map<String, String> getProperties() {
             return properties.getPropertiesAndReset();
         }
 
@@ -227,11 +227,10 @@ public class Compound implements SourceControl {
          *
          * @return  a list of the modifications
          */
-        public List getModifications(Date lastBuild, Date now) {
-            List retVal = new ArrayList();
+        public List<Modification> getModifications(final Date lastBuild, final Date now) {
+            final List<Modification> retVal = new ArrayList<Modification>();
 
-            for (Iterator it = sourceControls.iterator(); it.hasNext(); ) {
-                SourceControl sourceControl = (SourceControl) it.next();
+            for (final SourceControl sourceControl : sourceControls) {
                 retVal.addAll(sourceControl.getModifications(lastBuild, now));
                 // make sure we also pass the properties from the underlying sourcecontrol
                 properties.putAll(sourceControl.getProperties());
@@ -263,7 +262,7 @@ public class Compound implements SourceControl {
          *
          * @param sc the sourceControl object to add
          */
-        public void add(SourceControl sc) {
+        public void add(final SourceControl sc) {
             sourceControls.add(sc);
         }
 
@@ -272,8 +271,8 @@ public class Compound implements SourceControl {
          * @return lower-case version of classname without package, e.g. 'triggers'.
          */
         private String getEntryName() {
-            String classname = getClass().getName();
-            int index = classname.lastIndexOf('.');
+            final String classname = getClass().getName();
+            final int index = classname.lastIndexOf('.');
             if (index != -1) {
                 return classname.substring(index + 1).toLowerCase();
             } else {

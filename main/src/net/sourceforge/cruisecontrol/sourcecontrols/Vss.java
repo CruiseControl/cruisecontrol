@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -80,7 +79,7 @@ public class Vss implements SourceControl {
     /**
      * Set the project to get history from
      *
-     * @param vsspath
+     * @param vsspath the project to get history from
      */
     public void setVsspath(String vsspath) {
         this.vssPath = "$" + vsspath;
@@ -89,7 +88,7 @@ public class Vss implements SourceControl {
     /**
      * Set the path to the ss executable
      *
-     * @param ssdir
+     * @param ssdir the path to the ss executable
      */
     public void setSsDir(String ssdir) {
         this.ssDir = ssdir;
@@ -98,18 +97,18 @@ public class Vss implements SourceControl {
     /**
      * Set the path to the directory containing the srcsafe.ini file.
      *
-     * @param dirWithSrcsafeIni
+     * @param dirWithSrcsafeIni the path to the directory containing the srcsafe.ini file.
      */
-    public void setServerPath(String dirWithSrcsafeIni) {
+    public void setServerPath(final String dirWithSrcsafeIni) {
         serverPath = dirWithSrcsafeIni;
     }
 
     /**
      * Login for vss
      *
-     * @param usernameCommaPassword
+     * @param usernameCommaPassword Login for vss
      */
-    public void setLogin(String usernameCommaPassword) {
+    public void setLogin(final String usernameCommaPassword) {
         login = usernameCommaPassword;
     }
 
@@ -117,18 +116,18 @@ public class Vss implements SourceControl {
      * Choose a property to be set if the project has modifications if we have a change that only requires repackaging,
      * i.e. jsp, we don't need to recompile everything, just rejar.
      *
-     * @param propertyName
+     * @param propertyName property to be set if the project has modifications
      */
-    public void setProperty(String propertyName) {
+    public void setProperty(final String propertyName) {
         properties.assignPropertyName(propertyName);
     }
 
     /**
      * Choose a property to be set if the project has deletions
      *
-     * @param propertyName
+     * @param propertyName property to be set if the project has deletions
      */
-    public void setPropertyOnDelete(String propertyName) {
+    public void setPropertyOnDelete(final String propertyName) {
         properties.assignPropertyOnDeleteName(propertyName);
     }
 
@@ -137,9 +136,10 @@ public class Vss implements SourceControl {
      * <code>MM/dd/yy</code> . If your computer is set to a different region, you may wish to use a format such as
      * <code>dd/MM/yy</code> .
      *
+     * @param format date format to use for querying VSS and processing reports
      * @see java.text.SimpleDateFormat
      */
-    public void setDateFormat(String format) {
+    public void setDateFormat(final String format) {
         dateFormat = format;
         constructVssDateTimeFormat();
     }
@@ -149,14 +149,15 @@ public class Vss implements SourceControl {
      * <code>hh:mma</code> . If your computer is set to a different region, you may wish to use a format such as
      * <code>HH:mm</code> .
      *
+     * @param format time format to use for querying VSS and processing reports
      * @see java.text.SimpleDateFormat
      */
-    public void setTimeFormat(String format) {
+    public void setTimeFormat(final String format) {
         timeFormat = format;
         constructVssDateTimeFormat();
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -169,19 +170,19 @@ public class Vss implements SourceControl {
      * Calls "ss history [dir] -R -Vd[now]~[lastBuild] -Y[login] -I-N -O[tempFileName]" Results written to a file since
      * VSS will start wrapping lines if read directly from the stream.
      *
-     * @param lastBuild
-     * @param now
+     * @param lastBuild date of last build
+     * @param now curent build date
      * @return List of modifications
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List modifications = new ArrayList();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final List<Modification> modifications = new ArrayList<Modification>();
 
         Process p = null;
         try {
             LOG.info("Getting modifications for " + vssPath);
             p = Runtime.getRuntime().exec(getCommandLine(lastBuild, now), VSSHelper.loadVSSEnvironment(serverPath));
             p.getOutputStream().close();
-            Thread stderr = logErrorStream(p.getErrorStream());
+            final Thread stderr = logErrorStream(p.getErrorStream());
 
             p.waitFor();
             stderr.join();
@@ -190,7 +191,7 @@ public class Vss implements SourceControl {
         } catch (Exception e) {
             // TODO: Revisit this when ThreadQueue is more stable.  Would prefer throwing a RuntimeException.
             LOG.error("Problem occurred while attempting to get VSS modifications.  Returning empty modifications.", e);
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } finally {
             if (p != null) {
                 IO.close(p);
@@ -204,14 +205,14 @@ public class Vss implements SourceControl {
         return modifications;
     }
 
-    private Thread logErrorStream(InputStream is) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, is));
+    private Thread logErrorStream(final InputStream is) {
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, is));
         stderr.start();
         return stderr;
     }
 
-    void parseTempFile(List modifications) throws IOException, CruiseControlException {
-        File tempFile = getTempFile();
+    void parseTempFile(final List<Modification> modifications) throws IOException, CruiseControlException {
+        final File tempFile = getTempFile();
         if (!getTempFile().isFile()) {
             throw new CruiseControlException("vss failed to create output file " + tempFile.getPath());
         }
@@ -225,7 +226,7 @@ public class Vss implements SourceControl {
             parseHistoryEntries(modifications, reader);
         } finally {
             // need to close the InputStream before delete(), otherwise fails on windows
-            IO.close(reader);
+            reader.close();
         }
         tempFile.delete();
     }
@@ -268,12 +269,12 @@ public class Vss implements SourceControl {
         return filename;
     }
 
-    void parseHistoryEntries(List modifications, BufferedReader reader) throws IOException {
+    void parseHistoryEntries(final List<Modification> modifications, final BufferedReader reader) throws IOException {
         String currLine = reader.readLine();
 
         while (currLine != null) {
             if (isRelevantVssEntryHeader(currLine)) {
-                List vssEntry = new ArrayList();
+                final List<String> vssEntry = new ArrayList<String>();
                 vssEntry.add(currLine);
                 currLine = reader.readLine();
                 while (currLine != null && !isRelevantVssEntryHeader(currLine)) {
@@ -293,8 +294,10 @@ public class Vss implements SourceControl {
     /**
      * Most relevant VSS entry headers will be 5 asterisks, 2 spaces, file name, 2 spaces, 5 asterisks. However, if
      * adding to the root, there are apparently 17 asterisks, 2 spaces, version name, 2 spaces, 17 asterisks.
+     * @param line the line to examine
+     * @return if line is a relevant VSS entry header
      */
-    private boolean isRelevantVssEntryHeader(String line) {
+    private boolean isRelevantVssEntryHeader(final String line) {
         // This can still fail if the entry has a comment containing something of the form '***** some text *****' but
         // is probably not worth handling at this point. If it does come up, we may need to look at implementing some
         // form of state machine.
@@ -302,9 +305,9 @@ public class Vss implements SourceControl {
         return line.matches("\\*+ {2}.+ {2}\\*+");
     }
 
-    protected String[] getCommandLine(Date lastBuild, Date now) throws IOException {
-        Commandline commandline = new Commandline();
-        String execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
+    protected String[] getCommandLine(final Date lastBuild, final Date now) throws IOException {
+        final Commandline commandline = new Commandline();
+        final String execCommand = (ssDir != null) ? new File(ssDir, "ss.exe").getCanonicalPath() : "ss.exe";
 
         commandline.setExecutable(execCommand);
         commandline.createArgument("history");
@@ -330,8 +333,8 @@ public class Vss implements SourceControl {
      * @return String of date in format that VSS requires.
      * @see #setDateFormat
      */
-    private String formatDateForVSS(Date date) {
-        String vssFormattedDate = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US).format(date);
+    private String formatDateForVSS(final Date date) {
+        final String vssFormattedDate = new SimpleDateFormat(dateFormat + ";" + timeFormat, Locale.US).format(date);
         if (timeFormat.endsWith("a")) {
             return vssFormattedDate.substring(0, vssFormattedDate.length() - 1);
         }
@@ -342,17 +345,18 @@ public class Vss implements SourceControl {
     /**
      * Parse individual VSS history entry
      *
-     * @param entry
+     * @param entry individual VSS history entry
+     * @return a Modification for this entry or null
      */
-    protected Modification handleEntry(List entry) {
+    protected Modification handleEntry(final List<String> entry) {
         LOG.debug("VSS history entry BEGIN");
-        for (Iterator i = entry.iterator(); i.hasNext();) {
-            LOG.debug("entry: " + i.next());
+        for (final String anEntry : entry) {
+            LOG.debug("entry: " + anEntry);
         }
         LOG.debug("VSS history entry END");
 
         final String labelDelimiter = "**********************";
-        boolean isLabelEntry = labelDelimiter.equals(entry.get(0));
+        final boolean isLabelEntry = labelDelimiter.equals(entry.get(0));
 
         if (isLabelEntry) {
             LOG.debug("this is a label; ignoring this entry");
@@ -371,40 +375,40 @@ public class Vss implements SourceControl {
         // Label comment:
 
         int nameAndDateIndex = 2;
-        if (((String) entry.get(0)).startsWith("***************** ")) {
+        if (entry.get(0).startsWith("***************** ")) {
             nameAndDateIndex = 1;
         }
-        String nameAndDateLine = (String) entry.get(nameAndDateIndex);
+        String nameAndDateLine = entry.get(nameAndDateIndex);
         if (nameAndDateLine.startsWith("Label:")) {
             nameAndDateIndex++;
-            nameAndDateLine = (String) entry.get(nameAndDateIndex);
+            nameAndDateLine = entry.get(nameAndDateIndex);
             LOG.debug("adjusting for the line that starts with Label");
         }
 
-        Modification modification = new Modification("vss");
+        final Modification modification = new Modification("vss");
         modification.userName = parseUser(nameAndDateLine);
         modification.modifiedTime = parseDate(nameAndDateLine);
 
-        String folderLine = (String) entry.get(0);
-        int fileIndex = nameAndDateIndex + 1;
-        String fileLine = (String) entry.get(fileIndex);
+        final String folderLine = entry.get(0);
+        final int fileIndex = nameAndDateIndex + 1;
+        final String fileLine = entry.get(fileIndex);
         LOG.debug("File line is: " + fileLine);
 
         if (fileLine.startsWith("Checked in")) {
             LOG.debug("this is a checkin");
-            int commentIndex = fileIndex + 1;
+            final int commentIndex = fileIndex + 1;
             modification.comment = parseComment(entry, commentIndex);
-            String fileName = folderLine.substring(7, folderLine.indexOf("  *"));
-            String folderName = fileLine.substring(12);
+            final String fileName = folderLine.substring(7, folderLine.indexOf("  *"));
+            final String folderName = fileLine.substring(12);
 
-            Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+            final Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
             modfile.action = "checkin";
         } else if (fileLine.endsWith("Created")) {
             modification.type = "create";
             LOG.debug("this folder was created");
         } else {
-            String fileName;
-            String folderName;
+            final String fileName;
+            final String folderName;
 
             if (nameAndDateIndex == 1) {
                 folderName = vssPath;
@@ -422,7 +426,7 @@ public class Vss implements SourceControl {
                 }
             }
 
-            Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
+            final Modification.ModifiedFile modfile = modification.createModifiedFile(fileName, folderName);
 
             if (fileLine.endsWith("added")) {
                 modfile.action = "add";
@@ -456,11 +460,12 @@ public class Vss implements SourceControl {
     /**
      * Parse comment from VSS history (could be multi-line)
      *
-     * @param commentList
-     * @return the comment
+     * @param commentList comment to parse
+     * @param commentIndex comment index
+     * @return the comment the single string representation of the given comment
      */
-    private String parseComment(List commentList, int commentIndex) {
-        StringBuffer comment = new StringBuffer();
+    private String parseComment(final List commentList, final int commentIndex) {
+        final StringBuilder comment = new StringBuilder();
         comment.append(commentList.get(commentIndex)).append(" ");
         for (int i = commentIndex + 1; i < commentList.size(); i++) {
             comment.append(commentList.get(i)).append(" ");
@@ -476,11 +481,11 @@ public class Vss implements SourceControl {
      * <code>User: Aaggarwa     Date:  6/29/:1   Time:  3:40p</code><br>
      * Note the ":" instead of a "0"
      *
-     * @param nameAndDateLine
+     * @param nameAndDateLine name and date line to parse
      * @return Date in form "'Date: 'MM/dd/yy 'Time: 'hh:mma", or a different form based on dateFormat
      * @see #setDateFormat
      */
-    public Date parseDate(String nameAndDateLine) {
+    public Date parseDate(final String nameAndDateLine) {
         String dateAndTime = nameAndDateLine.substring(nameAndDateLine.indexOf("Date: "));
 
         int indexOfColon = dateAndTime.indexOf("/:");
@@ -491,7 +496,7 @@ public class Vss implements SourceControl {
         }
 
         try {
-            Date lastModifiedDate;
+            final Date lastModifiedDate;
             if (timeFormat.endsWith("a")) {
                 lastModifiedDate = vssDateTimeFormat.parse(dateAndTime.trim() + "m");
             } else {
@@ -508,10 +513,10 @@ public class Vss implements SourceControl {
     /**
      * Parse username from VSS file history
      *
-     * @param userLine
+     * @param userLine username line
      * @return the user name who made the modification
      */
-    public String parseUser(String userLine) {
+    public String parseUser(final String userLine) {
         final int userIndex = "User: ".length();
 
         return userLine.substring(userIndex, userLine.indexOf("Date: ") - 1).trim();
