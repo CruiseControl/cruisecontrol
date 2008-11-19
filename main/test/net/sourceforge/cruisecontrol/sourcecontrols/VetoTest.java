@@ -77,8 +77,8 @@ public class VetoTest extends TestCase {
         veto.createBuildStatus();
         
         SourceControl sc = new MockSourceControl() {
-            public List getModifications(Date lastBuild, Date now) {
-                return new ArrayList();
+            public List<Modification> getModifications(final Date lastBuild, final Date now) {
+                return new ArrayList<Modification>();
             }
         };        
         Triggers triggers = veto.createTriggers();
@@ -157,9 +157,9 @@ public class VetoTest extends TestCase {
     }
     
      private class MockBuildStatus extends BuildStatus {
-        private ArrayList modifications = new ArrayList();
+        private final ArrayList<Modification> modifications = new ArrayList<Modification>();
         
-        public List getModifications(Date lastBuild, Date unused) {
+        public List<Modification> getModifications(final Date lastBuild, final Date unused) {
             return modifications;
         }
 
@@ -168,9 +168,9 @@ public class VetoTest extends TestCase {
     }
      
     private final class TestVeto extends Veto {
-        private BuildStatus status;
+        private final BuildStatus status;
         
-        private TestVeto(BuildStatus status) {
+        private TestVeto(final BuildStatus status) {
             this.status = status;
         }
 

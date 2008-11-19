@@ -82,25 +82,25 @@ public class Darcs implements SourceControl {
 
     private String workingDir;
     private String repositoryLocation;
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
-    public void setProperty(String property) {
+    public void setProperty(final String property) {
         properties.assignPropertyName(property);
     }
 
-    public void setPropertyOnDelete(String propertyOnDelete) {
+    public void setPropertyOnDelete(final String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
-    public void setRepositoryLocation(String repositoryLocation) {
+    public void setRepositoryLocation(final String repositoryLocation) {
         this.repositoryLocation = repositoryLocation;
     }
 
-    public void setWorkingDir(String workingDir) {
+    public void setWorkingDir(final String workingDir) {
         this.workingDir = workingDir;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -115,21 +115,21 @@ public class Darcs implements SourceControl {
         }
     }
 
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         try {
-            Commandline command = buildChangesCommand(lastBuild, now);
-            List modifications = execChangesCommand(command);
+            final Commandline command = buildChangesCommand(lastBuild, now);
+            final List<Modification> modifications = execChangesCommand(command);
             fillPropertiesIfNeeded(modifications);
             return modifications;
         } catch (Exception e) {
             LOGGER.error("Failed to execute darcs changes command", e);
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
-    Commandline buildChangesCommand(Date lastBuild, Date checkTime) throws CruiseControlException {
+    Commandline buildChangesCommand(final Date lastBuild, final Date checkTime) throws CruiseControlException {
 
-        Commandline command = new Commandline();
+        final Commandline command = new Commandline();
         command.setExecutable("darcs");
 
         if (workingDir != null) {
@@ -148,14 +148,14 @@ public class Darcs implements SourceControl {
         return command;
     }
 
-    private List execChangesCommand(Commandline command) throws InterruptedException, IOException, ParseException,
-            JDOMException {
+    private List<Modification> execChangesCommand(final Commandline command)
+            throws InterruptedException, IOException, ParseException, JDOMException {
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread stderr = logErrorStream(p);
-        InputStream darcsStream = p.getInputStream();
-        List modifications = parseStream(darcsStream);
+        final Thread stderr = logErrorStream(p);
+        final InputStream darcsStream = p.getInputStream();
+        final List<Modification> modifications = parseStream(darcsStream);
         p.waitFor();
         stderr.join();
         IO.close(p);
@@ -163,18 +163,24 @@ public class Darcs implements SourceControl {
         return modifications;
     }
 
-    private List parseStream(InputStream darcsStream) throws ParseException, JDOMException, IOException {
+    private List<Modification> parseStream(final InputStream darcsStream)
+            throws ParseException, JDOMException, IOException {
+
         InputStreamReader reader = new InputStreamReader(new BufferedInputStream(darcsStream), "UTF-8");
-        return DarcsXmlParser.parse(reader);
+        try {
+            return DarcsXmlParser.parse(reader);
+        } finally {
+            reader.close();
+        }
     }
 
-    private Thread logErrorStream(Process p) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOGGER, p.getErrorStream()));
+    private Thread logErrorStream(final Process p) {
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOGGER, p.getErrorStream()));
         stderr.start();
         return stderr;
     }
 
-    void fillPropertiesIfNeeded(List modifications) {
+    void fillPropertiesIfNeeded(final List<Modification> modifications) {
         if (!modifications.isEmpty()) {
             properties.modificationFound();
         }
@@ -186,37 +192,37 @@ public class Darcs implements SourceControl {
         private DarcsXmlParser() { /* helper class, no instances */
         }
 
-        static List parse(Reader reader) throws ParseException, JDOMException, IOException {
+        static List<Modification> parse(final Reader reader) throws ParseException, JDOMException, IOException {
 
-            SAXBuilder builder = new SAXBuilder(false);
-            Document document = builder.build(reader);
+            final SAXBuilder builder = new SAXBuilder(false);
+            final Document document = builder.build(reader);
             return parseDOMTree(document);
         }
 
-        private static List parseDOMTree(Document document) throws ParseException {
-            List modifications = new ArrayList();
-            Element rootElement = document.getRootElement();
-            List patches = rootElement.getChildren("patch");
+        private static List<Modification> parseDOMTree(final Document document) throws ParseException {
+            final List<Modification> modifications = new ArrayList<Modification>();
+            final Element rootElement = document.getRootElement();
+            final List patches = rootElement.getChildren("patch");
             if (patches != null) {
                 for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
-                    Element patch = (Element) iterator.next();
+                    final Element patch = (Element) iterator.next();
                     modifications.add(parsePatch(patch));
                 }
             }
             return modifications;
         }
 
-        private static Modification parsePatch(Element patch) throws ParseException {
-            Modification modification = new Modification("darcs");
+        private static Modification parsePatch(final Element patch) throws ParseException {
+            final Modification modification = new Modification("darcs");
             modification.modifiedTime = DARCS_DATE_FORMAT_OUT.parse(patch.getAttributeValue("date"));
-            String email = patch.getAttributeValue("author");
+            final String email = patch.getAttributeValue("author");
             modification.userName = parseUser(email);
             modification.emailAddress = email;
             modification.comment = patch.getChildText("name");
             return modification;
         }
 
-        private static String parseUser(String email) {
+        private static String parseUser(final String email) {
             return email.substring(0, email.indexOf('@'));
         }
     }
