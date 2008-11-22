@@ -44,30 +44,27 @@
         </ul>
     </div>
     <div class="content">
-        <h3><a name="upgradeNotes">Upgrade Notes</a></h3>
-        <h4>v2.8</h4>
-        Added <a href="index.html#advancedConfigAgentUtility">JMX Build Agent Utility</a>.
-        <p>Added <i>Lookup Services</i> control feature to the Agent Utility. Allows you to stop a LookupService and it's ClassServer.<br/>
-        NOTE: We can always stop a LookupService, but the Swing Agent Utility can only stop the ClassServer on the localhost and the JMX Agent Utility can only stop the ClassServer on the host running the JMX server.</p>
+        <h3>Upgrade Notes</h3>
+        <h4><a name="2.8">v2.8</a></h4>
+        <p>Added <a href="index.html#advancedConfigAgentUtility">JMX Build Agent Utility</a>.</p>
+        <p>Added <i>Lookup Services</i> control feature to the Agent Utility. Allows you to stop a LookupService and it's ClassServer. (Note: We can always stop a LookupService, but the Swing Agent Utility can only stop the ClassServer on the localhost and the JMX Agent Utility can only stop the ClassServer on the host running the JMX server.)</p>
         <p>Remove deprecated BuildAgentService.doBuild() methods.</p>
-        <h4>v2.7.2</h4>
-        The <code>ant</code> builder with <code>showProgress=true</code> issues (mentioned below in the 2.7.1 upgrade notes) have been solved via the use of a JNLP Extension to install the required <i>cruisecontrol-antprogresslogger.jar</i>.
-        <p>
-        New optional <code>&lt;remoteResult&gt;</code> child tag, see <a href="index.html#distributed-elements">Child Elements</a> or details.
-        </p>
+        <h4><a name="2.7.2">v2.7.2</a></h4>
+        <p>The <code>ant</code> builder with <code>showProgress=true</code> issues (mentioned below in the <a href="#2.7.1">2.7.1 notes</a>) have been solved via the use of a JNLP Extension to install the required <i>cruisecontrol-antprogresslogger.jar</i>.</p>
+        <p>New optional <code>&lt;remoteResult&gt;</code> child tag, see <a href="index.html#distributed-elements">Child Elements</a> for details.</p>
         <p>
         Add <code>java.verson</code> to the list of automatically defined agent entries, as the existing <code>java.vm.version</code> shows the hotspot vm version in 1.6.0_04+
         </p>
-        <h4>v2.7.1</h4>
+        <h4><a name="2.7.1">v2.7.1</a></h4>
         The <code>ant</code> builder with <code>showProgress=true</code> has known issues when using Java Web Start 6.0 to deploy build agents. See <a href="index.html#advancedConfigWebStartAgents">Java Web Start deployment of build agents</a> for details/workarounds.
-        <h4>v2.7</h4>
+        <h4><a name="2.7">v2.7</a></h4>
         The <code>module</code> attribute has been removed, so you must remove it from your config.xml.
-        <h4>v2.6.2</h4>
+        <h4><a name="2.6.2">v2.6.2</a></h4>
         CCDist no longer uses the SelfConfiguringPlugin API, but instead takes advantage of Serializable Builders. Also, the <code>module</code> attribute is no longer used by the DistributedMasterBuilder. The Project Name is used instead (since the 'projectname' property is now passed into all Builder.build() calls). The <code>module</code> attribute is deprecated and will be removed in a future release, so you should remove it from your config.xml.
         <p>
         Build Agents now support the assignment of 'EntryOverrides' that can be set at runtime. see <a href="index.html#advancedConfigEntryOverrides">Advanced Configuration - Build Agent Entry Overrides</a> for details.
         </p>
-        <h4>v2.6.1</h4>
+        <h4><a name="2.6.1">v2.6.1</a></h4>
         The current version of the CruiseControl Distributed extensions (CCDist) has been updated to use the most recent version of Jini (v2.1). In an attempt to better organize the CCDist tree to support the new Jini, a problem was discovered with the packaging of CCDist in versions up to and including v2.6.
         Prior CCDist versions mistakenly included <b>reggie-dl.jar</b> in the <b>dist/agent/lib</b> directory. For the curious, the name of this jar (with the <b>-dl</b> ending) indicates this jar is intended to be served by the Jini Lookup Service (or registrar) and automagically <b>downloaded</b> by users of the Lookup Service (for example, a Build Agent, DistributedMasterBuilder, or anything else doing lookups to find services).
         Including <b>reggie-dl.jar</b> in a Build Agent's classpath results in the Agent never downloading new versions of classes in that jar from any Lookup Service. This leads to problems where CC 2.6 Agents and DistributedMasterBuilders can only register with CC 2.6 Lookup Services.
