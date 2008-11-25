@@ -82,6 +82,7 @@ esac
 
 LIBDIR=$CCDIR/lib
 LAUNCHER=$LIBDIR/cruisecontrol-launcher.jar
+JETTY_LOGS=$CCDIR/logs
 
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then
@@ -97,7 +98,7 @@ if [ `uname | grep -n CYGWIN` ]; then
   LAUNCHER=`cygpath --windows "$LAUNCHER"`
 fi
 
-EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -jar $LAUNCHER $@ -jmxport 8000 -webport 8080 -rmiport 1099"
+EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -Djetty.logs=$JETTY_LOGS -jar $LAUNCHER $@ -jmxport 8000 -webport 8080 -rmiport 1099"
 echo $EXEC
-$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder "-Dcc.library.dir=$LIBDIR" -jar "$LAUNCHER" $@ -jmxport 8000 -webport 8080 -rmiport 1099 &
+$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder "-Dcc.library.dir=$LIBDIR" "-Djetty.logs=$JETTY_LOGS" -jar "$LAUNCHER" $@ -jmxport 8000 -webport 8080 -rmiport 1099 &
 echo $! > cc.pid
