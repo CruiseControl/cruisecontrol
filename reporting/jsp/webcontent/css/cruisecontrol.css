@@ -52,7 +52,7 @@ a img {
 
 #menu form select {
     margin: 15px 5px 5px 13px;
-    width: 12em;
+    width: 11em;
 }
 
 #menu ul {
@@ -133,6 +133,7 @@ html>body #menu li h2 {
 
 
 .content {
+    float: left;
     margin: 0;
     padding: 0 1em 1em 17em;
 }
