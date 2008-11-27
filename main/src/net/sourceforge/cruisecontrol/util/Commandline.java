@@ -546,6 +546,11 @@ public class Commandline implements Cloneable {
         safeQuoting = safe;
     }
 
+    public void setWorkingDir(Directory directory) throws CruiseControlException {
+        directory.validate();
+        this.workingDir = directory.toFile();
+    }
+    
     /**
      * Sets execution directory
      */

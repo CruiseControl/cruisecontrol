@@ -8,6 +8,13 @@ binary release:
 ----------------------
 * Set jetty.logs to get CCDIR/logs. This prevents a Jetty error when you run CC from a somewhere other than CCDIR and the logs directory doesn't exist in the local directory.
 
+build loop
+======================
+
+XcodeBuilder
+----------------------
+* Add a new plugin for building projects in Apple's Xcode IDE.
+
 reporting jsp app
 ======================
 
