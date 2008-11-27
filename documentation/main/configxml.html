@@ -209,6 +209,7 @@
 <a href="#vssjournal">&lt;vssjournal&gt;</a>
 <a href="#weblogpublisher">&lt;weblog&gt;</a>
 <a href="#x10">&lt;x10&gt;</a>
+<a href="#xcode">&lt;xcode&gt;</a>
 <a href="#xsltlogpublisher">&lt;xsltlogpublisher&gt;</a>
 <a href="#yahoopublisher">&lt;yahoopublisher&gt;</a>
 &nbsp;
@@ -330,6 +331,7 @@
          <a href="#rake">&lt;rake/&gt;</a>
          <a href="#exec">&lt;exec/&gt;</a>
          <a href="#composite">&lt;composite/&gt;</a>
+         <a href="#xcode">&lt;xcode/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -5830,6 +5832,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>0 .. *</td>
                 <td>Builds the project using the ExecBuilder.</td>
             </tr>
+	        <tr>
+                <td><a href="#xcode">&lt;xcode&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Apple's Xcode IDE.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -6605,6 +6612,11 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Builds the project using the ExecBuilder.</td>
             </tr>
+	        <tr>
+                <td><a href="#xcode">&lt;xcode&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using Apple's Xcode IDE.</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -7259,6 +7271,60 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </ol>
         </div>
 
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="xcode">&lt;xcode&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;xcode&gt;</pre>
+        </div>
+
+        <p>Builds projects for Apple's Xcode IDE using the xcodebuild command-line tool.</p>
+
+        <h3><a name="xcode-attributes">Attributes</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>directory</td>
+                <td>Yes</td>
+                <td>Path the directory where xcodebuild will execute</td>
+            </tr>
+            <tr>
+                <td>multiple</td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td>time</td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr>
+                <td>day</td>
+                <td>No</td>
+                <td>Valid values are (case-insensitive) the English names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+	
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="log">&lt;log&gt;</a></h2>
