@@ -7765,10 +7765,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <h3>Properties Passed to the Publisher</h3>
 
-        <p>In addition to the standard CruiseControl <a href="#buildproperties">
-        properties</a>, <code>&lt;antpublisher&gt;</code> passes the following
-        properties to Ant, which can be accessed in your script like any other
-        property, using the syntax <code>${propertyname}</code>.
+        <p>The <code>&lt;antpublisher&gt;</code> passes <a href="#buildproperties">all of
+	the same properties</a>
+	that are passed by <a href="#ant">&lt;ant&gt;</a> and the other builders.
+        Those properties are augmented by <code>&lt;antpublisher&gt;</code>
+	to include the following additional properties:
         </p>
 
         <table class="documentation">
