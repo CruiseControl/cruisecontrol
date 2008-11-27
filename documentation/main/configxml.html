@@ -9063,12 +9063,12 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         <tr>
                             <td>url</td>
                             <td>Yes</td>
-                            <td>URL used to connect to an LDAP server</td>
+                            <td>URL used to connect to an LDAP server, e.g. ldap://ca.com:389</td>
                         </tr>
                         <tr>
                             <td>rootdn</td>
                             <td>Yes</td>
-                            <td/>
+                            <td>search DN, scope is sub-tree-level</td>
                         </tr>
                         <tr>
                             <td>binddn</td>
@@ -9083,7 +9083,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         <tr>
                             <td>searchtmpl</td>
                             <td>No</td>
-                            <td>Default: (cn=?). The ? character in the template is
+                            <td>Search filter. Default: (cn=?). The ? character in the template is
                             replaced by the user id to be mapped into an email address</td>
                         </tr>
                         <tr>
