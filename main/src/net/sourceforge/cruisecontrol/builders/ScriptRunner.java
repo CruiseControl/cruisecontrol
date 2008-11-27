@@ -116,7 +116,11 @@ public class ScriptRunner  {
 
         final Commandline commandline = script.buildCommandline();
 
-        commandline.setWorkingDir(workingDir);
+        if (workingDir != null) {
+            // TODO: workingDir should be set already by the script
+            // Remove workingDir parameter from the interface
+            commandline.setWorkingDir(workingDir);
+        }
 
         if (buildOutputConsumer != null) {
             buildOutputConsumer.clear();
@@ -173,8 +177,8 @@ public class ScriptRunner  {
 
         return !killer.processKilled();
     }
+    
+    public boolean runScript(Script script, long timeout, BuildOutputLogger logger) throws CruiseControlException {
+        return runScript(null, script, timeout, logger);
+    }
 }
-
-
-
-
