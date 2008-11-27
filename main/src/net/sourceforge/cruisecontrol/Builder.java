@@ -51,7 +51,6 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private int time = NOT_SET;
     private int multiple = 1;
     private boolean multipleSet = false;
-    private String group = "default";
     private boolean showProgress = true;
 
     /**
@@ -112,16 +111,6 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         }
         return multiple;
     }
-
-    // TODO: why do we have a group attribute? Remove?
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
 
     public void setShowProgress(final boolean showProgress) {
         this.showProgress = showProgress;
