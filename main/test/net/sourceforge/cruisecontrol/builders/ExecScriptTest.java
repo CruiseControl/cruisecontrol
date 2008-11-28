@@ -38,15 +38,17 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-public class ExecScriptTest extends TestCase {
+public class ExecScriptTest {
 
     private static String space = " ";
     private static String quote = "'";
 
+    @Test
     public void testGetCommandLineArgsWin() throws CruiseControlException {
         String testExecCmd = "dir";
         String[] simpleCmd = { testExecCmd };
@@ -60,6 +62,7 @@ public class ExecScriptTest extends TestCase {
         TestUtil.assertArray("detailedCmd", detailedCmd, script.buildCommandline().getCommandline());
     }
 
+    @Test
     public void testGetCommandLineArgsUnix() throws CruiseControlException {
         String testExecCmd = "/bin/sh";
         String testExecArg1 = "rm";
@@ -74,6 +77,7 @@ public class ExecScriptTest extends TestCase {
         TestUtil.assertArray("detailedCmd", testExecArr, script.buildCommandline().getCommandline());
     }
 
+    @Test
     public void testGetCommandLineArgsURL() throws CruiseControlException {
         String testExecCmd = "/bin/sh";
         String testExecArg1 = "svn";
