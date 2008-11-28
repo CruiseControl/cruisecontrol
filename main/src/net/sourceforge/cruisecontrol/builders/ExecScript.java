@@ -101,7 +101,7 @@ public class ExecScript implements Script, StreamConsumer {
     } // buildCommandLine
 
     /**
-     * Ugly parsing of Exec output into some Elements. Gets called from StreamPumper.
+     * StreamConsumer.consumeLine(String), Called from StreamPumper.
      * 
      * @param line
      *            the line of output to parse
@@ -111,39 +111,35 @@ public class ExecScript implements Script, StreamConsumer {
             return;
         }
 
-        synchronized (buildLogElement) {
-            // check if the output contains the error string
-            if (errorStr != null) {
-                // YES: set error flag
-                if (line.indexOf(errorStr) >= 0) {
-                    foundError = true;
-                    //write the error line in the log
-                    final Element msg = new Element("message");
-                    msg.addContent(new CDATA(line));
-                    msg.setAttribute("priority", "error");
-                    if (currentElement == null) {
-                        buildLogElement.addContent(msg);
-                    } else {
-                        currentElement.addContent(msg);
-                    }
-                }
-            } else {
-                // NO: just write the ouput to the log
-                final Element msg = new Element("message");
-                msg.addContent(new CDATA(line));
-                msg.setAttribute("priority", "info");
-                if (currentElement == null) {
-                    buildLogElement.addContent(msg);
-                } else {
-                    currentElement.addContent(msg);
-                }
-            }
+        Element message = null;
+        String messageLevel = "info";
+        if (errorStr != null && line.contains(errorStr)) {
+            foundError = true;
+            messageLevel = "error";
+            message = messageFromLine(line, messageLevel);
+        } else {
+            message = messageFromLine(line, messageLevel);
+        }
 
-            if (progress != null) {
-                progress.setValue(line);
+        synchronized (buildLogElement) {
+            if (currentElement == null) {
+                buildLogElement.addContent(message);
+            } else {
+                currentElement.addContent(message);
             }
         }
-    } // consumeLine
+
+        if (progress != null) {
+            progress.setValue(line);
+        }
+    }
+
+    private Element messageFromLine(final String line, String level) {
+        final Element msg = new Element("message");
+        msg.addContent(new CDATA(line));
+        msg.setAttribute("priority", level);
+        return msg;
+    }
 
     /**
      * flush the current log element
