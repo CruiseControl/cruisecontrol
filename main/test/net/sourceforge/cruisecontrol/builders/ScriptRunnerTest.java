@@ -1,21 +1,35 @@
 package net.sourceforge.cruisecontrol.builders;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import java.io.File;
-import java.io.ByteArrayInputStream;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Dan Rollo
  * Date: Jul 23, 2008
  * Time: 4:33:27 PM
  */
-public class ScriptRunnerTest extends TestCase {
+public class ScriptRunnerTest {
 
+    @Before
+    public void setUp() {
+        final File expectedAntBuilderLog = new File(TestUtil.getTargetDir(), AntOutputLogger.DEFAULT_OUTFILE_NAME);
+        if (expectedAntBuilderLog.exists()) {
+            assertTrue(expectedAntBuilderLog.delete());
+        }
+    }
+
+    @Test
     public void testDoNotCreateAntOutputLoggerFile() throws Exception {
 
         final MockCommandline mockCommandline = new MockCommandline();
