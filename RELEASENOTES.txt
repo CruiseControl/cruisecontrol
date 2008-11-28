@@ -15,6 +15,10 @@ documentation
 build loop
 ======================
 
+ExecBuilder
+----------------------
+* Fix bug where setting errorStr would prevent output from showing up in build log. Reported by Florian Rosenauer
+
 XcodeBuilder
 ----------------------
 * Add a new plugin for building projects in Apple's Xcode IDE.

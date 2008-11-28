@@ -36,8 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.File;
+import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.util.List;
+
+import org.jdom.Element;
 import org.junit.Test;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -92,6 +96,53 @@ public class ExecScriptTest {
 
         TestUtil.assertArray("detailedCmd", testExecArr, script.buildCommandline().getCommandline());
     }
+    
+    @Test
+    public void consumeLineShouldReturnMessages() {
+        ExecScript script = new ExecScript();
+        Element log = new Element("build");
+        script.setBuildLogElement(log);
+        script.consumeLine("hello world");
+        List children = log.getChildren();
+        assertEquals(1, children.size());
+
+        Element child = (Element) children.get(0);
+        assertEquals("message", child.getName());
+        assertEquals("info", child.getAttributeValue("priority"));
+        assertEquals("hello world", child.getText());
+    }
+    
+    @Test
+    public void consumeLineShouldReturnErrorMessagesWhenErrorStrSet() {
+        ExecScript script = new ExecScript();
+        Element log = new Element("build");
+        script.setBuildLogElement(log);
+        script.setErrorStr("foo");
+        script.consumeLine("foo bar");
+        List children = log.getChildren();
+        assertEquals(1, children.size());
+
+        Element child = (Element) children.get(0);
+        assertEquals("message", child.getName());
+        assertEquals("error", child.getAttributeValue("priority"));
+        assertEquals("foo bar", child.getText());        
+    }
+    
+    @Test
+    public void consumeLineShouldReturnMessagesWithErrorStrSet() {
+        ExecScript script = new ExecScript();
+        Element log = new Element("build");
+        script.setBuildLogElement(log);
+        script.setErrorStr("foo");
+        script.consumeLine("hello world");
+        List children = log.getChildren();
+        assertEquals(1, children.size());
+
+        Element child = (Element) children.get(0);
+        assertEquals("message", child.getName());
+        assertEquals("info", child.getAttributeValue("priority"));
+        assertEquals("hello world", child.getText());
+    }
 
     private ExecScript createExecScript(String testExecCmd, String testExecArgs) {
         ExecScript script = new ExecScript();
@@ -101,4 +152,5 @@ public class ExecScriptTest {
 
         return script;
     }
+    
 }
