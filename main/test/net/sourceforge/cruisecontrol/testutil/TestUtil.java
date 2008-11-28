@@ -90,8 +90,6 @@ public final class TestUtil {
             Assert.assertTrue("Unit test 'target' does not exist: " + absPath, targetDir.exists());
             Assert.assertEquals("Unit test 'target' dir has unexpected name: " + absPath,
                     "target", targetDir.getName());
-            Assert.assertEquals("Unit test 'target' dir in unexpected location: " + absPath,
-                    "main", targetDir.getParentFile().getName());
         }
         return targetDir;
     }
