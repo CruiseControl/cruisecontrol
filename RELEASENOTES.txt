@@ -27,6 +27,11 @@ cruisecontrol.css
 * Fix width of the selection controls in the menu
 * Fix problem in IE where content was shifted off screen to the right (CC-869). Patch by Florian Rosenauer
 
+navigation.jsp
+----------------------
+* Fix problem with width of the status messages by putting them in a text area
+
+
 CruiseControl Release Notes - 2.8
 
 general
