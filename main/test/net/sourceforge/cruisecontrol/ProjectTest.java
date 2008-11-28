@@ -790,12 +790,16 @@ public class ProjectTest {
         final String cctimestamp = DateUtil.getFormattedTime(now.getTime());
         final Map<String, String> map = project.getProjectPropertiesMap(now.getTime());
 
+        assertEquals(project.getName(), map.get("projectname"));
         assertEquals(label, map.get("label"));
         assertEquals(cctimestamp, map.get("cctimestamp"));
         assertEquals(lastGoodBuild, map.get("cclastgoodbuildtimestamp"));
         assertEquals(lastBuild, map.get("cclastbuildtimestamp"));
         assertEquals("true", map.get("lastbuildsuccessful"));
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
+        assertEquals(String.valueOf(project.getBuildForced()), map.get("buildforced"));
+
+        assertEquals(8, map.keySet().size());    
     }
 
     @Test
