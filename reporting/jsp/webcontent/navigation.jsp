@@ -53,7 +53,7 @@
     <%
     } 
  %>
-            <li><p><cruisecontrol:currentbuildstatus/></p></li>
+            <li><textarea rows="5" readonly="true"><cruisecontrol:currentbuildstatus/></textarea></li>
 
             <cruisecontrol:link id="baseUrl" />
             <li><a href="<%=baseUrl%>">Latest Build</a></li>

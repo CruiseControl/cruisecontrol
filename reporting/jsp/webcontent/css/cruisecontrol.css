@@ -55,6 +55,11 @@ a img {
     width: 11em;
 }
 
+#menu li textarea {
+    margin: 15px 5px 5px 13px;
+    width: 11em;
+}
+
 #menu ul {
     list-style: none;
     padding: 0;
