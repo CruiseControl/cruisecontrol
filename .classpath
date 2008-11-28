@@ -14,6 +14,8 @@
 	<classpathentry kind="src" path="reporting/jsp/src"/>
 	<classpathentry kind="src" path="reporting/jsp/test"/>
 	<classpathentry kind="src" path="webtest"/>
+	<classpathentry kind="src" path="main/loggers/src"/>
+	<classpathentry kind="src" path="main/loggers/test"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-core/jini-core.jar"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-core/jini-ext.jar"/>
 	<classpathentry kind="lib" path="contrib/distributed/jini-lib-dl/jsk-dl.jar"/>

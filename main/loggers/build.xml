@@ -1,0 +1,61 @@
+<project name="loggers" default="dist">
+
+  <path id="class.path">
+    <fileset dir="../lib" includes="*.jar" />
+  </path>
+
+  <target name="dist" depends="clean, compile, test, jar"/>
+
+  <target name="clean">
+    <delete dir="target"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="target/classes"/>
+    <javac srcdir="src" destdir="target/classes" classpathref="class.path" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4"/>
+
+    <mkdir dir="target/test-classes"/>
+    <javac srcdir="test" destdir="target/test-classes" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4">
+      <classpath>
+        <path refid="class.path"/>
+        <pathelement location="target/classes"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="test">
+    <mkdir dir="target/test-results"/>
+    <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="target" failureproperty="test.failed">
+      <classpath>
+        <path refid="class.path"/>
+        <pathelement location="target/classes"/>
+        <pathelement location="target/test-classes"/>
+      </classpath>
+      <formatter type="brief" usefile="false" />
+      <formatter type="xml" />
+      <batchtest todir="target/test-results">
+        <fileset dir="target/test-classes" includes="**/*Test.class"/>
+      </batchtest>
+    </junit>
+
+    <mkdir dir="target/test-report"/>
+    <junitreport todir="target/test-report">
+      <fileset dir="target/test-results">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="target/test-report"/>
+    </junitreport>
+
+    <fail if="test.failed"/>
+  </target>
+
+  <target name="jar">
+    <mkdir dir="target/dist"/>
+    <jar destfile="target/dist/cruisecontrol-antprogresslogger.jar" basedir="target/classes">
+      <manifest>
+        <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
+      </manifest>
+    </jar>
+  </target>
+
+</project>
