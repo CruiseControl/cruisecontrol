@@ -85,6 +85,7 @@
         <!-- ant.jar is also needed to compile the ArtifactsPublisher,
              but is added automatically to the javac classpath -->
         <fileset dir="../binaryrelease/lib" includes="jetty-*.jar" />
+        <pathelement location="dist/cruisecontrol-antprogresslogger.jar"/>
     </path>
 
     <path id="project.runtime.classpath">
@@ -205,7 +206,7 @@
         <attribute name="excludes" default="" />
         <element implicit="true" name="nested" optional="true" />
         <sequential>
-            <junit fork="true" forkmode="perBatch" haltonfailure="true" printsummary="true" dir="${target}">
+            <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="${target}" failureproperty="test.failed">
                 <classpath>
                     <path refid="project.runtime.classpath" />
                 </classpath>
@@ -224,6 +225,16 @@
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
         </test-macro>
+
+        <mkdir dir="target/test-report"/>
+        <junitreport todir="target/test-report">
+          <fileset dir="${junit.results}">
+            <include name="TEST-*.xml"/>
+          </fileset>
+          <report format="frames" todir="target/test-report"/>
+        </junitreport>
+
+        <fail if="test.failed"/>
     </target>
     
     
@@ -247,7 +258,7 @@
             <manifest>
                 <attribute name="Main-Class" value="CruiseControl" />
             </manifest>
-            <fileset dir="${classes}" excludes="**/launch/**,**/builders/AntProgress*.class,**/builders/AntOutputLogger.class" />
+            <fileset dir="${classes}" />
             <fileset dir="${xsl}" />
             <manifest>
                 <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
@@ -258,13 +269,6 @@
                 <attribute name="Main-Class" value="net.sourceforge.cruisecontrol.launch.Launcher" />
             </manifest>
             <fileset dir="${classes}" includes="**/launch/**" />
-        </jar>
-        <jar jarfile="${dist}/cruisecontrol-antprogresslogger.jar">
-            <fileset dir="${classes}" includes="**/builders/AntProgress*.class" />
-            <fileset dir="${classes}" includes="**/builders/AntOutputLogger.class" />
-            <manifest>
-                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
-            </manifest>
         </jar>
     </target>
 
@@ -301,7 +305,7 @@
         </checkstyle-macro>
     </target>
 
-    <target name="all" depends="init, compile, checkstyle, test, functional-test, jar" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init, logger.jar, compile, checkstyle, test, functional-test, jar" description="Performs a build, runs tests, and builds jar" />
 
     <target name="dist" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
@@ -313,6 +317,10 @@
         </exec>
     </target>
 
+    <target name="logger.jar">
+        <ant dir="loggers"/>
+        <copy file="loggers/target/dist/cruisecontrol-antprogresslogger.jar" todir="dist"/>
+    </target>
 
     <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
      allow running on other jars (reporting, distcc, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->

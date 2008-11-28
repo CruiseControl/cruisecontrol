@@ -15,6 +15,10 @@ documentation
 build loop
 ======================
 
+AntBuilder
+----------------------
+* Fix issue where loggers didn't run under JDK 1.4. Reported by David Williams
+
 ExecBuilder
 ----------------------
 * Fix bug where setting errorStr would prevent output from showing up in build log. Reported by Florian Rosenauer
