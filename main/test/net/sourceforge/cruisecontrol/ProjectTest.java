@@ -36,6 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,11 +55,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.List;
 
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
@@ -60,8 +66,8 @@ import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
 import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
-import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -69,8 +75,11 @@ import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ProjectTest extends TestCase {
+public class ProjectTest {
 
     private static final Logger LOG = Logger.getLogger(ProjectTest.class);
 
@@ -80,7 +89,8 @@ public class ProjectTest extends TestCase {
     private ProjectConfig projectConfig;
     private final FilesToDelete filesToDelete = new FilesToDelete();
 
-    protected void setUp() throws CruiseControlException {
+    @Before
+    public void setUp() throws CruiseControlException {
         project = new Project();
         project.setName("TestProject");
 
@@ -92,6 +102,7 @@ public class ProjectTest extends TestCase {
         Logger.getLogger(Project.class).setLevel(Level.INFO);
     }
 
+    @After
     public void tearDown() {
         project.stop();
         project = null;
@@ -104,6 +115,7 @@ public class ProjectTest extends TestCase {
         filesToDelete.delete();
     }
 
+    @Test
     public void testNotifyListeners() {
         MockListener listener = new MockListener();
         ProjectConfig.Listeners listeners = new ProjectConfig.Listeners();
@@ -117,6 +129,7 @@ public class ProjectTest extends TestCase {
         assertTrue(listener.wasNotified());
     }
 
+    @Test
     public void testBuild() throws CruiseControlException, IOException {
         final Date now = new Date();
         final MockModificationSet modSet = new MockModificationSet();
@@ -239,6 +252,7 @@ public class ProjectTest extends TestCase {
         assertTrue("Should have at least one of each project state except queued", progressEvents.size() >= 8);
     }
 
+    @Test
     public void testBuildShouldThrowExceptionWhenNoConfig() throws CruiseControlException {
         project = new Project();
         try {
@@ -252,6 +266,7 @@ public class ProjectTest extends TestCase {
         project.build();
     }
 
+    @Test
     public void testBuildRequiresSchedule() throws CruiseControlException {
         MockProject mockProject = new MockProject() {
             public void run() {
@@ -278,6 +293,7 @@ public class ProjectTest extends TestCase {
     /*
      * With forceonly true, the build should not be called even with a modification
      */
+    @Test
     public void testBuild_forceOnly() throws CruiseControlException {
         MockProject mockProject = new MockProject() {
             public void run() {
@@ -304,7 +320,7 @@ public class ProjectTest extends TestCase {
         }
     }
 
-
+    @Test
     public void testBuildWithMinimumConfig() throws CruiseControlException {
         Schedule schedule = new Schedule();
         schedule.add(new MockBuilder());
@@ -323,6 +339,7 @@ public class ProjectTest extends TestCase {
      * and the config.xml gets reloaded while a project is building. This was
      * causing NPEs but has now been fixed.
      */
+    @Test
     public void testBuildWithNewProjectConfigDuringBuild() throws CruiseControlException {
         projectConfig = new ProjectConfig() {
             Project readProject(String projectName) {
@@ -347,6 +364,7 @@ public class ProjectTest extends TestCase {
         project.build();
     }
 
+    @Test
     public void testBadLabel() {
         try {
             project.validateLabel("build_0", projectConfig.getLabelIncrementer());
@@ -355,6 +373,7 @@ public class ProjectTest extends TestCase {
         }
     }
 
+    @Test
     public void testPublish() throws CruiseControlException {
         MockSchedule sched = new MockSchedule();
         projectConfig.add(sched);
@@ -384,6 +403,7 @@ public class ProjectTest extends TestCase {
         assertEquals(2, publisher.getPublishCount());
     }
 
+    @Test
     public void testSetLastBuild() throws CruiseControlException {
         String lastBuild = "20000101120000";
 
@@ -392,6 +412,7 @@ public class ProjectTest extends TestCase {
         assertEquals(lastBuild, project.getLastBuild());
     }
 
+    @Test
     public void testNullLastBuild() throws CruiseControlException {
         try {
             project.setLastBuild(null);
@@ -400,6 +421,7 @@ public class ProjectTest extends TestCase {
         }
     }
 
+    @Test
     public void testBadLastBuild() {
         try {
             project.setLastBuild("af32455432");
@@ -408,10 +430,12 @@ public class ProjectTest extends TestCase {
         }
     }
 
+    @Test
     public void testGetFormattedTime() {
         assertNull(DateUtil.getFormattedTime(null));
     }
 
+    @Test
     public void testGetModifications() {
         MockModificationSet modSet = new MockModificationSet();
         Element modifications = modSet.retrieveModificationsAsElement(null, null);
@@ -429,12 +453,14 @@ public class ProjectTest extends TestCase {
         // TODO: need tests for when lastBuildSuccessful = false
     }
 
+    @Test
     public void testGetModifications_NoModificationElementRequired() {
         assertNull(project.getModifications(false));
         project.setBuildForced(true);
         assertNotNull(project.getModifications(true));
     }
     
+    @Test
     public void testGetModifications_NoModificationElementAndRequireModificationsFalse() {
         assertNull(project.getModifications(false));
         projectConfig.setRequiremodification(false);
@@ -442,6 +468,7 @@ public class ProjectTest extends TestCase {
         assertNotNull(project.getModifications(false));        
     }
 
+    @Test
     public void testGetModifications_requireModificationsTrue() {
         MockModificationSet modSet = new MockModificationSet();
 //        Element modifications = modSet.getModifications(null);
@@ -453,6 +480,7 @@ public class ProjectTest extends TestCase {
         assertNull(project.getModifications(false));
     }
 
+    @Test
     public void testGetModifications_requireModificationsFalse() {
         MockModificationSet modSet = new MockModificationSet();
 //        Element modifications = modSet.getModifications(null);
@@ -464,6 +492,7 @@ public class ProjectTest extends TestCase {
         assertNotNull(project.getModifications(false));
     }
 
+    @Test
     public void testCheckOnlySinceLastBuild() throws CruiseControlException {
 
         project.setLastBuild("20030218010101");
@@ -483,6 +512,7 @@ public class ProjectTest extends TestCase {
         assertEquals(false, project.checkOnlySinceLastBuild());
     }
 
+    @Test
     public void testWaitIfPaused() throws InterruptedException, CruiseControlException {
         MockProject mockProject = new MockProject() {
             public void run() {
@@ -521,6 +551,7 @@ public class ProjectTest extends TestCase {
         mockProject.stopLooping();
     }
 
+    @Test
     public void testWaitForNextBuild() throws InterruptedException, CruiseControlException {
         projectConfig.add(new MockSchedule());
 
@@ -552,6 +583,7 @@ public class ProjectTest extends TestCase {
         mockProject.stopLooping();
     }
 
+    @Test
     public void testWaitForBuildToFinish() throws InterruptedException {
         MockProject mockProject = new MockProject() {
             public void run() {
@@ -578,12 +610,14 @@ public class ProjectTest extends TestCase {
         mockProject.stopLooping();
     }
 
+    @Test
     public void testNeedToWait() {
         assertTrue(Project.needToWaitForNextBuild(1));
         assertFalse(Project.needToWaitForNextBuild(0));
         assertFalse(Project.needToWaitForNextBuild(-1));
     }
 
+    @Test
     public void testToString() {
         project.setName("foo");
         assertEquals("Project foo: stopped", project.toString());
@@ -591,6 +625,7 @@ public class ProjectTest extends TestCase {
         assertEquals("Project foo: stopped (paused)", project.toString());
     }
 
+    @Test
     public void testInitShouldThrowExceptionWhenConfigNotSet() throws CruiseControlException {
         project = new Project();
         try {
@@ -604,6 +639,7 @@ public class ProjectTest extends TestCase {
         project.init();
     }
 
+    @Test
     public void testSerialization() throws IOException {
         ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
         ObjectOutputStream objects = new ObjectOutputStream(outBytes);
@@ -617,6 +653,7 @@ public class ProjectTest extends TestCase {
         project.serializeProject();
     }
 
+    @Test
     public void testDeserialization() throws Exception {
         File f = new File("test.ser");
         filesToDelete.add(f);
@@ -646,6 +683,7 @@ public class ProjectTest extends TestCase {
         });
     }
 
+    @Test
     public void testStartAfterDeserialization() throws Exception {
         TestProject beforeSerialization = new TestProject();
         projectConfig.add(new MockSchedule());
@@ -680,12 +718,14 @@ public class ProjectTest extends TestCase {
         assertTrue("failed to create schedule thread", deserializedProject.wasCreateNewSchedulingThreadCalled());
     }
 
+    @Test
     public void testProgressDefault() throws Exception {
         TestProject testProject = new TestProject();
         assertNotNull(testProject.getProgress());
         assertNotNull(testProject.getProgress().getValue());
     }
 
+    @Test
     public void testBuildForcedAfterSuccessfulBuild() throws Exception {
         projectConfig.add(new MockSchedule());
 
@@ -728,6 +768,7 @@ public class ProjectTest extends TestCase {
         assertFalse("buildForced should be false after deserialization", deserializedProject.isBuildForced());
     }
 
+    @Test
     public void testGetProjectPropertiesMap() throws CruiseControlException {
         final String label = "labeL.1";
         project.setLabel(label);
@@ -757,6 +798,7 @@ public class ProjectTest extends TestCase {
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
     }
 
+    @Test
     public void testGetTimeToNextBuild_AfterShortBuild() {
         Schedule schedule = new Schedule();
         MockBuilder noonBuilder = new MockBuilder();
