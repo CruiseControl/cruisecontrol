@@ -159,17 +159,17 @@ time to build
                     <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
                 </tr>
                 <tr>
-                    <td>-dashboardurl&nbsp;<i>[dashboard&nbsp;url]</i></td>
+                    <td>-dashboardurl&nbsp;<i>url</i></td>
                     <td>No</td>
                     <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
                 </tr>
                 <tr>
-                    <td>-postinterval&nbsp;<i>[interval&nbsp;number]</i></td>
+                    <td>-postinterval&nbsp;<i>[number]</i></td>
                     <td>No</td>
                     <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
                 </tr>
                 <tr>
-                    <td>-postenabled&nbsp;<i>[true/false]</i></td>
+                    <td>-postenabled&nbsp;<i>[true|false]</i></td>
                     <td>No</td>
                     <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
                 </tr>
@@ -185,6 +185,11 @@ time to build
                     <td>No</td>
                     <td>Print the command line usage information.</td>
                 </tr>
+                <tr>
+                    <td>-log4jconfig&nbsp;<i>url</i></td>
+                    <td>No</td>
+                    <td>URL to a log4j config (example: "file:/c:/mylog4j.xml")</td>
+                </tr>
             </tbody>
         </table>
 
@@ -197,6 +202,11 @@ time to build
             </tr></thead>
             <tbody>
                 <tr>
+                  <td>-agentutil&nbsp;<i>[true|false]</i></td>
+                    <td>No</td>
+                    <td>Load JMX Build Agent utility; default is true.</td>
+                </tr>
+		<tr>
                   <td>-jmxport&nbsp;<i>[port&nbsp;number]</i></td>
                     <td>No</td>
                     <td>Port number for the JMX HTTP adapter.  This will activate
@@ -257,6 +267,11 @@ time to build
                 <th>Description</th>
             </tr></thead>
             <tbody>
+                <tr>
+                    <td>-jettyxml&nbsp;<i>filename</i></td>
+                    <td>No</td>
+                    <td>Jetty configuration xml. Defaults to "jetty.xml".</td>
+                </tr>
                 <tr>
                     <td>-webport&nbsp;<i>port</i></td>
                     <td>No</td>
