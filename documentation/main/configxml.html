@@ -5740,8 +5740,10 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         time based builds.  </p>
 
         <p><b>Note:</b> Only one builder is used for a given interval
-        where modifications are found. Builds using the time attribute
-        take precedence over builds using the multiple attribute. If
+        where modifications are found. Builds using the <a
+        href="#buildertime"><code>time</code></a> attribute take
+        precedence over builds using the <a
+        href="#buildermultiple"><code>multiple</code></a> attribute. If
         no matching time builds are found the multiple builds are
         evaluated <em>by the value of their multiple from high to
         low</em>. If there are multiple Builders with the same
@@ -5844,7 +5846,40 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             </tbody>
         </table>
 
-        <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
+        <h3><a name="builderattributes">Common Builder Attributes</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a name="buildermultiple">multiple</a></td>
+                <td>No</td>
+                <td>Build index used to run different builders.  For example,
+                if this is set to 3, the builder will be run every 3 builds.
+                Default value is 1. Can't be set if time is set.</td>
+            </tr>
+            <tr>
+                <td><a name="buildertime">time</a></td>
+                <td>No</td>
+                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
+            </tr>
+            <tr>
+                <td><a name="builderday">day</a></td>
+                <td>No</td>
+                <td>Valid values are (case-insensitive) the English names for
+                the days of the week (Sunday, Monday, Tuesday, etc). Does not
+                support multiple days except for the default of every day.</td>
+            </tr>
+            </tbody>
+        </table>
+
+	<h3><a name="buildproperties">Properties Passed to Builders</a></h3>
 
         <p>When CruiseControl runs your build script (e.g. Ant, Maven), it passes
         some information in the form of system properties to the script. These
@@ -5966,7 +6001,10 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
         <h3><a name="ant-attributes">Attributes</a></h3>
 
-        <table class="documentation">
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
+	<table class="documentation">
             <thead>
             <tr>
                 <th>Attribute</th>
@@ -5985,25 +6023,6 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Ant target(s) to run. Default is "", or the default target
                 for the build file.</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>tempfile</td>
@@ -6287,6 +6306,9 @@ endlocal</pre>
 
         <h3>Attributes</h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -6312,25 +6334,6 @@ endlocal</pre>
                <td>Yes</td>
                <td>Maven goal, "set of goals" or "set of set of goals" to run.
                (see above Note2)</td>
-            </tr>
-            <tr>
-               <td>multiple</td>
-               <td>No</td>
-               <td>Build index used to run different builders.  For example,
-               if this is set to 3, the builder will be run every 3 builds.
-               Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-               <td>time</td>
-               <td>No</td>
-               <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-               <td>day</td>
-               <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>timeout</td>
@@ -6395,6 +6398,9 @@ endlocal</pre>
 
         <h3>Attributes</h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -6441,25 +6447,6 @@ endlocal</pre>
                <td>Command line flags to be passed to maven. For example:
                '-U -Dmaven.test.skip=true'. The flags will be passed to each session
                invocation (see <a href="#maven2-session-note">Sessions</a> note above).</td>
-            </tr>
-            <tr>
-               <td>multiple</td>
-               <td>No</td>
-               <td>Build index used to run different builders.  For example,
-               if this is set to 3, the builder will be run every 3 builds.
-               Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-               <td>time</td>
-               <td>No</td>
-               <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-               <td>day</td>
-               <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>timeout</td>
@@ -6524,6 +6511,9 @@ endlocal</pre>
 
         <h3>Attributes</h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -6533,25 +6523,6 @@ endlocal</pre>
             </tr>
             </thead>
             <tbody>
-            <tr>
-               <td>multiple</td>
-               <td>No</td>
-               <td>Build index used to run different builders.  For example,
-               if this is set to 3, the builder will be run every 3 builds.
-               Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-               <td>time</td>
-               <td>No</td>
-               <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-               <td>day</td>
-               <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
-            </tr>
             <tr>
                 <td>timeout</td>
                 <td>No</td>
@@ -6710,6 +6681,9 @@ endlocal</pre>
 
         <h3>Attributes</h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -6729,25 +6703,6 @@ endlocal</pre>
                 <td>No</td>
                 <td>NAnt target(s) to run. Default is "", or the default target
                 for the build file.</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>tempfile</td>
@@ -6898,6 +6853,9 @@ endlocal</pre>
 
         <h3><a name="phing-attributes">Attributes</a></h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -6917,25 +6875,6 @@ endlocal</pre>
                 <td>No</td>
                 <td>Phing target(s) to run. Default is "", or the default target
                 for the build file.</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>tempfile</td>
@@ -7088,6 +7027,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <h3><a name="rake-attributes">Attributes</a></h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -7110,25 +7052,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>No</td>
                 <td>Rake target(s) to run. Default is "", or the default target
                 for the rake file.</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>workingDir</td>
@@ -7178,6 +7101,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <h3>Attributes</h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -7209,25 +7135,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>String which is to be searched for in the output of the
                 command or script. If it is found then the build will return
                 an error.</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             <tr>
                 <td>timeout</td>
@@ -7291,6 +7198,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <h3><a name="xcode-attributes">Attributes</a></h3>
 
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+	
         <table class="documentation">
             <thead>
             <tr>
@@ -7304,25 +7214,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>directory</td>
                 <td>Yes</td>
                 <td>Path the directory where xcodebuild will execute</td>
-            </tr>
-            <tr>
-                <td>multiple</td>
-                <td>No</td>
-                <td>Build index used to run different builders.  For example,
-                if this is set to 3, the builder will be run every 3 builds.
-                Default value is 1. Can't be set if time is set.</td>
-            </tr>
-            <tr>
-                <td>time</td>
-                <td>No</td>
-                <td>Time in the form HHmm. Can't be set if multiple is set.</td>
-            </tr>
-            <tr>
-                <td>day</td>
-                <td>No</td>
-                <td>Valid values are (case-insensitive) the English names for
-                the days of the week (Sunday, Monday, Tuesday, etc). Does not
-                support multiple days except for the default of every day.</td>
             </tr>
             </tbody>
         </table>
