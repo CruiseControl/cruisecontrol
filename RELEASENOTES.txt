@@ -12,6 +12,7 @@ documentation
 ----------------------
 * Add more explaination to ldapmapper (CC-870). Patch by Florian Rosenauer
 * Add missing docs for command-line options log4jconfig, jettyxml, agentutil. Reported by David Williams
+* Clairfiy that cclastgoodbuildtimestamp and cclastbuildtimestamp are only available if there has been a prior build (CC-193). Reported by Clifton McLellan
 
 build loop
 ======================

@@ -5919,12 +5919,14 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>cclastgoodbuildtimestamp</td>
                 <td>Timestamp that indicates when the last successful build was
-                run, using the format <code>yyyyMMddHHmmss</code></td>
+                run, using the format <code>yyyyMMddHHmmss</code>. Only available
+		if the project has previously built successfullly.</td>
             </tr>
             <tr>
                 <td>cclastbuildtimestamp</td>
                 <td>Timestamp that indicates when the last build was run, using
-                the format <code>yyyyMMddHHmmss</code></td>
+                the format <code>yyyyMMddHHmmss</code>. Only available if the
+		project has built prevviously.</td>
             </tr>
             <tr>
                 <td>lastbuildsuccessful</td>
