@@ -85,8 +85,12 @@ public class XcodeBuilder extends Builder implements Script {
     @Override
     public Element buildWithTarget(Map<String, String> properties, String target, Progress progress)
             throws CruiseControlException {
-        // TODO: add target support
-        return build(properties, progress);
+        arguments.overrideTarget(target);
+        try {
+            return build(properties, progress);
+        } finally {
+            arguments.resetTarget();
+        }
     }
 
     @Override
@@ -241,11 +245,37 @@ public class XcodeBuilder extends Builder implements Script {
     
     class Arguments {
         private List<Arg> args = new ArrayList();
+        private Arg overrideTarget;
+        private Arg originalTarget;
 
         public Arg createArg() {
             Arg arg = new Arg();
             args.add(arg);
             return arg;
+        }
+
+        public void resetTarget() {
+            args.remove(overrideTarget);
+            if (originalTarget != null) {
+              args.add(originalTarget);
+              originalTarget = null;
+            }
+        }
+
+        public void overrideTarget(String string) {
+            saveOriginalTarget();
+            overrideTarget = createArg();
+            overrideTarget.setValue("-target " + string);
+        }
+
+        private void saveOriginalTarget() {
+            for (final Arg arg : args) {
+                if (arg.value.startsWith("-target ")) {
+                    originalTarget = arg;
+                    args.remove(arg);
+                    break;
+                }
+            }
         }
 
         public void validate() throws CruiseControlException {
