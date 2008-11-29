@@ -7226,6 +7226,29 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </table>
         </div>
 
+        <h3><a name="xcode-elements">Child Elements</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>&lt;arg&gt;</td>
+                <td>0 .. *</td>
+                <td>Pass specified argument to xcodebuild. The element
+                has the required attribute: value. Any of the <a
+                href="#buildproperties">properties passed to
+                builders</a> can be substituted into the
+                value. Example: <code>&lt;arg value="-project
+                ${projectname}"/&gt;</code>.</td>
+            </tr>
+            </tbody>
+        </table>
 	
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
