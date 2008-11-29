@@ -26,6 +26,8 @@ public class XcodeBuilder extends Builder implements Script {
     Directory directory = new Directory();
     private int exitCode = -1;
     private boolean hitBuildFailedMessage;
+    private long timeout = ScriptRunner.NO_TIMEOUT;
+    private boolean buildTimedOut;
     
     @Override
     public Element build(Map<String, String> properties, Progress progress) throws CruiseControlException {
@@ -36,15 +38,20 @@ public class XcodeBuilder extends Builder implements Script {
 
     private void runScript(OutputFile file) throws CruiseControlException {
         LOG.info("starting build");
-        new ScriptRunner().runScript(this, -1, file.getBuildOutputLogger());
-        LOG.info("build finished");
+        boolean finished = createScriptRunner().runScript(this, timeout, file.getBuildOutputLogger());
+        buildTimedOut = !finished;
+        LOG.info("build finished with exit code " + exitCode);
+    }
+
+    ScriptRunner createScriptRunner() {
+        return new ScriptRunner();
     }
 
     OutputFile createOutputFile(Directory d, String filename) {
         return new OutputFile(d, filename);
     }
 
-    private Element elementFromFile(OutputFile file) {
+    Element elementFromFile(OutputFile file) {
         hitBuildFailedMessage = false;
         
         Element build = new Element("build");
@@ -58,6 +65,8 @@ public class XcodeBuilder extends Builder implements Script {
 
         if (hitBuildFailedMessage) {
             build.setAttribute("error", "** BUILD FAILED **");
+        } else if (timeout != ScriptRunner.NO_TIMEOUT && buildTimedOut) {
+            build.setAttribute("error", "build timed out");
         }
         
         return build;
@@ -142,7 +151,11 @@ public class XcodeBuilder extends Builder implements Script {
         return target;
     }
 
-    class OutputFile {
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
+    }
+    
+    static class OutputFile {
         private File file;
         private BufferedReader reader;
         private String nextLine;

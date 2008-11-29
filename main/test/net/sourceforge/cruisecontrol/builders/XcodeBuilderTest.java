@@ -6,7 +6,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Directory;
 
@@ -119,8 +125,92 @@ public class XcodeBuilderTest {
         assertMessageAtLevel(COMMANDS_FAILED_LINE, e, "error");        
     }
     
+    @Test
+    public void timeoutShouldBePassedToScriptRunner() throws CruiseControlException {
+        final Called runScript = new Called();
+        final ScriptRunner runner = new ScriptRunner() {
+            @Override
+            public boolean runScript(Script script, long timeout, BuildOutputLogger logger)
+                  throws CruiseControlException {
+                runScript.called = true;
+                runScript.with = String.valueOf(timeout);
+                return true;
+            }
+        };
+        builder = new XcodeBuilder() {
+            @Override
+            ScriptRunner createScriptRunner() {
+                return runner;
+            }
+            
+            @Override
+            Element elementFromFile(OutputFile file) {
+                return null;
+            }
+        };
+        
+        builder.setTimeout(515);
+        builder.build(null, null);
+        assertTrue(runScript.called);
+        assertEquals("515", runScript.with);
+    }
+    
+    @Test
+    public void timingOutShouldResultInFailedBuild() throws CruiseControlException {
+        final MockOutputFile outputFile = new MockOutputFile(new Directory(), ".");
+        outputFile.lines.add("hello world");
+        
+        final ScriptRunner runner = new ScriptRunner() {
+            @Override
+            public boolean runScript(Script script, long timeout, BuildOutputLogger logger)
+                  throws CruiseControlException {
+                return false; // returned when timeout happens
+            }
+        };
+        builder = new XcodeBuilder() {
+            @Override
+            ScriptRunner createScriptRunner() {
+                return runner;
+            }
+            
+            @Override
+            OutputFile createOutputFile(Directory d, String filename) {
+                return outputFile;
+            }
+        };
+        
+        builder.setTimeout(515);
+        Element result = builder.build(null, null);
+        assertNotNull(result.getAttribute("error"));
+        assertEquals("build timed out", result.getAttributeValue("error"));
+    }
+    
     private class Called {
         boolean called = false;
+        String with;
+    }
+    
+    private class MockOutputFile extends XcodeBuilder.OutputFile {
+        List lines = new ArrayList();
+        private Iterator iterator;
+
+        MockOutputFile(Directory dir, String filename) {
+            super(dir, filename);
+        }
+        
+        @Override
+        public String nextLine() {
+            return (String) iterator.next();
+        }
+
+        @Override
+        public boolean hasMoreLines() {
+            if (iterator == null) {
+                iterator = lines.iterator();
+            }
+
+            return iterator.hasNext();
+        }
     }
     
     private static final String COMPILE_LINE = "    /Developer/usr/bin/ibtool --errors --warnings --notices"
