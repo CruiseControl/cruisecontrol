@@ -5727,21 +5727,25 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
     &lt;schedule&gt;</pre>
         </div>
 
-        <p>CruiseControl allows the user to schedule an arbitrary number of
-        builds, either on interval or triggered to run at a given date/time,
-        as well as pause intervals during which no builds will be run. Be aware
-        that builds will only run if modifications are found (or build is
-        forced from JMX interface). Because of this it is usually not a good
-        idea to mix time builds and multiple builds in the same project as the
-        multiple builds will "eat" all the changes before they can be detected
-        by the time based builds.</p>
+        <p>CruiseControl allows the user to schedule an arbitrary
+        number of builds, either on interval or triggered to run at a
+        given date/time, as well as pause intervals during which no
+        builds will be run. Builds will only run if modifications are
+        found, a build is forced from JMX interface, or the <a
+        href="#project">&lt;project&gt;</a> has
+        <code>requireModifications</code> set to false.  Because of
+        this it is usually not a good idea to mix time builds and
+        multiple builds in the same project as the multiple builds
+        will "eat" all the changes before they can be detected by the
+        time based builds.  </p>
 
-        <p><b>Note:</b> Only one builder is used for a given interval where
-        modifications are found. Builds using the time attribute take precedence
-        over builds using the multiple attribute. If no matching time builds are
-        found the multiple builds are evaluated <em>by the value of their multiple
-        from high to low</em>. If there are multiple Builders with the same multiple
-	only one will build but which one is undefined.</p>
+        <p><b>Note:</b> Only one builder is used for a given interval
+        where modifications are found. Builds using the time attribute
+        take precedence over builds using the multiple attribute. If
+        no matching time builds are found the multiple builds are
+        evaluated <em>by the value of their multiple from high to
+        low</em>. If there are multiple Builders with the same
+        multiple only one will build but which one is undefined.</p>
 
         <h3>Attributes</h3>
 
