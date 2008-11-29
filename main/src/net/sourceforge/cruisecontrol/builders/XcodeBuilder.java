@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
@@ -14,6 +16,7 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Directory;
+import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -28,12 +31,19 @@ public class XcodeBuilder extends Builder implements Script {
     private boolean hitBuildFailedMessage;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean buildTimedOut;
+    private Arguments arguments = new Arguments();
+    private Map<String, String> buildProperties;
     
     @Override
     public Element build(Map<String, String> properties, Progress progress) throws CruiseControlException {
+        setProperties(properties);
         OutputFile file = createOutputFile(directory, DEFAULT_OUTFILE_NAME);
         runScript(file);
         return elementFromFile(file);
+    }
+
+    void setProperties(Map<String, String> properties) {
+        buildProperties = properties;
     }
 
     private void runScript(OutputFile file) throws CruiseControlException {
@@ -86,12 +96,16 @@ public class XcodeBuilder extends Builder implements Script {
         
         LOG.debug("validate directory");
         directory.validate();
+        
+        LOG.debug("validate args");
+        arguments.validate();
     }
 
     public Commandline buildCommandline() throws CruiseControlException {
         Commandline cmdLine = new Commandline();
         cmdLine.setWorkingDir(directory);
         cmdLine.setExecutable("xcodebuild");
+        arguments.addArguments(cmdLine, buildProperties);
         return cmdLine;
     }
 
@@ -218,6 +232,64 @@ public class XcodeBuilder extends Builder implements Script {
             final BuildOutputLogger logger = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(file);
             logger.clear();
             return logger;
+        }
+    }
+
+    public Arg createArg() {
+        return arguments.createArg();
+    }
+    
+    class Arguments {
+        private List<Arg> args = new ArrayList();
+
+        public Arg createArg() {
+            Arg arg = new Arg();
+            args.add(arg);
+            return arg;
+        }
+
+        public void validate() throws CruiseControlException {
+            for (final Arg arg : args) {
+                arg.validate();
+            }
+        }
+
+        public void addArguments(Commandline cmdLine, Map<String, String> buildProperties) {
+            for (final Arg arg : args) {
+                String value = substituteProperties(buildProperties, arg.value);
+                cmdLine.createArgument().setValue(value);
+            }
+        }
+        
+        private String substituteProperties(Map properties, String string) {
+            String value = string;
+            try {
+                value = Util.parsePropertiesInString(properties, string, false);
+            } catch (CruiseControlException e) {
+                LOG.error("exception substituting properties into arguments: " + string, e);
+            }
+            return value;
+        }
+
+    }
+    
+    class Arg {
+        String value;
+        
+        public void setValue(String value) {
+            this.value = value.trim();
+        }
+
+        public void validate() throws InvalidValueException {
+            if (value.length() == 0) {
+                throw new InvalidValueException();
+            }
+        }
+        
+        class InvalidValueException extends CruiseControlException {
+            InvalidValueException() {
+                super("value of arg can't be an empty string");
+            }
         }
     }
 }

@@ -8,8 +8,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
@@ -55,6 +57,12 @@ public class XcodeBuilderTest {
         assertTrue(validate.called);
     }
     
+    @Test(expected = CruiseControlException.class)
+    public void validateShouldMakeSureArgsArentEmpty() throws CruiseControlException {
+        builder.createArg().setValue(" ");
+        builder.validate();
+    }
+    
     @Test
     public void getExitCodeShouldReturnSetExitCode() {
         builder.setExitCode(17);
@@ -78,6 +86,31 @@ public class XcodeBuilderTest {
     public void shouldBeNoDefaultArguments() throws CruiseControlException {
         Commandline cmdLine = builder.buildCommandline();
         assertArrayEquals(new String[] {}, cmdLine.getArguments());
+    }
+    
+    @Test
+    public void argsShouldBeOnCommandLine() throws CruiseControlException {
+        String arg1 = "hello";
+        String arg2 = "world";
+        builder.createArg().setValue(arg1);
+        builder.createArg().setValue(arg2);
+        Commandline cmdLine = builder.buildCommandline();
+        String[] args = cmdLine.getArguments();
+        assertEquals(arg1, args[0]);
+        assertEquals(arg2, args[1]);
+        assertEquals(2, args.length);
+    }
+    
+    @Test
+    public void argsShouldHavePropertiesSubstituted() throws CruiseControlException {
+        Map<String, String> properties = new HashMap();
+        properties.put("key", "value");
+        builder.setProperties(properties);
+        builder.createArg().setValue("${key}");
+        Commandline cmdLine = builder.buildCommandline();
+        String[] args = cmdLine.getArguments();
+        assertEquals("value", args[0]);
+        assertEquals(1, args.length);
     }
     
     @Test
