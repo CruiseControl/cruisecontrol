@@ -3,6 +3,7 @@ package net.sourceforge.cruisecontrol.builders;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -25,17 +26,19 @@ import org.junit.Test;
 
 public class XcodeBuilderTest {
     private XcodeBuilder builder;
+
+    private Directory directoryDoesntFailValidation;
     
     @Before
     public void setUp() throws Exception {
-        Directory directory = new Directory() {
+        directoryDoesntFailValidation = new Directory() {
             @Override
             public void validate() {
             }
         };
 
         builder = new XcodeBuilder();
-        builder.directory = directory;
+        builder.directory = directoryDoesntFailValidation;
     }
 
     @After
@@ -190,7 +193,7 @@ public class XcodeBuilderTest {
     
     @Test
     public void timingOutShouldResultInFailedBuild() throws CruiseControlException {
-        final MockOutputFile outputFile = new MockOutputFile(new Directory(), ".");
+        final MockOutputFile outputFile = new MockOutputFile();
         outputFile.lines.add("hello world");
         
         final ScriptRunner runner = new ScriptRunner() {
@@ -218,6 +221,78 @@ public class XcodeBuilderTest {
         assertEquals("build timed out", result.getAttributeValue("error"));
     }
     
+    @Test
+    public void buildWithTargetShouldBePassedToCommandLine() throws CruiseControlException {
+        final Called cmdLine = new Called();        
+        builder = builderForBuildTest(cmdLine);
+        
+        builder.buildWithTarget(null, "target", null);
+        assertTrue(cmdLine.called);
+        assertTrue(cmdLine.with.contains("-target target"));
+    }
+
+    @Test
+    public void buildWithTargetShouldBeTransient() throws CruiseControlException {
+        final Called cmdLine = new Called();        
+        builder = builderForBuildTest(cmdLine);
+        
+        builder.buildWithTarget(null, "target", null);
+        builder.build(null, null);
+        assertTrue(cmdLine.called);
+        assertFalse(cmdLine.with.contains("-target target"));
+    }
+    
+    @Test
+    public void buildWithTargetShouldReplaceExistingTarget() throws CruiseControlException {
+        final Called cmdLine = new Called();        
+        builder = builderForBuildTest(cmdLine);
+        
+        builder.createArg().setValue("-target oldTarget");
+        builder.buildWithTarget(null, "newTarget", null);
+        assertTrue(cmdLine.called);
+        assertTrue(cmdLine.with.contains("-target newTarget"));
+        assertFalse(cmdLine.with.contains("-target oldTarget"));
+    }
+    
+    @Test
+    public void afterBuildWithTargetOriginalTargetShouldBeRestored() throws CruiseControlException {
+        final Called cmdLine = new Called();        
+        builder = builderForBuildTest(cmdLine);
+        
+        builder.createArg().setValue("-target oldTarget");
+        builder.buildWithTarget(null, "newTarget", null);
+        builder.build(null, null);
+        assertTrue(cmdLine.called);
+        assertTrue(cmdLine.with.contains("-target oldTarget"));
+        assertFalse(cmdLine.with.contains("-target newTarget"));
+    }
+    
+    private XcodeBuilder builderForBuildTest(final Called cmdLine) {
+        final ScriptRunner runner = new ScriptRunner() {
+            @Override
+            public boolean runScript(Script script, long timeout, BuildOutputLogger logger)
+                  throws CruiseControlException {
+                cmdLine.called = true;
+                cmdLine.with = script.buildCommandline().toStringNoQuoting();
+                return true;
+            }
+        };
+        XcodeBuilder builderForBuildTest = new XcodeBuilder() {
+            @Override
+            ScriptRunner createScriptRunner() {
+                return runner;
+            }
+            
+            @Override
+            OutputFile createOutputFile(Directory d, String filename) {
+                return new MockOutputFile();
+            }
+        };
+        builderForBuildTest.directory = directoryDoesntFailValidation;
+
+        return builderForBuildTest;
+    }
+    
     private class Called {
         boolean called = false;
         String with;
@@ -227,8 +302,8 @@ public class XcodeBuilderTest {
         List lines = new ArrayList();
         private Iterator iterator;
 
-        MockOutputFile(Directory dir, String filename) {
-            super(dir, filename);
+        MockOutputFile() {
+            super(directoryDoesntFailValidation, ".");
         }
         
         @Override
