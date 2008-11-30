@@ -50,6 +50,10 @@
         fill-in-the-blanks template, but instead discusses each feature in turn,
         to try and provide a better understanding of how everything works.</p>
 
+        <p>If you are running the binary distribution you can skip the section
+        "Install and Build CruiseControl" but you should make sure you're project
+        is ready, so do read the section <a href="#Before_you_Start">"Before you Start"</a></p>
+
         <ol>
             <li><a href="#Before_you_Start">Before you Start</a></li>
             <li><a href="#Install_CruiseControl">Install And Build CruiseControl</a></li>
@@ -76,13 +80,6 @@
             <li><a href="#Modifying_the_HTML_Reports">Modifying the HTML Reports</a></li>
             <li><a href="#Merging_Other_XML_Files_into_the_Logfile">Merging Other XML
             Files into the Logfile</a></li>
-            <li><a href="#Where_to_go_Next">Where to go Next</a>
-                <ul>
-                    <li><a href="#Documentation">Documentation</a></li>
-                    <li><a href="#Mailing_Lists">Mailing Lists</a></li>
-                    <li><a href="#Other_Tutorials">Other Tutorials</a></li>
-                </ul>
-            </li>
         </ol>
 
         <h2><a name="Before_you_Start">Before you Start</a></h2>
@@ -99,9 +96,9 @@
             control tool.</li>
         </ul>
 
-        <p>The rest of this guide assumes that the build tool is Ant, and the
-        version control system is CVS. CruiseControl also supports Maven and
-        NAnt as alternative builders, as well as more than ten other version
+        <p>For the purpose of providing an example the rest of this guide assumes
+	that the build tool is Ant and the version control system is CVS. CruiseControl
+	supports several alternative builders, as well as more than twenty other version
         control products. Refer to the <a href="main/configxml.html">
         Configuration Reference</a> for more information.</p>
 
@@ -114,11 +111,11 @@
 
         <p>First, <a href="download.html">download CruiseControl</a>. Unzip
         this file to your applications directory. The top-level directory
-        created when you unzipped this file will be referred to as
-        <code>INSTALL_DIR</code>.</p>
+        created when you unzipped this file (<code>cruisecontrol-src-%%VERSION%%</code>)
+	will be referred to as <code>INSTALL_DIR</code>.</p>
 
-        <p>There are four main directories under <code>INSTALL_DIR</code>. These
-        are:</p>
+        <p>There are several directories under <code>INSTALL_DIR</code>. We are primarily
+        concerned with:</p>
 
         <table class="documentation">
             <tr>
@@ -126,41 +123,42 @@
                 <th>Contents</th>
             </tr>
             <tr>
-                <td><code>docs</code></td>
-                <td>A copy of the website found at
-                <a href="http://cruisecontrol.sourceforge.net/">
-                         http://cruisecontrol.sourceforge.net/</a>.</td>
-            </tr>
-            <tr>
                 <td><code>contrib</code></td>
                 <td>Scripts and utilities contributed to CruiseControl, but
-                not officially supported as part of the main distribution.</td>
+                not part of the binary distribution, including the <a
+		href="distributed/index.html">distributed builder</a>.</td>
             </tr>
             <tr>
                 <td><code>main</code></td>
-                <td>The build loop, which is a Java application that provides
-                the core build scheduling functionality of CruiseControl.</td>
+                <td>The <a href="main/index.html">build loop</a>, which is a
+		Java application that provides the core build scheduling
+		functionality of CruiseControl.</td>
             </tr>
             <tr>
                 <td><code>reporting/jsp</code></td>
-                <td>The reporting application, which is a J2EE web application
-                for showing build results</td>
+                <td>The <a href="reporting/jsp/index.html">JSP reporting</a> application,
+		which is a J2EE web application for showing build results</td>
+            </tr>
+            <tr>
+                <td><code>reporting/dashboard</code></td>
+                <td>The <a href="dashboard.html">dashboard</a> application, a
+		newer J2EE web application for showing build results</td>
             </tr>
         </table>
 
-	<p>The other directories can be ignored for the purpose of this guide.</p>
-
         <p>To build the CruiseControl jars you will need to execute the Ant
-        build scripts in <code>INSTALL_DIR/main</code> and
-        <code>INSTALL_DIR/reporting</code>. These build scripts not only compile
+        build scripts in <code>INSTALL_DIR/main</code>,
+        <code>INSTALL_DIR/reporting/jsp</code> and
+	<code>INSTALL_DIR/reporting/dashboard</code>. These build scripts not only compile
         the code but also run the unit tests and then package the output.
         Occasionally people encounter environment specific failures when the unit
         tests run (such as not having java on the executable path). While these
         failures should be reported to the mailing list so that the tests can be
-        fixed typically the failing test can be safely deleted to allow the build
-        to complete.</p>
+        fixed typically the failing test can be safely skipped to allow the build
+        to complete. You can skip the tests by specifying the test.skip property
+	when running ant: <code>ant -Dtest.skip=true</code></p>
 
-        <p>To confirm that the installation is consistent, start a command
+        <p>After building, to confirm that the installation is consistent, start a command
         shell and run the following command (make sure you replace
         <code>INSTALL_DIR</code> with the actual installation directory):</p>
 
@@ -171,7 +169,7 @@
         This means that CruiseControl is correctly installed and ready to run
         (given a valid configuration file).</p>
 
-        <p>The remaining examples require <code>INSTALL_DIR/bin</code> to be
+        <p>The remaining examples require <code>INSTALL_DIR/main/bin</code> to be
         added to the system path.</p>
 
         <h2><a name="Running_the_Build_Loop">Running the Build Loop</a></h2>
@@ -180,12 +178,11 @@
 
         <p>Now you need to set up your CruiseControl working directories, and
         create a configuration file. These should be placed in a separate
-        directory to <code>INSTALL_DIR</code>, as they contain your data, as
-        opposed to CruiseControl code. This will simplify later CruiseControl
+        directory outside of <code>INSTALL_DIR</code> to simplify later CruiseControl
         upgrades.</p>
 
-        <p>As an example, you might create a working directory
-        <code>/work/cruise</code>. This will be referred to as
+        <p>As an example, you might create a working directory of
+        <code>/work/cc</code>. This will be referred to as
         <code>WORK_DIR</code> for the remainder of this guide.</p>
 
         <p>Create three subdirectories underneath <code>WORK_DIR</code>:</p>
@@ -196,7 +193,7 @@
                 <th>Contents</th>
             </tr>
             <tr>
-                <td><code>checkout</code></td>
+                <td><code>projects</code></td>
                 <td>This is where CruiseControl checks out your project from
                 version control.</td>
             </tr>
@@ -212,23 +209,18 @@
             </tr>
         </table>
 
-        <p>Note that we're setting up CruiseControl to take advantage of the
-        multi-project support. Although this adds a tiny bit of complexity to
-        the process, it will make it a lot easier when you later want to add
-        another project to your continuous integration.</p>
-
-        <p>This directory structure works quite well in practice, but it is
+        <p>This directory structure is very common and works quite well, but it is
         possible to have a very different directory structure than the one
         described here. The paths to these directories are all specified in the
-        configuration files.</p>
+        configuration files and can be in arbitrary locations.</p>
 
         <h3><a name="Checkout_a_Project">Checkout a Project</a></h3>
 
-        <p>Manually checkout the CVS module for the project you want to build
-        into <code>WORK_DIR/checkout</code>. We will refer to your project name
+        <p>Manually checkout the module for the project you want to build
+        into <code>WORK_DIR/projects</code>. We will refer to your project name
         as <code>MY_PROJECT_1</code>, and assume that the CVS module has the
         same name. There will now be a directory called
-        <code>WORK_DIR/checkout/MY_PROJECT_1</code>.</p>
+        <code>WORK_DIR/projects/MY_PROJECT_1</code>.</p>
 
         <h3><a name="Create_a_Delegating_Build_Script">Create a Delegating Build Script</a></h3>
 
@@ -239,7 +231,7 @@
      Note that the basedir is set to the checked out project --&gt;
 &lt;project name="build-MY_PROJECT_1"
         default="build"
-        basedir="checkout/MY_PROJECT_1"&gt;
+        basedir="projects/MY_PROJECT_1"&gt;
     &lt;target name="build"&gt;
         &lt;!-- Get the latest from CVS --&gt;
         &lt;cvs command="up -d -P"/&gt;
@@ -248,9 +240,9 @@
     &lt;/target&gt;
 &lt;/project&gt;</pre>
 
-        <p>This is a delegating build script, which cruise will run to build
+        <p>This is a delegating build script, which CruiseControl will run to build
         your project. Basically, this build script should just call through to
-        your project build file <code>WORK_DIR/checkout/MY_PROJECT_1/build.xml</code>,
+        your project build file <code>WORK_DIR/projects/MY_PROJECT_1/build.xml</code>,
         as well as performing extra steps which are specific to the
         CruiseControl build, such as:</p>
 
@@ -260,12 +252,13 @@
         </ul>
 
         <p>Of course, if your build already does this, you won't need to add
-        these commands to the delegating build script. It is even possible to
-        bypass the delegating build script completely and configure
-        CruiseControl to directly invoke the project build script.</p>
+        these commands to the delegating build script. Instead you could bypass
+	the delegating build script completely and configure
+        CruiseControl to invoke the project build script directly.</p>
 
-        <p>The build label is passed in to the script as a property named
-        "label". Simply use <code>${label}</code> in the ant script. For an
+        <p>CruiseControl provides a property to the script named "label" that
+	is incremented after successful builds. You can reference it in your
+	ant script as you do any other property: <code>${label}</code>. For an
         overview of all properties passed to your build script, see the
         <a href="main/configxml.html#buildproperties">Properties Passed
         To The Builders</a> section in the Configuration Reference.</p>
@@ -289,6 +282,8 @@
         <p>Unix:</p>
         <pre>INSTALL_DIR/main/bin/cruisecontrol.sh</pre>
 
+        <p>(If you're using the binary release the equivalent files are in <code>INSTALL_DIR</code>.)</p>
+	
         <p>CruiseControl should start up correctly, stating "BuildQueue started".
         However, to get CruiseControl to actually do anything, you'll need to
         configure a project.</p>
@@ -314,24 +309,21 @@
     &lt;bootstrappers&gt;
     &lt;/bootstrappers&gt;
 
-    &lt;!-- Defines where cruise looks for changes, to decide
+    &lt;!-- Defines where CruiseControl looks for changes, to decide
          whether to run the build --&gt;
     &lt;modificationset<sup><a name="3" href="#modificationset">3</a></sup> quietperiod="10"<sup><a name="4" href="#quietperiod">4</a></sup>&gt;
-      &lt;cvs localworkingcopy="checkout/MY_PROJECT_1"/&gt;
+      &lt;cvs localworkingcopy="projects/MY_PROJECT_1"/&gt;
     &lt;/modificationset&gt;
 
     &lt;!-- Configures the actual build loop, how often and which
          build file/target --&gt;
     &lt;schedule interval="60"&gt;<sup><a name="5" href="#schedule">5</a></sup>
-      &lt;ant<sup><a name="6" href="#ant">6</a></sup> anthome="C:\apache-ant-1.6.5"
-           buildfile="build-MY_PROJECT_1.xml"
-           target="build"
-           uselogger="true"
-           usedebug="false"/&gt;
+      &lt;ant<sup><a name="6" href="#ant">6</a></sup> buildfile="build-MY_PROJECT_1.xml"
+           uselogger="true"/&gt;
     &lt;/schedule&gt;
 
     &lt;!-- directory to write build logs to --&gt;
-    &lt;log logdir="logs/MY_PROJECT_1"/&gt;<sup><a name="7" href="#log">7</a></sup>
+    &lt;log/&gt;<sup><a name="7" href="#log">7</a></sup>
 
     &lt;!-- Publishers are run *after* a build completes --&gt;
     &lt;publishers&gt;<sup><a name="8" href="#publishers">8</a></sup>
@@ -342,17 +334,19 @@
         <p>Explanation of configuration:</p>
 
         <dl>
-            <dt>1: <a href="#1" name="buildafterfailed"><code>buildafterfailed="true"</code></a></dt>
+            <dt>1: <a name="buildafterfailed"
+	    href="main/configxml.html#project"><code>buildafterfailed="true"</code></a></dt>
             <dd>The "buildafterfailed" property tells CruiseControl if it should
             keep on trying to build, even if the last time failed and there have
             been no changes. The good thing about this is that if the build
             failed because a database server was unavailable, or some other
             transient problem, the next attempt might succeed. The bad thing is
             that if there is a real problem with the source in version control,
-            cruise will just keep on trying to build until you commit a fix for
+            CruiseControl will just keep on trying to build until you commit a fix for
             the problem.</dd>
 
-            <dt>2: <a href="#2" name="currentbuildstatuslistener"><code>&lt;currentbuildstatuslistener&gt;</code></a></dt>
+            <dt>2: <a name="currentbuildstatuslistener"
+	    href="main/configxml.html#currentbuildstatuslistener"><code>&lt;currentbuildstatuslistener&gt;</code></a></dt>
             <dd>This element tells CruiseControl the name of a file where it can
             write notes about its current activity. This file is required by the
             reporting application, so we configure it here. For multi-project
@@ -360,7 +354,8 @@
             directory, as above. This listener writes messages such as "Current
             Build Started At: [date]" to this file.</dd>
 
-            <dt>3: <a href="#3" name="modificationset"><code>&lt;modificationset&gt;</code></a></dt>
+            <dt>3: <a name="modificationset"
+	    href="main/configxml.html#modificationset"><code>&lt;modificationset&gt;</code></a></dt>
             <dd>This element configures how CruiseControl checks for changes in
             the version control repository, to determine if a build should be
             attempted. The example given tells CruiseControl to use CVS to check
@@ -376,29 +371,36 @@
             you've finished, as long as you don't take longer than the specified
             quietperiod between commits. It is specified in seconds.</dd>
 
-            <dt>5: <a href="#5" name="schedule"><code>&lt;schedule&gt;</code></a></dt>
+            <dt>5: <a name="schedule"
+	    href="main/configxml.html#schedule"><code>&lt;schedule&gt;</code></a></dt>
             <dd>The <code>&lt;schedule&gt;</code> element sets up the build-loop
-            for your project, with the "interval" attribute telling cruise how
+            for your project, with the "interval" attribute telling CruiseControl how
             many seconds to sleep in between polling for changes. With the
             <code>interval="60"</code> and <code>quietperiod="10"</code>
             attributes, CruiseControl will check for modifications in version
             control every 60 seconds. If modifications were made in the 10
-            seconds before the check, cruise will wait until a 10 second window
-            with no changes is found. Once this happens, cruise will kick off
+            seconds before the check, CruiseControl will wait until a 10 second window
+            with no changes is found. Once this happens, CruiseControl will kick off
             the Ant build. These values are probably a bit low for the real
             world, but they are OK for getting started.</dd>
 
-            <dt>6: <a href="#6" name="ant"><code>&lt;ant&gt;</code></a></dt>
+            <dt>6: <a name="ant"
+	    href="main/configxml.html#ant"><code>&lt;ant&gt;</code></a></dt>
             <dd>This element tells CruiseControl which Ant build file to run,
-            and which target. The uselogger and usedebug elements together tell
-            cruise not to write Ant debug statements to the build logs, which
-            can make them much smaller.</dd>
+            and which target. The uselogger attribute tells CruiseControl to
+            restrict what messages get written to the build log based on the Ant
+	    logging level. Since usedebug is false by default Ant debug statements
+	    won't be written to the build logs, making them much smaller. If you want
+	    to use your own installation of Ant you can do that by specifying
+	    the anthome attribute.</dd>
 
-            <dt>7: <a href="#7" name="log"><code>&lt;log&gt;</code></a></dt>
-            <dd>is element tells CruiseControl where to put its log reports,
-            which are the main output of a build.</dd>
+            <dt>7: <a name="log"
+	    href="main/configxml.html#log"><code>&lt;log&gt;</code></a></dt>
+            <dd>is element tells CruiseControl where to put its build logs,
+            which are the main output of a build. The default location is "logs/[projectname]".</dd>
 
-            <dt>8: <a href="#8" name="publishers"><code>&lt;publishers&gt;</code></a></dt>
+            <dt>8: <a name="publishers"
+	    href="main/configxml.html#publishers"><code>&lt;publishers&gt;</code></a></dt>
             <dd>This element configures actions to perform after the build
             completes, such as sending emails, and copying files.</dd>
         </dl>
@@ -406,20 +408,23 @@
         <h3><a name="Start_the_Build_Loop">Start the Build Loop</a></h3>
 
         <p>If you now run CruiseControl from <code>WORK_DIR</code>, you should
-        see it start. To kick off a build, you may need to commit changes to
-        version control (not from the <code>WORK_DIR/checkout/MY_PROJECT_1</code>
-        workspace, but from another location). If the build fails, CruiseControl
+        see it start. CruiseControl will poll the version control system looking
+	for changes and launching a build when if it finds some. The first time
+	you run a project it will look for changes since midnight of the same
+	day. If there haven't been any changes since then you'll need to commit
+	a change to kick off a build. If the build fails, CruiseControl
         will keep on trying, until you get it right. You don't need to restart
         CruiseControl if you change <code>config.xml</code> or your delegating
-        build file, since cruise reloads these every time a build is
+        build file, since CruiseControl reloads these every time a build is
         performed.</p>
 
         <p>If you look in <code>WORK_DIR/logs/MY_PROJECT_1</code>, you'll see
-        the cruise build reports, which are XML files. Any file that looks
-        similar to <code>build.?.xml</code> indicates a successful build, while
-        other XML files indicate failures. Fortunately, you don't need to parse
-        these files yourself, because both the web reporting application and the
-        HTML Email publisher distributed with CruiseControl can present these
+        the CruiseControl build logs, which are XML files. Any file that looks
+        similar to <code>log20081122345678Lbuild.1.xml</code> indicates a
+	successful build, while other XML files without the build label indicate
+	failures. Fortunately, you don't need to parse these files yourself,
+	because both the web reporting applications and the HTML Email publisher
+	distributed with CruiseControl can present these
         results in HTML format. But for now, you're up and running, and every
         time you commit to version control, CruiseControl will pick up those
         changes and build them.</p>
@@ -438,8 +443,8 @@
         this inside the <code>&lt;publishers&gt;</code> element:</p>
 
         <pre>&lt;email mailhost="SMTP_HOST"
-        returnaddress="cruise@mydomain.com"
-        buildresultsurl="http://localhost/cc/buildresults/MY_PROJECT_1"
+        returnaddress="cc@mydomain.com"
+        buildresultsurl="http://localhost:8080/cruisecontrol/buildresults/MY_PROJECT_1"
         skipusers="true" spamwhilebroken="true"&gt;
     &lt;always address="dev1@mydomain.com"/&gt;
     &lt;always address="dev2@mydomain.com"/&gt;
@@ -529,7 +534,7 @@
         the <code>WORK_DIR/artifacts</code> directory.</p>
 
         <pre>&lt;artifactspublisher
-    dir="checkout/MY_PROJECT_1/build/output"
+    dir="projects/MY_PROJECT_1/build/output"
     dest="artifacts/MY_PROJECT_1"/&gt;</pre>
 
         <p>This assumes that you want to publish all files that end up in the
@@ -545,7 +550,7 @@
 
         <p>The output you see in the Reporting Application, and the HTML emails,
         is the result of applying a number of XSLT stylesheets to the single XML
-        build report that cruise creates. You can see these reports in your
+        build report that CruiseControl creates. You can see these reports in your
         <code>WORK_DIR/logs</code> directory.</p>
 
         <p>By default, the log report is formatted like this:</p>
@@ -641,7 +646,7 @@
 
         <pre>&lt;!-- directory to write build logs to --&gt;
 &lt;log logdir="logs/MY_PROJECT_1"&gt;
-    &lt;merge dir="checkout/MY_PROJECT_1/build/junit-reports/"/&gt;
+    &lt;merge dir="projects/MY_PROJECT_1/build/junit-reports/"/&gt;
 &lt;/log&gt;</pre>
 
         <p>Note that you can have CruiseControl include a report from
@@ -657,43 +662,6 @@
         are checkstyle warnings/errors in the merged report. The same mechanism
         can be used to provide unit test reports, and any other reports you care
         to code up in XSLT.</p>
-
-        <h2><a name="Where_to_go_Next">Where to go Next</a></h2>
-
-        <h3><a name="Documentation">Documentation</a></h3>
-
-        <p>For further details about the configuration file, look at the
-        <a href="main/configxml.html">Configuration Reference</a>.</p>
-
-        <p>For an overview of the design of the build loop, and how to extend
-        the functionality of CruiseControl, look at the
-        <a href="main/plugins.html">Plugin</a> documentation.</p>
-
-        <h3><a name="Mailing_Lists">Mailing Lists</a></h3>
-
-        <p>To ask questions or get help with any problems you are experiencing,
-        send an email to the users <a href="contact.html">mailing list</a>.</p>
-
-        <h3><a name="Other_Tutorials">Other Tutorials</a></h3>
-
-        <p>In addition to the content of this page, the following links are
-        external resources which contain helpful information about setting up a
-        new installation of CruiseControl from scratch:</p>
-
-        <ul>
-        <li>The CruiseControl Wiki has a page <a class="external"
-        href="http://confluence.public.thoughtworks.org/display/CC/Getting+Started+With+CruiseControl">
-        Getting Started With CruiseControl</a>. This guide was originally
-        derived from this material.</li>
-
-        <li>The book <a class="external"
-        href="http://www.pragmaticprogrammer.com/sk/auto/">Pragmatic Project
-        Automation</a> by Mike Clark has a section "Putting A Build on
-        CruiseControl" that walks through getting CC up and running. This is
-        part of <a class="external"
-        href="http://www.pragmaticprogrammer.com/starter_kit/au/scheduled.pdf">
-        Chapter 3: Scheduled Builds</a> available online as a PDF.</li>
-        </ul>
 
     </div>
 </div>
