@@ -37,44 +37,69 @@
     <div class="content">
         <h1>CruiseControl</h1>
 
-        <p>CruiseControl is a framework for a continuous build process. It
-        includes, but is not limited to, plugins for email notification, Ant,
-        and various source control tools. A web interface is provided to view
-        the details of the current and previous builds.</p>
+        <p>CruiseControl is both a <a class="external"
+        href="http://www.martinfowler.com/articles/continuousIntegration.html">continuous
+        integration</a> tool and an extensible framework for creating
+        a custom continuous build process. It includes <a
+        href="main/configxml.html">dozens of plugins</a> for a variety
+        of source controls, build technologies, and notifications
+        schemes including email and instant messaging. A web interface
+        provides details of the current and previous builds. And the
+        standard CruiseControl distribution is augmented through a
+        rich selection of <a
+        href="http://confluence.public.thoughtworks.org/display/CC/3rdPartyCCStuff">
+        3rd Party Tools</a>.</p>
 
-        <p>CruiseControl is distributed under a BSD-style
-        <a href="license.html">license</a> and is free for use. CruiseControl
-        adheres to an open source model and therefore makes the source code
-        freely available.</p>
+        <a href="dashboard.html"><img src="dashboard/builddetail.jpg"/></a>
+      
+        <p>CruiseControl is written in Java but is used on a wide
+        variety of projects. There are builders supplied for <a
+        href="main/configxml.html#ant">Ant</a>, <a
+        href="main/configxml.html#nant">NAnt</a>, <a
+        href="main/configxml.html#maven2">Maven</a>, <a
+        href="main/configxml.html#phing">Phing</a>, <a
+        href="main/configxml.html#rake">Rake</a>, and <a
+        href="main/configxml.html#xcode">Xcode</a>, and the catch-all <a
+        href="main/configxml.html#exec">exec</a> builder that can be
+        used with any command-line tool or script.</a>
 
-        <p>CruiseControl is maintained and developed by a group of dedicated
-        <a href="developers.html">volunteers</a>.</p>
-
-        <h2>What is Continuous Integration?</h2>
-
-        <p><a class="external" href="http://www.martinfowler.com/articles/continuousIntegration.html">Continuous
-        Integration</a> by Martin Fowler and Matthew Foemmel.</p>
-
-        <p>An important part of any software development process is getting
-        reliable builds of the software. Despite its importance, we are often
-        surprised when this isn't done. We stress a fully automated and
-        reproducible build, including testing, that runs many times a day. This
-        allows each developer to integrate daily thus reducing integration
-        problems.</p>
+        <p>CruiseControl is open source software and is developed and
+        maintained by a group of dedicated <a
+        href="developers.html#volunteers">volunteers</a>. CruiseControl is
+        distributed under a BSD-style <a
+        href="license.html">license</a>.</p>
 
         <h2>Related links</h2>
 
-        <ul>
-            <li><a class="external" href="http://ccnet.thoughtworks.com/">CruiseControl.NET</a>:
-            port of CruiseControl to the .NET platform</li>
-            <li><a class="external" href="http://cruisecontrolrb.thoughtworks.com/">CruiseControl.rb</a>:
-            port of CruiseControl to the Ruby/Rails platform</li>
-            <li><a class="external" href="http://cc-config.sourceforge.net/">ConfigurationGUI</a>:
-            a Java WebStart Swing GUI for creating cruisecontrol configuration files and monitoring project status.</li>
-            <li><a class="external" href="http://jcsc.sourceforge.net/tools/webstart/ccscrape/ccscrape.jnlp">CCScrape</a>:
-            a Java WebStart application that makes easy work of driving <a class="external" href="http://www.artima.com/weblogs/viewpost.jsp?thread=67492">XFDs</a> from your CruiseControl build results</li>
-            <li>see the <a href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl wiki</a> for a list of other <a href="http://confluence.public.thoughtworks.org/display/CC/3rdPartyCCStuff">3rd Party Tools</a> that work with CruiseControl.</li>
-        </ul>
+        <p>The <a
+        href="http://confluence.public.thoughtworks.org/display/CC/Home">CruiseControl
+        wiki</a> has extensive additional documentation for
+        CruiseControl, including a list of <a
+        href="http://confluence.public.thoughtworks.org/display/CC/3rdPartyCCStuff">3rd
+        Party Tools</a> that work with CruiseControl.</p>
+
+        <p>Two such projects are ConfigurationGUI and CCScrape. <a
+        class="external"
+        href="http://cc-config.sourceforge.net/">ConfigurationGUI</a>
+        is a Java WebStart Swing GUI for creating cruisecontrol
+        configuration files and monitoring project status. It is
+        bundled with the binary distribution of CruiseControl but can
+        also be downloaded separately. <a class="external"
+        href="http://jcsc.sourceforge.net/tools/webstart/ccscrape/ccscrape.jnlp">CCScrape</a>
+        is a Java WebStart application that makes easy work of driving
+        <a class="external"
+        href="http://www.artima.com/weblogs/viewpost.jsp?thread=67492">XFDs</a>
+        (eXtreme Feedback Devices) from your CruiseControl build results.</p>
+
+        <p>There are ports of CruiseControl for <a class="external"
+        href="http://ccnet.thoughtworks.com/">.NET</a> and <a
+        class="external"
+        href="http://cruisecontrolrb.thoughtworks.com/">Ruby</a>. The
+        original CruiseControl source code was contributed by
+        ThoughtWorks, who now offers the commerical tool <a class="external"
+        href="http://studios.thoughtworks.com/cruise-continuous-integration">Cruise</a>
+        (not based on the CruiseControl codebase).</p>
+
     </div>
 </div>
 </body>
