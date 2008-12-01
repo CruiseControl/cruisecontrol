@@ -2,6 +2,8 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
+CruiseControl Release Notes - 2.8.2-dev
+
 CruiseControl Release Notes - 2.8.1
 
 binary release:
