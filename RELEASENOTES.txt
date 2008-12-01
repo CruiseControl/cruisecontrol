@@ -4,6 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8.2-dev
 
+distributed
+----------------------
+* Fix bug where DistributedMasterBuilder was not delegating isTimeBuilder() to the nestedBuilder, which meant that forcing a build with only a single time based distributed build would fail. Reported by Spencer Smith
+
+
 CruiseControl Release Notes - 2.8.1
 
 binary release:

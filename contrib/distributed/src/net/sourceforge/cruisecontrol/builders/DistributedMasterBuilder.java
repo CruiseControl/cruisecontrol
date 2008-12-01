@@ -199,19 +199,27 @@ public class DistributedMasterBuilder extends Builder {
 
 
     /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
+    @Override
     public int getDay() {
         return nestedBuilder.getDay();
     }
 
     /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
+    @Override
     public int getTime() {
         return nestedBuilder.getTime();
     }
+    
     /** Override base schedule methods to expose nested-builder values. Otherwise, schedules are not honored.*/
+    @Override
     public int getMultiple() {
         return nestedBuilder.getMultiple();
     }
 
+    @Override
+    public boolean isTimeBuilder() {
+        return nestedBuilder.isTimeBuilder();
+    }
     
     public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
