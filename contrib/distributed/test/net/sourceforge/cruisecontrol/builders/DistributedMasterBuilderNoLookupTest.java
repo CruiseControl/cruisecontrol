@@ -19,7 +19,7 @@ import java.util.Map;
 public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
     protected void setUp() throws Exception {
-        DistributedMasterBuilderTest.setupInsecurePolicy();
+//        DistributedMasterBuilderTest.setupInsecurePolicy();
     }
 
     public void testDistAttribs() throws Exception {
@@ -75,7 +75,6 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         nestedBuilder.setMultiple(2);
 
         masterBuilder.add(nestedBuilder);
-        masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 7, masterBuilder.getDay());
         assertEquals("Distributed builder should wrap nested builder schedule fields",
@@ -90,13 +89,13 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder nestedBuilder = new MockBuilder();
         nestedBuilder.setTime("530");
         masterBuilder.add(nestedBuilder);
-        masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 530, masterBuilder.getTime());
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getDay());
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getMultiple());
+        assertTrue(masterBuilder.isTimeBuilder());
     }
 
     public void testScheduleMultiple() throws Exception {
@@ -105,15 +104,15 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         final Builder nestedBuilder = new MockBuilder();
         nestedBuilder.setMultiple(2);
         masterBuilder.add(nestedBuilder);
-        masterBuilder.validate();
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 2, masterBuilder.getMultiple());
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getTime());
         assertEquals("Distributed builder should wrap nested builder schedule fields",
                 Builder.NOT_SET, masterBuilder.getDay());
+        assertFalse(masterBuilder.isTimeBuilder());
     }
-
+    
     public void testProjectNameValue() throws Exception {
 
         final DistributedMasterBuilder masterBuilder = DistributedMasterBuilderTest.getMasterBuilder_LocalhostONLY();
