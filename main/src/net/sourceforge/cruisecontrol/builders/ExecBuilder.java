@@ -120,6 +120,7 @@ public class ExecBuilder extends Builder {
         try {
             scriptCompleted = runScript(script, scriptRunner, this.workingDir);
         } catch (CruiseControlException ex) {
+          LOG.error("Could not execute command: " + command, ex);
           scriptIOError = true;
         }
 
