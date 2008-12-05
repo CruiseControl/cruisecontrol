@@ -19,7 +19,7 @@ import java.util.Map;
 public class DistributedMasterBuilderNoLookupTest extends TestCase {
 
     protected void setUp() throws Exception {
-//        DistributedMasterBuilderTest.setupInsecurePolicy();
+        DistributedMasterBuilderTest.setupInsecurePolicy();
     }
 
     public void testDistAttribs() throws Exception {
