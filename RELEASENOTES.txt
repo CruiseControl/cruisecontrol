@@ -8,6 +8,9 @@ distributed
 ----------------------
 * Fix bug where DistributedMasterBuilder was not delegating isTimeBuilder() to the nestedBuilder, which meant that forcing a build with only a single time based distributed build would fail. Reported by Spencer Smith
 
+ExecBuilder
+----------------------
+* Log exceptions coming back from the ScriptRunner.
 
 CruiseControl Release Notes - 2.8.1
 
