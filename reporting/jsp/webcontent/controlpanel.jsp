@@ -50,8 +50,8 @@
     </tr>
     <tr>
         <td align="center">
-            <iframe name="controlPanelFrame" id="controlPanelFrame" height="520" marginheight="0" frameborder="1"
-                marginwidth="0" src="<%= jmx.toExternalForm() %>" height="600" width="90%">
+            <iframe name="controlPanelFrame" id="controlPanelFrame" marginheight="0" frameborder="1"
+                marginwidth="0" src="<%= jmx.toExternalForm() %>" height="600" width="100%">
             </iframe>
         </td>
     </tr>
