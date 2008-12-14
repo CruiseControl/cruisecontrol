@@ -12,6 +12,10 @@ ExecBuilder
 ----------------------
 * Log exceptions coming back from the ScriptRunner.
 
+XcodeBuilder
+----------------------
+* Fix bug with using nested arguments. XcodeBuilder.Arg was not public.
+
 CruiseControl Release Notes - 2.8.1
 
 binary release:

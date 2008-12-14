@@ -303,7 +303,7 @@ public class XcodeBuilder extends Builder implements Script {
 
     }
     
-    class Arg {
+    public class Arg {
         String value;
         
         public void setValue(String value) {
