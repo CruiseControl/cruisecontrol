@@ -111,7 +111,7 @@ public class TimeBuild extends FakeUserSourceControl {
                 modifications.add(getMod(now));
             }
         } else {
-            if (nowTime > time || lastBuildTime < time) {
+            if (nowTime > time || lastBuildTime < time || moreThanOneDay(lastBuild, now)) {
                 modifications.add(getMod(now));
             }
         }
@@ -121,6 +121,17 @@ public class TimeBuild extends FakeUserSourceControl {
         }
         
         return modifications;
+    }
+
+    private boolean moreThanOneDay(Date lastBuild, Date now) {
+        final Calendar lastBuildCal = Calendar.getInstance();
+        lastBuildCal.setTime(lastBuild);
+
+        final Calendar nowCal = Calendar.getInstance();
+        nowCal.setTime(now);
+        
+        lastBuildCal.add(Calendar.DAY_OF_MONTH, 1);
+        return lastBuildCal.before(nowCal);
     }
 
     private boolean onSameDay(final Date date1, final Date date2) {
