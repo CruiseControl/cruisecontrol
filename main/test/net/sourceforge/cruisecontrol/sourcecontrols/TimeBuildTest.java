@@ -92,8 +92,6 @@ public class TimeBuildTest extends TestCase {
     }
 
     public void testTimeBuildWorksAcrossDays() {
-        Calendar calender1500Previousday = Calendar.getInstance();
-        calender1500Previousday.set(2002, Calendar.DECEMBER, 22, 15, 00, 00);
 
         Calendar calender2000Previousday = Calendar.getInstance();
         calender2000Previousday.set(2002, Calendar.DECEMBER, 22, 20, 00, 00);
@@ -136,12 +134,29 @@ public class TimeBuildTest extends TestCase {
         modifications = timeBuild.getModifications(calender1601.getTime(), calender1603.getTime());
         assertEquals(0, modifications.size());
         
-        Date lastBuildThreePMYesterday = calender1500Previousday.getTime();
-        
+        Calendar calender1200Previousday = Calendar.getInstance();
+        calender1200Previousday.set(2002, Calendar.DECEMBER, 22, 12, 00, 00);
+        Date lastBuildNoonYesterday = calender1200Previousday.getTime();
         // Should have one "modification" at 14:00 which is the TimedBuild
-        modifications = timeBuild.getModifications(lastBuildThreePMYesterday, calender1400.getTime());
+        modifications = timeBuild.getModifications(lastBuildNoonYesterday, calender1400.getTime());
         assertEquals(1, modifications.size());
+    }
+    
+    public void testShouldWorkAcrossMultipleDays() {        
+        // Schedule a timed build for 16:00
+        TimeBuild timeBuild = new TimeBuild();
+        timeBuild.setTime("1600");
+        timeBuild.setUserName("epugh");
+
+        Calendar calender1400 = Calendar.getInstance();
+        calender1400.set(2002, Calendar.DECEMBER, 23, 14, 00, 00);
         
+        Calendar cal1800TwoDaysAgo = Calendar.getInstance();
+        cal1800TwoDaysAgo.set(2002, Calendar.DECEMBER, 21, 18, 00, 00);
+
+        // Should have one "modification" at 14:00 which is the TimedBuild
+        List modifications = timeBuild.getModifications(cal1800TwoDaysAgo.getTime(), calender1400.getTime());
+        assertEquals(1, modifications.size());        
     }
 
     private void assertHasSingleModificationThatMatchesNameAndTime(List modifications, String userName,
