@@ -91,7 +91,7 @@ public class BuildLoopStatusReportTask extends TimerTask {
             this.response = new String(postMethod.getResponseBody());
         } catch (Exception e) {
             LOGGER.warn("Failed to reach dashboard instance : " + this.url
-                    + ", either the dashboard has not started up or there is a network problem.");
+                    + ", either the dashboard has not started up or there is a network problem.", e);
         } finally {
             postMethod.releaseConnection();
         }
