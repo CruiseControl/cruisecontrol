@@ -12,6 +12,10 @@ ExecBuilder
 ----------------------
 * Log exceptions coming back from the ScriptRunner.
 
+StarTeam
+----------------------
+* Fix problem building because of dependency on PluginRegistryTest by adding the main/test classes to the common.xml classpath (CC-878). Patch by DKelly
+
 TimeBuild
 ----------------------
 * Fix bug where more than 1 day had elapsed since the last build. Reported by Nhat Tran

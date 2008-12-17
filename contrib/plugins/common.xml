@@ -38,6 +38,7 @@
     <path refid="cruisecontrol.jar"/>
     <path refid="cc.jars"/>
     <path refid="my.jars"/>
+    <pathelement path="${common.dir}/../../main/target/test-classes/" /> 
   </path>
 
   <target name="dist" depends="clean, compile, test, jar, copy.libs">
