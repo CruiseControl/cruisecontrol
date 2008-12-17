@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -143,6 +144,11 @@ public class ProjectConfigTest extends TestCase {
             assertEquals("comment" + i, modification.comment);
         }
         assertTrue(modificationSet.getCurrentModificationsWasCalled);
+    }
+    
+    public void testModificationSetShouldNotBeRequired() {
+        List<Modification> modifications = config.getModifications();
+        assertEquals(Collections.EMPTY_LIST, modifications);
     }
 
     private static class MockBootstrappers extends ProjectConfig.Bootstrappers {

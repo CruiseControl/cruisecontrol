@@ -436,7 +436,11 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     public List getModifications() {
-        return getModificationSet().getCurrentModifications();
+        if (getModificationSet() != null) {
+            return getModificationSet().getCurrentModifications();
+        } else {
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public boolean isInState(ProjectState state) {
