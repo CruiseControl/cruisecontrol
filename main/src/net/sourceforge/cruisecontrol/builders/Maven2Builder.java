@@ -15,6 +15,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.Attribute;
 
 /**
  * Maven2 builder class based on the Maven builder class from
@@ -35,6 +36,7 @@ public class Maven2Builder extends Builder {
     private String mvnScript;
     private String pomFile;
     private String goal;
+    private String sitegoal;
     private String settingsFile;
     private String activateProfiles;
     private long timeout = ScriptRunner.NO_TIMEOUT;
@@ -108,6 +110,11 @@ public class Maven2Builder extends Builder {
         this.goal = goal;
     }
 
+    public void setSitegoal(String sitegoal) {
+
+        this.sitegoal = sitegoal;
+    }
+
     public Property createProperty() {
         final Property property = new Property();
         properties.add(property);
@@ -176,9 +183,34 @@ public class Maven2Builder extends Builder {
 
         final long startTime = System.currentTimeMillis();
 
-        Element buildLogElement = new Element("build");
+        final Element buildLogElement = new Element("build");
 
         final List<String> goalSets = getGoalSets();
+        build(buildProperties, workingDir, goalSets, buildLogElement, progress);
+
+        final List<String> sitegoalSets = getSitegoalSets();
+
+        if (!sitegoalSets.isEmpty()) {
+            build(buildProperties, workingDir, sitegoalSets, buildLogElement, progress);
+        }
+
+        final long endTime = System.currentTimeMillis();
+
+        buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
+        return buildLogElement;
+    }
+
+    private void build(final Map<String, String> buildProperties, final File workingDir, 
+                       final List<String> goalSets, final Element buildLogElement, final Progress progress) 
+            throws CruiseControlException {
+        Attribute saveErrorAttribute = buildLogElement.getAttribute("error");
+        
+        if (saveErrorAttribute != null) {
+            synchronized (buildLogElement) {
+                buildLogElement.removeAttribute(saveErrorAttribute);
+            }
+        }
+
         for (final String goals : goalSets) {
 
             final Maven2Script script = new Maven2Script(this, buildLogElement, goals, progress);
@@ -191,8 +223,9 @@ public class Maven2Builder extends Builder {
 
             if (!scriptCompleted) {
                 LOG.warn("Build timeout timer of " + timeout + " seconds has expired");
-                buildLogElement = new Element("build");
-                buildLogElement.setAttribute("error", "build timeout");
+                synchronized (buildLogElement) {
+                    buildLogElement.setAttribute("error", "build timeout");
+                }
             } else if (script.getExitCode() != 0) {
                 // The maven.bat actually never returns error,
                 // due to internal cleanup called after the execution itself...
@@ -206,12 +239,14 @@ public class Maven2Builder extends Builder {
             }
 
         }
-
-        final long endTime = System.currentTimeMillis();
-
-        buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
-        return buildLogElement;
+        
+        if (saveErrorAttribute != null) {
+            synchronized (buildLogElement) {
+                buildLogElement.setAttribute(saveErrorAttribute);
+            }
+        }
     }
+
     void validatePomFile(final File filePomFile) throws CruiseControlException {
         ValidationHelper.assertTrue(filePomFile.exists(),
                 "the pom file could not be found : " + filePomFile.getAbsolutePath()
@@ -241,9 +276,25 @@ public class Maven2Builder extends Builder {
      */
     List<String> getGoalSets() {
 
+        return getGoalSets(goal);
+    }
+
+    /**
+     * Produces sets of site goals, ready to be run each in a distinct call to Maven.
+     * Separation of sets in "sitegoal" attribute is made with '|'.
+     *
+     * @return a List containing String elements
+     */
+    List<String> getSitegoalSets() {
+
+        return getGoalSets(sitegoal);
+    }
+
+    private List<String> getGoalSets(String goalattribute) {
+
         final List<String> list = new ArrayList<String>();
-        if (goal != null) {
-            final StringTokenizer stok = new StringTokenizer(goal, "|");
+        if (goalattribute != null) {
+            final StringTokenizer stok = new StringTokenizer(goalattribute, "|");
             while (stok.hasMoreTokens()) {
                 final String subSet = stok.nextToken().trim();
                 if (subSet == null || subSet.length() == 0) {

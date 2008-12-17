@@ -6434,6 +6434,13 @@ endlocal</pre>
                (see <a href="#maven2-goal-note">Goals</a> note above)</td>
             </tr>
             <tr>
+               <td>sitegoal</td>
+               <td>No</td>
+               <td>Maven2 site goal, "set of site goals" or "set of set of site goals" to run after those configured in above mentioned goal attribute
+               (even when these goals failed). For example &lt;maven2 ... goal="clean|install" sitegoal="site|dashboard:dashboard|site:deploy"/&gt;.
+               This way it is possible to supply a site with test failure info.</td>
+            </tr>
+            <tr>
                <td>settingsfile</td>
                <td>No</td>
                <td>Alternate path for the user settings file.</td>
