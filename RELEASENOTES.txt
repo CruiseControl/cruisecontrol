@@ -12,6 +12,10 @@ ExecBuilder
 ----------------------
 * Log exceptions coming back from the ScriptRunner.
 
+Maven2Builder
+----------------------
+* Add new attribute "siteGoal" that are run after the normal "goal", such as publishing a site even if a test fails (CC-877). Submitted by Jene Jasper
+
 StarTeam
 ----------------------
 * Fix problem building because of dependency on PluginRegistryTest by adding the main/test classes to the common.xml classpath (CC-878). Patch by DKelly
