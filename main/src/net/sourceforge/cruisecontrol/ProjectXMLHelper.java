@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
+import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 import net.sourceforge.cruisecontrol.util.Util;
 
 /**
@@ -162,6 +163,24 @@ public class ProjectXMLHelper implements ProjectHelper {
         propertiesObject.loadProperties(props, failIfMissing);
         return propertiesObject;
     }
+    
+    public static PropertiesPlugin registerCustomProperty(final Map<String, String> props,
+            final Element propertyElement, final boolean failIfMissing,
+            final PluginRegistry registry) throws CruiseControlException {
+
+        parsePropertiesInElement(propertyElement, props, failIfMissing);
+
+        final Object o = new ProjectXMLHelper(props, registry, null).configurePlugin(propertyElement, false);
+        if (!(o instanceof PropertiesPlugin)) {
+          throw new CruiseControlException("Element " + propertyElement.getName()
+                  + " does not implement PropertiesPlugin interface."
+                  + " Check your CC global plugin configuration.");
+        }
+        final PropertiesPlugin propertiesObject = (PropertiesPlugin) o;
+        propertiesObject.loadProperties(props, failIfMissing);
+        return propertiesObject;
+    }
+
 
     // FIXME Helper extract ?
     public static void parsePropertiesInElement(final Element element,
@@ -191,4 +210,5 @@ public class ProjectXMLHelper implements ProjectHelper {
         ProjectXMLHelper.LOG.debug("Setting property \"" + name + "\" to \"" + parsedValue + "\".");
         props.put(name, parsedValue);
     }
+
 }

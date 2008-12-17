@@ -49,9 +49,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
-import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.SystemPlugin;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -112,6 +112,8 @@ public class CruiseControlConfig {
 
     private final CruiseControlController controller;
 
+    private final Set<String> customPropertiesPlugins = new HashSet<String>();
+
     public CruiseControlConfig(Element ccElement) throws CruiseControlException {
         this(ccElement, null, null);
     }
@@ -140,13 +142,28 @@ public class CruiseControlConfig {
         for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext();) {
             handleRootPlugin((Element) i.next());
         }
+        
+        // handle custom properties after plugin registration and before projects
+        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
+            final Element childElement = (Element) i.next();
+            final String nodeName = childElement.getName();
+            if (KNOWN_ROOT_CHILD_NAMES.contains(nodeName)
+                    || "system".equals(nodeName)
+                    || isProject(nodeName)) {
+                continue;
+            }
+            if (isCustomPropertiesPlugin(nodeName)) {
+                handleCustomRootProperty(childElement);
+            }
+        }        
+        
         for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext();) {
             handleIncludedProjects((Element) i.next());
         }
         for (Iterator i = ccElement.getChildren("dashboard").iterator(); i.hasNext(); ) {
             handleDashboard((Element) i.next());
         }
-
+        
         // other childNodes must be projects or the <system> node
         for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
             final Element childElement = (Element) i.next();
@@ -155,7 +172,7 @@ public class CruiseControlConfig {
                 handleProject(childElement);
             } else if ("system".equals(nodeName)) {
                 add((SystemPlugin) new ProjectXMLHelper().configurePlugin(childElement, false));
-            } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
+            } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName) && !customPropertiesPlugins.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
         }
@@ -196,6 +213,21 @@ public class CruiseControlConfig {
         dashboard.setController(controller);
         dashboard.validate();
         dashboard.startPostingToDashboard();
+    }
+
+    private boolean isCustomPropertiesPlugin(String nodeName) throws CruiseControlException {
+        if (customPropertiesPlugins.contains(nodeName)) {
+            return true;
+        }
+        
+        boolean isPropetiesPlugin = rootPlugins.isPluginRegistered(nodeName)
+                && PropertiesPlugin.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
+        
+        if (isPropetiesPlugin) {
+            customPropertiesPlugins.add(nodeName);
+        }
+        
+        return isPropetiesPlugin;
     }
 
     private boolean isProject(String nodeName) throws CruiseControlException {
@@ -247,20 +279,13 @@ public class CruiseControlConfig {
     }
 
     private void handleRootProperty(final Element childElement) throws CruiseControlException {
-        final DefaultPropertiesPlugin props = ProjectXMLHelper.registerProperty(rootProperties, childElement,
+        ProjectXMLHelper.registerProperty(rootProperties, childElement,
                 FAIL_UPON_MISSING_PROPERTY);
-        add(props);
     }
 
-    /**
-     * Defines a name/value pair used in configuration.
-     *
-     * @param property
-     * @cardinality 0..*;
-     */
-    public void add(DefaultPropertiesPlugin property) {
-        // FIXME this is empty today for the documentation to be generated
-        // properly
+    private void handleCustomRootProperty(final Element childElement) throws CruiseControlException {
+        ProjectXMLHelper.registerCustomProperty(rootProperties, childElement,
+                FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
     }
 
     /**

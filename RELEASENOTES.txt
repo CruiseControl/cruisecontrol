@@ -8,6 +8,10 @@ BuildLoopStatusReportTask
 ----------------------
 * Fix bug where a project with no ModificationSet would cause the error message 'Failed to reach dashboard instance : http://localhost:8080/dashboard/buildloop/listener, either the dashboard has not started up or there is a network problem' (CC-766).
 
+CruiseControlConfig
+----------------------
+* Restore the ability to have custom PropertiesPlugins.
+
 distributed
 ----------------------
 * Fix bug where DistributedMasterBuilder was not delegating isTimeBuilder() to the nestedBuilder, which meant that forcing a build with only a single time based distributed build would fail. Reported by Spencer Smith
