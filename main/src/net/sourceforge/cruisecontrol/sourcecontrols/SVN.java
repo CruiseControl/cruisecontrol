@@ -412,6 +412,7 @@ public class SVN implements SourceControl {
         return directories;
     }
 
+    // TODO: use Map not HashMap
     /**
      * Parse results from exec of propget command for svn externals.
      * @param reader exec reader (UTF-8)
