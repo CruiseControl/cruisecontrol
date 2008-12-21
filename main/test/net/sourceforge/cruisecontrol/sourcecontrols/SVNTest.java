@@ -36,165 +36,164 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-import org.jdom.JDOMException;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.text.ParseException;
-import java.util.TimeZone;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Calendar;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
-/**
- * @see    <a href="http://subversion.tigris.org/">subversion.tigris.org</a>
- * @author <a href="etienne.studer@canoo.com">Etienne Studer</a>
- */
-public class SVNTest extends TestCase {
+import org.jdom.JDOMException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+// TODO: Split this up into separate tests
+public class SVNTest {
     private SVN svn;
     private TimeZone originalTimeZone;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() {
         svn = new SVN();
         originalTimeZone = TimeZone.getDefault();
     }
 
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() {
         TimeZone.setDefault(originalTimeZone);
     }
 
-    public void testValidate() throws IOException {
-        try {
-            svn.validate();
-            fail("should throw an exception when no attributes are set");
-        } catch (CruiseControlException e) {
-            // expected
-        }
+    @Test(expected = CruiseControlException.class)
+    public void failsValidationWhenNoAttributesAreSet() throws CruiseControlException {
+        svn.validate();
+    }
 
+    @Test
+    public void validatesIfAtLeastRepositoryLocationSet() {
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
         try {
             svn.validate();
         } catch (CruiseControlException e) {
-            fail(
-                "should not throw an exception when at least the 'repositoryLocation' attribute "
-                    + "is set");
+            fail("should not throw an exception when at least the 'repositoryLocation' attribute is set");
         }
+    }
 
-        svn = new SVN();
+    // TODO: validate the repository location
+    //    @Test(expected = CruiseControlException.class)
+    //    public void failsValidationForInvalidRepositoryLocation() throws CruiseControlException {
+    //        svn.setRepositoryLocation("invalid repository location");
+    //        svn.validate();
+    //    }
+
+    @Test(expected = CruiseControlException.class)
+    public void failsValidationForInvalidLocalWorkingCopy() throws CruiseControlException {
         svn.setLocalWorkingCopy("invalid directory");
+        svn.validate();
+    }
+
+    @Test
+    public void validatesIfAtLeastLocalWorkingCopySet() {
+        svn.setLocalWorkingCopy(".");
         try {
             svn.validate();
-            fail("should throw an exception when an invalid 'localWorkingCopy' attribute is set");
         } catch (CruiseControlException e) {
-            // expected
+            fail("should not throw an exception when at least a valid 'localWorkingCopy' attribute is set");
         }
+    }
+
+    @Test(expected = CruiseControlException.class)
+    public void failsValidationIfLocalWorkingCopySetToFileInsteadOfDirectory() throws CruiseControlException,
+            IOException {
 
         File tempFile = File.createTempFile("temp", "txt");
         tempFile.deleteOnExit();
 
-        svn = new SVN();
-        svn.setLocalWorkingCopy(tempFile.getParent());
-        try {
-            svn.validate();
-        } catch (CruiseControlException e) {
-            fail(
-                "should not throw an exception when at least a valid 'localWorkingCopy' "
-                    + "attribute is set");
-        }
-
-        svn = new SVN();
         svn.setLocalWorkingCopy(tempFile.getAbsolutePath());
-        try {
-            svn.validate();
-            fail("should throw an exception when 'localWorkingCopy' is file instead of directory.");
-        } catch (CruiseControlException e) {
-            // expected
-        }
+        svn.validate();
     }
 
-    public void testBuildPropgetCommand() throws CruiseControlException {
+    @Test
+    public void buildPropGetCommandWhereOnlyLocalWorkingCopySet() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
-        String[] expectedCmd =
-            new String[] {
-                "svn",
-                "propget",
-                "-R",
-                "--non-interactive",
-                "svn:externals" };
-        String[] actualCmd = svn.buildPropgetCommand().getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        String[] actualCommand = svn.buildPropgetCommand().getCommandline();
+        String[] expectedCommand = new String[] { "svn", "propget", "-R", "--non-interactive", "svn:externals" };
 
-        svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
-
-        expectedCmd =
-            new String[] {
-                "svn",
-                "propget",
-                "-R",
-                "--non-interactive",
-                "svn:externals",
-                "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildPropgetCommand().getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        assertThat(actualCommand, equalTo(expectedCommand));
     }
 
-    public void testParsePropgetReader() throws Exception {
-        final String testPropgetResult = ". - shared/build\tsvn://mybank.org/svnbank/trunk/java/shared/build\n"
+    @Test
+    public void buildPropGetCommandWhereOnlyRepositoryLocationSet() throws CruiseControlException {
+        svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
+
+        String[] actualCommand = svn.buildPropgetCommand().getCommandline();
+        String[] expectedCommand = new String[] { "svn", "propget", "-R", "--non-interactive", "svn:externals",
+                "http://svn.collab.net/repos/svn" };
+
+        assertThat(actualCommand, equalTo(expectedCommand));
+    }
+
+    @Test
+    public void parsingTheResultsOfExecutingPropGetForSVNExternals() throws Exception {
+        String testPropgetResult = ". - shared/build\tsvn://mybank.org/svnbank/trunk/java/shared/build\n"
                 + "shared/tool/jfcunit_2.08\tsvn://mybank.org/svnbank/trunk/java/shared/tool/jfcunit_2.08\n"
                 + "shared/lib/jnlp-1_2-dev\tsvn://mybank.org/svnbank/trunk/java/shared/lib/jnlp-1_2-dev\n";
 
-        final HashMap directories = new HashMap();
-        final BufferedReader reader = new BufferedReader(
-                new InputStreamReader(
-                        new ByteArrayInputStream(testPropgetResult.getBytes("UTF-8")), "UTF-8"));
+        HashMap directories = new HashMap();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(testPropgetResult
+                .getBytes("UTF-8")), "UTF-8"));
         try {
             SVN.parsePropgetReader(reader, directories);
         } finally {
             reader.close();
         }
+
         assertEquals(1, directories.keySet().size());
-        final String directory = (String) directories.keySet().iterator().next();
-        final ArrayList externals = (ArrayList) directories.get(directory);
+
+        String directory = (String) directories.keySet().iterator().next();
+        List externals = (List) directories.get(directory);
+
         assertEquals("Wrong number of externals", 3, externals.size());
 
-        assertEquals("Wrong external: " + Arrays.asList(((String[]) externals.get(0))).toString(),
-                2, ((String[]) externals.get(0)).length);
-
-        assertEquals("Wrong externalSvnURL",
-                "svn://mybank.org/svnbank/trunk/java/shared/build",
-                ((String[]) externals.get(0))[1]);
+        String[] firstEntry = (String[]) externals.get(0);
+        assertEquals("Wrong external: " + Arrays.asList(firstEntry).toString(), 2, firstEntry.length);
+        assertEquals("Wrong externalSvnURL", "svn://mybank.org/svnbank/trunk/java/shared/build", firstEntry[1]);
     }
 
-    public void testFormatSVNDateForWindows() {
+    @Test
+    public void formattingSVNDate() {
         GregorianCalendar cal = new GregorianCalendar(2007, Calendar.JULY, 11, 12, 32, 45);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = cal.getTime();
-        
-        assertEquals("\"{2007-07-11T12:32:45Z}\"", SVN.formatSVNDate(date, true));
+
+        assertThat("Windows SVN date format does not match", SVN.formatSVNDate(date, true),
+                equalTo("\"{2007-07-11T12:32:45Z}\""));
+        assertThat("non-Windows SVN date format does not match", SVN.formatSVNDate(date, false),
+                equalTo("{2007-07-11T12:32:45Z}"));
     }
 
-    public void testFormatSVNDateForNonWindows() {
-        GregorianCalendar cal = new GregorianCalendar(2007, Calendar.JULY, 11, 12, 32, 45);
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        Date date = cal.getTime();
-        
-        assertEquals("{2007-07-11T12:32:45Z}", SVN.formatSVNDate(date, false));
-    }
-    
+    @Test
     public void testBuildHistoryCommand() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
 
@@ -202,364 +201,192 @@ public class SVNTest extends TestCase {
         long tenMinutes = 10 * 60 * 1000;
         Date lastBuild = new Date(checkTime.getTime() - tenMinutes);
 
-        String[] expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false)};
+        String[] expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false) };
         String[] actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
                 SVN.formatSVNDate(checkTime, false)).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        assertThat(actualCmd, equalTo(expectedCmd));
 
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
-                "external/path"};
-        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
-                SVN.formatSVNDate(checkTime, false), "external/path").getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false), "external/path" };
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false), SVN.formatSVNDate(checkTime, false),
+                "external/path").getCommandline();
+        assertThat(actualCmd, equalTo(expectedCmd));
 
         svn.setRepositoryLocation("http://svn.collab.net/repos/svn");
 
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
+        expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
                 SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
                 "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
-                SVN.formatSVNDate(checkTime, false)).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false), SVN.formatSVNDate(checkTime, false))
+                .getCommandline();
+        assertThat(actualCmd, equalTo(expectedCmd));
 
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
+        expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
                 SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
-                "http://svn.collab.net/repos/external"};
-        actualCmd = svn.buildHistoryCommand(
-                SVN.formatSVNDate(lastBuild, false),
-                SVN.formatSVNDate(checkTime, false), "http://svn.collab.net/repos/external").getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+                "http://svn.collab.net/repos/external" };
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false), SVN.formatSVNDate(checkTime, false),
+                "http://svn.collab.net/repos/external").getCommandline();
+        assertThat(actualCmd, equalTo(expectedCmd));
 
         svn.setUsername("lee");
         svn.setPassword("secret");
 
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
-                "--no-auth-cache",
-                "--username",
-                "lee",
-                "--password",
-                "secret",
-                "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
-                SVN.formatSVNDate(checkTime, false)).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
-
+        expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false), "--no-auth-cache",
+                "--username", "lee", "--password", "secret", "http://svn.collab.net/repos/svn" };
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false), SVN.formatSVNDate(checkTime, false))
+                .getCommandline();
+        assertThat(actualCmd, equalTo(expectedCmd));
 
         svn.setUsername(null);
         svn.setPassword(null);
         final String testConfDir = "myConfigDir";
         svn.setConfigDir(testConfDir);
-        expectedCmd =
-            new String[] {
-                "svn",
-                "log",
-                "--non-interactive",
-                "--xml",
-                "-v",
-                "-r",
-                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false),
-                "--config-dir",
-                testConfDir,
-                "http://svn.collab.net/repos/svn" };
-        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false),
-                SVN.formatSVNDate(checkTime, false)).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        expectedCmd = new String[] { "svn", "log", "--non-interactive", "--xml", "-v", "-r",
+                SVN.formatSVNDate(lastBuild, false) + ":" + SVN.formatSVNDate(checkTime, false), "--config-dir",
+                testConfDir, "http://svn.collab.net/repos/svn" };
+        actualCmd = svn.buildHistoryCommand(SVN.formatSVNDate(lastBuild, false), SVN.formatSVNDate(checkTime, false))
+                .getCommandline();
+        assertThat(actualCmd, equalTo(expectedCmd));
     }
 
+    @Test
     public void testParseModifications() throws JDOMException, ParseException, IOException {
-        String svnLog =
-            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-                + "<log>\n"
-                + "  <logentry revision=\"663\">\n"
-                + "    <author>lee</author>\n"
-                + "    <date>2003-04-30T10:01:42.349105Z</date>\n"
-                + "    <paths>\n"
+        String svnLog = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + "<log>\n"
+                + "  <logentry revision=\"663\">\n" + "    <author>lee</author>\n"
+                + "    <date>2003-04-30T10:01:42.349105Z</date>\n" + "    <paths>\n"
                 + "      <path action=\"A\">/trunk/playground/aaa/ccc</path>\n"
                 + "      <path action=\"M\">/trunk/playground/aaa/ccc/d.txt</path>\n"
-                + "      <path action=\"A\">/trunk/playground/bbb</path>\n"
-                + "    </paths>\n"
-                + "    <msg>bli</msg>\n"
-                + "  </logentry>\n"
-                + "  <logentry revision=\"664\">\n"
-                + "    <author>etienne</author>\n"
-                + "    <date>2003-04-30T10:03:14.100900Z</date>\n"
-                + "    <paths>\n"
-                + "      <path action=\"A\">/trunk/playground/aaa/f.txt</path>\n"
-                + "    </paths>\n"
-                + "    <msg>bla</msg>\n"
-                + "  </logentry>\n"
-                + "  <logentry revision=\"665\">\n"
-                + "    <author>martin</author>\n"
-                + "    <date>2003-04-30T10:04:48.050619Z</date>\n"
-                + "    <paths>\n"
-                + "      <path action=\"D\">/trunk/playground/bbb</path>\n"
-                + "    </paths>\n"
-                + "    <msg>blo</msg>\n"
-                + "  </logentry>\n"
-                + "</log>";
+                + "      <path action=\"A\">/trunk/playground/bbb</path>\n" + "    </paths>\n" + "    <msg>bli</msg>\n"
+                + "  </logentry>\n" + "  <logentry revision=\"664\">\n" + "    <author>etienne</author>\n"
+                + "    <date>2003-04-30T10:03:14.100900Z</date>\n" + "    <paths>\n"
+                + "      <path action=\"A\">/trunk/playground/aaa/f.txt</path>\n" + "    </paths>\n"
+                + "    <msg>bla</msg>\n" + "  </logentry>\n" + "  <logentry revision=\"665\">\n"
+                + "    <author>martin</author>\n" + "    <date>2003-04-30T10:04:48.050619Z</date>\n" + "    <paths>\n"
+                + "      <path action=\"D\">/trunk/playground/bbb</path>\n" + "    </paths>\n" + "    <msg>blo</msg>\n"
+                + "  </logentry>\n" + "</log>";
 
         Modification[] modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(5, modifications.length);
 
-        Modification modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/aaa/ccc",
-                "added");
-        assertEquals(modification, modifications[0]);
+        Modification modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
+                "lee", "bli", "663", "", "/trunk/playground/aaa/ccc", "added");
+        assertThat(modifications[0], equalTo(modification));
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/aaa/ccc/d.txt",
-                "modified");
-        assertEquals(modification, modifications[1]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"), "lee", "bli",
+                "663", "", "/trunk/playground/aaa/ccc/d.txt", "modified");
+        assertThat(modifications[1], equalTo(modification));
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/bbb",
-                "added");
-        assertEquals(modification, modifications[2]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"), "lee", "bli",
+                "663", "", "/trunk/playground/bbb", "added");
+        assertThat(modifications[2], equalTo(modification));
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:03:14.100"),
-                "etienne",
-                "bla",
-                "664",
-                "",
-                "/trunk/playground/aaa/f.txt",
-                "added");
-        assertEquals(modification, modifications[3]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:03:14.100"), "etienne", "bla",
+                "664", "", "/trunk/playground/aaa/f.txt", "added");
+        assertThat(modifications[3], equalTo(modification));
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:04:48.050"),
-                "martin",
-                "blo",
-                "665",
-                "",
-                "/trunk/playground/bbb",
-                "deleted");
-        assertEquals(modification, modifications[4]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:04:48.050"), "martin", "blo",
+                "665", "", "/trunk/playground/bbb", "deleted");
+        assertThat(modifications[4], equalTo(modification));
 
         modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog), "external/path");
         assertEquals(5, modifications.length);
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/external/path:/trunk/playground/aaa/ccc",
-                "added");
-        assertEquals(modification, modifications[0]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"), "lee", "bli",
+                "663", "", "/external/path:/trunk/playground/aaa/ccc", "added");
+        assertThat(modifications[0], equalTo(modification));
 
         modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog), null);
         assertEquals(5, modifications.length);
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/aaa/ccc/d.txt",
-                "modified");
-        assertEquals(modification, modifications[1]);
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-04-30T10:01:42.349"), "lee", "bli",
+                "663", "", "/trunk/playground/aaa/ccc/d.txt", "modified");
+        assertThat(modifications[1], equalTo(modification));
     }
 
-    public void testConvertDateIllegalArgument() {
-        try {
-            Date d = SVN.SVNLogXMLParser.convertDate("2003-04-30T10:01:42.349105");
-            fail("expected ParseException for date without Z but got " + d);
-        } catch (ParseException e) {
-            assertTrue(true);
-        }
+    @Test(expected = ParseException.class)
+    public void testConvertDateIllegalArgument() throws ParseException {
+        SVN.SVNLogXMLParser.convertDate("2003-04-30T10:01:42.349105");
     }
 
+    @Test
     public void testParseEmptyModifications() throws JDOMException, ParseException, IOException {
-        String svnLog =
-            "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
+        String svnLog = "<?xml version=\"1.0\" encoding = \"ISO-8859-1\"?>\n " + "<log>\n" + "</log>";
 
-        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
+        Modification[] modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
         assertEquals(0, modifications.length);
     }
 
-    public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported()
-          throws ParseException, JDOMException, IOException {
-        String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
-                           + "<log>\n"
-                           + "    <logentry revision=\"1234\">\n"
-                           + "        <msg></msg>\n"
-                           + "    </logentry>\n"
-                           + "</log>";
-        Modification[] modifications =  SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
+    @Test
+    public void testChangeWithoutReadAccessToChangedFileShouldResultInNoModificationReported() throws ParseException,
+            JDOMException, IOException {
+        String svnLog = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + "<log>\n"
+                + "    <logentry revision=\"1234\">\n" + "        <msg></msg>\n" + "    </logentry>\n" + "</log>";
+        Modification[] modifications = SVN.SVNLogXMLParser.parse(new StringReader(svnLog));
+
         assertEquals(0, modifications.length);
     }
 
+    @Test
     public void testParseAndFilter() throws ParseException, JDOMException, IOException {
-        String svnLog =
-            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-                + "<log>\n"
-                + "  <logentry revision=\"663\">\n"
-                + "    <author>lee</author>\n"
-                + "    <date>2003-08-02T10:01:13.349105Z</date>\n"
-                + "    <paths>\n"
-                + "      <path action=\"A\">/trunk/playground/bbb</path>\n"
-                + "    </paths>\n"
-                + "    <msg>bli</msg>\n"
-                + "  </logentry>\n"
-                + "  <logentry revision=\"664\">\n"
-                + "    <author>etienne</author>\n"
-                + "    <date>2003-07-29T17:45:12.100900Z</date>\n"
-                + "    <paths>\n"
-                + "      <path action=\"A\">/trunk/playground/aaa/f.txt</path>\n"
-                + "    </paths>\n"
-                + "    <msg>bla</msg>\n"
-                + "  </logentry>\n"
-                + "  <logentry revision=\"665\">\n"
-                + "    <author>martin</author>\n"
-                + "    <date>2003-07-29T18:15:11.100900Z</date>\n"
-                + "    <paths>\n"
-                + "      <path action=\"D\">/trunk/playground/ccc</path>\n"
-                + "    </paths>\n"
-                + "    <msg>blo</msg>\n"
-                + "  </logentry>\n"
-                + "</log>";
+        String svnLog = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" + "<log>\n"
+                + "  <logentry revision=\"663\">\n" + "    <author>lee</author>\n"
+                + "    <date>2003-08-02T10:01:13.349105Z</date>\n" + "    <paths>\n"
+                + "      <path action=\"A\">/trunk/playground/bbb</path>\n" + "    </paths>\n" + "    <msg>bli</msg>\n"
+                + "  </logentry>\n" + "  <logentry revision=\"664\">\n" + "    <author>etienne</author>\n"
+                + "    <date>2003-07-29T17:45:12.100900Z</date>\n" + "    <paths>\n"
+                + "      <path action=\"A\">/trunk/playground/aaa/f.txt</path>\n" + "    </paths>\n"
+                + "    <msg>bla</msg>\n" + "  </logentry>\n" + "  <logentry revision=\"665\">\n"
+                + "    <author>martin</author>\n" + "    <date>2003-07-29T18:15:11.100900Z</date>\n" + "    <paths>\n"
+                + "      <path action=\"D\">/trunk/playground/ccc</path>\n" + "    </paths>\n" + "    <msg>blo</msg>\n"
+                + "  </logentry>\n" + "</log>";
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+0:00"));
-        Date julyTwentynineSixPM2003 =
-            new GregorianCalendar(2003, Calendar.JULY, 29, 18, 0, 0).getTime();
+        Date julyTwentynineSixPM2003 = new GregorianCalendar(2003, Calendar.JULY, 29, 18, 0, 0).getTime();
 
         List modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentynineSixPM2003);
         assertEquals(2, modifications.size());
 
-        Modification modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/bbb",
-                "added");
-        assertEquals(modification, modifications.get(0));
+        Modification modification = createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
+                "lee", "bli", "663", "", "/trunk/playground/bbb", "added");
+        assertThat((Modification) modifications.get(0), equalTo(modification));
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-07-29T18:15:11.100"),
-                "martin",
-                "blo",
-                "665",
-                "",
-                "/trunk/playground/ccc",
-                "deleted");
-        assertEquals(modification, modifications.get(1));
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-07-29T18:15:11.100"), "martin", "blo",
+                "665", "", "/trunk/playground/ccc", "deleted");
+        assertThat((Modification) modifications.get(1), equalTo(modification));
 
-        Date julyTwentyeightZeroPM2003 =
-                new GregorianCalendar(2003, Calendar.JULY, 28, 0, 0, 0).getTime();
+        Date julyTwentyeightZeroPM2003 = new GregorianCalendar(2003, Calendar.JULY, 28, 0, 0, 0).getTime();
 
         modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentyeightZeroPM2003);
         assertEquals(3, modifications.size());
 
-        modifications = SVN.SVNLogXMLParser.parseAndFilter(
-            new StringReader(svnLog), julyTwentynineSixPM2003, "external/path");
+        modifications = SVN.SVNLogXMLParser.parseAndFilter(new StringReader(svnLog), julyTwentynineSixPM2003,
+                "external/path");
         assertEquals(2, modifications.size());
 
-        modification =
-            createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/external/path:/trunk/playground/bbb",
-                "added");
-        assertEquals(modification, modifications.get(0));
+        modification = createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
+                "663", "", "/external/path:/trunk/playground/bbb", "added");
+        assertThat((Modification) modifications.get(0), equalTo(modification));
     }
 
+    @Test
     public void testFormatDatesForSvnLog() {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+10:00"));
+        Date maySeventeenSixPM2001 = new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
+        assertThat(SVN.formatSVNDate(maySeventeenSixPM2001, false), equalTo("{2001-05-17T08:00:00Z}"));
 
-        Date maySeventeenSixPM2001 =
-            new GregorianCalendar(2001, Calendar.MAY, 17, 18, 0, 0).getTime();
-        assertEquals(
-            "{2001-05-17T08:00:00Z}",
-            SVN.formatSVNDate(maySeventeenSixPM2001, false));
-
-        Date maySeventeenEightAM2001 =
-            new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
-        assertEquals(
-            "{2001-05-16T22:00:00Z}",
-            SVN.formatSVNDate(maySeventeenEightAM2001, false));
+        Date maySeventeenEightAM2001 = new GregorianCalendar(2001, Calendar.MAY, 17, 8, 0, 0).getTime();
+        assertThat(SVN.formatSVNDate(maySeventeenEightAM2001, false), equalTo("{2001-05-16T22:00:00Z}"));
 
         TimeZone.setDefault(TimeZone.getTimeZone("GMT-10:00"));
+        Date marchTwelfFourPM2003 = new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
+        assertThat(SVN.formatSVNDate(marchTwelfFourPM2003, false), equalTo("{2003-03-13T02:00:00Z}"));
 
-        Date marchTwelfFourPM2003 =
-            new GregorianCalendar(2003, Calendar.MARCH, 12, 16, 0, 0).getTime();
-        assertEquals(
-            "{2003-03-13T02:00:00Z}",
-            SVN.formatSVNDate(marchTwelfFourPM2003, false));
-
-        Date marchTwelfTenAM2003 =
-            new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
-        assertEquals("{2003-03-12T20:00:00Z}", SVN.formatSVNDate(marchTwelfTenAM2003, false));
+        Date marchTwelfTenAM2003 = new GregorianCalendar(2003, Calendar.MARCH, 12, 10, 0, 0).getTime();
+        assertThat(SVN.formatSVNDate(marchTwelfTenAM2003, false), equalTo("{2003-03-12T20:00:00Z}"));
     }
 
+    @Test
     public void testSetProperty() throws ParseException {
         svn.setProperty("hasChanges?");
 
@@ -568,84 +395,51 @@ public class SVNTest extends TestCase {
         assertEquals(null, svn.getProperties().get("hasChanges?"));
 
         List hasModifications = new ArrayList();
-        hasModifications.add(createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "333",
-                "",
-                "/trunk/playground/bbb",
-                "deleted"));
-        hasModifications.add(createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/bbb",
-                "added"));
+        hasModifications.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee",
+                "bli", "333", "", "/trunk/playground/bbb", "deleted"));
+        hasModifications.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee",
+                "bli", "663", "", "/trunk/playground/bbb", "added"));
         svn.fillPropertiesIfNeeded(hasModifications);
         Map properties = svn.getProperties();
-        assertEquals("true", properties.get("hasChanges?"));
-        assertEquals("663", properties.get("svnrevision"));
+
+        assertThat((String) properties.get("hasChanges?"), equalTo("true"));
+        assertThat((String) properties.get("svnrevision"), equalTo("663"));
     }
 
+    @Test
     public void testSetPropertyIgnoresPriorState() throws ParseException {
         testSetProperty();
         svn.fillPropertiesIfNeeded(new ArrayList());
-        assertFalse(svn.getProperties().containsKey("hasChanges?"));
 
+        assertFalse(svn.getProperties().containsKey("hasChanges?"));
     }
 
+    @Test
     public void testSetPropertyOnDelete() throws ParseException {
         svn.setPropertyOnDelete("hasDeletions?");
 
         List noModifications = new ArrayList();
         svn.fillPropertiesIfNeeded(noModifications);
-        assertEquals(null, svn.getProperties().get("hasDeletions?"));
+        assertThat(svn.getProperties().get("hasDeletions?"), nullValue());
 
         List noDeletions = new ArrayList();
-        noDeletions.add(createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/bbb",
-                "added"));
+        noDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
+                "663", "", "/trunk/playground/bbb", "added"));
         svn.fillPropertiesIfNeeded(noDeletions);
-        assertEquals(null, svn.getProperties().get("hasDeletions?"));
+        assertThat(svn.getProperties().get("hasDeletions?"), nullValue());
 
         List hasDeletions = new ArrayList();
-        hasDeletions.add(createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/aaa",
-                "added"));
-        hasDeletions.add(createModification(
-                SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"),
-                "lee",
-                "bli",
-                "663",
-                "",
-                "/trunk/playground/bbb",
-                "deleted"));
+        hasDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
+                "663", "", "/trunk/playground/aaa", "added"));
+        hasDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
+                "663", "", "/trunk/playground/bbb", "deleted"));
         svn.fillPropertiesIfNeeded(hasDeletions);
-        assertEquals("true", svn.getProperties().get("hasDeletions?"));
+
+        assertThat((String) svn.getProperties().get("hasDeletions?"), equalTo("true"));
     }
 
-
-    private static Modification createModification(
-        Date date,
-        String user,
-        String comment,
-        String revision,
-        String folder,
-        String file,
-        String type) {
+    private static Modification createModification(Date date, String user, String comment, String revision,
+            String folder, String file, String type) {
         Modification modification = new Modification("svn");
         Modification.ModifiedFile modifiedFile = modification.createModifiedFile(file, folder);
         modifiedFile.action = type;
@@ -658,43 +452,29 @@ public class SVNTest extends TestCase {
         return modification;
     }
 
-    private static void assertArraysEquals(Object[] expected, Object[] actual) {
-        assertEquals("array lengths mismatch! was " + Arrays.asList(actual), expected.length, actual.length);
-        for (int i = 0; i < expected.length; i++) {
-            assertEquals(expected[i], actual[i]);
-        }
-    }
-    
+    @Test
     public void testParseInfo() throws JDOMException, IOException {
-        String svnInfo = "<?xml version=\"1.0\"?>\n"
-            + "<info>\n"
-            + "<entry kind=\"dir\" path=\".\" revision=\"12345\">\n"
-            + "<url>https://example.org/svn/playground-project</url>\n"
-            + "<repository>\n"
-            + "<root>https://example.org/svn</root>\n"
-            + "<uuid>e6710e3c-8f79-4e94-9235-f6793330c154</uuid>\n"
-            + "</repository>\n"
-            + "<wc-info>\n"
-            + "<schedule>normal</schedule>\n"
-            + "</wc-info>\n"
-            + "<commit revision=\"12345\">\n"
-            + "<author>joebloggs</author>\n"
-            + "<date>2007-07-11T08:31:58.089161Z</date>\n"
-            + "</commit>\n"
-            + "</entry>\n"
-            + "</info>";
+        String svnInfo = "<?xml version=\"1.0\"?>\n" + "<info>\n"
+                + "<entry kind=\"dir\" path=\".\" revision=\"12345\">\n"
+                + "<url>https://example.org/svn/playground-project</url>\n" + "<repository>\n"
+                + "<root>https://example.org/svn</root>\n" + "<uuid>e6710e3c-8f79-4e94-9235-f6793330c154</uuid>\n"
+                + "</repository>\n" + "<wc-info>\n" + "<schedule>normal</schedule>\n" + "</wc-info>\n"
+                + "<commit revision=\"12345\">\n" + "<author>joebloggs</author>\n"
+                + "<date>2007-07-11T08:31:58.089161Z</date>\n" + "</commit>\n" + "</entry>\n" + "</info>";
         String currentRevision = SVN.SVNInfoXMLParser.parse(new StringReader(svnInfo));
-        assertEquals("12345", currentRevision);
+        
+        assertThat(currentRevision, equalTo("12345"));
     }
 
+    @Test
     public void testBuildInfoCommand() throws CruiseControlException {
         svn.setLocalWorkingCopy(".");
         String[] expectedCmd = { "svn", "info", "--xml" };
         String[] actualCmd = svn.buildInfoCommand(null).getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        assertThat(actualCmd, equalTo(expectedCmd));
 
         expectedCmd = new String[] { "svn", "info", "--xml", "foo" };
         actualCmd = svn.buildInfoCommand("foo").getCommandline();
-        assertArraysEquals(expectedCmd, actualCmd);
+        assertThat(actualCmd, equalTo(expectedCmd));
     }
 }
