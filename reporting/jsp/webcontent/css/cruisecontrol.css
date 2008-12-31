@@ -56,8 +56,8 @@ a img {
 }
 
 #menu li textarea {
-    margin: 15px 5px 5px 13px;
-    width: 13em;
+    margin: 15px 5px 5px 0;
+    width: 14em;
 }
 
 #menu ul {
