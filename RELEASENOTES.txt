@@ -36,6 +36,18 @@ XcodeBuilder
 ----------------------
 * Fix bug with using nested arguments. XcodeBuilder.Arg was not public.
 
+reporting jsp app
+======================
+
+controlpanel.jsp
+----------------------
+* Force jmx panel to 800pxl width now that new style does not allow it to expand beyond tabs width.
+
+navigation.jsp
+----------------------
+* Do not insert breaks in status messages now that they are shown in a text area (makes them more readable).
+
+
 CruiseControl Release Notes - 2.8.1
 
 binary release:
