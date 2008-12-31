@@ -54,22 +54,23 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         listener.setFile(fileName);
         filesToDelete.add(new File(fileName));
 
-        checkResultForState(fileName, ProjectState.WAITING);
-        checkResultForState(fileName, ProjectState.IDLE);
-        checkResultForState(fileName, ProjectState.QUEUED);
-        checkResultForState(fileName, ProjectState.BOOTSTRAPPING);
-        checkResultForState(fileName, ProjectState.MODIFICATIONSET);
-        checkResultForState(fileName, ProjectState.BUILDING);
-        checkResultForState(fileName, ProjectState.MERGING_LOGS);
-        checkResultForState(fileName, ProjectState.PUBLISHING);
-        checkResultForState(fileName, ProjectState.PAUSED);
-        checkResultForState(fileName, ProjectState.STOPPED);
-    }
-
-    private void checkResultForState(final String fileName, ProjectState state)
-            throws CruiseControlException, IOException {
         // This should be equivalent to the date used in listener at seconds precision
         final Date date = new Date();
+
+        checkResultForState(fileName, date, ProjectState.WAITING);
+        checkResultForState(fileName, date, ProjectState.IDLE);
+        checkResultForState(fileName, date, ProjectState.QUEUED);
+        checkResultForState(fileName, date, ProjectState.BOOTSTRAPPING);
+        checkResultForState(fileName, date, ProjectState.MODIFICATIONSET);
+        checkResultForState(fileName, date, ProjectState.BUILDING);
+        checkResultForState(fileName, date, ProjectState.MERGING_LOGS);
+        checkResultForState(fileName, date, ProjectState.PUBLISHING);
+        checkResultForState(fileName, date, ProjectState.PAUSED);
+        checkResultForState(fileName, date, ProjectState.STOPPED);
+    }
+
+    private void checkResultForState(final String fileName, final Date date, final ProjectState state)
+            throws CruiseControlException, IOException {
         listener.handleEvent(new ProjectStateChangedEvent("projName", state));
         final String expected = getExpectedStateText(date, state);
         assertEquals(expected, Util.readFileToString(fileName));
@@ -93,34 +94,29 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         final Progress progress = project.getProgress();
         project.setProjectConfig(projectConfig);
 
-        final String expectedProgressMsgPrefix = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS
-                + DateUtil.formatIso8601(new Date()) + " ";
-
-        String testMsg = "test msg1";
-        checkResultForProgress(fileName, testMsg, expectedProgressMsgPrefix + testMsg, project, progress);
-
-        testMsg = null;
-        checkResultForProgress(fileName, testMsg, expectedProgressMsgPrefix + testMsg, project, progress);
-
         // This should be equivalent to the date used in listener at seconds precision
         final Date date = new Date();
+        final String expectedProgressMsgPrefix = CurrentBuildStatusListener.MSG_PREFIX_PROGRESS
+                + DateUtil.formatIso8601(date) + " ";
+
+        checkResultForProgress(fileName, "test msg1", expectedProgressMsgPrefix, project, progress);
+
+        checkResultForProgress(fileName, null, expectedProgressMsgPrefix, project, progress);
+
         // add a ProjectState string to the status text file
-        checkResultForState(fileName, ProjectState.BUILDING);
+        checkResultForState(fileName, date, ProjectState.BUILDING);
         final String expectedPrefix = getExpectedStateText(date, ProjectState.BUILDING)
                 + "\n" + expectedProgressMsgPrefix;
 
-        testMsg = "test msg2";
-        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
+        checkResultForProgress(fileName, "test msg2", expectedPrefix, project, progress);
 
-        testMsg = "";
-        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
+        checkResultForProgress(fileName, "", expectedPrefix, project, progress);
 
-        testMsg = null;
-        checkResultForProgress(fileName, testMsg, expectedPrefix + testMsg, project, progress);
+        checkResultForProgress(fileName, null, expectedPrefix, project, progress);
     }
 
     private void checkResultForProgress(final String fileName, final String msgProgress,
-                                        final String expectedStatusText,
+                                        final String expectedStatusTextPrefix,
                                         final MockProject project, final Progress progress)
             throws CruiseControlException, IOException {
 
@@ -128,6 +124,6 @@ public class CurrentBuildStatusListenerTest extends TestCase {
         progress.setValue(msgProgress);
         listener.handleEvent(new ProgressChangedEvent(project.getName(), progress));
 
-        assertEquals(expectedStatusText, Util.readFileToString(fileName));
+        assertEquals(expectedStatusTextPrefix + msgProgress, Util.readFileToString(fileName));
     }
 }
