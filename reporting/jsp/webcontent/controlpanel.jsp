@@ -42,7 +42,7 @@
             request.getPathInfo().substring(1));
 %>
 <p>
-<table width="100%" align="center" cellpadding="0" cellspacing="0">
+<table width="100%" align="center" cellpadding="2" cellspacing="0">
     <tr>
         <td align="center">
             <h2>JMX Control Panel</h2>
@@ -51,7 +51,7 @@
     <tr>
         <td align="center">
             <iframe name="controlPanelFrame" id="controlPanelFrame" marginheight="0" frameborder="1"
-                marginwidth="0" src="<%= jmx.toExternalForm() %>" height="600" width="100%">
+                marginwidth="0" src="<%= jmx.toExternalForm() %>" height="600" width="800">
             </iframe>
         </td>
     </tr>
