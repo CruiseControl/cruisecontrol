@@ -32,6 +32,10 @@ Mercurial
 ----------------------
 * Fix bug when author name contains special XML characters (CC-879). Patch by Daniel Kullman
 
+PluginXMLHelper
+----------------------
+* Fix bugs mapping I to lower case in Turkish locale (CC-871).
+
 StarTeam
 ----------------------
 * Fix problem building because of dependency on PluginRegistryTest by adding the main/test classes to the common.xml classpath (CC-878). Patch by DKelly
