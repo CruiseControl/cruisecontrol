@@ -44,6 +44,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -111,7 +112,7 @@ public class PluginXMLHelper {
         } catch (Exception e) {
             LOG.fatal("Could not instantiate class", e);
             throw new CruiseControlException("Could not instantiate class: "
-                    + pluginClass.getName());
+                    + pluginClass.getName(), e);
         }
         return pluginInstance;
     }
@@ -171,9 +172,9 @@ public class PluginXMLHelper {
         for (final Method method : methods) {
             final String name = method.getName();
             if (name.startsWith("set")) {
-                setters.put(name.substring("set".length()).toLowerCase(), method);
+                setters.put(name.substring("set".length()).toLowerCase(Locale.US), method);
             } else if (name.startsWith("create")) {
-                creators.put(name.substring("create".length()).toLowerCase(), method);
+                creators.put(name.substring("create".length()).toLowerCase(Locale.US), method);
             } else if (name.equals("add") && method.getParameterTypes().length == 1) {
                 adders.add(method);
             }
@@ -185,10 +186,10 @@ public class PluginXMLHelper {
             final Iterator childElementIterator = objectElement.getChildren().iterator();
             while (childElementIterator.hasNext()) {
                 final Element childElement = (Element) childElementIterator.next();
-                if (creators.containsKey(childElement.getName().toLowerCase())) {
+                if (creators.containsKey(childElement.getName().toLowerCase(Locale.US))) {
                     LOG.debug("treating child with creator " + childElement.getName());
                     try {
-                        final Method method = creators.get(childElement.getName().toLowerCase());
+                        final Method method = creators.get(childElement.getName().toLowerCase(Locale.US));
                         final Object childObject = method.invoke(object, (Object[]) null);
                         configureObject(childElement, childObject, false);
                     } catch (Exception e) {
@@ -237,10 +238,10 @@ public class PluginXMLHelper {
                             final Map<String, Method> setters, final Object object)
         throws CruiseControlException {
 
-        if (setters.containsKey(propName.toLowerCase())) {
-            LOG.debug("Setting " + propName.toLowerCase() + " to " + propValue);
+        if (setters.containsKey(propName.toLowerCase(Locale.US))) {
+            LOG.debug("Setting " + propName.toLowerCase(Locale.US) + " to " + propValue);
             try {
-                final Method method = setters.get(propName.toLowerCase());
+                final Method method = setters.get(propName.toLowerCase(Locale.US));
                 final Class[] parameters = method.getParameterTypes();
                 if (String.class.isAssignableFrom(parameters[0])) {
                     method.invoke(object, propValue);
@@ -251,7 +252,7 @@ public class PluginXMLHelper {
                 } else if (boolean.class.isAssignableFrom(parameters[0])) {
                     method.invoke(object, Boolean.valueOf(propValue));
                 } else {
-                    LOG.error("rCouldn't invoke setter " + propName.toLowerCase());
+                    LOG.error("rCouldn't invoke setter " + propName.toLowerCase(Locale.US));
                 }
             } catch (Exception e) {
                 LOG.fatal("Error configuring plugin.", e);

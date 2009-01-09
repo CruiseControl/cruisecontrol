@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -50,6 +51,7 @@ public class PluginXMLHelperTest extends TestCase {
     private PluginXMLHelper helper;
     private ProjectXMLHelper projectXmlHelper;
     private PluginRegistry registry;
+    private Locale originalLocale;
 
     private static final int SOME_INT = 15;
     private static final int SOME_OTHER_INT = 16;
@@ -58,12 +60,18 @@ public class PluginXMLHelperTest extends TestCase {
         registry = PluginRegistry.loadDefaultPluginRegistry();
         projectXmlHelper = new ProjectXMLHelper(new HashMap<String, String>(), registry);
         helper = new PluginXMLHelper(projectXmlHelper);
+        
+        // Using Turkish because of how I (as in setInterval) is mapped to lower case (CC-871)
+        originalLocale = Locale.getDefault();
+        Locale turkishLocale = new Locale("tr", "TU");
+        Locale.setDefault(turkishLocale);
     }
 
     protected void tearDown() throws Exception {
         registry = null;
         projectXmlHelper = null;
         helper = null;
+        Locale.setDefault(originalLocale);
     }
 
     public void testConfigure() throws Exception {
@@ -121,6 +129,33 @@ public class PluginXMLHelperTest extends TestCase {
 
         AntBuilder antBuilder = (AntBuilder) projectXmlHelper.configurePlugin(new Element("ant"), false);
         assertEquals(loggerClassName, antBuilder.getLoggerClassName());
+    }
+    
+    public void testShouldWorkInTurkishLocale() throws CruiseControlException {
+        Element pluginElement = new Element("plugin");
+        pluginElement.setAttribute("name", "test_In_turkish");
+        String className = TestNamesInTurkishLocale.class.getCanonicalName();
+        pluginElement.setAttribute("classname", className.toLowerCase(Locale.US));
+        registry.register(pluginElement);
+        
+        Element testElement = new Element("test_in_turkIsh");
+        testElement.setAttribute("Interval", "60");
+        Element childElement = new Element("Insanity");
+        testElement.addContent(childElement);
+
+        helper.configure(testElement, TestNamesInTurkishLocale.class, false);
+    }
+
+}
+
+class TestNamesInTurkishLocale {
+    public TestNamesInTurkishLocale() { }
+    
+    public void setInterval(long interval) {
+    }
+    
+    public Object createInsanity() {
+        return new Object();
     }
 }
 
