@@ -636,13 +636,6 @@ public class CMSynergy implements SourceControl {
      */
     
     private String getLatestBaseline(String release) {
-        String baseline = new String();
-        String nextBaseline = new String();
-        // The format used for converting Java dates into CM Synergy dates
-        // Note that the format used to submit commands differs from the
-        // format used in the results of that command!?!
-        SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
-
         // Construct the CM Synergy command
         cmd.clearArgs();
         cmd.createArgument("query");
