@@ -8,6 +8,10 @@ BuildLoopStatusReportTask
 ----------------------
 * Fix bug where a project with no ModificationSet would cause the error message 'Failed to reach dashboard instance : http://localhost:8080/dashboard/buildloop/listener, either the dashboard has not started up or there is a network problem' (CC-766).
 
+cruisecontrol.sh (Binary Release)
+----------------------
+* Allow JETTY_LOGS to be set by environment varable (CC-872). Patch by Angie Lin
+
 CruiseControlConfig
 ----------------------
 * Restore the ability to have custom PropertiesPlugins.

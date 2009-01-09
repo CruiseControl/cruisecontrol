@@ -82,7 +82,9 @@ esac
 
 LIBDIR=$CCDIR/lib
 LAUNCHER=$LIBDIR/cruisecontrol-launcher.jar
-JETTY_LOGS=$CCDIR/logs
+if [ -z "$JETTY_LOGS" ] ; then 
+ JETTY_LOGS=$CCDIR/logs 
+fi 
 
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then
