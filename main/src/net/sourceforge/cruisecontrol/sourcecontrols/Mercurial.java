@@ -94,9 +94,11 @@ public class Mercurial implements SourceControl {
     private static final String INCOMING_CMD = "incoming"; 
     private static final String LOG_CMD = "log"; 
 
-    static final String MODIFICATION_XML_TEMPLATE = "<hgChange>\n\t<author>{author}</author>\n\t<rev>{rev}</rev>\n\t"
-            + "<node>{node}</node>\n\t<description>{desc|escape}</description>\n\t<date>{date|hgdate}</date>\n\t"
-            + "<addedFiles>{file_adds}</addedFiles>\n\t<removedFiles>{file_dels}</removedFiles>\n\t"
+    static final String MODIFICATION_XML_TEMPLATE = "<hgChange>\n\t<author>{author|escape}</author>\n\t"
+            + "<rev>{rev}</rev>\n\t<node>{node}</node>\n\t<description>{desc|escape}</description>\n\t"
+            + "<date>{date|hgdate}</date>\n\t"
+            + "<addedFiles>{file_adds}</addedFiles>\n\t"
+            + "<removedFiles>{file_dels}</removedFiles>\n\t"
             + "<changedFiles>{files}</changedFiles>\n</hgChange>\n";
 
     public Map<String, String> getProperties() {
