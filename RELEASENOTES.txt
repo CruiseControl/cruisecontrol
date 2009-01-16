@@ -4,6 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8.3-dev
 
+TwitterPublisher
+----------------------
+* Add a new plugin for publishing build results to Twitter.
+
+
 CruiseControl Release Notes - 2.8.2
 
 BuildLoopStatusReportTask

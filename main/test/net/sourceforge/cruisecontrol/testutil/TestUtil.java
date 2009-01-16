@@ -37,24 +37,21 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-import java.net.URL;
-import java.net.URLDecoder;
-
 import junit.framework.Assert;
 import net.sourceforge.cruisecontrol.util.IO;
-
 import org.jdom.Document;
 import org.jdom.Element;
 
-public final class TestUtil {
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
+public final class TestUtil {
     public static class FilesToDelete {
         private final List files = new Vector();
     
@@ -96,6 +93,18 @@ public final class TestUtil {
 
     private TestUtil() {
 
+    }
+
+    public static Element createPassingBuild() {
+      return createElement(true, true);
+    }
+
+    public static Element createFixedBuild() {
+        return createElement(true, false);
+    }
+
+    public static Element createFailedBuild() {
+        return createElement(false, false);
     }
 
     public static Element createElement(boolean success, boolean lastBuildSuccess) {
@@ -174,30 +183,18 @@ public final class TestUtil {
     }
 
     public static Element createInfoElement(String label, boolean lastSuccessful) {
-        Element infoElement = new Element("info");
-
-        Hashtable properties = new Hashtable();
-        properties.put("projectname", "someproject");
-        properties.put("label", label);
-        properties.put("lastbuildtime", "");
-        properties.put("lastgoodbuildtime", "");
-        properties.put("lastbuildsuccessful", lastSuccessful + "");
-        properties.put("buildfile", "");
-        properties.put("builddate", "11/30/2005 12:07:27");
-        properties.put("target", "");
-        properties.put("logfile", "log20020313120000.xml");
-        properties.put("cctimestamp", "20020313120000");
-
-        Iterator propertyIterator = properties.keySet().iterator();
-        while (propertyIterator.hasNext()) {
-            String propertyName = (String) propertyIterator.next();
-            Element propertyElement = new Element("property");
-            propertyElement.setAttribute("name", propertyName);
-            propertyElement.setAttribute("value", (String) properties.get(propertyName));
-            infoElement.addContent(propertyElement);
-        }
-
-        return infoElement;
+        Element info = new Element("info");
+        addProperty(info, "projectname", "someproject");
+        addProperty(info, "label", label);
+        addProperty(info, "lastbuildtime", "");
+        addProperty(info, "lastgoodbuildtime", "");
+        addProperty(info, "lastbuildsuccessful", lastSuccessful + "");
+        addProperty(info, "buildfile", "");
+        addProperty(info, "builddate", "11/30/2005 12:07:27");
+        addProperty(info, "target", "");
+        addProperty(info, "logfile", "log20020313120000.xml");
+        addProperty(info, "cctimestamp", "20020313120000");
+        return info;
     }
 
     /**
@@ -217,4 +214,12 @@ public final class TestUtil {
         Assert.assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
         Assert.assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
     }
+
+    public static void addProperty(Element e, String name, String value) {
+        Element prop = new Element("property");
+        prop.setAttribute("name", name);
+        prop.setAttribute("value", value);
+        e.addContent(prop);
+    }
+    
 }

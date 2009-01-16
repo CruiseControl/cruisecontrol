@@ -116,6 +116,7 @@ public class XMLLogHelper {
     }
 
     /**
+     * @TODO This method is dubious at best and needs to be reviewed. JTF & PJ
      *  @return true if the build was necessary
      */
     public boolean isBuildNecessary() {
@@ -206,4 +207,9 @@ public class XMLLogHelper {
         return !this.wasPreviousBuildSuccessful() && this.isBuildSuccessful();
     }
 
+    public String getStatusMessage() throws CruiseControlException {
+        if (isBuildFix()) { return "fixed"; }
+        if (isBuildSuccessful()) { return "successful"; }
+        return "failed";
+    }
 }
