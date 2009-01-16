@@ -179,6 +179,21 @@ public class XMLLogHelperTest extends TestCase {
         }
     }
 
+    public void testGetStatusMessageWhenPassed() throws CruiseControlException {
+        XMLLogHelper successHelper = new XMLLogHelper(TestUtil.createPassingBuild());
+        assertEquals("successful", successHelper.getStatusMessage());
+    }
+
+    public void testGetStatusMessageWhenFixed() throws CruiseControlException {
+        XMLLogHelper fixedHelper = new XMLLogHelper(TestUtil.createFixedBuild());
+        assertEquals("fixed", fixedHelper.getStatusMessage());
+    }
+
+    public void testGetStatusMessageWhenBroken() throws CruiseControlException {
+        XMLLogHelper fixedHelper = new XMLLogHelper(TestUtil.createFailedBuild());
+        assertEquals("failed", fixedHelper.getStatusMessage());
+    }
+
     public void testIsBuildSuccessful() {
         XMLLogHelper successHelper = new XMLLogHelper(successfulLogElement);
         XMLLogHelper failureHelper = new XMLLogHelper(failedLogElement);
