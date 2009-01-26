@@ -202,6 +202,7 @@
 <a href="#timebuild">&lt;timebuild&gt;</a>
 <a href="#threads">&lt;threads&gt;</a>
 <a href="#compound">&lt;triggers&gt;</a>
+<a href="#twitter">&lt;twitter&gt;</a>
 <a href="#ucm">&lt;ucm&gt;</a>
 <a href="#veto">&lt;veto&gt;</a>
 <a href="#vss">&lt;vss&gt;</a>
@@ -364,6 +365,7 @@
          <a href="#sfeefrs">&lt;sfeefrs/&gt;</a>
          <a href="#sfeetracker">&lt;sfeetracker/&gt;</a>
          <a href="#socket">&lt;socket/&gt;</a>
+         <a href="#twitter">&lt;twitter&gt;</a>
          <a href="#weblogpublisher">&lt;weblog&gt;</a>
          <a href="#x10">&lt;x10/&gt;</a>
          <a href="#xsltlogpublisher">&lt;xsltlogpublisher/&gt;</a>
@@ -9761,6 +9763,45 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </div>
 
         <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+    <h2><a name="twitter">&lt;twitter&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#publishers">&lt;publishers&gt;</a>
+      &lt;twitter&gt;</pre>
+        </div>
+
+    <p>Will send a tweet with a message of the format "projectname buildmessage", where the build message is one of successful, failed or fixed.</p>
+
+        <h3>Attributes</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>username</td>
+                <td>Yes</td>
+                <td>Username for the Twitter account.</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>Yes</td>
+                <td>Password for the Twitter account.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+	<div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="weblogpublisher">&lt;weblog&gt;</a></h2>
 
