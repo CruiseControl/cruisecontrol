@@ -251,7 +251,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -dashboardurl url       the url for dashboard (used for posting build information)");
         System.out.println("                          default is http://localhost:8080/dashboard");
         System.out.println("  -postinterval interval  how frequently build information will be posted to dashboard");
-        System.out.println("                          default is 5 (in second).");
+        System.out.println("                          default is 5 (in seconds).");
         System.out.println("  -ccname name            A logical name which will be displayed in the");
         System.out.println("                          Reporting Application's status page.");
         System.out.println("");
