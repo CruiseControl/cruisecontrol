@@ -8,6 +8,10 @@ TwitterPublisher
 ----------------------
 * Add a new plugin for publishing build results to Twitter.
 
+UCM
+----------------------
+* UCM.java not creating the right command line for describing all activities (CC-886). Reported by Adrien Gracia
+
 
 CruiseControl Release Notes - 2.8.2
 

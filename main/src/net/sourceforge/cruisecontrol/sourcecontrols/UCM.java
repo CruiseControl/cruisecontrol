@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -95,7 +94,7 @@ public class UCM implements SourceControl {
      */
     static final String END_OF_STRING_DELIMITER = "@#@#@#@#@#@#@#@#@#@#@#@";
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -242,7 +241,7 @@ public class UCM implements SourceControl {
      * @return a list of XML elements that contains data about the modifications that took place. If no changes, this
      *         method returns an empty list.
      */
-    public List getModifications(final Date lastBuild, final Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         final String lastBuildDate = inputDateFormat.format(lastBuild);
         final String nowDate = inputDateFormat.format(now);
         properties.put("ucmlastbuild", lastBuildDate);
@@ -284,7 +283,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * get all the activities on the stream since the last build date
+     * @param lastBuildDate last build date
+     * @return all the activities on the stream since the last build date
      */
     private HashMap<String, String> collectActivitiesSinceLastBuild(final String lastBuildDate) {
 
@@ -354,7 +354,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * construct a command to get all the activities on the specified stream
+     * @param lastBuildDate last build date
+     * @return a command to get all the activities on the specified stream
      */
     public Commandline buildListStreamCommand(final String lastBuildDate) {
         final Commandline commandLine = new Commandline();
@@ -383,7 +384,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * get all the activities on the stream since the last build date
+     * @param activityNames all the activities on the stream since the last build date
+     * @return all the activities on the stream since the last build date
      */
     private List<Modification> describeAllActivities(final HashMap<String, String> activityNames) {
 
@@ -398,9 +400,7 @@ public class UCM implements SourceControl {
             // check for contributor activities
             if (activityMod.comment.startsWith("deliver ") && isContributors()) {
                 final List<String> contribList = describeContributors(activityID);
-                final Iterator contribIter = contribList.iterator();
-                while (contribIter.hasNext()) {
-                    final String contribName = activity.toString();
+                for (final String contribName : contribList) {
                     final UCMModification contribMod = describeActivity(contribName, activityDate);
                     // prefix type to make it stand out in Build Results report
                     contribMod.type = "contributor";
@@ -414,7 +414,9 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * get all the activities on the stream since the last build date
+     * @param activityID stream ID
+     * @param activityDate activity date
+     * @return all the activities on the stream since the last build date
      */
     private UCMModification describeActivity(final String activityID, final String activityDate) {
 
@@ -466,7 +468,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * construct a command to get all the activities on the specified stream
+     * @param activityID a stream id
+     * @return a command to get all the activities on the specified stream
      */
     public Commandline buildDescribeActivityCommand(final String activityID) {
         final Commandline commandLine = new Commandline();
@@ -478,7 +481,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * get all the activities on the stream since the last build date
+     * @param activityName activity name
+     * @return all the activities on the stream since the last build date
      */
     private List<String> describeContributors(final String activityName) {
 
@@ -516,7 +520,8 @@ public class UCM implements SourceControl {
     }
 
     /**
-     * construct a command to get all the activities on the specified stream
+     * @param activityID stream ID
+     * @return a command to get all the activities on the specified stream
      */
     public Commandline buildListContributorsCommand(final String activityID) {
         final Commandline commandLine = new Commandline();
@@ -551,7 +556,7 @@ public class UCM implements SourceControl {
      * @param input
      *            the stream to parse
      * @return a list of modification elements
-     * @exception IOException
+     * @exception IOException if an IO error occurs
      */
     List<Modification> parseRebases(final InputStream input) throws IOException {
         final ArrayList<Modification> modifications = new ArrayList<Modification>();
