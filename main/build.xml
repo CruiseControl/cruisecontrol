@@ -323,7 +323,7 @@
     </target>
 
     <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
-     allow running on other jars (reporting, distcc, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
+     allow running on other jars (reporting, ccdist, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
     <target name="checkbinarycompatibility" depends="jar">
 
         <!-- buildtools.classpath should either contain
