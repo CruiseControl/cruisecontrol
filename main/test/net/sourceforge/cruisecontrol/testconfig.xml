@@ -54,16 +54,10 @@
     <property name='default.testlistener.name' value='${project.name}-0'/>
      <!-- to check overriding plugin & defaults. No need to respecify class -->
     <plugin name='testnested' string='overriden'/>
-    <!-- to test self configuring plugins -->
-    <plugin name='testselfconfiguring'
-            classname='net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin'/>
-    <!-- to test nested & self-configuring plugins -->
+    <!-- to test nested plugins -->
     <plugin name='testlistener' string='${default.testlistener.name}'
             classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>
       <testnested string='nested'/>
-      <testselfconfiguring string='selfconfiguring'>
-        <testnested string='nestedagain'/>
-      </testselfconfiguring>
       <stringwrapper string='wrapper1'/>
     </plugin>
     <listeners>
@@ -81,7 +75,7 @@
     <plugin name='testnested'
             classname='net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin'
             string='notshadowing' otherotherstring='otherother'/>
-    <!-- to test nested & self-configuring plugins -->
+    <!-- to test nested plugins -->
     <plugin name='testlistener' string='default'
             classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'>
       <testnested/>

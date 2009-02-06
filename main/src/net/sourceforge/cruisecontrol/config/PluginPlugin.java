@@ -37,8 +37,6 @@
 package net.sourceforge.cruisecontrol.config;
 
 import org.jdom.Element;
-import net.sourceforge.cruisecontrol.SelfConfiguringPlugin;
-import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * <p>A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within the
@@ -48,7 +46,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
  * <p>The <a href=\"plugins.html\">plugins</a> page contains a discussion of the plugin architecture
  * used with CruiseControl.</p>
  */
-public class PluginPlugin implements SelfConfiguringPlugin {
+public class PluginPlugin {
   private String name;
   private String classname;
   private Element transformedElement;
@@ -58,7 +56,7 @@ public class PluginPlugin implements SelfConfiguringPlugin {
    * @param name the plugin name
    * @required
    */
-  public void setName(String name) {
+  void setName(final String name) {
     this.name = name;
   }
 
@@ -67,7 +65,7 @@ public class PluginPlugin implements SelfConfiguringPlugin {
    * @param className the plugin class name
    * @required
    */
-  public void setClassname(String className) {
+  void setClassname(final String className) {
     this.classname = className;
   }
 
@@ -79,11 +77,11 @@ public class PluginPlugin implements SelfConfiguringPlugin {
     return classname;
   }
 
-  public void configure(Element element) throws CruiseControlException {
+  public void configure(final Element element) {
     setName(element.getAttributeValue("name").toLowerCase());
     setClassname(element.getAttributeValue("classname"));
 
-    Element clonedPluginElement = (Element) element.clone();
+    final Element clonedPluginElement = (Element) element.clone();
     clonedPluginElement.removeAttribute("name");
     clonedPluginElement.removeAttribute("classname");
     clonedPluginElement.setName(this.name);

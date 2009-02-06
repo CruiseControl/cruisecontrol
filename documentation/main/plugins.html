@@ -73,7 +73,6 @@
             <li><a href="#initialization">Initialization</a>
                 <ul>
                     <li><a href="#normalconfiguration">Plugin configuration</a></li>
-                    <li><a href="#selfconfiguring">Self-configuring plugins</a></li>
                     <li><a href="#validation">Plugin validation</a></li>
                 </ul>
             </li>
@@ -119,9 +118,8 @@
         </ul>
 
         <h2><a name="initialization"/>Plugin Initialization</h2>
-        <p>The <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will usually use introspection to
-        configure the bean. The exception to this rule is when the plugin is
-        <a href="#selfconfiguring">self-configuring</a>.</p>
+        <p>The <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will use introspection to
+        configure the bean.</p>
 
         <h3><a name="normalconfiguration"/>Plugin configuration</h3>
         <p>In the case of normal initialization, the <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">PluginXMLHelper</a></code> will call setter methods that correspond to
@@ -160,15 +158,6 @@
                 methods have been written.</li>
         </ul>
 
-
-        <h3><a name="selfconfiguring"/>Self-configuring plugins</h3>
-        In some cases, one may want to skip the default configuration facilities offered
-        by the framework. This can be achieved by making the plugin class implement the
-        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html">SelfConfiguringPlugin</a></code> interface.
-        In that case the <code><a
-        class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginXMLHelper.html">
-        PluginXMLHelper</a></code> will delegate plugin configuration to the
-        <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/SelfConfiguringPlugin.html#configure(org.jdom.Element)">configure(Element element)</a></code> defined by this interface.
 
         <h3><a name="validation"/>Plugin Validation</h3>
         <p>Immediately after the parser has configured your plugin, we will

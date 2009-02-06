@@ -296,7 +296,6 @@ public class CruiseControlConfig {
     public void add(final IncludeProjectsPlugin project) throws CruiseControlException {
         final String file = project.getFile();
         final String path = Util.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
-        // FIXME GENDOC Self configure ??
         LOG.debug("getting included projects from " + path);
         final Element includedElement = xmlResolver.getElement(path);
         final CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);

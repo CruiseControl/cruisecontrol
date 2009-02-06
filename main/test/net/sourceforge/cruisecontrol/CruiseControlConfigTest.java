@@ -51,7 +51,6 @@ import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
-import net.sourceforge.cruisecontrol.listeners.ListenerTestSelfConfiguringPlugin;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
@@ -262,30 +261,29 @@ public class CruiseControlConfigTest extends TestCase {
      */
 
     public void testPluginConfiguration() throws Exception {
-        ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
-        PluginRegistry plugins = config.getProjectPlugins("project4");
+        final ProjectConfig projConfig = (ProjectConfig) config.getProject("project4");
+        final PluginRegistry plugins = config.getProjectPlugins("project4");
 
         assertEquals(ListenerTestPlugin.class, plugins.getPluginClass("testlistener"));
         assertEquals(ListenerTestNestedPlugin.class, plugins.getPluginClass("testnested"));
-        assertEquals(ListenerTestSelfConfiguringPlugin.class, plugins.getPluginClass("testselfconfiguring"));
 
-        List listeners = projConfig.getListeners();
+        final List listeners = projConfig.getListeners();
         assertEquals(3, listeners.size());
 
-        Listener listener0 = (Listener) listeners.get(0);
+        final Listener listener0 = (Listener) listeners.get(0);
         assertEquals(ListenerTestPlugin.class, listener0.getClass());
-        ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
+        final ListenerTestPlugin testListener0 = (ListenerTestPlugin) listener0;
         assertEquals("project4-0", testListener0.getString());
 
-        Listener listener1 = (Listener) listeners.get(1);
+        final Listener listener1 = (Listener) listeners.get(1);
         assertEquals(ListenerTestPlugin.class, listener1.getClass());
-        ListenerTestPlugin testListener1 = (ListenerTestPlugin) listener1;
+        final ListenerTestPlugin testListener1 = (ListenerTestPlugin) listener1;
         assertEquals("listener1", testListener1.getString());
         assertEquals("wrapper1", testListener1.getStringWrapper().getString());
 
-        Listener listener2 = (Listener) listeners.get(2);
+        final Listener listener2 = (Listener) listeners.get(2);
         assertEquals(ListenerTestPlugin.class, listener2.getClass());
-        ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
+        final ListenerTestPlugin testListener2 = (ListenerTestPlugin) listener2;
         assertEquals("listener2", testListener2.getString());
         // note this is in fact undefined behavior!! Because we added twice the stringwrapper
         // (first for the child, then for the parent).

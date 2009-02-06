@@ -48,11 +48,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.sourceforge.cruisecontrol.config.PluginPlugin;
+
 /**
  * Helps mapping the XML to object by instantiating and initializing beans.
  *
- * Some plugins can be {@link SelfConfiguringPlugin self-configuring}. For the others, the
- * the {@link #configureObject(org.jdom.Element, Object, boolean)} defines the operations
+ * The {@link #configureObject(org.jdom.Element, Object, boolean)} defines the operations
  * to be performed.
  */
 public class PluginXMLHelper {
@@ -71,10 +72,7 @@ public class PluginXMLHelper {
 
     /**
      * Given a JDOM Element and a class, this method will instantiate an object
-     * of type pluginClass, and {@link #configure(org.jdom.Element, Class, boolean) configure} the element.
-     * <p>
-     * When the plugin is {@link SelfConfiguringPlugin self-configuring} the plugin takes
-     * the responsibility of {@link SelfConfiguringPlugin#configure(org.jdom.Element) configuring itself}
+     * of type pluginClass, and configure the element.
      *
      * <p>{@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
      *
@@ -130,10 +128,9 @@ public class PluginXMLHelper {
                             final boolean skipChildElements) throws CruiseControlException {
 
         LOG.debug("configure " + objectElement.getName() + " instance " + pluginInstance.getClass()
-                  + " self configuring: " + (pluginInstance instanceof SelfConfiguringPlugin)
                   + " skip:" + skipChildElements);
-        if (pluginInstance instanceof SelfConfiguringPlugin) {
-            ((SelfConfiguringPlugin) pluginInstance).configure(objectElement);
+        if (pluginInstance instanceof PluginPlugin) {
+            ((PluginPlugin) pluginInstance).configure(objectElement);
         } else {
             configureObject(objectElement, pluginInstance, skipChildElements);
         }
@@ -228,8 +225,8 @@ public class PluginXMLHelper {
     private void setFromAttributes(final Element objectElement, final Map<String, Method> setters, final Object object)
             throws CruiseControlException {
 
-        for (Iterator iter = objectElement.getAttributes().iterator(); iter.hasNext(); ) {
-            Attribute attribute = (Attribute) iter.next();
+        for (final Iterator iter = objectElement.getAttributes().iterator(); iter.hasNext(); ) {
+            final Attribute attribute = (Attribute) iter.next();
             callSetter(attribute.getName(), attribute.getValue(), setters, object);
         }
     }
