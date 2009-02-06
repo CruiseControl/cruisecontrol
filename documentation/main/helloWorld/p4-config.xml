@@ -1,7 +1,9 @@
 <cruisecontrol>
    <project name="helloworld">
+      <listeners>
+         <currentbuildstatuslistener file="currentbuild.txt" />
+      </listeners>
       <bootstrappers>
-         <currentbuildstatusbootstrapper file="currentbuild.txt" />
          <p4bootstrapper path="//depot/mycruise/build.xml" p4Port="HOST:1666" p4User="USER" p4Client="CLIENT"/>
       </bootstrappers>
       <modificationset quietperiod="30" >
@@ -15,7 +17,6 @@
          <merge dir="test-results"/>
       </log>  
       <publishers>
-         <currentbuildstatuspublisher file="currentbuild.txt" />
          <email mailhost="REPLACE WITH MAILHOST" returnaddress="REPLACE WITH RETURN EMAIL ADDRESS" defaultsuffix="" buildresultsurl="http://localhost:8080/cruisecontrol/buildresults">
             <always address="REPLACE WITH BUILD MASTER EMAIL ADDRESS" />
             <failure address="REPLACE WITH FAILURE EMAIL ADDRESS" />

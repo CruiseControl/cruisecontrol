@@ -112,13 +112,9 @@
 <a href="#compound">&lt;compound&gt;</a>
 <a href="#compoundpublisher">&lt;compoundpublisher&gt;</a>
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-<a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a>
-<a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a>
 <a href="#currentbuildstatusftplistener">&lt;currentbuildstatusftplistener&gt;</a>
-<a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a>
 <a href="#currentbuildstatuslistener">&lt;currentbuildstatuslistener&gt;</a>
 <a href="#currentbuildstatuspagelistener">&lt;currentbuildstatuspagelistener&gt;</a>
-<a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a>
 <a href="#cvs">&lt;cvs&gt;</a>
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
 <a href="#cvslabelincrementer">&lt;cvslabelincrementer&gt;</a>
@@ -268,8 +264,6 @@
          <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper/&gt;</a>
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
          <a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper/&gt;</a>
-         <a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper/&gt;</a>
-         <a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
          <a href="#gitbootstrapper">&lt;gitbootstrapper/&gt;</a>
@@ -347,8 +341,6 @@
          <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher/&gt;</a>
          <a href="#cmsynergytaskpublisher">&lt;cmsynergytaskpublisher/&gt;</a>
          <a href="#compoundpublisher">&lt;compoundpublisher/&gt;</a>
-         <a href="#currentbuildstatuspublisher">&lt;currentbuildstatuspublisher/&gt;</a>
-         <a href="#currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher/&gt;</a>
          <a href="#email">&lt;email/&gt;</a>
          <a href="#execute">&lt;execute/&gt;</a>
          <a href="#ftppublisher">&lt;ftppublisher/&gt;</a>
@@ -1450,16 +1442,6 @@ password=P@ssW0rd!
                 <td>Creates a Synergy baseline prior to build</td>
             </tr>
             <tr>
-                <td><a href="#currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Writes a build status snippet to the filesystem</td>
-            </tr>
-            <tr>
-                <td><a href="#currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></td>
-                <td>0 .. *</td>
-                <td>Transfers a build status snippet via FTP</td>
-            </tr>
-            <tr>
                 <td><a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Bootstraps resources from CVS</td>
@@ -2023,98 +2005,6 @@ password=P@ssW0rd!
 
         </div>
 
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="currentbuildstatusbootstrapper">&lt;currentbuildstatusbootstrapper&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
-      &lt;currentbuildstatusbootstrapper&gt;</pre>
-        </div>
-        <p>Note: this plugin has been made obsolete by the
-        <a href="#currentbuildstatuslistener"><code>currentbuildstatuslistener</code></a>.</p>
-
-        <p>The CruiseControl Build Results JSP can indicate whether or not
-        CruiseControl is currently building a project. To get this information
-        to the JSP, we can use the optional
-        <code>&lt;currentbuildstatusbootstrapper&gt;</code> to write an HTML
-        snippet to disk in a location where the JSP can read it. This file will
-        consist of the time the build was started.</p>
-
-        <p>This plugin is used in tandem with the
-        <a href="#currentbuildstatuspublisher"><code>currentbuildstatuspublisher</code></a>.</p>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>file</td>
-                <td>Yes</td>
-                <td>The filename to write, including path</td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
-
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="currentbuildstatusftpbootstrapper">&lt;currentbuildstatusftpbootstrapper&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
-      &lt;currentbuildstatusftpbootstrapper&gt;</pre>
-        </div>
-
-        <p>Note: this plugin has been made obsolete by the
-        <a href="#currentbuildstatusftplistener"><code>currentbuildstatusftplistener</code></a>.</p>
-
-        <p>This performs the same action as <a href="#currentbuildstatusbootstrapper"><code>&lt;currentbuildstatusbootstrapper&gt;</code></a>,
-        except that the status file is sent to the remote site via FTP, instead
-        of being stored locally.</p>
-
-        <h3>Attributes</h3>
-
-        <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
-        <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
-        attributes.</p>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>file</td>
-                <td>Yes</td>
-                <td>The filename to write.</td>
-            </tr>
-            <tr>
-                <td>destDir</td>
-                <td>Yes</td>
-                <td>The remote directory (relative to <code>targetDir</code>)
-                to write the file.</td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -7572,11 +7462,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Executes all publishers specified as child elements.</td>
             </tr>
             <tr>
-                <td><a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a></td>
-                <td>0 .. *</td>
-                <td>Writes the time of the next build to a file</td>
-            </tr>
-            <tr>
                 <td><a href="#email"><code>&lt;email&gt;</code></a></td>
                 <td>0 .. *</td>
                 <td>Sends an email with a URL to the build results JSP</td>
@@ -8143,55 +8028,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </ol>
         </div>
 
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="currentbuildstatuspublisher">&lt;currentbuildstatuspublisher&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    <a href="#publishers">&lt;publishers&gt;</a>
-      &lt;currentbuildstatuspublisher&gt;</pre>
-        </div>
-
-        <p>Note: this plugin has been made obsolete by the
-        <a href="#currentbuildstatuslistener"><code>currentbuildstatuslistener</code></a>.</p>
-
-        <p>The CruiseControl Build Results JSP will indicate whether or not
-        CruiseControl is currently building a project. To get this information
-        to the JSP, we write an HTML snippet to disk in a location where the JSP
-        can read it. This file will consist of the time the next build attempt
-        will take place, so there is an optional attribute to customize the
-        dateformat.</p>
-
-        <p>This plugin is used in tandem with the
-        <a href="#currentbuildstatusbootstrapper"><code>currentbuildstatusbootstrapper</code></a>.</p>
-
-        <h3>Attributes</h3>
-
-        <table class="documentation">
-            <thead>
-            <tr>
-                <th>Attribute</th>
-                <th>Required</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>file</td>
-                <td>Yes</td>
-                <td>The filename to write</td>
-            </tr>
-            <tr>
-                <td>dateformat</td>
-                <td>No</td>
-                <td>Optionally customize the dateformat used in this file</td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -10647,54 +10483,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </table>
     </div>
 
-        <div class="elementdocumentation">
-        <a class="toplink" href="#top">top</a>
-        <h2><a name="currentbuildstatusftppublisher">&lt;currentbuildstatusftppublisher&gt;</a></h2>
-
-        <div class="hierarchy">
-            <pre>
-<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
-  <a href="#project">&lt;project&gt;</a>
-    <a href="#publishers">&lt;publishers&gt;</a>
-      &lt;currentbuildstatusftppublisher&gt;</pre>
-        </div>
-
-        <p>Note: this plugin has been made obsolete by the
-        <a href="#currentbuildstatusftplistener"><code>currentbuildstatusftplistener</code></a>.</p>
-
-        <p>This performs the same action as
-        <a href="#currentbuildstatuspublisher"><code>&lt;currentbuildstatuspublisher&gt;</code></a>,
-        except that the status file is sent to the remote site via FTP, instead
-        of being stored locally.</p>
-
-        <h3>Attributes</h3>
-
-        <p>In addition to the <a href="#ftpattributes">common FTP attributes</a>,
-        <code>&lt;currentbuildstatusbootstrapper&gt;</code> uses the following
-        attributes.</p>
-
-         <table class="documentation">
-            <thead>
-            <tr>
-               <th>Attribute</th>
-               <th>Required</th>
-               <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-               <td>file</td>
-               <td>Yes</td>
-               <td>The filename to write.</td>
-            </tr>
-            <tr>
-               <td>destDir</td>
-               <td>Yes</td>
-               <td>The remote directory (relative to <code>targetDir</code>) to write the file.</td>
-            </tr>
-            </tbody>
-         </table>
-      </div>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
@@ -10759,8 +10547,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         <h2><a name="ftpattributes">Common FTP Attributes</a></h2>
 
         <p>The following attributes are common to the
-        <a href="#currentbuildstatusftpbootstrapper"><code>&lt;currentbuildstatusftpbootstrapper&gt;</code></a>,
-        <a href="#currentbuildstatusftppublisher"><code>&lt;currentbuildstatusftppublisher&gt;</code></a> and the
         <a href="#ftppublisher"><code>&lt;ftppublisher&gt;</code></a>.</p>
 
         <table class="documentation">

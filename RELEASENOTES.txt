@@ -8,6 +8,10 @@ Removed deprecated classes
 ----------------------
 * removed CruiseControl (old launch wrapper)
 * removed net.sourceforge.cruisecontrol.SelfConfiguringPlugin 
+* removed net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper
+* removed net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusFTPBootstrapper
+* removed net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher
+* removed net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusFTPPublisher
 
 TwitterPublisher
 ----------------------
