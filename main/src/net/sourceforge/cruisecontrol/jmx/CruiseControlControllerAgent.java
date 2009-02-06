@@ -127,14 +127,14 @@ public class CruiseControlControllerAgent {
         // when "-agentutil false", do not attempt to load.
         if (LOAD_JMX_AGENTUTIL.FORCE_BYPASS != enableJMXAgentUtility) {
             try {
-                // use reflection to avoid dependency on DistCC
+                // use reflection to avoid dependency on CCDist
                 final String className = "net.sourceforge.cruisecontrol.jmx.JMXBuildAgentUtility";
-                final Class clsDistCCMBean = loadDistCCMBeanClass(enableJMXAgentUtility, className);
-                if (clsDistCCMBean != null) {
-                    final Object objDistCCMBean
-                            = clsDistCCMBean.getConstructor((Class[]) null).newInstance((Object[]) null);
+                final Class clsCCDistMBean = loadCCDistMBeanClass(enableJMXAgentUtility, className);
+                if (clsCCDistMBean != null) {
+                    final Object objCCDistMBean
+                            = clsCCDistMBean.getConstructor((Class[]) null).newInstance((Object[]) null);
                     final ObjectName name = new ObjectName("CruiseControl Distributed:name=buildAgentUtility");
-                    server.registerMBean(objDistCCMBean, name);
+                    server.registerMBean(objCCDistMBean, name);
                 }
             } catch (Exception e) {
                 LOG.error("Problem registering Build Agent Utility jmx bean", e);
@@ -142,18 +142,18 @@ public class CruiseControlControllerAgent {
         }
     }
 
-    private static Class loadDistCCMBeanClass(final LOAD_JMX_AGENTUTIL enableJMXAgentUtility, final String className) {
-        // use reflection to avoid dependency on DistCC
-        Class clsDistCCMBean = null;
+    private static Class loadCCDistMBeanClass(final LOAD_JMX_AGENTUTIL enableJMXAgentUtility, final String className) {
+        // use reflection to avoid dependency on CCDist
+        Class clsCCDistMBean = null;
         try {
-            clsDistCCMBean = Class.forName(className);
+            clsCCDistMBean = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            // we expect this exception if NOT running with DistCC classes on the classpath
-            final String msgPrefix = "Failed to load JMX DistCC class: " + className;
+            // we expect this exception if NOT running with CCDist classes on the classpath
+            final String msgPrefix = "Failed to load JMX CCDist class: " + className;
 
             // -agentutil true. Considered an error if load fails.
             if (LOAD_JMX_AGENTUTIL.FORCE_LOAD == enableJMXAgentUtility) {
-                LOG.error(msgPrefix + ". DistCC JMX classes are not on the classpath. \n"
+                LOG.error(msgPrefix + ". CCDist JMX classes are not on the classpath. \n"
                         + "You need to include the contrib/distributed classes to use this feature. \n"
                         + "Try using contrib/distributed/cruisecontrol[.bat][.sh].");
 
@@ -162,7 +162,7 @@ public class CruiseControlControllerAgent {
                 LOG.debug(msgPrefix);
             }
         }
-        return clsDistCCMBean;
+        return clsCCDistMBean;
     }
 
     public void start() {
@@ -282,6 +282,7 @@ public class CruiseControlControllerAgent {
 
     /** CC Command line arguement name. */
     public static final String ARG_JMX_AGENTUTIL = "agentutil";
+
     public static enum LOAD_JMX_AGENTUTIL {
         /** default, if no command line arg present. Not an error if load fails. */
         LOAD_IF_AVAILABLE,
