@@ -307,7 +307,6 @@ public class ProjectTest {
 
         mockProject.setName("MockProject");
         mockProject.setProjectConfig(projectConfig);
-//      Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
         projectConfig.setForceOnly(true);
         modSet.setModified(true);
@@ -471,7 +470,6 @@ public class ProjectTest {
     @Test
     public void testGetModifications_requireModificationsTrue() {
         MockModificationSet modSet = new MockModificationSet();
-//        Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
         projectConfig.setRequiremodification(true);
         project.init();
@@ -483,7 +481,6 @@ public class ProjectTest {
     @Test
     public void testGetModifications_requireModificationsFalse() {
         MockModificationSet modSet = new MockModificationSet();
-//        Element modifications = modSet.getModifications(null);
         projectConfig.add(modSet);
         projectConfig.setRequiremodification(false);
         project.init();

@@ -69,7 +69,6 @@ public class ModificationSet implements Serializable {
 
     private static final long serialVersionUID = 7834545928469764690L;
 
-    private boolean lieOnIsModified = false;
     private static final Logger LOG = Logger.getLogger(ModificationSet.class);
     private static final int ONE_SECOND = 1000;
 
@@ -254,19 +253,10 @@ public class ModificationSet implements Serializable {
     /**
      * Returns the modifications as of lastBuild as an XML element.
      * @param lastBuild date of last build
-     * @return modifications element
-     * @deprecated As of 10-Oct-2007, replaced by {@link #retrieveModificationsAsElement(java.util.Date, Progress)}
-     */
-    public Element getModifications(final Date lastBuild) {
-        return retrieveModificationsAsElement(lastBuild, null);
-    }
-
-    /**
-     * Returns the modifications as of lastBuild as an XML element.
-     * @param lastBuild date of last build
      * @param progress ModificationSet progress message callback object
      * @return modifications element
      */
+    // @todo Make this non-public? (package visible only)
     public Element retrieveModificationsAsElement(final Date lastBuild, final Progress progress) {
         Element modificationsElement;
         do {
@@ -302,11 +292,12 @@ public class ModificationSet implements Serializable {
                 final long timeToSleep = getQuietPeriodDifference(now, modifications);
                 LOG.info("Sleeping for " + (timeToSleep / 1000) + " seconds before retrying.");
 
-                // @todo Remove "if (progress != null)" when deprecated getModifications(Date lastBuild) is removed
-                if (progress != null) {
-                    progress.setValue(MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP
-                            + (timeToSleep / 1000) + " secs");
+                if (progress == null) {
+                    throw new IllegalStateException(
+                            "retrieveModificationsAsElement(): 'progress' parameter must not be null.");
                 }
+                progress.setValue(MSG_PROGRESS_PREFIX_QUIETPERIOD_MODIFICATION_SLEEP
+                        + (timeToSleep / 1000) + " secs");
 
                 try {
                     Thread.sleep(timeToSleep);
@@ -380,7 +371,7 @@ public class ModificationSet implements Serializable {
     }
 
     public boolean isModified() {
-        return (!modifications.isEmpty()) || lieOnIsModified;
+        return !modifications.isEmpty();
     }
 
     public void validate() throws CruiseControlException {
@@ -396,13 +387,4 @@ public class ModificationSet implements Serializable {
         return quietPeriod;
     }
 
-    /**
-     * @param isModifiedAccurate if true, don't lie on isModified
-     * @deprecated
-     */
-    public void setRequireModification(final boolean isModifiedAccurate) {
-        LOG.warn("<modificationset requiremodification=\"true|false\" is deprecated. "
-                + "Use <project requiremodification=\"true|false\".");
-        lieOnIsModified = !isModifiedAccurate;
-    }
 }

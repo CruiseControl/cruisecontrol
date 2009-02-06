@@ -78,38 +78,6 @@ public class P4Bootstrapper implements Bootstrapper {
         this.passwd = passwd;
     }
 
-    /**
-     * @deprecated Use <code>setView</code> instead
-     */
-    public void setPath(String path) {
-        LOG.warn("The path attribute is deprecated, please use view attribute instead.");
-        this.view = path;
-    }
-
-    /**
-     * @deprecated Use <code>setPort</code> instead
-     */
-    public void setP4Port(String p4Port) {
-        LOG.warn("The p4Port attribute is deprecated, please use port attribute instead.");
-        this.port = p4Port;
-    }
-
-    /**
-     * @deprecated Use <code>setClient</code> instead
-     */
-    public void setP4Client(String p4Client) {
-        LOG.warn("The p4Client attribute is deprecated, please use client attribute instead.");
-        this.client = p4Client;
-    }
-
-    /**
-     * @deprecated Use <code>setUser</code> instead
-     */
-    public void setP4User(String p4User) {
-        LOG.warn("The p4User attribute is deprecated, please use user attribute instead.");
-        this.user = p4User;
-    }
-
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(view, "view", this.getClass());
         ValidationHelper.assertNotEmpty(view, "view", this.getClass());
