@@ -15,7 +15,7 @@ Removed deprecated classes
 
 Removed deprecated methods
 ----------------------
-* P4Bootstrapper, Log, ModificationSet 
+* Main, P4Bootstrapper, Log, ModificationSet 
 
 TwitterPublisher
 ----------------------
