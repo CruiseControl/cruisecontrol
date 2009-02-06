@@ -131,11 +131,8 @@ public final class PluginRegistry implements Serializable {
      *
      * @param pluginClassname The fully qualified classname for the
      * plugin class, e.g. net.sourceforge.cruisecontrol.builders.AntBuilder.
-     * @deprecated 11-07-2008, will become non-public asap, only existed to support deprecated
-     * {@link net.sourceforge.cruisecontrol.SelfConfiguringPlugin} interface.
      */
-    public void register(final String pluginName, final String pluginClassname) {
-        // TODO hide from public interface
+    void register(final String pluginName, final String pluginClassname) {
         plugins.put(pluginName.toLowerCase(), pluginClassname);
     }
 

@@ -52,13 +52,10 @@ import org.apache.log4j.Logger;
  * &lt;plugin string='listenertest' class='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin'/&gt;
  *
  * &lt;testlistener string='aaa'&gt;
- *   &lt;testselfconfiguring string='bbb'&gt;
-  *     &lt;testnested string='bbb'/&gt;
-  *   &lt;/testselfconfiguring&gt;
  *   &lt;testnested string='ddd'/&gt;
  *   &lt;stringwrapper string='eee'/&gt;
  * &lt;/testlistener&gt;
-  *
+ *
  * </pre>
  * @author jerome@coffeebreaks.org
  */
@@ -70,7 +67,6 @@ public class ListenerTestPlugin implements Listener {
     private String otherString;
     private StringWrapper stringWrapper;
     private ListenerTestNestedPlugin nested;
-    private ListenerTestSelfConfiguringPlugin selfConfiguring;
 
     public void handleEvent(ProjectEvent event) throws CruiseControlException {
         lastEvent = event;
@@ -80,7 +76,6 @@ public class ListenerTestPlugin implements Listener {
         LOG.debug("validate()");
         ValidationHelper.assertIsSet(string, "string", this.getClass());
         // ValidationHelper.assertIsSet(nested, "testnested", this.getClass());
-        // ValidationHelper.assertIsSet(selfConfiguring, "testselfconfiguring", this.getClass());
     }
 
     public ProjectEvent getLastEvent() {
@@ -122,10 +117,6 @@ public class ListenerTestPlugin implements Listener {
         this.nested = nestedPlugin;
     }
 
-    public void add(ListenerTestSelfConfiguringPlugin selfConfiguringPlugin) {
-        this.selfConfiguring = selfConfiguringPlugin;
-    }
-
     public String getString() {
         return string;
     }
@@ -140,9 +131,5 @@ public class ListenerTestPlugin implements Listener {
 
     public ListenerTestNestedPlugin getNested() {
         return nested;
-    }
-
-    public ListenerTestSelfConfiguringPlugin getSelfConfiguring() {
-        return selfConfiguring;
     }
 }
