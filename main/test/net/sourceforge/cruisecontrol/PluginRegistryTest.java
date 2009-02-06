@@ -208,8 +208,6 @@ public class PluginRegistryTest extends TestCase {
         // No plugins that require non-distributed API jars will be tested
         // (i.e., Harvest, Starteam, Sametime, Yahoo)
 
-        verifyPluginClass("currentbuildstatusbootstrapper",
-                "net.sourceforge.cruisecontrol.bootstrappers.CurrentBuildStatusBootstrapper");
         verifyPluginClass("cvsbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.CVSBootstrapper");
         verifyPluginClass("p4bootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.P4Bootstrapper");
         verifyPluginClass("svnbootstrapper", "net.sourceforge.cruisecontrol.bootstrappers.SVNBootstrapper");
@@ -234,8 +232,6 @@ public class PluginRegistryTest extends TestCase {
         verifyPluginClass("labelincrementer", 
                 "net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer");
         verifyPluginClass("artifactspublisher", "net.sourceforge.cruisecontrol.publishers.ArtifactsPublisher");
-        verifyPluginClass("currentbuildstatuspublisher",
-                "net.sourceforge.cruisecontrol.publishers.CurrentBuildStatusPublisher");
         verifyPluginClass("email", "net.sourceforge.cruisecontrol.publishers.LinkEmailPublisher");
         verifyPluginClass("htmlemail", "net.sourceforge.cruisecontrol.publishers.HTMLEmailPublisher");
         verifyPluginClass("execute", "net.sourceforge.cruisecontrol.publishers.ExecutePublisher");
