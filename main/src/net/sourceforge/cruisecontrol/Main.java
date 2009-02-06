@@ -87,19 +87,6 @@ public final class Main implements CruiseControlMain {
     private static final int DEFAULT_INTERVAL = 5;
     
     private static final boolean DEFAULT_POSTING_ENABLED = true;
-    
-    /**
-     * Commandline entry point into the application.
-     *
-     * @param args command line arguments
-     * @deprecated Use the Launcher class instead
-     */
-    public static void main(String[] args) {
-        boolean normalExit = new Main().start(args);
-        if (!normalExit) {
-            System.exit(1);
-        }
-    }
 
     private CruiseControlController controller;
 
