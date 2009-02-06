@@ -111,7 +111,7 @@ public class AlienBrainBootstrapperTest extends TestCase {
         bootStrapper.setServer(TESTING_SERVER);
         bootStrapper.setDatabase(TESTING_DATABASE);
         bootStrapper.setBranch(TESTING_BRANCH);
-        bootStrapper.setPath(TESTING_PATH);
+        bootStrapper.setView(TESTING_PATH);
         bootStrapper.setForceFileUpdate(true);
 
         java.io.File tempFile = java.io.File.createTempFile("AlienBrainBootstrapperTest", null);

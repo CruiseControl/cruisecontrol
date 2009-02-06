@@ -155,27 +155,9 @@ public class Log implements Serializable {
         return projectName;
     }
 
-    /**
-     * @param logDir log dir
-     * @throws CruiseControlException well...never
-     * @deprecated use {@link #setDir(String)}
-     */
-    // @todo Remove throws CruiseControlException? 
-    public void setLogDir(final String logDir) throws CruiseControlException {
-        setDir(logDir);
-    }
-
     // @todo Remove throws CruiseControlException?
     public void setDir(final String logDir) throws CruiseControlException {
         this.logDir = logDir;
-    }
-
-    /**
-     * @param logXmlEncoding log encoding
-     * @deprecated use {@link #setEncoding(String)}
-     */
-    public void setLogXmlEncoding(final String logXmlEncoding) {
-        setEncoding(logXmlEncoding);
     }
 
     public void setEncoding(final String logXmlEncoding) {

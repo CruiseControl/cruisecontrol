@@ -43,7 +43,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -131,11 +130,7 @@ public class ModificationSetTest extends TestCase {
         assertEquals(2000, modSet.getQuietPeriodDifference(now, mods2));
     }
 
-    /**
-     * @deprecated Tests deprecated method, remove when method is removed.
-     */
     public void testProgressNull() throws Exception {
-        // @todo Tests deprecated method, remove when method is removed.
 
         final Date now = new Date();
 
@@ -152,7 +147,12 @@ public class ModificationSetTest extends TestCase {
         Thread.sleep((long) ((quietPeriod * 1000) * .5));
 
         assertNull(mockProgress.getText());
-        modSet.retrieveModificationsAsElement(new Date(), null);
+        try {
+            modSet.retrieveModificationsAsElement(new Date(), null);
+            fail("null progress param should have failed");
+        } catch (IllegalStateException e) {
+            assertEquals("retrieveModificationsAsElement(): 'progress' parameter must not be null.", e.getMessage());
+        }
         assertNull(mockProgress.getText());
     }
 
@@ -191,14 +191,10 @@ public class ModificationSetTest extends TestCase {
         final Element modSetResults = modSet.retrieveModificationsAsElement(new Date(), mockProgress);
 
         Element modificationsElement = new Element("modifications");
-        Iterator mock1ModificationsIterator = mock1.getModifications(new Date(), new Date()).iterator();
-        while (mock1ModificationsIterator.hasNext()) {
-            Modification modification = (Modification) mock1ModificationsIterator.next();
+        for (final Modification modification : mock1.getModifications(new Date(), new Date())) {
             modificationsElement.addContent(modification.toElement());
         }
-        Iterator mock2ModificationsIterator = mock2.getModifications(new Date(), new Date()).iterator();
-        while (mock2ModificationsIterator.hasNext()) {
-            Modification modification = (Modification) mock2ModificationsIterator.next();
+        for (final Modification modification : mock2.getModifications(new Date(), new Date())) {
             modificationsElement.addContent(modification.toElement());
         }
 

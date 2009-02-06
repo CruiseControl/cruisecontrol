@@ -172,7 +172,9 @@ public class AlienBrainTest extends TestCase {
     }
 
     /**
-     * Returns a file as a List of Strings, one String per line.
+     * @return a file as a List of Strings, one String per line.
+     * @param name log file name
+     * @throws IOException if an IO error occurs
      */
     private List<String> loadTestLog(String name) throws IOException {
         InputStream testStream = getClass().getResourceAsStream(name);
@@ -235,8 +237,7 @@ public class AlienBrainTest extends TestCase {
             modifications.get(6).comment);
     }
 
-    /**
-     */
+
     public void testParseNoModifications() throws IOException {
         List results = loadTestLog("alienbrain_nomodifications.txt");
 
@@ -268,7 +269,7 @@ public class AlienBrainTest extends TestCase {
         ab.setDatabase(TESTING_DATABASE);
         ab.setUser(TESTING_USERNAME);
         ab.setPassword(TESTING_PASSWORD);
-        ab.setPath(TESTING_PATH);
+        ab.setView(TESTING_PATH);
 
         List modifications = ab.getModifications(new Date(0), new Date());
         assertTrue("I would have expected the AlienBrain database "
