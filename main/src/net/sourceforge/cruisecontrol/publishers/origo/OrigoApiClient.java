@@ -60,7 +60,7 @@ public class OrigoApiClient {
     
     /**
      * Create with an apiUrl
-     * @param apiUrl
+     * @param apiUrl url
      */
     public OrigoApiClient(URL apiUrl) {
         client = new XmlRpcClient(apiUrl);
@@ -71,8 +71,8 @@ public class OrigoApiClient {
      * @param method the method to call
      * @param params the parameters for the call
      * @return the result of the call
-     * @throws XmlRpcException
-     * @throws IOException
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     protected synchronized Object call(String method, Vector params) throws XmlRpcException, IOException {
         LOG.debug("Executing call " + method + " " + params);
@@ -83,9 +83,9 @@ public class OrigoApiClient {
      * Login for a user
      * @param userKey the user key
      * @param applicationKey the application key
-     * @return
-     * @throws XmlRpcException
-     * @throws IOException
+     * @return login
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     public String login(String userKey, String applicationKey) throws XmlRpcException, IOException {
         Vector params = new Vector();
@@ -98,9 +98,9 @@ public class OrigoApiClient {
      * Retrieve the project id.
      * @param session a session
      * @param projectName name of the project
-     * @return
-     * @throws XmlRpcException
-     * @throws IOException
+     * @return projectID
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     public Integer retrieveProjectId(String session, String projectName) throws XmlRpcException, IOException {
         Vector params = new Vector();
@@ -114,9 +114,9 @@ public class OrigoApiClient {
      * @param session a session
      * @param projectId a project id
      * @param searchArgs search arguments
-     * @return
-     * @throws XmlRpcException
-     * @throws IOException
+     * @return issues
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     public Vector searchIssue(String session, Integer projectId, Hashtable searchArgs) 
             throws XmlRpcException, IOException {
@@ -134,8 +134,8 @@ public class OrigoApiClient {
      * @param bugId a bug id
      * @param description description
      * @param tags tags to add/set
-     * @throws XmlRpcException
-     * @throws IOException
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     public void extendedCommentIssue(String session, Integer projectId, Integer bugId, String description, String tags)
             throws XmlRpcException, IOException {
@@ -145,7 +145,9 @@ public class OrigoApiClient {
         params.addElement(bugId);
         params.addElement(description);
         params.addElement(tags);
-        call("issue.comment_extended", params);
+        params.addElement(0);
+        params.addElement(0);
+        call("issue.comment_extended_2", params);
     }
 
     /**
@@ -156,8 +158,8 @@ public class OrigoApiClient {
      * @param issueDescription description of the issue
      * @param issueTag tag of the issue
      * @param issuePrivate is the issue private?
-     * @throws XmlRpcException
-     * @throws IOException
+     * @throws XmlRpcException if error occurs
+     * @throws IOException if error occurs
      */
     public void addIssue(String session, Integer projectId, String issueSubject, String issueDescription,
             String issueTag, Boolean issuePrivate) throws XmlRpcException, IOException {
@@ -168,6 +170,8 @@ public class OrigoApiClient {
         params.addElement(issueDescription);
         params.addElement(issueTag);
         params.addElement(issuePrivate);
-        call("issue.add", params);
+        params.addElement(0);
+        params.addElement(0);
+        call("issue.add_2", params);
     }
 }
