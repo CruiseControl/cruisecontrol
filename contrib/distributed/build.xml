@@ -230,8 +230,8 @@
         or:
             ${java.home}/javaws/javaws.jar
 
-        NOTE: Currently, Sun's 64-bit java does not provide webstart support,
-        so you may need to compile using a 32-bit jdk.
+        NOTE: Sun's 64-bit java provides webstart support as of v1.6.0_12 (update 12),
+        so you may need to upgrade your 64-bit jdk or compile using a 32-bit jdk.
         </fail>
 
         <!-- check for junit.jar -->
