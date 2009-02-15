@@ -138,7 +138,7 @@
 		<ant antfile="build.xml" dir="../../main" target="jar" inheritall="false" />
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${app.classes.dir}" />
-		<javac destdir="${app.classes.dir}" classpathref="app.classpath" debug="true" source="1.5" target="1.5">
+		<javac destdir="${app.classes.dir}" classpathref="app.classpath" debug="true" fork="true" source="1.5" target="1.5">
 			<src location="${src.dir}" />
 		</javac>
 	</target>
@@ -146,10 +146,10 @@
 	<target name="-compile-tests" unless="test.skip">
 		<mkdir dir="${test.classes.dir}" />
 		<mkdir dir="${functionaltest.classes.dir}" />
-		<javac destdir="${test.classes.dir}" classpathref="test.classpath" debug="true" failonerror="true" source="1.5" target="1.5">
+		<javac destdir="${test.classes.dir}" classpathref="test.classpath" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
 			<src location="${unittest.dir}" />
 		</javac>
-		<javac destdir="${functionaltest.classes.dir}" classpathref="test.classpath" debug="true" failonerror="true" source="1.5" target="1.5">
+		<javac destdir="${functionaltest.classes.dir}" classpathref="test.classpath" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
 			<src location="${functionaltest.dir}" />
 		</javac>
 		<copy todir="${test.classes.dir}">
