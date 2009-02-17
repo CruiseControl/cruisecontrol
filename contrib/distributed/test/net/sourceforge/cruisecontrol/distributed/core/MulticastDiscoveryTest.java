@@ -139,7 +139,7 @@ public class MulticastDiscoveryTest extends TestCase {
                 new LookupLocator(DistributedMasterBuilderTest.JINI_URL_LOCALHOST)
         };
 
-        return new MulticastDiscovery(unicastLocators);
+        return MulticastDiscovery.getDiscoveryUnicast(unicastLocators);
     }
 
     /**
