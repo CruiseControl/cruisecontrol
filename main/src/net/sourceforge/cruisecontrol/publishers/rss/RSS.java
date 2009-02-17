@@ -40,7 +40,10 @@ package net.sourceforge.cruisecontrol.publishers.rss;
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  */
 
-class RSS {
+final class RSS {
+    private RSS() {
+    }
+    
     static final String DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss z";
 
     static final String NODE_ROOT = "rss";
