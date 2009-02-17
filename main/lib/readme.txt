@@ -61,7 +61,7 @@ activation.jar		1.0.2?		Sun BCLA	activation-license.txt (for 1.0.2)
 ant.jar			    1.7.0		ASL v2.0	apache-license-2.0.txt
 ant-launcher.jar	1.7.0		ASL v2.0	apache-license-2.0.txt
 ant-junit.jar		1.7.0		ASL v2.0	apache-license-2.0.txt
-checkstyle-all-4.3.jar	4.3		LGPL v2.1 & ASL v1.1?
+checkstyle-all-4.4.jar	4.4		LGPL v2.1 & ASL v1.1?
 					    		            lgpl-license.txt (from 3.4)
 						    	            apache-license-1.1.txt (from 3.4)
 comm.jar		    2.0win		Sun BCLA	comm-license.txt

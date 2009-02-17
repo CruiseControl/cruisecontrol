@@ -87,7 +87,7 @@
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="${basedir}/../../common/checkstyle.xml"/>
-    <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-4.3.jar" />
+    <property name="checkstyle.jar" value="${dir.main.lib}/checkstyle-all-4.4.jar" />
 
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
