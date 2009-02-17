@@ -65,7 +65,7 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
-public class InteractiveBuildUtility {
+public final class InteractiveBuildUtility {
 
     private static final Logger LOG = Logger.getLogger(InteractiveBuildUtility.class);
 
@@ -73,7 +73,7 @@ public class InteractiveBuildUtility {
     
     private Element distributedBuilderElement;
 
-    public InteractiveBuildUtility() {
+    private InteractiveBuildUtility() {
         System.out.print("Enter path to Cruise Control configuration file: ");
         String configFilePath = CONSOLE.readLine();
         new InteractiveBuildUtility(configFilePath);

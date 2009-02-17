@@ -132,7 +132,10 @@ public final class MulticastDiscovery {
         this(null);
     }
 
-    MulticastDiscovery(final LookupLocator[] unicastLocaters) {
+    static MulticastDiscovery getDiscoveryUnicast(final LookupLocator[] unicastLocaters) {
+        return new MulticastDiscovery(unicastLocaters);
+    }
+    private MulticastDiscovery(final LookupLocator[] unicastLocaters) {
         final String[] lookupGroups = LookupDiscovery.ALL_GROUPS;
 
         LOG.debug("Starting multicast discovery for groups: " + Arrays.toString(lookupGroups));
