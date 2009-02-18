@@ -51,6 +51,7 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -293,7 +294,8 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
-     * Sets the value of the updateFolders attribute. If set to true, the
+     * Sets the value of the updateFolders attribute.
+     * @param updateFolders If set to true, the
      * contents of the folders contained within the project's reconfigure
      * properties will be updated before we query to find new tasks.
      */
@@ -345,7 +347,8 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
-     * Sets the value of the reconfigure attribute. If set to true, the project
+     * Sets the value of the reconfigure attribute.
+     * @param reconfigure If set to true, the project
      * will be reconfigured when changes are detected. Default value is false.
      */
     public void setReconfigure(boolean reconfigure) {
@@ -353,7 +356,8 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
-     * Sets the value of the useBindtime attribute. If set to true, the time the
+     * Sets the value of the useBindtime attribute.
+     * @param useBindTime If set to true, the time the
      * task came into the reconfigure folders is used to query the modifications
      * instead of the time the task was completed. Works
      * for Synergy 6.3SP1 and newer only.
@@ -365,7 +369,8 @@ public class CMSynergy implements SourceControl {
 
     /**
      * Sets the value of the recurse attribute. Used in conjuction with the
-     * reconfigure attribute. If set to true, all subprojects will also be
+     * reconfigure attribute.
+     * @param recurse If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
      */
     public void setRecurse(boolean recurse) {
@@ -373,7 +378,8 @@ public class CMSynergy implements SourceControl {
     }
 
     /**
-     * Sets the value of the ignoreWorkarea attribute. If set to true, we will
+     * Sets the value of the ignoreWorkarea attribute.
+     * @param ignoreWorkarea If set to true, we will
      * not attempt to determine the location of the project's workarea, nor will
      * we pass the cc.ccm.workarea attribute to the builders. Default is false.
      */
@@ -405,7 +411,7 @@ public class CMSynergy implements SourceControl {
         this.country = country;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -417,7 +423,7 @@ public class CMSynergy implements SourceControl {
         ValidationHelper.assertIsSet(projectSpec, "project", this.getClass());
     }
 
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(Date lastBuild, Date now) {
         // Create a Locale appropriate for this installation
         locale = new Locale(language, country);
         if (!locale.equals(Locale.US)) {
@@ -453,7 +459,7 @@ public class CMSynergy implements SourceControl {
         // since the last build.
         numObjects = 0;
         numTasks = 0;
-        List modifications = getModifiedTasks(lastBuild);
+        final List<Modification> modifications = getModifiedTasks(lastBuild);
 
         LOG.info("Found " + numObjects + " modified object(s) in " + numTasks + " new task(s).");
 
@@ -508,10 +514,11 @@ public class CMSynergy implements SourceControl {
      * the last build. If useBindTime is <code>true</code> not the completion time of
      * the task is considered but the time the task came into the folder.
      *
+     * @param lastBuild date of last build
      * @return A list of <code>CMSynergyModifications</code> which represent
      *         the new tasks
      */
-    private List getModifiedTasks(Date lastBuild) {
+    private List<Modification> getModifiedTasks(Date lastBuild) {
 
         // The format used for converting Java dates into CM Synergy dates
         // Note that the format used to submit commands differs from the
@@ -598,27 +605,26 @@ public class CMSynergy implements SourceControl {
         }
 
         // create a modification list with discovered tasks
-        List modificationList = new ArrayList();
-        Iterator tasks = format(cmd.getStdoutAsList()).iterator();
-        while (tasks.hasNext()) {
+        final List<Modification> modificationList = new ArrayList<Modification>();
+        for (final String entry : format(cmd.getStdoutAsList())) {
             numTasks++;
-            String[] attributes = tokeniseEntry((String) tasks.next(), 5);
+            final String[] attributes = tokeniseEntry(entry, 5);
             if (attributes == null) {
                 LOG.warn("Could not determine attributes for at least one "
                         + "discovered task! The modification set is suspect.");
                 continue;
             }
-            CMSynergyModification mod = new CMSynergyModification();
+            final CMSynergyModification mod = new CMSynergyModification();
             mod.taskNumber = attributes[0];
             mod.revision = attributes[1];
             mod.userName = attributes[2];
             mod.modifiedTime = getDateFromSynergy(attributes[3]);
             mod.comment = attributes[4];
 
-            // Populate the included files by quering for objects in the task
+            // Populate the included files by quering for objects in the entry
             getModifiedObjects(mod);
 
-            // Find any Change Requests with which the task is associated
+            // Find any Change Requests with which the entry is associated
             getAssociatedCRs(mod);
 
             // Add the modification to the list
@@ -727,6 +733,7 @@ public class CMSynergy implements SourceControl {
     /**
      * Populate the object list of a Modification by querying for objects
      * associated with the task.
+     * @param mod the modification object to be populated
      */
     private void getModifiedObjects(CMSynergyModification mod) {
         // Construct the CM Synergy command
@@ -755,11 +762,9 @@ public class CMSynergy implements SourceControl {
         }
 
         // Populate the modification with the object data from the task
-        Iterator objects = format(cmd.getStdoutAsList()).iterator();
-        while (objects.hasNext()) {
+        for (final String object : format(cmd.getStdoutAsList())) {
             numObjects++;
-            String object = (String) objects.next();
-            String[] attributes = tokeniseEntry(object, 6);
+            final String[] attributes = tokeniseEntry(object, 6);
             if (attributes == null) {
                 LOG.warn("Could not determine attributes for object associated " + "with task \"" + mod.revision
                         + "\".");
@@ -800,14 +805,14 @@ public class CMSynergy implements SourceControl {
         }
 
         // Add the Change Request(s) to the modification
-        List crList = cmd.getStdoutAsList();
+        final List crList = cmd.getStdoutAsList();
         if (crList != null) {
-            Iterator crs = crList.iterator();
+            final Iterator crs = crList.iterator();
             while (crs.hasNext()) {
-                String crNum = ((String) crs.next()).trim();
-                CMSynergyModification.ChangeRequest cr = mod.createChangeRequest(crNum);
+                final String crNum = ((String) crs.next()).trim();
+                final CMSynergyModification.ChangeRequest cr = mod.createChangeRequest(crNum);
                 if (changeSynergyURL != null && ccmDb != null) {
-                    StringBuffer href = new StringBuffer(changeSynergyURL);
+                    final StringBuffer href = new StringBuffer(changeSynergyURL);
                     href.append("/servlet/com.continuus.webpt.servlet.PTweb?");
                     href.append("ACTION_FLAG=frameset_form&#38;TEMPLATE_FLAG=ProblemReportView&#38;database=");
                     href.append(ccmDb);
@@ -892,9 +897,9 @@ public class CMSynergy implements SourceControl {
      *            The <code>List</code> to be formated
      * @return The formated <code>List</code>
      */
-    private List format(List in) {
+    private List<String> format(List in) {
         // Concatenate output lines until we hit the end of object delimiter.
-        List out = new ArrayList();
+        List<String> out = new ArrayList<String>();
         Iterator it = in.iterator();
         StringBuffer buff = new StringBuffer();
         while (it.hasNext()) {
@@ -941,6 +946,7 @@ public class CMSynergy implements SourceControl {
      * @param sessionFile
      *            The session map file
      * @return The session ID.
+     * @throws CruiseControlException if something bad happens.
      */
     public static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
 

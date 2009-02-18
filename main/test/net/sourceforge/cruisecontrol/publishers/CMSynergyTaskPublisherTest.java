@@ -22,7 +22,8 @@ public class CMSynergyTaskPublisherTest extends TestCase {
 
     private static void addTaskElement(final Element mod) {
         if (!mod.getName().equals("modification")) {
-            throw new IllegalArgumentException("mod parameter must be a modification element, was: " + mod.getContent());
+            throw new IllegalArgumentException("mod parameter must be a modification element, was: "
+                    + mod.getContent());
         }
 
         // set type attrib on parent mod element

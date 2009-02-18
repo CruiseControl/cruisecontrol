@@ -36,9 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -50,6 +48,7 @@ import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 /**
  * Data structure which holds data specific to a single modification within a CM
@@ -88,7 +87,7 @@ public class CMSynergyModification extends Modification {
     /**
      * A list of change requests associated with this modification
      */
-    public List<ChangeRequest> changeRequests = new ArrayList<ChangeRequest>();
+    private final List<ChangeRequest> changeRequests = new ArrayList<ChangeRequest>();
 
     /**
      * Creates a new <code>CMSynergyModification</code> object and sets it's
@@ -104,7 +103,7 @@ public class CMSynergyModification extends Modification {
      *
      * @return A new <code>ModifiedObject</code>
      */
-    public final ModifiedObject createModifiedObject() {
+    private ModifiedObject createModifiedObject() {
         ModifiedObject obj = new ModifiedObject();
         files.add(obj);
         return obj;
@@ -129,9 +128,10 @@ public class CMSynergyModification extends Modification {
      *
      * @return A new <code>ModifiedObject</code>
      */
-    public final ModifiedObject createModifiedObject(String name, String version, String type, String instance,
-            String project, String comment) {
-        ModifiedObject obj = createModifiedObject();
+    public final ModifiedObject createModifiedObject(final String name, final String version, final String type,
+                                                     final String instance, final String project,
+                                                     final String comment) {
+        final ModifiedObject obj = createModifiedObject();
         obj.name = name;
         obj.version = version;
         obj.type = type;
@@ -150,8 +150,8 @@ public class CMSynergyModification extends Modification {
      *
      * @return A new <code>ChangeRequest</code>
      */
-    public final ChangeRequest createChangeRequest(String number) {
-        ChangeRequest cr = new ChangeRequest();
+    public final ChangeRequest createChangeRequest(final String number) {
+        final ChangeRequest cr = new ChangeRequest();
         cr.number = number;
         changeRequests.add(cr);
         return cr;
@@ -160,15 +160,16 @@ public class CMSynergyModification extends Modification {
     /*
      * (non-Javadoc)
      *
-     * @see net.sourceforge.cruisecontrol.Modification#toElement(java.text.DateFormat)
+     * @see Modification#toElement()
      */
-    public Element toElement(final DateFormat formatter) {
+    @Override
+    public Element toElement() {
         Element modificationElement = new Element(TAGNAME_MODIFICATION);
         modificationElement.setAttribute(TAGNAME_TYPE, type);
 
         if (modifiedTime != null) {
             Element dateElement = new Element(TAGNAME_DATE);
-            dateElement.addContent(formatter.format(modifiedTime));
+            dateElement.addContent(DateUtil.formatIso8601(modifiedTime));
             modificationElement.addContent(dateElement);
         }
 
@@ -224,16 +225,16 @@ public class CMSynergyModification extends Modification {
     /*
      * (non-Javadoc)
      *
-     * @see java.lang.Object#toString()
+     * @see Object#toString()
      */
+    @Override
     public String toString() {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         StringBuffer sb = new StringBuffer();
 
         sb.append("Task Number: ").append(taskNumber).append('\n');
         sb.append("Owner: ").append(userName).append('\n');
         sb.append("Release: ").append(revision).append('\n');
-        sb.append("Completion Date: ").append(formatter.format(modifiedTime)).append('\n');
+        sb.append("Completion Date: ").append(DateUtil.formatIso8601(modifiedTime)).append('\n');
         sb.append("Synopsis: ").append(comment).append('\n');
 
         for (final ChangeRequest cr : changeRequests) {
@@ -241,6 +242,10 @@ public class CMSynergyModification extends Modification {
         }
 
         for (final ModifiedFile file : files) {
+            if (!(file instanceof ModifiedObject)) {
+                throw new IllegalStateException("Expected ModifiedObject instance (not ModifiedFile) for: "
+                        + file.getFileName() + ". \nVerify CMSynergy overrides are still valid.");
+            }
             ModifiedObject obj = (ModifiedObject) file;
             sb.append("\tAssociated Object: ").append(obj.name).append('\n');
             sb.append("\tVersion: ").append(obj.version).append('\n');
@@ -257,14 +262,15 @@ public class CMSynergyModification extends Modification {
     /*
      * (non-Javadoc)
      *
-     * @see net.sourceforge.cruisecontrol.Modification#log(java.text.DateFormat)
+     * @see Modification#log()
      */
-    public void log(final DateFormat formatter) {
+    @Override
+    public void log() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Task Number: " + taskNumber);
             LOG.debug("Owner: " + userName);
             LOG.debug("Release: " + revision);
-            LOG.debug("Completion Date: " + formatter.format(modifiedTime));
+            LOG.debug("Completion Date: " + DateUtil.formatIso8601(modifiedTime));
             LOG.debug("Synopsis: " + comment);
 
             for (final ChangeRequest cr : changeRequests) {
@@ -288,10 +294,10 @@ public class CMSynergyModification extends Modification {
     /*
      * (non-Javadoc)
      *
-     * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
-     *      java.text.DateFormat)
+     * @see Modification#fromElement(Element)
      */
-    public void fromElement(final Element modification, final DateFormat formatter) {
+    @Override
+    public void fromElement(final Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
 
@@ -301,7 +307,7 @@ public class CMSynergyModification extends Modification {
                 XMLOutputter outputter = new XMLOutputter();
                 LOG.info("XML: " + outputter.outputString(modification));
             }
-            modifiedTime = formatter.parse(s);
+            modifiedTime = DateUtil.parseIso8601(s);
         } catch (ParseException e) {
             modifiedTime = new Date();
         }
@@ -338,8 +344,9 @@ public class CMSynergyModification extends Modification {
     }
 
     /**
-     * @see java.lang.Object#equals(java.lang.Object)
+     * @see Object#equals(Object)
      */
+    @Override
     public boolean equals(Object o) {
         if (o == null || !(o instanceof CMSynergyModification)) {
             return false;
@@ -348,6 +355,7 @@ public class CMSynergyModification extends Modification {
         return (type.equals(mod.type) && taskNumber.equals(mod.taskNumber));
     }
 
+    @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -362,7 +370,7 @@ public class CMSynergyModification extends Modification {
      *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
-    public class ModifiedObject extends Modification.ModifiedFile {
+    public final class ModifiedObject extends Modification.ModifiedFile {
 
         // Let's not deal with possible null values
         public String name = "";
@@ -373,16 +381,16 @@ public class CMSynergyModification extends Modification {
         public String comment = "";
 
         // Only the parent class should call the constructor
-        protected ModifiedObject() {
+        private ModifiedObject() {
             super(null, null, null, null);
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * @return element representing this ModifiedObject.
          *
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
-         *      java.text.DateFormat)
+         * @see Modification.ModifiedFile#toElement()
          */
+        @Override
         public Element toElement() {
             Element element = new Element(TAGNAME_OBJECT);
 
@@ -420,13 +428,12 @@ public class CMSynergyModification extends Modification {
             return element;
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * @param modification mod element used to poplulate field values.
          *
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
-         *      java.text.DateFormat)
+         * NOT an override of {@link Modification#fromElement}, since base class is {@link Modification.ModifiedFile}.
          */
-        public void fromElement(Element modification) {
+        public void fromElement(final Element modification) {
             name = modification.getChildText(TAGNAME_NAME);
             version = modification.getChildText(TAGNAME_VERSION);
             type = modification.getChildText(TAGNAME_TYPE);
@@ -443,21 +450,21 @@ public class CMSynergyModification extends Modification {
      *
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
-    public class ChangeRequest {
+    public final class ChangeRequest extends Modification {
 
         public String href = null;
         public String number = "";
 
         // Only the parent class should call the constructor
-        protected ChangeRequest() {
+        private ChangeRequest() {
         }
 
         /*
          * (non-Javadoc)
          *
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
-         *      java.text.DateFormat)
+         * @see Modification#fromElement(Element)
          */
+        @Override
         public Element toElement() {
             Element element = new Element(TAGNAME_CHANGEREQUEST);
 
@@ -478,10 +485,10 @@ public class CMSynergyModification extends Modification {
         /*
          * (non-Javadoc)
          *
-         * @see net.sourceforge.cruisecontrol.Modification#fromElement(org.jdom.Element,
-         *      java.text.DateFormat)
+         * @see Modification#fromElement(Element)
          */
-        public void fromElement(Element modification) {
+        @Override
+        public void fromElement(final Element modification) {
             Element linkElement = modification.getChild(TAGNAME_HTML_LINK);
             if (linkElement != null) {
                 href = linkElement.getAttributeValue(TAGNAME_HTML_LINK_HREF);
