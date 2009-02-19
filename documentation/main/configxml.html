@@ -7080,6 +7080,16 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 &lt;/schedule&gt;</pre>
 
             </li>
+
+	    <li>Invoke execbuilder to call a function of the shell, in this case <code>copy</code>.
+
+            <pre>&lt;schedule&gt;
+    &lt;exec command="cmd.exe"
+         workingdir="D:\Workspace\MyProject"
+         args="copy foo.txt bar.txt"
+&lt;/schedule&gt;</pre>
+
+	    </li>
         </ol>
         </div>
 
