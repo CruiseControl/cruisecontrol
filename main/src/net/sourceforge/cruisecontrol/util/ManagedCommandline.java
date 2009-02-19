@@ -177,7 +177,7 @@ public class ManagedCommandline extends EnvCommandline {
      * @return The standard output of the command as a <code>List</code> of
      *         output lines.
      */
-    public List getStdoutAsList() {
+    public List<String> getStdoutAsList() {
         return stdoutLines;
     }
 
@@ -197,7 +197,7 @@ public class ManagedCommandline extends EnvCommandline {
      * @return The standard error of the command as a <code>List</code> of
      *         output lines.
      */
-    public List getStderrAsList() {
+    public List<String> getStderrAsList() {
         return stderrLines;
     }
 
