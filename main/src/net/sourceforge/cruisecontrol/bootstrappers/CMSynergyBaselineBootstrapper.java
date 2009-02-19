@@ -124,7 +124,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param ccmExe the name of the CM Synergy executable
      */
-    public void setCcmExe(String ccmExe) {
+    public void setCcmExe(final String ccmExe) {
         this.ccmExe = ccmExe;
     }
 
@@ -134,7 +134,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      * @param projectSpec
      *            The project spec (in 2 part name format).
      */
-    public void setProject(String projectSpec) {
+    public void setProject(final String projectSpec) {
         this.projectSpec = projectSpec;
     }
     
@@ -143,7 +143,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param purpose The baseline's purpose
      */
-    public void setPurpose(String purpose) {
+    public void setPurpose(final String purpose) {
         this.purpose = purpose;
     }
 
@@ -159,7 +159,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param name The name of the baseline
      */
-    public void setBaselineName(String name) {
+    public void setBaselineName(final String name) {
         this.name = name;
     }
 
@@ -168,7 +168,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param description The description
      */
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
     
@@ -177,7 +177,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param build The build number
      */
-    public void setBuild(String build) {
+    public void setBuild(final String build) {
         this.build = build;
     }
     
@@ -186,7 +186,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @param state The state (published_baseline, test_baseline, released)
      */
-    public void setState(String state) {
+    public void setState(final String state) {
         this.state = state;
     }
 
@@ -203,7 +203,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      * @param sessionFile
      *            The session file
      */
-    public void setSessionFile(String sessionFile) {
+    public void setSessionFile(final String sessionFile) {
         this.sessionFile = new File(sessionFile);
     }
 
@@ -216,7 +216,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
      *
      * @see #setSessionFile(String)
      */
-    public void setSessionName(String sessionName) {
+    public void setSessionName(final String sessionName) {
         this.sessionName = sessionName;
     }
 
@@ -224,7 +224,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
         LOG.info("Creating baseline \"" + name + "\".");
 
         // Create a managed command line
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 ccmExe, sessionName, sessionFile);
         cmd.createArgument("baseline");
         cmd.createArgument("-create");
@@ -239,11 +239,11 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
         cmd.createArguments("-project", projectSpec);
         cmd.createArgument("-subprojects");
         
-        double version = getVersion();
+        final double version = getVersion();
         // If the build switch is available and the attribute is
         // set to a non-null value, use the build and state attribute values
         // in the baseline creation
-        if (version >= 6.4 & !build.equals(null)) {
+        if (version >= 6.4 && build != null) {
             cmd.createArguments("-build", build);
         }
         if (version >= 6.4) {
@@ -255,7 +255,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            StringBuffer error = new StringBuffer(
+            final StringBuilder error = new StringBuilder(
                     "Failed to create intermediate baseline for project \"");
             error.append(getProject());
             error.append("\".");
@@ -263,7 +263,7 @@ public class CMSynergyBaselineBootstrapper extends CMSynergyBaselinePublisher im
         }
 
         // Log the success
-        StringBuffer message = new StringBuffer("Created baseline");
+        final StringBuilder message = new StringBuilder("Created baseline");
         if (name != null) {
             message.append(" ").append(name);
         }

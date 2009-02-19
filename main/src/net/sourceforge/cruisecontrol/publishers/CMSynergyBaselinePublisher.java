@@ -65,8 +65,8 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
     /**
      * The default CM Synergy project purpose for the baseline
      */
-    public static final String CCM_BASELINE_PURPOSE = "Integration Testing";
-    public static final String CCM_BASELINE_STATE = "published_baseline";
+    private static final String CCM_BASELINE_PURPOSE = "Integration Testing";
+    private static final String CCM_BASELINE_STATE = "published_baseline";
 
     private static final Logger LOG = Logger.getLogger(CMSynergyBaselinePublisher.class);
     private static final Pattern LOG_PROPERTY_PATTERN;
@@ -78,7 +78,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
     
     static {
         // Create a Perl 5 pattern matcher to find embedded properties
-        PatternCompiler compiler = new Perl5Compiler();
+        final PatternCompiler compiler = new Perl5Compiler();
         try {
             //                                         1           2         3
             LOG_PROPERTY_PATTERN = compiler.compile("(.*)\\@\\{([^@{}]+)\\}(.*)");
@@ -95,7 +95,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @param purpose The baseline's purpose
      */
-    public void setPurpose(String purpose) {
+    public void setPurpose(final String purpose) {
         this.purpose = purpose;
     }
 
@@ -111,7 +111,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @param name The name of the baseline
      */
-    public void setBaselineName(String name) {
+    public void setBaselineName(final String name) {
         this.name = name;
     }
 
@@ -120,7 +120,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @param description The description
      */
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
     
@@ -129,7 +129,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @param build The build number
      */
-    public void setBuild(String build) {
+    public void setBuild(final String build) {
         this.build = build;
     }
     
@@ -138,14 +138,14 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @param state The state (published_baseline, test_baseline, released)
      */
-    public void setState(String state) {
+    public void setState(final String state) {
         this.state = state;
     }
 
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
-    public void publish(Element log) throws CruiseControlException {
+    public void publish(final Element log) throws CruiseControlException {
 
         // Only publish upon a successful build which includes new tasks.
         if (!shouldPublish(log)) {
@@ -153,7 +153,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         }
 
         // Extract the build properties from the log
-        Properties logProperties = getBuildProperties(log);
+        final Properties logProperties = getBuildProperties(log);
         
 
         // If a baseline name was provided, parse it
@@ -163,7 +163,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         }
 
         // Create the CM Synergy command line
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
 
         cmd.createArgument("baseline");
@@ -179,11 +179,11 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         cmd.createArguments("-project", getProject());
         cmd.createArgument("-subprojects");
         
-        double version = getVersion();
+        final double version = getVersion();
         // If the build switch is available and the attribute is
         // set to a non-null value, use the build and state attribute values
         // in the baseline creation
-        if (version >= 6.4 & !build.equals(null)) {
+        if (version >= 6.4 && build != null) {
             cmd.createArguments("-build", build);
         }
         if (version >= 6.4) {
@@ -195,7 +195,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            StringBuffer error = new StringBuffer(
+            final StringBuilder error = new StringBuilder(
                     "Failed to create intermediate baseline for project \"");
             error.append(getProject());
             error.append("\".");
@@ -203,7 +203,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         }
 
         // Log the success
-        StringBuffer message = new StringBuffer("Created baseline");
+        final StringBuilder message = new StringBuilder("Created baseline");
         if (baselineName != null) {
             message.append(" ").append(baselineName);
         }
@@ -222,17 +222,18 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * Queries CM Synergy for the release value of the project
      *
      * @return The release value of the project.
+     * @throws CruiseControlException if something breaks
      */
-    public String getProjectRelease() throws CruiseControlException {
-        String release;
+    private String getProjectRelease() throws CruiseControlException {
 
         // Create the CM Synergy command line
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
         cmd.createArgument("attribute");
         cmd.createArguments("-show", "release");
         cmd.createArguments("-project", getProject());
 
+        final String release;
         try {
             cmd.execute();
             cmd.assertExitCode(0);
@@ -251,17 +252,19 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      *
      * @return The release value of the project.
      * @param project The 2-part project name
+     * @param sessionName session name
+     * @throws CruiseControlException if something breaks
      */
-    public String getProjectRelease(String project, String sessionName) throws CruiseControlException {
-        String release;
+    protected String getProjectRelease(final String project, final String sessionName) throws CruiseControlException {
 
         // Create the CM Synergy command line
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), sessionName, getSessionFile());
         cmd.createArgument("attribute");
         cmd.createArguments("-show", "release");
         cmd.createArguments("-project", project);
 
+        final String release;
         try {
             cmd.execute();
             cmd.assertExitCode(0);
@@ -287,18 +290,19 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
      * properties support built into CC.
      *
      * @param string The string to be parsed
+     * @param buildProperties collection of properties in which macros are to be substituted
      * @return The parsed string
      */
-    private String parsePropertiesInString(String string, Properties buildProperties) {
+    private String parsePropertiesInString(String string, final Properties buildProperties) {
 
-        PatternMatcher matcher = new Perl5Matcher();
+        final PatternMatcher matcher = new Perl5Matcher();
 
         // Expand all (possibly nested) properties
         while (matcher.contains(string, LOG_PROPERTY_PATTERN)) {
-            MatchResult result = matcher.getMatch();
-            String pre = result.group(1);
-            String propertyName = result.group(2);
-            String post = result.group(3);
+            final MatchResult result = matcher.getMatch();
+            final String pre = result.group(1);
+            final String propertyName = result.group(2);
+            final String post = result.group(3);
             String value = buildProperties.getProperty(propertyName);
             if (value == null) {
                 LOG.warn("Could not resolve property \"" + propertyName

@@ -76,7 +76,7 @@ public class CMSynergy implements SourceControl {
     /**
      * A delimiter used to mark the end of a multi-lined result from a query
      */
-    public static final String CCM_END_OBJECT = "<<<#@#@#>>>";
+    private static final String CCM_END_OBJECT = "<<<#@#@#>>>";
 
     /**
      * The default CM Synergy command line client executable
@@ -87,7 +87,7 @@ public class CMSynergy implements SourceControl {
      * The environment variable used by CM Synergy to determine which backend
      * ccmSession to use when issuing commands.
      */
-    public static final String CCM_SESSION_VAR = "CCM_ADDR";
+    private static final String CCM_SESSION_VAR = "CCM_ADDR";
 
     /**
      * The default CM Synergy session map file
@@ -103,7 +103,7 @@ public class CMSynergy implements SourceControl {
      * A collection of properties which will be passed to and set within the
      * builder.
      */
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      * The name of the property which will be set and passed to the builder if
@@ -423,7 +423,7 @@ public class CMSynergy implements SourceControl {
         ValidationHelper.assertIsSet(projectSpec, "project", this.getClass());
     }
 
-    public List<Modification> getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         // Create a Locale appropriate for this installation
         locale = new Locale(language, country);
         if (!locale.equals(Locale.US)) {
@@ -438,7 +438,7 @@ public class CMSynergy implements SourceControl {
             cmd.assertExitCode(0);
             this.ccmDelimiter = cmd.getStdoutAsString().trim();
         } catch (Exception e) {
-            StringBuffer message = new StringBuffer("Could not connect to provided CM Synergy session: ");
+            final StringBuilder message = new StringBuilder("Could not connect to provided CM Synergy session: ");
             message.append(sessionName).append(" with session file:").append(sessionFile.getAbsolutePath());
             LOG.error(message.toString(), e);
             throw new OpperationFailedException(message.toString(), e);
@@ -518,12 +518,12 @@ public class CMSynergy implements SourceControl {
      * @return A list of <code>CMSynergyModifications</code> which represent
      *         the new tasks
      */
-    private List<Modification> getModifiedTasks(Date lastBuild) {
+    private List<Modification> getModifiedTasks(final Date lastBuild) {
 
         // The format used for converting Java dates into CM Synergy dates
         // Note that the format used to submit commands differs from the
         // format used in the results of that command!?!
-        SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
+        final SimpleDateFormat toCcmDate = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss", locale);
         boolean isBaselineBasedProject = false;
         
         // Determine if the project has a System Testing purpose
@@ -550,8 +550,8 @@ public class CMSynergy implements SourceControl {
         }
         
         // get the release of the project
-        String release = getProjectRelease(projectFourPartName);
-        String latestBaseline = getLatestBaseline(release);
+        final String release = getProjectRelease(projectFourPartName);
+        final String latestBaseline = getLatestBaseline(release);
         
         // Construct the CM Synergy command
         cmd.clearArgs();
@@ -805,14 +805,13 @@ public class CMSynergy implements SourceControl {
         }
 
         // Add the Change Request(s) to the modification
-        final List crList = cmd.getStdoutAsList();
+        final List<String> crList = cmd.getStdoutAsList();
         if (crList != null) {
-            final Iterator crs = crList.iterator();
-            while (crs.hasNext()) {
-                final String crNum = ((String) crs.next()).trim();
+            for (final String aCrList : crList) {
+                final String crNum = (aCrList).trim();
                 final CMSynergyModification.ChangeRequest cr = mod.createChangeRequest(crNum);
                 if (changeSynergyURL != null && ccmDb != null) {
-                    final StringBuffer href = new StringBuffer(changeSynergyURL);
+                    final StringBuilder href = new StringBuilder(changeSynergyURL);
                     href.append("/servlet/com.continuus.webpt.servlet.PTweb?");
                     href.append("ACTION_FLAG=frameset_form&#38;TEMPLATE_FLAG=ProblemReportView&#38;database=");
                     href.append(ccmDb);
@@ -897,18 +896,18 @@ public class CMSynergy implements SourceControl {
      *            The <code>List</code> to be formated
      * @return The formated <code>List</code>
      */
-    private List<String> format(List in) {
+    private List<String> format(final List<String> in) {
         // Concatenate output lines until we hit the end of object delimiter.
         List<String> out = new ArrayList<String>();
         Iterator it = in.iterator();
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         while (it.hasNext()) {
             buff.append((String) it.next());
             int index = buff.toString().lastIndexOf(CCM_END_OBJECT);
             if (index > -1) {
                 buff.delete(index, buff.length());
                 out.add(buff.toString());
-                buff = new StringBuffer();
+                buff = new StringBuilder();
             }
         }
         return out;
@@ -948,7 +947,7 @@ public class CMSynergy implements SourceControl {
      * @return The session ID.
      * @throws CruiseControlException if something bad happens.
      */
-    public static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
+    private static String getSessionID(String sessionName, File sessionFile) throws CruiseControlException {
 
         // If no session file was provided, try to use the default
         if (sessionFile == null) {

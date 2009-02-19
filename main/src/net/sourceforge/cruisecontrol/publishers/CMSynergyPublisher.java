@@ -105,7 +105,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *
      * @return The session file.
      */
-    public File getSessionFile() {
+    File getSessionFile() {
         return this.sessionFile;
     }
 
@@ -127,7 +127,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *
      * @return The CM Synergy session name.
      */
-    public String getSessionName() {
+    String getSessionName() {
         return this.sessionName;
     }
 
@@ -147,7 +147,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return The CM Synergy project (in 2 part name format), or
      *         <code>null</code> if it was not set.
      */
-    public String getProject() {
+    protected String getProject() {
         return this.projectSpec;
     }
 
@@ -167,7 +167,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return The full path of the ccm command line executable, or
      *         <code>null</code> if it was not set.
      */
-    public String getCcmExe() {
+    String getCcmExe() {
         return this.ccmExe;
     }
 
@@ -180,8 +180,8 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return <code>true</code> if the build was successful,
      *         <code>false</code> otherwise.
      */
-    private boolean isBuildSuccessful(Element log) {
-        XMLLogHelper helper = new XMLLogHelper(log);
+    private boolean isBuildSuccessful(final Element log) {
+        final XMLLogHelper helper = new XMLLogHelper(log);
         return helper.isBuildSuccessful();
     }
 
@@ -192,7 +192,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *
      * @return The properties set within the current build.
      */
-    public Properties getBuildProperties(Element log) {
+    Properties getBuildProperties(Element log) {
         final Properties buildProperties = new Properties();
 
         for (Object o : log.getChild("info").getChildren("property")) {
@@ -213,7 +213,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *
      * @return A <code>List</code> of new CM Synergy tasks
      */
-    public List getNewTasks(Element log) {
+    List<String> getNewTasks(final Element log) {
         final List<String> taskList = new ArrayList<String>();
 
         // Get the modification list from the log
@@ -266,7 +266,7 @@ public abstract class CMSynergyPublisher implements Publisher {
      *  
      * @return A double representing the version of Synergy
      */
-    public double getVersion() {
+    protected double getVersion() {
 
         final ManagedCommandline versionCmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());

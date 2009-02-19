@@ -82,7 +82,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
     /* (non-Javadoc)
      * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
      */
-    public void publish(Element log) throws CruiseControlException {
+    public void publish(final Element log) throws CruiseControlException {
 
         // Only publish upon a successful build which includes new tasks.
         if (!shouldPublish(log)) {
@@ -95,9 +95,9 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         }
 
         // Get a string based list of new tasks
-        StringBuffer tasks = new StringBuffer();
-        List newTasksList = getNewTasks(log);
-        Iterator newTasks = newTasksList.iterator();
+        final StringBuilder tasks = new StringBuilder();
+        final List<String> newTasksList = getNewTasks(log);
+        final Iterator<String> newTasks = newTasksList.iterator();
         for (int index = 0; newTasks.hasNext(); index++) {
             if (index > 0) {
                 tasks.append(",");
@@ -109,7 +109,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
                 + folderNumber + ".");
 
         // Create our CM Synergy command
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
         cmd.createArgument("folder");
         cmd.createArgument("-modify");
@@ -153,9 +153,9 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
      * @throws CruiseControlException
      *             if the folder number can not be found.
      */
-    private String getFolderNumber(String folderName, String project) throws CruiseControlException {
+    private String getFolderNumber(final String folderName, final String project) throws CruiseControlException {
         // Get a list of folders in the project
-        ManagedCommandline cmd = CMSynergy.createCcmCommand(
+        final ManagedCommandline cmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
         cmd.createArgument("reconfigure_properties");
         cmd.createArgument("-u");
@@ -173,9 +173,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
         }
 
         // Try to find a matching folder name
-        for (Iterator folders = cmd.getStdoutAsList().iterator(); folders
-                .hasNext();) {
-            String line = (String) folders.next();
+        for (final String line : cmd.getStdoutAsList()) {
             if (line.indexOf(folderName) > -1) {
                 int index = line.indexOf(CMSynergy.CCM_ATTR_DELIMITER);
                 if (index == -1) {

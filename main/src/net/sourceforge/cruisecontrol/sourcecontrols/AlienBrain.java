@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -181,12 +180,11 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
      * Turn a stream containing the results of running the AlienBrain
      * command-line client into a list of Modifications.
      */
-    protected List<Modification> parseModifications(List modifications) {
+    protected List<Modification> parseModifications(final List<String> modifications) {
         final List<Modification> mods = new ArrayList<Modification>();
 
-        for (Iterator it = modifications.iterator(); it.hasNext(); ) {
-            String line = (String) it.next();
-            line = line.trim();
+        for (final String modification : modifications) {
+            String line = modification.trim();
             if (line.equals(AB_NO_SESSION)) {
                 LOG.error(AB_NO_SESSION);
                 continue;
@@ -200,7 +198,7 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
                 line = "0" + line;
             }
 
-            Modification m = parseModificationDescription(line);
+            final Modification m = parseModificationDescription(line);
             mods.add(m);
         }
         return mods;
