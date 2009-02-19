@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -105,7 +104,7 @@ public class SVN implements SourceControl {
 
     private boolean useLocalRevision = false;
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -197,8 +196,8 @@ public class SVN implements SourceControl {
      * @return the list of modifications, or an empty list if we failed
      * to retrieve the changes.
      */
-    public List getModifications(Date lastBuild, Date now) {
-        HashMap directories = new HashMap();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        HashMap<String, List<String[]>> directories = new HashMap<String, List<String[]>>();
         Commandline propCommand = new Commandline();
         // the propget command can be pretty expensive on large projects
         // so only execute if the checkExternals flag is set in the config
@@ -215,14 +214,13 @@ public class SVN implements SourceControl {
             }
         }
 
-        List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
         Commandline command;
-        String path;
-        String svnURL;
-        HashMap commandsAndPaths = new HashMap();
+
+        final HashMap<Commandline, String> commandsAndPaths = new HashMap<Commandline, String>();
         try {
             // always check the root
-            String startRevision = formatSVNDate(lastBuild);
+            final String startRevision = formatSVNDate(lastBuild);
             String endRevision;
             if (useLocalRevision) {
                 endRevision = execInfoCommand(buildInfoCommand(null));
@@ -231,19 +229,15 @@ public class SVN implements SourceControl {
             }
             command = buildHistoryCommand(startRevision, endRevision);
             commandsAndPaths.put(command, null);
-            for (Iterator iter = directories.keySet().iterator(); iter.hasNext();) {
-                String directory = (String) iter.next();
+            for (final String directory : directories.keySet()) {
                 if (useLocalRevision) {
                     endRevision = execInfoCommand(buildInfoCommand(directory));
                 } else {
                     endRevision = formatSVNDate(now);
                 }
-                ArrayList externals =
-                    (ArrayList) directories.get(directory);
-                for (Iterator eiter = externals.iterator(); eiter.hasNext();) {
-                    String[] external = (String[]) eiter.next();
-                    path = directory + "/" + external[0];
-                    svnURL = external[1];
+                for (final String[] external : directories.get(directory)) {
+                    final String path = directory + "/" + external[0];
+                    final String svnURL = external[1];
                     if (repositoryLocation != null) {
                         command = buildHistoryCommand(startRevision, endRevision, svnURL);
                         commandsAndPaths.put(command, null);
@@ -258,11 +252,11 @@ public class SVN implements SourceControl {
             return modifications;
         }
         try {
-            for (Iterator iter = commandsAndPaths.keySet().iterator(); iter.hasNext();) {
-                 command = (Commandline) iter.next();
-                 path = (String) commandsAndPaths.get(command);
-                 modifications.addAll(execHistoryCommand(
-                     command, lastBuild, path));
+            for (final Commandline commandline : commandsAndPaths.keySet()) {
+                command = commandline;
+                final String path = commandsAndPaths.get(command);
+                modifications.addAll(execHistoryCommand(
+                        command, lastBuild, path));
             }
         } catch (Exception e) {
             LOG.error("Error executing svn log command " + command, e);
@@ -389,7 +383,7 @@ public class SVN implements SourceControl {
         }
     }
 
-    private static HashMap execPropgetCommand(Commandline command)
+    private static HashMap<String, List<String[]>> execPropgetCommand(Commandline command)
         throws InterruptedException, IOException {
 
         final Process p = command.execute();
@@ -398,7 +392,7 @@ public class SVN implements SourceControl {
         final BufferedReader reader = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), "UTF8"));
 
-        final HashMap directories = new HashMap();
+        final HashMap<String, List<String[]>> directories = new HashMap<String, List<String[]>>();
         try {
             parsePropgetReader(reader, directories);
 
@@ -419,7 +413,9 @@ public class SVN implements SourceControl {
      * @param directories will be populated with external directories
      * @throws IOException if an error occurs
      */
-    static void parsePropgetReader(BufferedReader reader, HashMap directories) throws IOException {
+    static void parsePropgetReader(final BufferedReader reader, final HashMap<String, List<String[]>> directories)
+            throws IOException {
+
         String line;
         String currentDir = null;
 
@@ -428,20 +424,20 @@ public class SVN implements SourceControl {
             // the directory containing the externals
             if (split.length > 1) {
                 currentDir = split[0];
-                directories.put(currentDir, new ArrayList());
+                directories.put(currentDir, new ArrayList<String[]>());
                 line = split[1];
             }
             split = line.split("\\s");
             if (!split[0].equals("")) {
-                ArrayList externals = (ArrayList) directories.get(currentDir);
+                List<String[]> externals = directories.get(currentDir);
                 // split contains: [externalPath, externalSvnURL]
                 externals.add(split);
             }
         }
     }
 
-    private static List execHistoryCommand(Commandline command, Date lastBuild,
-                                    String externalPath)
+    private static List<Modification> execHistoryCommand(final Commandline command, final Date lastBuild,
+                                    final String externalPath)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
         final Process p = command.execute();
@@ -449,7 +445,7 @@ public class SVN implements SourceControl {
         final Thread stderr = logErrorStream(p);
         final InputStreamReader reader = new InputStreamReader(p.getInputStream(), "UTF-8");
 
-        final List modifications;
+        final List<Modification> modifications;
         try {
             modifications = SVNLogXMLParser.parseAndFilter(reader, lastBuild, externalPath);
 
@@ -497,14 +493,13 @@ public class SVN implements SourceControl {
         return stderr;
     }
 
-    void fillPropertiesIfNeeded(List modifications) {
+    void fillPropertiesIfNeeded(final List<Modification> modifications) {
         if (!modifications.isEmpty()) {
             properties.modificationFound();
             int maxRevision = 0;
-            for (int i = 0; i < modifications.size(); i++) {
-                Modification modification = (Modification) modifications.get(i);
+            for (final Modification modification : modifications) {
                 maxRevision = Math.max(maxRevision, Integer.parseInt(modification.revision));
-                Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
+                final Modification.ModifiedFile file = modification.files.get(0);
                 if (file.action.equals("deleted")) {
                     properties.deletionFound();
                 }
@@ -529,9 +524,9 @@ public class SVN implements SourceControl {
             return parseAndFilter(reader, lastBuild, null);
         }
 
-        static List parseAndFilter(Reader reader, Date lastBuild, String externalPath)
+        static List<Modification> parseAndFilter(final Reader reader, final Date lastBuild, final String externalPath)
                 throws ParseException, JDOMException, IOException {
-            Modification[] modifications = parse(reader, externalPath);
+            final Modification[] modifications = parse(reader, externalPath);
             return filterModifications(modifications, lastBuild);
         }
 
@@ -548,32 +543,34 @@ public class SVN implements SourceControl {
             return parseDOMTree(document, externalPath);
         }
 
-        static Modification[] parseDOMTree(Document document, String externalPath)
+        static Modification[] parseDOMTree(final Document document, final String externalPath)
                 throws ParseException {
-            List modifications = new ArrayList();
 
-            Element rootElement = document.getRootElement();
-            List logEntries = rootElement.getChildren("logentry");
-            for (Iterator iterator = logEntries.iterator(); iterator.hasNext();) {
-                Element logEntry = (Element) iterator.next();
+            final List<Modification> modifications = new ArrayList<Modification>();
 
-                Modification[] modificationsOfRevision =
-                    parseLogEntry(logEntry, externalPath);
+            final Element rootElement = document.getRootElement();
+            final List logEntries = rootElement.getChildren("logentry");
+            for (final Object logEntry1 : logEntries) {
+                final Element logEntry = (Element) logEntry1;
+
+                final Modification[] modificationsOfRevision =
+                        parseLogEntry(logEntry, externalPath);
                 modifications.addAll(Arrays.asList(modificationsOfRevision));
             }
 
-            return (Modification[]) modifications.toArray(new Modification[modifications.size()]);
+            return modifications.toArray(new Modification[modifications.size()]);
         }
 
-        static Modification[] parseLogEntry(Element logEntry, String externalPath)
+        static Modification[] parseLogEntry(final Element logEntry, final String externalPath)
                 throws ParseException {
-            List modifications = new ArrayList();
 
-            Element logEntryPaths = logEntry.getChild("paths");
+            final List<Modification> modifications = new ArrayList<Modification>();
+
+            final Element logEntryPaths = logEntry.getChild("paths");
             if (logEntryPaths != null) {
-                List paths = logEntryPaths.getChildren("path");
-                for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
-                    Element path = (Element) iterator.next();
+                final List paths = logEntryPaths.getChildren("path");
+                for (final Object path1 : paths) {
+                    Element path = (Element) path1;
 
                     Modification modification = new Modification("svn");
 
@@ -594,7 +591,7 @@ public class SVN implements SourceControl {
                 }
             }
 
-            return (Modification[]) modifications.toArray(new Modification[modifications.size()]);
+            return modifications.toArray(new Modification[modifications.size()]);
         }
 
         /**
@@ -641,10 +638,9 @@ public class SVN implements SourceControl {
          * @param modifications source
          * @param lastBuild last build date
          */
-        static List filterModifications(Modification[] modifications, Date lastBuild) {
-            List filtered = new ArrayList();
-            for (int i = 0; i < modifications.length; i++) {
-                Modification modification = modifications[i];
+        static List<Modification> filterModifications(final Modification[] modifications, final Date lastBuild) {
+            final List<Modification> filtered = new ArrayList<Modification>();
+            for (final Modification modification : modifications) {
                 if (modification.modifiedTime.getTime() > lastBuild.getTime()) {
                     filtered.add(modification);
                 }

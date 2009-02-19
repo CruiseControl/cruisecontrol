@@ -116,7 +116,7 @@ public class PlasticSCM implements SourceControl {
         properties.assignPropertyName(property);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }    
     /**
@@ -145,19 +145,19 @@ public class PlasticSCM implements SourceControl {
      *      modifications or if developer had checked in files since quietPeriod seconds ago.
      *
      */
-    public List getModifications(Date lastBuild, Date now) {    
-        List modifications;
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        final List<Modification> modifications;
         try {
-            Commandline commandLine = buildFindCommand(lastBuild, now);
-            Process p = commandLine.execute(); 
-            InputStream input = p.getInputStream();
+            final Commandline commandLine = buildFindCommand(lastBuild, now);
+            final Process p = commandLine.execute();
+            final InputStream input = p.getInputStream();
             modifications = parseStream(input);
             p.waitFor();
             IO.close(p);            
             
         } catch (Exception e) {
             LOG.error("Error in executing the PlasticSCM command : ", e);
-            return new ArrayList();
+            return new ArrayList<Modification>();
         }
         
         if (!modifications.isEmpty()) {
@@ -169,6 +169,10 @@ public class PlasticSCM implements SourceControl {
  
     /**
      * Build the Plastic SCM find command.
+     * @param lastBuild last build date
+     * @param now current build date
+     * @return find command line
+     * @throws CruiseControlException if something breaks.
      */   
     protected Commandline buildFindCommand(Date lastBuild, Date now) throws CruiseControlException 
     {
@@ -201,12 +205,16 @@ public class PlasticSCM implements SourceControl {
 
     /**
      * Parse the find command output.
-     */   
-    protected List parseStream(InputStream input) throws IOException, ParseException 
+     * @param input the stream to parse
+     * @return list of modifications
+     * @throws IOException is something breaks
+     * @throws ParseException is something breaks
+     */
+    protected List<Modification> parseStream(final InputStream input) throws IOException, ParseException
     {
-        ArrayList modifications = new ArrayList();
-        Set modifiedFiles = new HashSet();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        final ArrayList<Modification> modifications = new ArrayList<Modification>();
+        final Set<File> modifiedFiles = new HashSet<File>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String line;
         
         while ((line = reader.readLine()) != null) {

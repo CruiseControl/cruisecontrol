@@ -65,7 +65,7 @@ import java.util.Iterator;
 public class SfeeTrackerPublisher extends SfeePublisher {
 
     private String trackerName;
-    private final Collection fields = new ArrayList();
+    private final Collection<NamedXPathAwareChild> fields = new ArrayList<NamedXPathAwareChild>();
     private String projectName;
     private XPathAwareChild title;
     private XPathAwareChild description;
@@ -100,22 +100,21 @@ public class SfeeTrackerPublisher extends SfeePublisher {
         return status;
     }
 
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
 
-        ISourceForgeSoap soapStub = (ISourceForgeSoap) ClientSoapStubFactory
+        final ISourceForgeSoap soapStub = (ISourceForgeSoap) ClientSoapStubFactory
                 .getSoapStub(ISourceForgeSoap.class, getServerURL());
 
         try {
-            String sessionID = soapStub.login(getUsername(), getPassword());
-            String projectID = SfeeUtils.findProjectID(soapStub, sessionID, projectName);
+            final String sessionID = soapStub.login(getUsername(), getPassword());
+            final String projectID = SfeeUtils.findProjectID(soapStub, sessionID, projectName);
 
-            ITrackerAppSoap tracker = (ITrackerAppSoap) ClientSoapStubFactory
+            final ITrackerAppSoap tracker = (ITrackerAppSoap) ClientSoapStubFactory
                     .getSoapStub(ITrackerAppSoap.class, getServerURL());
-            TrackerSoapList trackerList = tracker.getTrackerList(sessionID, projectID);
-            TrackerSoapRow[] trackerListRows = trackerList.getDataRows();
+            final TrackerSoapList trackerList = tracker.getTrackerList(sessionID, projectID);
+            final TrackerSoapRow[] trackerListRows = trackerList.getDataRows();
             String trackerID = null;
-            for (int i = 0; i < trackerListRows.length; i++) {
-                TrackerSoapRow trackerListRow = trackerListRows[i];
+            for (final TrackerSoapRow trackerListRow : trackerListRows) {
                 String nextTitle = trackerListRow.getTitle();
                 if (nextTitle.equals(trackerName)) {
                     trackerID = trackerListRow.getId();
@@ -138,8 +137,8 @@ public class SfeeTrackerPublisher extends SfeePublisher {
         String[] names = new String[fields.size()];
         String[] values = new String[fields.size()];
         int i = 0;
-        for (Iterator iterator = fields.iterator(); iterator.hasNext(); i++) {
-            NamedXPathAwareChild nextField = (NamedXPathAwareChild) iterator.next();
+        for (final Iterator<NamedXPathAwareChild> iterator = fields.iterator(); iterator.hasNext(); i++) {
+            final NamedXPathAwareChild nextField = iterator.next();
             names[i] = nextField.getName();
             values[i] = nextField.lookupValue(log);
         }
@@ -161,8 +160,7 @@ public class SfeeTrackerPublisher extends SfeePublisher {
         status.validate();
 
         //Validate all fields
-        for (Iterator iterator = fields.iterator(); iterator.hasNext();) {
-            NamedXPathAwareChild nextField = (NamedXPathAwareChild) iterator.next();
+        for (final NamedXPathAwareChild nextField : fields) {
             nextField.validate();
         }
     }

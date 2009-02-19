@@ -84,7 +84,7 @@ public class Git implements SourceControl {
     new SourceControlProperties();
     private String lwc;
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return props.getPropertiesAndReset();
     }
 
@@ -131,8 +131,8 @@ public class Git implements SourceControl {
      * @return the list of modifications, or an empty list if we failed to
      * retrieve the changes.
      */
-    public List getModifications(Date from, Date to) {
-        final List mods = new ArrayList();
+    public List<Modification> getModifications(final Date from, final Date to) {
+        final List<Modification> mods = new ArrayList<Modification>();
         final Commandline cmd = new Commandline();
         cmd.setExecutable("git");
         try {
@@ -162,9 +162,9 @@ public class Git implements SourceControl {
         return mods;
     }
 
-    static void parseLog(Reader grd, List mods, SourceControlProperties props)
+    static void parseLog(final Reader grd, final List<Modification> mods, final SourceControlProperties props)
         throws IOException {
-        BufferedReader rd = new BufferedReader(grd);
+        final BufferedReader rd = new BufferedReader(grd);
         boolean diffmode = false;
         Modification mod = null;
         while (true) {
@@ -205,7 +205,7 @@ public class Git implements SourceControl {
             if (matcher.matches()) {
                 mod.userName = matcher.group(1);
                 mod.emailAddress = matcher.group(2);
-                final long dt = new Long(matcher.group(3)).longValue();
+                final long dt = new Long(matcher.group(3));
                 /* Set revision to commit date. */
                 mod.revision = "" + dt;
                 mod.modifiedTime = new Date(dt * 1000);

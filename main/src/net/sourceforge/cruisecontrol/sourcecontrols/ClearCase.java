@@ -50,7 +50,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -125,7 +124,7 @@ public class ClearCase implements SourceControl {
      *
      * @param path the local working copy to use when making queries.
      */
-    public void setViewpath(String path) {
+    public void setViewpath(final String path) {
         //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
         viewPath = new File(path).getAbsolutePath();
     }
@@ -135,7 +134,7 @@ public class ClearCase implements SourceControl {
      *
      * @param branch the branch that we're concerned about checking files into.
      */
-    public void setBranch(String branch) {
+    public void setBranch(final String branch) {
         this.branch = branch;
     }
 
@@ -143,7 +142,7 @@ public class ClearCase implements SourceControl {
      * Set whether to check against sub-folders in the view path
      * @param recursive whether to check against sub-folders in the view path
      */
-    public void setRecursive(boolean recursive) {
+    public void setRecursive(final boolean recursive) {
         this.recursive = recursive ? ENABLED : DISABLED;
     }
 
@@ -162,7 +161,7 @@ public class ClearCase implements SourceControl {
      * 'recurse', which only shows items selected by your current view.
      * @param all true when checking the entire view path
      */
-    public void setAll(boolean all) {
+    public void setAll(final boolean all) {
         this.all = all ? ENABLED : DISABLED;
 
         if (this.recursive == DEFAULT && all) {
@@ -170,7 +169,7 @@ public class ClearCase implements SourceControl {
         }
     }
 
-    public void setProperty(String property) {
+    public void setProperty(final String property) {
         properties.assignPropertyName(property);
     }
 
@@ -241,7 +240,7 @@ public class ClearCase implements SourceControl {
                 + END_OF_STRING_DELIMITER
                 + "\\n";
 
-        File root = new File(viewPath);
+        final File root = new File(viewPath);
 
         LOG.info("ClearCase: getting modifications for " + viewPath);
 
@@ -271,13 +270,13 @@ public class ClearCase implements SourceControl {
         return modifications;
     }
 
-    private Thread logErrorStream(Process process) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
+    private Thread logErrorStream(final Process process) {
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, process));
         stderr.start();
         return stderr;
     }
 
-    private void getRidOfLeftoverData(InputStream stream) {
+    private void getRidOfLeftoverData(final InputStream stream) {
         new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
@@ -289,7 +288,7 @@ public class ClearCase implements SourceControl {
      * @return a list of modification elements
      * @throws IOException if something breaks
      */
-    List<Modification> parseStream(InputStream input) throws IOException {
+    List<Modification> parseStream(final InputStream input) throws IOException {
         final ArrayList<Modification> modifications = new ArrayList<Modification>();
         final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         final String ls = System.getProperty("line.separator");
@@ -322,26 +321,26 @@ public class ClearCase implements SourceControl {
      * @param line the line to parse
      * @return a modification element corresponding to the given line
      */
-    private ClearCaseModification parseEntry(String line) {
+    private ClearCaseModification parseEntry(final String line) {
         LOG.debug("parsing entry: " + line);
-        String[] tokens = tokeniseEntry(line);
+        final String[] tokens = tokeniseEntry(line);
         if (tokens == null) {
             return null;
         }
-        String username = tokens[0].trim();
+        final String username = tokens[0].trim();
 
-        String timeStamp = tokens[1].trim();
-        String elementName = tokens[2].trim();
-        String version = tokens[3].trim();
-        String operationType = tokens[4].trim();
+        final String timeStamp = tokens[1].trim();
+        final String elementName = tokens[2].trim();
+        final String version = tokens[3].trim();
+        final String operationType = tokens[4].trim();
 
-        String labelList = tokens[5].substring(1).trim();
-        Vector labels = extractLabelsList(labelList);
+        final String labelList = tokens[5].substring(1).trim();
+        final List<String> labels = extractLabelsList(labelList);
 
-        String attributeList = tokens[6].substring(1).trim();
-        Hashtable attributes = extractAttributesMap(attributeList);
+        final String attributeList = tokens[6].substring(1).trim();
+        final Hashtable<String, String> attributes = extractAttributesMap(attributeList);
 
-        String comment = tokens[7].trim();
+        final String comment = tokens[7].trim();
 
         // A branch event shouldn't trigger a build
         if (operationType.equals("mkbranch") || operationType.equals("rmbranch")) {
@@ -353,13 +352,13 @@ public class ClearCase implements SourceControl {
             return null;
         }
 
-        ClearCaseModification mod = new ClearCaseModification();
+        final ClearCaseModification mod = new ClearCaseModification();
 
         mod.userName = username;
         mod.revision = version;
 
-        String folderName, fileName;
-        int sep = elementName.lastIndexOf(File.separator);
+        final String folderName, fileName;
+        final int sep = elementName.lastIndexOf(File.separator);
         if (sep > -1) {
             folderName = elementName.substring(0, sep);
             fileName = elementName.substring(sep + 1);
@@ -367,7 +366,7 @@ public class ClearCase implements SourceControl {
             folderName = null;
             fileName = elementName;
         }
-        ClearCaseModification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
+        final ClearCaseModification.ModifiedFile modfile = mod.createModifiedFile(fileName, folderName);
 
         try {
             mod.modifiedTime = outDateFormatter.parse(timeStamp);
@@ -390,10 +389,10 @@ public class ClearCase implements SourceControl {
         return mod;
     }
 
-    private String[] tokeniseEntry(String line) {
-        int maxTokens = 8;
-        int minTokens = maxTokens - 1; // comment may be absent.
-        String[] tokens = new String[maxTokens];
+    private String[] tokeniseEntry(final String line) {
+        final int maxTokens = 8;
+        final int minTokens = maxTokens - 1; // comment may be absent.
+        final String[] tokens = new String[maxTokens];
         Arrays.fill(tokens, "");
         int tokenIndex = 0;
         for (int oldIndex = 0, index = line.indexOf(DELIMITER, 0); true;
@@ -420,7 +419,7 @@ public class ClearCase implements SourceControl {
      * @param attributeList attribute list
      * @return parsed list
      */
-    private Hashtable<String, String> extractAttributesMap(String attributeList) {
+    private Hashtable<String, String> extractAttributesMap(final String attributeList) {
         Hashtable<String, String> attributes = null;
         if (attributeList.length() > 0) {
             attributes = new Hashtable<String, String>();
@@ -445,11 +444,11 @@ public class ClearCase implements SourceControl {
      * @param labelList label list
      * @return parsed list
      */
-    private Vector<String> extractLabelsList(String labelList) {
-        Vector<String> labels = null;
+    private List<String> extractLabelsList(final String labelList) {
+        List<String> labels = null;
         if (labelList.length() > 0) {
-            labels = new Vector<String>();
-            StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
+            labels = new ArrayList<String>();
+            final StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
             while (labelST.hasMoreTokens()) {
                 labels.add(labelST.nextToken().trim());
             }
