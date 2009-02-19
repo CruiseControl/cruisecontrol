@@ -59,7 +59,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -85,12 +84,12 @@ public class Store implements SourceControl {
     private String workingDirectory;
     private String script;
     private String profile;
-    private List packages;
+    private List<String> packages;
     private String versionRegex;
     private String minimumBlessingLevel;
     private String parcelBuilderFile;
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -137,10 +136,10 @@ public class Store implements SourceControl {
      *
      * @param packageNames  a comma-separated list of package names
      */
-    public void setPackages(String packageNames) {
+    public void setPackages(final String packageNames) {
         if (packageNames != null) {
-            StringTokenizer st = new StringTokenizer(packageNames, ",");
-            this.packages = new ArrayList();
+            final StringTokenizer st = new StringTokenizer(packageNames, ",");
+            this.packages = new ArrayList<String>();
             while (st.hasMoreTokens()) {
                 this.packages.add(st.nextToken());
             }
@@ -213,9 +212,9 @@ public class Store implements SourceControl {
      * @return the list of modifications, or an empty list if we failed
      * to retrieve the changes.
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List modifications = new ArrayList();
-        Commandline command;
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        List<Modification> modifications = new ArrayList<Modification>();
+        final Commandline command;
         try {
             command = buildCommand(lastBuild, now);
         } catch (CruiseControlException e) {
@@ -238,16 +237,20 @@ public class Store implements SourceControl {
      * For example:
      *
      * 'storeScript -profile local -packages PackageA "Package B" -lastBuild {lastbuildtime} -now {currentTime} -check'
+     * @param lastBuild last build date
+     * @param checkTime time source control check was run
+     * @return command object to execute
+     * @throws CruiseControlException if something breaks
      */
-    Commandline buildCommand(Date lastBuild, Date checkTime) throws CruiseControlException {
-        Commandline command = new Commandline();
+    Commandline buildCommand(final Date lastBuild, final Date checkTime) throws CruiseControlException {
+        final Commandline command = new Commandline();
         command.setWorkingDirectory(workingDirectory);
         command.setExecutable(script);
 
         command.createArguments("-profile", profile);
         command.createArgument("-packages");
-        for (Iterator iterator = packages.iterator(); iterator.hasNext(); ) {
-            command.createArgument((String) iterator.next());
+        for (final String aPackage : packages) {
+            command.createArgument(aPackage);
         }
         if (versionRegex != null) {
             command.createArguments("-versionRegex", versionRegex);
@@ -271,14 +274,14 @@ public class Store implements SourceControl {
         return getDateFormatter().format(date);
     }
 
-    private List execCommand(Commandline command)
+    private List<Modification> execCommand(final Commandline command)
         throws InterruptedException, IOException, ParseException, JDOMException {
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread stderr = logErrorStream(p);
-        InputStream storeStream = p.getInputStream();
-        List modifications = parseStream(storeStream);
+        final Thread stderr = logErrorStream(p);
+        final InputStream storeStream = p.getInputStream();
+        final List<Modification> modifications = parseStream(storeStream);
 
         p.waitFor();
         stderr.join();
@@ -293,7 +296,7 @@ public class Store implements SourceControl {
         return stderr;
     }
 
-    private List parseStream(InputStream storeStream)
+    private List<Modification> parseStream(final InputStream storeStream)
         throws JDOMException, IOException, ParseException {
 
         final InputStreamReader reader = new InputStreamReader(storeStream, "UTF-8");
@@ -321,35 +324,35 @@ public class Store implements SourceControl {
         private StoreLogXMLParser() {
         }
 
-        static List parse(Reader reader)
+        static List<Modification> parse(final Reader reader)
             throws ParseException, JDOMException, IOException {
 
-            SAXBuilder builder = new SAXBuilder(false);
-            Document document = builder.build(reader);
+            final SAXBuilder builder = new SAXBuilder(false);
+            final Document document = builder.build(reader);
             return parseDOMTree(document);
         }
 
-        static List parseDOMTree(Document document) throws ParseException {
-            List modifications = new ArrayList();
+        static List<Modification> parseDOMTree(final Document document) throws ParseException {
+            final List<Modification> modifications = new ArrayList<Modification>();
 
-            Element rootElement = document.getRootElement();
-            List packageEntries = rootElement.getChildren("package");
-            for (Iterator iterator = packageEntries.iterator(); iterator.hasNext(); ) {
-                Element packageEntry = (Element) iterator.next();
+            final Element rootElement = document.getRootElement();
+            final List packageEntries = rootElement.getChildren("package");
+            for (final Object packageEntry1 : packageEntries) {
+                Element packageEntry = (Element) packageEntry1;
 
-                List modificationsOfRevision = parsePackageEntry(packageEntry);
+                final List<Modification> modificationsOfRevision = parsePackageEntry(packageEntry);
                 modifications.addAll(modificationsOfRevision);
             }
 
             return modifications;
         }
 
-        static List parsePackageEntry(Element packageEntry) throws ParseException {
-            List modifications = new ArrayList();
+        static List<Modification> parsePackageEntry(final Element packageEntry) throws ParseException {
+            final List<Modification> modifications = new ArrayList<Modification>();
 
-            List blessings = packageEntry.getChildren("blessing");
-            for (Iterator iterator = blessings.iterator(); iterator.hasNext();) {
-                Element blessing = (Element) iterator.next();
+            final List blessings = packageEntry.getChildren("blessing");
+            for (final Object blessing1 : blessings) {
+                Element blessing = (Element) blessing1;
 
                 Modification modification = new Modification("store");
 
@@ -359,7 +362,7 @@ public class Store implements SourceControl {
                 modification.revision = packageEntry.getAttributeValue("version");
 
                 Modification.ModifiedFile modfile =
-                    modification.createModifiedFile(packageEntry.getAttributeValue("name"), null);
+                        modification.createModifiedFile(packageEntry.getAttributeValue("name"), null);
                 modfile.action = packageEntry.getAttributeValue("action");
                 modfile.revision = modification.revision;
 

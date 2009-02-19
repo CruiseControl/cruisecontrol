@@ -123,7 +123,7 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * The stdout from the command as a List of output lines
      */
-    private List stdoutLines = new ArrayList();
+    private final List<String> stdoutLines = new ArrayList<String>();
 
     /**
      * The stderr from the command as a string
@@ -133,7 +133,7 @@ public class ManagedCommandline extends EnvCommandline {
     /**
      * The stderr from the command as a List of output lines
      */
-    private List stderrLines  = new ArrayList();
+    private final List<String> stderrLines  = new ArrayList<String>();
 
     /**
      * Constructor which takes a command line string and attempts
@@ -230,9 +230,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param string
      *            The forbidden <code>String</code>
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertStdoutDoesNotContain(String string) throws CruiseControlException {
+    public void assertStdoutDoesNotContain(final String string) throws CruiseControlException {
         if (stdout.indexOf(string) > -1) {
             throw new CruiseControlException(
                 "The command \""
@@ -255,9 +255,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param string
      *            The required <code>String</code>
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertStdoutContains(String string) throws CruiseControlException {
+    public void assertStdoutContains(final String string) throws CruiseControlException {
         if (stdout.indexOf(string) < 0) {
             throw new CruiseControlException(
                 "The stdout of the command \""
@@ -280,9 +280,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param string
      *            The forbidden <code>String</code>
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertStderrDoesNotContain(String string) throws CruiseControlException {
+    public void assertStderrDoesNotContain(final String string) throws CruiseControlException {
         if (stderr.indexOf(string) > -1) {
             throw new CruiseControlException(
                 "The command \""
@@ -304,9 +304,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param code
      *            The expected exit code of the command
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertExitCode(int code) throws CruiseControlException {
+    public void assertExitCode(final int code) throws CruiseControlException {
         if (exitCode != code) {
             throw new CruiseControlException(
                 "The command \""
@@ -330,9 +330,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param code
      *            The expected exit code of the command
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertExitCodeNot(int code) throws CruiseControlException {
+    public void assertExitCodeNot(final int code) throws CruiseControlException {
         if (exitCode == code) {
             throw new CruiseControlException(
                 "The command \""
@@ -354,9 +354,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param code
      *            The expected exit code of the command
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertExitCodeGreaterThan(int code)
+    public void assertExitCodeGreaterThan(final int code)
         throws CruiseControlException {
         if (exitCode <= code) {
             throw new CruiseControlException(
@@ -381,9 +381,9 @@ public class ManagedCommandline extends EnvCommandline {
      * @param code
      *            The expected exit code of the command
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public void assertExitCodeLessThan(int code)
+    public void assertExitCodeLessThan(final int code)
         throws CruiseControlException {
         if (exitCode >= code) {
             throw new CruiseControlException(
@@ -407,17 +407,17 @@ public class ManagedCommandline extends EnvCommandline {
     public Process execute() throws IOException {
 
         // Execute the command using the specified environment
-        Process proc = super.execute();
+        final Process proc = super.execute();
 
         // Capture the output of the command
-        BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(
+        final BufferedReader stdoutStream = new BufferedReader(new InputStreamReader(
                 proc.getInputStream()));
-        BufferedReader stderrStream = new BufferedReader(new InputStreamReader(
+        final BufferedReader stderrStream = new BufferedReader(new InputStreamReader(
                 proc.getErrorStream()));
 
         // Parse the stdout of the command
         String line;
-        StringBuffer buff = new StringBuffer();
+        final StringBuilder buff = new StringBuilder();
         while ((line = stdoutStream.readLine()) != null) {
             stdoutLines.add(line);
             buff.append(line).append('\n');

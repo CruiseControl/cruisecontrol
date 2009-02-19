@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jdom.Element;
@@ -52,12 +51,11 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  */
 public abstract class ConditionalPublisher implements Publisher {
 
-    private List publishers = new ArrayList();
+    private final List<Publisher> publishers = new ArrayList<Publisher>();
 
-    public void publish(Element log) throws CruiseControlException {
+    public void publish(final Element log) throws CruiseControlException {
         if (shouldPublish(log)) {
-            for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
-                Publisher publisher = (Publisher) iterator.next();
+            for (final Publisher publisher : publishers) {
                 publisher.publish(log);
             }
         }
@@ -67,8 +65,7 @@ public abstract class ConditionalPublisher implements Publisher {
         ValidationHelper.assertTrue(publishers.size() > 0,
             "conditional publishers should have at least one nested publisher");
 
-        for (Iterator iterator = publishers.iterator(); iterator.hasNext();) {
-            Publisher publisher = (Publisher) iterator.next();
+        for (final Publisher publisher : publishers) {
             publisher.validate();
         }
     }
@@ -78,7 +75,7 @@ public abstract class ConditionalPublisher implements Publisher {
      *
      * @param publisher The publisher to add
      */
-    public void add(Publisher publisher) {
+    public void add(final Publisher publisher) {
         publishers.add(publisher);
     }
 

@@ -38,9 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.CharArrayWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -92,7 +90,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             "buildresults.xsl"
         };
 
-    private List xsltParameters = new LinkedList();
+    private final List<Property> xsltParameters = new LinkedList<Property>();
 
     /*
      *  Called after the configuration is read to make sure that all the mandatory parameters
@@ -121,17 +119,16 @@ public class HTMLEmailPublisher extends EmailPublisher {
             }
             verifyFile("HTMLEmailPublisher.css", css);
 
-            String[] fileNames = getXslFileNames();
+            final String[] fileNames = getXslFileNames();
 
             if (fileNames == null) {
                 throw new CruiseControlException("HTMLEmailPublisher.getXslFileNames() can't return null");
             }
 
-            for (int i = 0; i < fileNames.length; i++) {
-                String fileName = fileNames[i];
+            for (final String fileName : fileNames) {
                 verifyFile(
-                    "HTMLEmailPublisher.xslDir/" + fileName,
-                    new File(xslDir, fileName));
+                        "HTMLEmailPublisher.xslDir/" + fileName,
+                        new File(xslDir, fileName));
             }
         } else {
             verifyFile("HTMLEmailPublisher.xslFile", xslFile);
@@ -139,9 +136,10 @@ public class HTMLEmailPublisher extends EmailPublisher {
     }
 
     /**
+     * @return new parameter that has been added to xslt params list already.
      */
     public Property createParameter() {
-        Property param = new Property();
+        final Property param = new Property();
         xsltParameters.add(param);
         return param;
     }
@@ -151,7 +149,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * or null if it can't be found.
      */
     private String getCssFromClasspath() {
-        File cssFile = guessFileForResource("css/cruisecontrol.css");
+        final File cssFile = guessFileForResource("css/cruisecontrol.css");
         if (cssFile != null && cssFile.exists()) {
             return cssFile.getAbsolutePath();
         }
@@ -163,7 +161,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * or null if it can't be found.
      */
     private String getXslDirFromClasspath() {
-        File xsl = guessFileForResource("xsl");
+        final File xsl = guessFileForResource("xsl");
         if (xsl != null && xsl.isDirectory()) {
             return xsl.getAbsolutePath();
         }
@@ -174,25 +172,28 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * Try some path constellations to see if the relative resource exists somewhere.
      * First existing resource will be returned. At the moment we use the source-path and
      * cc.home-property in combination with the source-tree and binary-contribution tree.
-     * @param relativeResource 
+     * @param relativeResource relative path to look for
      * @return an existing resource as file or null
      */
-    private File guessFileForResource(String relativeResource) {
-        File ccHome = getCruiseRootDir();
+    private File guessFileForResource(final String relativeResource) {
+        final File ccHome;
         if (System.getProperty(Launcher.CCHOME_PROPERTY) != null) {
             ccHome = new File(System.getProperty(Launcher.CCHOME_PROPERTY));
+        } else {
+            ccHome = getCruiseRootDir();
         }
-        String cruise = "reporting/jsp/webcontent/";
-        String binaryDistribution = "webapps/cruisecontrol/";
-        File[] possiblePaths = {new File(getCruiseRootDir(), cruise + relativeResource),
+
+        final String cruise = "reporting/jsp/webcontent/";
+        final String binaryDistribution = "webapps/cruisecontrol/";
+        final File[] possiblePaths = {new File(getCruiseRootDir(), cruise + relativeResource),
                 new File(getCruiseRootDir(), binaryDistribution + relativeResource),
                 new File(ccHome, cruise + relativeResource),
                 new File(ccHome, binaryDistribution + relativeResource)};
-        for (int i = 0; i < possiblePaths.length; i++) {
-            if (possiblePaths[i].exists()) {
-                return possiblePaths[i];
+        for (final File possiblePath : possiblePaths) {
+            if (possiblePath.exists()) {
+                return possiblePath;
             }
-            
+
         }
         return null;
     }
@@ -202,11 +203,11 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * Uses Ant's Locator.
      */
     private File getCruiseRootDir() {
-        File classDir = Locator.getClassSource(getClass());
+        final File classDir = Locator.getClassSource(getClass());
         if (classDir != null) {
             try {
                 // we're probably in main/dist/cruisecontrol.jar, so three parents up
-                File rootDir = classDir.getParentFile().getParentFile().getParentFile();
+                final File rootDir = classDir.getParentFile().getParentFile().getParentFile();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("rootDir seems to be " + rootDir.getAbsolutePath()
                             + " (classDir = " + classDir.getAbsolutePath() + ")");
@@ -220,20 +221,20 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return null;
     }
 
-    private void verifyDirectory(String dirName, String dir) throws CruiseControlException {
+    private void verifyDirectory(final String dirName, final String dir) throws CruiseControlException {
         ValidationHelper.assertFalse(dir == null, dirName + " not specified in configuration file");
-        File dirFile = new File(dir);
+        final File dirFile = new File(dir);
         ValidationHelper.assertTrue(dirFile.exists(), dirFile + " does not exist: " + dirFile.getAbsolutePath());
         ValidationHelper.assertTrue(dirFile.isDirectory(),
                 dirFile + " is not a directory: " + dirFile.getAbsolutePath());
     }
 
-    private void verifyFile(String fileName, String file) throws CruiseControlException {
+    private void verifyFile(final String fileName, final String file) throws CruiseControlException {
         ValidationHelper.assertFalse(file == null, fileName + " not specified in configuration file");
         verifyFile(fileName, new File(file));
     }
 
-    private void verifyFile(String fileName, File file) throws CruiseControlException {
+    private void verifyFile(final String fileName, final File file) throws CruiseControlException {
         ValidationHelper.assertTrue(file.exists(), fileName + " does not exist: " + file.getAbsolutePath());
         ValidationHelper.assertTrue(file.isFile(), fileName + " is not a file: " + file.getAbsolutePath());
     }
@@ -241,10 +242,10 @@ public class HTMLEmailPublisher extends EmailPublisher {
     /**
      * sets the content as an attachment w/proper mime-type
      */
-    protected void addContentToMessage(String htmlContent, Message msg) throws MessagingException {
-        MimeMultipart attachments = new MimeMultipart();
-        MimeBodyPart textbody = new MimeBodyPart();
-        String contentType = getContentType();
+    protected void addContentToMessage(final String htmlContent, final Message msg) throws MessagingException {
+        final MimeMultipart attachments = new MimeMultipart();
+        final MimeBodyPart textbody = new MimeBodyPart();
+        final String contentType = getContentType();
         textbody.setContent(htmlContent, contentType);
         attachments.addBodyPart(textbody);
 
@@ -268,6 +269,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * in-order, to generate HTML email. If xslFileNames is not
      * specified, xslFileList remains as default.
      * if xslFile is set, this is ignored.
+     * @param relativePathToXslFile relative path to xsl file
      */
     public void setXSLFileList(String relativePathToXslFile) {
         if (relativePathToXslFile == null || relativePathToXslFile.equals("")) {
@@ -275,14 +277,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
 
         relativePathToXslFile = relativePathToXslFile.trim();
-        boolean appending = relativePathToXslFile.startsWith("+");
+        final boolean appending = relativePathToXslFile.startsWith("+");
 
         if (appending) {
             relativePathToXslFile = relativePathToXslFile.substring(1);
         }
 
-        StringTokenizer st = new StringTokenizer(relativePathToXslFile, " ,");
-        int numTokens = st.countTokens();
+        final StringTokenizer st = new StringTokenizer(relativePathToXslFile, " ,");
+        final int numTokens = st.countTokens();
 
         int i;
         if (appending) {
@@ -290,7 +292,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } else {
             i = 0;
         }
-        String[] newXSLFileNames = new String[i + numTokens];
+        final String[] newXSLFileNames = new String[i + numTokens];
         System.arraycopy(xslFileNames, 0, newXSLFileNames, 0, i);
 
         while (st.hasMoreTokens()) {
@@ -304,15 +306,17 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * If xslFile is set then both xslDir and css are ignored. Specified xslFile
      * must take care of entire document -- html open/close, body tags, styles,
      * etc.
+     * @param fullPathToXslFile full path to xsl file
      */
-    public void setXSLFile(String fullPathToXslFile) {
+    public void setXSLFile(final String fullPathToXslFile) {
         xslFile = fullPathToXslFile;
     }
 
     /**
      * Directory where xsl files are located.
+     * @param xslDirectory directory where xsl files are located.
      */
-    public void setXSLDir(String xslDirectory) {
+    public void setXSLDir(final String xslDirectory) {
         xslDir = xslDirectory;
     }
 
@@ -328,9 +332,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * I expect this to be used by a derived class to allow someone to
      * change the order of xsl files or to add/remove one to/from the list
      * or a combination.
-     * @param fileNames
+     * @param fileNames xsl file names to look for
      */
-    protected void setXSLFileNames(String[] fileNames) {
+    protected void setXSLFileNames(final String[] fileNames) {
         if (fileNames == null) {
             throw new IllegalArgumentException("xslFileNames can't be null (but can be empty)");
         }
@@ -348,16 +352,18 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     /**
      * Path to cruisecontrol.css.  Only used with xslDir, not xslFile.
+     * @param cssFilename css file name
      */
-    public void setCSS(String cssFilename) {
+    public void setCSS(final String cssFilename) {
         css = cssFilename;
     }
 
     /**
      * Path to the log file as set in the log element of the configuration
      * xml file.
+     * @param directory log dir
      */
-    public void setLogDir(String directory) {
+    public void setLogDir(final String directory) {
         if (directory == null) {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
@@ -365,7 +371,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         logDir = directory;
     }
 
-    public void setCharset(String characterSet) {
+    public void setCharset(final String characterSet) {
         charset = characterSet;
     }
 
@@ -378,7 +384,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     // TODO: address whether this should ever return null;
     // dependent also on transform(File) and createLinkLine()
-    protected String createMessage(XMLLogHelper logHelper) {
+    protected String createMessage(final XMLLogHelper logHelper) {
         String message = "";
 
         File inFile = null;
@@ -392,7 +398,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         } catch (Exception ex) {
             LOG.error("error transforming " + (inFile == null ? null : inFile.getAbsolutePath()), ex);
             try {
-                String logFileName = logHelper.getLogFileName();
+                final String logFileName = logHelper.getLogFileName();
                 message = createLinkLine(logFileName);
             } catch (CruiseControlException ccx) {
                 LOG.error("exception getting logfile name", ccx);
@@ -402,23 +408,22 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return message;
     }
 
-    protected String transform(File inFile) throws TransformerException, FileNotFoundException, IOException {
-        StringBuffer messageBuffer = new StringBuffer();
+    protected String transform(final File inFile) throws TransformerException, IOException {
+        final StringBuilder messageBuffer = new StringBuilder();
 
-        TransformerFactory tFactory = TransformerFactory.newInstance();
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
 
         if (xslFile != null) {
-            File xslFileAsFile = new File(xslFile);
+            final File xslFileAsFile = new File(xslFile);
             appendTransform(inFile, messageBuffer, tFactory, xslFileAsFile);
         } else {
             appendHeader(messageBuffer);
             messageBuffer.append(createLinkLine(inFile.getName()));
 
-            File xslDirectory = new File(xslDir);
-            String[] fileNames = getXslFileNames();
-            for (int i = 0; i < fileNames.length; i++) {
-                String fileName = fileNames[i];
-                File xsl = new File(xslDirectory, fileName);
+            final File xslDirectory = new File(xslDir);
+            final String[] fileNames = getXslFileNames();
+            for (final String fileName : fileNames) {
+                final File xsl = new File(xslDirectory, fileName);
                 messageBuffer.append("<p>\n");
                 appendTransform(inFile, messageBuffer, tFactory, xsl);
             }
@@ -429,18 +434,18 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return messageBuffer.toString();
     }
 
-    protected String createLinkLine(String logFileName) {
-        StringBuffer linkLine = new StringBuffer("");
-        String buildResultsURL = getBuildResultsURL();
+    protected String createLinkLine(final String logFileName) {
+        final StringBuilder linkLine = new StringBuilder("");
+        final String buildResultsURL = getBuildResultsURL();
 
         if (buildResultsURL == null) {
             return "";
         }
 
-        int startName = logFileName.lastIndexOf(File.separator) + 1;
-        int endName = logFileName.lastIndexOf(".");
-        String baseLogFileName = logFileName.substring(startName, endName);
-        StringBuffer url = new StringBuffer(buildResultsURL);
+        final int startName = logFileName.lastIndexOf(File.separator) + 1;
+        final int endName = logFileName.lastIndexOf(".");
+        final String baseLogFileName = logFileName.substring(startName, endName);
+        final StringBuilder url = new StringBuilder(buildResultsURL);
         if (buildResultsURL.indexOf("?") == -1) {
             url.append("?");
         } else {
@@ -458,22 +463,22 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return linkLine.toString();
     }
 
-    protected void appendTransform(File inFile, StringBuffer messageBuffer, TransformerFactory tFactory, File xsl) {
+    protected void appendTransform(final File inFile, final StringBuilder messageBuffer,
+                                   final TransformerFactory tFactory, final File xsl) {
         try {
-            String result = transformFile(new StreamSource(inFile), tFactory, new StreamSource(xsl));
+            final String result = transformFile(new StreamSource(inFile), tFactory, new StreamSource(xsl));
             messageBuffer.append(result);
         } catch (Exception e) {
             LOG.error("error transforming with xslFile " + xsl.getName(), e);
         }
     }
-    protected String transformFile(Source logFile, TransformerFactory tFactory, Source xsl)
+    protected String transformFile(final Source logFile, final TransformerFactory tFactory, final Source xsl)
         throws IOException, TransformerException {
-        Transformer transformer = tFactory.newTransformer(xsl);
-        CharArrayWriter writer = new CharArrayWriter();
+
+        final Transformer transformer = tFactory.newTransformer(xsl);
+        final CharArrayWriter writer = new CharArrayWriter();
         if (!xsltParameters.isEmpty()) {
-            Iterator i = xsltParameters.iterator();
-            while (i.hasNext()) {
-                Property param = (Property) i.next();
+            for (final Property param : xsltParameters) {
                 transformer.setParameter(param.getName(), param.getValue());
             }
         }
@@ -481,9 +486,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
         return writer.toString();
     }
 
-    protected void appendHeader(StringBuffer messageBuffer) throws IOException {
+    protected void appendHeader(final StringBuilder messageBuffer) throws IOException {
         messageBuffer.append("<html><head>\n");
-        String baseUrl = getBuildResultsURL();
+        final String baseUrl = getBuildResultsURL();
         if (baseUrl != null) {
             messageBuffer.append("<base href=\"").append(baseUrl).append("\">\n");
         }
@@ -494,7 +499,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         messageBuffer.append("\n</style>\n</head><body>\n");
     }
 
-    protected void appendFooter(StringBuffer messageBuffer) {
+    protected void appendFooter(final StringBuilder messageBuffer) {
         messageBuffer.append("\n</body></html>");
     }
 }

@@ -45,7 +45,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -84,26 +83,27 @@ public class SnapshotCM implements SourceControl {
     /** enable logging for this class */
     private static final Logger LOG = Logger.getLogger(SnapshotCM.class);
 
-    private SourceControlProperties properties = new SourceControlProperties();
+    private final SourceControlProperties properties = new SourceControlProperties();
 
     /**
      *  List of source path values provided either with sourcePath="...",
      *  sourcePaths="...;...", or nested &lt;sourcePath path="..."&gt; elements.
      */
-    private List sourcePaths = new ArrayList();
+    private final List<SourcePath> sourcePaths = new ArrayList<SourcePath>();
 
     public void setProperty(String property) {
         properties.assignPropertyName(property);
     }
 
     /**
-     *  From SourceControl interface.  n
+     *  From SourceControl interface.
+     * @param propertyOnDelete name of prop to set if deletes exist.
      */
     public void setPropertyOnDelete(String propertyOnDelete) {
         properties.assignPropertyOnDeleteName(propertyOnDelete);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -142,16 +142,16 @@ public class SnapshotCM implements SourceControl {
      *  @return  the list of modifications, an empty (not null) list if no
      *      modifications.
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         // Return value
-        List modificationList = new ArrayList();
+        final List<Modification> modificationList = new ArrayList<Modification>();
 
         //Command parameters
-        String[] parameters = new String[2];
+        final String[] parameters = new String[2];
         parameters[0] = inDateFormatter.format(lastBuild);
 
-        for (Iterator i = this.sourcePaths.iterator(); i.hasNext(); ) {
-            parameters[1] = ((SourcePath) i.next()).getPath();
+        for (final SourcePath sourcePath : this.sourcePaths) {
+            parameters[1] = sourcePath.getPath();
 
             String command = EXECUTABLE.format(parameters);
             LOG.info("Running command: " + command);
@@ -189,26 +189,26 @@ public class SnapshotCM implements SourceControl {
      *
      *  @param  input the stream to parse
      *  @return  a list of modification elements
-     *  @exception  IOException
+     *  @exception  IOException if something breaks
      */
-    List parseStream(InputStream input) throws IOException {
-        List modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+    List<Modification> parseStream(InputStream input) throws IOException {
+        final List<Modification> modifications = new ArrayList<Modification>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.equals(FILE_HEADER)) {
-                List fileMods = parseEntry(sb.toString());
+                final List<Modification> fileMods = parseEntry(sb.toString());
                 modifications.addAll(fileMods);
-                sb = new StringBuffer();
+                sb = new StringBuilder();
             } else {
                 sb.append(line);
                 sb.append('\n');
             }
         }
-        List fileMods = parseEntry(sb.toString());
+        final List<Modification> fileMods = parseEntry(sb.toString());
         modifications.addAll(fileMods);
         return modifications;
     }
@@ -246,10 +246,10 @@ public class SnapshotCM implements SourceControl {
      *  @return an array of modification elements corresponding to the given
      *          entry.
      */
-    private List parseEntry(String entry) {
-        List modifications = new ArrayList();
+    private List<Modification> parseEntry(final String entry) {
+        final List<Modification> modifications = new ArrayList<Modification>();
 
-        StringTokenizer st = new StringTokenizer(entry, "\n");
+        final StringTokenizer st = new StringTokenizer(entry, "\n");
         /*
          *  We should get at least 13 lines if there has been a modification.
          */
@@ -261,9 +261,9 @@ public class SnapshotCM implements SourceControl {
          *  Read the header, which is the first 6 lines.
          */
         String line = st.nextToken();
-        String entryname = line.substring(6);
-        String fileName;
-        String folderName;
+        final String entryname = line.substring(6);
+        final String fileName;
+        final String folderName;
         int sep = entryname.lastIndexOf("/");
         if (sep == -1) {
             sep = entryname.lastIndexOf("\\");

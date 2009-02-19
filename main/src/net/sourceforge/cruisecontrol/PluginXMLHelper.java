@@ -43,7 +43,6 @@ import org.jdom.Element;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -180,9 +179,8 @@ public class PluginXMLHelper {
         setFromAttributes(objectElement, setters, object);
 
         if (!skipChildElements) {
-            final Iterator childElementIterator = objectElement.getChildren().iterator();
-            while (childElementIterator.hasNext()) {
-                final Element childElement = (Element) childElementIterator.next();
+            for (final Object o : objectElement.getChildren()) {
+                final Element childElement = (Element) o;
                 if (creators.containsKey(childElement.getName().toLowerCase(Locale.US))) {
                     LOG.debug("treating child with creator " + childElement.getName());
                     try {
@@ -199,7 +197,7 @@ public class PluginXMLHelper {
                     Method adder = null;
                     // iterate over adders to find one that will take the object
                     for (final Method method : adders) {
-                        final Class type = method.getParameterTypes()[0];
+                        final Class< ? > type = method.getParameterTypes()[0];
                         if (type.isAssignableFrom(childObject.getClass())) {
                             adder = method;
                             break;
@@ -225,8 +223,8 @@ public class PluginXMLHelper {
     private void setFromAttributes(final Element objectElement, final Map<String, Method> setters, final Object object)
             throws CruiseControlException {
 
-        for (final Iterator iter = objectElement.getAttributes().iterator(); iter.hasNext(); ) {
-            final Attribute attribute = (Attribute) iter.next();
+        for (final Object o : objectElement.getAttributes()) {
+            final Attribute attribute = (Attribute) o;
             callSetter(attribute.getName(), attribute.getValue(), setters, object);
         }
     }

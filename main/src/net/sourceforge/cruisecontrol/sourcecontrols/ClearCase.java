@@ -55,6 +55,7 @@ import java.util.Locale;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.DiscardConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -122,7 +123,7 @@ public class ClearCase implements SourceControl {
     /**
      * Sets the local working copy to use when making queries.
      *
-     * @param path
+     * @param path the local working copy to use when making queries.
      */
     public void setViewpath(String path) {
         //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
@@ -132,7 +133,7 @@ public class ClearCase implements SourceControl {
     /**
      * Sets the branch that we're concerned about checking files into.
      *
-     * @param branch
+     * @param branch the branch that we're concerned about checking files into.
      */
     public void setBranch(String branch) {
         this.branch = branch;
@@ -140,6 +141,7 @@ public class ClearCase implements SourceControl {
 
     /**
      * Set whether to check against sub-folders in the view path
+     * @param recursive whether to check against sub-folders in the view path
      */
     public void setRecursive(boolean recursive) {
         this.recursive = recursive ? ENABLED : DISABLED;
@@ -158,6 +160,7 @@ public class ClearCase implements SourceControl {
      * like having a single line config-spec that selects just ELEMENT * /<branch>/LATEST
      * (i.e. 'lshistory -all' results that contain @@ are discarded). This differs from
      * 'recurse', which only shows items selected by your current view.
+     * @param all true when checking the entire view path
      */
     public void setAll(boolean all) {
         this.all = all ? ENABLED : DISABLED;
@@ -171,7 +174,7 @@ public class ClearCase implements SourceControl {
         properties.assignPropertyName(property);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -191,7 +194,7 @@ public class ClearCase implements SourceControl {
      * @return the list of modifications, an empty (not null) list if no
      *         modifications.
      */
-    public List getModifications(final Date lastBuild, final Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         final String lastBuildDate = inDateFormatter.format(lastBuild);
         properties.put("clearcaselastbuild", lastBuildDate);
         properties.put("clearcasenow", inDateFormatter.format(now));
@@ -243,7 +246,7 @@ public class ClearCase implements SourceControl {
         LOG.info("ClearCase: getting modifications for " + viewPath);
 
         LOG.debug("Command to execute : " + command);
-        List modifications = null;
+        List<Modification> modifications = null;
         try {
             Process p = Runtime.getRuntime().exec(command, null, root);
             p.getOutputStream().close();
@@ -262,7 +265,7 @@ public class ClearCase implements SourceControl {
         }
 
         if (modifications == null) {
-            modifications = new ArrayList();
+            modifications = new ArrayList<Modification>();
         }
 
         return modifications;
@@ -284,12 +287,12 @@ public class ClearCase implements SourceControl {
      *
      * @param input the stream to parse
      * @return a list of modification elements
-     * @throws IOException
+     * @throws IOException if something breaks
      */
-    List parseStream(InputStream input) throws IOException {
-        ArrayList modifications = new ArrayList();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-        String ls = System.getProperty("line.separator");
+    List<Modification> parseStream(InputStream input) throws IOException {
+        final ArrayList<Modification> modifications = new ArrayList<Modification>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        final String ls = System.getProperty("line.separator");
 
         String line;
         String lines = "";
@@ -414,13 +417,13 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     * @param attributeList
+     * @param attributeList attribute list
      * @return parsed list
      */
-    private Hashtable extractAttributesMap(String attributeList) {
-        Hashtable attributes = null;
+    private Hashtable<String, String> extractAttributesMap(String attributeList) {
+        Hashtable<String, String> attributes = null;
         if (attributeList.length() > 0) {
-            attributes = new Hashtable();
+            attributes = new Hashtable<String, String>();
             StringTokenizer attrST = new StringTokenizer(attributeList, "(), ");
             while (attrST.hasMoreTokens()) {
                 String attr = attrST.nextToken();
@@ -439,13 +442,13 @@ public class ClearCase implements SourceControl {
     }
 
     /**
-     * @param labelList
+     * @param labelList label list
      * @return parsed list
      */
-    private Vector extractLabelsList(String labelList) {
-        Vector labels = null;
+    private Vector<String> extractLabelsList(String labelList) {
+        Vector<String> labels = null;
         if (labelList.length() > 0) {
-            labels = new Vector();
+            labels = new Vector<String>();
             StringTokenizer labelST = new StringTokenizer(labelList, "(), ");
             while (labelST.hasMoreTokens()) {
                 labels.add(labelST.nextToken().trim());

@@ -204,7 +204,8 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
      * Disables the label incrementer from synchronizing Perforce to the
      * view.
      *
-     * @param b
+     * @param b if true, Disables the label incrementer from synchronizing Perforce to the
+     * view.
      */
     public void setNoSync(boolean b) {
         this.sync = !b;
@@ -214,7 +215,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
      * Perform a "p4 sync -f [view]#0" before syncing anew.  This will force
      * the sync to happen.
      *
-     * @param b
+     * @param b if true, perform a "p4 sync -f [view]#0" before syncing anew
      */
     public void setClean(boolean b) {
         this.clean = b;
@@ -226,7 +227,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
      * will force a clean & sync.  Note that this can potentially
      * be very destructive, so use with the utmost caution.
      *
-     * @param b
+     * @param b if true, force clean & sync
      */
     public void setDelete(boolean b) {
         this.delete = b;
@@ -292,11 +293,12 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     /**
      * If the view mapping contains a reference to a single file,
      *
+     * @param p project
      * @return the collection of recursive directories inside the Perforce
      *      view.
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    protected FileSet getWhereView(Project p) throws CruiseControlException {
+    protected FileSet getWhereView(final Project p) throws CruiseControlException {
         String view = p4View;
         if (view == null) {
             view = "//...";
@@ -307,23 +309,23 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             LOG.debug("view [" + view + "] isn't recursive.");
             return null;
         }
-        Commandline cmd = buildBaseP4Command();
+        final Commandline cmd = buildBaseP4Command();
         cmd.createArguments("where", view);
 
-        ParseOutputParam pop = new ParseOutputParam("");
+        final ParseOutputParam pop = new ParseOutputParam("");
         runP4Cmd(cmd, pop);
-        String[] values = pop.getValues();
+        final String[] values = pop.getValues();
         if (values == null || values.length <= 0) {
             LOG.debug("Didn't find any files for view");
             return null;
         }
-        FileSet fs = createFileSet(p);
+        final FileSet fs = createFileSet(p);
 
         // on windows, this is considered higher than the drive letter.
         fs.setDir(new File("/"));
         int count = 0;
 
-        for (int i = 0; i < values.length; ++i) {
+        for (final String s : values) {
             // first token: the depot name
             // second token: the client name
             // third token+: the local file system name
@@ -332,35 +334,32 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
             // line doesn't end in /... or \... (even if it's a %%1), we ignore
             // it.  This makes our life so much simpler when dealing with
             // spaces.
-            String s = values[i];
             //LOG.debug("Parsing view line " + i + " [" + s + "]");
             if (!s.endsWith(RECURSE_U) && !s.endsWith(RECURSE_W)) {
                 continue;
             }
 
-            String[] tokens = new String[3];
+            final String[] tokens = new String[3];
             int pos = 0;
             for (int j = 0; j < 3; ++j) {
-                StringBuffer sb = new StringBuffer();
+                final StringBuffer sb = new StringBuffer();
                 boolean neot = true;
                 while (neot) {
                     if (pos >= s.length()) {
                         break;
                     }
-                    int q1 = s.indexOf('\'', pos);
-                    int q2 = s.indexOf('"', pos);
-                    int sp = s.indexOf(' ', pos);
+                    final int q1 = s.indexOf('\'', pos);
+                    final int q2 = s.indexOf('"', pos);
+                    final int sp = s.indexOf(' ', pos);
                     if (q1 >= 0 && (q1 < q2 || q2 < 0) && (q1 < sp || sp < 0)) {
                         sb.append(s.substring(pos, q1));
                         pos = q1 + 1;
-                    } else
-                    if (q2 >= 0 && (q2 < q1 || q1 < 0) && (q2 < sp || sp < 0)) {
+                    } else if (q2 >= 0 && (q2 < q1 || q1 < 0) && (q2 < sp || sp < 0)) {
                         sb.append(s.substring(pos, q2));
                         pos = q2 + 1;
-                    } else
-                    if (sp >= 0) {
+                    } else if (sp >= 0) {
                         // check if we're at the end of the token
-                        String sub = s.substring(pos, sp);
+                        final String sub = s.substring(pos, sp);
                         pos = sp + 1;
                         sb.append(sub);
                         if (sub.endsWith(RECURSE_U) || sub.endsWith(RECURSE_W)) {
@@ -381,15 +380,15 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
                     || tokens[2].endsWith(RECURSE_W))) {
                 // convert the P4 recurse expression with the Ant
                 // recurse expression
-                String f = tokens[2].substring(0,
+                final String f = tokens[2].substring(0,
                         tokens[2].length() - RECURSE_W.length())
                         + File.separator + "**";
                 // a - in front of the depot name means to exclude this path
                 if (tokens[0].startsWith("-//")) {
-                    NameEntry ne = fs.createExclude();
+                    final NameEntry ne = fs.createExclude();
                     ne.setName(f);
                 } else {
-                    NameEntry ne = fs.createInclude();
+                    final NameEntry ne = fs.createInclude();
                     ne.setName(f);
                 }
                 ++count;
@@ -405,20 +404,20 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
 
 
     protected Project createProject() {
-        Project p = new Project();
+        final Project p = new Project();
         p.init();
         return p;
     }
 
 
-    protected Delete createDelete(Project p) throws CruiseControlException {
+    protected Delete createDelete(final Project p) throws CruiseControlException {
         Object o = p.createTask("delete");
         if (o == null || !(o instanceof Delete)) {
             // Backup code just in case we didn't work right.
             // If we can guarantee the above operation works all the time,
             // then this log note should be replaced with an exception.
             LOG.info("Could not find <delete> task in Ant.  Defaulting to basic constructor.");
-            Delete d = new Delete();
+            final Delete d = new Delete();
             d.setProject(p);
             o = d;
         }
@@ -426,14 +425,14 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     }
 
 
-    protected FileSet createFileSet(Project p) throws CruiseControlException {
+    protected FileSet createFileSet(final Project p) throws CruiseControlException {
         Object o = p.createDataType("fileset");
         if (o == null || !(o instanceof FileSet)) {
             // Backup code just in case we didn't work right.
             // If we can guarantee the above operation works all the time,
             // then this log note should be replaced with an exception.
             LOG.info("Could not find <fileset> type in Ant.  Defaulting to basic constructor.");
-            FileSet fs = new FileSet();
+            final FileSet fs = new FileSet();
             fs.setProject(p);
             o = fs;
         }
@@ -442,7 +441,7 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
 
 
     protected Commandline buildBaseP4Command() {
-        Commandline commandLine = new Commandline();
+        final Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
         commandLine.createArgument("-s");
 
@@ -465,10 +464,10 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     }
 
 
-    protected void runP4Cmd(Commandline cmd, P4CmdParser parser)
+    protected void runP4Cmd(final Commandline cmd, final P4CmdParser parser)
             throws CruiseControlException {
         try {
-            Process p = cmd.execute();
+            final Process p = cmd.execute();
 
             try {
                 Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p));
@@ -488,10 +487,10 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
         }
     }
 
-    protected void parseStream(InputStream stream, P4CmdParser parser)
+    protected void parseStream(final InputStream stream, final P4CmdParser parser)
             throws IOException {
         String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         while ((line = reader.readLine()) != null) {
             if (line.startsWith("error:")) {
                 throw new IOException("Error reading P4 stream: P4 says: " + line);
@@ -522,48 +521,48 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
     }
 
     protected static class P4CmdParserAdapter implements P4CmdParser {
-        public void warning(String msg) {
+        public void warning(final String msg) {
             // empty
         }
-        public void info(String msg) {
+        public void info(final String msg) {
             // empty
         }
-        public void text(String msg) {
+        public void text(final String msg) {
             // empty
         }
     }
 
     protected static class ParseChangelistNumbers extends P4CmdParserAdapter {
-        private ArrayList changelists = new ArrayList();
-        public void info(String msg) {
-            StringTokenizer st = new StringTokenizer(msg);
+        private final ArrayList<String> changelists = new ArrayList<String>();
+        public void info(final String msg) {
+            final StringTokenizer st = new StringTokenizer(msg);
             st.nextToken(); // skip 'Change' text
             changelists.add(st.nextToken());
         }
 
         public String[] getChangelistNumbers() {
-            String[] changelistNumbers = new String[ 0 ];
-            return (String[]) changelists.toArray(changelistNumbers);
+            final String[] changelistNumbers = new String[ 0 ];
+            return changelists.toArray(changelistNumbers);
         }
     }
 
     protected static class ParseOutputParam extends P4CmdParserAdapter {
-        public ParseOutputParam(String paramName) {
+        public ParseOutputParam(final String paramName) {
             this.paramName = paramName;
         }
         private final String paramName;
-        private List values = new ArrayList();
+        private final List<String> values = new ArrayList<String>();
         public void info(final String msg) {
-            String m = msg.trim();
+            final String m = msg.trim();
             if (m.startsWith(paramName)) {
-                String m2 = m.substring(paramName.length()).trim();
+                final String m2 = m.substring(paramName.length()).trim();
                 values.add(m2);
             }
         }
 
         public String[] getValues() {
-            String[] v = new String[ 0 ];
-            return (String[]) values.toArray(v);
+            final String[] v = new String[ 0 ];
+            return values.toArray(v);
         }
     }
 }

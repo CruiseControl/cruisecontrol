@@ -71,7 +71,7 @@ public class RSSPublisher implements Publisher {
 
     //Map to hold all RSSFeed instances.  The RSSFeeds are keyed according to
     // filename so that multiple projects can share a single RSSFeed.
-    private static Map rssFeeds = new HashMap();
+    private static final Map<String, CruiseControlFeed> RSS_FEEDS = new HashMap<String, CruiseControlFeed>();
 
     private String fileName;
     private String buildresultsurl;
@@ -84,8 +84,10 @@ public class RSSPublisher implements Publisher {
     /**
      *  Static method that allows multiple project RSSPublishers to share a
      *  single RSSFeed instance.
+     * @param publishToFile the file identifying a feed
+     * @return feed for the given file
      */
-    public static CruiseControlFeed getRSSFeed(File publishToFile) {
+    public static CruiseControlFeed getRSSFeed(final File publishToFile) {
 
         // FIXME not thread safe
 
@@ -95,12 +97,12 @@ public class RSSPublisher implements Publisher {
         } catch (IOException ioe) {
             pathToPublishFile = publishToFile.getAbsolutePath().toLowerCase();
         }
-        CruiseControlFeed rssfeed = (CruiseControlFeed) rssFeeds.get(pathToPublishFile);
+        CruiseControlFeed rssfeed = RSS_FEEDS.get(pathToPublishFile);
 
         if (rssfeed == null) {
             //Create a new RSS Feed and add it to the collection.
             rssfeed = new CruiseControlFeed(publishToFile);
-            rssFeeds.put(pathToPublishFile, rssfeed);
+            RSS_FEEDS.put(pathToPublishFile, rssfeed);
         }
 
         rssfeed.incrementProjectCount();
@@ -113,9 +115,9 @@ public class RSSPublisher implements Publisher {
      *
      *  @param cruisecontrolLog JDOM Element representation of the main cruisecontrol build log
      */
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
 
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+        final XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
 
 
         // Get a reference to the RSSFeed
@@ -129,7 +131,7 @@ public class RSSPublisher implements Publisher {
         }
 
         // Create the RSSFeedItem
-        Item rssItem = new CruiseControlItem(helper, this.buildresultsurl);
+        final Item rssItem = new CruiseControlItem(helper, this.buildresultsurl);
         rssFeed.addItem(rssItem);
 
         // Publish the feed.
@@ -162,34 +164,34 @@ public class RSSPublisher implements Publisher {
     }
 
     /**
-     *  Set the name of the file to which the RSS feed should be pushed.
+     *  @param fileName the name of the file to which the RSS feed should be pushed.
      */
-    public void setFile(String fileName) {
+    public void setFile(final String fileName) {
         // FIXME do we need to trim() here? isn't it enforced by the API
         this.fileName = fileName.trim();
     }
 
     /**
-     *  Set the build results URL.  This should be of the format:
+     *  @param buildResultsURL the build results URL.  This should be of the format:
      *  http://[SERVER]/cruisecontrol/buildresults/[OPTIONAL_PROJECT_NAME]
      */
-    public void setBuildResultsURL(String buildResultsURL) {
+    public void setBuildResultsURL(final String buildResultsURL) {
         this.buildresultsurl = buildResultsURL.trim();
     }
 
 
     /**
-     *  Set the channel link URL.  In many newsreaders, this is the URL linked
+     *  @param channelLinkURL the channel link URL.  In many newsreaders, this is the URL linked
      *  from the feed title.
      */
-    public void setChannelLinkURL(String channelLinkURL) {
+    public void setChannelLinkURL(final String channelLinkURL) {
         this.channelLinkURL = channelLinkURL.trim();
     }
 
     /**
-     *  The maximum number of entries to include in the RSS feed.  Default is 10.
+     *  @param max maximum number of entries to include in the RSS feed.  Default is 10.
      */
-    public void setMaxLength(int max) {
+    public void setMaxLength(final int max) {
         if (max > 0) {
             this.maxLength = max;
         } else {

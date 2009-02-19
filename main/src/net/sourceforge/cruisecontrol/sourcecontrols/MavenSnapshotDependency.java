@@ -80,7 +80,7 @@ import org.jdom.input.SAXBuilder;
 public class MavenSnapshotDependency implements SourceControl {
 
     private SourceControlProperties properties = new SourceControlProperties();
-    private List modifications;
+    private List<Modification> modifications;
     private File projectFile;
     private File propertiesFile;
     private File localRepository = new File(System.getProperty("user.home") + "/.maven/repository/");
@@ -124,7 +124,7 @@ public class MavenSnapshotDependency implements SourceControl {
         properties.assignPropertyName(property);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -152,8 +152,8 @@ public class MavenSnapshotDependency implements SourceControl {
      *  @param now
      *            IGNORED
      */
-    public List getModifications(Date lastBuild, Date now) {
-        modifications = new ArrayList();
+    public List<Modification> getModifications(Date lastBuild, Date now) {
+        modifications = new ArrayList<Modification>();
 
         checkProjectDependencies(projectFile, lastBuild.getTime());
 
@@ -182,8 +182,8 @@ public class MavenSnapshotDependency implements SourceControl {
      * Do not download them, only list them as modifications.
      */
     private void checkProjectDependencies(File projectFile, long lastBuild) {
-        List filenames = getSnapshotFilenames(projectFile);
-        Iterator itr = filenames.iterator();
+        final List filenames = getSnapshotFilenames(projectFile);
+        final Iterator itr = filenames.iterator();
         while (itr.hasNext()) {
             String filename = (String) itr.next();
             File dependency = new File(filename);
@@ -240,7 +240,7 @@ public class MavenSnapshotDependency implements SourceControl {
     List getSnapshotFilenames(File mavenFile) {
         LOG.info("Getting a list of dependencies for " + mavenFile);
 
-        List filenames = new ArrayList();
+        final List<String> filenames = new ArrayList<String>();
         Element mavenElement;
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
         try {

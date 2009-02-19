@@ -166,15 +166,15 @@ public final class Util {
      * @return the content of the file specified by its path into a <code>String</code>
      * @throws IOException if io error occurs
      */
-    public static String readFileToString(String fileName) throws IOException {
-        StringBuffer out = new StringBuffer();
+    public static String readFileToString(final String fileName) throws IOException {
+        final StringBuilder out = new StringBuilder();
         appendFileToBuffer(fileName, out);
         return out.toString();
     }
 
-    public static String readFileToString(File file) throws IOException {
+    public static String readFileToString(final File file) throws IOException {
         final BufferedReader reader = new BufferedReader(new FileReader(file));
-        final StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
 
         try {
             String s = reader.readLine();
@@ -190,12 +190,12 @@ public final class Util {
     }
 
     /**
-     * Append the content of the file specified by its path into a <code>StringBuffer</code>
+     * Append the content of the file specified by its path into a <code>StringBuilder</code>
      * @param fileName file who's content is to be appeneded
      * @param out buffer onto which to append the file content
      * @throws IOException if io error occurs
      */
-    public static void appendFileToBuffer(String fileName, StringBuffer out) throws IOException {
+    public static void appendFileToBuffer(final String fileName, final StringBuilder out) throws IOException {
         final FileReader fr = new FileReader(fileName);
         try {
             char[] buff = new char[4096];

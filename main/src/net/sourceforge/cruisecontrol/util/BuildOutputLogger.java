@@ -77,22 +77,23 @@ public class BuildOutputLogger implements StreamConsumer {
     }
 
     /**
+     * @param firstLine line to skip to.
      * @return All lines available from firstLine (inclusive) up to MAX_LINES.
      */
     public String[] retrieveLines(int firstLine) {
         if (noDataFile()) { return new String[0]; }
-        List lines = loadFile(firstLine);
-        return (String[]) lines.toArray(new String[lines.size()]);
+        List<String> lines = loadFile(firstLine);
+        return lines.toArray(new String[lines.size()]);
     }
 
-    private List loadFile(int firstLine) {
+    private List<String> loadFile(int firstLine) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(data));
             skipLines(reader, firstLine);
             return readUptoMaxLines(reader);
         } catch (IOException e) {
-            return new ArrayList();
+            return new ArrayList<String>();
         } finally {
             if (reader != null) {
                 try {
@@ -103,8 +104,8 @@ public class BuildOutputLogger implements StreamConsumer {
         }
     }
 
-    private List readUptoMaxLines(BufferedReader reader) throws IOException {
-        List result = new ArrayList();
+    private List<String> readUptoMaxLines(BufferedReader reader) throws IOException {
+        List<String> result = new ArrayList<String>();
         String line = reader.readLine();
         while (line != null && result.size() < MAX_LINES) {
             result.add(line);

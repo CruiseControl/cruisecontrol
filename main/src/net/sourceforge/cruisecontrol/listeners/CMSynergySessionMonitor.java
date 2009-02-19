@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -70,7 +69,7 @@ public class CMSynergySessionMonitor implements Listener {
 
     private File sessionFile;
     private String ccmExe = CMSynergy.CCM_EXE;
-    private ArrayList sessions = new ArrayList();
+    private final ArrayList<CMSynergySession> sessions = new ArrayList<CMSynergySession>();
 
     /**
      * Sets the name of the CM Synergy executable to use when issuing commands.
@@ -261,7 +260,7 @@ public class CMSynergySessionMonitor implements Listener {
         /**
          * Validates the fields of this object.
          * 
-         * @throws CruiseControlException
+         * @throws CruiseControlException if something breaks
          */
         public void validate() throws CruiseControlException {
             ValidationHelper.assertIsSet(name, "name", "the <session> child element");
@@ -278,7 +277,7 @@ public class CMSynergySessionMonitor implements Listener {
      * 
      * @param sessionFile
      *            The session file to check
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
     private static synchronized void checkSessionFile(File sessionFile) throws CruiseControlException {
         // Create the session file if it does not already exist
@@ -311,14 +310,15 @@ public class CMSynergySessionMonitor implements Listener {
      *            The CM Synergy session map file
      * @param sessions
      *            A list of monitored CM Synergy sessions
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    private static synchronized void checkSessions(String ccmExe, File sessionFile, List sessions)
+    private static synchronized void checkSessions(final String ccmExe,
+                                                   final File sessionFile, final List<CMSynergySession> sessions)
             throws CruiseControlException {
         LOG.debug("Using persisted data from " + sessionFile.getAbsolutePath());
 
         // Load the persisted session information from file
-        Properties sessionMap;
+        final Properties sessionMap;
         try {
             sessionMap = Util.loadPropertiesFromFile(sessionFile);
         } catch (IOException e) {
@@ -326,7 +326,7 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         // Get a list of currently running CM Synergy sessions
-        ManagedCommandline cmd = new ManagedCommandline(ccmExe);
+        final ManagedCommandline cmd = new ManagedCommandline(ccmExe);
         cmd.createArgument("status");
         String availableSessions;
         try {
@@ -339,14 +339,13 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         // Check each monitored session in turn
-        for (Iterator it = sessions.iterator(); it.hasNext();) {
-            CMSynergySession session = (CMSynergySession) it.next();
-            String name = session.getName();
-            String id = sessionMap.getProperty(name);
+        for (CMSynergySession session : sessions) {
+            final String name = session.getName();
+            final String id = sessionMap.getProperty(name);
             LOG.info("Checking " + name + ".");
             if (id == null || availableSessions.indexOf(id) < 0) {
                 // Start a new session and record the ID in the map
-                String newID = startSession(ccmExe, session);
+                final String newID = startSession(ccmExe, session);
                 if (newID != null) {
                     LOG.info("Started CM Synergy session \"" + newID + "\".");
                     sessionMap.setProperty(name, newID);
@@ -366,9 +365,12 @@ public class CMSynergySessionMonitor implements Listener {
 
     /**
      * Launches a new CM Synergy command line session
-     * 
+     *
+     * @param ccmExe
+     *            The CM Synergy command line executable
      * @param session
      *            The session information
+     * @return stdout from new session.
      */
     private static String startSession(String ccmExe, CMSynergySession session) {
 
@@ -425,8 +427,7 @@ public class CMSynergySessionMonitor implements Listener {
         ValidationHelper.assertTrue(sessions.size() > 0, "You must provide at least one nested <session> element.");
 
         // Validate the details of each provided session
-        for (Iterator it = sessions.iterator(); it.hasNext();) {
-            CMSynergySession session = (CMSynergySession) it.next();
+        for (final CMSynergySession session : sessions) {
             session.validate();
         }
 

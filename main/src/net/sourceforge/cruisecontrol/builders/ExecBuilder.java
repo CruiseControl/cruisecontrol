@@ -130,7 +130,7 @@ public class ExecBuilder extends Builder {
 
         // did the exec fail in anyway?
         if (scriptIOError) {
-            StringBuffer message = new StringBuffer("Could not execute command: " + command);
+            final StringBuilder message = new StringBuilder("Could not execute command: " + command);
             if (args == null) {
                 message.append(" with no arguments");
             } else {
@@ -140,7 +140,7 @@ public class ExecBuilder extends Builder {
             LOG.warn(message.toString());
             synchronized (buildLogElement) {
                 buildLogElement.setAttribute("error", "exec error");
-                Element msg = new Element("message");
+                final Element msg = new Element("message");
                 msg.addContent(new CDATA(message.toString()));
                 msg.setAttribute("priority", "error");
                 task.addContent(msg);
@@ -150,7 +150,7 @@ public class ExecBuilder extends Builder {
             synchronized (buildLogElement) {
                 LOG.warn("Detected error string string in build output");
                 buildLogElement.setAttribute("error", "error string found");
-                Element msg = new Element("message");
+                final Element msg = new Element("message");
                 msg.addContent(new CDATA("Detected error string: " + errorStr));
                 msg.setAttribute("priority", "error");
                 task.addContent(msg);
@@ -178,7 +178,7 @@ public class ExecBuilder extends Builder {
         return scriptRunner.runScript(new File(dir), script, timeout);
     }
 
-    private String substituteProperties(Map properties, String string) {
+    private String substituteProperties(final Map<String, String> properties, final String string) {
         String value = string;
         try {
             value = Util.parsePropertiesInString(properties, string, false);
