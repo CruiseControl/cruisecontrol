@@ -155,7 +155,7 @@ public class WeblogPublisher implements Publisher {
             "checkstyle.xsl", "compile.xsl", "javadoc.xsl", "unittests.xsl",
             "modifications.xsl", "distributables.xsl" };
 
-    private static final Map API_CLIENTS = new HashMap();
+    private static final Map<String, Class> API_CLIENTS = new HashMap<String, Class>();
     static {
         API_CLIENTS.put("metaweblog", MetaWeblogApiClient.class);
         API_CLIENTS.put("blogger", BloggerApiClient.class);
@@ -169,14 +169,14 @@ public class WeblogPublisher implements Publisher {
      * must take care of entire document -- html open/close, body tags, styles,
      * etc.
      */
-    public void setXSLFile(String fullPathToXslFile) {
+    public void setXSLFile(final String fullPathToXslFile) {
         xslFile = fullPathToXslFile;
     }
 
     /**
      * Directory where xsl files are located.
      */
-    public void setXSLDir(String xslDirectory) {
+    public void setXSLDir(final String xslDirectory) {
         xslDir = xslDirectory;
     }
 
@@ -191,9 +191,10 @@ public class WeblogPublisher implements Publisher {
      * the order of xsl files or to add/remove one to/from the list or a
      * combination.
      *
-     * @param fileNames
+     * @param fileNames list of file names that will be looked for
+     * in the directory specified by xslDir
      */
-    protected void setXSLFileNames(String[] fileNames) {
+    protected void setXSLFileNames(final String[] fileNames) {
         if (fileNames == null) {
             throw new IllegalArgumentException(
                     "xslFileNames can't be null (but can be empty)");
@@ -214,7 +215,7 @@ public class WeblogPublisher implements Publisher {
     /**
      * Path to cruisecontrol.css. Only used with xslDir, not xslFile.
      */
-    public void setCSS(String cssFilename) {
+    public void setCSS(final String cssFilename) {
         css = cssFilename;
     }
 
@@ -222,7 +223,7 @@ public class WeblogPublisher implements Publisher {
      * Path to the log file as set in the log element of the configuration xml
      * file.
      */
-    public void setLogDir(String directory) {
+    public void setLogDir(final String directory) {
         if (directory == null) {
             throw new IllegalArgumentException("logDir cannot be null!");
         }
@@ -233,7 +234,7 @@ public class WeblogPublisher implements Publisher {
      * The API used for posting to your blog. Currently, acceptable values are
      * <tt>blogger</tt>,<tt>metaweblog</tt> and <tt>livejournal</tt>.
      */
-    public void setApi(String api) {
+    public void setApi(final String api) {
         this.api = api;
     }
 
@@ -241,7 +242,7 @@ public class WeblogPublisher implements Publisher {
      * The "blog ID" for the blog you're posting to. The value depends on your
      * particular weblog product.
      */
-    public void setBlogId(String blogId) {
+    public void setBlogId(final String blogId) {
         this.blogId = blogId;
     }
 
@@ -250,21 +251,21 @@ public class WeblogPublisher implements Publisher {
      * value could look like <tt>http://www.yoursite.com/blog/xmlrpc</tt> or
      * <tt>http://www.livejournal.com/interface/xmlrpc</tt>.
      */
-    public void setBlogUrl(String blogUrl) {
+    public void setBlogUrl(final String blogUrl) {
         this.blogUrl = blogUrl;
     }
 
     /**
      * The username to use for authentication.
      */
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
     /**
      * The password to use for authentication.
      */
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
@@ -272,7 +273,7 @@ public class WeblogPublisher implements Publisher {
      * The category to set for the blog entry. When using the MetaWeblogAPI, you
      * can also use a comma-separated list of several categories.
      */
-    public void setCategory(String category) {
+    public void setCategory(final String category) {
         this.category = category;
     }
 
@@ -280,7 +281,7 @@ public class WeblogPublisher implements Publisher {
      * The prefix to be used before the title of the blog entry. If
      * <tt>null</tt>, no prefix will be used.
      */
-    public void setSubjectPrefix(String prefix) {
+    public void setSubjectPrefix(final String prefix) {
         this.subjectPrefix = prefix;
     }
 
@@ -288,7 +289,7 @@ public class WeblogPublisher implements Publisher {
      * The base build results URL where your CruiseControl reporting application
      * is running. For example, <tt>http://buildserver:8080/cc/myproject</tt>.
      */
-    public void setBuildResultsURL(String url) {
+    public void setBuildResultsURL(final String url) {
         this.buildResultsURL = url;
     }
 
@@ -296,7 +297,7 @@ public class WeblogPublisher implements Publisher {
      * The rule for posting a blog entry for successful builds. Accepted values
      * are <tt>never</tt>,<tt>always</tt> and <tt>fixes</tt>.
      */
-    public void setReportSuccess(String reportSuccess) {
+    public void setReportSuccess(final String reportSuccess) {
         this.reportSuccess = reportSuccess;
     }
 
@@ -304,7 +305,7 @@ public class WeblogPublisher implements Publisher {
      * The rule for posting a blog entry for each subsequent failed build.
      * Accepted values are <tt>true</tt> and <tt>false</tt>.
      */
-    public void setSpamWhileBroken(boolean spamWhileBroken) {
+    public void setSpamWhileBroken(final boolean spamWhileBroken) {
         this.spamWhileBroken = spamWhileBroken;
     }
 
@@ -359,8 +360,8 @@ public class WeblogPublisher implements Publisher {
 
         private static final long serialVersionUID = 6614787780439141028L;
 
-        public Object newPost(String blogUrl, String blogId, String username,
-                String password, String category, String subject, String content) {
+        public Object newPost(final String blogUrl, final String blogId, final String username,
+                final String password, final String category, final String subject, String content) {
             // the Blogger API doesn't support titles for blog entries so
             // we're using the common (de facto standard) workaround to embed
             // the title into the content and let the weblog software parse
@@ -368,8 +369,8 @@ public class WeblogPublisher implements Publisher {
             content = "<title>" + subject + "</title>" + content;
             Object postId = null;
             try {
-                XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
-                Vector params = new Vector();
+                final XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
+                final Vector<Object> params = new Vector<Object>();
                 params.add(APP_KEY);
                 params.add(blogId);
                 params.add(username);
@@ -393,22 +394,22 @@ public class WeblogPublisher implements Publisher {
 
         private static final long serialVersionUID = 5980798548858885672L;
 
-        public Object newPost(String blogUrl, String blogId, String username,
-                String password, String category, String subject, String content) {
+        public Object newPost(final String blogUrl, final String blogId, final String username,
+                final String password, final String category, final String subject, final String content) {
             Object postId = null;
             try {
-                XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
-                Vector params = new Vector();
+                final XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
+                final Vector<Object> params = new Vector<Object>();
                 params.add(blogId);
                 params.add(username);
                 params.add(password);
 
                 // MetaWeblogAPI expects the blog entry data elements in an
                 // internal map-structure unlike Blogger API does.
-                Hashtable struct = new Hashtable();
+                final Hashtable<String, Object> struct = new Hashtable<String, Object>();
                 struct.put("title", subject);
                 struct.put("description", content);
-                Vector categories = new Vector();
+                final Vector<Object> categories = new Vector<Object>();
                 if (category != null) {
                     StringTokenizer tok = new StringTokenizer(category, ",");
                     while (tok.hasMoreTokens()) {
@@ -436,28 +437,26 @@ public class WeblogPublisher implements Publisher {
 
         private static final long serialVersionUID = -372653261263803994L;
 
-        /**
-         * TODO: make this smarter so that it won't strip away linefeeds from
-         * within &lt;pre&gt;formatted blocks...
-         */
-        private String stripLineFeeds(String input) {
-            StringBuffer s = new StringBuffer();
-            char[] chars = input.toCharArray();
-            for (int i = 0; i < chars.length; i++) {
-                if (chars[i] != '\n' && chars[i] != '\r') {
-                    s.append(chars[i]);
+        // TODO: make this smarter so that it won't strip away linefeeds from
+        // within &lt;pre&gt;formatted blocks...
+        private String stripLineFeeds(final String input) {
+            final StringBuilder s = new StringBuilder();
+            final char[] chars = input.toCharArray();
+            for (char aChar : chars) {
+                if (aChar != '\n' && aChar != '\r') {
+                    s.append(aChar);
                 }
             }
             return s.toString();
         }
 
-        public Object newPost(String blogUrl, String blogId, String username,
-                String password, String category, String subject, String content) {
+        public Object newPost(final String blogUrl, final String blogId, final String username,
+                final String password, final String category, final String subject, final String content) {
             Object postId = null;
             try {
-                XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
-                Vector params = new Vector();
-                Hashtable struct = new Hashtable();
+                final XmlRpcClient xmlrpc = new XmlRpcClient(blogUrl);
+                final Vector<Object> params = new Vector<Object>();
+                final Hashtable<String, Object> struct = new Hashtable<String, Object>();
                 struct.put("username", username);
 
                 // TODO: use challenge-based security
@@ -468,7 +467,7 @@ public class WeblogPublisher implements Publisher {
                 struct.put("event", stripLineFeeds(content));
                 struct.put("lineendings", "\n");
                 struct.put("security", "public");
-                Calendar now = Calendar.getInstance();
+                final Calendar now = Calendar.getInstance();
                 struct.put("year", "" + now.get(Calendar.YEAR));
                 struct.put("mon", "" + (now.get(Calendar.MONTH) + 1));
                 struct.put("day", "" + now.get(Calendar.DAY_OF_MONTH));
@@ -492,11 +491,11 @@ public class WeblogPublisher implements Publisher {
      *            <tt>metaweblog</tt> or <tt>livejournal</tt>.
      * @return The <tt>BloggingApi</tt> implementation or <tt>null</tt> if
      *         no matching implementation was found.
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
-    public BloggingApi getBloggingApiImplementation(String apiName)
+    public BloggingApi getBloggingApiImplementation(final String apiName)
             throws CruiseControlException {
-        Class implClass = (Class) API_CLIENTS.get(apiName);
+        final Class implClass = API_CLIENTS.get(apiName);
         if (implClass != null) {
             LOG.debug("Mapped " + apiName + " to " + implClass.getName());
             try {
@@ -520,16 +519,16 @@ public class WeblogPublisher implements Publisher {
      * @param content
      *            The content for the blog entry.
      */
-    public void postBlogEntry(String subject, String content) {
+    public void postBlogEntry(final String subject, final String content) {
         LOG.debug("Posting a blog entry to " + blogUrl);
         LOG.debug("    blogId=" + blogId);
         LOG.debug("    username=" + username);
         LOG.debug("    subject=" + subject);
         LOG.debug("    content=" + content);
         try {
-            BloggingApi apiClient = getBloggingApiImplementation(api);
+            final BloggingApi apiClient = getBloggingApiImplementation(api);
             if (apiClient != null) {
-                Object postId = apiClient.newPost(blogUrl, blogId, username,
+                final Object postId = apiClient.newPost(blogUrl, blogId, username,
                         password, category, subject, content);
                 if (postId != null) {
                     LOG.info("Blog entry " + postId + " created at " + blogUrl);
@@ -573,31 +572,31 @@ public class WeblogPublisher implements Publisher {
             verifyDirectory("WeblogPublisher.xslDir", xslDir);
             verifyFile("WeblogPublisher.css", css);
 
-            String[] fileNames = getXslFileNames();
+            final String[] fileNames = getXslFileNames();
             if (fileNames == null) {
                 throw new CruiseControlException(
                         "WeblogPublisher.getXslFileNames() can't return null");
             }
-            for (int i = 0; i < fileNames.length; i++) {
-                verifyFile("WeblogPublisher.xslDir/" + fileNames[i], new File(
-                        xslDir, fileNames[i]));
+            for (final String fileName : fileNames) {
+                verifyFile("WeblogPublisher.xslDir/" + fileName, new File(
+                        xslDir, fileName));
             }
         } else {
             verifyFile("WeblogPublisher.xslFile", xslFile);
         }
     }
 
-    private void validateOneOf(String fieldName, Collection validValues,
-            String value) throws CruiseControlException {
+    private void validateOneOf(final String fieldName, final Collection validValues,
+            final String value) throws CruiseControlException {
         if (!validValues.contains(value)) {
             throw new CruiseControlException("Value for '" + fieldName
                     + "' must be one of " + commaSeparated(validValues));
         }
     }
 
-    private String commaSeparated(Collection values) {
-        StringBuffer s = new StringBuffer();
-        Iterator i = values.iterator();
+    private String commaSeparated(final Collection values) {
+        final StringBuilder s = new StringBuilder();
+        final Iterator i = values.iterator();
         while (i.hasNext()) {
             s.append("'").append(i.next()).append("'");
             if (i.hasNext()) {
@@ -607,7 +606,7 @@ public class WeblogPublisher implements Publisher {
         return s.toString();
     }
 
-    private void validateURL(String fieldName, String url)
+    private void validateURL(final String fieldName, final String url)
             throws CruiseControlException {
         try {
             new URL(url);
@@ -617,7 +616,7 @@ public class WeblogPublisher implements Publisher {
         }
     }
 
-    private void validateRequiredField(String fieldName, String value)
+    private void validateRequiredField(final String fieldName, final String value)
             throws CruiseControlException {
         if (value == null) {
             throw new CruiseControlException("Attribute " + fieldName
@@ -625,13 +624,13 @@ public class WeblogPublisher implements Publisher {
         }
     }
 
-    private void verifyDirectory(String dirName, String dir)
+    private void verifyDirectory(final String dirName, final String dir)
             throws CruiseControlException {
         if (dir == null) {
             throw new CruiseControlException(dirName
                     + " not specified in configuration file");
         }
-        File dirFile = new File(dir);
+        final File dirFile = new File(dir);
         if (!dirFile.exists()) {
             throw new CruiseControlException(dirName + " does not exist : "
                     + dirFile.getAbsolutePath());
@@ -642,7 +641,7 @@ public class WeblogPublisher implements Publisher {
         }
     }
 
-    private void verifyFile(String fileName, String file)
+    private void verifyFile(final String fileName, final String file)
             throws CruiseControlException {
         if (file == null) {
             throw new CruiseControlException(fileName
@@ -651,7 +650,7 @@ public class WeblogPublisher implements Publisher {
         verifyFile(fileName, new File(file));
     }
 
-    private void verifyFile(String fileName, File file)
+    private void verifyFile(final String fileName, final File file)
             throws CruiseControlException {
         if (!file.exists()) {
             throw new CruiseControlException(fileName + " does not exist: "
@@ -669,8 +668,9 @@ public class WeblogPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
+     * @throws CruiseControlException if something breaks
      */
-    boolean shouldSend(XMLLogHelper logHelper) throws CruiseControlException {
+    boolean shouldSend(final XMLLogHelper logHelper) throws CruiseControlException {
         if (logHelper.isBuildSuccessful()) {
             return shouldSendForSuccessfulBuild(logHelper);
         } else {
@@ -684,8 +684,9 @@ public class WeblogPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
+     * @throws CruiseControlException if something breaks
      */
-    boolean shouldSendForFailedBuild(XMLLogHelper logHelper)
+    boolean shouldSendForFailedBuild(final XMLLogHelper logHelper)
             throws CruiseControlException {
         if (!logHelper.wasPreviousBuildSuccessful()
                 && logHelper.isBuildNecessary() && !spamWhileBroken) {
@@ -702,8 +703,9 @@ public class WeblogPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return whether or not the mail message should be sent.
+     * @throws CruiseControlException if something breaks
      */
-    boolean shouldSendForSuccessfulBuild(XMLLogHelper logHelper)
+    boolean shouldSendForSuccessfulBuild(final XMLLogHelper logHelper)
             throws CruiseControlException {
         if (reportSuccess.equalsIgnoreCase(DEFAULT_REPORTSUCCESS)) {
             return true;
@@ -726,24 +728,30 @@ public class WeblogPublisher implements Publisher {
      * @param logHelper
      *            <code>XMLLogHelper</code> wrapper for the build log.
      * @return <code>String</code> containing the subject line.
+     * @throws CruiseControlException if something breaks
      */
-    String createSubject(XMLLogHelper logHelper) throws CruiseControlException {
-        String projectName = logHelper.getProjectName();
-        String label = logHelper.getLabel();
-        boolean buildSuccessful = logHelper.isBuildSuccessful();
-        boolean isFix = logHelper.isBuildFix();
+    String createSubject(final XMLLogHelper logHelper) throws CruiseControlException {
+        final String projectName = logHelper.getProjectName();
+        final String label = logHelper.getLabel();
+        final boolean buildSuccessful = logHelper.isBuildSuccessful();
+        final boolean isFix = logHelper.isBuildFix();
         return createSubject(projectName, label, buildSuccessful, isFix);
     }
 
     /**
      * Creates the subject for the blog entry.
      *
+     * @param projectName project name
+     * @param label label
+     * @param buildSuccessful true if build successful
+     * @param isFix true if build fixed prior failure
      * @return <code>String</code> containing the subject line.
+     * @throws CruiseControlException if something breaks
      */
-    String createSubject(String projectName, String label,
-            boolean buildSuccessful, boolean isFix)
+    String createSubject(final String projectName, final String label,
+            final boolean buildSuccessful, final boolean isFix)
             throws CruiseControlException {
-        StringBuffer subject = new StringBuffer();
+        final StringBuilder subject = new StringBuilder();
         if (subjectPrefix != null && subjectPrefix.trim().length() > 0) {
             subject.append(subjectPrefix).append(" ");
         }
@@ -762,9 +770,11 @@ public class WeblogPublisher implements Publisher {
     /**
      * Create the text to be blogged.
      *
+     * @param projectName project name
+     * @param logFileName log file name
      * @return created message; empty string if logDir not set
      */
-    String createMessage(String projectName, String logFileName) {
+    String createMessage(final String projectName, final String logFileName) {
         String message;
         File inFile = null;
         try {
@@ -780,14 +790,14 @@ public class WeblogPublisher implements Publisher {
         return message;
     }
 
-    String getDefaultLogDir(String projectName) throws CruiseControlException {
+    String getDefaultLogDir(final String projectName) throws CruiseControlException {
         // TODO: extract this duplication with ProjectXMLHelper.getLog()
         // into a single method somewhere
         return "logs" + File.separator + projectName;
     }
 
-    String transform(File xml) throws TransformerException, IOException {
-        StringBuffer messageBuffer = new StringBuffer();
+    String transform(final File xml) throws TransformerException, IOException {
+        final StringBuilder messageBuffer = new StringBuilder();
         if (xslFile != null) {
             transformWithSingleStylesheet(xml, messageBuffer);
         } else {
@@ -797,32 +807,31 @@ public class WeblogPublisher implements Publisher {
         return messageBuffer.toString();
     }
 
-    void transformWithMultipleStylesheets(File inFile,
-            StringBuffer messageBuffer) throws IOException,
+    void transformWithMultipleStylesheets(final File inFile,
+            final StringBuilder messageBuffer) throws IOException,
             TransformerException {
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        File xslDirectory = new File(xslDir);
-        String[] fileNames = getXslFileNames();
-        for (int i = 0; i < fileNames.length; i++) {
-            String fileName = fileNames[i];
-            File xsl = new File(xslDirectory, fileName);
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
+        final File xslDirectory = new File(xslDir);
+        final String[] fileNames = getXslFileNames();
+        for (final String fileName : fileNames) {
+            final File xsl = new File(xslDirectory, fileName);
             messageBuffer.append("<p>\n");
             appendTransform(inFile, xsl, messageBuffer, tFactory);
         }
     }
 
-    void transformWithSingleStylesheet(File inFile, StringBuffer messageBuffer)
+    void transformWithSingleStylesheet(final File inFile, final StringBuilder messageBuffer)
             throws IOException, TransformerException {
-        TransformerFactory tFactory = TransformerFactory.newInstance();
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
         appendTransform(inFile, new File(xslFile), messageBuffer, tFactory);
     }
 
-    void appendTransform(File xml, File xsl, StringBuffer messageBuffer,
+    void appendTransform(final File xml, final File xsl, final StringBuilder messageBuffer,
             TransformerFactory tFactory) throws TransformerException {
         LOG.debug("Transforming file " + xml.getName() + " with "
                 + xsl.getName() + " ...");
-        Transformer tformer = tFactory.newTransformer(new StreamSource(xsl));
-        StringWriter sw = new StringWriter();
+        final Transformer tformer = tFactory.newTransformer(new StreamSource(xsl));
+        final StringWriter sw = new StringWriter();
         try {
             tformer.transform(new StreamSource(xml), new StreamResult(sw));
             LOG.debug("Transformed file " + xml.getName() + " with "
@@ -834,12 +843,12 @@ public class WeblogPublisher implements Publisher {
         messageBuffer.append(sw.toString());
     }
 
-    String createLinkLine(String logFileName) {
+    String createLinkLine(final String logFileName) {
         if (buildResultsURL == null) {
             return "";
         }
-        String url = createBuildResultsUrl(logFileName);
-        StringBuffer linkLine = new StringBuffer();
+        final String url = createBuildResultsUrl(logFileName);
+        final StringBuilder linkLine = new StringBuilder();
         linkLine.append("<p>View results here -&gt; <a href=\"");
         linkLine.append(url);
         linkLine.append("\">");
@@ -848,11 +857,11 @@ public class WeblogPublisher implements Publisher {
         return linkLine.toString();
     }
 
-    String createBuildResultsUrl(String logFileName) {
-        int startName = logFileName.lastIndexOf(File.separator) + 1;
-        int endName = logFileName.lastIndexOf(".");
-        String baseLogFileName = logFileName.substring(startName, endName);
-        StringBuffer url = new StringBuffer(buildResultsURL);
+    String createBuildResultsUrl(final String logFileName) {
+        final int startName = logFileName.lastIndexOf(File.separator) + 1;
+        final int endName = logFileName.lastIndexOf(".");
+        final String baseLogFileName = logFileName.substring(startName, endName);
+        final StringBuilder url = new StringBuilder(buildResultsURL);
         if (buildResultsURL.indexOf("?") == -1) {
             url.append("?");
         } else {
