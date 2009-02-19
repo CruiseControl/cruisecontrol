@@ -128,6 +128,8 @@
             <fileset dir="${dist}" />
         </delete>
         <delete dir="${target}" />
+
+        <ant dir="loggers" target="clean"/>
     </target>
 
     <macrodef name="compile-macro">
@@ -138,11 +140,14 @@
         <sequential>
             <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
                 <nested />
+                <!-- @todo Restore after most generics warnings are cleared up
+                <compilerarg value="-Xlint:unchecked"/>
+                -->
             </javac>
         </sequential>
     </macrodef>
 
-    <target name="compile" depends="init" unless="compile.skip" description="Compile source code">
+    <target name="compile" depends="init, logger.jar" unless="compile.skip" description="Compile source code">
         <compile-macro/>
 
         <copy todir="${classes}">
@@ -305,7 +310,7 @@
         </checkstyle-macro>
     </target>
 
-    <target name="all" depends="init, logger.jar, compile, checkstyle, test, functional-test, jar" description="Performs a build, runs tests, and builds jar" />
+    <target name="all" depends="init, compile, checkstyle, test, functional-test, jar" description="Performs a build, runs tests, and builds jar" />
 
     <target name="dist" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
