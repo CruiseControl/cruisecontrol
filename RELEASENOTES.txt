@@ -11,6 +11,10 @@ general
 build loop
 ======================
 
+CMSynergyModification
+----------------------
+* Fix error publishing CMSynergy build (CC-876). Reported by Gerard Roos. Tested by David Corley.
+
 Origo Publisher
 ----------------------
 * Update to use new issue handling API. Patch by Patrick Ruckstuhl.
