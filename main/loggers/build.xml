@@ -12,7 +12,9 @@
 
   <target name="compile">
     <mkdir dir="target/classes"/>
-    <javac srcdir="src" destdir="target/classes" classpathref="class.path" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4"/>
+    <javac srcdir="src" destdir="target/classes" classpathref="class.path" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4">
+      <compilerarg value="-Xlint:unchecked"/>
+    </javac>
 
     <mkdir dir="target/test-classes"/>
     <javac srcdir="test" destdir="target/test-classes" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4">
@@ -20,7 +22,8 @@
         <path refid="class.path"/>
         <pathelement location="target/classes"/>
       </classpath>
-    </javac>
+      <compilerarg value="-Xlint:unchecked"/>
+    </javac>        
   </target>
 
   <target name="test">
