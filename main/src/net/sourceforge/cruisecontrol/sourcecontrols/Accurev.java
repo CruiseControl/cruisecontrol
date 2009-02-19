@@ -68,7 +68,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
     private static final Logger LOG = Logger.getLogger(Accurev.class);
     private String stream;
     private boolean verbose;
-    private ArrayList modifications;
+    private ArrayList<Modification> modifications;
     private Runner runner;
     private SourceControlProperties properties = new SourceControlProperties();
 
@@ -112,7 +112,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
      * @param now       the current date and time
      * @return the List of all detected modifications
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(Date lastBuild, Date now) {
         LOG.info("Accurev: getting modifications for " + stream);
         AccurevCommandline hist = AccurevCommand.HIST.create();
         if (runner != null) {
@@ -141,7 +141,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
      * @throws IOException
      */
     public boolean parseStream(InputStream input) throws IOException, CruiseControlException {
-        modifications = new ArrayList();
+        modifications = new ArrayList<Modification>();
         Modification modification = null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         while (true) {
@@ -188,12 +188,12 @@ public class Accurev implements SourceControl, AccurevInputParser {
     }
 
     private String[] getParts(String line) {
-        List partsList = new ArrayList();
-        StringTokenizer tokenizer = new StringTokenizer(line, ";");
+        final List<String> partsList = new ArrayList<String>();
+        final StringTokenizer tokenizer = new StringTokenizer(line, ";");
         while (tokenizer.hasMoreTokens()) {
             partsList.add(tokenizer.nextToken());
         }
-        String[] parts = new String[partsList.size()];
+        final String[] parts = new String[partsList.size()];
         partsList.toArray(parts);
         return parts;
     }
@@ -202,7 +202,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
         this.runner = runner;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 }

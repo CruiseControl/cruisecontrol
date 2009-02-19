@@ -50,7 +50,7 @@ import org.jdom.Element;
  *  Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  *  @author Patrick Conant
  */
-public class Item implements Comparable {
+public class Item implements Comparable<Item> {
 
     private String title;
     private String link;
@@ -63,6 +63,7 @@ public class Item implements Comparable {
 
     /**
      *  Construct from a JDOM element.
+     * @param itemNode item node
      */
     public Item(Element itemNode) {
         if (itemNode.getChild(RSS.NODE_ITEM_TITLE) != null) {
@@ -84,8 +85,7 @@ public class Item implements Comparable {
         }
     }
 
-    public int compareTo(Object o) {
-        Item other = (Item) o;
+    public int compareTo(Item other) {
         return other.getPublishDate().compareTo(this.getPublishDate());
     }
 
@@ -115,7 +115,7 @@ public class Item implements Comparable {
     }
 
     public String toXml() {
-        StringBuffer output = new StringBuffer();
+        final StringBuilder output = new StringBuilder();
 
         output.append("    <");
         output.append(RSS.NODE_ITEM);

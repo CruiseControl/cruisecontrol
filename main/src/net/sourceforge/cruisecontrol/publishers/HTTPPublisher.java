@@ -62,7 +62,7 @@ public class HTTPPublisher implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(ExecutePublisher.class);
 
-    private static final Set METHODS = new HashSet();
+    private static final Set<String> METHODS = new HashSet<String>();
     static {
         METHODS.add("GET");
         METHODS.add("POST");
@@ -73,7 +73,7 @@ public class HTTPPublisher implements Publisher {
         METHODS.add("TRACE");
     }
 
-    private final Collection parameters = new ArrayList();
+    private final Collection<NamedXPathAwareChild> parameters = new ArrayList<NamedXPathAwareChild>();
 
     private String urlString;
     private String requestMethod;
@@ -85,7 +85,7 @@ public class HTTPPublisher implements Publisher {
      * @param cruisecontrolLog of the current build
      * @throws CruiseControlException - on any error
      */
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
         HttpURLConnection conn = null;
         try {
             if ("GET".equals(this.requestMethod)) {
@@ -142,9 +142,7 @@ public class HTTPPublisher implements Publisher {
         ValidationHelper.assertTrue(METHODS.contains(this.requestMethod), "Request Method: " + this.requestMethod
             + " is mot a valid HTTP Request method");
 
-        Iterator it = parameters.iterator();
-        while (it.hasNext()) {
-            NamedXPathAwareChild parameter = (NamedXPathAwareChild) it.next();
+        for (final NamedXPathAwareChild parameter : parameters) {
             parameter.validate();
         }
     }
@@ -184,15 +182,15 @@ public class HTTPPublisher implements Publisher {
      * @return URL Encoded string of the parameters
      * @throws CruiseControlException On any error
      */
-    private String createDataSet(Element cruisecontrolLog) throws CruiseControlException {
-        StringBuffer data = new StringBuffer();
-        Iterator it = this.parameters.iterator();
+    private String createDataSet(final Element cruisecontrolLog) throws CruiseControlException {
+        final StringBuilder data = new StringBuilder();
+        final Iterator<NamedXPathAwareChild> it = this.parameters.iterator();
 
         while (it.hasNext()) {
-            NamedXPathAwareChild parameter = (NamedXPathAwareChild) it.next();
+            final NamedXPathAwareChild parameter = it.next();
 
-            String name = parameter.getName();
-            String value = parameter.lookupValue(cruisecontrolLog);
+            final String name = parameter.getName();
+            final String value = parameter.lookupValue(cruisecontrolLog);
 
             LOG.info("Adding request property: " + name + " = " + value);
             try {

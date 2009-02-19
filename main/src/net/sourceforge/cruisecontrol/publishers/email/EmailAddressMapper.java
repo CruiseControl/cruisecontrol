@@ -84,7 +84,7 @@ public class EmailAddressMapper extends EmailMapper {
      *
      * @see net.sourceforge.cruisecontrol.publishers.EmailMapper#mapUsers(java.util.Set, java.util.Set)
      */
-    public final void mapUsers(Set users, Set mappedUsers) {
+    public final void mapUsers(final Set<String> users, final Set<String> mappedUsers) {
         try {
             open();
 

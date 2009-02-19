@@ -47,7 +47,7 @@ public class EmailMapper implements Serializable {
 
     private EmailPublisher publisher = null;
 
-    public void setPublisher(EmailPublisher publisher) {
+    public void setPublisher(final EmailPublisher publisher) {
         this.publisher = publisher;
     }
 
@@ -59,7 +59,7 @@ public class EmailMapper implements Serializable {
      * This method maps users in the set users: if a map is found the mapped value is inserted into mappedUsers, and the
      * user mapped is removed from users
      */
-    public void mapUsers(Set users, Set mappedUsers) {
+    public void mapUsers(Set<String> users, Set<String> mappedUsers) {
         // this implementation doesn't map any users, override in subclass
     }
 }

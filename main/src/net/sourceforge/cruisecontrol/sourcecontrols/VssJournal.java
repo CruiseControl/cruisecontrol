@@ -86,7 +86,7 @@ public class VssJournal implements SourceControl {
 
     private Date lastBuild;
 
-    private ArrayList modifications = new ArrayList();
+    private final ArrayList<Modification> modifications = new ArrayList<Modification>();
 
     public VssJournal() {
         dateFormat = "MM/dd/yy";
@@ -94,8 +94,7 @@ public class VssJournal implements SourceControl {
         constructVssDateTimeFormat();
     }
     /**
-     * Set the project to get history from
-     *
+     * @param s the project to get history from
      */
     public void setSsDir(String s) {
         StringBuffer sb = new StringBuffer();
@@ -111,19 +110,15 @@ public class VssJournal implements SourceControl {
     }
 
     /**
-     * Full path to journal file. Example: <code>c:/vssdata/journal/journal.txt</code>
-     *
-     * @param journalFile
+     * @param journalFile Full path to journal file. Example: <code>c:/vssdata/journal/journal.txt</code>
      */
     public void setJournalFile(String journalFile) {
         this.journalFile = journalFile;
     }
 
     /**
-     * Choose a property to be set if the project has modifications if we have a change that only requires repackaging,
-     * i.e. jsp, we don't need to recompile everything, just rejar.
-     *
-     * @param property
+     * @param property a property to be set if the project has modifications if we have a change that only
+     * requires repackaging, i.e. jsp, we don't need to recompile everything, just rejar.
      */
     public void setProperty(String property) {
         properties.assignPropertyName(property);
@@ -139,7 +134,7 @@ public class VssJournal implements SourceControl {
     }
 
     /**
-     * Sets the date format to use for parsing VSS journal.
+     * @param format the date format to use for parsing VSS journal.
      *
      * The default date format is <code>MM/dd/yy</code>. If your VSS server is set to a different region, you may wish
      * to use a format such as <code>dd/MM/yy</code>.
@@ -153,7 +148,7 @@ public class VssJournal implements SourceControl {
     }
 
     /**
-     * Sets the time format to use for parsing VSS journal.
+     * @param format the time format to use for parsing VSS journal.
      *
      * The default time format is <code>hh:mma</code> . If your VSS server is set to a different region, you may wish to
      * use a format such as <code>HH:mm</code> .
@@ -171,13 +166,13 @@ public class VssJournal implements SourceControl {
 
 
     /**
-     * Sets the _lastBuild date. Protected so it can be used by tests.
+     * @param lastBuild the _lastBuild date. Protected so it can be used by tests.
      */
     protected void setLastBuildDate(Date lastBuild) {
         this.lastBuild = lastBuild;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -189,7 +184,7 @@ public class VssJournal implements SourceControl {
     /**
      * Do the work... I'm writing to a file since VSS will start wrapping lines if I read directly from the stream.
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
         this.lastBuild = lastBuild;
         modifications.clear();
 
@@ -198,7 +193,7 @@ public class VssJournal implements SourceControl {
             try {
                 String s = br.readLine();
                 while (s != null) {
-                    ArrayList entry = new ArrayList();
+                    final ArrayList<String> entry = new ArrayList<String>();
                     entry.add(s);
                     s = br.readLine();
                     while (s != null && !s.equals("")) {
@@ -232,7 +227,8 @@ public class VssJournal implements SourceControl {
     /**
      * Parse individual VSS history entry
      *
-     * @param historyEntry
+     * @param historyEntry individual VSS history entry
+     * @return a modification
      */
     protected Modification handleEntry(List historyEntry) {
         Modification mod = new Modification("vss");
@@ -303,13 +299,11 @@ public class VssJournal implements SourceControl {
     }
 
     /**
-     * parse comment from vss history (could be multiline)
-     *
-     * @param a
+     * @param a comment from vss history (could be multiline)
      * @return the comment
      */
-    private String parseComment(List a) {
-        StringBuffer comment = new StringBuffer();
+    private String parseComment(final List a) {
+        final StringBuilder comment = new StringBuilder();
         for (int i = 4; i < a.size(); i++) {
             comment.append(a.get(i)).append(" ");
         }
@@ -326,20 +320,21 @@ public class VssJournal implements SourceControl {
      * <code><vssjournaldateformat format="yy-MM-dd hh:mm"/></code>
      *
      * @return Date
-     * @param nameAndDateLine
+     * @param nameAndDateLine will look like User: Etucker Date: 6/26/01 Time: 11:53a Sometimes also this User: Aaggarwa
+     * Date: 6/29/:1 Time: 3:40p Note the ":" instead of a "0"
      */
-    public Date parseDate(String nameAndDateLine) {
+    public Date parseDate(final String nameAndDateLine) {
         // Extract date and time into one string with just one space separating the date from the time
         String dateString = nameAndDateLine.substring(
                 nameAndDateLine.indexOf("Date:") + 5,
                 nameAndDateLine.indexOf("Time:")).trim();
 
-        String timeString = nameAndDateLine.substring(
+        final String timeString = nameAndDateLine.substring(
                 nameAndDateLine.indexOf("Time:") + 5).trim();
 
         if (!overridenDateFormat) {
             // Fixup for weird format
-            int indexOfColon = dateString.indexOf("/:");
+            final int indexOfColon = dateString.indexOf("/:");
             if (indexOfColon != -1) {
                 dateString = dateString.substring(0, indexOfColon)
                         + dateString.substring(indexOfColon, indexOfColon + 2).replace(':', '0')
@@ -347,7 +342,7 @@ public class VssJournal implements SourceControl {
             }
 
         }
-        StringBuffer dateToParse = new StringBuffer();
+        final StringBuilder dateToParse = new StringBuilder();
         dateToParse.append(dateString);
         dateToParse.append(" ");
         dateToParse.append(timeString);
@@ -369,7 +364,7 @@ public class VssJournal implements SourceControl {
     /**
      * Parse username from VSS file history
      *
-     * @param userLine
+     * @param userLine username from VSS file history
      * @return the user name who made the modification
      */
     public String parseUser(String userLine) {
@@ -387,6 +382,8 @@ public class VssJournal implements SourceControl {
     /**
      * Returns the substring of the given string from the last "/" character. UNLESS the last slash character is the
      * last character or the string does not contain a slash. In that case, return the whole string.
+     * @param input string to parse
+     * @return result string
      */
     public String substringFromLastSlash(String input) {
         int lastSlashPos = input.lastIndexOf("/");
@@ -400,6 +397,8 @@ public class VssJournal implements SourceControl {
     /**
      * Returns the substring of the given string from the beginning to the last "/" character or till the end of the
      * string if no slash character exists.
+     * @param input string to parse
+     * @return result string
      */
     public String substringToLastSlash(String input) {
         int lastSlashPos = input.lastIndexOf("/");
@@ -412,6 +411,8 @@ public class VssJournal implements SourceControl {
 
     /**
      * Determines if the given folder is in the ssdir specified for this VssJournalElement.
+     * @param path a folder path
+     * @return true if the given folder is in the ssdir specified for this VssJournalElement.
      */
     protected boolean isInSsDir(String path) {
         boolean isInDir = (path.toLowerCase().startsWith(ssDir.toLowerCase()));
@@ -431,7 +432,8 @@ public class VssJournal implements SourceControl {
     }
 
     /**
-     * Determines if the date given is before the last build for this VssJournalElement.
+     * @param date the date to compare to the lastBuild date.
+     * @return true if the date given is before the last build for this VssJournalElement.
      */
     protected boolean isBeforeLastBuild(Date date) {
         return date.before(lastBuild);

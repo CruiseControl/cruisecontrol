@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -133,19 +132,19 @@ public class CruiseControlConfig {
         parse(ccElement);
     }
 
-    private void parse(Element ccElement) throws CruiseControlException {
+    private void parse(final Element ccElement) throws CruiseControlException {
         // parse properties and plugins first, so their order in the config file
         // doesn't matter
-        for (Iterator i = ccElement.getChildren("property").iterator(); i.hasNext();) {
-            handleRootProperty((Element) i.next());
+        for (final Object o : ccElement.getChildren("property")) {
+            handleRootProperty((Element) o);
         }
-        for (Iterator i = ccElement.getChildren("plugin").iterator(); i.hasNext();) {
-            handleRootPlugin((Element) i.next());
+        for (final Object o : ccElement.getChildren("plugin")) {
+            handleRootPlugin((Element) o);
         }
         
         // handle custom properties after plugin registration and before projects
-        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
-            final Element childElement = (Element) i.next();
+        for (final Object o : ccElement.getChildren()) {
+            final Element childElement = (Element) o;
             final String nodeName = childElement.getName();
             if (KNOWN_ROOT_CHILD_NAMES.contains(nodeName)
                     || "system".equals(nodeName)
@@ -155,18 +154,18 @@ public class CruiseControlConfig {
             if (isCustomPropertiesPlugin(nodeName)) {
                 handleCustomRootProperty(childElement);
             }
-        }        
-        
-        for (Iterator i = ccElement.getChildren("include.projects").iterator(); i.hasNext();) {
-            handleIncludedProjects((Element) i.next());
         }
-        for (Iterator i = ccElement.getChildren("dashboard").iterator(); i.hasNext(); ) {
-            handleDashboard((Element) i.next());
+
+        for (final Object o : ccElement.getChildren("include.projects")) {
+            handleIncludedProjects((Element) o);
+        }
+        for (final Object o : ccElement.getChildren("dashboard")) {
+            handleDashboard((Element) o);
         }
         
         // other childNodes must be projects or the <system> node
-        for (Iterator i = ccElement.getChildren().iterator(); i.hasNext();) {
-            final Element childElement = (Element) i.next();
+        for (final Object o : ccElement.getChildren()) {
+            final Element childElement = (Element) o;
             final String nodeName = childElement.getName();
             if (isProject(nodeName)) {
                 handleProject(childElement);
@@ -268,9 +267,9 @@ public class CruiseControlConfig {
     }
 
     private void handleNodeProperties(final Element pluginElement, final String pluginName) {
-        final List properties = new ArrayList();
-        for (Iterator i = pluginElement.getChildren("property").iterator(); i.hasNext();) {
-            properties.add(i.next());
+        final List<Object> properties = new ArrayList<Object>();
+        for (final Object o : pluginElement.getChildren("property")) {
+            properties.add(o);
         }
         if (properties.size() > 0) {
             templatePluginProperties.put(pluginName, properties);
@@ -290,6 +289,9 @@ public class CruiseControlConfig {
 
     /**
      * Add projects defined in other configuration files.
+     *
+     * @param project other project to add
+     * @throws CruiseControlException when something breaks
      *
      * @cardinality 0..*;
      */
@@ -315,7 +317,8 @@ public class CruiseControlConfig {
      * in the future, more system-level features can be configured under this
      * element.
      *
-     * @param system
+     * @param system system place holder plugin
+     *
      * @cardinality 0..1;
      */
     public void add(final SystemPlugin system) {
@@ -325,7 +328,8 @@ public class CruiseControlConfig {
     /**
      * Registers a classname with an alias.
      *
-     * @param plugin
+     * @param plugin only for gendoc
+     *
      * @cardinality 0..*;
      */
     public void add(final PluginPlugin plugin) {
@@ -336,7 +340,8 @@ public class CruiseControlConfig {
     /**
      * Defines a basic unit of work
      *
-     * @param project
+     * @param project only for gendoc
+     *
      * @cardinality 1..*;
      */
     public void add(final ProjectInterface project) {
@@ -367,16 +372,16 @@ public class CruiseControlConfig {
         // handle project templates properties
         final List projectTemplateProperties = templatePluginProperties.get(projectElement.getName());
         if (projectTemplateProperties != null) {
-            for (int i = 0; i < projectTemplateProperties.size(); i++) {
-                final Element element = (Element) projectTemplateProperties.get(i);
+            for (final Object projectTemplateProperty : projectTemplateProperties) {
+                final Element element = (Element) projectTemplateProperty;
                 ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element,
                         FAIL_UPON_MISSING_PROPERTY);
             }
         }
 
         // Register any project specific properties
-        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps.hasNext();) {
-            final Element propertyElement = (Element) projProps.next();
+        for (final Object o : projectElement.getChildren("property")) {
+            final Element propertyElement = (Element) o;
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
                     FAIL_UPON_MISSING_PROPERTY);
         }
@@ -395,10 +400,10 @@ public class CruiseControlConfig {
 
         // Register any custom plugins
         final PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
-        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter.hasNext();) {
-            final Element element = (Element) pluginIter.next();
+        for (final Object o : projectElement.getChildren("plugin")) {
+            final Element element = (Element) o;
             //final PluginPlugin plugin = (PluginPlugin)
-                     new ProjectXMLHelper().configurePlugin(element, false);
+            new ProjectXMLHelper().configurePlugin(element, false);
             // projectPlugins.register(plugin);
             projectPlugins.register(element);
             // add(plugin);

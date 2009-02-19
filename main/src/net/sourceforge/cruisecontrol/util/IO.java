@@ -32,7 +32,7 @@ public final class IO {
         //Helper methods only.
     }
 
-    public static void close(OutputStream o) {
+    public static void close(final OutputStream o) {
         if (o != null) {
             try {
                 o.close();
@@ -42,7 +42,7 @@ public final class IO {
         }
     }
 
-    public static void close(InputStream i) {
+    public static void close(final InputStream i) {
         if (i != null) {
             try {
                 i.close();
@@ -51,7 +51,7 @@ public final class IO {
         }
     }
 
-    public static void close(Reader r) {
+    public static void close(final Reader r) {
         if (r != null) {
             try {
                 r.close();
@@ -61,7 +61,7 @@ public final class IO {
         }
     }
 
-    public static void close(Writer w) {
+    public static void close(final Writer w) {
         if (w != null) {
             try {
                 w.close();
@@ -71,7 +71,7 @@ public final class IO {
         }
     }
 
-    public static void close(Process p) {
+    public static void close(final Process p) {
         try {
             close(p.getInputStream());
             close(p.getOutputStream());
@@ -83,28 +83,31 @@ public final class IO {
         }
     }
 
-    public static void output(File to, Element xml, String encoding) throws CruiseControlException {
-        OutputStream logStream = null;
+    public static void output(final File to, final Element xml, final String encoding) throws CruiseControlException {
+
         try {
-            Format format = Format.getPrettyFormat();
+            final Format format = Format.getPrettyFormat();
             if (encoding != null) {
                 format.setEncoding(encoding);
             }
-            XMLOutputter outputter = new XMLOutputter(format);
-            logStream = new BufferedOutputStream(new FileOutputStream(to));
-            outputter.output(new Document(xml), logStream);
+            final XMLOutputter outputter = new XMLOutputter(format);
+            final OutputStream logStream = new BufferedOutputStream(new FileOutputStream(to));
+            try {
+                outputter.output(new Document(xml), logStream);
+            } finally {
+                close(logStream);
+            }
         } catch (IOException e) {
             throw new CruiseControlException(e);
-        } finally {
-            close(logStream);
         }
     }
 
     /**
      * Deletes a File instance. If the file represents a directory, all
      * the subdirectories and files within.
+     * @param f the file (or directory) to delete
      */
-    public static void delete(File f) {
+    public static void delete(final File f) {
         if (f == null || !f.exists()) {
             return;
         }
@@ -115,16 +118,15 @@ public final class IO {
         f.delete();
     }
 
-    private static void deleteDir(File dir) {
-        File[] children = dir.listFiles();
-        for (int i = 0; i < children.length; i++) {
-            File child = children[i];
+    private static void deleteDir(final File dir) {
+        final File[] children = dir.listFiles();
+        for (final File child : children) {
             delete(child);
         }
         dir.delete();
     }
 
-    public static void delete(File f, boolean debuggerOn, Logger log) {
+    public static void delete(final File f, final boolean debuggerOn, final Logger log) {
         try {
             delete(f);
             if (debuggerOn) {
@@ -137,63 +139,78 @@ public final class IO {
 
     /**
      * Writes the contents of a file to a PrintStream.
+     * @param f the file to read.
+     * @param out the strem to dump the file content to.
      */
-    public static void dumpTo(File f, PrintStream out) {
-        BufferedReader in = null;
+    public static void dumpTo(final File f, final PrintStream out) {
+
         try {
-            in = new BufferedReader(new FileReader(f));
-            while (in.ready()) {
-                out.println(in.readLine());
+            final BufferedReader in = new BufferedReader(new FileReader(f));
+            try {
+                while (in.ready()) {
+                    out.println(in.readLine());
+                }
+            } finally {
+                close(in);
             }
         } catch (Exception ignored) {
-        } finally {
-            close(in);
         }
     }
 
     /**
      * Write the content to the file.
+     * @param fileName file name to create
+     * @param content to write to the file
+     * @throws CruiseControlException if something breaks
      */
-    public static void write(String fileName, String content) throws CruiseControlException {
+    public static void write(final String fileName, final String content) throws CruiseControlException {
         write(new File(fileName), content);
     }
 
     /**
      * Write the content to the file.
+     * @param f to create
+     * @param contents to write to the file
+     * @throws CruiseControlException if something breaks
      */
-    public static void write(File f, String contents) throws CruiseControlException {
-        FileWriter fw = null;
+    public static void write(final File f, final String contents) throws CruiseControlException {
+
         try {
             if (f.getParentFile() != null) {
                 f.getParentFile().mkdirs();
             }
-            fw = new FileWriter(f);
-            fw.write(contents);
+            final FileWriter fw = new FileWriter(f);
+            try {
+                fw.write(contents);
+            } finally {
+                close(fw);
+            }
         } catch (IOException ioe) {
             throw new CruiseControlException("Error writing file: " + f.getAbsolutePath(), ioe);
-        } finally {
-            close(fw);
         }
     }
 
     /**
+     * @param source the input file to read
      * @return List of lines of text (String objects)
+     * @throws CruiseControlException if something breaks
      */
-    public static List readLines(File source)
+    public static List<String> readLines(final File source)
         throws CruiseControlException {
 
-        List result = new ArrayList();
-        BufferedReader reader = null;
+        final List<String> result = new ArrayList<String>();
         try {
-            reader = new BufferedReader(new FileReader(source));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.add(line);
+            final BufferedReader reader = new BufferedReader(new FileReader(source));
+            try {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.add(line);
+                }
+            } finally {
+                close(reader);
             }
         } catch (IOException ioe) {
             throw new CruiseControlException("Error reading file: " + source.getAbsolutePath(), ioe);
-        } finally {
-            close(reader);
         }
 
         return result;

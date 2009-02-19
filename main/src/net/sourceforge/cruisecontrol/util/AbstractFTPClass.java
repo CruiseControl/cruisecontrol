@@ -211,6 +211,10 @@ public abstract class AbstractFTPClass {
 
     /**
      * The parent directories need to exist before putting this file.
+     * @param ftp ftp client
+     * @param infile file to send
+     * @param outfilename destination file name
+     * @throws CruiseControlException if something breaks
      */
     protected void sendFile(FTPClient ftp, File infile, String outfilename)
             throws CruiseControlException {
@@ -230,6 +234,10 @@ public abstract class AbstractFTPClass {
 
     /**
      * The parent directories need to exist before putting this file.
+     * @param ftp ftp client
+     * @param instream stream to send
+     * @param outfilename destination file name
+     * @throws CruiseControlException if something breaks
      */
     protected void sendStream(FTPClient ftp, InputStream instream,
             String outfilename) throws CruiseControlException {
@@ -256,11 +264,11 @@ public abstract class AbstractFTPClass {
     }
 
 
-    protected void makeDirsForFile(FTPClient ftp, String filename,
-            Vector knownPaths) throws CruiseControlException {
-        String fname = resolveFile(filename);
+    protected void makeDirsForFile(final FTPClient ftp, final String filename,
+            final Vector<String> knownPaths) throws CruiseControlException {
+        final String fname = resolveFile(filename);
         LOG.info("making dirs for file " + fname);
-        int pos = fname.lastIndexOf(targetSeparator);
+        final int pos = fname.lastIndexOf(targetSeparator);
         if (pos > 0) {
             makeDirs(ftp, fname.substring(0, pos), knownPaths);
         }
@@ -271,22 +279,27 @@ public abstract class AbstractFTPClass {
      * Creates all parent directories specified in a complete relative
      * pathname. Attempts to create existing directories will not cause
      * errors.
+     * @param ftp ftp client
+     * @param pathname relative path
+     * @param knownPaths existing paths 
+     * @throws CruiseControlException if something breaks
      */
-    protected void makeDirs(FTPClient ftp, String pathname,
-            Vector knownPaths) throws CruiseControlException {
+    protected void makeDirs(final FTPClient ftp, final String pathname,
+            Vector<String> knownPaths) throws CruiseControlException {
+
         if (knownPaths == null) {
-            knownPaths = new Vector();
+            knownPaths = new Vector<String>();
         }
 
-        StringTokenizer st = new StringTokenizer(targetDir + targetSeparator
+        final StringTokenizer st = new StringTokenizer(targetDir + targetSeparator
             + resolveFile(pathname), targetSeparator, false);
 
         try {
-            String cwd = ftp.printWorkingDirectory();
+            final String cwd = ftp.printWorkingDirectory();
             LOG.info("makeDirs: current dir = " + cwd);
             String fullPath = targetDir;
             while (st.hasMoreTokens()) {
-                String dir = st.nextToken();
+                final String dir = st.nextToken();
                 if (dir == null || dir.length() <= 0) {
                     continue;
                 }
@@ -326,15 +339,15 @@ public abstract class AbstractFTPClass {
 
     /**
      * Sends the specified text into the specified path on the FTP server
-     * @param text
-     * @param path
-     * @throws CruiseControlException
+     * @param text the text to send
+     * @param path the path on the FTP server to which text is sent
+     * @throws CruiseControlException if something breaks
      */
-    protected void sendFileToFTPPath(String text, String path) throws CruiseControlException {
-        ByteArrayInputStream bais = new ByteArrayInputStream(
-            text.getBytes());
+    protected void sendFileToFTPPath(final String text, final String path) throws CruiseControlException {
 
-        FTPClient ftp = openFTP();
+        final ByteArrayInputStream bais = new ByteArrayInputStream(text.getBytes());
+
+        final FTPClient ftp = openFTP();
 
         // we're sending text; don't set binary!
 

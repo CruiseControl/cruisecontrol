@@ -46,7 +46,6 @@ import org.jdom.CDATA;
 import org.jdom.Element;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -153,20 +152,19 @@ public class ClearCaseBaselinePublisher implements Publisher {
      * @param log The Cruise Control log (as a JDOM element).
      * @return a <code>List</code> of UCM activities
      */
-    public List getActivities(Element log) {
-        List activityList = new ArrayList();
+    public List getActivities(final Element log) {
+        final List<String> activityList = new ArrayList<String>();
 
         // get the modification list from the log
         if (log != null) {
-            Element modifications = log.getChild("modifications");
+            final Element modifications = log.getChild("modifications");
             if (modifications != null) {
                 // from this list, extract all UCM activities
-                for (Iterator modificationList = modifications.getChildren(
-                        "modification").iterator(); modificationList.hasNext();) {
-                    Element modification = (Element) modificationList.next();
-                    String type = modification.getAttributeValue("type");
+                for (final Object o : modifications.getChildren("modification")) {
+                    final Element modification = (Element) o;
+                    final String type = modification.getAttributeValue("type");
                     if (type != null && type.equals("activity")) {
-                        String activity = modification.getChild("revision").getText();
+                        final String activity = modification.getChild("revision").getText();
 
                         if (activity != null) {
                             activityList.add(activity.trim());
@@ -198,8 +196,8 @@ public class ClearCaseBaselinePublisher implements Publisher {
     /* (non-Javadoc)
     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
     */
-    public void publish(Element log) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(log);
+    public void publish(final Element log) throws CruiseControlException {
+        final XMLLogHelper helper = new XMLLogHelper(log);
 
         // only publish if the build includes UCM activities
         if (!shouldPublish(log)) {
@@ -207,7 +205,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
         }
 
         // should the baselinename include the prefix?
-        String baselinename;
+        final String baselinename;
         if (getBaselineprefix() != null) {
             baselinename = getBaselineprefix() + helper.getLabel();
         } else {
@@ -215,7 +213,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
         }
 
         // create the "cleartool mkbl" command line
-        ManagedCommandline cmd = new ManagedCommandline();
+        final ManagedCommandline cmd = new ManagedCommandline();
         cmd.setExecutable("cleartool");
         cmd.createArgument("mkbl");
         cmd.createArguments("-view", getViewtag());
@@ -232,13 +230,13 @@ public class ClearCaseBaselinePublisher implements Publisher {
             cmd.execute();
             cmd.assertExitCode(0);
         } catch (Exception e) {
-            StringBuffer error = new StringBuffer("Failed to create baseline: ");
+            final StringBuilder error = new StringBuilder("Failed to create baseline: ");
             error.append(baselinename);
             throw new CruiseControlException(error.toString(), e);
         }
 
         // log success
-        StringBuffer message = new StringBuffer("Created baseline: ");
+        final StringBuilder message = new StringBuilder("Created baseline: ");
         message.append(baselinename);
         LOG.info(message.toString());
 
@@ -248,6 +246,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
 
     /**
      * for testing
+     * @param args command line args
      */
     public static void main(String[] args) {
 

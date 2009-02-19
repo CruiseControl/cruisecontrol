@@ -69,9 +69,9 @@ public class TeamFoundationServer implements SourceControl {
      * @see net.sourceforge.cruisecontrol.SourceControl
      *      getModifications(java.util.Date, java.util.Date)
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(Date lastBuild, Date now) {
 
-        List modifications = new ArrayList();
+        List<Modification> modifications = new ArrayList<Modification>();
         final Commandline command = buildHistoryCommand(lastBuild, now);
 
         try {
@@ -91,14 +91,13 @@ public class TeamFoundationServer implements SourceControl {
      * detected and therefore can be used in a subsquent get, label etc to ensure consistency.
      * @param modifications the list of modifications reported by TFS
      */
-    void fillPropertiesIfNeeded(List modifications) {
+    void fillPropertiesIfNeeded(final List<Modification> modifications) {
         if (!modifications.isEmpty()) {
             properties.modificationFound();
             int maxChangset = 0;
-            for (int i = 0; i < modifications.size(); i++) {
-                Modification modification = (Modification) modifications.get(i);
+            for (final Modification modification : modifications) {
                 maxChangset = Math.max(maxChangset, Integer.parseInt(modification.revision));
-                Modification.ModifiedFile file = (Modification.ModifiedFile) modification.files.get(0);
+                final Modification.ModifiedFile file = modification.files.get(0);
                 if (file.action.equals("delete")) {
                     properties.deletionFound();
                     break;
@@ -120,10 +119,14 @@ public class TeamFoundationServer implements SourceControl {
      * 
      * <a href="http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx">
      * http://msdn2.microsoft.com/en-us/library/yxtbh4yh(VS.80).aspx </a>
+     *
+     * @param lastBuild last build date
+     * @param now current build date
+     * @return a history command
      */
-    Commandline buildHistoryCommand(Date lastBuild, Date now)  {
+    Commandline buildHistoryCommand(final Date lastBuild, final Date now)  {
 
-        Commandline command = new Commandline();
+        final Commandline command = new Commandline();
         command.setExecutable(tfPath);
         command.createArgument().setValue("history");
         command.createArgument().setValue("-noprompt");
@@ -155,14 +158,14 @@ public class TeamFoundationServer implements SourceControl {
         return command;
     }
 
-    private List execHistoryCommand(Commandline command, Date lastBuild)
+    private List<Modification> execHistoryCommand(final Commandline command, final Date lastBuild)
             throws InterruptedException, IOException, ParseException {
 
-        Process p = command.execute();
+        final Process p = command.execute();
 
         logErrorStream(p);
         InputStream svnStream = p.getInputStream();
-        List modifications = parseStream(svnStream, lastBuild);
+        final List<Modification> modifications = parseStream(svnStream, lastBuild);
 
         p.waitFor();
         p.getInputStream().close();
@@ -174,28 +177,36 @@ public class TeamFoundationServer implements SourceControl {
 
     /**
      * Helper method to send stderr from the tf command to CruiseControl stderr
+     * @param p process who's stderr is to be redirected
      */
-    private void logErrorStream(Process p) {
-        Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
+    private void logErrorStream(final Process p) {
+        final Thread stderr = new Thread(StreamLogger.getWarnPumper(LOG, p.getErrorStream()));
         stderr.start();
     }
 
     /**
      * Parse the result stream. Delegates to the TFSHistoryParser.parse method.
+     * @param tfStream stream to parse
+     * @param lastBuild last build date
+     * @return a list of modifications
+     * @throws IOException if something breaks
+     * @throws ParseException if something breaks
      */
-    private List parseStream(InputStream tfStream, Date lastBuild)
+    private List<Modification> parseStream(final InputStream tfStream, final Date lastBuild)
             throws IOException, ParseException {
         
-        InputStreamReader reader = new InputStreamReader(tfStream, inputEncoding);
+        final InputStreamReader reader = new InputStreamReader(tfStream, inputEncoding);
         return TFHistoryParser.parse(reader, lastBuild);
     }
 
     /**
      * Convert the passed date into the UTC Date format best used when talking
      * to Team Foundation Server command line.
+     * @param date date to be formated
+     * @return the UTC Date format best used when talking to Team Foundation Server command line.
      */
-    static String formatUTCDate(Date date) {
-        DateFormat f = new SimpleDateFormat(TFS_UTC_DATE_FORMAT);
+    static String formatUTCDate(final Date date) {
+        final DateFormat f = new SimpleDateFormat(TFS_UTC_DATE_FORMAT);
         f.setTimeZone(TimeZone.getTimeZone("GMT"));
         return f.format(date);
     }
@@ -203,7 +214,7 @@ public class TeamFoundationServer implements SourceControl {
     /**
      * @see net.sourceforge.cruisecontrol.SourceControl#getProperties()
      */
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -248,12 +259,17 @@ public class TeamFoundationServer implements SourceControl {
 
         /**
          * Parse the passed stream of data from the command line.
+         * @param reader stream to read
+         * @param lastBuild last build date
+         * @return a list of modifications
+         * @throws IOException if something breaks
+         * @throws ParseException if something breaks
          */
-        static List parse(Reader reader, Date lastBuild) throws IOException, ParseException {
-            ArrayList modifications = new ArrayList();
-            StringBuffer buffer = new StringBuffer();
+        static List<Modification> parse(final Reader reader, final Date lastBuild) throws IOException, ParseException {
+            final ArrayList<Modification> modifications = new ArrayList<Modification>();
+            final StringBuffer buffer = new StringBuffer();
 
-            BufferedReader br = new BufferedReader(reader);
+            final BufferedReader br = new BufferedReader(reader);
             String line;
             int linecount = 0;
 
@@ -279,24 +295,28 @@ public class TeamFoundationServer implements SourceControl {
         /**
          * Parse the changeset data and convert into a list of CruiseControl
          * modifications.
+         * @param data the data to parse
+         * @param lastBuild last build date
+         * @return a list of modifications
+         * @throws ParseException if something breaks
          */
-        static ArrayList parseChangeset(String data, Date lastBuild) throws ParseException {
+        static ArrayList<Modification> parseChangeset(final String data, final Date lastBuild) throws ParseException {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Parsing Changeset Data:\n" + data);
             }
 
-            ArrayList modifications = new ArrayList();
+            final ArrayList<Modification> modifications = new ArrayList<Modification>();
 
-            Matcher m = PATTERN_CHANGESET.matcher(data);
+            final Matcher m = PATTERN_CHANGESET.matcher(data);
             if (m.find()) {
-                String revision = m.group(1);
-                String userName = m.group(2);
+                final String revision = m.group(1);
+                final String userName = m.group(2);
 
-                Date modifiedTime = parseDate(m.group(3));
+                final Date modifiedTime = parseDate(m.group(3));
                 
                 // CC-735.  Ignore changesets that occured before the specified lastBuild.
                 if (modifiedTime.compareTo(lastBuild) < 0) {
-                    return new ArrayList();
+                    return new ArrayList<Modification>();
                 }
 
                 // Remove the indentation from the comment
@@ -307,7 +327,7 @@ public class TeamFoundationServer implements SourceControl {
                 }
 
                 // Parse the items.
-                Matcher itemMatcher = PATTERN_ITEM.matcher(m.group(5));
+                final Matcher itemMatcher = PATTERN_ITEM.matcher(m.group(5));
                 int items = 0;
                 while (itemMatcher.find()) {
                     items++;
@@ -319,7 +339,7 @@ public class TeamFoundationServer implements SourceControl {
                     // containing three files into three modifications
                     // with the same revision.
 
-                    Modification modification = new Modification("tfs");
+                    final Modification modification = new Modification("tfs");
                     modification.revision = revision;
                     modification.userName = userName;
                     modification.modifiedTime = modifiedTime;
@@ -335,7 +355,8 @@ public class TeamFoundationServer implements SourceControl {
                     // from
                     // $/path/foldername
                     //
-                    Modification.ModifiedFile modfile = modification.createModifiedFile(itemMatcher.group(2), null);
+                    final Modification.ModifiedFile modfile
+                            = modification.createModifiedFile(itemMatcher.group(2), null);
                     if (!modfile.fileName.startsWith("$/")) {
                         // If this happens then we have a bug, output some data
                         // to make it easy to figure out what the problem was so
@@ -363,7 +384,11 @@ public class TeamFoundationServer implements SourceControl {
             return modifications;
         }
 
-        protected static Date parseDate(String dateString) throws ParseException {
+        // Use the deprecated Date.parse method as this is very good at detecting
+        // dates commonly output by the US and UK standard locales of dotnet that
+        // are output by the Microsoft command line client.
+        @SuppressWarnings("deprecation")
+        protected static Date parseDate(final String dateString) throws ParseException {
             Date date = null;
             try {
                 // Use the deprecated Date.parse method as this is very good at detecting
@@ -376,17 +401,17 @@ public class TeamFoundationServer implements SourceControl {
             if (date == null) {
                 // The old fashioned way did not work. Let's try it using a more
                 // complex alternative.
-                DateFormat[] formats = createDateFormatsForLocaleAndTimeZone(null, null);
+                final DateFormat[] formats = createDateFormatsForLocaleAndTimeZone(null, null);
                 return parseWithFormats(dateString, formats);
             }
             return date;
         }
 
-        private static Date parseWithFormats(String input, DateFormat[] formats) throws ParseException {
+        private static Date parseWithFormats(final String input, final DateFormat[] formats) throws ParseException {
             ParseException parseException = null;
-            for (int i = 0; i < formats.length; i++) {
+            for (final DateFormat format : formats) {
                 try {
-                    return formats[i].parse(input);
+                    return format.parse(input);
                 } catch (ParseException ex) {
                     parseException = ex;
                 }
@@ -398,6 +423,9 @@ public class TeamFoundationServer implements SourceControl {
         /**
          * Build an array of DateFormats that are commonly used for this locale
          * and timezone.
+         * @param locale locale
+         * @param timeZone Time zone
+         * @return an array of DateFormats that are commonly used for this locale
          */
         private static DateFormat[] createDateFormatsForLocaleAndTimeZone(Locale locale, TimeZone timeZone) {
             if (locale == null) {
@@ -408,11 +436,11 @@ public class TeamFoundationServer implements SourceControl {
                 timeZone = TimeZone.getDefault();
             }
 
-            List formats = new ArrayList();
+            final List<DateFormat> formats = new ArrayList<DateFormat>();
 
             for (int dateStyle = DateFormat.FULL; dateStyle <= DateFormat.SHORT; dateStyle++) {
                 for (int timeStyle = DateFormat.FULL; timeStyle <= DateFormat.SHORT; timeStyle++) {
-                    DateFormat df = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
+                    final DateFormat df = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
                     if (timeZone != null) {
                         df.setTimeZone(timeZone);
                     }
@@ -421,12 +449,12 @@ public class TeamFoundationServer implements SourceControl {
             }
 
             for (int dateStyle = DateFormat.FULL; dateStyle <= DateFormat.SHORT; dateStyle++) {
-                DateFormat df = DateFormat.getDateInstance(dateStyle, locale);
+                final DateFormat df = DateFormat.getDateInstance(dateStyle, locale);
                 df.setTimeZone(timeZone);
                 formats.add(df);
             }
 
-            return (DateFormat[]) formats.toArray(new DateFormat[formats.size()]);
+            return formats.toArray(new DateFormat[formats.size()]);
         }
 
     }
@@ -442,7 +470,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param password
      *            the password to set
      */
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
@@ -456,7 +484,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param projectPath
      *            the projectPath to set
      */
-    public void setProjectPath(String projectPath) {
+    public void setProjectPath(final String projectPath) {
         this.projectPath = projectPath;
     }
 
@@ -473,7 +501,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param server
      *            the server to set
      */
-    public void setServer(String server) {
+    public void setServer(final String server) {
         this.server = server;
     }
 
@@ -493,7 +521,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param username
      *            the username to set
      */
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -514,7 +542,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param tfPath
      *            the path where the tf command resides
      */
-    public void setTfPath(String tfPath) {
+    public void setTfPath(final String tfPath) {
         this.tfPath = tfPath;
     }
 
@@ -525,7 +553,7 @@ public class TeamFoundationServer implements SourceControl {
      * @param options
      *            the options to set
      */
-    public void setOptions(String options) {
+    public void setOptions(final String options) {
         this.options = options;
     }
     

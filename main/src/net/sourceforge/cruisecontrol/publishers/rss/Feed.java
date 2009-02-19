@@ -69,26 +69,26 @@ public class Feed {
     private String channelLanguage = "en-US";
 
     private int maxLength = 20;
-    private final List items = new ArrayList();
+    private final List<Item> items = new ArrayList<Item>();
 
     /**
      *  Constructor
      *
      *  @param publishToFile the file to which the feed should be published.
      */
-    public Feed(File publishToFile) {
+    public Feed(final File publishToFile) {
 
         // If we can read the file then load the RSSFeed settings from the existing file...
         if (publishToFile.exists() && publishToFile.canRead()) {
             try {
 
-                SAXBuilder builder = new SAXBuilder();
-                Document doc = builder.build(publishToFile);
+                final SAXBuilder builder = new SAXBuilder();
+                final Document doc = builder.build(publishToFile);
 
                 if (doc.getRootElement() != null
                     && doc.getRootElement().getChild(RSS.NODE_CHANNEL) != null) {
 
-                    Element channelElement = doc.getRootElement().getChild(RSS.NODE_CHANNEL);
+                    final Element channelElement = doc.getRootElement().getChild(RSS.NODE_CHANNEL);
                     if (channelElement.getChild(RSS.NODE_CHANNEL_TITLE) != null) {
                         this.channelTitle =
                             channelElement.getChild(RSS.NODE_CHANNEL_TITLE).getText().trim();
@@ -103,9 +103,9 @@ public class Feed {
                     }
 
                     if (channelElement.getChildren(RSS.NODE_ITEM) != null) {
-                        List itemNodes = channelElement.getChildren(RSS.NODE_ITEM);
-                        for (int i = 0; i < itemNodes.size(); i++) {
-                            this.items.add(new Item((Element) itemNodes.get(i)));
+                        final List itemNodes = channelElement.getChildren(RSS.NODE_ITEM);
+                        for (final Object itemNode : itemNodes) {
+                            this.items.add(new Item((Element) itemNode));
                         }
                     }
                 } else {
@@ -139,7 +139,7 @@ public class Feed {
      *
      *  @param title the title of the RSS feed.
      */
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.channelTitle = title;
     }
 
@@ -152,27 +152,27 @@ public class Feed {
     public String getTitle() {
         return this.channelTitle;
     }
-    public void setLink(String link) {
+    public void setLink(final String link) {
         this.channelLink = link;
     }
     public String getLink() {
         return this.channelLink;
     }
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.channelDescription = description;
     }
     public String getDescription() {
         return this.channelDescription;
     }
 
-    public void setMaxLength(int max) {
+    public void setMaxLength(final int max) {
         this.maxLength = max;
     }
     public int getMaxLength() {
         return this.maxLength;
     }
 
-    public void addItem(Item item) {
+    public void addItem(final Item item) {
         synchronized (this.items) {
             if (this.items.size() == this.maxLength) {
                 this.items.remove(this.items.size() - 1);
@@ -185,9 +185,9 @@ public class Feed {
         return this.items;
     }
 
-    public void write(Writer wr) throws IOException {
+    public void write(final Writer wr) throws IOException {
 
-        BufferedWriter br = new BufferedWriter(wr);
+        final BufferedWriter br = new BufferedWriter(wr);
         br.write("<?xml version=\"1.0\" ?>\n");
         br.write("<rss version=\"2.0\">\n");
         br.write("  <channel>\n");
@@ -210,10 +210,9 @@ public class Feed {
         br.write(this.channelLanguage);
         br.write("</language>\n");
 
-        for (int i = 0; i < this.items.size(); i++) {
+        for (final Item item : this.items) {
             //write each item...
-            if (this.items.get(i) != null) {
-                Item item = (Item) this.items.get(i);
+            if (item != null) {
                 br.write(item.toXml());
             }
         }

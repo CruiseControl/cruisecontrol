@@ -144,7 +144,7 @@ public class LDAPMapper extends EmailAddressMapper {
      * @see net.sourceforge.cruisecontrol.publishers.email.EmailAddressMapper#open()
      */
     public void open() throws CruiseControlException {
-        Hashtable env = new Hashtable();
+        final Hashtable<String, String> env = new Hashtable<String, String>();
 
         env.put(Context.INITIAL_CONTEXT_FACTORY, ctxFactory);  // use jndi provider
         env.put(Context.PROVIDER_URL, url);                    // the ldap url to connect to; e.g. "ldap://ca.com:389"
@@ -172,10 +172,10 @@ public class LDAPMapper extends EmailAddressMapper {
         }
     }
 
-    public String mapUser(String user) {
-        String[] searchAttrs = {searchAttr};
+    public String mapUser(final String user) {
+        final String[] searchAttrs = {searchAttr};
         /* specify search constraints to search subtree */
-        SearchControls constraints1 = new SearchControls();
+        final SearchControls constraints1 = new SearchControls();
 
         constraints1.setSearchScope(SearchControls.SUBTREE_SCOPE);
         constraints1.setCountLimit(0);
@@ -184,15 +184,15 @@ public class LDAPMapper extends EmailAddressMapper {
         constraints1.setReturningAttributes(searchAttrs);
 
         String email = null;
-        StringBuffer s = new StringBuffer(searchTmpl);
-        int idx = s.toString().indexOf("?");
+        final StringBuilder s = new StringBuilder(searchTmpl);
+        final int idx = s.toString().indexOf("?");
         s.replace(idx, idx + 1, user);
         try {
-            NamingEnumeration ne = ctx.search(rootDN, s.toString(), constraints1);
+            final NamingEnumeration ne = ctx.search(rootDN, s.toString(), constraints1);
             while (ne.hasMore()) {
-                Object o = ne.next();
-                Attributes attrs = ((SearchResult) o).getAttributes();
-                Attribute emailAttr = attrs.get(searchAttr);
+                final Object o = ne.next();
+                final Attributes attrs = ((SearchResult) o).getAttributes();
+                final Attribute emailAttr = attrs.get(searchAttr);
                 email = (String) emailAttr.get();
             }
         } catch (Exception e) {

@@ -67,7 +67,7 @@ import org.apache.log4j.Logger;
  * the project has previously been in. The {History} tag will be deleted from the line.</li>
  * </ul>
  * <p>
- * {@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * {@link DateUtil} for the dateformat
  * 
  * @author John Lussmyer
  */
@@ -81,11 +81,11 @@ public class CurrentBuildStatusPageListener implements Listener {
     /** File to read pattern text from */
     private File sourceFile = null;
     /** Pattern text to use, contains String objects */
-    private List sourceText = new ArrayList();
+    private List<String> sourceText = new ArrayList<String>();
     /** Default text to use if no source file provided. */
     private static final String DEFAULT_TEXT = "{Project}: {State.Date} - {State.Name}: {State.Description}";
     /** Historical Status changes, contains HistoryItem objects */
-    private List history = new ArrayList();
+    private final List<HistoryItem> history = new ArrayList<HistoryItem>();
 
     private static final String KEY_PROJECT = "{project}";
     private static final String KEY_NAME = "{state.name}";
@@ -124,7 +124,7 @@ public class CurrentBuildStatusPageListener implements Listener {
         sourceText.add(DEFAULT_TEXT);
     }
 
-    public void handleEvent(ProjectEvent event) throws CruiseControlException {
+    public void handleEvent(final ProjectEvent event) throws CruiseControlException {
         if (!(event instanceof ProjectStateChangedEvent)) {
             // ignore other ProjectEvents
             LOG.debug("ignoring event " + event.getClass().getName() + " for project " + event.getProjectName());
@@ -135,33 +135,33 @@ public class CurrentBuildStatusPageListener implements Listener {
         final ProjectState newState = stateChanged.getNewState();
         LOG.debug("updating status to " + newState.getName() + " for project " + stateChanged.getProjectName());
 
-        HistoryItem hist = new HistoryItem(newState);
-        String result = substituteText(hist, stateChanged.getProjectName());
+        final HistoryItem hist = new HistoryItem(newState);
+        final String result = substituteText(hist, stateChanged.getProjectName());
         history.add(0, hist);
         IO.write(dstFileName, result);
     }
 
     /**
      * Perform all the needed text substitutions.
-     * 
+     *
+     * @param current current history item
+     * @param projectName project name
      * @return String resulting form substituting entries from sourceText.
      */
-    private String substituteText(HistoryItem current, String projectName) {
-        StringBuffer result = new StringBuffer();
-        Iterator lineIter = sourceText.iterator();
+    private String substituteText(final HistoryItem current, final String projectName) {
+        final StringBuilder result = new StringBuilder();
 
-        while (lineIter.hasNext()) {
-            String src = (String) lineIter.next();
+        for (final String src : sourceText) {
 
             // See if we need to output this line once for each historical state
             if (src.toLowerCase().startsWith(KEY_HISTORY)) {
-                src = src.substring(KEY_HISTORY.length());
+                final String srcSub = src.substring(KEY_HISTORY.length());
                 Iterator histIter = history.iterator();
                 long prevtime = current.when;
 
                 while (histIter.hasNext()) {
                     HistoryItem hist = (HistoryItem) histIter.next();
-                    result.append(substituteItems(src, projectName, hist, prevtime));
+                    result.append(substituteItems(srcSub, projectName, hist, prevtime));
                     result.append('\n');
                     prevtime = hist.when;
                 }
@@ -185,10 +185,14 @@ public class CurrentBuildStatusPageListener implements Listener {
      *            Name of project being processed
      * @param current
      *            current project state information
+     * @param prevtime
+     *            used to get duration
+     * @return altered string
      */
-    private String substituteItems(String src, String projectName, HistoryItem current, long prevtime) {
+    private String substituteItems(String src, final String projectName, final HistoryItem current,
+                                   final long prevtime) {
         int idx;
-        StringBuffer result = new StringBuffer();
+        final StringBuilder result = new StringBuilder();
 
         // Find and substitute entries in this line
         while ((idx = src.indexOf('{')) != -1) {
@@ -238,7 +242,7 @@ public class CurrentBuildStatusPageListener implements Listener {
      * @return String of the form HH:MM:SS.sss representing the given milliseconds
      */
     public static String formatDuration(long msecs) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         long hours = msecs / (60 * 60 * 1000);
         msecs %= (60 * 60 * 1000);
         long mins = msecs / (60 * 1000);

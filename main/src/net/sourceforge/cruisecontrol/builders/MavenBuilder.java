@@ -84,7 +84,8 @@ public class MavenBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map buildProperties, final Progress progressIn) throws CruiseControlException {
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
+            throws CruiseControlException {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 

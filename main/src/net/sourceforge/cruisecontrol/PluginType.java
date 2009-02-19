@@ -50,7 +50,6 @@ import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,7 +85,7 @@ public final class PluginType implements Serializable {
     public static final PluginType SYSTEM = new PluginType("system", "cruisecontrol");
     public static final PluginType THREADS = new PluginType("threads", "configuration");
 
-    private static final Map PLUGIN_TYPES = new HashMap() {
+    private static final Map<Class< ? >, PluginType> PLUGIN_TYPES = new HashMap<Class< ? >, PluginType>() {
         {
             put(Bootstrapper.class, BOOTSTRAPPER);
             put(ProjectConfig.Bootstrappers.class, BOOTSTRAPPERS);
@@ -121,17 +120,16 @@ public final class PluginType implements Serializable {
     private final String parentElementName;
 
 
-    private PluginType(String type, String parentElementName) {
+    private PluginType(final String type, final String parentElementName) {
         this.name = type;
         this.parentElementName = parentElementName;
     }
 
-    public static PluginType find(Class pluginClass) {
+    public static PluginType find(final Class< ? > pluginClass) {
         if (pluginClass != null) {
-            for (Iterator i = PLUGIN_TYPES.entrySet().iterator(); i.hasNext();) {
-                Map.Entry element = (Map.Entry) i.next();
-                if (((Class) element.getKey()).isAssignableFrom(pluginClass)) {
-                    return (PluginType) element.getValue();
+            for (final Map.Entry<Class< ? >, PluginType> element : PLUGIN_TYPES.entrySet()) {
+                if (element.getKey().isAssignableFrom(pluginClass)) {
+                    return element.getValue();
                 }
             }
         }
@@ -140,16 +138,15 @@ public final class PluginType implements Serializable {
     }
 
     public static PluginType[] getTypes() {
-        Set uniqueValues = new HashSet(PLUGIN_TYPES.values());
-        return (PluginType[]) uniqueValues.toArray(new PluginType[uniqueValues.size()]);
+        final Set<PluginType> uniqueValues = new HashSet<PluginType>(PLUGIN_TYPES.values());
+        return uniqueValues.toArray(new PluginType[uniqueValues.size()]);
     }
 
     public static PluginType find(String name) {
         if (name != null) {
-            for (Iterator iter = PLUGIN_TYPES.entrySet().iterator(); iter.hasNext();) {
-                Map.Entry element = (Map.Entry) iter.next();
-                PluginType nextType = (PluginType) element.getValue();
-                if (nextType.getName().equals(name))  {
+            for (final Map.Entry<Class< ? >, PluginType> element : PLUGIN_TYPES.entrySet()) {
+                PluginType nextType = element.getValue();
+                if (nextType.getName().equals(name)) {
                     return nextType;
                 }
             }

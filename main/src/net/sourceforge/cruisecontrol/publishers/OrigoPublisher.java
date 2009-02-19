@@ -98,16 +98,18 @@ public class OrigoPublisher implements Publisher {
 
     /**
      * Generate a link to the build results.
+     * @param logFileName file name to link to.
+     * @return a link to the given file name
      */
-    public String createLinkURL(String logFileName) {
+    public String createLinkURL(final String logFileName) {
         if (buildResultsURL == null) {
             return "";
         }
 
-        int startName = logFileName.lastIndexOf(File.separator) + 1;
-        int endName = logFileName.lastIndexOf(".");
-        String baseLogFileName = logFileName.substring(startName, endName);
-        StringBuffer url = new StringBuffer(buildResultsURL);
+        final int startName = logFileName.lastIndexOf(File.separator) + 1;
+        final int endName = logFileName.lastIndexOf(".");
+        final String baseLogFileName = logFileName.substring(startName, endName);
+        final StringBuilder url = new StringBuilder(buildResultsURL);
         if (buildResultsURL.indexOf("?") == -1) {
             url.append("?");
         } else {
@@ -123,32 +125,32 @@ public class OrigoPublisher implements Publisher {
      * Implementing the <code>Publisher</code> interface. If the build newly failed, 
      * create a new issue, if we fixed a broken build close the issue.
      *  
-     * @param cruisecontrolLog
-     * @throws CruiseControlException
+     * @param cruisecontrolLog build log
+     * @throws CruiseControlException if something breaks
      */
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
-        XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
+        final XMLLogHelper helper = new XMLLogHelper(cruisecontrolLog);
 
         try {
             // build fixed
             if (helper.isBuildFix()) {
                 // login
-                String session = client.login(userKey, APPLICATION_KEY);
+                final String session = client.login(userKey, APPLICATION_KEY);
                 LOG.debug("Got session " + session);
 
                 // get project id
-                Integer projectId = client.retrieveProjectId(session, projectName);
+                final Integer projectId = client.retrieveProjectId(session, projectName);
 
                 // search bug
-                Hashtable searchArgs = new Hashtable();
+                final Hashtable<String, String> searchArgs = new Hashtable<String, String>();
                 searchArgs.put("status", "open");
                 searchArgs.put("tags", issueTag);
 
-                Vector bugs = client.searchIssue(session, projectId, searchArgs);
+                final Vector bugs = client.searchIssue(session, projectId, searchArgs);
                 if (bugs.size() == 1) {
                     // close bug
-                    Hashtable bug = (Hashtable) bugs.get(0);
-                    Integer bugId = (Integer) bug.get("issue_id");
+                    final Hashtable bug = (Hashtable) bugs.get(0);
+                    final Integer bugId = (Integer) bug.get("issue_id");
                     LOG.info("Found bug with id" + bugId);
 
                     client.extendedCommentIssue(session, projectId, bugId, "Build fixed see: "
@@ -161,13 +163,13 @@ public class OrigoPublisher implements Publisher {
             } else if (helper.wasPreviousBuildSuccessful()
                     && !helper.isBuildSuccessful()) {
                 // login
-                String session = client.login(userKey, APPLICATION_KEY);
+                final String session = client.login(userKey, APPLICATION_KEY);
                 LOG.debug("Got session " + session);
 
                 // get project id
-                Integer projectId = client.retrieveProjectId(session, projectName);
+                final Integer projectId = client.retrieveProjectId(session, projectName);
 
-                String issueDescription = "Build failed see: "
+                final String issueDescription = "Build failed see: "
                         + createLinkURL(helper.getLogFileName());
                 client.addIssue(session, projectId, issueSubject, issueDescription,
                     "status::open," + issueTag, issuePrivate);

@@ -244,7 +244,7 @@ public class XcodeBuilder extends Builder implements Script {
     }
     
     class Arguments {
-        private List<Arg> args = new ArrayList();
+        private List<Arg> args = new ArrayList<Arg>();
         private Arg overrideTarget;
         private Arg originalTarget;
 
@@ -291,7 +291,7 @@ public class XcodeBuilder extends Builder implements Script {
             }
         }
         
-        private String substituteProperties(Map properties, String string) {
+        private String substituteProperties(Map<String, String> properties, String string) {
             String value = string;
             try {
                 value = Util.parsePropertiesInString(properties, string, false);

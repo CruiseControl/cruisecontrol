@@ -100,7 +100,7 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
 
         File logDir = new File(srcdir + File.separator + uniqueDir);
 
-        Vector knownDirs = new Vector();
+        final Vector<String> knownDirs = new Vector<String>();
         FTPClient ftp = null;
         try {
             ftp = openFTP();
@@ -138,23 +138,23 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
     }
 
 
-    private void ftpDir(File basedir, FTPClient ftp, String destdir,
-            Vector knownDirs)
+    private void ftpDir(final File basedir, final FTPClient ftp, final String destdir, final Vector<String> knownDirs)
             throws CruiseControlException {
-        String[] fileList = basedir.list();
+
+        final String[] fileList = basedir.list();
         if (fileList == null) {
             return;
         }
-        for (int i = 0; i < fileList.length; ++i) {
-            String fname = destdir + File.separator + fileList[i];
-            File f = new File(basedir, fileList[i]);
+        for (final String aFileList : fileList) {
+            final String fname = destdir + File.separator + aFileList;
+            final File f = new File(basedir, aFileList);
             if (f.exists()) {
                 if (f.isDirectory()) {
                     // recursively add the file.
                     // Since we delete after this, removing the directory
                     // should work.
                     ftpDir(f, ftp, fname, knownDirs);
-                } else  {
+                } else {
                     makeDirsForFile(ftp, fname, knownDirs);
                     sendFile(ftp, f, fname);
                 }
@@ -171,14 +171,14 @@ public class FTPPublisher extends AbstractFTPClass implements Publisher {
      * successes mark the log file as "log[date]L[label].xml", we
      * need a good way to track down which log file to use.
      */
-    private String getLogFileName(String srcdir, String uniqueDir) {
-        File dir = new File(srcdir);
-        String basename = "log" + uniqueDir;
+    private String getLogFileName(final String srcdir, final String uniqueDir) {
+        final File dir = new File(srcdir);
+        final String basename = "log" + uniqueDir;
         if (dir.exists() && dir.isDirectory()) {
-            String[] list = dir.list();
-            for (int i = 0; i < list.length; ++i) {
-                if (list[i].startsWith(basename) && list[i].endsWith(".xml")) {
-                    return list[i];
+            final String[] list = dir.list();
+            for (final String aFile : list) {
+                if (aFile.startsWith(basename) && aFile.endsWith(".xml")) {
+                    return aFile;
                 }
             }
         }

@@ -62,7 +62,7 @@ public class OrigoApiClient {
      * Create with an apiUrl
      * @param apiUrl url
      */
-    public OrigoApiClient(URL apiUrl) {
+    public OrigoApiClient(final URL apiUrl) {
         client = new XmlRpcClient(apiUrl);
     }
     
@@ -74,7 +74,9 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    protected synchronized Object call(String method, Vector params) throws XmlRpcException, IOException {
+    protected synchronized Object call(final String method, final Vector<Object> params)
+            throws XmlRpcException, IOException {
+
         LOG.debug("Executing call " + method + " " + params);
         return client.execute(method, params);
     }
@@ -87,8 +89,8 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public String login(String userKey, String applicationKey) throws XmlRpcException, IOException {
-        Vector params = new Vector();
+    public String login(final String userKey, final String applicationKey) throws XmlRpcException, IOException {
+        final Vector<Object> params = new Vector<Object>();
         params.addElement(userKey);
         params.addElement(applicationKey);
         return (String) call("user.login_key", params);
@@ -102,8 +104,10 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public Integer retrieveProjectId(String session, String projectName) throws XmlRpcException, IOException {
-        Vector params = new Vector();
+    public Integer retrieveProjectId(final String session, final String projectName)
+            throws XmlRpcException, IOException {
+
+        final Vector<Object> params = new Vector<Object>();
         params.addElement(session);
         params.addElement(projectName);
         return (Integer) call("project.retrieve_id", params);
@@ -118,9 +122,10 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public Vector searchIssue(String session, Integer projectId, Hashtable searchArgs) 
+    public Vector searchIssue(final String session, final Integer projectId, final Hashtable searchArgs)
             throws XmlRpcException, IOException {
-        Vector params = new Vector();
+
+        final Vector<Object> params = new Vector<Object>();
         params.addElement(session);
         params.addElement(projectId);
         params.addElement(searchArgs);
@@ -137,9 +142,11 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public void extendedCommentIssue(String session, Integer projectId, Integer bugId, String description, String tags)
+    public void extendedCommentIssue(final String session, final Integer projectId, final Integer bugId,
+                                     final String description, final String tags)
             throws XmlRpcException, IOException {
-        Vector params = new Vector();
+        
+        final Vector<Object> params = new Vector<Object>();
         params.addElement(session);
         params.addElement(projectId);
         params.addElement(bugId);
@@ -161,9 +168,11 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public void addIssue(String session, Integer projectId, String issueSubject, String issueDescription,
-            String issueTag, Boolean issuePrivate) throws XmlRpcException, IOException {
-        Vector params = new Vector();
+    public void addIssue(final String session, final Integer projectId, final String issueSubject,
+                         final String issueDescription, final String issueTag, final Boolean issuePrivate)
+            throws XmlRpcException, IOException {
+
+        final Vector<Object> params = new Vector<Object>();
         params.addElement(session);
         params.addElement(projectId);
         params.addElement(issueSubject);

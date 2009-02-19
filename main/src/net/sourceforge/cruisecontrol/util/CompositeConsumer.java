@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,27 +43,28 @@ import java.util.List;
  * Consumes a stream by copying it to several {@link StreamConsumer}s.
  */
 public class CompositeConsumer implements StreamConsumer {
-    private List consumers = new LinkedList();
+    private final List<StreamConsumer> consumers = new LinkedList<StreamConsumer>();
 
     /**
      * Creates a new instance of CompositeConsumer.
+     * @param consumer consumer to add
      */
-    public CompositeConsumer(StreamConsumer consumer) {
+    public CompositeConsumer(final StreamConsumer consumer) {
         add(consumer);
     }
 
     /**
      * Adds a consumer to the composite list.
+     * @param consumer consumer to add
      */
-    public void add(StreamConsumer consumer) {
+    public void add(final StreamConsumer consumer) {
         consumers.add(consumer);
     }
 
     /** {@inheritDoc} */
-    public void consumeLine(String line) {
-        Iterator i = consumers.iterator();
-        while (i.hasNext()) {
-            ((StreamConsumer) i.next()).consumeLine(line);
+    public void consumeLine(final String line) {
+        for (final StreamConsumer consumer : consumers) {
+            consumer.consumeLine(line);
         }
     }
 }

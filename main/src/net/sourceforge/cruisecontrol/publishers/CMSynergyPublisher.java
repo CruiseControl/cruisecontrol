@@ -38,7 +38,6 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -194,12 +193,10 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return The properties set within the current build.
      */
     public Properties getBuildProperties(Element log) {
-        Properties buildProperties = new Properties();
+        final Properties buildProperties = new Properties();
 
-        Iterator propertyIterator = log.getChild("info")
-                .getChildren("property").iterator();
-        while (propertyIterator.hasNext()) {
-            Element property = (Element) propertyIterator.next();
+        for (Object o : log.getChild("info").getChildren("property")) {
+            final Element property = (Element) o;
             buildProperties.put(property.getAttributeValue("name"), property
                     .getAttributeValue("value"));
 
@@ -217,18 +214,17 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return A <code>List</code> of new CM Synergy tasks
      */
     public List getNewTasks(Element log) {
-        List taskList = new ArrayList();
+        final List<String> taskList = new ArrayList<String>();
 
         // Get the modification list from the log
-        Element modifications = log.getChild("modifications");
+        final Element modifications = log.getChild("modifications");
         if (modifications != null) {
             // From this list, extract all CM Synergy modifications (tasks)
-            for (Iterator modificationList = modifications.getChildren(
-                    "modification").iterator(); modificationList.hasNext();) {
-                Element modification = (Element) modificationList.next();
-                String type = modification.getAttributeValue("type");
+            for (Object o : modifications.getChildren("modification")) {
+                final Element modification = (Element) o;
+                final String type = modification.getAttributeValue("type");
                 if (type != null && type.equals("ccmtask")) {
-                    String task = modification.getChild("task").getText();
+                    final String task = modification.getChild("task").getText();
                     if (task != null) {
                         taskList.add(task.trim());
                     }
@@ -271,9 +267,8 @@ public abstract class CMSynergyPublisher implements Publisher {
      * @return A double representing the version of Synergy
      */
     public double getVersion() {
-        //Initialise the version
-        double version = 0.0;
-        ManagedCommandline versionCmd = CMSynergy.createCcmCommand(
+
+        final ManagedCommandline versionCmd = CMSynergy.createCcmCommand(
                 getCcmExe(), getSessionName(), getSessionFile());
         versionCmd.clearArgs();
         versionCmd.createArgument("version");
@@ -286,9 +281,8 @@ public abstract class CMSynergyPublisher implements Publisher {
             LOG.warn("Could not get Synergy version", e);
         }
 
-        String versionString = versionCmd.getStdoutAsString();
-        String[] versionList = versionString.split("\r\n|\r|\n");
-        version = Double.parseDouble(versionList[versionList.length - 1]);
-        return version;
+        final String versionString = versionCmd.getStdoutAsString();
+        final String[] versionList = versionString.split("\r\n|\r|\n");
+        return Double.parseDouble(versionList[versionList.length - 1]);
     }
 }
