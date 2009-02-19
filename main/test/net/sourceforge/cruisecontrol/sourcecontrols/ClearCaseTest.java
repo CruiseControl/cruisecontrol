@@ -42,10 +42,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -78,7 +77,7 @@ public class ClearCaseTest extends TestCase {
     protected void setUp() throws JDOMException, IOException {
         // Initialize our ClearCase element
         clearCase = new ClearCase();
-        cannedMods = new Vector();
+        cannedMods = new ArrayList<Modification>();
 
         String testXML;
         if (File.separatorChar == '\\') {
@@ -92,9 +91,8 @@ public class ClearCaseTest extends TestCase {
         Document doc = parser.build(loadTestLog(testXML));
         List elts = doc.getRootElement().getChildren();
 
-        Iterator it = elts.iterator();
-        while (it.hasNext()) {
-            Element elt = (Element) it.next();
+        for (Object elt1 : elts) {
+            Element elt = (Element) elt1;
             ClearCaseModification mod = new ClearCaseModification();
             mod.fromElement(elt);
             adjustDateForTimeZone(mod);
@@ -143,10 +141,8 @@ public class ClearCaseTest extends TestCase {
 
             assertEquals(expected.files.size(), actual.files.size());
             for (int j = 0; j < actual.files.size(); j++) {
-                ClearCaseModification.ModifiedFile af =
-                        (ClearCaseModification.ModifiedFile) expected.files.get(j);
-                ClearCaseModification.ModifiedFile bf =
-                        (ClearCaseModification.ModifiedFile) actual.files.get(j);
+                ClearCaseModification.ModifiedFile af = expected.files.get(j);
+                ClearCaseModification.ModifiedFile bf = actual.files.get(j);
                 assertEquals(af.action, bf.action);
                 assertEquals(af.fileName, bf.fileName);
                 assertEquals(af.folderName, bf.folderName);
@@ -154,7 +150,7 @@ public class ClearCaseTest extends TestCase {
             }
 
 
-            StringBuffer bc = new StringBuffer(actual.comment);
+            final StringBuilder bc = new StringBuilder(actual.comment);
             for (int j = 0; j < bc.length(); j++) {
                 if (bc.charAt(j) == 13) {
                     bc.deleteCharAt(j);

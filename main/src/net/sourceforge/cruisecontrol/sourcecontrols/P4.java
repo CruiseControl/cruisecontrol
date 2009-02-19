@@ -124,6 +124,7 @@ public class P4 implements SourceControl {
     /**
      * Indicates whether to correct for time differences between the p4 server and the CruiseControl server. Setting the
      * flag to "true" will correct for both time zone differences and for non-synchronized system clocks.
+     * @param flag "true" will correct for both time zone differences and for non-synchronized system clocks.
      */
     public void setCorrectForServerTime(boolean flag) {
         correctForServerTime = flag;
@@ -143,7 +144,7 @@ public class P4 implements SourceControl {
         properties.assignPropertyName(propertyName);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -166,10 +167,10 @@ public class P4 implements SourceControl {
      * @return a list of XML elements that contains data about the modifications that took place. If no changes, this
      *         method returns an empty list.
      */
-    public List getModifications(Date lastBuild, Date now) {
-        List mods = new ArrayList();
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
+        List<Modification> mods = new ArrayList<Modification>();
         try {
-            String[] changelistNumbers = collectChangelistSinceLastBuild(lastBuild, now);
+            final String[] changelistNumbers = collectChangelistSinceLastBuild(lastBuild, now);
             if (changelistNumbers.length == 0) {
                 return mods;
             }
@@ -185,14 +186,14 @@ public class P4 implements SourceControl {
         return mods;
     }
 
-    private List describeAllChangelistsAndBuildOutput(String[] changelistNumbers) throws Exception {
-        Commandline command = buildDescribeCommand(changelistNumbers);
+    private List<Modification> describeAllChangelistsAndBuildOutput(final String[] changelistNumbers) throws Exception {
+        final Commandline command = buildDescribeCommand(changelistNumbers);
         LOG.debug(command.toString());
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread error = logErrorStream(p.getErrorStream());
-        InputStream p4Stream = p.getInputStream();
-        List mods = parseChangeDescriptions(p4Stream);
+        final Thread error = logErrorStream(p.getErrorStream());
+        final InputStream p4Stream = p.getInputStream();
+        final List<Modification> mods = parseChangeDescriptions(p4Stream);
         getRidOfLeftoverData(p4Stream);
 
         // Get the Email address of the user for each changelist
@@ -212,18 +213,18 @@ public class P4 implements SourceControl {
      *
      * @param mods
      *            List of P4Modification structures
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException if something breaks
+     * @throws InterruptedException if something breaks
      */
-    private void getEmailAddresses(List mods) throws IOException, InterruptedException {
-        Iterator iter = mods.iterator();
-        Map users = new HashMap();
+    private void getEmailAddresses(final List<Modification> mods) throws IOException, InterruptedException {
+        final Iterator<Modification> iter = mods.iterator();
+        final Map<String, String> users = new HashMap<String, String>();
 
         while (iter.hasNext()) {
-            P4Modification change = (P4Modification) iter.next();
+            final P4Modification change = (P4Modification) iter.next();
 
             if ((change.userName != null) && (change.userName.length() > 0)) {
-                change.emailAddress = (String) users.get(change.userName);
+                change.emailAddress = users.get(change.userName);
 
                 if (change.emailAddress == null) {
                     change.emailAddress = getUserEmailAddress(change.userName);
@@ -241,24 +242,24 @@ public class P4 implements SourceControl {
      * @param username
      *            Perforce user name
      * @return User Email address if available
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException if something breaks
+     * @throws InterruptedException if something breaks
      */
-    private String getUserEmailAddress(String username) throws IOException, InterruptedException {
+    private String getUserEmailAddress(final String username) throws IOException, InterruptedException {
         String emailaddr = null;
 
-        Commandline command = buildUserCommand(username);
+        final Commandline command = buildUserCommand(username);
         LOG.debug(command.toString());
-        Process p = command.execute();
+        final Process p = command.execute();
 
         logErrorStream(p.getErrorStream());
-        InputStream p4Stream = p.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p4Stream));
+        final InputStream p4Stream = p.getInputStream();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(p4Stream));
 
         // Find first Changelist item if there is one.
         String line;
         while ((line = readToNotPast(reader, "info: Email:", "I really don't care")) != null) {
-            StringTokenizer st = new StringTokenizer(line);
+            final StringTokenizer st = new StringTokenizer(line);
 
             try {
                 st.nextToken(); // skip 'info:' text
@@ -277,15 +278,15 @@ public class P4 implements SourceControl {
         return (emailaddr);
     }
 
-    private String[] collectChangelistSinceLastBuild(Date lastBuild, Date now) throws Exception {
-        Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
+    private String[] collectChangelistSinceLastBuild(final Date lastBuild, final Date now) throws Exception {
+        final Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
         LOG.debug(command.toString());
-        Process p = command.execute();
+        final Process p = command.execute();
 
-        Thread error = logErrorStream(p.getErrorStream());
-        InputStream p4Stream = p.getInputStream();
+        final Thread error = logErrorStream(p.getErrorStream());
+        final InputStream p4Stream = p.getInputStream();
 
-        String[] changelistNumbers = parseChangelistNumbers(p4Stream);
+        final String[] changelistNumbers = parseChangelistNumbers(p4Stream);
 
         p.waitFor();
         error.join();
@@ -294,12 +295,12 @@ public class P4 implements SourceControl {
         return changelistNumbers;
     }
 
-    private void getRidOfLeftoverData(InputStream stream) {
+    private void getRidOfLeftoverData(final InputStream stream) {
         new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
-    protected String[] parseChangelistNumbers(InputStream is) throws IOException {
-        ArrayList changelists = new ArrayList();
+    protected String[] parseChangelistNumbers(final InputStream is) throws IOException {
+        final ArrayList<String> changelists = new ArrayList<String>();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String line;
@@ -320,25 +321,24 @@ public class P4 implements SourceControl {
         if (line == null) {
             throw new IOException("Error reading P4 stream: Unexpected EOF reached");
         }
-        String[] changelistNumbers = new String[0];
-        return (String[]) changelists.toArray(changelistNumbers);
+        return changelists.toArray(new String[changelists.size()]);
     }
 
-    protected List parseChangeDescriptions(InputStream is) throws Exception {
+    protected List<Modification> parseChangeDescriptions(final InputStream is) throws Exception {
         int serverOffset = 0;
         if (correctForServerTime) {
             serverOffset = (int) calculateServerTimeOffset();
         }
 
-        ArrayList changelists = new ArrayList();
+        final ArrayList<Modification> changelists = new ArrayList<Modification>();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
         // Find first Changelist item if there is one.
         String line;
         while ((line = readToNotPast(reader, "text: Change", "exit:")) != null) {
 
-            P4Modification changelist = new P4Modification();
+            final P4Modification changelist = new P4Modification();
             if (line.startsWith("error:")) {
                 throw new IOException("Error reading P4 stream: P4 says: " + line);
             } else if (line.startsWith("exit: 1")) {
@@ -346,7 +346,7 @@ public class P4 implements SourceControl {
             } else if (line.startsWith("exit: 0")) {
                 return changelists;
             } else if (line.startsWith("text: Change")) {
-                StringTokenizer st = new StringTokenizer(line);
+                final StringTokenizer st = new StringTokenizer(line);
 
                 st.nextToken(); // skip 'text:' text
                 st.nextToken(); // skip 'Change' text
@@ -354,14 +354,14 @@ public class P4 implements SourceControl {
                 st.nextToken(); // skip 'by' text
 
                 // split user@client
-                StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
+                final StringTokenizer st2 = new StringTokenizer(st.nextToken(), "@");
                 changelist.userName = st2.nextToken();
                 changelist.client = st2.nextToken();
 
                 st.nextToken(); // skip 'on' text
-                String date = st.nextToken() + ":" + st.nextToken();
+                final String date = st.nextToken() + ":" + st.nextToken();
                 try {
-                    Calendar cal = Calendar.getInstance();
+                    final Calendar cal = Calendar.getInstance();
                     cal.setTime(p4RevisionDateFormatter.parse(date));
                     cal.add(Calendar.MILLISECOND, -serverOffset);
                     changelist.modifiedTime = cal.getTime();
@@ -371,7 +371,7 @@ public class P4 implements SourceControl {
             }
 
             reader.readLine(); // get past a 'text:'
-            StringBuffer descriptionBuffer = new StringBuffer();
+            final StringBuilder descriptionBuffer = new StringBuilder();
 
             // Use this since we don't want the final (empty) line
             String previousLine = null;
@@ -414,8 +414,8 @@ public class P4 implements SourceControl {
         return changelists;
     }
 
-    private Thread logErrorStream(InputStream is) {
-        Thread errorThread = new Thread(StreamLogger.getWarnPumper(LOG, is));
+    private Thread logErrorStream(final InputStream is) {
+        final Thread errorThread = new Thread(StreamLogger.getWarnPumper(LOG, is));
         errorThread.start();
         return errorThread;
     }
@@ -423,16 +423,16 @@ public class P4 implements SourceControl {
     /**
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if somtething breaks
      */
-    public Commandline buildChangesCommand(Date lastBuildTime, Date now, boolean isWindows)
+    public Commandline buildChangesCommand(Date lastBuildTime, Date now, final boolean isWindows)
             throws CruiseControlException {
 
         // If the Perforce server time is different from the CruiseControl
         // server time, correct the parameter dates for the difference.
         if (correctForServerTime) {
             int offset = (int) calculateServerTimeOffset();
-            Calendar cal = Calendar.getInstance();
+            final Calendar cal = Calendar.getInstance();
 
             cal.setTime(lastBuildTime);
             cal.add(Calendar.MILLISECOND, offset);
@@ -445,7 +445,7 @@ public class P4 implements SourceControl {
             LOG.debug("No server time offset determined.");
         }
 
-        Commandline commandLine = buildBaseP4Command();
+        final Commandline commandLine = buildBaseP4Command();
 
         commandLine.createArgument("changes");
         commandLine.createArguments("-s", "submitted");
@@ -458,16 +458,16 @@ public class P4 implements SourceControl {
     /**
      * p4 -s [-c client] [-p port] [-u user] describe -s [change number]
      */
-    public Commandline buildDescribeCommand(String[] changelistNumbers) {
-        Commandline commandLine = buildBaseP4Command();
+    public Commandline buildDescribeCommand(final String[] changelistNumbers) {
+        final Commandline commandLine = buildBaseP4Command();
 
         // execP4Command("describe -s " + changeNumber.toString(),
 
         commandLine.createArgument("describe");
         commandLine.createArgument("-s");
 
-        for (int i = 0; i < changelistNumbers.length; i++) {
-            commandLine.createArgument(changelistNumbers[i]);
+        for (final String changelistNumber : changelistNumbers) {
+            commandLine.createArgument(changelistNumber);
         }
 
         return commandLine;
@@ -476,8 +476,8 @@ public class P4 implements SourceControl {
     /**
      * p4 -s [-c client] [-p port] [-u user] user -o [username]
      */
-    public Commandline buildUserCommand(String username) {
-        Commandline commandLine = buildBaseP4Command();
+    public Commandline buildUserCommand(final String username) {
+        final Commandline commandLine = buildBaseP4Command();
         commandLine.createArgument("user");
         commandLine.createArguments("-o", username);
 
@@ -490,11 +490,11 @@ public class P4 implements SourceControl {
      * CruiseControl in San Francisco). A positive offset indicates that the Perforce server time is before the
      * CruiseControl server.
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if something breaks
      */
     protected long calculateServerTimeOffset() throws CruiseControlException {
-        ServerInfoConsumer serverInfo = new ServerInfoConsumer();
-        CommandExecutor executor = new CommandExecutor(buildInfoCommand());
+        final ServerInfoConsumer serverInfo = new ServerInfoConsumer();
+        final CommandExecutor executor = new CommandExecutor(buildInfoCommand());
         executor.logErrorStreamTo(LOG);
         executor.setOutputConsumer(serverInfo);
         executor.executeAndWait();
@@ -502,18 +502,18 @@ public class P4 implements SourceControl {
     }
 
     Commandline buildInfoCommand() {
-        Commandline command = buildBaseP4Command(false);
+        final Commandline command = buildBaseP4Command(false);
         command.createArgument("info");
         return command;
     }
 
     private Commandline buildBaseP4Command() {
-        boolean prependField = true;
+        final boolean prependField = true;
         return buildBaseP4Command(prependField);
     }
 
-    private Commandline buildBaseP4Command(boolean prependField) {
-        Commandline commandLine = new Commandline();
+    private Commandline buildBaseP4Command(final boolean prependField) {
+        final Commandline commandLine = new Commandline();
         commandLine.setExecutable("p4");
         if (prependField) {
             commandLine.createArgument("-s");
@@ -542,7 +542,8 @@ public class P4 implements SourceControl {
      * either or, because otherwise it would be darn hard to use in places where I actually need the notPast line. Or
      * did I misunderstand something?
      */
-    private String readToNotPast(BufferedReader reader, String beginsWith, String notPast) throws IOException {
+    private String readToNotPast(final BufferedReader reader, final String beginsWith, final String notPast) 
+            throws IOException {
 
         String nextLine = reader.readLine();
 
@@ -557,20 +558,23 @@ public class P4 implements SourceControl {
     private static class P4Modification extends Modification {
         public String client;
 
-        public int compareTo(Object o) {
+        @Override
+        public int compareTo(final Object o) {
             P4Modification modification = (P4Modification) o;
             return getChangelistNumber() - modification.getChangelistNumber();
         }
 
-        public boolean equals(Object o) {
+        @Override
+        public boolean equals(final Object o) {
             if (o == null || !(o instanceof P4Modification)) {
                 return false;
             }
 
-            P4Modification modification = (P4Modification) o;
+            final P4Modification modification = (P4Modification) o;
             return getChangelistNumber() == modification.getChangelistNumber();
         }
 
+        @Override
         public int hashCode() {
             return getChangelistNumber();
         }
@@ -583,11 +587,12 @@ public class P4 implements SourceControl {
             super("p4");
         }
 
+        @Override
         public Element toElement() {
-            Element element = super.toElement();
+            final Element element = super.toElement();
             LOG.debug("client = " + client);
 
-            Element clientElement = new Element("client");
+            final Element clientElement = new Element("client");
             clientElement.addContent(client);
             element.addContent(clientElement);
 
@@ -595,7 +600,7 @@ public class P4 implements SourceControl {
         }
     }
 
-    static String getQuoteChar(boolean isWindows) {
+    static String getQuoteChar(final boolean isWindows) {
         return isWindows ? "\"" : "'";
     }
 
@@ -606,8 +611,8 @@ public class P4 implements SourceControl {
 
         private Date ccServerTime = new Date();
 
-        public void consumeLine(String line) {
-            Date p4ServerTime;
+        public void consumeLine(final String line) {
+            final Date p4ServerTime;
 
             // Consume the full stream after we have found the offset
             if (found) {

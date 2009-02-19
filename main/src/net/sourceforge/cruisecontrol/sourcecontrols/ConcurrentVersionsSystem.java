@@ -168,7 +168,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * CVS allows for mapping user names to email addresses. If CVSROOT/users exists, it's contents will be parsed and
      * stored in this hashtable.
      */
-    private Hashtable mailAliases;
+    private Hashtable<String, String> mailAliases;
 
     /**
      * The caller can provide the CVSROOT to use when calling CVS, or the CVSROOT environment variable will be used.
@@ -282,11 +282,11 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * Sets the behavior when a local working coppy is set which is
      * not under control of CVS itself (that is, does not have a CVS
      * subdirectory).
-     * If set to true all subdirectories are searched recursively.
+     * @param recurseLocalWorkingCopy If set to true all subdirectories are searched recursively.
      * All subdirectories which are under control of CVS are searched for
      * modifications in the usual manner.
      */
-    public void setRecurseLocalWorkingCopy(boolean recurseLocalWorkingCopy) {
+    public void setRecurseLocalWorkingCopy(final boolean recurseLocalWorkingCopy) {
         this.recurseLocalWorkingCopy = recurseLocalWorkingCopy;
     }
 
@@ -337,9 +337,9 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     }
     
     /**
-     * If set to true, the CVSROOT/users won't be fetched.
+     * @param skipEmailsFetching If set to true, the CVSROOT/users won't be fetched.
      */
-    public void setSkipEmailsFetching(boolean skipEmailsFetching) {
+    public void setSkipEmailsFetching(final boolean skipEmailsFetching) {
         this.skipEmailsFetching = skipEmailsFetching;
     }
 
@@ -402,11 +402,11 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      *    Server: Concurrent Versions System (CVS) 1.11.16 (client/server)
      * </pre>
      * 
-     * @param in
+     * @param in reader
      * @return the version of null if the version couldn't be extracted
-     * @throws IOException
+     * @throws IOException if something breaks
      */
-    private Version extractCVSServerVersionFromCVSVersionCommandOutput(BufferedReader in) throws IOException {
+    private Version extractCVSServerVersionFromCVSVersionCommandOutput(final BufferedReader in) throws IOException {
         String line = in.readLine();
         if (line == null) {
             return null;
@@ -422,8 +422,8 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             }
         }
         LOG.debug("server version line: " + line);
-        int nameBegin = line.indexOf(" (");
-        int nameEnd = line.indexOf(") ", nameBegin);
+        final int nameBegin = line.indexOf(" (");
+        final int nameEnd = line.indexOf(") ", nameBegin);
         final String name;
         final String version;
         if (nameBegin == -1 || nameEnd < nameBegin || nameBegin + 2 >= line.length()) {
@@ -442,13 +442,13 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     }
 
     public boolean isCvsNewOutputFormat() {
-        Version version = getCvsServerVersion();
+        final Version version = getCvsServerVersion();
         if (OFFICIAL_CVS_NAME.equals(version.getCvsName())) {
-            String csv = version.getCvsVersion();
-            StringTokenizer st = new StringTokenizer(csv, ".");
+            final String csv = version.getCvsVersion();
+            final StringTokenizer st = new StringTokenizer(csv, ".");
             try {
                 st.nextToken();
-                int subversion = Integer.parseInt(st.nextToken());
+                final int subversion = Integer.parseInt(st.nextToken());
                 if (subversion > 11) {
                     if (subversion == 12) {
                         if (Integer.parseInt(st.nextToken()) < 9) {
@@ -464,12 +464,12 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
         return false;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
-    /**
-     * for mocking *
+    /*
+     * for mocking
      */
     protected OSEnvironment getOSEnvironment() {
         return new OSEnvironment();
@@ -501,7 +501,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      *            last build time
      * @return maybe empty, never null.
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
 
         mailAliases = getMailAliases();
 
@@ -511,7 +511,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             }
         }
 
-        List mods = null;
+        List<Modification> mods = null;
         try {
             mods = execHistoryCommand(buildHistoryCommand(lastBuild, now));
         } catch (Exception e) {
@@ -519,7 +519,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
         }
 
         if (mods == null) {
-            return new ArrayList();
+            return new ArrayList<Modification>();
         }
         return mods;
     }
@@ -571,14 +571,14 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * @return a Hashtable containing the mapping defined in CVSROOT/users. If CVSROOT/users doesn't exist, an empty
      *         Hashtable is returned.
      */
-    private Hashtable getMailAliases() {
+    private Hashtable<String, String> getMailAliases() {
         if (mailAliases == null) {
             if (skipEmailsFetching) {
-                mailAliases = new Hashtable();
+                mailAliases = new Hashtable<String, String>();
                 return mailAliases;
             }
 
-            mailAliases = new Hashtable();
+            mailAliases = new Hashtable<String, String>();
             Commandline commandLine = getCommandline();
             commandLine.setExecutable("cvs");
 
@@ -618,7 +618,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
                     LOG.debug("Process exit value = " + p.exitValue());
                 }
                 LOG.warn("problem getting CVSROOT/users; using empty email map");
-                mailAliases = new Hashtable();
+                mailAliases = new Hashtable<String, String>();
             }
         }
 
@@ -638,12 +638,15 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     }
 
     /**
-     * @param lastBuildTime
-     * @param checkTime
+     * @param lastBuildTime last build date
+     * @param checkTime current time
      * @return CommandLine for "cvs -d CVSROOT -q LOG -N -dlastbuildtime<checktime "
+     * @throws CruiseControlException if something breaks
      */
-    public Commandline buildHistoryCommand(Date lastBuildTime, Date checkTime) throws CruiseControlException {
-        Commandline commandLine = getCommandline();
+    public Commandline buildHistoryCommand(final Date lastBuildTime, final Date checkTime)
+            throws CruiseControlException {
+
+        final Commandline commandLine = getCommandline();
         commandLine.setExecutable("cvs");
 
         if (compression != null) {
@@ -664,7 +667,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
         if (useHead()) {
             commandLine.createArgument("-N");
         }
-        String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
+        final String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument("-d" + dateRange);
 
         if (!useHead()) {
@@ -701,22 +704,22 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * @param input
      *            InputStream to get LOG data from.
      * @return List of Modification elements, maybe empty never null.
-     * @throws IOException
+     * @throws IOException if something breaks
      */
-    protected List parseStream(InputStream input) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+    protected List<Modification> parseStream(final InputStream input) throws IOException {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(input));
 
         // Read to the first RCS file name. The first entry in the LOG
         // information will begin with this line. A CVS_FILE_DELIMITER is NOT
         // present. If no RCS file lines are found then there is nothing to do.
 
         String line = readToNotPast(reader, CVS_RCSFILE_LINE, null);
-        ArrayList mods = new ArrayList();
+        final ArrayList<Modification> mods = new ArrayList<Modification>();
 
         while (line != null) {
             // Parse the single file entry, which may include several
             // modifications.
-            List returnList = parseEntry(reader, line);
+            final List<Modification> returnList = parseEntry(reader, line);
 
             // Add all the modifications to the local list.
             mods.addAll(returnList);
@@ -733,12 +736,12 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
         new StreamPumper(stream, new DiscardConsumer()).run();
     }
 
-    List execHistoryCommand(Commandline command) throws Exception {
-        Process p = command.execute();
+    List<Modification> execHistoryCommand(final Commandline command) throws Exception {
+        final Process p = command.execute();
 
-        Thread stderr = logErrorStream(p);
-        InputStream cvsLogStream = p.getInputStream();
-        List mods = parseStream(cvsLogStream);
+        final Thread stderr = logErrorStream(p);
+        final InputStream cvsLogStream = p.getInputStream();
+        final List<Modification> mods = parseStream(cvsLogStream);
 
         getRidOfLeftoverData(cvsLogStream);
         p.waitFor();
@@ -748,7 +751,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
         return mods;
     }
 
-    protected void setMailAliases(Hashtable mailAliases) {
+    protected void setMailAliases(final Hashtable<String, String> mailAliases) {
         this.mailAliases = mailAliases;
     }
 
@@ -771,28 +774,29 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * 
      * @param reader
      *            Reader to parse data from.
+     * @param rcsLine line to parse
      * @return modifications found in this entry; maybe empty, never null.
-     * @throws IOException
+     * @throws IOException if something breaks
      */
-    private List parseEntry(BufferedReader reader, String rcsLine) throws IOException {
-        ArrayList mods = new ArrayList();
+    private List<Modification> parseEntry(final BufferedReader reader, final String rcsLine) throws IOException {
+        final ArrayList<Modification> mods = new ArrayList<Modification>();
 
         String nextLine = "";
 
         // Read to the working file name line to get the filename.
         // If working file name line isn't found we'll extract is from the RCS file line
-        String workingFileName;
+        final String workingFileName;
         if (module != null && cvsroot != null) {
             final String repositoryRoot = cvsroot.substring(cvsroot.lastIndexOf(":") + 1);
             final int startAt = "RCS file: ".length() + repositoryRoot.length();
             workingFileName = rcsLine.substring(startAt, rcsLine.length() - 2);
         } else {
-            String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
+            final String workingFileLine = readToNotPast(reader, CVS_WORKINGFILE_LINE, null);
             workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
         }
 
-        String branchRevisionName = parseBranchRevisionName(reader);
-        boolean newCVSVersion = isCvsNewOutputFormat();
+        final String branchRevisionName = parseBranchRevisionName(reader);
+        final boolean newCVSVersion = isCvsNewOutputFormat();
         while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
             if (nextLine == null) {
@@ -802,11 +806,11 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
-            String revision = tokens.nextToken();
+            final String revision = tokens.nextToken();
             if (!useHead()) {
                 if (!revision.equals(branchRevisionName)) {
                     // Indeed this is a branch, not just a regular tag
-                    String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
+                    final String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
                     if (!itsBranchRevisionName.equals(branchRevisionName)) {
                         break;
                     }
@@ -824,24 +828,24 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             // First token is the keyword for date, then the next two should be
             // the date and time stamps.
             tokens.nextToken();
-            String dateStamp = tokens.nextToken();
-            String timeStamp = tokens.nextToken();
+            final String dateStamp = tokens.nextToken();
+            final String timeStamp = tokens.nextToken();
 
             // New format sometimes has a +0000 in it. This skips it if we don't see
             // the start of the author: section
-            String isThisTimeOffset = tokens.nextToken();
+            final String isThisTimeOffset = tokens.nextToken();
             if (!isThisTimeOffset.equals("author:")) {            
                 tokens.nextToken();
             }
             // The next token should be the author keyword, then the author name.
-            String authorName = tokens.nextToken();
+            final String authorName = tokens.nextToken();
 
             // The next token should be the state keyword, then the state name.
             tokens.nextToken();
-            String stateKeyword = tokens.nextToken();
+            final String stateKeyword = tokens.nextToken();
 
             // if no lines keyword then file is added
-            boolean isAdded = !tokens.hasMoreTokens();
+            final boolean isAdded = !tokens.hasMoreTokens();
 
             // All the text from now to the next revision delimiter or working
             // file delimiter constitutes the message.
@@ -863,17 +867,18 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
                 nextLine = reader.readLine();
             }
 
-            Modification nextModification = new Modification("cvs");
+            final Modification nextModification = new Modification("cvs");
             nextModification.revision = revision;
 
-            int lastSlashIndex = workingFileName.lastIndexOf("/");
+            final int lastSlashIndex = workingFileName.lastIndexOf("/");
 
-            String fileName, folderName = null;
+            final String fileName;
+            String folderName = null;
             fileName = workingFileName.substring(lastSlashIndex + 1);
             if (lastSlashIndex != -1) {
                 folderName = workingFileName.substring(0, lastSlashIndex);
             }
-            Modification.ModifiedFile modfile = nextModification.createModifiedFile(fileName, folderName);
+            final Modification.ModifiedFile modfile = nextModification.createModifiedFile(fileName, folderName);
             modfile.revision = nextModification.revision;
 
             try {
@@ -889,7 +894,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
             nextModification.userName = authorName;
 
-            String address = (String) mailAliases.get(authorName);
+            final String address = mailAliases.get(authorName);
             if (address != null) {
                 nextModification.emailAddress = address;
             }
@@ -920,10 +925,12 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     /**
      * Find the CVS branch revision name, when the tag is not HEAD The reader will consume all lines up to the next
      * description.
-     * 
+     *
+     * @param reader input stream to read
      * @return the branch revision name, or <code>null</code> if not applicable or none was found.
+     * @throws IOException if something breaks
      */
-    private String parseBranchRevisionName(BufferedReader reader) throws IOException {
+    private String parseBranchRevisionName(final BufferedReader reader) throws IOException {
         String branchRevisionName = null;
 
         if (!useHead()) {
@@ -958,10 +965,12 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      *            been found. Pass null to this method to ignore this string.
      * @return String that begin as indicated, or null if none matched to the end of the reader or the notPast line was
      *         found.
-     * @throws IOException
+     * @throws IOException if something breaks
      */
-    private static String readToNotPast(BufferedReader reader, String beginsWith, String notPast) throws IOException {
-        boolean checkingNotPast = notPast != null;
+    private static String readToNotPast(final BufferedReader reader, final String beginsWith, final String notPast)
+            throws IOException {
+
+        final boolean checkingNotPast = notPast != null;
 
         String nextLine = reader.readLine();
         while (nextLine != null && !nextLine.startsWith(beginsWith)) {

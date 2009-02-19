@@ -75,12 +75,12 @@ public class PVCS implements SourceControl {
         private final Date lastBuild;
         private final String ls = System.getProperty("line.separator");
         private Modification modification;
-        private final List modificationList = new ArrayList();
+        private final List<Modification> modificationList = new ArrayList<Modification>();
         private boolean nextLineIsComment = false;
         private final DateFormat outDateFormat;
         private final DateFormat outDateFormatSub = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
         private final String proj;
-        private final StringBuffer string = new StringBuffer();
+        private final StringBuilder string = new StringBuilder();
         private boolean waitingForNextValidStart = false;
 
         public PvcsStreamConsumer(final Date lastBuild, DateFormat format, final String proj, String suffix) {
@@ -94,8 +94,8 @@ public class PVCS implements SourceControl {
         /**
          * @see net.sourceforge.cruisecontrol.util.StreamConsumer#consumeLine(java.lang.String)
          */
-        public void consumeLine(String line) {
-            string.append(line + ls);
+        public void consumeLine(final String line) {
+            string.append(line).append(ls);
 
             if (line.startsWith("Archive:")) {
                 initializeModification();
@@ -124,14 +124,14 @@ public class PVCS implements SourceControl {
                 // modification.createModifiedFile(line.substring(18), null);
             } else if (line.startsWith("Archive created:")) {
                 try {
-                    String createdDate = line.substring(18);
+                    final String createdDate = line.substring(18);
                     Date createTime;
                     try {
                         createTime = outDateFormat.parse(createdDate);
                     } catch (ParseException e) {
                         createTime = outDateFormatSub.parse(createdDate);
                     }
-                    ModifiedFile file = (ModifiedFile) modification.files.get(0);
+                    final ModifiedFile file = modification.files.get(0);
                     if (createTime.after(lastBuild)) {
                         file.action = "added";
                     } else {
@@ -143,9 +143,9 @@ public class PVCS implements SourceControl {
             } else if (line.startsWith("Rev") && !line.startsWith("Rev count")) {
                 if (firstRev) {
                     firstRev = false;
-                    String revision = line.substring(4);
+                    final String revision = line.substring(4);
                     modification.revision = revision;
-                    ModifiedFile file = (ModifiedFile) modification.files.get(0);
+                    final ModifiedFile file = modification.files.get(0);
                     file.revision = revision;
                 }
             } else if (line.startsWith("Last modified:")) {
@@ -184,8 +184,8 @@ public class PVCS implements SourceControl {
             } else if (line.startsWith("Author id:")) {
                 // if this is the newest revision...
                 if (firstUserName) {
-                    String sub = line.substring(11);
-                    StringTokenizer st = new StringTokenizer(sub, " ");
+                    final String sub = line.substring(11);
+                    final StringTokenizer st = new StringTokenizer(sub, " ");
                     modification.userName = st.nextToken().trim();
                     firstUserName = false;
                     nextLineIsComment = true;
@@ -194,7 +194,7 @@ public class PVCS implements SourceControl {
 
         }
 
-        public List getModificationList() {
+        public List<Modification> getModificationList() {
             return this.modificationList;
         }
 
@@ -242,10 +242,12 @@ public class PVCS implements SourceControl {
      * Returns the command to be ran to check for repository changes run -ns -q vlog -idSomeUser "-ds11/23/2004 08:00:00
      * AM" "-de11/23/2004 01:00:00 PM" "-prC:/PVCS-Repos/TestProject" "-vTest Version Label" -z /TestProject
      *
+     * @param lastBuild last build date
+     * @param now current build date
      * @return the command to be executed to check for repository changes
      */
-    Commandline buildExecCommand(String lastBuild, String now) {
-        Commandline command = new Commandline();
+    Commandline buildExecCommand(final String lastBuild, final String now) {
+        final Commandline command = new Commandline();
         // command.useSafeQuoting(false);
         command.setExecutable(getExecutable(PCLI));
         command.createArgument("run");
@@ -282,8 +284,8 @@ public class PVCS implements SourceControl {
         LOG.debug("Output: \n" + consumer.getOutput());
     }
 
-    protected String getExecutable(String exe) {
-        StringBuffer correctedExe = new StringBuffer();
+    protected String getExecutable(final String exe) {
+        final StringBuilder correctedExe = new StringBuilder();
         if (getPvcsbin() != null) {
             if (getPvcsbin().endsWith(File.separator)) {
                 correctedExe.append(getPvcsbin());
@@ -314,32 +316,32 @@ public class PVCS implements SourceControl {
      *
      * Note: Internally uses external filesystem for files CruiseControlPVCS.pcli, files.tmp, vlog.txt
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
 
-        PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, this.outDateFormat, pvcsProject,
+        final PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, this.outDateFormat, pvcsProject,
                 this.archiveFileSuffix);
-        List modificationList = getModifications(lastBuild, now, consumer);
 
-        return modificationList;
+        return getModifications(lastBuild, now, consumer);
     }
 
-    protected List getModifications(Date lastBuild, Date now, PvcsStreamConsumer consumer) {
+    protected List<Modification> getModifications(final Date lastBuild, final Date now,
+                                                  final PvcsStreamConsumer consumer) {
         try {
             // build file of PVCS command line instructions
-            String lastBuildDate = inDateFormat.format(lastBuild);
-            String nowDate = inDateFormat.format(now);
-            Commandline command = buildExecCommand(lastBuildDate, nowDate);
+            final String lastBuildDate = inDateFormat.format(lastBuild);
+            final String nowDate = inDateFormat.format(now);
+            final Commandline command = buildExecCommand(lastBuildDate, nowDate);
             executeCommandline(command, consumer);
         } catch (Exception e) {
             LOG.error("Error in executing the PVCS command : ", e);
         }
 
-        List modificationList = consumer.getModificationList();
+        final List<Modification> modificationList = consumer.getModificationList();
 
         if (!modificationList.isEmpty()) {
             properties.modificationFound();
         }
-        StringBuffer msg = new StringBuffer("" + modificationList.size());
+        final StringBuilder msg = new StringBuilder("" + modificationList.size());
         if (1 == modificationList.size()) {
             msg.append(" modification has been detected");
         } else {
@@ -350,7 +352,7 @@ public class PVCS implements SourceControl {
         return modificationList;
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -372,7 +374,7 @@ public class PVCS implements SourceControl {
     }
 
     /**
-     * @param loginId
+     * @param loginId login id
      */
     public void setLoginid(String loginId) {
         this.loginId = loginId;

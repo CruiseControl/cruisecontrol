@@ -90,7 +90,7 @@ public class MKS implements SourceControl {
      * becomes empty. Therefor, we have to return the summarized list of modifications:
      * the values from the last run,  and -maybe- results return by MKS for this run.
      */
-    private List listOfModifications = new ArrayList();
+    private final List<Modification> listOfModifications = new ArrayList<Modification>();
     
     /**
      * The listOfModifications is cleared when new value for lastBuild is used.
@@ -116,12 +116,12 @@ public class MKS implements SourceControl {
         properties.assignPropertyName(property);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
     public void setDoNothing(String doNothing) {
-        this.doNothing = Boolean.valueOf(doNothing).booleanValue();
+        this.doNothing = Boolean.valueOf(doNothing);
     }
 
     public void validate() throws CruiseControlException {
@@ -139,9 +139,8 @@ public class MKS implements SourceControl {
      * @param now
      *            Time now, or time to check.
      * @return maybe empty, never null.
-     * @throws CruiseControlException 
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
 
         if (doNothing) {
             properties.modificationFound();
@@ -153,19 +152,19 @@ public class MKS implements SourceControl {
             this.lastBuild = lastBuild;
         }
 
-        String projectFilePath = getProjectFilePath();
+        final String projectFilePath = getProjectFilePath();
         
-        Commandline cmdLine = createResyncCommandLine(projectFilePath);
+        final Commandline cmdLine = createResyncCommandLine(projectFilePath);
 
         executeResyncAndParseModifications(cmdLine, listOfModifications);
 
         return listOfModifications;
     }
 
-    void executeResyncAndParseModifications(Commandline cmdLine, List modifications) {
+    void executeResyncAndParseModifications(final Commandline cmdLine, final List<Modification> modifications) {
         try {
-            StreamConsumer stderr = new ModificationsConsumer(modifications);
-            StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
+            final StreamConsumer stderr = new ModificationsConsumer(modifications);
+            final StreamConsumer stdout = StreamLogger.getWarnLogger(LOG);
             Processes.waitFor(cmdLine.execute(), stdout, stderr);
         } catch (Exception ex) {
             LOG.warn(ex.getMessage(), ex);
@@ -173,8 +172,8 @@ public class MKS implements SourceControl {
         LOG.info("resync finished");
     }
 
-    Commandline createResyncCommandLine(String projectFilePath) {
-        Commandline cmdLine = new Commandline();
+    Commandline createResyncCommandLine(final String projectFilePath) {
+        final Commandline cmdLine = new Commandline();
         cmdLine.setExecutable("si");
         cmdLine.createArgument("resync");
         cmdLine.createArgument("-f");
@@ -190,7 +189,7 @@ public class MKS implements SourceControl {
     }
 
     String getProjectFilePath() {
-        String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
+        final String projectFilePath = localWorkingDir.getAbsolutePath() + File.separator + project;
         if (!new File(projectFilePath).exists()) {
             throw new RuntimeException("project file not found at " + projectFilePath);
         }
@@ -203,13 +202,15 @@ public class MKS implements SourceControl {
      * copy generated properties Member added to project
      * d:/MKS/PCE_Usedom/Products/Info/Info.pj
      *
-     * @param fileName
+     * @param modification not sure
+     * @param folderName not sure
+     * @param fileName not sure
      */
-    private void setUserNameAndComment(Modification modification,
-            String folderName, String fileName) {
+    private void setUserNameAndComment(final Modification modification,
+            final String folderName, final String fileName) {
 
         try {
-            Commandline commandLine = new Commandline();
+            final Commandline commandLine = new Commandline();
             commandLine.setExecutable("si");
 
             if (localWorkingDir != null) {
@@ -223,8 +224,8 @@ public class MKS implements SourceControl {
             commandLine.createArguments("-r", modification.revision);
             commandLine.createArgument(folderName + File.separator + fileName);
 
-            Process proc = commandLine.execute();
-            UserAndCommentConsumer userData = new UserAndCommentConsumer();
+            final Process proc = commandLine.execute();
+            final UserAndCommentConsumer userData = new UserAndCommentConsumer();
             Processes.waitFor(proc, userData, StreamLogger.getWarnLogger(LOG));
             if (userData.wasFound()) {
                 modification.userName = userData.getUserName();
@@ -250,14 +251,14 @@ public class MKS implements SourceControl {
      */
 
     private final class ModificationsConsumer implements StreamConsumer {
-        public List modifications;
+        public final List<Modification> modifications;
         
-        private ModificationsConsumer(List modifications) {
+        private ModificationsConsumer(final List<Modification> modifications) {
             this.modifications = modifications;
         }
         
-        public void consumeLine(String line) {
-            int idxCheckedOutRevision = line
+        public void consumeLine(final String line) {
+            final int idxCheckedOutRevision = line
                     .indexOf(": checked out revision");
 
             if (idxCheckedOutRevision == -1) {
@@ -265,12 +266,12 @@ public class MKS implements SourceControl {
             }
             LOG.info(line);
 
-            int idxSeparator = line.lastIndexOf(File.separator);
-            String folderName = line.substring(0, idxSeparator);
-            String fileName = line.substring(idxSeparator + 1,
+            final int idxSeparator = line.lastIndexOf(File.separator);
+            final String folderName = line.substring(0, idxSeparator);
+            final String fileName = line.substring(idxSeparator + 1,
                     idxCheckedOutRevision);
-            Modification modification = new Modification();
-            Modification.ModifiedFile modFile = modification
+            final Modification modification = new Modification();
+            final Modification.ModifiedFile modFile = modification
                     .createModifiedFile(fileName, folderName);
             modification.modifiedTime = new Date(new File(folderName,
                     fileName).lastModified());
@@ -299,11 +300,11 @@ public class MKS implements SourceControl {
             return comment;
         }
 
-        public void consumeLine(String line) {
+        public void consumeLine(final String line) {
             if (found) {
                 return;
             }
-            int idx = line.indexOf(";");
+            final int idx = line.indexOf(";");
             if (idx == -1) {
                 LOG.debug(line);
                 return;

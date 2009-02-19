@@ -40,7 +40,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,7 +80,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
     private static final Logger LOG = Logger.getLogger(Maven2SnapshotDependency.class);
 
     private final SourceControlProperties properties = new SourceControlProperties();
-    private List modifications;
+    private List<Modification> modifications;
     private File pomFile;
     private String user;
     private File localRepoDir; //@todo Must be null until maven embedder honors alignWithUserInstallation.
@@ -93,7 +92,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
     /**
      * @param s the pom.xml file who's snapshot dependencies we are going to scan
      */
-    public void setPomFile(String s) {
+    public void setPomFile(final String s) {
         pomFile = new File(s);
     }
 
@@ -102,7 +101,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
      * Normally, this is not set in order to use the default location: user.home/.m2/repository.
      */
     //@todo Make "public" when maven embedder honors alignWithUserInstallation
-    void setLocalRepository(String s) {
+    void setLocalRepository(final String s) {
         if (s != null) {
             localRepoDir = new File(s);
         } else {
@@ -113,15 +112,15 @@ public class Maven2SnapshotDependency  implements SourceControl {
     /**
      * @param s the username listed with changes found in binary dependencies
      */
-    public void setUser(String s) {
+    public void setUser(final String s) {
         user = s;
     }
 
-    public void setProperty(String property) {
+    public void setProperty(final String property) {
         properties.assignPropertyName(property);
     }
 
-    public Map getProperties() {
+    public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
 
@@ -158,16 +157,16 @@ public class Maven2SnapshotDependency  implements SourceControl {
      *  @param now
      *            IGNORED
      */
-    public List getModifications(Date lastBuild, Date now) {
+    public List<Modification> getModifications(final Date lastBuild, final Date now) {
 
-        modifications = new ArrayList();
+        modifications = new ArrayList<Modification>();
 
         LOG.debug("Reading pom: " + pomFile.getAbsolutePath() + " with lastBuild: " + lastBuild);
 
-        ArtifactInfo[] artifactsToCheck = getSnapshotInfos();
+        final ArtifactInfo[] artifactsToCheck = getSnapshotInfos();
 
-        for (int i = 0; i < artifactsToCheck.length; i++) {
-            checkFile(artifactsToCheck[i], lastBuild.getTime());
+        for (final ArtifactInfo artifactToCheck : artifactsToCheck) {
+            checkFile(artifactToCheck, lastBuild.getTime());
         }
 
         return modifications;
@@ -181,9 +180,10 @@ public class Maven2SnapshotDependency  implements SourceControl {
      * @param changeType modification type ("change" or "missing")
      * @param comment constant note according to changeType
      */
-    private void addRevision(File dependency, String changeType, String comment) {
-        Modification newMod = new Modification("maven2");
-        Modification.ModifiedFile modfile = newMod.createModifiedFile(dependency.getName(), dependency.getParent());
+    private void addRevision(final File dependency, final String changeType, final String comment) {
+        final Modification newMod = new Modification("maven2");
+        final Modification.ModifiedFile modfile
+                = newMod.createModifiedFile(dependency.getName(), dependency.getParent());
         modfile.action = changeType;
 
         newMod.userName = user;
@@ -242,7 +242,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
         // Format:
         // ${repo}/${groupId,dots as dirs}/${artifactId}/${version}/${artifactId}-${version}[-${classifier}].${type}
-        StringBuffer fileName = new StringBuffer();
+        final StringBuilder fileName = new StringBuilder();
         fileName.append(localRepoBaseDir.getAbsolutePath());
 
         fileName.append('/');
@@ -296,14 +296,14 @@ public class Maven2SnapshotDependency  implements SourceControl {
             final File localRepoBaseDir = new File(embedder.getLocalRepository().getBasedir());
 
 
-            final List artifactInfos = new ArrayList();
+            final List<ArtifactInfo> artifactInfos = new ArrayList<ArtifactInfo>();
 
             // handle parents and grandparents...
             findParentSnapshotArtifacts(projectWithDependencies, artifactInfos, localRepoBaseDir, embedder, pomFile);
 
 
             // handle dependencies
-            final Set snapshotArtifacts;
+            final Set<Artifact> snapshotArtifacts;
             if (projectWithDependencies != null) {
 
                 // projectWithDependencies.getDependencyArtifacts() would exclude transitive artifacts
@@ -314,15 +314,13 @@ public class Maven2SnapshotDependency  implements SourceControl {
                 // couldn't read project, so try to do some stuff manually
                 snapshotArtifacts = getSnapshotArtifactsManually(embedder);
             }
-            Artifact artifact;
-            for (Iterator i = snapshotArtifacts.iterator(); i.hasNext(); ) {
-                artifact = (Artifact) i.next();
 
+            for (final Artifact artifact : snapshotArtifacts) {
                 addArtifactInfo(artifactInfos, artifact, ArtifactInfo.ART_TYPE_DEPENDENCY, localRepoBaseDir);
             }
 
 
-            return (ArtifactInfo[]) artifactInfos.toArray(new ArtifactInfo[artifactInfos.size()]);
+            return artifactInfos.toArray(new ArtifactInfo[artifactInfos.size()]);
 
         } finally {
             try {
@@ -333,8 +331,10 @@ public class Maven2SnapshotDependency  implements SourceControl {
         }
     }
 
-    private static void findParentSnapshotArtifacts(MavenProject projectWithDependencies, List artifactInfos,
-                                                    File localRepoBaseDir, MavenEmbedder embedder, File pomFile) {
+    private static void findParentSnapshotArtifacts(final MavenProject projectWithDependencies,
+                                                    final List<ArtifactInfo> artifactInfos,
+                                                    final File localRepoBaseDir,
+                                                    final MavenEmbedder embedder, final File pomFile) {
         // handle parents and grandparents...
         if (projectWithDependencies != null) {
 
@@ -381,7 +381,7 @@ public class Maven2SnapshotDependency  implements SourceControl {
         }
     }
 
-    private static MavenProject getProjectWithDependencies(MavenEmbedder embedder, File pomFile) {
+    private static MavenProject getProjectWithDependencies(final MavenEmbedder embedder, final File pomFile) {
         // With readProjectWithDependencies(), local repo dependencies (+transitive) will be updated if possible
         MavenProject projectWithDependencies = null;
         try {
@@ -404,8 +404,8 @@ public class Maven2SnapshotDependency  implements SourceControl {
         return projectWithDependencies;
     }
 
-    private static void resolveArtifact(MavenEmbedder embedder, Artifact artifact,
-                                        MavenProject mavenProject, ArtifactRepository localRepo) {
+    private static void resolveArtifact(final MavenEmbedder embedder, final Artifact artifact,
+                                        final MavenProject mavenProject, final ArtifactRepository localRepo) {
         try {
             embedder.resolve(artifact, mavenProject.getPluginArtifactRepositories(), localRepo);
         } catch (ArtifactResolutionException e) {
@@ -416,8 +416,9 @@ public class Maven2SnapshotDependency  implements SourceControl {
     }
 
 
-    private static void addArtifactInfo(List artifactInfos, Artifact artifact, String artifactType,
-                                        File localRepoBaseDir) {
+    private static void addArtifactInfo(final List<ArtifactInfo> artifactInfos,
+                                        final Artifact artifact, final String artifactType,
+                                        final File localRepoBaseDir) {
 
         final File file;
         if (artifact.getFile() == null) {
@@ -435,13 +436,12 @@ public class Maven2SnapshotDependency  implements SourceControl {
      * @param artifacts all project artifacts, including non-SNAPSHOTS
      * @return a set of artifacts containing only SNAPSHOTs
      */
-    private static Set getSnaphotArtifacts(final Set artifacts) {
+    private static Set<Artifact> getSnaphotArtifacts(final Set artifacts) {
 
-        final Set retVal = new HashSet();
+        final Set<Artifact> retVal = new HashSet<Artifact>();
 
-        Artifact artifact;
-        for (Iterator i = artifacts.iterator(); i.hasNext(); ) {
-            artifact = (Artifact) i.next();
+        for (Object artifact1 : artifacts) {
+            final Artifact artifact = (Artifact) artifact1;
             LOG.debug("Examining artifact: " + artifact);
             if (artifact.isSnapshot()) {
                 retVal.add(artifact);
@@ -457,14 +457,14 @@ public class Maven2SnapshotDependency  implements SourceControl {
      * @param embedder the maven embedder used to read the pomFile
      * @return a set of artifacts containing only SNAPSHOTs
      */
-    private Set getSnapshotArtifactsManually(final MavenEmbedder embedder) {
+    private Set<Artifact> getSnapshotArtifactsManually(final MavenEmbedder embedder) {
 
         final MavenProject mavenProject;
         try {
             mavenProject = embedder.readProject(pomFile);
         } catch (ProjectBuildingException e) {
             LOG.error("Failed to read maven2 mavenProject", e);
-            return new HashSet();
+            return new HashSet<Artifact>();
         }
 
         // override default repo if needed
@@ -482,11 +482,9 @@ public class Maven2SnapshotDependency  implements SourceControl {
         }
 
         // get snapshot dependencies
-        final Set snapshotArtifacts = getSnapshotDepsManually(embedder, mavenProject);
+        final Set<Artifact> snapshotArtifacts = getSnapshotDepsManually(embedder, mavenProject);
 
-        Artifact artifact;
-        for (Iterator i = snapshotArtifacts.iterator(); i.hasNext();) {
-            artifact = (Artifact) i.next();
+        for (final Artifact artifact : snapshotArtifacts) {
             LOG.debug("Manually examining artifact: " + artifact);
             resolveArtifact(embedder, artifact, mavenProject, localRepo);
         }
@@ -494,8 +492,10 @@ public class Maven2SnapshotDependency  implements SourceControl {
         return snapshotArtifacts;
     }
 
-    private static Set getSnapshotDepsManually(final MavenEmbedder mavenEmbedder, final MavenProject mavenProject) {
-        final Set retVal = new HashSet();
+    private static Set<Artifact> getSnapshotDepsManually(final MavenEmbedder mavenEmbedder,
+                                                         final MavenProject mavenProject) {
+        
+        final Set<Artifact> retVal = new HashSet<Artifact>();
 
         // Not really sure if mavenEmbedder.readProject() is any better than mavenEmbedder.readModel()
         // At this point, which ever is used, it should not update files in the local repo.
@@ -512,17 +512,16 @@ public class Maven2SnapshotDependency  implements SourceControl {
 
 
         LOG.debug("found dependencies manually: " + depsList.toString());
-        Dependency dep;
-        Artifact artifact;
-        for (int i = 0; i < depsList.size(); i++) {
-            dep = (Dependency) depsList.get(i);
+        for (Object aDepsList : depsList) {
+            final Dependency dep = (Dependency) aDepsList;
             if (dep.getVersion().endsWith(Artifact.SNAPSHOT_VERSION)) {
+                final Artifact artifact;
                 if (dep.getClassifier() != null) {
                     artifact = mavenEmbedder.createArtifactWithClassifier(dep.getGroupId(), dep.getArtifactId(),
-                                    dep.getVersion(), dep.getType(), dep.getClassifier());
+                            dep.getVersion(), dep.getType(), dep.getClassifier());
                 } else {
                     artifact = mavenEmbedder.createArtifact(dep.getGroupId(), dep.getArtifactId(), dep.getVersion(),
-                                    dep.getScope(), dep.getType());
+                            dep.getScope(), dep.getType());
                 }
 
                 if (Artifact.SCOPE_SYSTEM.equals(artifact.getScope())) {

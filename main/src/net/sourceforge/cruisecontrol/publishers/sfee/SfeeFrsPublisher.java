@@ -52,7 +52,6 @@ import java.net.MalformedURLException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 /**
  * <p>Publishes to a SourceForge Enterprise Edition File Release System.</p>
@@ -77,7 +76,7 @@ public class SfeeFrsPublisher extends SfeePublisher {
         uploadName = uploadname;
     }
 
-    public void publish(Element cruisecontrolLog) throws CruiseControlException {
+    public void publish(final Element cruisecontrolLog) throws CruiseControlException {
         ValidationHelper.assertExists(getFile(), "file", this.getClass());
         ValidationHelper.assertIsNotDirectory(getFile(), "file", this.getClass());
         ValidationHelper.assertIsReadable(getFile(), "file", this.getClass());
@@ -86,17 +85,17 @@ public class SfeeFrsPublisher extends SfeePublisher {
             uploadName = getFile().getName();
         }
 
-        ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
+        final ISourceForgeSoap soap = (ISourceForgeSoap) ClientSoapStubFactory
                 .getSoapStub(ISourceForgeSoap.class, getServerURL());
         try {
-            String sessionID = soap.login(getUsername(), getPassword());
+            final String sessionID = soap.login(getUsername(), getPassword());
 
-            IFrsAppSoap frsApp = (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, getServerURL());
+            final IFrsAppSoap frsApp
+                    = (IFrsAppSoap) ClientSoapStubFactory.getSoapStub(IFrsAppSoap.class, getServerURL());
 
-            FrsFileSoapList fileList = frsApp.getFrsFileList(sessionID, releaseID);
-            Collection existingFiles = findExistingFiles(fileList, uploadName);
-            for (Iterator i = existingFiles.iterator(); i.hasNext();) {
-                String id = (String) i.next();
+            final FrsFileSoapList fileList = frsApp.getFrsFileList(sessionID, releaseID);
+            final Collection<String> existingFiles = findExistingFiles(fileList, uploadName);
+            for (final String id : existingFiles) {
                 frsApp.deleteFrsFile(sessionID, id);
             }
 
@@ -118,11 +117,10 @@ public class SfeeFrsPublisher extends SfeePublisher {
         return file;
     }
 
-    private static Collection findExistingFiles(FrsFileSoapList fileList, String filename) {
-        FrsFileSoapRow[] files = fileList.getDataRows();
-        ArrayList duplicates = new ArrayList();
-        for (int i = 0; i < files.length; i++) {
-            FrsFileSoapRow nextFile = files[i];
+    private static Collection<String> findExistingFiles(final FrsFileSoapList fileList, final String filename) {
+        final FrsFileSoapRow[] files = fileList.getDataRows();
+        final ArrayList<String> duplicates = new ArrayList<String>();
+        for (final FrsFileSoapRow nextFile : files) {
             if (nextFile.getFilename().equals(filename)) {
                 duplicates.add(nextFile.getId());
             }

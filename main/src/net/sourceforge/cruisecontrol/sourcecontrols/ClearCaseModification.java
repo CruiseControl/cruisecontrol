@@ -38,10 +38,9 @@
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.ArrayList;
 
 import net.sourceforge.cruisecontrol.Modification;
 
@@ -61,29 +60,28 @@ public class ClearCaseModification extends Modification {
 
     private static final Logger LOG = Logger.getLogger(Modification.class);
 
-    public List labels = null;
-    public Map attributes = null;
+    public List<String> labels;
+    public Map<String, String> attributes = null;
 
     public ClearCaseModification() {
         super("clearcase");
     }
 
     public Element toElement() {
-        Element modificationElement = super.toElement();
+        final Element modificationElement = super.toElement();
 
         if (labels != null) {
-            for (Iterator it = labels.iterator(); it.hasNext(); ) {
-                Element labelElement = new Element(TAGNAME_LABEL);
-                labelElement.addContent((String) it.next());
+            for (final String label : labels) {
+                final Element labelElement = new Element(TAGNAME_LABEL);
+                labelElement.addContent(label);
                 modificationElement.addContent(labelElement);
             }
         }
 
         if (attributes != null) {
-            for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
-                String attName = (String) it.next();
-                String attValue = (String) attributes.get(attName);
-                Element attElement = new Element(TAGNAME_ATTRIBUTE);
+            for (final String attName : attributes.keySet()) {
+                final String attValue = attributes.get(attName);
+                final Element attElement = new Element(TAGNAME_ATTRIBUTE);
                 attElement.setAttribute(TAGNAME_ATTRIBUTE_NAME, attName);
                 attElement.addContent(attValue);
                 modificationElement.addContent(attElement);
@@ -94,15 +92,14 @@ public class ClearCaseModification extends Modification {
     }
 
     public String toString() {
-        StringBuffer sb = new StringBuffer(super.toString());
+        final StringBuilder sb = new StringBuilder(super.toString());
 
-        for (Iterator it = labels.iterator(); it.hasNext(); ) {
-            sb.append("Tag: ").append(it.next()).append('\n');
+        for (final String label : labels) {
+            sb.append("Tag: ").append(label).append('\n');
         }
 
-        for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
-            String attName = (String) it.next();
-            String attValue = (String) attributes.get(attName);
+        for (final String attName : attributes.keySet()) {
+            final String attValue = attributes.get(attName);
             sb.append("Attribute: ").append(attName).append(" = ").append(attValue).append('\n');
         }
 
@@ -114,15 +111,14 @@ public class ClearCaseModification extends Modification {
             super.log();
 
             if (labels != null) {
-                for (Iterator it = labels.iterator(); it.hasNext(); ) {
-                    LOG.debug("Tag: " + it.next());
+                for (final String label : labels) {
+                    LOG.debug("Tag: " + label);
                 }
             }
 
             if (attributes != null) {
-                for (Iterator it = attributes.keySet().iterator(); it.hasNext(); ) {
-                    String attName = (String) it.next();
-                    String attValue = (String) attributes.get(attName);
+                for (final String attName : attributes.keySet()) {
+                    final String attValue = attributes.get(attName);
                     LOG.debug("Attribute: " + attName + " = " + attValue);
                 }
             }
@@ -132,27 +128,25 @@ public class ClearCaseModification extends Modification {
         }
     }
 
-    public void fromElement(Element modification) {
+    public void fromElement(final Element modification) {
         super.fromElement(modification);
 
-        List modLabels = modification.getChildren(TAGNAME_LABEL);
+        final List modLabels = modification.getChildren(TAGNAME_LABEL);
         if (modLabels != null && modLabels.size() > 0) {
-            labels = new Vector();
-            Iterator it = modLabels.iterator();
-            while (it.hasNext()) {
-                Element label = (Element) it.next();
+            labels = new ArrayList<String>();
+            for (final Object modLabel : modLabels) {
+                final Element label = (Element) modLabel;
                 labels.add(label.getText());
             }
         }
 
-        List modAttrs = modification.getChildren(TAGNAME_ATTRIBUTE);
+        final List modAttrs = modification.getChildren(TAGNAME_ATTRIBUTE);
         if (modAttrs != null && modAttrs.size() > 0) {
-            attributes = new HashMap();
-            Iterator it = modAttrs.iterator();
-            while (it.hasNext()) {
-                Element att = (Element) it.next();
-                String attName = att.getAttributeValue(TAGNAME_ATTRIBUTE_NAME);
-                String attValue = att.getText();
+            attributes = new HashMap<String, String>();
+            for (final Object modAttr : modAttrs) {
+                final Element att = (Element) modAttr;
+                final String attName = att.getAttributeValue(TAGNAME_ATTRIBUTE_NAME);
+                final String attValue = att.getText();
                 attributes.put(attName, attValue);
             }
         }
