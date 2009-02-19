@@ -76,8 +76,8 @@ public class WeblogPublisherTest extends TestCase {
         publisher.setBlogUrl("http://foobar.com/blog/xmlrpc");
 
         xslDir = createTempDir();
-        for (int i = 0; i < xslFiles.length; i++) {
-            createTempFile(xslDir, xslFiles[i]);
+        for (final String xslFile : xslFiles) {
+            createTempFile(xslDir, xslFile);
         }
 
         publisher.setXSLDir(xslDir.getAbsolutePath());
@@ -209,8 +209,7 @@ public class WeblogPublisherTest extends TestCase {
     }
 
     public void testXslFilesAreRequired() throws Exception {
-        for (int i = 0; i < xslFiles.length; i++) {
-            String xslFileName = xslFiles[i];
+        for (final String xslFileName : xslFiles) {
             publisher.validate();
             try {
                 new File(xslDir, xslFileName).delete();
@@ -373,7 +372,8 @@ public class WeblogPublisherTest extends TestCase {
             throws Exception {
         final boolean[] delegatedToTheCorrectMethod = { false };
         publisher = new WeblogPublisher() {
-            void transformWithSingleStylesheet(File xml, StringBuffer buf) {
+            @Override
+            void transformWithSingleStylesheet(File xml, StringBuilder buf) {
                 delegatedToTheCorrectMethod[0] = true;
             }
         };
@@ -386,7 +386,8 @@ public class WeblogPublisherTest extends TestCase {
             throws Exception {
         final boolean[] delegatedToTheCorrectMethod = { false };
         publisher = new WeblogPublisher() {
-            void transformWithMultipleStylesheets(File xml, StringBuffer buf) {
+            @Override
+            void transformWithMultipleStylesheets(File xml, StringBuilder buf) {
                 delegatedToTheCorrectMethod[0] = true;
             }
         };
@@ -396,9 +397,10 @@ public class WeblogPublisherTest extends TestCase {
 
     //appendTransform(inFile, xsl, messageBuffer, tFactory);
     public void testAllStylesheetsAreUsedInTransformation() throws Exception {
-        final List xslFilesUsed = new ArrayList();
+        final List<String> xslFilesUsed = new ArrayList<String>();
         publisher = new WeblogPublisher() {
-            void appendTransform(File xml, File xsl, StringBuffer buf,
+            @Override
+            void appendTransform(File xml, File xsl, StringBuilder buf,
                     TransformerFactory tf) {
                 xslFilesUsed.add(xsl.getName());
             }
@@ -415,7 +417,7 @@ public class WeblogPublisherTest extends TestCase {
     public void testTheAppendTransformMethodWorksInGeneral() throws Exception {
         File xml = createTempXmlFile();
         File xsl = createTempXslFile();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         TransformerFactory tfactory = TransformerFactory.newInstance();
         publisher.appendTransform(xml, xsl, buf, tfactory);
         assertEquals("Testing", buf.toString());
@@ -423,7 +425,7 @@ public class WeblogPublisherTest extends TestCase {
 
     private File createTempXslFile() throws IOException, CruiseControlException {
         File f = createTempFile();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("<?xml version='1.0'?>").append('\n');
         buf.append("<xsl:stylesheet");
         buf.append(" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"");
