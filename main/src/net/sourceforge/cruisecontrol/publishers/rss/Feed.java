@@ -56,7 +56,8 @@ import org.apache.log4j.Logger;
  *  The feed class acts as a generic RSS Feed (there's no CruiseControl-specific
  *  functionality in this class).
  *
- *  Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  *  @author Patrick Conant
  */
 public class Feed {

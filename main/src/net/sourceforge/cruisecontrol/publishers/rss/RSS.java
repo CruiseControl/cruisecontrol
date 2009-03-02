@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers.rss;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  */
 
 final class RSS {

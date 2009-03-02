@@ -47,6 +47,7 @@ import junit.framework.TestCase;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  */
 public class ItemTest extends TestCase {
 

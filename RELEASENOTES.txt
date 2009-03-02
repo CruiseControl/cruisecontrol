@@ -7,6 +7,7 @@ CruiseControl Release Notes - 2.8.3-dev
 general
 ======================
 * Update to checkstyle v4.4
+* Disambiguated license information for some files that contained HP and Sony copyrights. (CC-889) Patch by Simon Steiner
 
 build loop
 ======================

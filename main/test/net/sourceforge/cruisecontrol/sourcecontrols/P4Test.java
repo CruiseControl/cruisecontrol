@@ -60,6 +60,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * @author Robert Watkins
  * @author Jason Yip, jcyip@thoughtworks.com
  * @author Patrick Conant Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  */
 public class P4Test extends TestCase {
 

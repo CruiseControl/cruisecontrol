@@ -81,6 +81,7 @@ import org.jdom.Element;
  * @author Tim McCune
  * @author J D Glanville
  * @author Patrick Conant Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  * @author John Lussmyer
  */
 public class P4 implements SourceControl {
