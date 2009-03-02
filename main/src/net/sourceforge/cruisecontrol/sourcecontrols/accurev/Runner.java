@@ -39,6 +39,7 @@
  *
  * Copyright (C) Sony Computer Entertainment Europe
  *               Studio Liverpool Server Group
+ * Licensed under the CruiseControl BSD license
  *
  * Authors:
  *     Nicola Orru' <Nicola_Orru@scee.net>

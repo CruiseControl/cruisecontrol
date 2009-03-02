@@ -44,7 +44,8 @@ import java.io.File;
  *  class keeps track of how many projects are being published into the feed
  *  and uses this information to generate a default feed title and description.
  *
- *  Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  *  @author Patrick Conant
  */
 public class CruiseControlFeed extends Feed {

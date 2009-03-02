@@ -63,6 +63,7 @@ import net.sourceforge.cruisecontrol.publishers.rss.Item;
  * RSS (Really Simple Syndication) Feed.
  *
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  * @author Patrick Conant
  */
 public class RSSPublisher implements Publisher {

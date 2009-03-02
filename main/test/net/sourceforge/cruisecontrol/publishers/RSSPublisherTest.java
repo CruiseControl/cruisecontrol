@@ -49,6 +49,7 @@ import org.jdom.Element;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
+ * Licensed under the CruiseControl BSD license
  */
 public class RSSPublisherTest extends TestCase {
 
