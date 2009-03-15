@@ -69,6 +69,22 @@ public class BuildOutputBufferManagerTest extends TestCase {
         assertSame(logger, loggerManager.lookupOrCreate(tempFile));
         assertEquals(0, temporaryLogger.retrieveLines(0).length);
     }
+    
+    public void testLoggersWithSameFileShouldBeSame() throws IOException {
+        File file = tempFile();
+        File same = new File(file.getAbsolutePath());
+        assertEquals(file, same);
+        BuildOutputLogger logger = loggerManager.lookupOrCreate(file);
+        assertSame(logger, loggerManager.lookupOrCreate(same));
+    }
+    
+    public void testLoggersWithDifferentFilesShouldBeDifferent() throws IOException {
+        File file = tempFile();
+        File different = tempFile();
+        assertFalse(file.equals(different));
+        BuildOutputLogger logger = loggerManager.lookupOrCreate(file);
+        assertNotSame(logger, loggerManager.lookupOrCreate(different));
+    }
 
     private File tempFile() throws IOException {
         File file = File.createTempFile("tempOutputlogger", ".tmp");

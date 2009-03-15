@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Lazy load a BuildOutputLogger.
@@ -48,6 +50,7 @@ public class BuildOutputLoggerManager {
     public static final BuildOutputLoggerManager INSTANCE = new BuildOutputLoggerManager();
 
     private BuildOutputLogger logger;
+    private Map<File, BuildOutputLogger> loggers = new HashMap<File, BuildOutputLogger>();
 
     BuildOutputLoggerManager() {
     }
@@ -62,8 +65,10 @@ public class BuildOutputLoggerManager {
     }
 
     public BuildOutputLogger lookupOrCreate(File outputFile) {
+        logger = loggers.get(outputFile);
         if (logger == null) {
             logger = new BuildOutputLogger(outputFile);
+            loggers.put(outputFile, logger);
         }
         return logger;
     }
