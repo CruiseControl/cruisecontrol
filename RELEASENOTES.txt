@@ -12,6 +12,10 @@ general
 build loop
 ======================
 
+BuildOutputLoggerManager
+----------------------
+* Use different loggers for different files.
+
 CMSynergy
 ----------------------
 * Fix error publishing CMSynergy build (CC-876). Reported by Gerard Roos. Tested by David Corley.
