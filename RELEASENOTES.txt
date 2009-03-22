@@ -8,6 +8,7 @@ general
 ======================
 * Update to checkstyle v4.4
 * Disambiguated license information for some files that contained HP and Sony copyrights. (CC-889) Patch by Simon Steiner
+* Replace Threads where Thread.start() was not called with Runnable to avoid leaks. (CC-895) Patch by Fabio Zadrozny
 
 build loop
 ======================
