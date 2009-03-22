@@ -45,8 +45,6 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
     private final JTextArea txaAgentInfo;
     private final Action atnStop;
     private final Action atnEditEntries;
-    private final JTextArea txaConsole = new JTextArea();
-    private final JScrollPane scrConsole = new JScrollPane();
     private final String origTitle;
 
     BuildAgentUI(final BuildAgent parentbuildAgent) {
@@ -70,8 +68,10 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
             }
         });
 
+        final JTextArea txaConsole = new JTextArea();
         txaConsole.setFont(new java.awt.Font("Courier New", 0, 12));
 
+        final JScrollPane scrConsole = new JScrollPane();
         scrConsole.setViewportView(txaConsole);
         scrConsole.setPreferredSize(new Dimension(550, 300));
 
@@ -191,7 +191,8 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
                 + MulticastDiscovery.toStringEntries(buildAgent.getEntries());
 
         // only update UI on event dispatch thread,
-        SwingUtilities.invokeLater(new Thread("AgentUI updateAgentInfoUI Thread") {
+        //"AgentUI updateAgentInfoUI Thread"
+        SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     txaAgentInfo.setText(agentText);
                 }
@@ -200,7 +201,8 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
 
     public void lusCountChanged(final int newLUSCount) {
-        SwingUtilities.invokeLater(new Thread("Agent lusCountChanged Thread") {
+        //"Agent lusCountChanged Thread"
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 setTitle(origTitle + ", LUS's: " + newLUSCount);                                
             }
@@ -228,7 +230,8 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
 
         protected void append(final LoggingEvent event) {
             final String msg = event.getRenderedMessage();
-            SwingUtilities.invokeLater(new Thread("Agent Log4JJTextAreaAppender Thread") {
+            //"Agent Log4JJTextAreaAppender Thread"
+            SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     txaL4JConsole.append(msg + "\n");
                     if (txaL4JConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
