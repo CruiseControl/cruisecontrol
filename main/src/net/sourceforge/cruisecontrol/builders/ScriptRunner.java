@@ -59,7 +59,7 @@ public class ScriptRunner  {
     private static final Logger LOG = Logger.getLogger(ScriptRunner.class);
     public static final long NO_TIMEOUT = -1;
 
-    public static class AsyncKiller extends Thread {
+    private static class AsyncKiller implements Runnable {
         private final Process p;
         private final long timeout;
         private boolean killed;
@@ -71,12 +71,13 @@ public class ScriptRunner  {
 
         public void run() {
             try {
-                sleep(timeout * 1000L);
+                Thread.sleep(timeout * 1000L);
                 synchronized (this) {
                     p.destroy();
                     killed = true;
                 }
             } catch (InterruptedException expected) {
+                // ignore, this is expected if the script was killed
             }
         }
 
@@ -95,7 +96,9 @@ public class ScriptRunner  {
      * @return true if the script was killed due to timeout expiring
      * @throws CruiseControlException if it breaks
      */
-    public boolean runScript(File workingDir, Script script, long timeout) throws CruiseControlException {
+    public boolean runScript(final File workingDir, final Script script, final long timeout)
+            throws CruiseControlException {
+
         return runScript(workingDir, script, timeout, null);
     }
 
@@ -110,7 +113,7 @@ public class ScriptRunner  {
      * @return true if the script was killed due to timeout expiring
      * @throws CruiseControlException if it breaks
      */
-    public boolean runScript(final File workingDir, final Script script, long timeout,
+    public boolean runScript(final File workingDir, final Script script, final long timeout,
                              final BuildOutputLogger buildOutputConsumer)
             throws CruiseControlException {
 
@@ -156,14 +159,20 @@ public class ScriptRunner  {
         final Thread stdout = new Thread(outPumper);
         stdout.start();
         final AsyncKiller killer = new AsyncKiller(p, timeout);
+        final Thread asyncKillerThread;
         if (timeout > 0) {
-            killer.start();
+            asyncKillerThread = new Thread(killer);
+            asyncKillerThread.start();
+        } else {
+            asyncKillerThread = null;
         }
 
         int exitCode = -1;
         try {
             exitCode = p.waitFor();
-            killer.interrupt();
+            if (asyncKillerThread != null) {
+                asyncKillerThread.interrupt();
+            }
             stderr.join();
             stdout.join();
         } catch (InterruptedException e) {

@@ -214,7 +214,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     /**
      * Executes the {@link #execAction()} method after a fixed delay has expired.
      */
-    abstract static class DelayedAction extends Thread {
+    abstract static class DelayedAction implements Runnable {
         /** Allow unit test to be notified when delayed action completes. */
         static interface FinishedListener {
             public void finished(final DelayedAction delayedAction);
@@ -235,6 +235,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         private final int delay;
         private final Type type;
         private boolean isFinished;
+        private final Thread executingThread;
 
         /** Allow unit test to be notified when delayed action completes. */
         private FinishedListener finishedListener;
@@ -243,7 +244,8 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             delay = Integer.getInteger(
                     SYSPROP_CCDIST_DELAY_MS_KILLRESTART, DEFAULT_DELAY_MS_KILLRESTART);
             this.type = type;
-            start();
+            this.executingThread = new Thread(this, "DelayedActionThread, type: " + type.toString());
+            this.executingThread.start();
         }
 
         public final void run() {

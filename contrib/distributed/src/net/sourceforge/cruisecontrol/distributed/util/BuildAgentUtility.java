@@ -291,7 +291,8 @@ public final class BuildAgentUtility {
         }
 
         private void refreshAgentList() {
-            SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.disable Thread") {
+            //"BuildAgentUtility btn.disable Thread"
+            SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     btnRefresh.setEnabled(false);
                     atnInvoke.setEnabled(false);
@@ -314,7 +315,8 @@ public final class BuildAgentUtility {
                 final ServiceItem[] serviceItems = tmpList.toArray(new ServiceItem[tmpList.size()]);
                 final ComboBoxModel comboBoxModel = new DefaultComboBoxModel(
                         ComboItemWrapper.wrapArray(serviceItems));
-                SwingUtilities.invokeLater(new Thread("BuildAgentUtility setcomboBoxModel Thread") {
+                //"BuildAgentUtility setcomboBoxModel Thread"
+                SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         updateLUSCountUI(buildAgentUtility.lastLUSCount);
                         cmbAgents.setModel(comboBoxModel);
@@ -322,7 +324,8 @@ public final class BuildAgentUtility {
                 });
                 setInfo(agentInfoAll);
             } finally {
-                SwingUtilities.invokeLater(new Thread("BuildAgentUtility btn.enable Thread") {
+                //"BuildAgentUtility btn.enable Thread"
+                SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         btnRefresh.setEnabled(true);
                         btnInvokeOnAll.setEnabled(true);
@@ -350,7 +353,8 @@ public final class BuildAgentUtility {
         // Only public to allow testing of UI in headless environs
         public void setInfo(final String infoText) {
             LOG.debug(infoText);
-            SwingUtilities.invokeLater(new Thread("BuildAgentUtility txaConsole.setInfo Thread") {
+            //"BuildAgentUtility txaConsole.setInfo Thread"
+            SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     txaConsole.setText(infoText);
                 }
@@ -358,7 +362,8 @@ public final class BuildAgentUtility {
         }
 
         private void appendInfo(final String infoText) {
-            SwingUtilities.invokeLater(new Thread("BuildAgentUtility txaConsole.appendInfo Thread") {
+            //"BuildAgentUtility txaConsole.appendInfo Thread"
+            SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     txaConsole.append(infoText + "\n");
                     if (txaConsole.getLineCount() > CONSOLE_LINE_BUFFER_SIZE) {
