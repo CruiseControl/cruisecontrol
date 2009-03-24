@@ -10418,6 +10418,16 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </div>
 
         <p>Returns a value for the label from a property file.</p>
+	
+	<p><b>Note:</b> If you use the Ant <code>&lt;buildnumber&gt;</code> task to increment your build number,
+	and also use Cruisecontrol <code>&lt;propertyfilelabelincrementer&gt;</code>, you may find the build number
+	reported by Ant and the label seen in Cruisecontrol are different after certain builds fail. This
+	can happen if the Ant build fails after the <code>&lt;buildnumber&gt;</code> task has run. The build number is incremented 
+	in the property file by Ant, but Cruisecontrol retains the build number of the last failed build and re-uses it until the
+	build succeeds. The label/buildnumber will be out-of-sync by 1 for every concurrent Ant build failure, i.e., after 3 concurrent failures
+	Cruisecontrol will have label X, but the propertyfile will actually have the value X+3. The recommendation is therefore 
+	to force Cruisecontrol to re-read the property file for all builds by setting the value 
+	of the <code>preBuildIncrementer</code> attribute to <code>true</code>.</p>
 
         <h3>Attributes</h3>
 
@@ -10436,6 +10446,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>value to return if property file doesn't exist. if not specified and file doesn't exist
                 an exception is thrown.</td>
             </tr>
+			<tr>
+				<td>preBuildIncrementer</td>
+				<td>No</td>
+				<td>If <code>true</code> the property will be re-read from the property file prior to the build attempt and thus each build attempt will have the latest value of the property</td>
+			</tr>
             <tr>
                 <td>propertyfile</td>
                 <td>Yes</td>

@@ -48,6 +48,13 @@ UCM
 * UCM.java not creating the right command line for describing all activities (CC-886). Reported by Adrien Gracia
 
 
+documentation
+======================
+
+configxml.html
+----------------------
+* PropertyFileLabelIncrementer: document preBuildIncrementer attribute (CC-900). Patch by David Corley
+
 CruiseControl Release Notes - 2.8.2
 
 BuildLoopStatusReportTask
