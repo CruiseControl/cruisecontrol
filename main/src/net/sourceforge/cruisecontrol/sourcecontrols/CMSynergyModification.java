@@ -64,6 +64,7 @@ public class CMSynergyModification extends Modification {
     private static final String TAGNAME_MODIFICATION = "modification";
     private static final String TAGNAME_OBJECT = "ccmobject";
     private static final String TAGNAME_CHANGEREQUEST = "ccmcr";
+    private static final String TAGNAME_CHANGEREQUEST_SYNOPSIS = "synopsis";
     private static final String TAGNAME_NAME = "name";
     private static final String TAGNAME_TASKNUMBER = "task";
     private static final String TAGNAME_VERSION = "version";
@@ -147,12 +148,13 @@ public class CMSynergyModification extends Modification {
      *
      * @param number
      *            The CR number
-     *
+     * @param synopsis synopsis text
      * @return A new <code>ChangeRequest</code>
      */
-    public final ChangeRequest createChangeRequest(final String number) {
+    public final ChangeRequest createChangeRequest(final String number, final String synopsis) {
         final ChangeRequest cr = new ChangeRequest();
         cr.number = number;
+        cr.synopsis = synopsis;
         changeRequests.add(cr);
         return cr;
     }
@@ -454,6 +456,7 @@ public class CMSynergyModification extends Modification {
 
         public String href = null;
         public String number = "";
+        public String synopsis = "";
 
         // Only the parent class should call the constructor
         private ChangeRequest() {
@@ -467,7 +470,7 @@ public class CMSynergyModification extends Modification {
         @Override
         public Element toElement() {
             Element element = new Element(TAGNAME_CHANGEREQUEST);
-
+            element.setAttribute(TAGNAME_CHANGEREQUEST_SYNOPSIS, synopsis);
             if (href != null) {
                 Element linkElement = new Element(TAGNAME_HTML_LINK);
                 linkElement.setAttribute(TAGNAME_HTML_LINK_HREF, href);

@@ -791,7 +791,7 @@ public class CMSynergy implements SourceControl {
         cmd.createArgument("-u");
 
         // Set up the output format
-        cmd.createArguments("-f", "%displayname");
+        cmd.createArguments("-f", "%displayname" + CCM_ATTR_DELIMITER + "%change_request_synopsis");
 
         // Construct the query string
         cmd.createArgument(
@@ -808,14 +808,16 @@ public class CMSynergy implements SourceControl {
         final List<String> crList = cmd.getStdoutAsList();
         if (crList != null) {
             for (final String aCrList : crList) {
-                final String crNum = (aCrList).trim();
-                final CMSynergyModification.ChangeRequest cr = mod.createChangeRequest(crNum);
+                final String[] crDetails = tokeniseEntry(aCrList, 2);
+                final String crNum = crDetails[0];
+                final String crSynopsis = crDetails[1].trim();
+                final CMSynergyModification.ChangeRequest cr = mod.createChangeRequest(crNum, crSynopsis);
                 if (changeSynergyURL != null && ccmDb != null) {
                     final StringBuilder href = new StringBuilder(changeSynergyURL);
                     href.append("/servlet/com.continuus.webpt.servlet.PTweb?");
-                    href.append("ACTION_FLAG=frameset_form&#38;TEMPLATE_FLAG=ProblemReportView&#38;database=");
+                    href.append("ACTION_FLAG=frameset_form&TEMPLATE_FLAG=ProblemReportView&database=");
                     href.append(ccmDb);
-                    href.append("&#38;role=User&#38;problem_number=");
+                    href.append("&role=User&problem_number=");
                     href.append(crNum);
                     cr.href = href.toString();
                 }
