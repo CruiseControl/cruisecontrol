@@ -119,6 +119,7 @@
 <a href="#cvsbootstrapper">&lt;cvsbootstrapper&gt;</a>
 <a href="#cvslabelincrementer">&lt;cvslabelincrementer&gt;</a>
 <a href="#darcs">&lt;darcs&gt;</a>
+<a href="#darcsbootstrapper">&lt;darcsbootstrapper&gt;</a>
 <a href="#dashboard">&lt;dashboard&gt;</a>
 <a href="#delete">&lt;delete&gt;</a>
 <a href="#deleteartifacts">&lt;deleteartifacts&gt;</a>
@@ -265,6 +266,7 @@
          <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper/&gt;</a>
          <a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper/&gt;</a>
          <a href="#cvsbootstrapper">&lt;cvsbootstrapper/&gt;</a>
+         <a href="#darcsbootstrapper">&lt;darcsbootstrapper/&gt;</a>
          <a href="#execbootstrapper">&lt;execbootstrapper/&gt;</a>
          <a href="#gitbootstrapper">&lt;gitbootstrapper/&gt;</a>
          <a href="#harvestbootstrapper">&lt;harvestbootstrapper/&gt;</a>
@@ -1447,6 +1449,11 @@ password=P@ssW0rd!
                 <td>Bootstraps resources from CVS</td>
             </tr>
             <tr>
+                <td><a href="#darcsbootstrapper">&lt;darcsbootstrapper&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Bootstraps resources from Darcs</td>
+            </tr>
+            <tr>
                 <td><a href="#execbootstrapper">&lt;execbootstrapper&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Execute a command for bootstrapping</td>
@@ -2084,6 +2091,59 @@ password=P@ssW0rd!
                     parameter. When not set, the command line parameter is NOT included. Valid levels are 1 (high speed,
                     low compression) to 9 (low speed, high compression), or 0 to disable compression.</td>
             </tr>
+            </tbody>
+        </table>
+        </div>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="darcsbootstrapper">&lt;darcsbootstrapper&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#bootstrappers">&lt;bootstrappers&gt;</a>
+      &lt;darcsbootstrapper&gt;</pre>
+        </div>
+
+        <p>Handles updating from a darcs repository before the build
+        begins.</p>
+
+        <h3>Attributes</h3>
+
+        <p><code>&lt;darcsbootstrapper&gt;</code> requires at least one of its
+        attributes to be set.</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td>darcsBinary</td>
+                  <td>no (default "darcs")</td>
+                  <td>Name or location of the darcs binary</td>
+              </tr>
+              <tr>
+                  <td>workingdir</td>
+                  <td rowspan="2">At least one of workingdir or repository location</td>
+                  <td>Relative or absolute path to the workingdir. Directory must exist.</td>
+              </tr>
+              <tr>
+                  <td>repositorylocation</td>
+                  <td>Specifies the location of the Darcs repository to pull into.</td>
+              </tr>
+              <tr>
+                  <td>remoteRepositoryLocation</td>
+                  <td>no</td>
+                  <td>Specifies the location of the remote Darcs repository to pull from. Usually,
+                    the local repository already knows about this.</td>
+              </tr>
             </tbody>
         </table>
         </div>
