@@ -13,12 +13,13 @@ public class SfeeTestUtils {
         // Instantiate the in-memory stub implementation of SFEE using reflection so that
         // this class will still compile and run when the REAL implementation of SFEE is used.
         try {
-            Class inMemSfeeFactoryClass = Class.forName("com.vasoftware.sf.InMemorySfeeFactory");
-            Method resetMethod = inMemSfeeFactoryClass.getMethod("reset", (Class[]) null);
+            final Class< ? > inMemSfeeFactoryClass = Class.forName("com.vasoftware.sf.InMemorySfeeFactory");
+            final Method resetMethod = inMemSfeeFactoryClass.getMethod("reset");
             resetMethod.invoke(null, (Object[]) null);
-            Method createMethod = inMemSfeeFactoryClass.getMethod("create", new Class[] { String.class, String.class,
-                    String.class });
-            inMemorySfee = createMethod.invoke(null, new Object[] { serverUrl, username, password });
+            final Method createMethod = inMemSfeeFactoryClass.getMethod("create",
+                    String.class, String.class, String.class);
+            inMemorySfee = createMethod.invoke(null,
+                    serverUrl, username, password);
         } catch (NoSuchMethodException e) {
             Assert.fail("Must be using the wrong version of the sfee soap stubs.");
         } catch (IllegalAccessException e) {
@@ -39,8 +40,8 @@ public class SfeeTestUtils {
         }
 
         try {
-            Method addProjectMethod = inMemorySfee.getClass().getMethod("addProject", new Class[] { String.class });
-            addProjectMethod.invoke(inMemorySfee, new Object[] { projectName });
+            Method addProjectMethod = inMemorySfee.getClass().getMethod("addProject", String.class);
+            addProjectMethod.invoke(inMemorySfee, projectName);
         } catch (NoSuchMethodException e) {
             Assert.fail("Must be using the wrong version of the sfee soap stubs.");
         } catch (IllegalAccessException e) {
@@ -57,8 +58,8 @@ public class SfeeTestUtils {
 
         try {
             Method addTracker = inMemorySfee.getClass().getMethod("addTracker",
-                    new Class[] { String.class, String.class });
-            addTracker.invoke(inMemorySfee, new Object[] { trackerName, projectName });
+                    String.class, String.class);
+            addTracker.invoke(inMemorySfee, trackerName, projectName);
         } catch (NoSuchMethodException e) {
             Assert.fail("Must be using the wrong version of the sfee soap stubs.");
         } catch (IllegalAccessException e) {
@@ -75,8 +76,8 @@ public class SfeeTestUtils {
 
         try {
             Method createFolders = inMemorySfee.getClass().getMethod("createFolders",
-                    new Class[] { String.class, String.class });
-            createFolders.invoke(inMemorySfee, new Object[] { projectName, path });
+                    String.class, String.class);
+            createFolders.invoke(inMemorySfee, projectName, path);
         } catch (NoSuchMethodException e) {
             Assert.fail("Must be using the wrong version of the sfee soap stubs.");
         } catch (IllegalAccessException e) {

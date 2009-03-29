@@ -43,7 +43,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -115,13 +114,13 @@ public class P4Test extends TestCase {
 
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Date date = dateFormat.parse("12/30/2004");
-        Commandline cmdLine = p4.buildChangesCommand(date, date, true);
+        Commandline cmdLine = p4.buildChangesCommand(date, date);
 
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
         cmd.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[i]);
+            cmd.append(" ").append(args[i]);
         }
 
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
@@ -133,13 +132,13 @@ public class P4Test extends TestCase {
 
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         Date date = dateFormat.parse("12/30/2004");
-        Commandline cmdLine = p4.buildChangesCommand(date, date, false);
+        Commandline cmdLine = p4.buildChangesCommand(date, date);
 
         String[] args = cmdLine.getCommandline();
         StringBuffer cmd = new StringBuffer();
         cmd.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[i]);
+            cmd.append(" ").append(args[i]);
         }
 
         assertEquals("p4 -s changes -s submitted foo@2004/12/30:00:00:00,@2004/12/30:00:00:00", cmd.toString());
@@ -210,13 +209,13 @@ public class P4Test extends TestCase {
      *            The prefix all filenames are expected to start with.
      * @param modCount
      *            The expected number of files changes in this modification.
+     * @throws MalformedPatternException if something fails
      */
-    public void checkModifications(Modification modification, String depotPrefix, int modCount)
+    public void checkModifications(final Modification modification, final String depotPrefix, final int modCount)
             throws MalformedPatternException {
-        List changeList = modification.files;
+        final List<Modification.ModifiedFile> changeList = modification.files;
         assertEquals("Wrong number of entries", modCount, changeList.size());
-        for (Iterator i = changeList.iterator(); i.hasNext();) {
-            Modification.ModifiedFile file = (Modification.ModifiedFile) i.next();
+        for (final Modification.ModifiedFile file : changeList) {
             assertTrue("Filename doesn't start with prefix " + depotPrefix, file.fileName.startsWith(depotPrefix));
             assertEquals("Filename has # at bad index", -1, file.fileName.indexOf("#"));
             assertTrue("Revision doesn't match regexp ^\\d+$: " + file.revision, matches(file.revision, "^\\d+$"));
@@ -229,7 +228,7 @@ public class P4Test extends TestCase {
 
         Calendar cal = Calendar.getInstance();
         // this date is encoded in p4_info.txt. Note month is indexed from 0
-        cal.set(2005, 6, 29, 20, 39, 06);
+        cal.set(2005, 6, 29, 20, 39, 6);
         long p4ServerTime = cal.getTime().getTime();
         long ccServerTime = System.currentTimeMillis();
         long expectedOffset = p4ServerTime - ccServerTime;

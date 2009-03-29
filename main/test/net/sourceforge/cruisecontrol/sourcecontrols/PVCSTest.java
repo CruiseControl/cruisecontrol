@@ -208,9 +208,9 @@ public class PVCSTest extends TestCase {
         Date lastBuild = new Date();
         PvcsStreamConsumer consumer = new PvcsStreamConsumer(lastBuild, new SimpleDateFormat("MMM dd yyyy HH:mm:ss"),
                 "C:/PVCS-Repos/TestProject/pvcs", "-arc") {
-            public List getModificationList() {
-                List mods = new ArrayList();
-                mods.add("modification");
+            public List<Modification> getModificationList() {
+                final List<Modification> mods = new ArrayList<Modification>();
+                mods.add(new Modification("modification"));
                 return mods;
             }
         };

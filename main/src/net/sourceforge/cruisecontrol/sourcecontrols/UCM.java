@@ -825,7 +825,7 @@ public class UCM implements SourceControl {
 
         public String crmtype;
 
-        public int compareTo(Object o) {
+        public int compareTo(final Modification o) {
             UCMModification modification = (UCMModification) o;
             return getActivitityNumber() - modification.getActivitityNumber();
         }

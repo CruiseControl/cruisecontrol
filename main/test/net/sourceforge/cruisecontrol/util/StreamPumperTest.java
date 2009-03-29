@@ -105,7 +105,7 @@ public class StreamPumperTest extends TestCase {
  */
 class TestConsumer implements StreamConsumer {
 
-    private final List lines = new ArrayList();
+    private final List<String> lines = new ArrayList<String>();
 
     /**
      * Checks to see if this consumer consumed a particular line.

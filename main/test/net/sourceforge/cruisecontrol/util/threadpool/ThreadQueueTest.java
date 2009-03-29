@@ -51,10 +51,10 @@ public class ThreadQueueTest extends TestCase {
     private static final String TASK_NAME = "TASK:";
     private static final int TASK_COUNT = 5;
     private static final int TENTH_OF_SECOND = 100;
-    private List tasks;
+    private List<WorkerThread> tasks;
 
     protected void setUp() throws Exception {
-        tasks = new ArrayList();
+        tasks = new ArrayList<WorkerThread>();
         for (int i = 1; i < TASK_COUNT + 1; i++) {
             final String taskName = TASK_NAME + i;
 
@@ -106,6 +106,7 @@ public class ThreadQueueTest extends TestCase {
         try {
             Thread.sleep(ms);
         } catch (Exception e) {
+            // ignored
         }
     }
 }

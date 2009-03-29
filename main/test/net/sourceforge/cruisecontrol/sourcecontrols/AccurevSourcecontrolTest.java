@@ -70,10 +70,10 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     super();
   }
   public class LineCollector implements AccurevInputParser {
-    public List lines;
+    public List<String> lines;
     public boolean parseStream(InputStream iStream) throws CruiseControlException {
       BufferedReader reader = new BufferedReader(new InputStreamReader(iStream));
-      lines = new ArrayList();
+      lines = new ArrayList<String>();
       String line;
       try {
         while ((line = reader.readLine()) != null) {
@@ -142,7 +142,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
   }
 
   /**
-   * Picks the last stream name from a list of streams
+   * @return the last stream name from a list of streams
    */
   private String getTestStreamName() {
     LineCollector collector = new LineCollector();
@@ -152,7 +152,7 @@ public class AccurevSourcecontrolTest extends AccurevTest {
     show.run();
     assertNotNull(collector.lines);
     assertTrue(collector.lines.size() > 1);
-    String lastLine = collector.lines.get(collector.lines.size() - 1).toString();
+    String lastLine = collector.lines.get(collector.lines.size() - 1);
     return getNameFromLine(lastLine);
   }
 

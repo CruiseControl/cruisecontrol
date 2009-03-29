@@ -85,7 +85,7 @@ public class OrigoPublisherTest extends TestCase {
         public Integer retrieveProjectId(String session, String projectName)
                 throws XmlRpcException, IOException {
             assertFalse(true);
-            return new Integer(0);
+            return 0;
         }
         
         /* Can't use annotations 'til we're at source version 1.5.
@@ -101,7 +101,7 @@ public class OrigoPublisherTest extends TestCase {
         @Override
         */
         public Vector searchIssue(String session, Integer projectId,
-                Hashtable searchArgs) throws XmlRpcException, IOException {
+                Hashtable<String, String> searchArgs) throws XmlRpcException, IOException {
             assertFalse(true);
             return new Vector();
         }
@@ -153,7 +153,7 @@ public class OrigoPublisherTest extends TestCase {
             retrieveProjectIdCalled++;
             assertEquals("SESSIONID", session);
             assertEquals("testproject", projectName);
-            return new Integer(21);
+            return 21;
         }
         
         /* Can't use annotations 'til we're at source version 1.5.
@@ -169,7 +169,7 @@ public class OrigoPublisherTest extends TestCase {
         @Override
         */
         public Vector searchIssue(String session, Integer projectId,
-                Hashtable searchArgs) throws XmlRpcException, IOException {
+                Hashtable<String, String> searchArgs) throws XmlRpcException, IOException {
             assertFalse(true);
             return new Vector();
         }
@@ -229,7 +229,7 @@ public class OrigoPublisherTest extends TestCase {
             retrieveProjectIdCalled++;
             assertEquals("SESSIONID", session);
             assertEquals("testproject", projectName);
-            return new Integer(21);
+            return 21;
         }
 
         /* Can't use annotations 'til we're at source version 1.5.
@@ -250,18 +250,18 @@ public class OrigoPublisherTest extends TestCase {
         @Override
         */
         public Vector searchIssue(String session, Integer projectId,
-                Hashtable searchArgs) throws XmlRpcException, IOException {
+                Hashtable<String, String> searchArgs) throws XmlRpcException, IOException {
             searchIssueCalled++;
             assertEquals("SESSIONID", session);
             assertEquals(new Integer(21), projectId);
-            Hashtable actualSearchArgs = new Hashtable();
+            final Hashtable<String, String> actualSearchArgs = new Hashtable<String, String>();
             actualSearchArgs.put("status", "open");
             actualSearchArgs.put("tags", "cruisecontrol::failed");
             assertEquals(actualSearchArgs, searchArgs);
-            Vector bugs = new Vector();
-            Hashtable bug = new Hashtable();
+            Vector<Object> bugs = new Vector<Object>();
+            Hashtable<String, Object> bug = new Hashtable<String, Object>();
             bugs.add(bug);
-            bug.put("issue_id", new Integer(33));
+            bug.put("issue_id", 33);
             return bugs;
         }
 

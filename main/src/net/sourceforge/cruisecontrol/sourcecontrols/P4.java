@@ -62,7 +62,6 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
-import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -280,7 +279,7 @@ public class P4 implements SourceControl {
     }
 
     private String[] collectChangelistSinceLastBuild(final Date lastBuild, final Date now) throws Exception {
-        final Commandline command = buildChangesCommand(lastBuild, now, Util.isWindows());
+        final Commandline command = buildChangesCommand(lastBuild, now);
         LOG.debug(command.toString());
         final Process p = command.execute();
 
@@ -424,9 +423,12 @@ public class P4 implements SourceControl {
     /**
      * p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      *
+     * @param lastBuildTime last build date
+     * @param now current build date
+     * @return p4 -s [-c client] [-p port] [-u user] changes -s submitted [view@lastBuildTime@now]
      * @throws CruiseControlException if somtething breaks
      */
-    public Commandline buildChangesCommand(Date lastBuildTime, Date now, final boolean isWindows)
+    public Commandline buildChangesCommand(Date lastBuildTime, Date now)
             throws CruiseControlException {
 
         // If the Perforce server time is different from the CruiseControl
@@ -457,7 +459,8 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * p4 -s [-c client] [-p port] [-u user] describe -s [change number]
+     * @param changelistNumbers change list numbers
+     * @return p4 -s [-c client] [-p port] [-u user] describe -s [change number]
      */
     public Commandline buildDescribeCommand(final String[] changelistNumbers) {
         final Commandline commandLine = buildBaseP4Command();
@@ -475,7 +478,8 @@ public class P4 implements SourceControl {
     }
 
     /**
-     * p4 -s [-c client] [-p port] [-u user] user -o [username]
+     * @param username user name
+     * @return p4 -s [-c client] [-p port] [-u user] user -o [username]
      */
     public Commandline buildUserCommand(final String username) {
         final Commandline commandLine = buildBaseP4Command();
@@ -491,6 +495,7 @@ public class P4 implements SourceControl {
      * CruiseControl in San Francisco). A positive offset indicates that the Perforce server time is before the
      * CruiseControl server.
      *
+     * @return the difference in time between the Perforce server and the CruiseControl server.
      * @throws CruiseControlException if something breaks
      */
     protected long calculateServerTimeOffset() throws CruiseControlException {
@@ -542,6 +547,11 @@ public class P4 implements SourceControl {
      * This is a modified version of the one in the CVS element. I found it far more useful if you actually return
      * either or, because otherwise it would be darn hard to use in places where I actually need the notPast line. Or
      * did I misunderstand something?
+     * @param reader reader
+     * @param beginsWith beginsWith
+     * @param notPast notPast
+     * @return a string
+     * @throws IOException if something breaks.
      */
     private String readToNotPast(final BufferedReader reader, final String beginsWith, final String notPast) 
             throws IOException {
@@ -560,7 +570,7 @@ public class P4 implements SourceControl {
         public String client;
 
         @Override
-        public int compareTo(final Object o) {
+        public int compareTo(final Modification o) {
             P4Modification modification = (P4Modification) o;
             return getChangelistNumber() - modification.getChangelistNumber();
         }

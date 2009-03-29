@@ -88,13 +88,13 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         // ensure CVS version and simulated outputs are in sync
         final String cvsVersion = "1.11.16";
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion(cvsVersion));
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         emailAliases.put("tim", "tim@tim.net");
         cvs.setMailAliases(emailAliases);
 
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-11.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -158,13 +158,13 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion(cvsVersion));
         cvs.setModule("cruisecontrol");
         cvs.setCvsRoot(":pserver:anonymous@cvs.sourceforge.net:/cvsroot/cruisecontrol");
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         emailAliases.put("tim", "tim@tim.net");
         cvs.setMailAliases(emailAliases);
 
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-11-remote.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -224,12 +224,12 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     public void testParseStreamSlashDateFormat() throws IOException, ParseException {
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.12.9"));
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         emailAliases.put("bar", "bar@mailinator.com");
         cvs.setMailAliases(emailAliases);
 
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-12-9slashdate.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -249,12 +249,12 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     public void testParseStreamNewFormat() throws IOException, ParseException {
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.12.9"));
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         emailAliases.put("jerome", "jerome@coffeebreaks.org");
         cvs.setMailAliases(emailAliases);
 
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-12.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -275,13 +275,13 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testParseStreamBranch() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         emailAliases.put("alden", "alden@users.sourceforge.net");
         cvs.setMailAliases(emailAliases);
 
         cvs.setTag("BRANCH_TEST_BUILD");
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-11branch.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -332,12 +332,12 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testParseStreamTagNoBranch() throws IOException, ParseException {
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.12.9"));
-        Hashtable emailAliases = new Hashtable();
+        final Hashtable<String, String> emailAliases = new Hashtable<String, String>();
         cvs.setMailAliases(emailAliases);
 
         cvs.setTag("TEST");
         BufferedInputStream input = new BufferedInputStream(loadTestLog("cvslog1-12tagnobranch.txt"));
-        List modifications = cvs.parseStream(input);
+        final List<Modification> modifications = cvs.parseStream(input);
         input.close();
         Collections.sort(modifications);
 
@@ -358,7 +358,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testGetProperties() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs.setMailAliases(new Hashtable());
+        cvs.setMailAliases(new Hashtable<String, String>());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
 
@@ -378,7 +378,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         // negative test
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs2 = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs2.setMailAliases(new Hashtable());
+        cvs2.setMailAliases(new Hashtable<String, String>());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
         input.close();
@@ -391,7 +391,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     public void testGetPropertiesNoModifications() throws IOException {
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs.setMailAliases(new Hashtable());
+        cvs.setMailAliases(new Hashtable<String, String>());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
         String logName = "cvslog1-11noMods.txt";
@@ -408,7 +408,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testGetPropertiesOnlyModifications() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs.setMailAliases(new Hashtable());
+        cvs.setMailAliases(new Hashtable<String, String>());
         cvs.setProperty("property");
         cvs.setPropertyOnDelete("propertyOnDelete");
         String logName = "cvslog1-11mods.txt";
@@ -425,7 +425,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         // negative test
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs2 = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs2.setMailAliases(new Hashtable());
+        cvs2.setMailAliases(new Hashtable<String, String>());
         cvs2.setPropertyOnDelete("propertyOnDelete");
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
@@ -440,7 +440,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
     public void testGetPropertiesOnlyDeletions() throws IOException {
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs.setMailAliases(new Hashtable());
+        cvs.setMailAliases(new Hashtable<String, String>());
         cvs.setPropertyOnDelete("propertyOnDelete");
         String logName = "cvslog1-11del.txt";
         BufferedInputStream input = new BufferedInputStream(loadTestLog(logName));
@@ -456,7 +456,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         // negative test
         // ensure CVS version and simulated outputs are in sync
         ConcurrentVersionsSystem cvs2 = new SpecificVersionCVS(getOfficialCVSVersion("1.11.16"));
-        cvs2.setMailAliases(new Hashtable());
+        cvs2.setMailAliases(new Hashtable<String, String>());
         input = new BufferedInputStream(loadTestLog(logName));
         cvs2.parseStream(input);
         input.close();
@@ -503,10 +503,6 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         assertCommandsEqual(expectedCommand, reallyQuietCommand);
     }
 
-    /**
-     * @param expectedCommand
-     * @param actualCommand
-     */
     private void assertCommandsEqual(String[] expectedCommand, String[] actualCommand) {
         assertEquals("Mismatched lengths!", expectedCommand.length, actualCommand.length);
         for (int i = 0; i < expectedCommand.length; i++) {
@@ -630,7 +626,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     public void testAddAliasToMap() {
         ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem();
-        Hashtable aliasMap = new Hashtable();
+        final Hashtable<String, String> aliasMap = new Hashtable<String, String>();
         cvs.setMailAliases(aliasMap);
         String userline = "roberto:'Roberto DaMana <damana@cs.unipr.it>'";
         cvs.addAliasToMap(userline);
@@ -708,6 +704,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     /**
      * on 1.10 version, "version" argument doesn't exist hence the output is empty.
+     * @throws IOException if something fails
      */
     public void testGetCvsServerVersion1_10version() throws IOException {
 
@@ -723,6 +720,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
 
     /**
      * What if the output is broken? This can happen for various reasons. It is simulated here by truncating the output.
+     * @throws IOException if something fails
      */
     public void testGetCvsServerVersion_brokenOutput() throws IOException {
 
@@ -789,8 +787,8 @@ public class ConcurrentVersionsSystemTest extends TestCase {
         
         ConcurrentVersionsSystem cvs = new ConcurrentVersionsSystem() {
             @Override
-            List execHistoryCommand(Commandline command) throws Exception {
-                List mods = new ArrayList();
+            List<Modification> execHistoryCommand(Commandline command) throws Exception {
+                final List<Modification> mods = new ArrayList<Modification>();
                 mods.add(mod);
                 return mods;
             }
@@ -819,6 +817,7 @@ public class ConcurrentVersionsSystemTest extends TestCase {
             cvs.validate();
             fail("validate() should throw exception on '" + candidate + "' compression value.");
         } catch (CruiseControlException e) {
+            // expected
         }
     }
 

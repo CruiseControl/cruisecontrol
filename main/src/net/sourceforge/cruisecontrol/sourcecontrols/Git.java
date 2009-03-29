@@ -229,7 +229,7 @@ public class Git implements SourceControl {
                 /* Remember we are in diffmode.  Parser needs this information
                    to handle empty lines correctly. */
                 diffmode = true;
-                continue;
+                //continue;  // 'contiue' is unnecessary as last statement in loop
             }
         }
     }

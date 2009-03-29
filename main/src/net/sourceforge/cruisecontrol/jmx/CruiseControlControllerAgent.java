@@ -129,7 +129,7 @@ public class CruiseControlControllerAgent {
             try {
                 // use reflection to avoid dependency on CCDist
                 final String className = "net.sourceforge.cruisecontrol.jmx.JMXBuildAgentUtility";
-                final Class clsCCDistMBean = loadCCDistMBeanClass(enableJMXAgentUtility, className);
+                final Class< ? > clsCCDistMBean = loadCCDistMBeanClass(enableJMXAgentUtility, className);
                 if (clsCCDistMBean != null) {
                     final Object objCCDistMBean
                             = clsCCDistMBean.getConstructor((Class[]) null).newInstance((Object[]) null);

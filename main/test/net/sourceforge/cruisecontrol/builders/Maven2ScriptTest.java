@@ -99,7 +99,7 @@ public class Maven2ScriptTest extends TestCase {
         assertEquals("testmavengoal:pattern", currElement.getAttribute("name").getValue());
 
         script.consumeLine("[INFO] Copying artifact[jar:saxon:saxon:6.5.3] to[saxon-6.5.3.jar]");
-        currElement = ((Element) buildLogElement.getContent().get(contentIdx++));
+        currElement = ((Element) buildLogElement.getContent().get(contentIdx));
         assertEquals("message", currElement.getName());
         assertEquals("info", currElement.getAttribute("priority").getValue());
     }
@@ -115,7 +115,7 @@ public class Maven2ScriptTest extends TestCase {
         final Property prop2 = mvn2Builder.createProperty();
         prop2.setName("m2PropName2");
         prop2.setValue("m2PropValue2 with spaces");
-        final List propList = new ArrayList();
+        final List<Property> propList = new ArrayList<Property>();
         propList.add(prop);
         propList.add(prop2);
         script.setProperties(propList);
@@ -177,9 +177,9 @@ public class Maven2ScriptTest extends TestCase {
     }
 
     public void testPropsWithSpace() throws CruiseControlException {
-        Maven2Script script = getScript();
+        final Maven2Script script = getScript();
 
-        Hashtable propWithSpace = new Hashtable();
+        final Hashtable<String, String> propWithSpace = new Hashtable<String, String>();
         propWithSpace.put("propertyWithSpace", "I have a space");
         script.setBuildProperties(propWithSpace);
         TestUtil.assertArray(
@@ -202,13 +202,13 @@ public class Maven2ScriptTest extends TestCase {
 
     private Maven2Script getScript() {
       final Maven2Builder m2Builder = new Maven2Builder();
-      Maven2Script script = new Maven2Script(m2Builder, null, null, null);
+      final Maven2Script script = new Maven2Script(m2Builder, null, null, null);
       // none should exist for this test
       script.setMvnScript(CMD_MVN);
       script.setPomFile(CMD_POM);
-      script.setProperties(new ArrayList());
+      script.setProperties(new ArrayList<Property>());
 
-      Hashtable properties = new Hashtable();
+      final Hashtable<String, String> properties = new Hashtable<String, String>();
       properties.put("label", CMD_LABEL);
       script.setBuildProperties(properties);
       return script;

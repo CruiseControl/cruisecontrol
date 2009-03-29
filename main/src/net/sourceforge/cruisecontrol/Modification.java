@@ -49,8 +49,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Iterator;
 
 /**
  * data structure for holding data about a single modification
@@ -63,7 +63,7 @@ import java.util.List;
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
-public class Modification implements Comparable, Serializable {
+public class Modification implements Comparable<Modification>, Serializable {
 
     private static final long serialVersionUID = 6102576575583133520L;
 
@@ -322,8 +322,7 @@ public class Modification implements Comparable, Serializable {
     }
 
 
-    public int compareTo(Object o) {
-        Modification modification = (Modification) o;
+    public int compareTo(final Modification modification) {
         return modifiedTime.compareTo(modification.modifiedTime);
     }
 
@@ -417,7 +416,7 @@ public class Modification implements Comparable, Serializable {
         final List modfiles = modification.getChildren(TAGNAME_FILE);
         if (modfiles != null && modfiles.size() > 0) {
 
-            Iterator it = modfiles.iterator();
+            final Iterator it = modfiles.iterator();
             while (it.hasNext()) {
                 Element modfileElement = (Element) it.next();
                 ModifiedFile modfile = new ModifiedFile(modfileElement);

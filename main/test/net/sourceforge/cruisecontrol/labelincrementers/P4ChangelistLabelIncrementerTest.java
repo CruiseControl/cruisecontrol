@@ -92,7 +92,7 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     static class MockP4ChangelistLabelIncrementer2
             extends P4ChangelistLabelIncrementer {
         public Iterator in;
-        public List commands = new LinkedList();
+        public final List<Commandline> commands = new LinkedList<Commandline>();
         public MockDelete d;
         public MockFileSet fs;
 
@@ -144,8 +144,8 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
 
 
     public static class MockFileSet extends FileSet {
-        public List excludes = new LinkedList();
-        public List includes = new LinkedList();
+        public final List<NameEntry> excludes = new LinkedList<NameEntry>();
+        public final List<NameEntry> includes = new LinkedList<NameEntry>();
 
         public NameEntry createExclude() {
             NameEntry ne = super.createExclude();
@@ -244,10 +244,10 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
     }
 
     public void testDeleteView1() throws Exception {
-        MockP4ChangelistLabelIncrementer2 p4 =
+        final MockP4ChangelistLabelIncrementer2 p4 =
             new MockP4ChangelistLabelIncrementer2();
         p4.setView("//...");
-        List inp = new LinkedList();
+        final List<InputStream> inp = new LinkedList<InputStream>();
         inp.add(loadTestLog("p4_where1.txt"));
         p4.in = inp.iterator();
 
@@ -262,15 +262,15 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
                 0, p4.fs.excludes.size());
         assertEquals("Didn't add the right item to fileset",
                 "c:\\p4\\cc\\main" + File.separator + "**",
-                ((NameEntry) (p4.fs.includes.iterator().next())).getName());
+                p4.fs.includes.iterator().next().getName());
     }
 
 
     public void testGetWhereView1() throws Exception {
-        MockP4ChangelistLabelIncrementer2 p4 =
+        final MockP4ChangelistLabelIncrementer2 p4 =
             new MockP4ChangelistLabelIncrementer2();
         p4.setView("//...");
-        List inp = new LinkedList();
+        final List<InputStream> inp = new LinkedList<InputStream>();
         inp.add(loadTestLog("p4_where2.txt"));
         p4.in = inp.iterator();
 
@@ -302,10 +302,10 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
 
 
     public void testGetWhereView2() throws Exception {
-        MockP4ChangelistLabelIncrementer2 p4 =
+        final MockP4ChangelistLabelIncrementer2 p4 =
             new MockP4ChangelistLabelIncrementer2();
         p4.setView("//...");
-        List inp = new LinkedList();
+        final List<InputStream> inp = new LinkedList<InputStream>();
         inp.add(loadTestLog("p4_where3.txt"));
         p4.in = inp.iterator();
 
@@ -346,12 +346,12 @@ public class P4ChangelistLabelIncrementerTest extends TestCase {
         assertTrue(inc.isValidLabel("anything should be 'valid' and return true"));
     }
 
-    private String concatCommand(Commandline cmdLine) {
-        String[] args = cmdLine.getCommandline();
-        StringBuffer cmd = new StringBuffer();
+    private String concatCommand(final Commandline cmdLine) {
+        final String[] args = cmdLine.getCommandline();
+        final StringBuffer cmd = new StringBuffer();
         cmd.append(args[ 0 ]);
         for (int i = 1; i < args.length; i++) {
-            cmd.append(" " + args[ i ]);
+            cmd.append(" ").append(args[i]);
         }
         return new String(cmd);
     }

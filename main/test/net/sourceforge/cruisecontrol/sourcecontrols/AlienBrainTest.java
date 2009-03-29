@@ -192,7 +192,7 @@ public class AlienBrainTest extends TestCase {
     }
 
     public void testParseModifications() throws IOException, ParseException {
-        List results = loadTestLog("alienbrain_modifications.txt");
+        final List<String> results = loadTestLog("alienbrain_modifications.txt");
 
         AlienBrain ab = new AlienBrain();
 
@@ -239,7 +239,7 @@ public class AlienBrainTest extends TestCase {
 
 
     public void testParseNoModifications() throws IOException {
-        List results = loadTestLog("alienbrain_nomodifications.txt");
+        final List<String> results = loadTestLog("alienbrain_nomodifications.txt");
 
         AlienBrain ab = new AlienBrain();
 

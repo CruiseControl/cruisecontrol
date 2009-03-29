@@ -48,7 +48,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 public class MKSTest extends TestCase {
 
     public void testShouldReturnPreviousModificationOnlyWhenPassedSameLastBuildDate() {
-        final List expected = new ArrayList();
+        final List<Modification> expected = new ArrayList<Modification>();
         
         MKS mks = new MKS() {
 
@@ -56,7 +56,7 @@ public class MKSTest extends TestCase {
                 return null;
             }
 
-            void executeResyncAndParseModifications(Commandline cmdLine, List modifications) {
+            void executeResyncAndParseModifications(final Commandline cmdLine, final List<Modification> modifications) {
                 Modification mod = new Modification();
                 mod.modifiedTime = new Date();
                 mod.userName = "";

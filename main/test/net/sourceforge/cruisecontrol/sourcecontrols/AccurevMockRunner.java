@@ -80,11 +80,11 @@ class Script {
 public class AccurevMockRunner implements Runner {
   public static final Logger LOG = Logger.getLogger(AccurevMockRunner.class);
   private int                returnCode;
-  private List               scriptList;
+  private List<Script>       scriptList;
   private Iterator           scriptIterator;
   private String             scriptRoot;
   public AccurevMockRunner() {
-    scriptList = new LinkedList();
+    scriptList = new LinkedList<Script>();
   }
   public void setScriptRoot(String scriptRoot) {
     this.scriptRoot = scriptRoot;
