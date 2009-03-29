@@ -57,13 +57,16 @@ import org.jdom.Element;
  *
  *
  * @author Kirk Knoernschild - Provided without any warranty
+ * @author Florian Gilcher
  */
 public class RakeBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(RakeBuilder.class);
 
     private String workingDir = null;
-    private String buildFile = "rakefile.rb";
+    private String rubyExecutable = "ruby";
+    private String rakeExecutable = "rake";
+    private String buildFile = "Rakefile";
     private String target = "";
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
@@ -73,6 +76,8 @@ public class RakeBuilder extends Builder {
 
         ValidationHelper.assertIsSet(buildFile, "buildfile", this.getClass());
         ValidationHelper.assertIsSet(target, "target", this.getClass());
+        ValidationHelper.assertIsSet(rubyExecutable, "ruby", this.getClass());
+        ValidationHelper.assertIsSet(rakeExecutable, "rake", this.getClass());
 
         wasValidated = true;
     }
@@ -110,9 +115,7 @@ public class RakeBuilder extends Builder {
             buildLogElement = new Element("build");
             buildLogElement.setAttribute("error", "build timeout");
          } else if (script.getExitCode() != 0) {
-            synchronized (buildLogElement) {
-                buildLogElement.setAttribute("error", "Return code is " + script.getExitCode());
-            }
+            buildLogElement.setAttribute("error", "Return code is " + script.getExitCode());
          }
 
         buildLogElement.setAttribute("time", DateUtil.getDurationAsString((endTime - startTime)));
@@ -142,6 +145,31 @@ public class RakeBuilder extends Builder {
 
 
     /**
+     * Set the ruby executable. This parameter is either set in config.xml
+     * or its is assumed to be "ruby".
+     * Typical values are: "ruby", "ruby19", "jruby"
+     * 
+     * @param executable
+     *          the ruby executable name/path.
+     */
+    public void setRuby(final String executable) {
+        this.rubyExecutable = executable;
+    }
+    
+    /**
+     * Set the rake executable. This parameter is either set in config.xml
+     * or its is assumed to be "rake".
+     * Typical values are: "rake", "rake19", "jrake"
+     * 
+     * @param executable
+     *          the executable name/path.
+     * 
+     */
+    public void setRake(final String executable) {
+        this.rakeExecutable = executable;
+    }
+
+    /**
      * Set the working directory where Rake will be invoked. This parameter gets
      * set in the XML file via the workingDir attribute. The directory can
      * be relative (to the cruisecontrol current working directory) or absolute.
@@ -149,7 +177,7 @@ public class RakeBuilder extends Builder {
      * @param dir
      *          the directory to make the current working directory.
      */
-    public void setWorkingDir(String dir) {
+    public void setWorkingDir(final String dir) {
         workingDir = dir;
     }
 
@@ -158,7 +186,7 @@ public class RakeBuilder extends Builder {
      *
      * @param target the target(s) name.
      */
-    public void setTarget(String target) {
+    public void setTarget(final String target) {
         this.target = target;
     }
 
@@ -171,18 +199,18 @@ public class RakeBuilder extends Builder {
      *
      * @param buildFile the name of the build file.
      */
-    public void setBuildFile(String buildFile) {
+    public void setBuildFile(final String buildFile) {
         this.buildFile = buildFile;
     }
 
     /**
      * @param timeout The timeout to set.
      */
-    public void setTimeout(long timeout) {
+    public void setTimeout(final long timeout) {
         this.timeout = timeout;
     }
 
     protected RakeScript getRakeScript() {
-        return new RakeScript();
+        return new RakeScript(rubyExecutable, rakeExecutable);
     }
 }

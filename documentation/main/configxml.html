@@ -7001,8 +7001,18 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </thead>
             <tbody>
             <tr>
+                <td>ruby</td>
+                <td>No (defaults to ruby)</td>
+                <td>Name of / Path to the ruby interpreter. Typical values are "ruby", "ruby19" or "jruby"</td>
+            </tr>
+            <tr>
+                <td>rake</td>
+                <td>No (defaults to rake)</td>
+                <td>Name of / Path to the rake binary. Typical values are "rake", "rake19" or "jrake"</td>
+            </tr>
+            <tr>
                 <td>buildfile</td>
-                <td>No (defaults to rakefile.rb)</td>
+                <td>No (defaults to Rakefile)</td>
                 <td>Path to Rake build file. If the rakefile is not found in the current directory,
                 rake will search parent directories for a match. The directory where the
                 Rakefile is found will become the current directory for the actions executed
