@@ -51,6 +51,7 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
  *
  * Contains all the details related to running a Rake based build.
  * @author Kirk Knoernschild
+ * @author Florian Gilcher
  */
 public class RakeScript implements Script, StreamConsumer {
 
@@ -60,33 +61,47 @@ public class RakeScript implements Script, StreamConsumer {
     private Progress progress;
     private int exitCode;
     private Element buildLogElement;
-
+    private String rubyExecutable;
+    private String rakeExecutable;
+    
+    public RakeScript() {
+        setExecutables("ruby", "rake");
+    }
+    
+    public RakeScript(String rubyExecutable, String rakeExecutable) {
+        super();
+        setExecutables(rubyExecutable, rakeExecutable);
+    }
 
     /**
      * construct the command that we're going to execute.
+     * Takes the form "<rubyExecutable> -S <rakeExecutable> rakeArguments"
+     *
+     * 
      *
      * @return Commandline holding command to be executed
      * @throws CruiseControlException on unquotable attributes
      */
     public Commandline buildCommandline() throws CruiseControlException {
-        Commandline cmdLine = new Commandline();
-
-         if (isWindows) {
-          //cmdLine.setExecutable("cmd /c rake");
-             cmdLine.setExecutable("cmd");
-             cmdLine.createArgument().setValue("/c");
-             cmdLine.createArgument().setValue("rake");
-         } else {
-             //does this work for *nix? Needs to be tested.
-             cmdLine.setExecutable("rake");
-         }
+        final Commandline cmdLine = new Commandline();
+        
+        if (isWindows) {
+            cmdLine.setExecutable("cmd");
+            cmdLine.createArgument().setValue("/c");
+            cmdLine.createArgument().setValue(rubyExecutable);
+        } else {
+            cmdLine.setExecutable(rubyExecutable);
+        }
+         
+        cmdLine.createArgument().setValue("-S");
+        cmdLine.createArgument().setValue(rakeExecutable);
 
         if (buildFile != null) {
             cmdLine.createArgument().setValue("-f");
             cmdLine.createArgument().setValue(buildFile);
         }
 
-        StringTokenizer targets = new StringTokenizer(target);
+        final StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument().setValue(targets.nextToken());
         }
@@ -97,27 +112,36 @@ public class RakeScript implements Script, StreamConsumer {
      * set the "header" for this part of the build log.
      * @param buildLogElement the element of the build log
      */
-    public void setBuildLogHeader(Element buildLogElement) {
+    public void setBuildLogHeader(final Element buildLogElement) {
         this.buildLogElement = buildLogElement;
     }
 
     /**
      * @param isWindows The isWindows to set.
      */
-    public void setWindows(boolean isWindows) {
+    public void setWindows(final boolean isWindows) {
         this.isWindows = isWindows;
+    }
+    
+    /**
+     * @param rubyExecutable the ruby executable
+     * @param rakeExecutable the rake executable
+     */
+    private void setExecutables(final String rubyExecutable, final String rakeExecutable) {
+        this.rubyExecutable = rubyExecutable;
+        this.rakeExecutable = rakeExecutable;
     }
 
     /**
      * @param buildFile The buildFile to set.
      */
-    public void setBuildFile(String buildFile) {
+    public void setBuildFile(final String buildFile) {
         this.buildFile = buildFile;
     }
     /**
      * @param target The target to set.
      */
-    public void setTarget(String target) {
+    public void setTarget(final String target) {
         this.target = target;
     }
     /** @param progress The progress callback object to set. */
@@ -133,7 +157,7 @@ public class RakeScript implements Script, StreamConsumer {
     /**
      * @param exitCode The exitCode to set.
      */
-    public void setExitCode(int exitCode) {
+    public void setExitCode(final int exitCode) {
         this.exitCode = exitCode;
     }
 
@@ -150,7 +174,7 @@ public class RakeScript implements Script, StreamConsumer {
             if (line.startsWith("rake aborted!")) {
                 buildLogElement.setAttribute("error", "BUILD FAILED detected");
             } else {
-                Element msg = new Element("message");
+                final Element msg = new Element("message");
                 msg.addContent(new CDATA(line));
                 msg.setAttribute("priority", "info");
                 buildLogElement.addContent(msg);

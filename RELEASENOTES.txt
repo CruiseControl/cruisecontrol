@@ -18,6 +18,7 @@ BuildOutputLoggerManager
 * Use different loggers for different files.
 
 DarcsBootstrapper
+----------------------
 * New Darcs bootstrapper (CC-905). Patch by Florian Gilcher.
 
 CMSynergy
@@ -29,6 +30,10 @@ CMSynergy
 Origo Publisher
 ----------------------
 * Update to use new issue handling API. Patch by Patrick Ruckstuhl.
+
+Rake Builder
+----------------------
+* Make the Ruby executable and the Rake executable configurable (CC-904). Patch by Florian Gilcher.
 
 Removed deprecated classes
 ----------------------

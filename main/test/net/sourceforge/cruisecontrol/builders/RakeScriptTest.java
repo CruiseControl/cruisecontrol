@@ -42,8 +42,8 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class RakeScriptTest extends TestCase {
 
-    private static final String[] DEFAULT_WINDOWS_COMMAND  = {"cmd", "/c", "rake"};
-    private static final String[] DEFAULT_UNIX_COMMAND = { "rake" };
+    private static final String[] DEFAULT_WINDOWS_COMMAND  = {"cmd", "/c", "ruby", "-S", "rake"};
+    private static final String[] DEFAULT_UNIX_COMMAND = { "ruby", "-S", "rake" };
     //private RakeScript script;
 
     /*
@@ -79,19 +79,22 @@ public class RakeScriptTest extends TestCase {
     }
 
     public void testCommandWithTarget() throws CruiseControlException {
-        RakeScript script = new RakeScript();
+        final RakeScript script = new RakeScript();
         script.setWindows(true);
         script.setTarget("default");
-        String[] command = { DEFAULT_WINDOWS_COMMAND[0], DEFAULT_WINDOWS_COMMAND[1], DEFAULT_WINDOWS_COMMAND[2],
-                             "default" };
-        for (int i = 0; i < command.length; i++) {
-            System.out.println(command[i]);
+        final String[] expectedArgs
+                = { DEFAULT_WINDOWS_COMMAND[0], DEFAULT_WINDOWS_COMMAND[1], DEFAULT_WINDOWS_COMMAND[2],
+                DEFAULT_WINDOWS_COMMAND[3], DEFAULT_WINDOWS_COMMAND[4], "default" };
+        /*
+        for (final String expectedArg : expectedArgs) {
+            System.out.println(expectedArg);
         }
-        String[] c =  script.buildCommandline().getCommandline();
-        for (int i = 0; i < c.length; i++) {
-            System.out.println(c[i]);
+        String[] actualArgs =  script.buildCommandline().getCommandline();
+        for (final String actualArg : actualArgs) {
+            System.out.println(actualArg);
         }
-        TestUtil.assertArray("detailedCmd", command,
+        //*/
+        TestUtil.assertArray("detailedCmd", expectedArgs,
             script.buildCommandline().getCommandline());
     }
 
@@ -100,8 +103,30 @@ public class RakeScriptTest extends TestCase {
          script.setWindows(true);
          script.setBuildFile("build.rb");
          String[] command = { DEFAULT_WINDOWS_COMMAND[0], DEFAULT_WINDOWS_COMMAND[1], DEFAULT_WINDOWS_COMMAND[2],
-                              "-f", "build.rb" };
+                              DEFAULT_WINDOWS_COMMAND[3], DEFAULT_WINDOWS_COMMAND[4], "-f", "build.rb" };
          TestUtil.assertArray("detailedCmd", command,
             script.buildCommandline().getCommandline());
+    }
+    
+    public void testCommandWithDifferentRuby() throws CruiseControlException {
+         RakeScript script = new RakeScript("ruby19", "rake");
+         script.setWindows(false);
+
+         String[] command = DEFAULT_UNIX_COMMAND.clone();
+         command[0] = "ruby19";
+         
+         TestUtil.assertArray("detailedCmd", command,
+             script.buildCommandline().getCommandline());
+    }
+    
+    public void testCommandWithDifferentRake() throws CruiseControlException {
+         RakeScript script = new RakeScript("ruby", "rake19");
+         script.setWindows(false);
+
+         String[] command = DEFAULT_UNIX_COMMAND.clone();
+         command[2] = "rake19";
+         
+         TestUtil.assertArray("detailedCmd", command,
+             script.buildCommandline().getCommandline());
     }
 }
