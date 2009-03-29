@@ -388,6 +388,8 @@
         <sequential>
             <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
                 <nested />
+                <!-- @todo add other compiler warning flags -->
+                <compilerarg value="-Xlint:unchecked"/>
             </javac>
         </sequential>
     </macrodef>
