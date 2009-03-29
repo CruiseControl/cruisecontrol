@@ -17,6 +17,9 @@ BuildOutputLoggerManager
 ----------------------
 * Use different loggers for different files.
 
+DarcsBootstrapper
+* New Darcs bootstrapper (CC-905). Patch by Florian Gilcher.
+
 CMSynergy
 ----------------------
 * Fix error publishing CMSynergy build (CC-876). Reported by Gerard Roos. Tested by David Corley.
