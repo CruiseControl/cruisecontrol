@@ -35,7 +35,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 public class NantScriptTest extends TestCase {
 
-    private Hashtable properties;
+    private Hashtable<String, String> properties;
     private String nantCmd = "NAnt.exe";
 
     private NantScript script;
@@ -46,10 +46,10 @@ public class NantScriptTest extends TestCase {
         // Must be a cleaner way to do this...
 //        builder.setNantWorkingDir(new File(
 //                new URI(ClassLoader.getSystemResource("test.build").toString())).getParent());
-        properties = new Hashtable();
+        properties = new Hashtable<String, String>();
         properties.put("label", "200.1.23");
         script.setBuildProperties(properties);
-        script.setNantProperties(new ArrayList());
+        script.setNantProperties(new ArrayList<Property>());
         script.setLoggerClassName(NantBuilder.DEFAULT_LOGGER);
         script.setTarget("target");
         script.setBuildFile("buildfile");

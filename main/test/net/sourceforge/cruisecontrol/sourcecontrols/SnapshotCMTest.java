@@ -94,7 +94,7 @@ public class SnapshotCMTest extends TestCase {
 
         BufferedInputStream input =
                 new BufferedInputStream(loadTestLog("snapshotcm-history.txt"));
-        List modifications = snaphotCM.parseStream(input);
+        final List<Modification> modifications = snaphotCM.parseStream(input);
         input.close();
         Collections.sort(modifications);
 

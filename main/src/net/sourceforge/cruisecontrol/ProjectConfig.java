@@ -134,6 +134,7 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * Defines a name/value pair used in configuration.
+     * @param plugin plugin
      */
     public void add(DefaultPropertiesPlugin plugin) {
         // currently only declared for documentation generation purposes
@@ -141,6 +142,7 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * Registers a classname with an alias.
+     * @param plugin plugin
      */
     public void add(PluginPlugin plugin) {
         // currently only declared for documentation generation purposes
@@ -435,11 +437,11 @@ public class ProjectConfig implements ProjectInterface {
         return project.isPaused();
     }
 
-    public List getModifications() {
+    public List<Modification> getModifications() {
         if (getModificationSet() != null) {
             return getModificationSet().getCurrentModifications();
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 

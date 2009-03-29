@@ -246,7 +246,7 @@ public class ModificationSet implements Serializable {
         }
     }
 
-    public List getCurrentModifications() {
+    public List<Modification> getCurrentModifications() {
         return this.modifications;
     }
 

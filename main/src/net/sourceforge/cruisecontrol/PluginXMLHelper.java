@@ -99,7 +99,7 @@ public class PluginXMLHelper {
      * @return The instantiated plugin
      * @throws CruiseControlException if the plugin class cannot be instantiated
      */
-    private Object instantiatePlugin(final Class pluginClass) throws CruiseControlException {
+    private Object instantiatePlugin(final Class< ? > pluginClass) throws CruiseControlException {
         final Object pluginInstance;
         try {
             pluginInstance = pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);

@@ -337,11 +337,11 @@ public class StoreTest extends TestCase {
     public void testSetProperty() throws ParseException {
         store.setProperty("hasChanges?");
 
-        List noModifications = new ArrayList();
+        final List<Modification> noModifications = new ArrayList<Modification>();
         store.fillPropertiesIfNeeded(noModifications);
         assertEquals(null, store.getProperties().get("hasChanges?"));
 
-        List hasModifications = new ArrayList();
+        final List<Modification> hasModifications = new ArrayList<Modification>();
         hasModifications.add(createModification(
                                                 Store.getDateFormatter().parse("04/27/2007 15:05:52.000"),
                                                 "fred",

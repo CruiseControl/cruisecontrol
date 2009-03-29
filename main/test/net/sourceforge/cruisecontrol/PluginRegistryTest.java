@@ -169,8 +169,8 @@ public class PluginRegistryTest extends TestCase {
         expectedWrapperAttributes.add("overriden");
 
         final Set<String> wrapperAttributes = new TreeSet<String>();
-        for (int i = 0; i < wrappers.size(); i++) {
-            org.jdom.Element element = (org.jdom.Element) wrappers.get(i);
+        for (final Object wrapper : wrappers) {
+            final Element element = (Element) wrapper;
             wrapperAttributes.add(element.getAttributeValue("string"));
         }
         assertEquals(expectedWrapperAttributes, wrapperAttributes);
@@ -276,15 +276,15 @@ public class PluginRegistryTest extends TestCase {
         assertTrue(0 < defaultTypes.length);
     }
 
-    static void verifyPluginClass(String pluginName, String expectedName) throws Exception {
-        PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();
+    static void verifyPluginClass(final String pluginName, final String expectedName) throws Exception {
+        final PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();
 
         assertTrue(registry.isPluginRegistered(pluginName));
 
-        String className = registry.getPluginClassname(pluginName);
+        final String className = registry.getPluginClassname(pluginName);
         assertEquals(expectedName, className);
 
-        Class pluginClass = Class.forName(className);
+        final Class< ? > pluginClass = Class.forName(className);
         // casts to suppress varargs warnings under sdk >= 1.5
         pluginClass.getConstructor((Class[]) null).newInstance((Object[]) null);
     }

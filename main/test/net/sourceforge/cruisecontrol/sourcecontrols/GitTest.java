@@ -140,7 +140,7 @@ public class GitTest extends TestCase {
             + "\n"
             + "diff --git a/README.txt b/README.txt\n"
             + "index 43c6998..0235ed7 100644\n";
-        List mods = new ArrayList();
+        final List<Modification> mods = new ArrayList<Modification>();
         SourceControlProperties props = new SourceControlProperties();
         props.assignPropertyName("hasChanges?");
         props.assignPropertyOnDeleteName("hasDeletions?");
@@ -154,7 +154,7 @@ public class GitTest extends TestCase {
         modref.comment = "latest commit" + NEWLINE + NEWLINE
             + "this is a multi line commit message" + NEWLINE;
         modref.revision = "1190000297";
-        Modification mod = (Modification) mods.get(0);
+        Modification mod = mods.get(0);
         assertEquals(modref, mod);
         List mf = mod.getModifiedFiles();
         assertEquals(3, mf.size());
@@ -183,7 +183,7 @@ public class GitTest extends TestCase {
         modref.emailAddress = "rschiele@gmail.com";
         modref.comment = "merge commit" + NEWLINE;
         modref.revision = "1190000197";
-        mod = (Modification) mods.get(1);
+        mod = mods.get(1);
         assertEquals(modref, mod);
         mf = mod.getModifiedFiles();
         assertEquals(0, mf.size());
@@ -194,7 +194,7 @@ public class GitTest extends TestCase {
         modref.emailAddress = "rschiele@gmail.com";
         modref.comment = "first commit" + NEWLINE;
         modref.revision = "1190000097";
-        mod = (Modification) mods.get(2);
+        mod = mods.get(2);
         assertEquals(modref, mod);
         mf = mod.getModifiedFiles();
         assertEquals(1, mf.size());
@@ -213,7 +213,7 @@ public class GitTest extends TestCase {
     }
 
     public void testParseEmptyLog() throws IOException {
-        List mods = new ArrayList();
+        final List<Modification> mods = new ArrayList<Modification>();
         SourceControlProperties props = new SourceControlProperties();
         props.assignPropertyName("hasChanges?");
         props.assignPropertyOnDeleteName("hasDeletions?");

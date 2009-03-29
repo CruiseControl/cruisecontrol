@@ -47,22 +47,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
 public final class TestUtil {
     public static class FilesToDelete {
-        private final List files = new Vector();
+        private final List<File> files = new Vector<File>();
     
         public void add(File file) {
             files.add(file);
         }
     
         public void delete() {
-            Iterator fileIterator = files.iterator();
-            while (fileIterator.hasNext()) {
-                File file = (File) fileIterator.next();
+            for (File file : files) {
                 IO.delete(file);
             }
             files.clear();
@@ -199,8 +196,11 @@ public final class TestUtil {
 
     /**
      * Return true when same.
+     * @param msg error message prefix
+     * @param refarr first array
+     * @param testarr second array
      */
-    public static void assertArray(String msg, Object[] refarr, Object[] testarr) {
+    public static void assertArray(final String msg, final Object[] refarr, final Object[] testarr) {
         Assert.assertNotNull(refarr);
         Assert.assertNotNull(testarr);
 

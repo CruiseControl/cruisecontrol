@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 /**
@@ -60,8 +61,8 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
-            public List getProjects() {
-                List list = new ArrayList();
+            public List<ProjectInterface> getProjects() {
+                final List<ProjectInterface> list = new ArrayList<ProjectInterface>();
                 list.add(projectConfig);
                 return list;
             }
@@ -91,8 +92,8 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
-            public List getProjects() {
-                List list = new ArrayList();
+            public List<ProjectInterface> getProjects() {
+                final List<ProjectInterface> list = new ArrayList<ProjectInterface>();
                 list.add(projectConfig);
                 return list;
             }
@@ -122,8 +123,8 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
-            public List getProjects() {
-                List list = new ArrayList();
+            public List<ProjectInterface> getProjects() {
+                final List<ProjectInterface> list = new ArrayList<ProjectInterface>();
                 list.add(projectConfig);
                 return list;
             }
@@ -154,8 +155,8 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
             }
         };
         adaptor = new CruiseControlControllerJMXAdaptor(new CruiseControlController() {
-            public List getProjects() {
-                List list = new ArrayList();
+            public List<ProjectInterface> getProjects() {
+                final List<ProjectInterface> list = new ArrayList<ProjectInterface>();
                 list.add(projectConfig);
                 return list;
             }

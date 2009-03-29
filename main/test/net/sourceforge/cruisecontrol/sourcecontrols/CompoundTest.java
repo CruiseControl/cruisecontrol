@@ -43,11 +43,11 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
 
 public class CompoundTest extends TestCase {
 
     public void testGetModifications() {
-        List modList = null;
 
         Compound compound = new Compound();
         Triggers trigger = (Triggers) compound.createTriggers();
@@ -61,16 +61,16 @@ public class CompoundTest extends TestCase {
         msc2.setType(2);
         target.add(msc2);
 
-        List triggerModsList = msc1.getModifications(new Date(0), new Date());
-        List targetModsList = msc2.getModifications(new Date(0), new Date());
-        List allModsList = new ArrayList();
+        final List<Modification> triggerModsList = msc1.getModifications(new Date(0), new Date());
+        final List<Modification> targetModsList = msc2.getModifications(new Date(0), new Date());
+        final List<Modification> allModsList = new ArrayList<Modification>();
         allModsList.addAll(targetModsList);
         allModsList.addAll(triggerModsList);
 
         // test retrieving mods without including trigger changes
         compound.setIncludeTriggerChanges("false");
 
-        modList = compound.getModifications(new Date(0), new Date());
+        List<Modification> modList = compound.getModifications(new Date(0), new Date());
         assertEquals("modification lists should match", modList, targetModsList);
         assertEquals(0, compound.getProperties().size());
         
@@ -86,10 +86,9 @@ public class CompoundTest extends TestCase {
     }
 
     public void testValidate() {
-        Compound compound = null;
 
         // test compound with no triggers
-        compound = new Compound();
+        Compound compound = new Compound();
         compound.createTargets();
 
         try {

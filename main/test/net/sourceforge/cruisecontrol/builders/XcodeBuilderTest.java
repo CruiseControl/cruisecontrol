@@ -49,13 +49,12 @@ public class XcodeBuilderTest {
     @Test
     public void validateShouldCallDirectoryValidate() throws CruiseControlException {
         final Called validate = new Called();
-        Directory directory = new Directory() {
+        builder.directory = new Directory() {
             @Override
             public void validate() {
                 validate.called = true;
             }
         };
-        builder.directory = directory;
         builder.validate();
         assertTrue(validate.called);
     }
@@ -106,7 +105,7 @@ public class XcodeBuilderTest {
     
     @Test
     public void argsShouldHavePropertiesSubstituted() throws CruiseControlException {
-        Map<String, String> properties = new HashMap();
+        Map<String, String> properties = new HashMap<String, String>();
         properties.put("key", "value");
         builder.setProperties(properties);
         builder.createArg().setValue("${key}");
@@ -299,7 +298,7 @@ public class XcodeBuilderTest {
     }
     
     private class MockOutputFile extends XcodeBuilder.OutputFile {
-        List lines = new ArrayList();
+        final List<String> lines = new ArrayList<String>();
         private Iterator iterator;
 
         MockOutputFile() {

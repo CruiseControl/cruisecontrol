@@ -178,9 +178,9 @@ public class ProjectConfigTest extends TestCase {
             return validateWasCalled;
         }
 
-        public List getCurrentModifications() {
+        public List<Modification> getCurrentModifications() {
             getCurrentModificationsWasCalled  = true;
-            List modications = new ArrayList();
+            List<Modification> modications = new ArrayList<Modification>();
             Modification modification = new Modification();
             modification.userName = "user0";
             modification.comment = "comment0";

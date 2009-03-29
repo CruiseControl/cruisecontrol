@@ -82,6 +82,7 @@ public class VssTest extends TestCase {
      * This test is only likely to fail on Windows if the temp file
      * is not deleted. *nix systems are able to delete the file even
      * if input streams remain open on the file
+     * @throws Exception if something fails
      */
     public void testVssTempFileCleanup() throws Exception {
         vss.setVsspath("vsspath");
@@ -92,7 +93,7 @@ public class VssTest extends TestCase {
         assertTrue("Failed to create test temp file: " + tempFile.getAbsolutePath(),
                 tempFile.createNewFile());
         try {
-            final ArrayList mods = new ArrayList();
+            final ArrayList<Modification> mods = new ArrayList<Modification>();
             vss.parseTempFile(mods);
             assertFalse("Vss SourceControl failed to delete temp file: "
                     + tempFile.getAbsolutePath()
@@ -155,7 +156,7 @@ public class VssTest extends TestCase {
      * Some people are seeing strange date outputs from their VSS history that looks like this: User: Aaggarwa Date:
      * 6/29/:1 Time: 3:40p Note the ":" rather than a "0"
      *
-     * @throws ParseException
+     * @throws ParseException if something fails
      */
     public void testParseDateStrangeDate() throws ParseException {
         String strangeDateLine = "User: Aaggarwa     Date:  6/20/:1   Time: 10:36a";
@@ -177,7 +178,7 @@ public class VssTest extends TestCase {
         // need to adjust for cases where Label: line exists
         // and there is also an action.
 
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("*****  DateChooser.java  *****");
         entry.add("Version 8");
         entry.add("Label: \"Completely new version!\"");
@@ -193,12 +194,12 @@ public class VssTest extends TestCase {
                 modification.comment);
         assertEquals("Arass", modification.userName);
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+        Modification.ModifiedFile modfile = modification.files.get(0);
         assertEquals("checkin", modfile.action);
     }
 
     public void testHandleEntryCheckinWithComment() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("*****  ttyp_direct.properties  *****");
         entry.add("Version 10");
         entry.add("User: Etucker      Date:  7/03/01   Time:  3:24p");
@@ -211,12 +212,12 @@ public class VssTest extends TestCase {
         assertEquals(mod.comment, "Comment: updated country codes for Colombia and Slovokia");
         assertEquals(mod.userName, "Etucker");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "checkin");
     }
 
     public void testHandleEntryShared() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         vss.setVsspath("\\vsspath");
         entry.add("*****  a  *****");
         entry.add("Version 19");
@@ -228,13 +229,13 @@ public class VssTest extends TestCase {
         assertEquals(mod.userName, "Etucker");
         assertEquals(mod.getFolderName(), "$\\vsspath\\a");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "share");
     }
 
     public void testHandleEntryDirBranched() {
 
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         vss.setVsspath("\\vsspath");
         entry.add("*****  core  *****");
         entry.add("Version 19");
@@ -247,13 +248,13 @@ public class VssTest extends TestCase {
         assertEquals(mod.getFolderName(), "$\\vsspath\\core");
         assertEquals(mod.type, "vss");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "branch");
     }
 
     public void testHandleEntryFileBranched() {
 
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         vss.setVsspath("\\vsspath");
         entry.add("*****  branch.file.1  *****");
         entry.add("Version 19");
@@ -266,7 +267,7 @@ public class VssTest extends TestCase {
     }
 
     public void testHandleEntryAdded() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         vss.setVsspath("\\vsspath");
         entry.add("*****  core  *****");
         entry.add("Version 19");
@@ -278,7 +279,7 @@ public class VssTest extends TestCase {
         assertEquals(mod.userName, "Etucker");
         assertEquals(mod.getFolderName(), "$\\vsspath\\core");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "add");
     }
 
@@ -287,7 +288,7 @@ public class VssTest extends TestCase {
         //User: Jfredrick     Date:  7/09/02   Time: 12:55p
         //branch.file.2 added
 
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         vss.setVsspath("\\vsspath");
         entry.add("*****************  Version 19  *****************");
         entry.add("User: MStave      Date:  7/03/01   Time: 11:16a");
@@ -298,13 +299,13 @@ public class VssTest extends TestCase {
         assertEquals(mod.userName, "MStave");
         assertEquals(mod.getFolderName(), "$\\vsspath");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "add");
     }
 
     public void testHandleEntryRename() {
         vss.setPropertyOnDelete("setThis");
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("*****  core  *****");
         entry.add("Version 19");
         entry.add("User: Etucker      Date:  7/03/01   Time: 11:16a");
@@ -314,7 +315,7 @@ public class VssTest extends TestCase {
         assertEquals("SessionIdGenerator.java renamed to SessionId.java", modification.getFileName());
         assertEquals("Etucker", modification.userName);
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+        Modification.ModifiedFile modfile = modification.files.get(0);
         assertEquals("rename", modfile.action);
 
         Map properties = vss.getProperties();
@@ -324,7 +325,7 @@ public class VssTest extends TestCase {
 
     public void testHandleEntryDestroyed() {
         vss.setPropertyOnDelete("setThis");
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("*****  installer_vms  *****");
         entry.add("Version 42");
         entry.add("User: Sfrolich      Date:  11/19/02   Time: 1:40p");
@@ -334,7 +335,7 @@ public class VssTest extends TestCase {
         assertEquals("IBMJDK130AIX_with_xerces.jar.vm", modification.getFileName());
         assertEquals("Sfrolich", modification.userName);
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) modification.files.get(0);
+        Modification.ModifiedFile modfile = modification.files.get(0);
         assertEquals("destroy", modfile.action);
 
         Map properties = vss.getProperties();
@@ -343,7 +344,7 @@ public class VssTest extends TestCase {
     }
 
     public void testHandleEntryLabel() {
-        List entry = new ArrayList();
+        List<String> entry = new ArrayList<String>();
         entry.add("**********************");
         entry.add("Label: \"KonaBuild_452\"");
         entry.add("User: Cm           Date:  4/29/03   Time: 12:03a");
@@ -354,7 +355,7 @@ public class VssTest extends TestCase {
         assertNull(modification);
 
         // Labeled root directory
-        entry = new ArrayList();
+        entry = new ArrayList<String>();
         entry.add("*****************  Version 222  *****************");
         entry.add("Label: \"build.83\"");
         entry.add("User: Fabricator     Date:  7/16/03   Time: 10:29a");
@@ -365,7 +366,7 @@ public class VssTest extends TestCase {
         assertNull(modification);
 
         // Labled subdirectory
-        entry = new ArrayList();
+        entry = new ArrayList<String>();
         entry.add("*****  built  *****");
         entry.add("Version 4");
         entry.add("Label: \"autobuild_test\"");
@@ -385,7 +386,7 @@ public class VssTest extends TestCase {
     public void testCommentsContainingAsterisksAreNotMistakenAsEntryHeaders() throws Exception {
         String entry = "Comment: blah blah blah\n*****\n*****  test.file  *****\nVersion 1\nUser: Jyip      "
                 + "Date:  7/8/06   Time:  12:24p\nChecked in $/some/folder/path\n" + "Comment: some normal comment\n";
-        List modifications = new ArrayList();
+        final List<Modification> modifications = new ArrayList<Modification>();
         final BufferedReader reader = new BufferedReader(new StringReader(entry));
         try {
             vss.parseHistoryEntries(modifications, reader);
@@ -393,7 +394,7 @@ public class VssTest extends TestCase {
             reader.close();
         }
         assertEquals(1, modifications.size());
-        Modification modification = (Modification) modifications.get(0);
+        Modification modification = modifications.get(0);
         assertEquals("test.file", modification.getFileName());
         assertEquals("/some/folder/path", modification.getFolderName());
     }
@@ -445,6 +446,9 @@ public class VssTest extends TestCase {
 
     /**
      * Utility method to easily create a given date.
+     * @param dateString date string to use in creating a date object
+     * @return a date object
+     * @throws ParseException if dateString is invalid
      */
     private Date createDate(String dateString) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -456,6 +460,8 @@ public class VssTest extends TestCase {
      *
      * @param testName
      *            Replaces the Username in above example
+     * @param dateTimeString date string
+     * @return a VSS line that looks something like this: User: Username Date: 6/14/01 Time: 6:39p
      */
     private String createVSSLine(String testName, String dateTimeString) {
         return "User: " + testName + " " + dateTimeString;

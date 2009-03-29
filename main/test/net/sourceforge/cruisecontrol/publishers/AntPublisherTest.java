@@ -23,10 +23,10 @@ public class AntPublisherTest extends TestCase {
     }
 
     public void testPopulatePropertiesForAntBuilder() {
-        Element successfulBuild = TestUtil.createElement(true, true);
-        Element failedBuild = TestUtil.createElement(false, false);
-        Map properties = new HashMap();
-        AntPublisher publisher = new AntPublisher();
+        final Element successfulBuild = TestUtil.createElement(true, true);
+        final Element failedBuild = TestUtil.createElement(false, false);
+        final Map<String, String> properties = new HashMap<String, String>();
+        final AntPublisher publisher = new AntPublisher();
         
         publisher.populatePropertesForAntBuilder(successfulBuild, properties);
         assertTrue("true".equals(properties.get("thisbuildsuccessful")));

@@ -122,7 +122,7 @@ public class OrigoApiClient {
      * @throws XmlRpcException if error occurs
      * @throws IOException if error occurs
      */
-    public Vector searchIssue(final String session, final Integer projectId, final Hashtable searchArgs)
+    public Vector searchIssue(final String session, final Integer projectId, final Hashtable<String, String> searchArgs)
             throws XmlRpcException, IOException {
 
         final Vector<Object> params = new Vector<Object>();

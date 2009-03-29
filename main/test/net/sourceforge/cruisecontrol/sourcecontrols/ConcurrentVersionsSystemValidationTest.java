@@ -117,14 +117,14 @@ public class ConcurrentVersionsSystemValidationTest extends TestCase {
     }
 
     private static class MockOSEnvironment extends OSEnvironment {
-        private Map myVariables = new HashMap();
+        private final Map<String, String> myVariables = new HashMap<String, String>();
 
         public void add(String variable, String value) {
             myVariables.put(variable, value);
         }
 
         public String getVariable(String variable) {
-            return (String) myVariables.get(variable);
+            return myVariables.get(variable);
         }
     }
 

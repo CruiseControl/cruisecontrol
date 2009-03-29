@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -202,9 +201,11 @@ public class BuildLoopInformationBuilderTest extends TestCase {
             this.state = state;
         }
 
-        public List getProjects() {
-            ProjectConfig p1 = new ProjectConfigStub();
-            return Arrays.asList(new ProjectConfig[] {p1});
+        public List<ProjectInterface> getProjects() {
+            final ProjectConfig p1 = new ProjectConfigStub();
+            final List<ProjectInterface> lstProjs = new ArrayList<ProjectInterface>();
+            lstProjs.add(p1);
+            return lstProjs;
         }
         
         private class ProjectConfigStub extends ProjectConfig {
@@ -213,12 +214,12 @@ public class BuildLoopInformationBuilderTest extends TestCase {
                 return dateString;
             }
 
-            public List getModifications() {
+            public List<Modification> getModifications() {
                 if (!isInState(ProjectState.BUILDING)) {
                     throw new RuntimeException("Should not call this method when not building");
                 }
-                ArrayList list = new ArrayList();
-                Modification m1 = new Modification();
+                final ArrayList<Modification> list = new ArrayList<Modification>();
+                final Modification m1 = new Modification();
                 m1.comment = "support security check";
                 m1.userName = "bob";
                 m1.revision = "123";

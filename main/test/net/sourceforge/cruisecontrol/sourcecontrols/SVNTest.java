@@ -160,9 +160,9 @@ public class SVNTest {
                 + "shared/tool/jfcunit_2.08\tsvn://mybank.org/svnbank/trunk/java/shared/tool/jfcunit_2.08\n"
                 + "shared/lib/jnlp-1_2-dev\tsvn://mybank.org/svnbank/trunk/java/shared/lib/jnlp-1_2-dev\n";
 
-        HashMap directories = new HashMap();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(testPropgetResult
-                .getBytes("UTF-8")), "UTF-8"));
+        final HashMap<String, List<String[]>> directories = new HashMap<String, List<String[]>>();
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(
+                testPropgetResult.getBytes("UTF-8")), "UTF-8"));
         try {
             SVN.parsePropgetReader(reader, directories);
         } finally {
@@ -171,8 +171,8 @@ public class SVNTest {
 
         assertEquals(1, directories.keySet().size());
 
-        String directory = (String) directories.keySet().iterator().next();
-        List externals = (List) directories.get(directory);
+        String directory = directories.keySet().iterator().next();
+        List externals = directories.get(directory);
 
         assertEquals("Wrong number of externals", 3, externals.size());
 
@@ -390,26 +390,26 @@ public class SVNTest {
     public void testSetProperty() throws ParseException {
         svn.setProperty("hasChanges?");
 
-        List noModifications = new ArrayList();
+        final List<Modification> noModifications = new ArrayList<Modification>();
         svn.fillPropertiesIfNeeded(noModifications);
         assertEquals(null, svn.getProperties().get("hasChanges?"));
 
-        List hasModifications = new ArrayList();
+        final List<Modification> hasModifications = new ArrayList<Modification>();
         hasModifications.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee",
                 "bli", "333", "", "/trunk/playground/bbb", "deleted"));
         hasModifications.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee",
                 "bli", "663", "", "/trunk/playground/bbb", "added"));
         svn.fillPropertiesIfNeeded(hasModifications);
-        Map properties = svn.getProperties();
+        final Map<String, String> properties = svn.getProperties();
 
-        assertThat((String) properties.get("hasChanges?"), equalTo("true"));
-        assertThat((String) properties.get("svnrevision"), equalTo("663"));
+        assertThat(properties.get("hasChanges?"), equalTo("true"));
+        assertThat(properties.get("svnrevision"), equalTo("663"));
     }
 
     @Test
     public void testSetPropertyIgnoresPriorState() throws ParseException {
         testSetProperty();
-        svn.fillPropertiesIfNeeded(new ArrayList());
+        svn.fillPropertiesIfNeeded(new ArrayList<Modification>());
 
         assertFalse(svn.getProperties().containsKey("hasChanges?"));
     }
@@ -418,24 +418,24 @@ public class SVNTest {
     public void testSetPropertyOnDelete() throws ParseException {
         svn.setPropertyOnDelete("hasDeletions?");
 
-        List noModifications = new ArrayList();
+        final List<Modification> noModifications = new ArrayList<Modification>();
         svn.fillPropertiesIfNeeded(noModifications);
         assertThat(svn.getProperties().get("hasDeletions?"), nullValue());
 
-        List noDeletions = new ArrayList();
+        final List<Modification> noDeletions = new ArrayList<Modification>();
         noDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
                 "663", "", "/trunk/playground/bbb", "added"));
         svn.fillPropertiesIfNeeded(noDeletions);
         assertThat(svn.getProperties().get("hasDeletions?"), nullValue());
 
-        List hasDeletions = new ArrayList();
+        final List<Modification> hasDeletions = new ArrayList<Modification>();
         hasDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
                 "663", "", "/trunk/playground/aaa", "added"));
         hasDeletions.add(createModification(SVN.getOutDateFormatter().parse("2003-08-02T10:01:13.349"), "lee", "bli",
                 "663", "", "/trunk/playground/bbb", "deleted"));
         svn.fillPropertiesIfNeeded(hasDeletions);
 
-        assertThat((String) svn.getProperties().get("hasDeletions?"), equalTo("true"));
+        assertThat(svn.getProperties().get("hasDeletions?"), equalTo("true"));
     }
 
     private static Modification createModification(Date date, String user, String comment, String revision,

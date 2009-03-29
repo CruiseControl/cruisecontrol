@@ -118,8 +118,8 @@ public class ProjectControllerTest extends TestCase {
     private class SVNStub implements SourceControl {
         private static final long serialVersionUID = 1L;
 
-        public List getModifications(Date lastBuild, Date now) {
-            List modications = new ArrayList();
+        public List<Modification> getModifications(Date lastBuild, Date now) {
+            final List<Modification> modications = new ArrayList<Modification>();
             Modification modification = new Modification();
             modification.userName = "user1";
             modification.comment = "comment1";
@@ -131,7 +131,7 @@ public class ProjectControllerTest extends TestCase {
             return modications;
         }
 
-        public Map getProperties() {
+        public Map<String, String> getProperties() {
             return null;
         }
 

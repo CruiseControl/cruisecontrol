@@ -138,7 +138,7 @@ public class VssJournalTest extends TestCase {
     }
 
     public void testHandleEntryCheckin() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("$/AutoBuild/conf/cruisecontrol.properties");
         entry.add("Version: 5");
         entry.add("User: Etucker         Date:  7/06/01  Time:  2:11p");
@@ -152,13 +152,13 @@ public class VssJournalTest extends TestCase {
         assertEquals(mod.userName, "Etucker");
         assertEquals(mod.type, "vss");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "checkin");
         assertNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
 
     public void testHandleEntryRename() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("$/WILD/Client/English");
         entry.add("Version: 15");
         entry.add("User: Ddavis          Date:  7/10/01  Time: 10:41a");
@@ -171,13 +171,13 @@ public class VssJournalTest extends TestCase {
         assertEquals(mod.userName, "Ddavis");
         assertEquals(mod.type, "vss");
 
-        Modification.ModifiedFile modfile = (Modification.ModifiedFile) mod.files.get(0);
+        Modification.ModifiedFile modfile = mod.files.get(0);
         assertEquals(modfile.action, "delete");
         assertNotNull(element.getProperties().get(PROPERTY_ON_DELETE));
     }
 
     public void testHandleEntryLabel() {
-        List entry = new ArrayList();
+        final List<String> entry = new ArrayList<String>();
         entry.add("$/ThirdPartyComponents/jakarta-ant-1.3/lib");
         entry.add("Version: 7");
         entry.add("User: Etucker         Date:  7/06/01  Time: 10:28a");
