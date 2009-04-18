@@ -63,6 +63,7 @@ documentation
 configxml.html
 ----------------------
 * PropertyFileLabelIncrementer: document preBuildIncrementer attribute (CC-900). Patch by David Corley
+* Fix doc error attribute "localworkingdir" for <Mercurial> build trigger when it should be "localworkingcopy" (CC-893). Reported by Joona Petrell
 
 CruiseControl Release Notes - 2.8.2
 
