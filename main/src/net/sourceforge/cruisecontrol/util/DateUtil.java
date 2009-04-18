@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,8 +51,6 @@ import org.apache.tools.ant.util.DateUtils;
 
 public final class DateUtil {
 
-    public static final SimpleDateFormat ISO8601_DATE_FORMATTER;
-
     // Can't use log4j since DateUtil is now used in reporting/jsp
     // @todo Find alternative "logging" approach for classes where log4j may not be available
     //private static final Logger LOG = Logger.getLogger(DateUtil.class);
@@ -63,20 +62,28 @@ public final class DateUtil {
     static final long ONE_HOUR = 60 * ONE_MINUTE;
 
     public static final String SIMPLE_DATE_FORMAT = "yyyyMMddHHmmss";
-
-    private static final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat(SIMPLE_DATE_FORMAT);
-    
-    static {
-        ISO8601_DATE_FORMATTER = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
-        ISO8601_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("GMT -0:00"));
-    }
+    private static final String GMT = "GMT -0:00";
 
     private DateUtil() {
     }
 
     /**
+     * SimpleDateFormat is not thread-safe, see http://jira.public.thoughtworks.org/browse/CC-906.
+     * @return a new date format (for use by one thread - not thread safe)
+     */
+    private static DateFormat createIso8601Format() {
+        final SimpleDateFormat format = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
+        format.setTimeZone(TimeZone.getTimeZone(GMT));
+        return format;
+    }
+
+    private static DateFormat createSimpleFormat() {
+        return new SimpleDateFormat(SIMPLE_DATE_FORMAT);
+    }
+
+    /**
      * Create an integer time from a <code>Date</code> object.
-     * 
+     *
      * @param date
      *            The date to get the timestamp from.
      * @return The time as an integer formatted as "HHmm".
@@ -91,7 +98,7 @@ public final class DateUtil {
 
     /**
      * finds the difference in milliseconds between two integer time values of the format "HHmm".
-     * 
+     *
      * @param earlier
      *            integer time value of format "HHmm"
      * @param later
@@ -106,7 +113,7 @@ public final class DateUtil {
 
     /**
      * Convert a time represented by the format "HHmm" into milliseconds.
-     * 
+     *
      * @param hhmm
      *            where hh are hours and mm are minutes
      * @return hhmm in milliseconds
@@ -158,7 +165,7 @@ public final class DateUtil {
         if (date == null) {
             return null;
         }
-        return SIMPLE_DATE_FORMATTER.format(date);
+        return createSimpleFormat().format(date);
     }
 
     public static Date parseFormattedTime(final String timeString, final String description)
@@ -169,7 +176,7 @@ public final class DateUtil {
         }
         final Date date;
         try {
-            date = SIMPLE_DATE_FORMATTER.parse(timeString);
+            date = createSimpleFormat().parse(timeString);
         } catch (ParseException e) {
             // @todo Find alternative "logging" approach where log4j may not be available
             //LOG.error("Error parsing timestamp for [" + description + "]", e);
@@ -191,9 +198,9 @@ public final class DateUtil {
     }
 
     public static Date parseIso8601(final String timestamp) throws ParseException {
-        return ISO8601_DATE_FORMATTER.parse(timestamp);
+        return createIso8601Format().parse(timestamp);
     }
-    
+
     public static String formatIso8601(final Date date) {
         if (date == null) {
             return null;
