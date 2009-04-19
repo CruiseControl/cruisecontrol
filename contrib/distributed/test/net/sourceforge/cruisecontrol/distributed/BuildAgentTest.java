@@ -14,6 +14,7 @@ import net.jini.lookup.ServiceIDListener;
 import java.rmi.RemoteException;
 
 import java.awt.GraphicsEnvironment;
+import java.util.prefs.Preferences;
 
 /**
  * @author Dan Rollo
@@ -49,9 +50,9 @@ public class BuildAgentTest extends TestCase {
 
     // @todo Add one slash in front of "/*" below to run individual tests in an IDE
     /*
-    private static DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;    
+    private static DistributedMasterBuilderTest.ProcessInfoPump jiniProcessPump;
     protected void setUp() throws Exception {
-        jiniProcessPump = DistributedMasterBuilderTest.startJini(LOG);
+        jiniProcessPump = DistributedMasterBuilderTest.startJini();
         BuildAgent.setSkipMainSystemExit();
         BuildAgentTest.setTerminateFast();
     }
@@ -62,7 +63,7 @@ public class BuildAgentTest extends TestCase {
     //*/
 
 
-    
+
     private static void assertFindAgent(final ServiceRegistrar reg,
                                     final int retries, final boolean expectedFoundResult)
             throws RemoteException, InterruptedException {
@@ -239,14 +240,48 @@ public class BuildAgentTest extends TestCase {
         assertFindAgent(reg, 20, false);
     }
 
+    /**
+     * Info holder class used to restore any existing agent entryOverrides.
+     */
+    static final class ClearEntryOverridesInfo {
+
+        final Preferences parentNode;
+        final String origPrefsRootName;
+        final PropertyEntry[] origEntryOverrides;
+
+        ClearEntryOverridesInfo() throws InterruptedException {
+            final BuildAgent agentReadPrefs = DistributedMasterBuilderTest.createBuildAgent(false);
+            parentNode = agentReadPrefs.getPrefsRoot().parent();
+            origPrefsRootName = agentReadPrefs.getPrefsRoot().name();
+            origEntryOverrides = agentReadPrefs.getEntryOverrides();
+            agentReadPrefs.clearEntryOverrides();
+            terminateTestAgent(agentReadPrefs);
+        }
+
+        void restoreOriginalEntryOverrides() {
+            // restore entryOverrides, otherwise building CC clears JRE prefs storage on disk in build farm agents
+            // need to recreate prefs sub-node deleted during cleanup above
+            final Preferences prefsEntryOverrides
+                    // recreate deleted agent node
+                    = parentNode.node(origPrefsRootName)
+                    // recreate deleted entry overrides node
+                    .node(BuildAgent.PREFS_NODE_ENTRY_OVERRIDES);
+            BuildAgent.putEntryOverrides(prefsEntryOverrides, origEntryOverrides);
+        }
+    }
+
     public void testSetEntryOverrides() throws Exception {
+
+        // hold reference original info to restore any entryOverrides that existed before this test ran
+        final ClearEntryOverridesInfo origEntryOverridesInfo = new ClearEntryOverridesInfo();
+
         final BuildAgent buildAgent = DistributedMasterBuilderTest.createBuildAgent(false);
         try {
             final int expectedOrigEntryCount = 5;
-            final PropertyEntry[] origEnties = buildAgent.getEntries();
+            final PropertyEntry[] origEntries = buildAgent.getEntries();
             assertEquals("Did the unit test props file change? : "
                     + BuildAgentServiceImplTest.TEST_USER_DEFINED_PROPERTIES_FILE,
-                    expectedOrigEntryCount, origEnties.length);
+                    expectedOrigEntryCount, origEntries.length);
 
             // add new prop entry
             final PropertyEntry newPropEntry = new PropertyEntry("newEntryName", "newEntryValue");
@@ -274,15 +309,20 @@ public class BuildAgentTest extends TestCase {
             assertEquals(expectedOrigEntryCount + 1, buildAgent.getEntries().length);
 
             buildAgent.clearEntryOverrides();
-            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);            
+            assertEquals(expectedOrigEntryCount, buildAgent.getEntries().length);
         } finally {
+
             // clear overrides
             buildAgent.clearEntryOverrides();
+
             // clear all agent prefs
             buildAgent.getPrefsRoot().removeNode();
             buildAgent.getPrefsRoot().flush();
 
-            BuildAgent.kill();
+            // restore entryOverrides, otherwise building CC clears JRE prefs storage on disk in build farm agents
+            origEntryOverridesInfo.restoreOriginalEntryOverrides();
+
+            terminateTestAgent(buildAgent);
         }
     }
 }
