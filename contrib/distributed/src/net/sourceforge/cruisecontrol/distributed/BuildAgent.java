@@ -102,6 +102,8 @@ public class BuildAgent implements DiscoveryListener,
     private Properties configProperties;
 
     private final BuildAgentUI ui;
+    /** Preferences node name, under which entry overrides are stored. */
+    static final String PREFS_NODE_ENTRY_OVERRIDES = "entryOverrides";
 
 
     static interface LUSCountListener {
@@ -187,7 +189,7 @@ public class BuildAgent implements DiscoveryListener,
             throw new RuntimeException(message, e);
         }
 
-        // Use a comma separated list of Unicast Lookup Locaters (URL's) if defined in agent.properties. 
+        // Use a comma separated list of Unicast Lookup Locaters (URL's) if defined in agent.properties.
         // Useful if multicast isn't working.
         final String registryURLList = configProperties.getProperty(REGISTRY_URL);
         final LookupLocatorDiscovery lld;
@@ -248,21 +250,33 @@ public class BuildAgent implements DiscoveryListener,
     /**
      * Gets the EntryOverrides preferences node this this user, shared among all BuildAgents running
      * under this userID on the current machine.
-     * @todo Should this node be more granular, like per Agent ServiceID? if so we must store/resuse serviceID
+     * //@todo Should this node be more granular, like per Agent ServiceID? if so we must store/resuse serviceID
      */
-    private final Preferences prefsEntryOverrides = prefsBase.node("entryOverrides");
+    private final Preferences prefsEntryOverrides = prefsBase.node(PREFS_NODE_ENTRY_OVERRIDES);
 
     void setEntryOverrides(final PropertyEntry[] entryOverrides) {
         // clear stored override preferences settings
         clearOverridePrefs();
 
         // store override props using Preferences api
-        for (final PropertyEntry entryOverride : entryOverrides) {
-            prefsEntryOverrides.put(entryOverride.name, entryOverride.value);
-        }
+        putEntryOverrides(prefsEntryOverrides, entryOverrides);
 
         // publish using entries reloaded via getEntries, which adds entry overrides from prefs
         joinManager.setAttributes(getEntries());
+    }
+
+    /**
+     * Store override props using Preferences api.
+     * Exposed as package static for unit test cleanup to agent prefs.
+     * @param prefsEntryOverrides preferences node under which to store agent preferences
+     * @param entryOverrides entry overrides to store
+     */
+    static void putEntryOverrides(final Preferences prefsEntryOverrides,
+                                  final PropertyEntry[] entryOverrides) {
+
+        for (final PropertyEntry entryOverride : entryOverrides) {
+            prefsEntryOverrides.put(entryOverride.name, entryOverride.value);
+        }
     }
 
     void clearEntryOverrides() {
@@ -438,7 +452,7 @@ public class BuildAgent implements DiscoveryListener,
         return serviceImpl;
     }
 
-    /** 
+    /**
      * Called when the JoinManager gets a valid ServiceID from a lookup
      * service.
      *
@@ -530,7 +544,7 @@ public class BuildAgent implements DiscoveryListener,
         LOG.info("Starting agent...args: " + Arrays.asList(args).toString());
 
         CCDistVersion.printCCDistVersion();
-        
+
         if (shouldPrintUsage(args)) {
             printUsage();
         }
@@ -563,7 +577,7 @@ public class BuildAgent implements DiscoveryListener,
         // don't call sys exit during unit tests
         if (!isSkipMainSystemExit) {
             // on some JVM's (webstart - restart) the BuildAgent.kill() call doesn't return,
-            // so sys exit is also done here.            
+            // so sys exit is also done here.
             LOG.info("Agent main thread (" + mainThreadName + ") calling System.exit().");
             System.exit(0);
         } else {

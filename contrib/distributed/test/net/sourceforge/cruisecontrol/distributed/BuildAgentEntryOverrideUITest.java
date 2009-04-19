@@ -24,6 +24,10 @@ public class BuildAgentEntryOverrideUITest extends TestCase {
             return;
         }
 
+        // hold reference original info to restore any entryOverrides that existed before this test ran
+        final BuildAgentTest.ClearEntryOverridesInfo origEntryOverridesInfo
+                = new BuildAgentTest.ClearEntryOverridesInfo();
+
         final BuildAgent agent = DistributedMasterBuilderTest.createBuildAgent(false);
         final BuildAgentService agentService = agent.getService();
         agent.clearEntryOverrides(); // otherwise, tests fail if overrides with same test values exist
@@ -63,6 +67,9 @@ public class BuildAgentEntryOverrideUITest extends TestCase {
             // terminate JoinManager in BuildAgent
             BuildAgentTest.terminateTestAgent(agent);
             entryOverrideUI.dispose();
+
+            // restore entryOverrides, otherwise building CC clears JRE prefs storage on disk in build farm agents
+            origEntryOverridesInfo.restoreOriginalEntryOverrides();
         }
     }
 }
