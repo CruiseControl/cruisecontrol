@@ -69,7 +69,7 @@ public final class DateUtil {
     }
 
 
-    private static final ThreadLocal<SoftReference<SimpleDateFormat>> tl
+    private static final ThreadLocal<SoftReference<SimpleDateFormat>> TL
             = new ThreadLocal<SoftReference<SimpleDateFormat>>();
 
     /**
@@ -80,7 +80,7 @@ public final class DateUtil {
      * @return an instance of an ISO8601 dateFormat that can be safely re-used by a single thread.
      */
     static SimpleDateFormat getThreadLocal8601Format() {
-        final SoftReference<SimpleDateFormat> ref = tl.get();
+        final SoftReference<SimpleDateFormat> ref = TL.get();
         if (ref != null) {
             final SimpleDateFormat result = ref.get();
             if (result != null) {
@@ -89,7 +89,7 @@ public final class DateUtil {
         }
         final SimpleDateFormat result = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
         final SoftReference<SimpleDateFormat> newRef = new SoftReference<SimpleDateFormat>(result);
-        tl.set(newRef);
+        TL.set(newRef);
         return result;
     }
 
