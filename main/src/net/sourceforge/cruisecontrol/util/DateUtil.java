@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.lang.ref.SoftReference;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -67,12 +68,37 @@ public final class DateUtil {
     private DateUtil() {
     }
 
+
+    private static final ThreadLocal<SoftReference<SimpleDateFormat>> tl
+            = new ThreadLocal<SoftReference<SimpleDateFormat>>();
+
+    /**
+     * Store a ThreadLocal instance of an ISO8601 dateFormat that can be safely re-used by a single thread.
+     * Avoids creating new dateFormat objects for calls from the same thread.
+     * SoftReference is used to keep a thread from holding onto dateFormat instance forever.
+     * Only package visible to allow for unit testing.
+     * @return an instance of an ISO8601 dateFormat that can be safely re-used by a single thread.
+     */
+    static SimpleDateFormat getThreadLocal8601Format() {
+        final SoftReference<SimpleDateFormat> ref = tl.get();
+        if (ref != null) {
+            final SimpleDateFormat result = ref.get();
+            if (result != null) {
+                return result;
+            }
+        }
+        final SimpleDateFormat result = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
+        final SoftReference<SimpleDateFormat> newRef = new SoftReference<SimpleDateFormat>(result);
+        tl.set(newRef);
+        return result;
+    }
+
     /**
      * SimpleDateFormat is not thread-safe, see http://jira.public.thoughtworks.org/browse/CC-906.
      * @return a new date format (for use by one thread - not thread safe)
      */
     private static DateFormat createIso8601Format() {
-        final SimpleDateFormat format = new SimpleDateFormat(DateUtils.ISO8601_DATETIME_PATTERN);
+        final SimpleDateFormat format = getThreadLocal8601Format();
         format.setTimeZone(TimeZone.getTimeZone(GMT));
         return format;
     }

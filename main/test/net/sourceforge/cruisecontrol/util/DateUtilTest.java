@@ -38,6 +38,12 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 import java.util.Calendar;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * @author jfredrick
@@ -54,6 +60,37 @@ public class DateUtilTest extends TestCase {
         cal.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
         cal2 = Calendar.getInstance();
         cal2.set(2001, Calendar.NOVEMBER, 22, 11, 01, 01);
+    }
+
+    public void testGetThreadLocal8601Format() throws Exception {
+        final Callable<SimpleDateFormat> c1 = new Callable<SimpleDateFormat>() {
+            public SimpleDateFormat call() throws Exception {
+                return DateUtil.getThreadLocal8601Format();
+            }
+        };
+
+        final Callable<SimpleDateFormat> c2 = new Callable<SimpleDateFormat>() {
+            public SimpleDateFormat call() throws Exception {
+                return DateUtil.getThreadLocal8601Format();
+            }
+        };
+
+        final ExecutorService pool = Executors.newFixedThreadPool(2);
+
+        final Future<SimpleDateFormat> future1 = pool.submit(c1);
+        final Future<SimpleDateFormat> future2 = pool.submit(c2);
+
+        final DateFormat df1 = future1.get();
+        assertSame(df1, future1.get());
+
+        final DateFormat df2 = future2.get();
+        assertNotSame(df2, df1);
+
+        /* The ThreadLocal SoftReference might be reclaimed before this runs, so the check below is not reliable.
+        // It does sometimes pass, therefore does "occaisionaly" prove that the ThreadLocal df is shared though...
+        final Future<SimpleDateFormat> future1Again = pool.submit(c1);
+        assertSame(df1, future1Again.get());
+        //*/
     }
 
     public void testGetTimeFromDate() {
