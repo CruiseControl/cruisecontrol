@@ -37,13 +37,13 @@
 package net.sourceforge.cruisecontrol.dashboard.smoketests;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ProjectConfig;
+import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.dashboard.jwebunittests.BaseFunctionalTest;
 import net.sourceforge.cruisecontrol.report.BuildLoopStatusReportTask;
 
@@ -77,15 +77,15 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
             this.status = status;
         }
 
-        public List getProjects() {
+        public List<ProjectInterface> getProjects() {
             ProjectConfig p1 = new ProjectConfig() {
                 public String getBuildStartTime() {
                     return "20031212152235";
                 }
 
-                public List getModifications() {
-                    ArrayList list = new ArrayList();
-                    Modification m1 = new Modification();
+                public List<Modification> getModifications() {
+                    final ArrayList<Modification> list = new ArrayList<Modification>();
+                    final Modification m1 = new Modification();
                     m1.comment = "support security check";
                     m1.userName = "JK";
                     m1.revision = "2023";
@@ -101,7 +101,10 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
                     return status;
                 }
             };
-            return Arrays.asList(new ProjectConfig[] {p1});
+
+            final List<ProjectInterface> lstProjs = new ArrayList<ProjectInterface>();
+            lstProjs.add(p1);
+            return lstProjs;
         }
     }
 }
