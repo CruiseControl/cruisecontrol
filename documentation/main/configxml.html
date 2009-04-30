@@ -495,8 +495,8 @@
                 of the variable.</li>
         </ol>
 
-        <p>Properties in CruiseControl are <i>not entirely</i> immutable: whoever sets a property <i>last</i>
-        will freeze it's value <i>within the scope in which the property was set</i>. In other words,
+        <p>Properties in CruiseControl are <em>not entirely</em> immutable: whoever sets a property <em>last</em>
+        will freeze it's value <em>within the scope in which the property was set</em>. In other words,
         you may define a property at the global level, then eclipse this value within the scope of a single
         project by redefining the property within that project. You may not, however, set a property more
         than once within the same scope. If you do so, only the last assignment will be used.</p>
@@ -800,7 +800,7 @@
         will handle checking for modifications, building, and publishing the
         results of your project.</p>
 
-        <p><i>Note</i>: one config.xml file can contain several
+        <p><em>Note</em>: one config.xml file can contain several
         <code>&lt;project&gt;</code> elements; these projects will all run in
         a shared build queue (see the <a href="#threads">&lt;threads&gt;</a> element
         if you want to build multiple projects at the same time).</p>
@@ -1888,14 +1888,14 @@ password=P@ssW0rd!
                 <td>recurse</td>
                 <td>No</td>
                 <td>If set to true, all subprojects will also be reconfigured. Defaults to
-                    <i>true</i></td>
+                    <em>true</em></td>
             </tr>
             </tbody>
         </table>
 
         <h3>Examples</h3>
         <ol>
-            <li>Reconfigure the "j2ee~1.0_int" project (but <i>not</i> it's subprojects) using
+            <li>Reconfigure the "j2ee~1.0_int" project (but <em>not</em> it's subprojects) using
                 the CM Synergy session named "j2ee_session".
             <pre>
 &lt;bootstrappers&gt;
@@ -2948,18 +2948,18 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>Fully qualified VSS path to the target file.  If the leading
                 dollar-sign ['$'] is omitted, one will be prepended
                 automatically.<br/>
-                <b>Example:</b> /Project/subproject/filename.ext</td>
+                <strong>Example:</strong> /Project/subproject/filename.ext</td>
             </tr>
             <tr>
                 <td>localdirectory</td>
                 <td>Yes</td>
                 <td>Fully qualified path for the destination directory.<br/>
-                <b>Example:</b> c:\directory\subdirectory\</td>
+                <strong>Example:</strong> c:\directory\subdirectory\</td>
             </tr>
             <tr>
                 <td>login</td>
                 <td>No</td>
-                <td>VSS login information in the form <i>username,password</i></td>
+                <td>VSS login information in the form <em>username,password</em></td>
             </tr>
             <tr>
                 <td>ssdir</td>
@@ -3014,8 +3014,8 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                <td>Is a modification required for the build to continue?
                Default value is true. Useful to set to false when the schedule
                has only time based builds or if you want to run tests to verify
-               an external resource (such as a database).  <b>NOTE - This attribute
-               will be going away.</b>  Use the requireModification attribute that is on the
+               an external resource (such as a database).  <strong>NOTE - This attribute
+               will be going away.</strong>  Use the requireModification attribute that is on the
                project tag instead.<br /></td>
             </tr>
             <tr>
@@ -3271,7 +3271,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>Triggers a build if there is a change in an AlienBrain repository.</p>
         <p>Changes are detected by running a command similar to the following:</p>
 
-        <pre>ab&nbsp;find&nbsp;<i>PathToProject</i>&nbsp;-regex&nbsp;"SCIT &gt; <i>lastbuildtime</i>"&nbsp;</pre>
+        <pre>ab&nbsp;find&nbsp;<em>PathToProject</em>&nbsp;-regex&nbsp;"SCIT &gt; <em>lastbuildtime</em>"&nbsp;</pre>
 
         <h3>Attributes</h3>
 
@@ -3617,10 +3617,10 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Used to set the project's instance value. As CM Synergy only allows a
                     single instance of a project object in any given database, this attribute
-                    defaults to "1", and should not need to be changed by most users. <b>You
+                    defaults to "1", and should not need to be changed by most users. <strong>You
                     might, however, need to set this value when using the DCM (Distributed
                     Change Management) feature of the tool - which appends the DB name to
-                    the instance value.</b></td>
+                    the instance value.</strong></td>
             </tr>
             <tr>
                <td>ccmdateformat</td>
@@ -3637,12 +3637,12 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                    the given project before searching for changes. This allows any query
                    based folders to update themselves with new tasks. If you wish to disable
                    this feature (not recommended), you may set this attribute to false.
-                   <b>This feature will only work with CM Synergy version 6.3 and above. If
-                    you are using an older version, you <i>must</i> set this option to false. In this
+                   <strong>This feature will only work with CM Synergy version 6.3 and above. If
+                    you are using an older version, you <em>must</em> set this option to false. In this
                     case, you'll want to use the
                     <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
                     as a workaround. Please see example 2 below as well as the Wiki site for
-                    more information.</b></td>
+                    more information.</strong></td>
             </tr>
             <tr>
                <td>reconfigure</td>
@@ -3666,7 +3666,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                     a more precise query to find modifications since the last build when the
                     reconfiguration rules are based on other criteria e.g. the status of a Change
                     Synergy change request. <strong>This feature will only work with CM Synergy version
-                    6.3SP1 and above. If you are using an older version, you <i>must</i> set this
+                    6.3SP1 and above. If you are using an older version, you <em>must</em> set this
                     option to false (default).</strong>
                     </td>
             </tr>
@@ -3676,7 +3676,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                <td>By default, the plugin will query CM Synergy to determine the work area
                    location of the project. This location is then passed to the builders in
                    the property "cc.ccm.workarea". If you wish to disable this feature
-                   (not recommended), you can set this attribute to <i>true</i>.</td>
+                   (not recommended), you can set this attribute to <em>true</em>.</td>
             </tr>
             <tr>
                <td>changesynergyurl</td>
@@ -3773,7 +3773,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 to reconfigure only the top level "j2ee~1.0_int" project. This will
                 update the folders within that project's reconfigure properties.
                 We can then check for changes just as we did in the first example.
-                Notice that we <i>must</i> set the "updatefolder" attribute to false.
+                Notice that we <em>must</em> set the "updatefolder" attribute to false.
             <pre>
 &lt;bootstrappers&gt;
     &lt;cmsynergybootstrapper project="j2ee~1.0_int"
@@ -3924,26 +3924,26 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
         <p>Changes are detected by running a command similar to the following:</p>
 
-        <pre>cvs&nbsp;[-d&nbsp;<i>CVSROOT</i>]&nbsp;-q&nbsp;log|rlog&nbsp;[-N]&nbsp;-d&nbsp;"<i>lastbuildtime</i>&lt;<i>checktime</i>"&nbsp;[-b|-r<i>TAG</i>]&nbsp;<i>module</i></pre>
+        <pre>cvs&nbsp;[-d&nbsp;<em>CVSROOT</em>]&nbsp;-q&nbsp;log|rlog&nbsp;[-N]&nbsp;-d&nbsp;"<em>lastbuildtime</em>&lt;<em>checktime</em>"&nbsp;[-b|-r<em>TAG</em>]&nbsp;<em>module</em></pre>
 
         <p>The following changes are made to generate the actual command:</p>
 
         <ul>
             <li><code>log</code> is used when the localworkingcopy attribute is set,
             <code>rlog</code> otherwise.</li>
-            <li><code><i>lastbuildtime</i></code> is replaced with the date of
+            <li><code><em>lastbuildtime</em></code> is replaced with the date of
             the last build, using the date format
             <code>yyyy-MM-dd&nbsp;HH:mm:ss&nbsp;'GMT'</code>.</li>
 
-            <li><code><i>checktime</i></code> is replaced with the date at which
+            <li><code><em>checktime</em></code> is replaced with the date at which
             the check takes place.</li>
 
             <li>The <code>-d</code> option is only used when the cvsroot
-            attribute is specified; <code><i>CVSROOT</i></code> is replaced by
+            attribute is specified; <code><em>CVSROOT</em></code> is replaced by
             the value of that attribute.</li>
 
             <li>The <code>-r</code> option is only used when the tag attribute
-            is specified; <code><i>TAG</i></code> is replaced by the value of
+            is specified; <code><em>TAG</em></code> is replaced by the value of
             that attribute. Otherwise, the <code>-b</code> option is used.</li>
 
             <li>The <code>-N</code> option is only used when the tag attribute
@@ -3988,7 +3988,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>cvsroot</td>
                 <td>Specifies the location of the CVS repository.  This should
                 be of the form<br/>
-                <i><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code></i>
+                <em><code>:pserver:username@cvs.example.com:/cvsroot/reponame</code></em>
                 </td>
             </tr>
             <tr>
@@ -5414,7 +5414,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <tr>
                     <td>stream</td>
                     <td>Yes</td>
-                    <td>The ClearCase UCM stream (actually, the <i>branch</i>, so make sure to
+                    <td>The ClearCase UCM stream (actually, the <em>branch</em>, so make sure to
                     enter the branch type if it is named differently than your UCM stream)</td>
                 </tr>
                 <tr>
@@ -5567,29 +5567,29 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tbody>
             <tr>
                 <td>dateformat</td>
-                <td>No (defaults to default is <i>MM/dd/yy</i>)</td>
+                <td>No (defaults to default is <em>MM/dd/yy</em>)</td>
                 <td>The date format to use for querying VSS and processing
                 reports.  If your computer is set to a different region, you
-                may wish to use a format such as <i>dd/MM/yy</i>.</td>
+                may wish to use a format such as <em>dd/MM/yy</em>.</td>
             </tr>
             <tr>
                 <td>timeformat</td>
-                <td>No (default is <i>hh:mma</i>)</td>
+                <td>No (default is <em>hh:mma</em>)</td>
                 <td>The time format to use for querying VSS and processing
                 reports. If your VSS is configured differently you may need a
-                different format such as <i>HH:mm:ss</i>.</td>
+                different format such as <em>HH:mm:ss</em>.</td>
             </tr>
             <tr>
                 <td>vsspath</td>
                 <td>Yes</td>
                 <td>The VSS project to get history from.<br/>
-                <b>Example:</b> /Project/subproject</td>
+                <strong>Example:</strong> /Project/subproject</td>
             </tr>
             <tr>
                 <td>login</td>
                 <td>Yes</td>
                 <td>The VSS login to use, in the form
-                <i><code>username,password</code></i></td>
+                <em><code>username,password</code></em></td>
             </tr>
             <tr>
                 <td>ssdir</td>
@@ -5650,7 +5650,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>journalfile</td>
                 <td>Yes</td>
-                <td>Full path to journal file.  Example: <i>c:/vssdata/journal/journal.txt</i></td>
+                <td>Full path to journal file.  Example: <em>c:/vssdata/journal/journal.txt</em></td>
             </tr>
             <tr>
                 <td>ssdir</td>
@@ -5696,7 +5696,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         will "eat" all the changes before they can be detected by the
         time based builds.  </p>
 
-        <p><b>Note:</b> Only one builder is used for a given interval
+        <p><strong>Note:</strong> Only one builder is used for a given interval
         where modifications are found. Builds using the <a
         href="#buildertime"><code>time</code></a> attribute take
         precedence over builds using the <a
@@ -5941,7 +5941,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>When a build runs, Ant is invoked in a separate Java process. There
         are two alternative ways in which ant may be invoked:</p>
         <ol>
-            <li>Using the <b><code>antscript</code></b>, or <b><code>anthome</code></b>, attribute (preferred)
+            <li>Using the <strong><code>antscript</code></strong>, or <strong><code>anthome</code></strong>, attribute (preferred)
             helps to ensure that builds are run
             completely independent of the CruiseControl distribution, and that
             extra jars required in the ant lib-directory need not be duplicated
@@ -6134,7 +6134,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Pass specified argument to the jvm used to invoke ant.
                 Ignored if using anthome or antscript. The element has a single required
                 attribute: "arg".<br/>
-                <b>Example:</b> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;jvmarg arg="-Xmx120m"/&gt;</code></td>
             </tr>
             <tr>
                 <td><a name="antbuilderchildprop">&lt;property&gt;</a> </td>
@@ -6142,21 +6142,21 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Used to define properties for the ant build. The element
                 has two required attributes: "name" and "value". These will
                 be passed on the ant command-line as "-Dname=value"<br/>
-                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
             </tr>
             <tr>
                 <td>&lt;lib&gt;</td>
                 <td>0 .. *</td>
                 <td>Used to define additional <a href="http://ant.apache.org/manual/running.html#libs">library directories</a> for the ant build. The element
                 has one required attribute: "searchPath".<br/>
-                <b>Example:</b> <code>&lt;lib searchPath="/home/me/myantextensions"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;lib searchPath="/home/me/myantextensions"/&gt;</code></td>
             </tr>
             <tr>
                 <td>&lt;listener&gt;</td>
                 <td>0 .. *</td>
                 <td>Used to define additional <a href="http://ant.apache.org/manual/listeners.html">listeners</a> for the ant build. The element
                 has one required attribute: "classname".<br/>
-                <b>Example:</b> <code>&lt;listener classname="org.apache.tools.ant.listener.Log4jListener"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;listener classname="org.apache.tools.ant.listener.Log4jListener"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -6250,10 +6250,10 @@ endlocal</pre>
         <ul>
             <li>"clean" will run 'clean' goal on the project</li>
             <li>"clean java:compile" will run 'clean' goal then 'java:compile'
-            goal on the project, within the <b>same</b> Maven session run</li>
+            goal on the project, within the <strong>same</strong> Maven session run</li>
             <li>"clean my-cvs-update|java:compile" will run 'clean' goal then
-            'my-cvs-update' goal on the project, within the <b>same</b> Maven
-            session run, then it will run Maven <b>again</b> with goal
+            'my-cvs-update' goal on the project, within the <strong>same</strong> Maven
+            session run, then it will run Maven <strong>again</strong> with goal
             'java:compile'. Handy behavior for running update goals that update
             the "project.xml" itself (or the like). Arbitrary number of subsets
             allowed . Subset separator is '|'.
@@ -6334,14 +6334,14 @@ endlocal</pre>
         <a name="maven2-goal-note">Goals</a>
         <ul>
             <li>"clean compile" will run 'clean' goal then 'compile'
-            goal on the project, within the <b>same</b> Maven2 session run</li>
+            goal on the project, within the <strong>same</strong> Maven2 session run</li>
         </ul>
 
         <a name="maven2-session-note">Sessions</a>
         <ul>
             <li>"clean scm:update|deploy" will run 'clean' goal then
-            'scm:update' goal on the project, within the <b>same</b> Maven
-            session run, then it will run Maven <b>again</b> with goal
+            'scm:update' goal on the project, within the <strong>same</strong> Maven
+            session run, then it will run Maven <strong>again</strong> with goal
             'deploy'. Handy behavior for running update goals that update
             the "pom.xml" itself (or the like). Arbitrary number of subsets
             allowed . Subset separator is '|'.
@@ -6448,7 +6448,7 @@ endlocal</pre>
                 has two required attributes: "name" and "value". These will
                 be passed on the maven2 command-line as "-Dname=value" to each session
                 invocation (see <a href="#maven2-session-note">Sessions </a> note above).<br/>
-                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -6754,7 +6754,7 @@ endlocal</pre>
                 <td>Used to define properties for the NAnt build. The element
                 has two required attributes: "name" and "value". These will
                 be passed on the NAnt command-line as "-D:name=value"<br/>
-                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -6937,7 +6937,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Used to define properties for the phing build. The element
                 has two required attributes: "name" and "value". These will
                 be passed on the phing command-line as "-Dname=value"<br/>
-                <b>Example:</b> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+                <strong>Example:</strong> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -7811,8 +7811,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                 <td>publishOnFailure</td>
                 <td>No (defaults to true)</td>
-                <td><b>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
-                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</b><br/>
+                <td><strong>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
+                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</strong><br/>
                     set this attribute to false to stop the publisher from running when the build fails.</td>
             </tr>
             <tr>
@@ -7918,9 +7918,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         <p>Creates an intermediate baseline which encompass the specified project and
            all of it's subprojects. This publisher will only run if the build was
            successful and the modification set contains at least one new CM Synergy
-           task. <b>This publisher will <i>only</i> work with CM Synergy version 6.3
+           task. <strong>This publisher will <em>only</em> work with CM Synergy version 6.3
            or later. The <code>build</code> and <code>state</code> attributes are only
-           used if Synergy 6.4+ is detected</b></p>
+           used if Synergy 6.4+ is detected</strong></p>
 
         <h3>Attributes</h3>
 
@@ -8071,13 +8071,13 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>foldernumber</td>
-                <td rowspan="3">Either foldernumber <i>or</i> foldername and project</td>
+                <td rowspan="3">Either foldernumber <em>or</em> foldername and project</td>
                 <td>The number of the target folder.</td>
             </tr>
             <tr>
                 <td>foldername</td>
-                <td>A <i>substring</i> of the name of the target folder (i.e. "Integration
-                    tested tasks"). If this attribute is set, you <i>must</i> also set the
+                <td>A <em>substring</em> of the name of the target folder (i.e. "Integration
+                    tested tasks"). If this attribute is set, you <em>must</em> also set the
                     project attribute.</td>
             </tr>
             <tr>
@@ -8631,11 +8631,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>reportsuccess</td>
-                <td>No (defaults to <i>always</i></td>
+                <td>No (defaults to <em>always</em></td>
                 <td>Valid values:
                 <dl>
                     <dt>always:</dt>
-                    <dd>publishes (<i>i.e.</i>, e-mails) results on every
+                    <dd>publishes (<em>i.e.</em>, e-mails) results on every
                     successful build.</dd>
                     <dt>fixes:</dt>
                     <dd>publishes results only on the first successful build
@@ -9011,8 +9011,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>css</td>
-                <td><i>versions up to 2.3:</i> unless xslfile specified<br/>
-                    <i>versions 2.3 and greater:</i> no</td>
+                <td><em>versions up to 2.3:</em> unless xslfile specified<br/>
+                    <em>versions 2.3 and greater:</em> no</td>
                 <td>Path to cruisecontrol.css.  Used only if xsldir set and
                 not xslfile. Starting with version 2.3, the HTMLEmailPublisher
                 will try to determine the correct value itself when it's not
@@ -9027,8 +9027,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>xsldir</td>
-                <td><i>versions up to 2.3:</i> unless xslfile specified<br />
-                    <i>versions 2.3 and greater:</i> no</td>
+                <td><em>versions up to 2.3:</em> unless xslfile specified<br />
+                    <em>versions 2.3 and greater:</em> no</td>
                 <td>Directory where standard CruiseControl xsl files are
                 located. Starting with version 2.3, the HTMLEmailPublisher
                 will try to determine the correct value itself when it's not
@@ -9805,8 +9805,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>api</td>
                 <td>No</td>
                 <td>The API to use for posting to the blog. Accepted
-                 values include <i>blogger</i> and <i>metaWeblog</i>. Defaults to
-                 <i>metaWeblog</i>.</td>
+                 values include <em>blogger</em> and <em>metaWeblog</em>. Defaults to
+                 <em>metaWeblog</em>.</td>
             </tr>
             <tr>
                 <td>blogurl</td>
@@ -9836,13 +9836,13 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr class="oddrow">
                 <td>xslfile</td>
-                <td>Yes, unless <i>xsldir</i> is used.</td>
+                <td>Yes, unless <em>xsldir</em> is used.</td>
                 <td>The XSL stylesheet used for transforming
                  the build results into the message being posted to the blog.</td>
             </tr>
             <tr>
                 <td>xsldir</td>
-                <td>Yes, unless <i>xslfile</i> is used.</td>
+                <td>Yes, unless <em>xslfile</em> is used.</td>
                 <td>The directory containing the XSL stylesheets
                  used for transforming the build results into the message being
                  posted to the blog. You can use the CruiseControl distribution's
@@ -9852,7 +9852,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr class="oddrow">
                 <td>css</td>
-                <td>Yes, if <i>xsldir</i> is used.</td>
+                <td>Yes, if <em>xsldir</em> is used.</td>
                 <td>The path to cruisecontrol.css to be
                  used for styling the generated HTML. You can use the CruiseControl
                  distribution's 'cruisecontrol.css' file from
@@ -10096,8 +10096,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                 <td>publishonfail</td>
                 <td>No (defaults to true)</td>
-                <td><b>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
-                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</b><br/>
+                <td><strong>Deprecated. Use <a href="#onsuccess">&lt;onsuccess&gt;</a> and
+                    <a href="#onfailure">&lt;onfailure&gt;</a> instead.</strong><br/>
                     Generate file if the build failed?</td>
             </tr>
             <tr>
@@ -10494,7 +10494,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <p>Returns a value for the label from a property file.</p>
 
-	<p><b>Note:</b> If you use the Ant <code>&lt;buildnumber&gt;</code> task to increment your build number,
+	<p><strong>Note:</strong> If you use the Ant <code>&lt;buildnumber&gt;</code> task to increment your build number,
 	and also use Cruisecontrol <code>&lt;propertyfilelabelincrementer&gt;</code>, you may find the build number
 	reported by Ant and the label seen in Cruisecontrol are different after certain builds fail. This
 	can happen if the Ant build fails after the <code>&lt;buildnumber&gt;</code> task has run. The build number is incremented
