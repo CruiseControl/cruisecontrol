@@ -141,9 +141,9 @@ public final class Util {
      * @throws CruiseControlException wraps FileNotFoundException
      * @throws IOException if properties fail to store
      */
-    public static void storePropertiesToFile(Properties properties,
-            String header, File file) throws CruiseControlException,
-            IOException {
+    public static void storePropertiesToFile(final Properties properties,
+                                             final String header, final File file)
+            throws CruiseControlException, IOException {
 
         try {
             final BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
@@ -288,6 +288,6 @@ public final class Util {
                     + parsePropertiesInString(props, string.substring(endIndex + 1), failIfMissing);
             }
         }
-        return string;    
+        return string;
     }
 }
