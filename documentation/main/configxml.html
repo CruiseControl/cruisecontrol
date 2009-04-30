@@ -1098,6 +1098,11 @@
                         <td>If you wish the CM Synergy session to run on a host other than the
                             current machine, you may set the host name here.</td>
                     </tr>
+					<tr>
+						<td>remoteclient</td>
+						<td>No</td>
+						<td>If CM Synergy is running on a UNIX environment and the database is not locally accessible, set this to true</td>
+					</tr>
                     </tbody>
                     </table>
                 </td>
@@ -1919,7 +1924,7 @@ password=P@ssW0rd!
         <p>Due to the nature of certain Synergy project types basing their reconfigure on baselines
            it may sometimes be necessary to create a baseline prior to the build.
            This bootstrapper works almost identically to the <a href="#cmsynergybaselinepublisher"><code>cmsynergybaselinepublisher</code></a>
-           with the exception that is will not depend on modifications being found due to its execution 
+           with the exception that is will not depend on modifications being found due to its execution
            before any <a href="#modificationset"><code>modificationset</code></a> is run.</p>
 
         <h3>Attributes</h3>
@@ -2094,7 +2099,7 @@ password=P@ssW0rd!
             </tbody>
         </table>
         </div>
-        
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="darcsbootstrapper">&lt;darcsbootstrapper&gt;</a></h2>
@@ -2233,7 +2238,7 @@ password=P@ssW0rd!
 	To build the plugin read the directions for <a href="#buildingpluginsthatneedexternallibs">Building
 	Plugins That Need External Libraries</a></p>
 
-	
+
         <h3>Attributes</h3>
 
         <p><code>&lt;harvestbootstrapper&gt;</code> requires at least one of its
@@ -3563,7 +3568,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>Triggers a build if tasks have been added to any folder within a
            CM Synergy project's reconfigure properties since the last build.
            If used to check for modifications to a System Testing or
-           Insulated Development project, this will also check for any 
+           Insulated Development project, this will also check for any
            completed tasks included in the latest baseline for
            the projects release value since the last build.</p>
 
@@ -4168,7 +4173,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         </div>
 
 	<p>Deprecated. Use forceonly attribute on <a href="#project">&lt;project&gt;</a> instead.</p>
-	
+
         <p>Never returns any changes. Use this to define a project that
         only builds when forced to, like for release builds.
         If you also want the modifications between two forced builds to
@@ -5957,7 +5962,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
 	<table class="documentation">
             <thead>
             <tr>
@@ -6262,7 +6267,7 @@ endlocal</pre>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -6354,7 +6359,7 @@ endlocal</pre>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -6474,7 +6479,7 @@ endlocal</pre>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -6644,7 +6649,7 @@ endlocal</pre>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -6816,7 +6821,7 @@ endlocal</pre>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -6990,7 +6995,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -7074,7 +7079,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -7181,7 +7186,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
        <p>See also the <a href="#builderattributes">common
        attributes</a> for builders.</p>
-	
+
         <table class="documentation">
             <thead>
             <tr>
@@ -7230,7 +7235,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             </tbody>
         </table>
-	
+
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
         <h2><a name="log">&lt;log&gt;</a></h2>
@@ -10488,15 +10493,15 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </div>
 
         <p>Returns a value for the label from a property file.</p>
-	
+
 	<p><b>Note:</b> If you use the Ant <code>&lt;buildnumber&gt;</code> task to increment your build number,
 	and also use Cruisecontrol <code>&lt;propertyfilelabelincrementer&gt;</code>, you may find the build number
 	reported by Ant and the label seen in Cruisecontrol are different after certain builds fail. This
-	can happen if the Ant build fails after the <code>&lt;buildnumber&gt;</code> task has run. The build number is incremented 
+	can happen if the Ant build fails after the <code>&lt;buildnumber&gt;</code> task has run. The build number is incremented
 	in the property file by Ant, but Cruisecontrol retains the build number of the last failed build and re-uses it until the
 	build succeeds. The label/buildnumber will be out-of-sync by 1 for every concurrent Ant build failure, i.e., after 3 concurrent failures
-	Cruisecontrol will have label X, but the propertyfile will actually have the value X+3. The recommendation is therefore 
-	to force Cruisecontrol to re-read the property file for all builds by setting the value 
+	Cruisecontrol will have label X, but the propertyfile will actually have the value X+3. The recommendation is therefore
+	to force Cruisecontrol to re-read the property file for all builds by setting the value
 	of the <code>preBuildIncrementer</code> attribute to <code>true</code>.</p>
 
         <h3>Attributes</h3>
@@ -10769,7 +10774,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         <code>cruisecontrol/lib</code> &mdash; and restart the server.</p>
     </div>
 
-    
+
     </div>
 </div>
 </body>

@@ -30,6 +30,7 @@ CMSynergy
 * Fix error publishing CMSynergy build (CC-876). Reported by Gerard Roos. Tested by David Corley.
 * Allow specification of build and state attributes for baselines created with Synergy 6.4+ (CC-860). Patch by David Corley
 * Log now captures CR Synopsis text when <cmsynergy> is used (CC-903). Patch by David Corley
+* Add attribute in cmsynergysessionmonitor node (remoteclient) for remote-client connection in cm synergy (CC-910). Patch by Keith Mendoza
 
 Origo Publisher
 ----------------------
