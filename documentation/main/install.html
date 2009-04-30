@@ -86,12 +86,12 @@
 
         <ul>
             <li>
-            <b>Scripts.</b> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br/>
+            <strong>Scripts.</strong> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br/>
                This is the preferred approach, since the scripts will take care
                of providing you with the correct classpath and such.
             </li>
             <li>
-                <b>Executable jar.</b>   Type the following command:
+                <strong>Executable jar.</strong>   Type the following command:
                 <p><code>
                   java -jar dist/cruisecontrol-launcher.jar
                 </code></p><br/><ul>
@@ -122,7 +122,7 @@
             </tr></thead>
             <tbody>
             <tr>
-              <td>-jmxport&nbsp;<i>[port&nbsp;number]</i></td>
+              <td>-jmxport&nbsp;<em>[port&nbsp;number]</em></td>
                 <td>No</td>
                 <td>Port number for the JMX HTTP adaptor.  This will activate
                   the JMX admin functionality of CruiseControl.
@@ -133,7 +133,7 @@
                   expects for the ControlPanel JSP tab.</td>
             </tr>
             <tr>
-              <td>-rmiport&nbsp;<i>[port&nbsp;number]</i></td>
+              <td>-rmiport&nbsp;<em>[port&nbsp;number]</em></td>
                 <td>No</td>
                 <td>Port number for the JMX RMI adaptor and Connector Server.
                   This will activate the JMX admin functionality of CruiseControl.
@@ -145,12 +145,12 @@
                   <a href="http://mx4j.sourceforge.net/docs/ch03.html">here</a></td>
             </tr>
             <tr>
-                <td>-configfile&nbsp;<i>filename</i></td>
+                <td>-configfile&nbsp;<em>filename</em></td>
                 <td>No</td>
                 <td>Relative path to CruiseControl config file.  Defaults to "config.xml".</td>
             </tr>
             <tr>
-              <td>-xslpath&nbsp;<i>directory</i></td>
+              <td>-xslpath&nbsp;<em>directory</em></td>
                 <td>No</td>
                 <td>The location of your custom XSLT files for use with the JMX HTML adaptor.
                  Normally, you don't need to specify this and CruiseControl will use the
@@ -159,17 +159,17 @@
                  </td>
             </tr>
             <tr>
-                <td>-user <i>&nbsp;user&nbsp;id</i></td>
+                <td>-user <em>&nbsp;user&nbsp;id</em></td>
                 <td>No</td>
-                <td>Sets a user for the JMX HTTP Adapter. This will require users to login with this user (and password see below) to use the JMX Web interface.<i>The -password flag must also be set</i></td>
+                <td>Sets a user for the JMX HTTP Adapter. This will require users to login with this user (and password see below) to use the JMX Web interface.<em>The -password flag must also be set</em></td>
             </tr>
             <tr>
-                <td>-password <i>password</i></td>
+                <td>-password <em>password</em></td>
                 <td>No</td>
-                <td>Sets a password for the JMX HTTP Adapter. This will require users to login to use the JMX Web interface.<i>The -user flag must also be set</i></td>
+                <td>Sets a password for the JMX HTTP Adapter. This will require users to login to use the JMX Web interface.<em>The -user flag must also be set</em></td>
             </tr>
             <tr>
-                <td>-agentutil <i>[true/false]</i></td>
+                <td>-agentutil <em>[true/false]</em></td>
                 <td>No</td>
                 <td>Specify whether to load the JMX Build Agent Utility. Will only be loaded if the CCDist JMX Build Agent Utility classes are available. See: <a href="../distributed/index.html">CCDist Readme</a> for details.</td>
             </tr>
@@ -181,40 +181,40 @@
                   using 'ant -debug', you need to specify that in your config.xml file</td>
             </tr>
             <tr>
-                <td>-log4jconfig&nbsp;<i>filename</i></td>
+                <td>-log4jconfig&nbsp;<em>filename</em></td>
                 <td>No</td>
                 <td>URL to a log4j configuration file (for example: "file:/c:/mylog4j.xml").
-                    Equivalent to setting the <i>log4j.configuration</i> system property.
+                    Equivalent to setting the <em>log4j.configuration</em> system property.
                     See <a class="external" href="http://logging.apache.org/log4j/1.2/manual.html#defaultInit">Log4j Default Initialization Procedure</a> for details.</td>
             </tr>
             <tr>
-              <td>-port&nbsp;<i>[port&nbsp;number]</i></td>
+              <td>-port&nbsp;<em>[port&nbsp;number]</em></td>
                 <td>No</td>
                 <td>DEPRECATED: Use -jmxport instead.</td>
             </tr>
             <tr>
-              <td>-dashboardurl&nbsp;<i>[dashboard&nbsp;url]</i></td>
+              <td>-dashboardurl&nbsp;<em>[dashboard&nbsp;url]</em></td>
                 <td>No</td>
                 <td>Home page address of your dashboard. The default value is http://localhost:8080/dashboard.</td>
             </tr>
             <tr>
-              <td>-postinterval&nbsp;<i>[interval&nbsp;number]</i></td>
+              <td>-postinterval&nbsp;<em>[interval&nbsp;number]</em></td>
                 <td>No</td>
                 <td>The interval [in seconds] that build loop post builds information to the dashboard. The default value is 5 seconds.</td>
             </tr>
             <tr>
-              <td>-postenabled&nbsp;<i>[true/false]</i></td>
+              <td>-postenabled&nbsp;<em>[true/false]</em></td>
                 <td>No</td>
                 <td>Specify whether build loop need to post builds information to the dashboard. The default value is true.</td>
             </tr>
             <tr>
-              <td>-lib&nbsp;<i>[search path]</i></td>
+              <td>-lib&nbsp;<em>[search path]</em></td>
                 <td>No</td>
                 <td>Specify additional directories to be included on the CruiseControl classpath.
                     A Launcher class is used to build the full classpath used when running CruiseControl.
                     If you are familiar with Ant, then this will seem very familiar.<br />
-                    Typically, <i>[search path]</i> is a jar file or a directory containing jar files.
-                    Any jars or classes in the <i>[search path]</i> will be added to CruiseControl's classloader.
+                    Typically, <em>[search path]</em> is a jar file or a directory containing jar files.
+                    Any jars or classes in the <em>[search path]</em> will be added to CruiseControl's classloader.
                     The order in which jars are added to the classpath is as follows:
                     <ul>
                         <li>Anything given on the command line using '-lib'.</li>
