@@ -111,6 +111,28 @@ public class CMSynergySessionMonitorTest extends TestCase {
      }
 
     /**
+     * Verify the default value of remoteclient is false.
+     * @throws Exception if the test fails
+     */
+    public void testDefaultRemoteClientFalse() throws Exception {
+        final Properties properties = createRequiredProperties();
+
+        final File file = new File(ATTR_FILE_NAME);
+        filesToDelete.add(file);
+
+        final FileOutputStream stream = new FileOutputStream(file);
+        try {
+            properties.store(stream, null);
+        } finally {
+            stream.close();
+        }
+
+        CMSynergySessionMonitor.CMSynergySession session = monitor.createSession();
+        session.setAttributeFile(ATTR_FILE_NAME);
+        assertFalse("Remoteclient reported true", session.isRemoteClient());
+    }
+
+    /**
      * Test {@link CMSynergySessionMonitor.CMSynergySession#setAttributeFile(String)}) with
      * remoteclient false.
      * @throws Exception if the test fails
