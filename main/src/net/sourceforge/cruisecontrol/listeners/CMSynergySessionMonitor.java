@@ -77,7 +77,7 @@ public class CMSynergySessionMonitor implements Listener {
      * @param ccmExe
      *            the name of the CM Synergy executable
      */
-    public void setCcmExe(String ccmExe) {
+    public void setCcmExe(final String ccmExe) {
         this.ccmExe = ccmExe;
     }
 
@@ -93,7 +93,7 @@ public class CMSynergySessionMonitor implements Listener {
      * @param sessionFile
      *            The session file
      */
-    public void setSessionFile(String sessionFile) {
+    public void setSessionFile(final String sessionFile) {
         this.sessionFile = new File(sessionFile);
     }
 
@@ -103,7 +103,7 @@ public class CMSynergySessionMonitor implements Listener {
      * @return The newly created <code>CMSynergySession</code> object.
      */
     public CMSynergySession createSession() {
-        CMSynergySession session = new CMSynergySession();
+        final CMSynergySession session = new CMSynergySession();
         sessions.add(session);
         return session;
     }
@@ -140,7 +140,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param name
          *            The session's given name.
          */
-        public void setName(String name) {
+        public void setName(final String name) {
             this.name = name;
         }
 
@@ -159,7 +159,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param password
          *            The password.
          */
-        public void setPassword(String password) {
+        public void setPassword(final String password) {
             this.password = password;
         }
 
@@ -178,7 +178,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param role
          *            The role.
          */
-        public void setRole(String role) {
+        public void setRole(final String role) {
             this.role = role;
         }
 
@@ -197,7 +197,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param user
          *            The user ID.
          */
-        public void setUser(String user) {
+        public void setUser(final String user) {
             this.user = user;
         }
 
@@ -216,7 +216,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param db
          *            The database.
          */
-        public void setDatabase(String db) {
+        public void setDatabase(final String db) {
             this.db = db;
         }
 
@@ -235,7 +235,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param host
          *            The host.
          */
-        public void setHost(String host) {
+        public void setHost(final String host) {
             this.host = host;
         }
 
@@ -254,7 +254,7 @@ public class CMSynergySessionMonitor implements Listener {
          * @param remoteclient
          *           true/false string for remote-client mode
          */
-        public void setRemoteClient(String remoteclient) {
+        public void setRemoteClient(final String remoteclient) {
             this.remoteclient = Boolean.parseBoolean(remoteclient);
         }
 
@@ -264,9 +264,9 @@ public class CMSynergySessionMonitor implements Listener {
          * @param attributeFile
          *            The file from which to read our session attributes.
          */
-        public void setAttributeFile(String attributeFile) {
+        public void setAttributeFile(final String attributeFile) {
             try {
-                Properties properties = Util.loadPropertiesFromFile(new File(attributeFile));
+                final Properties properties = Util.loadPropertiesFromFile(new File(attributeFile));
                 db = properties.getProperty("database");
                 role = properties.getProperty("role");
                 user = properties.getProperty("user");
@@ -300,7 +300,7 @@ public class CMSynergySessionMonitor implements Listener {
      *            The session file to check
      * @throws CruiseControlException if something breaks
      */
-    private static synchronized void checkSessionFile(File sessionFile) throws CruiseControlException {
+    private static synchronized void checkSessionFile(final File sessionFile) throws CruiseControlException {
         // Create the session file if it does not already exist
         if (!sessionFile.exists()) {
             try {
@@ -360,7 +360,7 @@ public class CMSynergySessionMonitor implements Listener {
         }
 
         // Check each monitored session in turn
-        for (CMSynergySession session : sessions) {
+        for (final CMSynergySession session : sessions) {
             final String name = session.getName();
             final String id = sessionMap.getProperty(name);
             LOG.info("Checking " + name + ".");
@@ -393,12 +393,12 @@ public class CMSynergySessionMonitor implements Listener {
      *            The session information
      * @return stdout from new session.
      */
-    private static String startSession(String ccmExe, CMSynergySession session) {
+    private static String startSession(final String ccmExe, final CMSynergySession session) {
 
         LOG.info("Starting a new CM Synergy session for \"" + session.getName() + "\".");
 
         // Create CM Synergy startup command
-        ManagedCommandline cmd = new ManagedCommandline(ccmExe);
+        final ManagedCommandline cmd = new ManagedCommandline(ccmExe);
         cmd.createArgument("start");
         cmd.createArgument("-q");
         cmd.createArgument("-nogui");
@@ -434,7 +434,7 @@ public class CMSynergySessionMonitor implements Listener {
      *
      * @see net.sourceforge.cruisecontrol.Listener#handleEvent(net.sourceforge.cruisecontrol.ProjectEvent)
      */
-    public void handleEvent(ProjectEvent event) throws CruiseControlException {
+    public void handleEvent(final ProjectEvent event) throws CruiseControlException {
         if (event instanceof ProjectStateChangedEvent) {
             final ProjectStateChangedEvent stateChanged = (ProjectStateChangedEvent) event;
             // Check sessions before the bootstrappers run
