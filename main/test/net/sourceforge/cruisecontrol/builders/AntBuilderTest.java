@@ -115,6 +115,9 @@ public class AntBuilderTest extends TestCase {
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
+
+        // builder.build() will create an antBuilderOutput.log file when showAntOutput=true, so clean it up.
+        filesToDelete.add(new File(AntOutputLogger.DEFAULT_OUTFILE_NAME));
     }
 
     public void tearDown() {
@@ -519,17 +522,17 @@ public class AntBuilderTest extends TestCase {
         } catch (CruiseControlException expected) {
         }
     }
-    
+
     public void testRealBuild() throws IOException, CruiseControlException {
         File tempDir = new File(System.getProperty("java.io.tmpdir"));
         File tempSubdir = new File(tempDir, "cruisecontroltest" + System.currentTimeMillis());
         tempSubdir.mkdir();
         filesToDelete.add(tempSubdir);
-        
+
         File buildFile = new File(tempSubdir, "build.xml");
-        
+
         createFakeProjectInTempDir(tempSubdir, buildFile);
-        
+
         builder.setBuildFile(buildFile.getAbsolutePath());
         builder.setTarget("all");
         builder.setTempFile("notLog.xml");
@@ -541,19 +544,19 @@ public class AntBuilderTest extends TestCase {
         File htmlJUnitReportFile = new File(tempSubdir, "reports/html/index.html");
         assertTrue("JUnit HTML Report was not created", htmlJUnitReportFile.exists());
     }
-    
-    private void createFakeProjectInTempDir(File dir, File buildFile) throws CruiseControlException {        
+
+    private void createFakeProjectInTempDir(File dir, File buildFile) throws CruiseControlException {
         File srcDir = new File(dir, "src");
         File srcPackageDir = new File(srcDir, "apackage");
         writeSimpleClassFile(srcPackageDir);
-        
+
         File testDir = new File(dir, "test");
         File testPackageDir = new File(testDir, "apackage");
         writeSimpleTestFile(testPackageDir);
-        
+
         writeSimpleBuildFile(buildFile);
     }
-    
+
     private void writeSimpleClassFile(final File srcPackageDir) throws CruiseControlException {
         srcPackageDir.mkdirs();
         final File simpleClassFile = new File(srcPackageDir, "Simple.java");
@@ -565,7 +568,7 @@ public class AntBuilderTest extends TestCase {
         contents.append("}");
         IO.write(simpleClassFile, contents.toString());
     }
-    
+
     private void writeSimpleTestFile(final File testPackageDir) throws CruiseControlException {
         testPackageDir.mkdirs();
         final File simpleTestFile = new File(testPackageDir, "SimpleTest.java");
@@ -581,7 +584,7 @@ public class AntBuilderTest extends TestCase {
         contents.append("}");
         IO.write(simpleTestFile, contents.toString());
     }
-    
+
     private void writeSimpleBuildFile(final File buildFile) throws CruiseControlException {
         /*
          * This compiles the Simple and SimpleTest classes, runs JUnit, and generates a junitreport
@@ -635,5 +638,5 @@ public class AntBuilderTest extends TestCase {
         contents.append("</project>\n");
         IO.write(buildFile, contents.toString());
     }
-    
+
 }
