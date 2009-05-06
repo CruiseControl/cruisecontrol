@@ -83,6 +83,9 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
 
     protected void setUp() throws Exception {
         listener = new MockCurrentBuildStatusFTPListener();
+
+        // listener.handleEvent() will create a file in the test tmp dir, so clean it up
+        filesToDelete.add(new File(TEST_DIR));
     }
 
     protected void tearDown() {
@@ -121,9 +124,6 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         listener.setFile(fileName);
         listener.setDestDir("/pub");
         filesToDelete.add(new File(fileName));
-        // listener.handleEvent() will create a file in the test tmp dir, so clean it up
-        // builder.build() will create an antBuilderOutput.log file when showAntOutput=true, so clean it up.
-        filesToDelete.add(new File(TEST_DIR));
 
         checkResultForState(fileName, ProjectState.WAITING);
         checkResultForState(fileName, ProjectState.IDLE);
