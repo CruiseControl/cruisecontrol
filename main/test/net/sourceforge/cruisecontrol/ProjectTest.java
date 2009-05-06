@@ -100,6 +100,8 @@ public class ProjectTest {
 
         // required for runners where log4j isn't initialized
         Logger.getLogger(Project.class).setLevel(Level.INFO);
+
+        filesToDelete.add(new File(TEST_DIR));
     }
 
     @After
@@ -139,7 +141,9 @@ public class ProjectTest {
 
         final Log log = new Log();
         final File logDir = new File(TEST_DIR + File.separator + "test-results");
-        logDir.mkdir();
+        if (!logDir.exists()) {
+            assertTrue(Util.doMkDirs(logDir));
+        }
         filesToDelete.add(logDir);
         final String myProjectName = "myproject";
         log.setProjectName(myProjectName);
@@ -171,7 +175,9 @@ public class ProjectTest {
         project.setLastSuccessfulBuild(formatTime(now));
         writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
         final File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
-        auxLogsDirectory.mkdir();
+        if (!auxLogsDirectory.exists()) {
+            assertTrue(auxLogsDirectory.mkdir());
+        }
         filesToDelete.add(auxLogsDirectory);
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog2.xml",
                 "<testsuite><properties><property/></properties><testcase/></testsuite>");
@@ -458,13 +464,13 @@ public class ProjectTest {
         project.setBuildForced(true);
         assertNotNull(project.getModifications(true));
     }
-    
+
     @Test
     public void testGetModifications_NoModificationElementAndRequireModificationsFalse() {
         assertNull(project.getModifications(false));
         projectConfig.setRequiremodification(false);
         project.init();
-        assertNotNull(project.getModifications(false));        
+        assertNotNull(project.getModifications(false));
     }
 
     @Test
@@ -728,7 +734,9 @@ public class ProjectTest {
 
         final Log log = new Log();
         final File logDir = new File(TEST_DIR + File.separator + "test-results");
-        logDir.mkdir();
+        if (!logDir.exists()) {
+            assertTrue(logDir.mkdir());
+        }
         filesToDelete.add(logDir);
 
         log.setProjectName("myproject");
@@ -796,7 +804,7 @@ public class ProjectTest {
         assertEquals(cvstimestamp, map.get("cvstimestamp"));
         assertEquals(String.valueOf(project.getBuildForced()), map.get("buildforced"));
 
-        assertEquals(8, map.keySet().size());    
+        assertEquals(8, map.keySet().size());
     }
 
     @Test
@@ -910,13 +918,13 @@ public class ProjectTest {
             schedule.add(new MockBuilder());
             newProjectConfig.add(schedule);
             newProjectConfig.add(new MockLog());
-            
+
             try {
                 newProjectConfig.getStateFromOldProject(oldProjectConfig);
             } catch (CruiseControlException e) {
                 throw new RuntimeException(e);
             }
-            
+
             return super.build(properties, progress);
         }
 
