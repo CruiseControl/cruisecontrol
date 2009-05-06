@@ -176,7 +176,7 @@ public class ProjectTest {
         writeFile(TEST_DIR + File.separator + "_auxLog1.xml", "<one/>");
         final File auxLogsDirectory = new File(TEST_DIR + File.separator + "_auxLogs");
         if (!auxLogsDirectory.exists()) {
-            assertTrue(auxLogsDirectory.mkdir());
+            assertTrue(Util.doMkDirs(auxLogsDirectory));
         }
         filesToDelete.add(auxLogsDirectory);
         writeFile(TEST_DIR + File.separator + "_auxLogs/_auxLog2.xml",
@@ -735,7 +735,7 @@ public class ProjectTest {
         final Log log = new Log();
         final File logDir = new File(TEST_DIR + File.separator + "test-results");
         if (!logDir.exists()) {
-            assertTrue(logDir.mkdir());
+            assertTrue(Util.doMkDirs(logDir));
         }
         filesToDelete.add(logDir);
 
