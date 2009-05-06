@@ -28,6 +28,9 @@ public class CurrentBuildStatusListenerTest extends TestCase {
 
     protected void setUp() throws Exception {
         listener = new CurrentBuildStatusListener();
+
+        // listener.handleEvent() will create a file in the test tmp dir, so clean it up
+        filesToDelete.add(new File(TEST_DIR));
     }
 
     protected void tearDown() {
