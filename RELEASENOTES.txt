@@ -32,6 +32,11 @@ CMSynergy
 * Log now captures CR Synopsis text when <cmsynergy> is used (CC-903). Patch by David Corley
 * Add attribute in cmsynergysessionmonitor node (remoteclient) for remote-client connection in cm synergy (CC-910). Patch by Keith Mendoza
 
+Log
+----------------------
+* Add new attribute to Log element: trimWhitespace - if true, trim whitespace from start and end of log lines.
+  Primarily intended only to force historic "trim" behavior. Defaults to false. (CC-912) Patch by Sebastian Koppehel.
+
 Origo Publisher
 ----------------------
 * Update to use new issue handling API. Patch by Patrick Ruckstuhl.

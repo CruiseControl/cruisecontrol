@@ -72,6 +72,7 @@ public class Log implements Serializable {
 
     private transient String logDir;
     private transient String logXmlEncoding;
+    private transient boolean isTrimWhitespace;
     private transient Element buildLog;
     private final transient List<BuildLogger> loggers = new ArrayList<BuildLogger>();
     private final transient List<Manipulator> manipulators = new ArrayList<Manipulator>();
@@ -104,7 +105,7 @@ public class Log implements Serializable {
 
     /**
      * Validate the log. Also creates the log directory if it doesn't exist.
-     * 
+     *
      * @throws CruiseControlException
      *             if projectName wasn't set
      */
@@ -155,17 +156,24 @@ public class Log implements Serializable {
         return projectName;
     }
 
-    // @todo Remove throws CruiseControlException?
-    public void setDir(final String logDir) throws CruiseControlException {
+    public void setDir(final String logDir) {
         this.logDir = logDir;
+    }
+    public String getLogDir() {
+        return logDir;
     }
 
     public void setEncoding(final String logXmlEncoding) {
         this.logXmlEncoding = logXmlEncoding;
     }
 
-    public String getLogDir() {
-        return logDir;
+    /**
+     * @param trimWhitespace if true, trim whitespace from start and end of log lines.
+     * Primarily intended only to force historic "trim" behavior.
+     * Defaults to false.
+     */
+    public void setTrimWhitespace(final boolean trimWhitespace) {
+        isTrimWhitespace = trimWhitespace;
     }
 
     /**
@@ -227,19 +235,23 @@ public class Log implements Serializable {
     protected void writeLogFile(final File file, final Element element) throws CruiseControlException {
         // Write the log file out, let jdom care about the encoding by using
         // an OutputStream instead of a Writer.
-        OutputStream logStream = null;
         try {
-            Format format = Format.getPrettyFormat();
+            final Format format = Format.getPrettyFormat();
             if (logXmlEncoding != null) {
                 format.setEncoding(logXmlEncoding);
             }
-            XMLOutputter outputter = new XMLOutputter(format);
-            logStream = new BufferedOutputStream(new FileOutputStream(file));
-            outputter.output(new Document(element), logStream);
+            if (!isTrimWhitespace) {
+                format.setTextMode(Format.TextMode.TRIM_FULL_WHITE);
+            }
+            final XMLOutputter outputter = new XMLOutputter(format);
+            final OutputStream logStream = new BufferedOutputStream(new FileOutputStream(file));
+            try {
+                outputter.output(new Document(element), logStream);
+            } finally {
+                IO.close(logStream);
+            }
         } catch (IOException e) {
             throw new CruiseControlException(e);
-        } finally {
-            IO.close(logStream);
         }
     }
 
@@ -248,7 +260,7 @@ public class Log implements Serializable {
         if (helper.isBuildSuccessful()) {
             return formatLogFileName(now, helper.getLabel());
         }
-            
+
         return formatLogFileName(now);
     }
 
@@ -266,7 +278,7 @@ public class Log implements Serializable {
     }
 
     public static String formatLogFileName(final Date date, final String label) {
-        final StringBuffer logFileName = new StringBuffer();
+        final StringBuilder logFileName = new StringBuilder();
         logFileName.append("log");
         logFileName.append(DateUtil.getFormattedTime(date));
         if (label != null) {
