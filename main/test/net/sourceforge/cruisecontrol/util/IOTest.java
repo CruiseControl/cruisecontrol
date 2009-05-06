@@ -11,15 +11,18 @@ import junit.framework.TestCase;
 public class IOTest extends TestCase {
 
     private FilesToDelete filesToDelete = new FilesToDelete();
-    
+
     protected void tearDown() throws Exception {
         filesToDelete.delete();
     }
 
     public void testWriteWorksWhenParentDirDoesntExist() throws CruiseControlException {
-        String nonExistentDirName = getNonExistentDirName();
-        File file = new File(nonExistentDirName, "filename");
+        final String nonExistentDirName = getNonExistentDirName();
+        filesToDelete.add(new File(nonExistentDirName));
+
+        final File file = new File(nonExistentDirName, "filename");
         filesToDelete.add(file);
+
         IO.write(file, "Hello World!");
         assertEquals("Hello World!", IO.readLines(file).get(0));
     }
@@ -31,5 +34,5 @@ public class IOTest extends TestCase {
         }
         return name;
     }
-    
+
 }
