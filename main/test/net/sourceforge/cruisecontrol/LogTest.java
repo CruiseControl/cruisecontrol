@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
+import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
@@ -59,12 +60,12 @@ import org.jdom.output.XMLOutputter;
 
 public class LogTest extends TestCase {
     private final FilesToDelete filesToDelete = new FilesToDelete();
-    private static final String LOG_DIR = "target/LogTest";
+    private static final String LOG_DIR = "LogTest";
 
     protected void setUp() {
         filesToDelete.add(new File(TestUtil.getTargetDir(), LOG_DIR));
     }
-    
+
     protected void tearDown() {
         filesToDelete.delete();
     }
@@ -76,9 +77,9 @@ public class LogTest extends TestCase {
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals("projectName can't be null", expected.getMessage());
-        }        
+        }
     }
-    
+
     public void testValidateShouldFailWhenProjectNameNotSet() {
         Log log = new Log();
         try {
@@ -130,50 +131,105 @@ public class LogTest extends TestCase {
 
     public void testXMLEncoding()
             throws CruiseControlException, IOException, JDOMException {
-        String[] encodings = { "UTF-8", "ISO-8859-1", null };
 
-        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
-        XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
-        for (int i = 0;  i < encodings.length; i++) {
-            Log log = new Log();
+        final String[] encodings = { "UTF-8", "ISO-8859-1", null };
+
+        final SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        final XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+        for (final String encoding : encodings) {
+            final Log log = new Log();
             log.setProjectName("testXMLEncoding");
             log.setDir(LOG_DIR);
-            if (encodings[i] != null) {
-                log.setEncoding(encodings[i]);
+            if (encoding != null) {
+                log.setEncoding(encoding);
             }
             log.validate();
+            // log.validate() creates a new dir, so make sure we leave no side effects and delete this dir
+            filesToDelete.add(new File(log.getLogDir()));
 
             // Add a minimal buildLog
             log.addContent(getBuildLogInfo());
-            Element build = new Element("build");
+            final Element build = new Element("build");
             log.addContent(build);
             log.addContent(new Element("modifications"));
 
             // Add 8-bit characters
             build.setText("Something with special characters: \u00c6\u00d8\u00c5");
 
-            Date now = new Date();
+            final Date now = new Date();
             // Write and read the file
             log.writeLogFile(now);
-            
-            String expectFilename = "log" + DateUtil.getFormattedTime(now) + "L.xml";
-            File logFile = new File(LOG_DIR, expectFilename);
+
+            final String expectFilename = "log" + DateUtil.getFormattedTime(now) + "L.xml";
+            final File logFile = new File(LOG_DIR, expectFilename);
             assertTrue(logFile.isFile());
             filesToDelete.add(logFile);
 
-            Element actualContent = builder.build(logFile).getRootElement();
+            final Element actualContent = builder.build(logFile).getRootElement();
 
             // content.toString() only returns the root element but not the
             // children: [Element: <cruisecontrol/>]
             // Use an XMLOutputter (that trims whitespace) instead.
-            String expected = outputter.outputString(log.getContent());
-            String actual = outputter.outputString(actualContent);
+            final String expected = outputter.outputString(log.getContent());
+            final String actual = outputter.outputString(actualContent);
             assertEquals(expected, actual);
         }
     }
 
+    /**
+     * Asserts that leading and trailing whitespace in CDATA elements is preserved.
+     *
+     * @throws Exception if test fails
+     */
+    public void testXMLWhitespacePreservation() throws Exception {
+        final String testString = "   la dee da\t";
+
+        // test default
+        assertXMLWhiteSpacePreservation(testString, testString, new Log());
+
+        final Log logTrimmed = new Log();
+        logTrimmed.setTrimWhitespace(true);
+        assertXMLWhiteSpacePreservation(testString.trim(), testString, logTrimmed);
+
+        final Log logWhitespacePreserved = new Log();
+        logWhitespacePreserved.setTrimWhitespace(false);
+        assertXMLWhiteSpacePreservation(testString, testString, logWhitespacePreserved);
+    }
+
+    private void assertXMLWhiteSpacePreservation(final String expectedLogText, final String testString, final Log log)
+            throws Exception {
+
+        log.setProjectName(getName());
+        log.setDir(LOG_DIR);
+        log.addContent(getBuildLogInfo());
+
+        final Element buildElem = new Element("build");
+        log.addContent(buildElem);
+        final Element msgElem = new Element("message");
+        msgElem.setAttribute("priority", "info");
+        msgElem.addContent(new CDATA(testString));
+        buildElem.addContent(msgElem);
+
+        log.validate();
+        // log.validate() creates a new dir, so make sure we leave no side effects and delete this dir
+        filesToDelete.add(new File(log.getLogDir()));
+
+        final Date now = new Date();
+        log.writeLogFile(now);
+        final String expectFilename = "log" + DateUtil.getFormattedTime(now) + "L.xml";
+        final File logFile = new File(LOG_DIR, expectFilename);
+        assertTrue(logFile.isFile());
+
+        Element elem = new SAXBuilder("org.apache.xerces.parsers.SAXParser").build(logFile).getRootElement();
+        elem = elem.getChild("build");
+        elem = elem.getChild("message");
+        final CDATA cdata = (CDATA) elem.getContent(0);
+
+        assertEquals(expectedLogText, cdata.getText());
+    }
+
     public void testManipulateLog() throws Exception {
-        String testProjectName = "testBackupLog";
+        final String testProjectName = "testBackupLog";
 
         // Test backup of 12 Months
         Calendar date = Calendar.getInstance();
@@ -239,11 +295,12 @@ public class LogTest extends TestCase {
 
     }
 
-    private void assertBackupsHelper(Log log, int expectedLength, int expectedXML, int expectedGZIP) {
+    private void assertBackupsHelper(final Log log,
+                                     final int expectedLength, final int expectedXML, final int expectedGZIP) {
         log.callManipulators();
-        File[] logfiles = new File(log.getLogDir()).listFiles(new FilenameFilter() {
+        final File[] logfiles = new File(log.getLogDir()).listFiles(new FilenameFilter() {
 
-            public boolean accept(File file, String fileName) {
+            public boolean accept(final File file, final String fileName) {
                 return fileName.startsWith("log20")
                         && (fileName.endsWith(".xml") || fileName
                                 .endsWith(".gz"));
@@ -252,8 +309,7 @@ public class LogTest extends TestCase {
         });
         int countGzip = 0;
         int countXML = 0;
-        for (int i = 0; i < logfiles.length; i++) {
-            File file = logfiles[i];
+        for (final File file : logfiles) {
             if (file.getName().endsWith(".gz")) {
                 filesToDelete.add(file);
                 countGzip++;
@@ -268,26 +324,30 @@ public class LogTest extends TestCase {
         assertEquals("Wrong total number of log files after manipulation", expectedLength, logfiles.length);
     }
 
-    private Log getWrittenTestLog(String projectName,
-                                  Date date) throws CruiseControlException, JDOMException,
-            IOException {
-        Log log;
-        Element build;
-        log = new Log();
+    private Log getWrittenTestLog(final String projectName, final Date date)
+            throws CruiseControlException, JDOMException, IOException {
+
+
+        final Log log = new Log();
         log.setProjectName(projectName);
-        log.setDir(LogTest.LOG_DIR);
+        log.setDir(LOG_DIR);
+
         log.validate();
+        // log.validate() creates a new dir, so make sure we leave no side effects and delete this dir
+        filesToDelete.add(new File(log.getLogDir()));
+
         log.addContent(getBuildLogInfo());
-        build = new Element("build");
+        final Element build = new Element("build");
         log.addContent(build);
         log.addContent(new Element("modifications"));
         log.writeLogFile(date);
 
-        String expectFilename = "log" + DateUtil.getFormattedTime(date) + "L.xml";
-        File logFile = new File(LogTest.LOG_DIR, expectFilename);
-        assertTrue(logFile.isFile());
+        final String expectFilename = "log" + DateUtil.getFormattedTime(date) + "L.xml";
+        final File logFile = new File(LOG_DIR, expectFilename);
         filesToDelete.add(logFile);
-        
+
+        assertTrue(logFile.isFile());
+
         return log;
     }
 
