@@ -111,7 +111,7 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         } catch (CruiseControlException cce) {
             assertEquals("'targethost' not specified in configuration file", cce.getMessage());
         }
-        
+
         listener.setTargetHost("targetHost");
         listener.validate();
     }
@@ -121,6 +121,9 @@ public class CurrentBuildStatusFTPListenerTest extends TestCase {
         listener.setFile(fileName);
         listener.setDestDir("/pub");
         filesToDelete.add(new File(fileName));
+        // listener.handleEvent() will create a file in the test tmp dir, so clean it up
+        // builder.build() will create an antBuilderOutput.log file when showAntOutput=true, so clean it up.
+        filesToDelete.add(new File(TEST_DIR));
 
         checkResultForState(fileName, ProjectState.WAITING);
         checkResultForState(fileName, ProjectState.IDLE);
