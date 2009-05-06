@@ -2,10 +2,12 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Date;
 import java.util.Map;
+import java.io.File;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom.Element;
 
@@ -14,10 +16,20 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
     private BuildQueue buildQueue;
     private int runCount;
 
+    private static final String FORCING_BUILD_TEST_PROJECT_NAME = "forcing-build-test-project";
+    private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
+
     protected void setUp() throws Exception {
         super.setUp();
 
         runCount = 0;
+
+        // build create a FORCING_BUILD_TEST_PROJECT_NAME.ser file, so delete it
+        filesToDelete.add(new File(FORCING_BUILD_TEST_PROJECT_NAME + ".ser"));
+    }
+
+    protected void tearDown() throws Exception {
+        filesToDelete.delete();
     }
 
     public void testRepeatForcingBuildShouldNotLockProjectInQueuedState() throws Exception {
@@ -63,7 +75,7 @@ public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase 
         projectToForce.setBuildQueue(buildQueue);
         final MockScheduleThatAllowsControllingBuilder schedule = new MockScheduleThatAllowsControllingBuilder();
         final ProjectConfig projectConfig = new MockProjectConfig(projectToForce, schedule);
-        projectConfig.setName("forcing-build-test-project");
+        projectConfig.setName(FORCING_BUILD_TEST_PROJECT_NAME);
         projectConfig.configureProject();
         schedule.setBuilderToBuildForever();
         projectToForce.start();
