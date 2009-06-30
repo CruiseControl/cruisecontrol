@@ -32,6 +32,10 @@ CMSynergy
 * Log now captures CR Synopsis text when <cmsynergy> is used (CC-903). Patch by David Corley
 * Add attribute in cmsynergysessionmonitor node (remoteclient) for remote-client connection in cm synergy (CC-910). Patch by Keith Mendoza
 
+JNLPPublisher
+----------------------
+* A plugin that publishes the built jar into a folder and updates a jnlp file. Needs unit tests, documentation in configxml.html, and a new entry in default-plugins.properties (CC-917). Patch by Nuno da Costa Ferro.
+
 Log
 ----------------------
 * Add new attribute to Log element: trimWhitespace - if true, trim whitespace from start and end of log lines.
