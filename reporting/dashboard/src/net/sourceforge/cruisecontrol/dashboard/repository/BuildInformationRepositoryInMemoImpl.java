@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXServiceURL;
 
@@ -37,12 +36,12 @@ public class BuildInformationRepositoryInMemoImpl implements BuildInformationRep
         return (ProjectInfo) data.get(projectName);
     }
 
-    public synchronized MBeanServerConnection getJmxConnection(String projectName) throws IOException {
+    public synchronized ClosableProjectMBeanConnection getJmxConnection(String projectName) throws IOException {
         if (!knowAboutProject(projectName)) {
             return null;
         }
         JMXConnector jmxConnector = jmxConnectorFactory.connect(jmxServiceUrl(projectName), environment(projectName));
-        return jmxConnector.getMBeanServerConnection();
+        return new ClosableProjectMBeanConnection(jmxConnector);
     }
 
     public List getProjectInfos() {
