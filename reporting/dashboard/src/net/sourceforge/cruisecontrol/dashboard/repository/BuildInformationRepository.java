@@ -3,8 +3,6 @@ package net.sourceforge.cruisecontrol.dashboard.repository;
 import java.util.List;
 import java.io.IOException;
 
-import javax.management.MBeanServerConnection;
-
 import net.sourceforge.cruisecontrol.BuildLoopInformation;
 import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 
@@ -13,7 +11,7 @@ public interface BuildInformationRepository {
 
     ProjectInfo getProjectInfo(String projectName);
 
-    MBeanServerConnection getJmxConnection(String projectName) throws IOException;
+    ClosableProjectMBeanConnection getJmxConnection(String projectName) throws IOException;
 
     List getProjectInfos();
 

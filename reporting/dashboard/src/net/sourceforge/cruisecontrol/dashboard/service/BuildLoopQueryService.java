@@ -41,6 +41,7 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
 import net.sourceforge.cruisecontrol.dashboard.Projects;
 import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.dashboard.repository.ClosableProjectMBeanConnection;
 import org.apache.log4j.Logger;
 
 import javax.management.MBeanServerConnection;
@@ -101,7 +102,13 @@ public class BuildLoopQueryService {
             throw new RuntimeException("Force build is disabled");
         }
         try {
-            getJMXConnection(projectName).invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
+            final ClosableProjectMBeanConnection closableProjectMBeanConnection = getJMXConnection(projectName);
+            try {
+                closableProjectMBeanConnection.getMBeanServerConnection()
+                        .invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
+            } finally {
+                closableProjectMBeanConnection.close();
+            }
         } catch (Exception e) {
             LOGGER.warn("Could not force build on", e);
             throw e;
@@ -132,10 +139,15 @@ public class BuildLoopQueryService {
 
     public String[] getBuildOutput(String projectName, int firstLine) {
         try {
-            MBeanServerConnection jmxConnection = getJMXConnection(projectName);
-            return (String[]) jmxConnection.invoke(getObjectName(projectName),
-                    JMXCOMMAND_BUILD_OUTPUT, new Object[] {new Integer(firstLine)},
-                    new String[] {Integer.class.getName()});
+            final ClosableProjectMBeanConnection closableProjectMBeanConnection = getJMXConnection(projectName);
+            try {
+                final MBeanServerConnection jmxConnection = closableProjectMBeanConnection.getMBeanServerConnection();
+                return (String[]) jmxConnection.invoke(getObjectName(projectName),
+                        JMXCOMMAND_BUILD_OUTPUT, new Object[] {new Integer(firstLine)},
+                        new String[] {Integer.class.getName()});
+            } finally {
+                closableProjectMBeanConnection.close();
+            }
         } catch (Exception e) {
             return new String[] {" - Unable to connect to build loop at " + getServerName(projectName)};
         }
@@ -148,7 +160,7 @@ public class BuildLoopQueryService {
         return status;
     }
 
-    private MBeanServerConnection getJMXConnection(String projectName) throws IOException {
+    private ClosableProjectMBeanConnection getJMXConnection(String projectName) throws IOException {
         return buildInformationRepository.getJmxConnection(projectName);
     }
 

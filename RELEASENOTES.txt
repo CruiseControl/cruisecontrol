@@ -70,6 +70,13 @@ UCM
 ----------------------
 * UCM.java not creating the right command line for describing all activities (CC-886). Reported by Adrien Gracia
 
+Dashboard
+======================
+* Dashboard build detail page is creating many JMX server threads (CC-831). Reported by Matthias Grunwalde.
+  Attempted fix closes JMXConnector when finished with the MBeanServerConnection call.
+  Need to restore jmock test cases: 
+  net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepositoryInMemoImplTest.xxxtestShouldReturnJMXConnection()
+  net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryServiceTest.xxxtestShouldReturnBuildOutput()
 
 documentation
 ======================
