@@ -110,7 +110,7 @@ public class BuildLoopQueryService {
                 closableProjectMBeanConnection.close();
             }
         } catch (Exception e) {
-            LOGGER.warn("Could not force build on", e);
+            LOGGER.error("Could not force build on", e);
             throw e;
         }
     }
@@ -149,6 +149,7 @@ public class BuildLoopQueryService {
                 closableProjectMBeanConnection.close();
             }
         } catch (Exception e) {
+            LOGGER.error("Problem getting build output", e);
             return new String[] {" - Unable to connect to build loop at " + getServerName(projectName)};
         }
     }

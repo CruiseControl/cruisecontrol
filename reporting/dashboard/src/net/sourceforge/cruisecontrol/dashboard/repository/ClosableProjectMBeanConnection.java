@@ -12,7 +12,6 @@ import java.io.IOException;
  * Date: Jun 24, 2009
  * Time: 11:05:04 PM
  */
-// @todo jmock prevents this from being final?
 public final class ClosableProjectMBeanConnection {
 
     private final JMXConnector jmxConnector;
