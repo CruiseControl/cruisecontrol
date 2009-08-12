@@ -286,7 +286,7 @@ public class SVN implements SourceControl {
         command.createArgument("-R");
         command.createArgument("--non-interactive");
         command.createArgument("svn:externals");
-        
+
         if (repositoryLocation != null) {
             command.createArgument(repositoryLocation);
         }
@@ -371,7 +371,7 @@ public class SVN implements SourceControl {
     static String formatSVNDate(Date date) {
         return formatSVNDate(date, Util.isWindows());
     }
-    
+
     static String formatSVNDate(Date lastBuild, boolean isWindows) {
         DateFormat f = new SimpleDateFormat(SVN_DATE_FORMAT_IN);
         f.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -406,14 +406,13 @@ public class SVN implements SourceControl {
         return directories;
     }
 
-    // TODO: use Map not HashMap
     /**
      * Parse results from exec of propget command for svn externals.
      * @param reader exec reader (UTF-8)
      * @param directories will be populated with external directories
      * @throws IOException if an error occurs
      */
-    static void parsePropgetReader(final BufferedReader reader, final HashMap<String, List<String[]>> directories)
+    static void parsePropgetReader(final BufferedReader reader, final Map<String, List<String[]>> directories)
             throws IOException {
 
         String line;
@@ -427,9 +426,9 @@ public class SVN implements SourceControl {
                 directories.put(currentDir, new ArrayList<String[]>());
                 line = split[1];
             }
-            split = line.split("\\s");
+            split = line.split("\\s+"); // CC-949: "\\s" fails if multiple spaces exist as separator in external path
             if (!split[0].equals("")) {
-                List<String[]> externals = directories.get(currentDir);
+                final List<String[]> externals = directories.get(currentDir);
                 // split contains: [externalPath, externalSvnURL]
                 externals.add(split);
             }
@@ -462,7 +461,7 @@ public class SVN implements SourceControl {
     private String execInfoCommand(final Commandline command) throws CruiseControlException {
         try {
             final Process p = command.execute();
-    
+
             final Thread stderr = logErrorStream(p);
             final InputStream svnStream = p.getInputStream();
             final InputStreamReader reader = new InputStreamReader(svnStream, "UTF-8");
@@ -476,7 +475,7 @@ public class SVN implements SourceControl {
                 reader.close();
                 IO.close(p);
             }
-    
+
             return revision;
         } catch (IOException e) {
             throw new CruiseControlException(e);
@@ -648,7 +647,7 @@ public class SVN implements SourceControl {
             return filtered;
         }
     }
-    
+
     static final class SVNInfoXMLParser {
         private SVNInfoXMLParser() { }
         public static String parse(final Reader reader) throws JDOMException, IOException {
@@ -656,7 +655,7 @@ public class SVN implements SourceControl {
             final Document document = builder.build(reader);
             return document.getRootElement().getChild("entry").getAttribute("revision").getValue();
         }
-        
+
     }
 
     public void setUseLocalRevision(boolean useLocalRevision) {
