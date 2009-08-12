@@ -62,6 +62,10 @@ Removed deprecated methods
 ----------------------
 * Main, P4Bootstrapper, Log, ModificationSet 
 
+SVN
+----------------------
+* SVN externals not parsed correctly where multiple spaces exist as separator (CC-949). Patch by Andy Jacobs.
+
 TwitterPublisher
 ----------------------
 * Add a new plugin for publishing build results to Twitter.
