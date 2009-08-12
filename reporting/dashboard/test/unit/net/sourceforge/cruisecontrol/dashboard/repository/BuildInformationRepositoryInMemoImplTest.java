@@ -6,6 +6,7 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.JMXConnector;
+import javax.management.MBeanServerConnection;
 
 import org.jmock.cglib.MockObjectTestCase;
 import org.jmock.Mock;
@@ -73,10 +74,9 @@ public class BuildInformationRepositoryInMemoImplTest extends MockObjectTestCase
         assertEquals("project1", repository.getProjectInfo("project1").getName());
     }
 
-    //@todo Restore test when mocks are fixed
-    public void xxxtestShouldReturnJMXConnection() throws Exception {
+    public void testShouldReturnJMXConnection() throws Exception {
         save(new String[] {"project1"});
-        Mock connection = mock(ClosableProjectMBeanConnection.class);
+        Mock connection = mock(MBeanServerConnection.class);
         jmxInfoMock.expects(atLeastOnce())
             .method("getRmiUrl")
             .will(returnValue(RMI_URL));
@@ -86,7 +86,7 @@ public class BuildInformationRepositoryInMemoImplTest extends MockObjectTestCase
             .will(returnValue(jmxConnectorMock.proxy()));
         jmxConnectorMock.expects(once()).method("getMBeanServerConnection")
             .will(returnValue(connection.proxy()));
-        assertEquals(connection.proxy(), repository.getJmxConnection("project1"));
+        assertEquals(connection.proxy(), repository.getJmxConnection("project1").getMBeanServerConnection());
     }
 
     public void testShouldReturnNullIfProjectNotFound() throws Exception {

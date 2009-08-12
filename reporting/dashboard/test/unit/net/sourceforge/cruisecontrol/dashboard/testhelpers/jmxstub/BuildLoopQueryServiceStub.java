@@ -81,22 +81,22 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
 
     public static final String PROPS_CC_CONFIG_FILE = "cc.config.file";
 
-    private Map projectStatus = new HashMap();
+    private final Map<String, String> projectStatus = new HashMap<String, String>();
 
-    private Map buildingCounts = new HashMap();
+    private final Map<String, Integer> buildingCounts = new HashMap<String, Integer>();
 
-    private Integer nextBuildCount(String projectName) {
+    private Integer nextBuildCount(final String projectName) {
         if (!buildingCounts.containsKey(projectName)) {
             buildingCounts.put(projectName, BUILD_TIMES);
         }
-        Integer current = (Integer) buildingCounts.get(projectName);
-        Integer next = new Integer(current.intValue() - 1);
+        final Integer current = buildingCounts.get(projectName);
+        final Integer next = new Integer(current.intValue() - 1);
         buildingCounts.put(projectName, next);
         return next;
     }
 
-    public String getProjectStatus(String projectName) {
-        String status = (String) projectStatus.get(projectName);
+    public String getProjectStatus(final String projectName) {
+        String status = projectStatus.get(projectName);
         if ("paused".equals(projectName)) {
             return CurrentStatus.PAUSED.getCruiseStatus();
         }
@@ -109,7 +109,7 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
             return status;
         }
         if (status.startsWith("now building")) {
-            String nextStatus = getNextStatus(projectName);
+            final String nextStatus = getNextStatus(projectName);
             projectStatus.put(projectName, nextStatus);
             thritySecondsAgo = new DateTime().minusSeconds(30);
             return nextStatus;
@@ -120,8 +120,8 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
 
     public Projects getProjects() {
         try {
-            File configXmlFile = configXmlService.getConfigXmlFile(null);
-            DashboardXMLManager manager = new DashboardXMLManager(configXmlFile);
+            final File configXmlFile = configXmlService.getConfigXmlFile(null);
+            final DashboardXMLManager manager = new DashboardXMLManager(configXmlFile);
             return new Projects(envService.getLogDir(), envService.getArtifactsDir(),
                     getProjectNames(manager));
         } catch (Exception e) {
@@ -129,13 +129,13 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         }
     }
 
-    private String[] getProjectNames(DashboardXMLManager manager) {
+    private String[] getProjectNames(final DashboardXMLManager manager) {
         return (String[]) new ArrayList(manager.getCruiseControlConfig().getProjectNames())
                 .toArray(new String[0]);
     }
 
-    private String getNextStatus(String projectName) {
-        Integer buildCount = nextBuildCount(projectName);
+    private String getNextStatus(final String projectName) {
+        final Integer buildCount = nextBuildCount(projectName);
         if (buildCount.intValue() == 0) {
             buildingCounts.remove(projectName);
             return WAITING;
@@ -147,7 +147,7 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         return "now building";
     }
 
-    public Map getAllProjectsStatus() {
+    public Map<String, String> getAllProjectsStatus() {
         Projects projects;
         try {
             projects = getProjects();
@@ -156,7 +156,7 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         }
 
         final Projects allProjects = projects;
-        return new HashMap() {
+        return new HashMap<String, String>() {
             private static final long serialVersionUID = 1L;
 
             public boolean containsKey(Object key) {
@@ -167,7 +167,7 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
                 }
             }
 
-            public Object get(Object key) {
+            public String get(Object key) {
                 return getProjectStatus((String) key);
             }
 
@@ -177,16 +177,16 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         };
     }
 
-    public ProjectInfo getProjectInfo(String projectName) {
+    public ProjectInfo getProjectInfo(final String projectName) {
         return new ProjectInfo(projectName, "any", DateUtil.formatIso8601(thritySecondsAgo.toDate()));
     }
 
-    public List getCommitMessages(String projectName) {
-        List list = new ArrayList();
+    public List getCommitMessages(final String projectName) {
+        final List list = new ArrayList();
         if ("projectWithoutPublishers".equals(projectName)) {
             return list;
         }
-        String status = (String) projectStatus.get(projectName);
+        final String status = projectStatus.get(projectName);
         if (status.startsWith("now building")) {
             list.add(createModification("joe", "Some random change", "file1.txt", "build.xml"));
             list.add(createModification("dev", "Fixed the build456", "file2.txt", "config.xml"));
@@ -196,8 +196,9 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         }
     }
 
-    private Modification createModification(String name, String comment, String file, String file2) {
-        List files = new ArrayList();
+    private Modification createModification(final String name, final String comment,
+                                            final String file, final String file2) {
+        final List files = new ArrayList();
         Modification.ModifiedFile mfile1 = new Modification.ModifiedFile(file,  "123", "folder", "added");
         Modification.ModifiedFile mfile2 = new Modification.ModifiedFile(file2, "567", "folder2", "deleted");
         files.add(mfile1);
@@ -205,12 +206,12 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         return new Modification("svn", name, comment, "use@email.com", new Date(), "1234", files);
     }
 
-    public void forceBuild(String projectName) {
+    public void forceBuild(final String projectName) {
         projectStatus.put(projectName, buildingStatus());
     }
 
-    public String[] getBuildOutput(String projectName, int firstLine) {
-        String status = (String) projectStatus.get(projectName);
+    public String[] getBuildOutput(final String projectName, final int firstLine) {
+        final String status = projectStatus.get(projectName);
         if (status.startsWith("now building")) {
             return new String[] {"Build Failed.\nBuild Duration: 0s"};
         } else {
@@ -218,34 +219,34 @@ public class BuildLoopQueryServiceStub extends BuildLoopQueryService {
         }
     }
 
-    public String getJmxHttpUrl(String projectName) {
+    public String getJmxHttpUrl(final String projectName) {
         return "http://localhost:" + DEFAULT_HTTP_PORT;
     }
 
     private static class ConfigXmlFileService {
 
-        public File getConfigXmlFile(File configFile) {
+        public File getConfigXmlFile(final File configFile) {
             if (isConfigFileValid(configFile)) {
                 return configFile;
             }
-            File configFileFromProps = new File(System.getProperty(PROPS_CC_CONFIG_FILE));
+            final File configFileFromProps = new File(System.getProperty(PROPS_CC_CONFIG_FILE));
             if (isConfigFileValid(configFileFromProps)) {
                 return configFileFromProps;
             }
             return null;
         }
 
-        private boolean isConfigFileValid(File configFile) {
+        private boolean isConfigFileValid(final File configFile) {
             return configFile != null && configFile.exists()
                     && configFile.getName().endsWith(".xml");
         }
     }
 
-    public String getServerName(String projectName) {
+    public String getServerName(final String projectName) {
         return "localhost";
     }
 
-    public boolean isDiscontinued(String projectName) {
+    public boolean isDiscontinued(final String projectName) {
         return !getProjects().hasProject(projectName);
     }
 }

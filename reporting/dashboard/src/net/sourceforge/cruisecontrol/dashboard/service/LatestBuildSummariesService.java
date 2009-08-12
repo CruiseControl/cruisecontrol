@@ -7,7 +7,6 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,10 +20,10 @@ public class LatestBuildSummariesService {
         this.buildLoopQueryService = buildLoopQueryService;
     }
 
-    public BuildSummary getLatestProject(String projectName) {
-        BuildSummary buildSummary = (BuildSummary) this.historicalBuildSummariesService.getLatest(projectName);
-        BuildLoopInformation.ProjectInfo projectInfo = buildLoopQueryService.getProjectInfo(projectName);
-        String status = projectInfo.getStatus();
+    public BuildSummary getLatestProject(final String projectName) {
+        final BuildSummary buildSummary = this.historicalBuildSummariesService.getLatest(projectName);
+        final BuildLoopInformation.ProjectInfo projectInfo = buildLoopQueryService.getProjectInfo(projectName);
+        final String status = projectInfo.getStatus();
         buildSummary.updateStatus(status);
         if (CurrentStatus.BUILDING.equals(buildSummary.getCurrentStatus())) {
             buildSummary.updateBuildSince(CCDateFormatter.iso8601(projectInfo.getBuildStartTime()));
@@ -34,18 +33,17 @@ public class LatestBuildSummariesService {
     }
 
     public List getLatestOfProjects() {
-        List allSummaries = new ArrayList();
-        Map buildLiveStatuses = buildLoopQueryService.getAllProjectsStatus();
+        final List<BuildSummary> allSummaries = new ArrayList<BuildSummary>();
+        final Map<String, String> buildLiveStatuses = buildLoopQueryService.getAllProjectsStatus();
 
         allSummaries.addAll(historicalBuildSummariesService.createInactiveProjects());
         allSummaries.addAll(historicalBuildSummariesService.createActiveProjects());
         allSummaries.addAll(historicalBuildSummariesService.createDiscontinuedProjects());
-        for (Iterator iter = allSummaries.iterator(); iter.hasNext();) {
-            BuildSummary buildSummary = (BuildSummary) iter.next();
+        for (final BuildSummary buildSummary : allSummaries) {
             if (!buildLiveStatuses.containsKey(buildSummary.getProjectName())) {
                 continue;
             } else {
-                buildSummary.updateStatus((String) buildLiveStatuses.get(buildSummary.getProjectName()));
+                buildSummary.updateStatus(buildLiveStatuses.get(buildSummary.getProjectName()));
                 if (CurrentStatus.BUILDING.equals(buildSummary.getCurrentStatus())) {
                     String time = buildLoopQueryService.getProjectInfo(
                             buildSummary.getProjectName()).getBuildStartTime();

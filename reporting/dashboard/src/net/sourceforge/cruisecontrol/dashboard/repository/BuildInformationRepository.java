@@ -13,7 +13,7 @@ public interface BuildInformationRepository {
 
     ClosableProjectMBeanConnection getJmxConnection(String projectName) throws IOException;
 
-    List getProjectInfos();
+    List<ProjectInfo> getProjectInfos();
 
     BuildLoopInformation getBuildLoopInfo(String projectName);
 

@@ -72,7 +72,7 @@ UCM
 
 Dashboard
 ======================
-* Dashboard build detail page is creating many JMX server threads (CC-831). Reported by Matthias Grunwalde. Diagnosed by Xinglang Wang. Tested by Joe Schmetzer.
+* Dashboard build detail page is creating many JMX server threads (CC-831). Reported by Matthias Grunwalde. Diagnosed by Xinglang Wang. Tested by Joe Schmetzer. Unit Tests patched by Stephen Smith.
   Need to restore jmock test cases: 
   net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepositoryInMemoImplTest.xxxtestShouldReturnJMXConnection()
   net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryServiceTest.xxxtestShouldReturnBuildOutput()

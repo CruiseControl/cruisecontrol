@@ -60,15 +60,15 @@ import java.util.Map;
 import java.text.ParseException;
 
 public class BuildDetailController extends BaseMultiActionController {
-    private BuildService buildService;
+    private final BuildService buildService;
 
     private final HistoricalBuildSummariesService buildSummarySerivce;
 
     private final WidgetPluginService widgetPluginService;
 
-    private BuildSummaryUIService buildSummaryUIService;
+    private final BuildSummaryUIService buildSummaryUIService;
 
-    private BuildLoopQueryService buildLoopQueryService;
+    private final BuildLoopQueryService buildLoopQueryService;
 
     public BuildDetailController(BuildService buildService,
                                  HistoricalBuildSummariesService buildSummarySerivce,
@@ -130,7 +130,7 @@ public class BuildDetailController extends BaseMultiActionController {
         String[] url = DashboardUtils.urlToParams(request.getRequestURI());
         Map data = new HashMap();
         String projectName = "";
-        String partial = "";
+        final String partial;
         if (url.length == 6) {
             partial = "projectlog";
             projectName = DashboardUtils.decode(url[url.length - 2]);
@@ -158,7 +158,7 @@ public class BuildDetailController extends BaseMultiActionController {
 
 
     private String getCurrentBuildStatus(String projectName) {
-        return (String) buildLoopQueryService.getAllProjectsStatus().get(projectName);
+        return buildLoopQueryService.getAllProjectsStatus().get(projectName);
     }
 
     private void loadAllWidgets(HttpServletRequest request, BuildDetail build) {

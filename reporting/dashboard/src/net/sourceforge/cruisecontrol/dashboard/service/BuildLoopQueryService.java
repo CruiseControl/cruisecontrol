@@ -36,7 +36,6 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.service;
 
-import net.sourceforge.cruisecontrol.BuildLoopInformation;
 import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
 import net.sourceforge.cruisecontrol.dashboard.Projects;
@@ -50,7 +49,6 @@ import javax.management.ObjectName;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -127,11 +125,10 @@ public class BuildLoopQueryService {
         return getProjectInfo(projectName).getStatus();
     }
 
-    public Map getAllProjectsStatus() {
-        Map result = new HashMap();
-        List infos = buildInformationRepository.getProjectInfos();
-        for (int i = 0; i < infos.size(); i++) {
-            BuildLoopInformation.ProjectInfo projectInfo = (BuildLoopInformation.ProjectInfo) infos.get(i);
+    public Map<String, String> getAllProjectsStatus() {
+        final Map<String, String> result = new HashMap<String, String>();
+        final List<ProjectInfo> infos = buildInformationRepository.getProjectInfos();
+        for (final ProjectInfo projectInfo : infos) {
             result.put(projectInfo.getName(), getSupportedStatus(projectInfo.getStatus()));
         }
         return result;
@@ -166,11 +163,10 @@ public class BuildLoopQueryService {
     }
 
     public Projects getProjects() {
-        List list = buildInformationRepository.getProjectInfos();
+        final List<ProjectInfo> list = buildInformationRepository.getProjectInfos();
         int i = 0;
-        String[] projectNames = new String[list.size()];
-        for (Iterator iter = list.iterator(); iter.hasNext();) {
-            ProjectInfo projectInfo = (ProjectInfo) iter.next();
+        final String[] projectNames = new String[list.size()];
+        for (final ProjectInfo projectInfo : list) {
             projectNames[i++] = projectInfo.getName();
         }
         return new Projects(environmentService.getLogDir(), environmentService.getArtifactsDir(),
