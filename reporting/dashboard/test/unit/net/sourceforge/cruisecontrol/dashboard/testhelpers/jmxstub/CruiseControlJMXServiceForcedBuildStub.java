@@ -54,11 +54,11 @@ public class CruiseControlJMXServiceForcedBuildStub extends BuildLoopQueryServic
         return "now building since 20070420211341";
     }
 
-    public Map getAllProjectsStatus() {
-        return new HashMap() {
+    public Map<String, String> getAllProjectsStatus() {
+        return new HashMap<String, String>() {
             private static final long serialVersionUID = 1L;
 
-            public Object get(Object key) {
+            public String get(Object key) {
                 return "now building since 20070420211341";
             }
         };

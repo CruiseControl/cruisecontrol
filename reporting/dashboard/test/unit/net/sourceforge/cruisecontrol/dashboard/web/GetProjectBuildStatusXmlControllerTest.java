@@ -85,8 +85,8 @@ public class GetProjectBuildStatusXmlControllerTest extends MockObjectTestCase {
                 (LatestBuildSummariesService) mockLatestBuildSummariesService.proxy();
         final EnvironmentService environmentService = new EnvironmentService(new DashboardConfigService[]{});
         BuildLoopQueryService buildLoopQueryService = new BuildLoopQueryService(environmentService, null) {
-            public Map getAllProjectsStatus() {
-                Map map = new HashMap();
+            public Map<String, String> getAllProjectsStatus() {
+                Map<String, String> map = new HashMap<String, String>();
                 map.put("project1", "now building since");
                 return map;
             }

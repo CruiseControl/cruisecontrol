@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,11 +17,11 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.dashboard.service.JMXConnectorFactory;
 
 public class BuildInformationRepositoryInMemoImpl implements BuildInformationRepository {
-    private Map data = new HashMap();
+    private final Map<String, ProjectInfo> data = new HashMap<String, ProjectInfo>();
 
-    private JMXConnectorFactory jmxConnectorFactory;
+    private final JMXConnectorFactory jmxConnectorFactory;
 
-    private Map info = new HashMap();
+    private final Map<String, BuildLoopInformation> info = new HashMap<String, BuildLoopInformation>();
 
     public BuildInformationRepositoryInMemoImpl() {
         this(new JMXConnectorFactory());
@@ -33,40 +32,39 @@ public class BuildInformationRepositoryInMemoImpl implements BuildInformationRep
     }
 
     public ProjectInfo getProjectInfo(String projectName) {
-        return (ProjectInfo) data.get(projectName);
+        return data.get(projectName);
     }
 
-    public synchronized ClosableProjectMBeanConnection getJmxConnection(String projectName) throws IOException {
+    public synchronized ClosableProjectMBeanConnection getJmxConnection(final String projectName) throws IOException {
         if (!knowAboutProject(projectName)) {
             return null;
         }
-        JMXConnector jmxConnector = jmxConnectorFactory.connect(jmxServiceUrl(projectName), environment(projectName));
-        return new ClosableProjectMBeanConnection(jmxConnector);
+        final JMXConnector jmxConnector
+                = jmxConnectorFactory.connect(jmxServiceUrl(projectName), environment(projectName));
+        return new ClosableProjectMBeanConnectionImpl(jmxConnector);
     }
 
-    public List getProjectInfos() {
-        return new ArrayList(data.values());
+    public List<ProjectInfo> getProjectInfos() {
+        return new ArrayList<ProjectInfo>(data.values());
     }
 
-    public BuildLoopInformation getBuildLoopInfo(String projectName) {
+    public BuildLoopInformation getBuildLoopInfo(final String projectName) {
         return buildInfo(projectName);
     }
 
-    public void saveOrUpdate(BuildLoopInformation buildLoopInfo) {
-        ProjectInfo[] projects = buildLoopInfo.getProjects();
+    public void saveOrUpdate(final BuildLoopInformation buildLoopInfo) {
+        final ProjectInfo[] projects = buildLoopInfo.getProjects();
         filterDiscontinuedProjects(buildLoopInfo, projects);
-        for (int i = 0; i < projects.length; i++) {
-            ProjectInfo projectInfo = projects[i];
+        for (final ProjectInfo projectInfo : projects) {
             data.put(projectInfo.getName(), projectInfo);
             info.put(projectInfo.getName(), buildLoopInfo);
         }
     }
 
-    private void filterDiscontinuedProjects(BuildLoopInformation updatedInfo, ProjectInfo[] projects) {
-        Set currentProjectNames = new HashSet(data.keySet());
-        for (Iterator iterator = currentProjectNames.iterator(); iterator.hasNext();) {
-            String name = (String) iterator.next();
-            BuildLoopInformation currentInfo = (BuildLoopInformation) info.get(name);
+    private void filterDiscontinuedProjects(final BuildLoopInformation updatedInfo, final ProjectInfo[] projects) {
+        final Set<String> currentProjectNames = new HashSet<String>(data.keySet());
+        for (final String name : currentProjectNames) {
+            final BuildLoopInformation currentInfo = info.get(name);
             if (isSameBuildLoop(updatedInfo, currentInfo) && isMissing(name, projects)) {
                 info.remove(name);
                 data.remove(name);
@@ -74,13 +72,14 @@ public class BuildInformationRepositoryInMemoImpl implements BuildInformationRep
         }
     }
 
-    private boolean isSameBuildLoop(BuildLoopInformation buildLoopInfo, BuildLoopInformation currentBuildLoop) {
+    private boolean isSameBuildLoop(final BuildLoopInformation buildLoopInfo,
+                                    final BuildLoopInformation currentBuildLoop) {
         return currentBuildLoop.getUuid().equals(buildLoopInfo.getUuid());
     }
 
-    private boolean isMissing(String projectName, ProjectInfo[] projects) {
-        for (int i = 0; i < projects.length; i++) {
-            if (projects[i].getName().equals(projectName)) {
+    private boolean isMissing(final String projectName, final ProjectInfo[] projects) {
+        for (final ProjectInfo project : projects) {
+            if (project.getName().equals(projectName)) {
                 return false;
             }
         }
@@ -95,32 +94,32 @@ public class BuildInformationRepositoryInMemoImpl implements BuildInformationRep
         return data.size();
     }
 
-    private Map environment(String projectName) {
-        Map environment = new HashMap();
+    private Map<String, String> environment(final String projectName) {
+        Map<String, String> environment = new HashMap<String, String>();
         environment.put("java.naming.factory.initial", "com.sun.jndi.rmi.registry.RegistryContextFactory");
         environment.put("java.naming.provider.url", getBuildLoopInfo(projectName).getJmxInfo().getRmiUrl());
         return environment;
     }
 
-    private JMXServiceURL jmxServiceUrl(String projectName) throws MalformedURLException {
-        String serviceUrl =
+    private JMXServiceURL jmxServiceUrl(final String projectName) throws MalformedURLException {
+        final String serviceUrl =
                 "service:jmx:" + getBuildLoopInfo(projectName).getJmxInfo().getRmiUrl() + "/jndi/jrmp";
         return new JMXServiceURL(serviceUrl);
     }
 
-    private boolean knowAboutProject(String projectName) {
+    private boolean knowAboutProject(final String projectName) {
         return info.containsKey(projectName);
     }
 
-    private BuildLoopInformation buildInfo(String projectName) {
-        BuildLoopInformation buildInfo = (BuildLoopInformation) info.get(projectName);
+    private BuildLoopInformation buildInfo(final String projectName) {
+        final BuildLoopInformation buildInfo = info.get(projectName);
         if (buildInfo == null) {
             throw new RuntimeException("Cannot find build info for project " + projectName);
         }
         return buildInfo;
     }
 
-    public boolean hasBuildLoopInfoFor(String projectName) {
+    public boolean hasBuildLoopInfoFor(final String projectName) {
         return data.containsKey(projectName);
     }
 }

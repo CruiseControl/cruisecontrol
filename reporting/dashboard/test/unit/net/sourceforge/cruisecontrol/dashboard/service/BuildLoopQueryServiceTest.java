@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.Projects;
 import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
+import net.sourceforge.cruisecontrol.dashboard.repository.ClosableProjectMBeanConnection;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionBuildOutputStub;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
@@ -62,6 +63,8 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
 
     private Mock projectInfo;
 
+    private Mock closableProjectMBeanConnection;
+
     protected void setUp() throws Exception {
         envService = mock(EnvironmentService.class,
                 new Class[]{DashboardConfigService[].class},
@@ -73,6 +76,8 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
         buildLoopQueryService = new BuildLoopQueryService(
                 (EnvironmentService) envService.proxy(),
                 (BuildInformationRepository) repository.proxy());
+
+        closableProjectMBeanConnection = mock(ClosableProjectMBeanConnection.class);
     }
 
     public void testShouldReturnArrayContainsCommiterAndCommitMessage() throws Exception {
@@ -94,10 +99,12 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
         assertEquals("message 1", message.comment);
     }
 
-    //@todo Restore test when mocks are fixed
-    public void xxxtestShouldReturnBuildOutput() throws Exception {
-        repository.expects(once()).method("getJmxConnection").will(
-                returnValue(new MBeanServerConnectionBuildOutputStub()));
+    public void testShouldReturnBuildOutput() throws Exception {
+        repository.expects(once()).method("getJmxConnection").
+                will(returnValue(closableProjectMBeanConnection.proxy()));
+        closableProjectMBeanConnection.expects(once()).method("getMBeanServerConnection").
+                will(returnValue(new MBeanServerConnectionBuildOutputStub()));
+        closableProjectMBeanConnection.expects(once()).method("close");
         String[] output = buildLoopQueryService.getBuildOutput(PROJECT_NAME, 0);
         assertEquals("Build Failed", output[0]);
         assertEquals("Build Duration: 10s", output[1]);
@@ -137,7 +144,7 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
 
         repository.expects(once()).method("getProjectInfos").will(returnValue(infos));
 
-        Map projectsStatus = buildLoopQueryService.getAllProjectsStatus();
+        final Map<String, String> projectsStatus = buildLoopQueryService.getAllProjectsStatus();
 
         assertEquals("now building", projectsStatus.get("project1"));
         assertEquals("paused", projectsStatus.get("project2"));
@@ -196,5 +203,4 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
         assertEquals(" - Unable to connect to build loop at server1",
                 buildLoopQueryService.getBuildOutput("project1", 0)[0]);
     }
-
 }
