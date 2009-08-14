@@ -43,6 +43,7 @@
     if (Boolean.valueOf(singleProjectMode).booleanValue() == false) {  %>
             <li><a href="index">Status Page</a></li>
 
+            <li>
               <form action="index" >
                 <select name="projecttarget" onchange="self.location.href = this.form.projecttarget.options[this.form.projecttarget.selectedIndex].value">
                   <cruisecontrol:projectnav>
@@ -50,8 +51,9 @@
                   </cruisecontrol:projectnav>
                 </select>
               </form>
+            </li>
     <%
-    } 
+    }
  %>
             <li><textarea rows="5" readonly="true"><cruisecontrol:currentbuildstatus insertBreaks="false" /></textarea></li>
 
@@ -61,6 +63,7 @@
               <li><a href="<%= url %>"><%= linktext %></a></li>
             </cruisecontrol:nav>
             <cruisecontrol:navCount startingBuildNumber="10">
+              <li>
                 <form method="GET" action="<%=baseUrl%>" >
                   <select name="log" onchange="form.submit()">
                     <option>More builds</option>
@@ -69,6 +72,7 @@
                     </cruisecontrol:nav>
                   </select>
                 </form>
+              </li>
             </cruisecontrol:navCount>
             <li><a href="rss/<%= request.getPathInfo().substring(1) %>"><img border="0" src="images/rss.png"/></a></li>
         </ul>
