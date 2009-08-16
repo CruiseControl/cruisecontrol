@@ -75,7 +75,9 @@
     </target>
 
     <target name="validate-website">
-        <xmlvalidate>
+	<xmlvalidate>
+		<dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN" location="xhtml1-strict.dtd"/>
+		<dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN" location="xhtml1-transitional.dtd"/>
             <fileset dir="target/website" includes="**/*.html"/>
         </xmlvalidate>
     </target>
