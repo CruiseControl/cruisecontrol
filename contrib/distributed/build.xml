@@ -36,15 +36,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
 
-<!-- ====================================================================== 
-     Dec 17, 2004 1:09:40 PM                                                        
+<!-- ======================================================================
+     Dec 17, 2004 1:09:40 PM
 
      This Ant script builds the distributed extensions to CruiseControl and
      prepares a set of files for running a Jini Lookup Service. In addition
      it prepares a zip file for installation on build agent machines. See
      the README.html in this directory for details.
-                   
-     jramsdale                                                                
+
+     jramsdale
      ====================================================================== -->
 
 <project name="CCDist" default="build" basedir=".">
@@ -113,9 +113,9 @@
     <!-- commonly reused libs from main/lib -->
     <patternset id="ps.main.lib-common">
         <include name="log4j*.jar" />
-        <include name="mail*.jar" /> <!-- for cases where SMTPAppender is used in log4j.properties --> 
+        <include name="mail*.jar" /> <!-- for cases where SMTPAppender is used in log4j.properties -->
         <include name="activation*.jar" /> <!-- for cases where SMTPAppender is used in log4j.properties -->
-        
+
         <include name="jdom*.jar" />
     </patternset>
 
@@ -169,7 +169,7 @@
         <!-- provides Administrable interface -->
         <fileset id="fs.jini.lib-dl.jsk-dl" dir="jini-lib-dl">
             <include name="jsk-dl.jar" />
-        </fileset>        
+        </fileset>
     </path>
 
     <path id="ccdist.project.runtime.classpath">
@@ -197,7 +197,7 @@
         <!--</fileset>-->
     </path>
 
-    <target name="buildMainIfMissing" description="Only exists to avoid CCLive compile errors when Main jar a missing">        
+    <target name="buildMainIfMissing" description="Only exists to avoid CCLive compile errors when Main jar a missing">
         <available property="ccmainJarExists" file="${dir.main.dist}/cruisecontrol.jar"/>
         <antcall target="_doBuildMainIfMissing"/>
     </target>
@@ -423,7 +423,7 @@
             <fileset dir="${test}" excludes="**/*.java"/>
             <fileset dir="conf" includes="insecure.policy"/>
             <fileset dir="conf" includes="cruise.properties"/>
-            <!--@todo use a new config file, like 'progressremote.config' and update 'Bad DNS' workaround docs -->            
+            <!--@todo use a new config file, like 'progressremote.config' and update 'Bad DNS' workaround docs -->
             <fileset dir="conf" includes="transient-reggie.config"/>
         </copy>
     </target>
@@ -466,11 +466,14 @@
 
     <target name="validate-html">
         <xmlvalidate>
+            <dtd publicId="-//W3C//DTD XHTML 1.0 Strict//EN" location="../../xhtml1-strict.dtd"/>
+            <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN" location="../../xhtml1-transitional.dtd"/>
+
             <fileset dir="${basedir}" includes="**/*.html" excludes="**/api/**"/>
         </xmlvalidate>
     </target>
 
-    
+
     <target name="setupTestEntry">
         <!-- @todo find a cleaner way to prevent collision of multiple test runs on same subnet? -->
         <tstamp>
