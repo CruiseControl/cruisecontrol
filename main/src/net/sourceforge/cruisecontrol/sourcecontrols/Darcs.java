@@ -70,7 +70,7 @@ import java.util.Map;
  * output to determine if there have been any changes. The modifications are parsed and used for cruisecontrol build
  * reports which allow the patch names associated with a build to be displayed. Currently the darcs xml-output does not
  * display which files have changed.
- * 
+ *
  * Large parts of this implementation were based on the {@link net.sourceforge.cruisecontrol.sourcecontrols.SVN} source
  * control implementation.
  */
@@ -138,7 +138,6 @@ public class Darcs implements SourceControl {
 
         command.createArgument("changes");
         command.createArgument("--xml-output");
-        command.createArgument("--match");
         command.createArgument("--matches");
         command.createArgument("date \"" + DARCS_DATE_FORMAT_IN.format(lastBuild) + "/"
                 + DARCS_DATE_FORMAT_IN.format(checkTime) + "\"");

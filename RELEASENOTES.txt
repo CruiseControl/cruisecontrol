@@ -19,7 +19,11 @@ BuildOutputLoggerManager
 
 DarcsBootstrapper
 ----------------------
-* New Darcs bootstrapper (CC-905). Patch by Florian Gilcher.
+* New Darcs bootstrapper (CC-905). Patch by Florian Gilcher. Patch by Phil.
+
+Darcs
+----------------------
+* Remove extra "--match" command argument. Patch by Phil.
 
 DateUtil
 ----------------------
