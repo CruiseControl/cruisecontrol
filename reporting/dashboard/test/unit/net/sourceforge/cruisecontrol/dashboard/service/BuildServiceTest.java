@@ -44,7 +44,6 @@ import net.sourceforge.cruisecontrol.dashboard.BuildTestSuite;
 import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
 import net.sourceforge.cruisecontrol.dashboard.LogFile;
 import net.sourceforge.cruisecontrol.dashboard.ModificationAction;
-import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.DataUtils;
 import org.jmock.Mock;
@@ -127,9 +126,7 @@ public class BuildServiceTest extends MockObjectTestCase {
 
     public void testCanReadModificationsFromLogFile() throws Exception {
         final BuildDetail build = buildFactory.createBuildFromFile(DataUtils.getPassingBuildLbuildAsFile());
-        final ModificationSet modificationSet = build.getModificationSet();
-
-        final Collection<Modification> modifications = modificationSet.getModifications();
+        final Collection<Modification> modifications = build.getModifications();
         assertEquals(2, modifications.size());
         final Modification modification = modifications.iterator().next();
 
@@ -138,13 +135,17 @@ public class BuildServiceTest extends MockObjectTestCase {
         assertEquals("readcb", modification.userName);
 
         final List<Modification.ModifiedFile> files = modification.getModifiedFiles();
-        assertEquals(1, files.size());
+        assertEquals(2, files.size());
 
         final Modification.ModifiedFile firstFile = files.get(0);
-
         assertEquals(ModificationAction.MODIFIED, ModificationAction.fromDisplayName(firstFile.action));
         assertEquals("build.xml", firstFile.fileName);
         assertEquals("1.2", firstFile.revision);
+
+        final Modification.ModifiedFile secondFile = files.get(1);
+        assertEquals(ModificationAction.DELETED, ModificationAction.fromDisplayName(secondFile.action));
+        assertEquals("blah.txt", secondFile.fileName);
+        assertEquals("1.2", secondFile.revision);
     }
 
     public void testShouldGetDateOfBuild() throws Exception {

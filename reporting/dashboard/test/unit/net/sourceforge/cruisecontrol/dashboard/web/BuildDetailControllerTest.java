@@ -136,7 +136,7 @@ public class BuildDetailControllerTest extends SpringBasedControllerTests {
         BuildCommand buildCommand = (BuildCommand) mav.getModel().get("buildCmd");
         BuildDetail build = getBuildDetail(buildCommand);
         String artifacts = build.getArtifactFiles().toString();
-        assertEquals(3, build.getArtifactFiles().size());
+        assertEquals(build.getArtifactFiles().toString(), 3, build.getArtifactFiles().size());
         assertTrue(StringUtils.contains(artifacts, "artifact1.txt"));
         assertFalse(StringUtils.contains(artifacts, "artifact2.txt"));
         assertTrue(StringUtils.contains(artifacts, "subdir"));

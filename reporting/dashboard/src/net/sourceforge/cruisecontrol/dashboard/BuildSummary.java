@@ -37,12 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.exception.ShouldStopParsingException;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.CompositeExtractor;
 import net.sourceforge.cruisecontrol.dashboard.saxhandler.DurationExtractor;
@@ -185,12 +187,12 @@ public class BuildSummary implements Build {
         return this.getDateTime();
     }
 
-    public ModificationSet getModificationSet() {
+    public List<Modification> getModifications() {
         try {
             if (!propertiesFromLogContent.containsKey("modifications")) {
                 parseLogFile(new ModificationExtractor());
             }
-            return (ModificationSet) propertiesFromLogContent.get("modifications");
+            return (List<Modification>) propertiesFromLogContent.get("modifications");
         } catch (Exception e) {
             return null;
         }

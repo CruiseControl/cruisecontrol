@@ -36,6 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard;
 
+import java.util.List;
+
+import net.sourceforge.cruisecontrol.Modification;
+
 import org.joda.time.DateTime;
 
 public interface Build extends Comparable {
@@ -57,7 +61,7 @@ public interface Build extends Comparable {
 
     public boolean hasPassed();
 
-    public ModificationSet getModificationSet();
+    public List<Modification> getModifications();
 
     public String getConvertedTime();
 }

@@ -44,7 +44,6 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.Build;
 import net.sourceforge.cruisecontrol.dashboard.CurrentStatus;
-import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 import net.sourceforge.cruisecontrol.dashboard.StoryTracker;
 import net.sourceforge.cruisecontrol.dashboard.ViewableStatusHelper;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
@@ -77,9 +76,8 @@ public class BuildCommand {
 
     public Collection getModifications() {
         final Collection<ModificationCommand> modificationCmds = new ArrayList<ModificationCommand>();
-        final ModificationSet modificationSet = build.getModificationSet();
-        if (modificationSet != null) {
-            final Collection<Modification> modifications = modificationSet.getModifications();
+        final Collection<Modification> modifications = build.getModifications();
+        if (modifications != null) {
             for (final Modification modification : modifications) {
                 modificationCmds.add(new ModificationCommand(modification, storyTracker));
             }

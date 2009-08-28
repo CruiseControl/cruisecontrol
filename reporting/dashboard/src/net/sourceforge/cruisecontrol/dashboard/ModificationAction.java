@@ -52,11 +52,11 @@ public final class ModificationAction {
     }
 
     public static ModificationAction fromDisplayName(String type) {
-        if (type.equals("modified")) {
+        if (type.equals("modified") || type.equals("edit")) {
             return MODIFIED;
-        } else if ((type.equals("add")) || (type.equals("added"))) {
+        } else if (type.equals("add") || type.equals("added")) {
             return ADD;
-        } else if (type.equals("deleted")) {
+        } else if (type.equals("delete") || type.equals("deleted")) {
             return DELETED;
         } else {
             return UNKNOWN;
