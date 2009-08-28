@@ -44,6 +44,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.dashboard.utils.CCDateFormatter;
 import net.sourceforge.cruisecontrol.dashboard.utils.TimeConverter;
 
@@ -119,8 +120,8 @@ public class BuildDetail implements Comparable, Build {
         return this.getBuildDate().compareTo(((BuildDetail) o).getBuildDate());
     }
 
-    public ModificationSet getModificationSet() {
-        return (ModificationSet) props.get("modifications");
+    public List<Modification> getModifications() {
+        return (List<Modification>) props.get("modifications");
     }
 
     public int getNumberOfTests() {

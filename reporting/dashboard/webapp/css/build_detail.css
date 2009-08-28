@@ -50,7 +50,7 @@
 
 .build_detail_container_menu li {
 	display: inline;
-	cursor : pointer;	
+	cursor : pointer;
 }
 
 /* To build the tabs we use the "sliding doors" method on an a tag and a span within the a */
@@ -140,12 +140,12 @@ div.maincol.build_detail {
 }
 
 .sidecol_header img {
-	margin : 0 5px 0 0;	
+	margin : 0 5px 0 0;
 }
 
 .sidecol p.sidecol_header span {
 	padding-left : 5px;
-	padding-top : 5px;	
+	padding-top : 5px;
 	float:left;
 }
 
@@ -273,7 +273,12 @@ div.sub_tab_container_content {
 
 .modifications td {
    padding-right: 10px;
+   vertical-align: top;
    text-align:left;
+}
+
+.modifications tr.comment td {
+   padding-top: 1em;
 }
 
 #expand_all, #collapse_all {

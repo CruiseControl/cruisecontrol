@@ -85,6 +85,8 @@ Dashboard
   net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepositoryInMemoImplTest.xxxtestShouldReturnJMXConnection()
   net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryServiceTest.xxxtestShouldReturnBuildOutput()
 
+* Dashboard doesn't correctly display modifications with multiple files (CC-921). Patch by Joe Schmetzer.
+
 reporting jsp app
 ======================
 * navigation.jsp missing <li> tags around some elements under <ul> tag (CC-950). Reported by Chris Sewart

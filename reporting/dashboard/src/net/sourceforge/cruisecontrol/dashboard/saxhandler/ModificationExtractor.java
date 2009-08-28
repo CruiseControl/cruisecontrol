@@ -1,46 +1,39 @@
 package net.sourceforge.cruisecontrol.dashboard.saxhandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.Modification.ModifiedFile;
 import net.sourceforge.cruisecontrol.dashboard.ModificationAction;
-import net.sourceforge.cruisecontrol.dashboard.ModificationSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class ModificationExtractor extends SAXBasedExtractor {
-    private ModificationSet modificationsSet = new ModificationSet();
+    private List<Modification> modifications = new ArrayList<Modification>();
 
     private String type = "";
-
     private String user = "";
-
     private String comment = "";
-
-    private String revision = "";
-
-    private String filename = "";
-
-    private String action = "";
-
+    private String fileRevision = "";
+    private String fileName = "";
+    private String fileAction = "";
+    private List<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>();
     private boolean readingModification;
-
     private boolean readingUser;
-
     private boolean readingComment;
-
-    private boolean readingRivision;
-
+    private boolean readingRevision;
     private boolean readingFileName;
-
     private boolean readingFile;
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
         endElementsInModification(qName);
         if ("modification".equals(qName)) {
-            modificationsSet.add(type, user, comment, revision, ModificationAction
-                    .fromDisplayName(action), filename);
+            Modification modification = new Modification(type, user, comment, null, null, null, modifiedFiles);
+            modifications.add(modification);
             readingModification = false;
             reset();
         }
@@ -53,9 +46,14 @@ public class ModificationExtractor extends SAXBasedExtractor {
         type = "";
         user = "";
         comment = "";
-        revision = "";
-        filename = "";
-        action = "";
+        resetModifiedFile();
+        modifiedFiles = new ArrayList<ModifiedFile>();
+    }
+
+    private void resetModifiedFile() {
+        fileRevision = "";
+        fileName = "";
+        fileAction = "";
     }
 
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -74,13 +72,13 @@ public class ModificationExtractor extends SAXBasedExtractor {
 
     private void setFile(String text) {
         if (readingFileName) {
-            filename += text;
+            fileName += text;
         }
     }
 
     private void setRevision(String text) {
-        if (readingRivision) {
-            revision += text;
+        if (readingRevision) {
+            fileRevision += text;
         }
     }
 
@@ -119,7 +117,9 @@ public class ModificationExtractor extends SAXBasedExtractor {
     private void startFile(String qName, Attributes attributes) {
         if ("file".equals(qName)) {
             readingFile = true;
-            action = attributes.getValue("action");
+            String actionText = attributes.getValue("action");
+            ModificationAction action = ModificationAction.fromDisplayName(actionText);
+            fileAction = action.toString();
         }
     }
 
@@ -140,12 +140,12 @@ public class ModificationExtractor extends SAXBasedExtractor {
             readingFileName = true;
         }
         if ("revision".equals(qName)) {
-            readingRivision = true;
+            readingRevision = true;
         }
     }
 
     public void report(Map resultSet) {
-        resultSet.put("modifications", modificationsSet);
+        resultSet.put("modifications", modifications);
     }
 
     private void endElementsInModification(String qName) {
@@ -176,13 +176,16 @@ public class ModificationExtractor extends SAXBasedExtractor {
             readingFileName = false;
         }
         if ("revision".equals(qName)) {
-            readingRivision = false;
+            readingRevision = false;
         }
     }
 
     private void endFileElement(String qName) {
         if ("file".equals(qName)) {
             readingFile = false;
+            ModifiedFile mf = new ModifiedFile(fileName, fileRevision, "", fileAction);
+            modifiedFiles.add(mf);
+            resetModifiedFile();
         }
     }
 }

@@ -225,7 +225,7 @@ public class BuildCommandTest extends MockObjectTestCase {
 
     public void testShouldReturnEmptyCollectionWhenNoModificationsAvailableFromLogFile() throws Exception {
         Mock build = mock(Build.class);
-        build.expects(atLeastOnce()).method("getModificationSet").will(returnValue(null));
+        build.expects(atLeastOnce()).method("getModifications").will(returnValue(null));
         BuildCommand command = new BuildCommand((Build) build.proxy(), null);
         final Collection modifications = command.getModifications();
         assertTrue("Modifications should be empty", modifications.isEmpty());
