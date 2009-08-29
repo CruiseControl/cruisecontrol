@@ -62,7 +62,7 @@ public interface Widget {
      * Widgets framework will associate artifacts root path with the following key.
      */
     public static final String PARAM_PJT_ARTIFACTS = "PJT_ARTIFACTS";
- 
+
     /**
      * Widgets framework will associate artifacts root path of the build with the following key.
      */
@@ -72,6 +72,11 @@ public interface Widget {
      * Widgets framework will associate CruiseControl root path with the following key.
      */
     public static final String PARAM_CC_ROOT = "CC_ROOT";
+
+    /**
+     * Widgets framework will associate Dashboard webapp path with the following key.
+     */
+    public static final String PARAM_WEBAPP_ROOT = "WEBAPP_ROOT";
 
     /**
      * Widgets framework will associate project name with the following key.

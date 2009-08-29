@@ -36,16 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.dashboard.widgets;
 
+import junit.framework.TestCase;
+
 /**
  * @author Ketan Padegaonkar
  */
-public class AntOutputWidget extends AbstractXslOutputWidget implements Widget {
-
-    public String getDisplayName() {
-        return "Ant Output";
-    }
-
-    protected String getXslPath() {
-        return "xsl/ant.xsl";
+public class BuildOutputWidgetTest extends TestCase {
+    public void testShouldBeAbleToGetLogFileAndReturnParsedContent() throws Exception {
+        BuildOutputWidget service = new BuildOutputWidget();
+        assertEquals("Build Output", service.getDisplayName());
+        assertEquals("xsl/buildoutput.xsl", service.getXslPath());
     }
 }

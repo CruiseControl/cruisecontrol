@@ -25,22 +25,30 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import net.sourceforge.cruisecontrol.dashboard.exception.ConfigurationException;
+
+import org.apache.log4j.Logger;
+
 /**
  * @author Ketan Padegaonkar
  */
 public abstract class AbstractXslOutputWidget implements Widget {
+    private static final Logger LOGGER = Logger.getLogger(AbstractXslOutputWidget.class);
 
     public AbstractXslOutputWidget() {
         super();
     }
 
     public Object getOutput(Map parameters) {
-        File logFile = (File) parameters.get(Widget.PARAM_BUILD_LOG_FILE);
+        File logFile = new File(parameters.get(Widget.PARAM_BUILD_LOG_FILE).toString());
+        File xslFile = new File(parameters.get(Widget.PARAM_WEBAPP_ROOT) + "/" + getXslPath());
         try {
-            File ccHome = (File) parameters.get(Widget.PARAM_CC_ROOT);
-            File xsl = new File(ccHome.getCanonicalPath() + "/" + getXslPath());
+            if (!xslFile.exists()) {
+                throw new ConfigurationException("Unable to find file "
+                        + xslFile.getAbsolutePath());
+            }
+            Source xsltSource = new StreamSource(xslFile);
             Source xmlSource = new StreamSource(logFile);
-            Source xsltSource = new StreamSource(xsl);
 
             TransformerFactory transFact = TransformerFactory.newInstance();
             Transformer trans = transFact.newTransformer(xsltSource);
@@ -49,6 +57,8 @@ public abstract class AbstractXslOutputWidget implements Widget {
             trans.transform(xmlSource, new StreamResult(writer));
             return writer.toString();
         } catch (Exception e) {
+            LOGGER.error("Failed to transform log file " + logFile
+                    + " using xsl " + getXslPath(), e);
             return null;
         }
     }
