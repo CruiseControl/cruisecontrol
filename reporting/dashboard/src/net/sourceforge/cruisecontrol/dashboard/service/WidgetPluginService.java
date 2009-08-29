@@ -82,5 +82,15 @@ public class WidgetPluginService {
         parameters.put(Widget.PARAM_PJT_LOG_ROOT, build.getLogFolder());
         parameters.put(Widget.PARAM_BUILD_LOG_FILE, build.getLogFile());
         parameters.put(Widget.PARAM_BUILD_ARTIFACTS_ROOT, build.getArtifactFolder());
+        parameters.put(Widget.PARAM_CC_ROOT, getCCDir());
+        parameters.put(Widget.PARAM_WEBAPP_ROOT, getCCDir() + "/webapps/dashboard/");
+    }
+
+    private String getCCDir() {
+        String ccdir = System.getenv("CCDIR");
+        if (ccdir == null) {
+            ccdir = System.getProperty("user.dir");
+        }
+        return ccdir;
     }
 }

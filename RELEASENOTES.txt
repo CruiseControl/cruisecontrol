@@ -85,6 +85,8 @@ Dashboard
   net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepositoryInMemoImplTest.xxxtestShouldReturnJMXConnection()
   net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryServiceTest.xxxtestShouldReturnBuildOutput()
 
+* Rename AntOutputWidget to BuildOutputWidget and fix to display build output (CC-899). Patch by Joe Schemtzer.
+
 * Dashboard doesn't correctly display modifications with multiple files (CC-921). Patch by Joe Schmetzer.
 
 reporting jsp app

@@ -53,7 +53,7 @@ public class AbstractXslOutputWidgetTest extends TestCase {
         final AbstractXslOutputWidget service = new AbstractXslOutputWidget() {
 
             protected String getXslPath() {
-                return "xsl/ant.xsl";
+                return "xsl/buildoutput.xsl";
             }
 
             public String getDisplayName() {
@@ -64,7 +64,7 @@ public class AbstractXslOutputWidgetTest extends TestCase {
         final File antLogAsFile = DataUtils.getFailedBuildLbuildAsFile();
         assertTrue(antLogAsFile.exists());
         params.put(Widget.PARAM_BUILD_LOG_FILE, antLogAsFile);
-        params.put(Widget.PARAM_CC_ROOT, DataUtils.getCCRoot());
+        params.put(Widget.PARAM_WEBAPP_ROOT, "webapp");
         final String output = (String) service.getOutput(params);
         assertContains(output, "Build Failed");
 
