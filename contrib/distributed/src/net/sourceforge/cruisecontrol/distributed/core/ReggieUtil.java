@@ -94,8 +94,13 @@ public final class ReggieUtil {
         } else if (!(origSecurityManager instanceof RMISecurityManager)) {
             final String msg = "Unexpected Security Manager. origSecurityManager: "
                     + origSecurityManager;
-            LOG.error(msg);
-            throw new IllegalStateException(msg);
+
+            // also do nothing, just hope we're running under webstart
+            // eg: openjdk/IcedTea jnlp sec manager:
+            // net.sourceforge.jnlp.runtime.JNLPSecurityManager
+            LOG.warn(msg);
+            //LOG.error(msg);
+            //throw new IllegalStateException(msg);
         }
     }
 }
