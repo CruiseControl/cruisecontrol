@@ -38,7 +38,8 @@ public class ReggieUtilTest extends TestCase {
                     }
 
                     if (!permission.getActions().contains("read")) {
-                        final String msg = "testSetupRMISecurityManager() checked new permission : " + permission.getName();
+                        final String msg = "testSetupRMISecurityManager() checked new permission : "
+                                + permission.getName();
                         System.out.println(msg);
                         // use of LOG here gets dicey with sec manager games...
                         //LOG.warn(msg);
