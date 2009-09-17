@@ -37,11 +37,11 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 public class BuildMessage {
-    private String message;
+    private final String message;
 
-    private MessageLevel buildLevel;
+    private final MessageLevel buildLevel;
 
-    public BuildMessage(String message, MessageLevel buildLevel) {
+    public BuildMessage(final String message, final MessageLevel buildLevel) {
         this.buildLevel = buildLevel;
         this.message = message.trim();
     }

@@ -89,6 +89,8 @@ Dashboard
 
 * Dashboard doesn't correctly display modifications with multiple files (CC-921). Patch by Joe Schmetzer.
 
+* Newline cleanup of output in both ErrorsAndWarningsMessagesWidget and MergedCheckStyleWidget (CC-810). Patch by Robert Thornburrow.
+
 reporting jsp app
 ======================
 * navigation.jsp missing <li> tags around some elements under <ul> tag (CC-950). Reported by Chris Sewart

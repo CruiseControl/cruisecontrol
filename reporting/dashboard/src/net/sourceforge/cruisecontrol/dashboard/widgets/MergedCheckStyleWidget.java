@@ -34,6 +34,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+ // CHANGED by RHT 08/05/2008 so that the errors contain newlines and are grouped
+ // by the file they appear in.  The filename is truncated using the name of the
+ // project to remove the cruise directory path and make the lines shorter.
 package net.sourceforge.cruisecontrol.dashboard.widgets;
 
 import java.io.File;
@@ -52,18 +55,19 @@ public class MergedCheckStyleWidget implements Widget {
     }
 
     public Object getOutput(Map parameters) {
-        File logFile = (File) parameters.get(Widget.PARAM_BUILD_LOG_FILE);
+        final String pjtName = (String) parameters.get(Widget.PARAM_PJT_NAME);
+        final File logFile = (File) parameters.get(Widget.PARAM_BUILD_LOG_FILE);
         try {
-            return parseCheckStyle(logFile);
+            return parseCheckStyle(logFile, pjtName);
         } catch (Exception e) {
             return null;
         }
     }
 
-    private String parseCheckStyle(File logFile) {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser;
-        CheckStyleHandler handler = new CheckStyleHandler();
+    private String parseCheckStyle(final File logFile, final String pjtName) {
+        final SAXParserFactory factory = SAXParserFactory.newInstance();
+        final SAXParser saxParser;
+        final CheckStyleHandler handler = new CheckStyleHandler(pjtName);
         try {
             saxParser = factory.newSAXParser();
             saxParser.parse(logFile, handler);
@@ -74,19 +78,26 @@ public class MergedCheckStyleWidget implements Widget {
     }
 
     class CheckStyleHandler extends DefaultHandler {
-        private StringBuffer errors = new StringBuffer();
+        private final StringBuffer errors = new StringBuffer("<h2>Check Style Results:</h2>");
 
         private String currentFileName = "";
+        private String previousFileName;
+        private final String currentPjtName;
 
         private boolean isCheckStyleStart;
 
-        public void endElement(String uri, String localName, String qName) throws SAXException {
+        public CheckStyleHandler(final String pjtName) {
+            currentPjtName = pjtName;
+        }
+
+        public void endElement(final String uri, final String localName, final String qName) throws SAXException {
             if ("checkstyle".equals(qName)) {
                 this.isCheckStyleStart = false;
             }
         }
 
-        public void startElement(String uri, String localName, String qName, Attributes attributes)
+        public void startElement(final String uri, final String localName, final String qName,
+                                 final Attributes attributes)
                 throws SAXException {
             if ("checkstyle".equals(qName)) {
                 this.isCheckStyleStart = true;
@@ -94,14 +105,19 @@ public class MergedCheckStyleWidget implements Widget {
             if (this.isCheckStyleStart) {
                 if ("file".equals(qName)) {
                     currentFileName = attributes.getValue("name");
+                    final int index = currentFileName.indexOf(currentPjtName);
+                    if (index != -1 && (currentFileName.length() > index + currentPjtName.length() + 1)) {
+                        currentFileName = currentFileName.substring(index + currentPjtName.length() + 1);
+                    }
                 }
                 if ("error".equals(qName)) {
-                    errors.append("source = ").append('"').append(currentFileName).append('"').append(" ")
-                            .append("line = ").append('"').append(attributes.getValue("line")).append('"')
-                            .append(" ").append("severity = ").append('"').append(
-                                    attributes.getValue("severity")).append('"').append(" ").append(
-                                    "message = ").append('"').append(attributes.getValue("message")).append(
-                                    '"').append("\n");
+                    if ((previousFileName == null) || !currentFileName.equals(previousFileName)) {
+                        errors.append("<br><b>").append(currentFileName).append(":").append("</b><br>");
+                        previousFileName = currentFileName;
+                    }
+                    errors.append(attributes.getValue("severity")).append(": ")
+                          .append(attributes.getValue("message")).append(" at line ")
+                          .append(attributes.getValue("line")).append("<br>");
                 }
             }
         }
