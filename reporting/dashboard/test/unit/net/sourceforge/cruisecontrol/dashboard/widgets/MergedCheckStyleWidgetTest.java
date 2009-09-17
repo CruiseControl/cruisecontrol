@@ -51,8 +51,16 @@ public class MergedCheckStyleWidgetTest extends TestCase {
         Map params = new HashMap();
         File checkStyleLogAsFile = DataUtils.getFailedBuildLbuildAsFile();
         params.put(Widget.PARAM_BUILD_LOG_FILE, checkStyleLogAsFile);
-        assertFalse(StringUtils.contains((String) service.getOutput(params), "source = \"null\""));
-        assertTrue(StringUtils.contains((String) service.getOutput(params), "line = \"18\""));
-        assertTrue(StringUtils.contains((String) service.getOutput(params), "CheckStyleParser.java"));
+
+        // RHT 08/05/2008 - added as we now use this
+        params.put(Widget.PARAM_PJT_NAME, "connectfour");
+
+        // RHT 08/05/2008 - changed to match new output
+        assertFalse("null: in" + service.getOutput(params),
+                    StringUtils.contains((String) service.getOutput(params), "null:"));
+        assertTrue("filename not in " + service.getOutput(params),
+                   StringUtils.contains((String) service.getOutput(params), "CheckStyleParser.java"));
+        assertTrue("line not in " + service.getOutput(params),
+                   StringUtils.contains((String) service.getOutput(params), "18"));
     }
 }
