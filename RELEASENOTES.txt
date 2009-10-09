@@ -81,11 +81,10 @@ UCM
 Dashboard
 ======================
 * Dashboard build detail page is creating many JMX server threads (CC-831). Reported by Matthias Grunwalde. Diagnosed by Xinglang Wang. Tested by Joe Schmetzer. Unit Tests patched by Stephen Smith.
-  Need to restore jmock test cases: 
-  net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepositoryInMemoImplTest.xxxtestShouldReturnJMXConnection()
-  net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryServiceTest.xxxtestShouldReturnBuildOutput()
 
 * Rename AntOutputWidget to BuildOutputWidget and fix to display build output (CC-899). Patch by Joe Schemtzer.
+
+* Remove deprecation warnings about widget api because no replacement api is available and patches are arriving for the existing api. Also restored links to widgets.html.
 
 * Dashboard doesn't correctly display modifications with multiple files (CC-921). Patch by Joe Schmetzer.
 
