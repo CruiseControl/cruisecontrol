@@ -845,7 +845,14 @@
                <td>Is a modification required for the build to continue?
                Default value is true. Useful to set to false when the schedule
                has only time based builds or if you want to run tests to verify
-               an external resource (such as a database).<br /></td>
+               an external resource (such as a database).
+               NOTE: If you set this to false, you still must include a <a href="#modificationset">&lt;modificationset&gt;</a>
+               element in the project (otherwise the project will not build). Typically, the modificationset will include
+               the <a href="#alwaysbuild">&lt;alwaysbuild&gt;</a> tag:
+               <br/>&lt;modificationset&gt;
+               <br/>&nbsp;&nbsp;&nbsp;&nbsp;&lt;alwaysbuild/&gt;
+               <br/>&lt;/modificationset&gt;
+               <br/></td>
             </tr>
             <tr>
               <td>forceOnly</td>

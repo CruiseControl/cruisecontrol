@@ -49,6 +49,10 @@ Origo Publisher
 ----------------------
 * Update to use new issue handling API. Patch by Patrick Ruckstuhl.
 
+Project
+----------------------
+* Add documentation note that requiremodification attribute on <project> tag does not work unless <modificationset><alwaysbuild/></modificationset> exists. (CC-647) Still open. Workaround by David Jackman.
+
 Rake Builder
 ----------------------
 * Make the Ruby executable and the Rake executable configurable (CC-904). Patch by Florian Gilcher.
