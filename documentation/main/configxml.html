@@ -996,6 +996,28 @@
                 taken. If it is not, a new CM Synergy session is started, and the new ID recorded in the
                 file.</li>
         </ol>
+        
+        <p>If you are planning to run Cruisecontrol as a headless scheduled task, you may encounter an error
+           stating "Cannot open logfile 'C:\\ccm_ui.log'" in the log file. This issue can be worked around 
+           by setting the following system environment variables:</p>
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>System Environment Variable</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>CCM_ENGLOG</td>
+                    <td>${path to build Synergy users ccm_eng.log}</td>
+                </tr>
+                <tr>
+                    <td>CCM_UILOG</td>
+                    <td>${path to build Synergy users ccm_ui.log}</td>
+                </tr>
+            </tbody>
+        </table>
 
         <h3>Attributes</h3>
 
