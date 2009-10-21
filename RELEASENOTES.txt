@@ -35,6 +35,7 @@ CMSynergy
 * Allow specification of build and state attributes for baselines created with Synergy 6.4+ (CC-860). Patch by David Corley
 * Log now captures CR Synopsis text when <cmsynergy> is used (CC-903). Patch by David Corley
 * Add attribute in cmsynergysessionmonitor node (remoteclient) for remote-client connection in cm synergy (CC-910). Patch by Keith Mendoza
+* Document fix for ccm_ui.log error commonly seen when running Cruisecontrol as a scheduled task (CC-960). Patch by David Corley
 
 JNLPPublisher
 ----------------------
