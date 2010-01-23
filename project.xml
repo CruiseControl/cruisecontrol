@@ -40,7 +40,7 @@
   <id>cruisecontrol-parent</id>
   <!--groupId></groupId-->
   <name>CruiseControl</name>
-  <currentVersion>2.8.3-rc1</currentVersion>
+  <currentVersion>2.8.3-dev</currentVersion>
   <!--organization>
     <name></name>
     <url></url>
