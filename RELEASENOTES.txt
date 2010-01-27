@@ -4,6 +4,11 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8.4-dev
 
+build loop
+======================
+
+* Add a JMX operation to retrieve build logs (CC-908). Adapted from patch by Ivan "Rambius" Ivanov.
+
 
 CruiseControl Release Notes - 2.8.3
 
