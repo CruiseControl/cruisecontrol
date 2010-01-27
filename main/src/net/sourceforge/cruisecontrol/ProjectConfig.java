@@ -448,4 +448,12 @@ public class ProjectConfig implements ProjectInterface {
     public boolean isInState(ProjectState state) {
         return project.getState().equals(state);
     }
+
+    public List<String> getLogLabels() {
+        return log.getLogLabels();
+    }
+
+    public String[] getLogLabelLines(final String logLabel, final int firstLine) {
+        return log.getLogLabelLines(logLabel, firstLine);
+    }
 }

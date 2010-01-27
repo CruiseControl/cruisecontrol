@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.jmx;
 
+import java.util.List;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public interface ProjectMBean {
@@ -123,6 +125,18 @@ public interface ProjectMBean {
     public void setLogDir(String logdir) throws CruiseControlException;
 
     public String getLogDir();
+
+    /**
+     * @return a list with the names of the available log files
+     */
+    public List<String> getLogLabels();
+
+    /**
+     * @param logLabel a valid build label, must exist in the list returned by {@link #getLogLabels()}.
+     * @param firstLine the starting line in the log for the given build label
+     * @return lines from the given firstLine up to max lines, or an empty array if no more lines exist.
+     */
+    public String[] getLogLabelLines(String logLabel, int firstLine);
 
     /**
      * Change the project name.  May cause problems if configuration file is
