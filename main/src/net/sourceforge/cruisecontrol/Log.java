@@ -38,14 +38,17 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -77,6 +80,8 @@ public class Log implements Serializable {
     private final transient List<BuildLogger> loggers = new ArrayList<BuildLogger>();
     private final transient List<Manipulator> manipulators = new ArrayList<Manipulator>();
     private transient String projectName;
+
+    static final String MSG_PREFIX_INVALID_LABEL = "Invalid log label: ";
 
     /**
      * Log instances created this way must have their projectName set.
@@ -308,6 +313,50 @@ public class Log implements Serializable {
     public void reset() {
         this.buildLog = new Element("cruisecontrol");
     }
+
+    
+    /**
+     * @return a list with the names of the available log files, that is the list
+     */
+    public List<String> getLogLabels() {
+        final List<String> labels = new ArrayList<String>();
+
+        final File dir = new File(logDir);
+        if (dir.isDirectory()) {
+            final FilenameFilter xmlLogFilter = new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.startsWith("log") && name.endsWith(".xml");
+                }
+            };
+            final String[] xmlLogFiles = dir.list(xmlLogFilter);
+            labels.addAll(Arrays.asList(xmlLogFiles));
+        }
+
+        return labels;
+    }
+
+    boolean isExistingLogLabel(final String filename) {
+        final List<String> logLabels = getLogLabels();
+        return logLabels.contains(filename);
+    }
+
+    File getFileFromLabel(final String filename) {
+        if (!isExistingLogLabel(filename)) {
+            throw new IllegalArgumentException(MSG_PREFIX_INVALID_LABEL + filename);
+        }
+
+        return new File(logDir, filename);
+    }
+
+
+    public String[] getLogLabelLines(final String logLabel, final int firstLine) {
+        final File logFile = getFileFromLabel(logLabel);
+
+        // reuse file reader features of BuildOutputLogger
+        final BuildOutputLogger buildOutputLogger = new BuildOutputLogger(logFile);
+        return buildOutputLogger.retrieveLines(firstLine);
+    }
+
 
     public static boolean wasSuccessfulBuild(final String filename) {
         if (filename == null) {

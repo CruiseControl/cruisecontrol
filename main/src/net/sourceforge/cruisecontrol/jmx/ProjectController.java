@@ -198,6 +198,14 @@ public class ProjectController extends NotificationBroadcasterSupport
         return project.getLogDir();
     }
 
+    public List<String> getLogLabels() {
+        return project.getLogLabels();
+    }
+
+    public String[] getLogLabelLines(final String logLabel, final int firstLine) {
+        return project.getLogLabelLines(logLabel, firstLine);
+    }
+
     public void setProjectName(final String name) {
         log("setting project name to [" + name + "]");
         project.setName(name);

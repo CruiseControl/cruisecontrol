@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
@@ -294,6 +295,102 @@ public class LogTest extends TestCase {
 
 
     }
+
+    public void testIsExistingLogLabel() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog("testGetLogLabels", date.getTime());
+        final List<String> labels = log.getLogLabels();
+
+        final String validLabel = labels.get(0);
+        assertTrue(log.isExistingLogLabel(validLabel));
+        assertFalse(log.isExistingLogLabel("../" + validLabel));
+    }
+
+    public void testGetFileFromLabel() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog("testGetLogLabels", date.getTime());
+        final List<String> labels = log.getLogLabels();
+
+        final String validLabel = labels.get(0);
+        assertTrue(log.getFileFromLabel(validLabel).exists());
+        try {
+            log.getFileFromLabel("../" + validLabel);
+            fail("non-label filename should fail");
+        } catch (IllegalArgumentException e) {
+            assertEquals(Log.MSG_PREFIX_INVALID_LABEL + "../" + validLabel, e.getMessage());
+        }
+    }
+
+    public void testGetLogLabelLinesBadLabel() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog(getName(), date.getTime());
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be one log file", 1, labels.size());
+        final String badLabel = "../" + labels.get(0);
+        try {
+            log.getLogLabelLines(badLabel, 0);
+            fail("non-label filename should fail");
+        } catch (IllegalArgumentException e) {
+            assertEquals(Log.MSG_PREFIX_INVALID_LABEL + badLabel, e.getMessage());
+        }
+    }
+
+    public void testGetLogLabelLinesNegativeFirstLine() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog(getName(), date.getTime());
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be one log file", 1, labels.size());
+        final String label = labels.get(0);
+        final String[] logContents = log.getLogLabelLines(label, -1);
+        assertEquals(16, logContents.length);
+    }
+
+    public void testGetLogLabelLinesFirstLineEnd() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog(getName(), date.getTime());
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be one log file", 1, labels.size());
+        final String label = labels.get(0);
+        assertEquals(1, log.getLogLabelLines(label, 15).length);
+        assertEquals(0, log.getLogLabelLines(label, 16).length);
+        assertEquals(0, log.getLogLabelLines(label, 17).length);
+        assertEquals(0, log.getLogLabelLines(label, 100).length);
+    }
+
+    public void testGetLogLabelLines() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        final Log log = getWrittenTestLog(getName(), date.getTime());
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be one log file", 1, labels.size());
+        final String label = labels.get(0);
+        final String[] logContents = log.getLogLabelLines(label, 0);
+        assertNotNull("logContents should not be null", logContents);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", logContents[0]);
+        assertEquals("<cruisecontrol>", logContents[1]);
+        assertEquals("</cruisecontrol>", logContents[14]);
+        assertEquals("", logContents[15]);
+    }
+
+
+    public void testGetZeroLogLabels() throws Exception {
+        final Log log = new Log();
+        log.setProjectName(getName());
+        log.setDir(LOG_DIR);
+        log.validate();
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be zero log files", 0, labels.size());
+    }
+
+    public void testGetLogLabels() throws Exception {
+        final Calendar date = Calendar.getInstance();
+        date.set(Calendar.MINUTE, date.get(Calendar.MINUTE) - 5);
+        getWrittenTestLog(getName(), date.getTime());
+        final Log log = getWrittenTestLog(getName(), new Date());
+
+        final List<String> labels = log.getLogLabels();
+        assertEquals("There must be two log files", 2, labels.size());
+    }
+
 
     private void assertBackupsHelper(final Log log,
                                      final int expectedLength, final int expectedXML, final int expectedGZIP) {

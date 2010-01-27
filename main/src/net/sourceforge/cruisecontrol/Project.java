@@ -68,7 +68,7 @@ import org.jdom.Element;
  * and a Schedule that determines when builds occur.
  */
 public class Project implements Serializable, Runnable {
-    static final long serialVersionUID = 2656877748476842326L;
+    private static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
     private transient ProjectState state;
@@ -936,5 +936,13 @@ public class Project implements Serializable, Runnable {
 
     public Progress getProgress() {
         return progress;
+    }
+
+    public List<String> getLogLabels() {
+        return projectConfig.getLogLabels();
+    }
+
+    public String[] getLogLabelLines(final String logLabel, final int firstLine) {
+        return projectConfig.getLogLabelLines(logLabel, firstLine);
     }
 }

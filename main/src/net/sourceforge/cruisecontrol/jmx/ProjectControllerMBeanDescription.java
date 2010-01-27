@@ -84,6 +84,13 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
                               "The directory where the log files for this project are written to. "
                             + "Changes to this attribute are not persisted");
 
+        ATTR_DESCRIPTIONS.put("LogLabels", 
+                              "A list with the names of the available log files.");
+
+        ATTR_DESCRIPTIONS.put("LogLabelLines",
+                              "Lines from the given log file, the firstLine up to max lines, "
+                            + "or an empty array if no more lines exist.");
+
         ATTR_DESCRIPTIONS.put("ProjectName", "The name of this project");
 
         ATTR_DESCRIPTIONS.put("BuildInterval",
