@@ -48,18 +48,17 @@ public class BuildOutputLoggerTest extends TestCase {
 
     public void testShouldReturnEmptyArrayWhenFileIsEmpty() throws Exception {
 
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
 
-        int lines = logger.retrieveLines(0).length;
-        assertEquals(0, lines);
+        assertEquals(0, logger.retrieveLines(0).length);
 
     }
 
     public void testShouldReturnAllLinesFromFirstLine() throws Exception {
 
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(3));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(3));
 
-        String[] lines = logger.retrieveLines(0);
+        final String[] lines = logger.retrieveLines(0);
 
         assertEquals(3, lines.length);
         assertEquals("1", lines[0]);
@@ -69,9 +68,9 @@ public class BuildOutputLoggerTest extends TestCase {
 
     public void testShouldReturnAllLinesFromStartLine() throws Exception {
 
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(7));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(7));
 
-        String[] lines = logger.retrieveLines(4);
+        final String[] lines = logger.retrieveLines(4);
 
         assertEquals(3, lines.length);
         assertEquals("5", lines[0]);
@@ -80,9 +79,9 @@ public class BuildOutputLoggerTest extends TestCase {
 
     public void testShouldReturnAllLinesAcrossWrap() throws Exception {
 
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(13));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(13));
 
-        String[] lines = logger.retrieveLines(9);
+        final String[] lines = logger.retrieveLines(9);
 
         assertEquals(4, lines.length);
         assertEquals("10", lines[0]);
@@ -93,7 +92,7 @@ public class BuildOutputLoggerTest extends TestCase {
     }
 
     public void testShouldRetrieveNothingAfterClearingBuffer() throws Exception {
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
 
 
         assertEquals(6, logger.retrieveLines(0).length);
@@ -102,7 +101,7 @@ public class BuildOutputLoggerTest extends TestCase {
     }
 
     public void testShouldLoadBufferFromFileWhenFilePresentAndLinesRetrieved() throws Exception {
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(6));
 
         final String[] lines = logger.retrieveLines(0);
         assertEquals(6, lines.length);
@@ -112,8 +111,8 @@ public class BuildOutputLoggerTest extends TestCase {
     }
 
     public void testShouldOnlyLoadNewLinesFromFile() throws Exception {
-        File tempFile = prepareBufferFile(6);
-        BuildOutputLogger logger = new BuildOutputLogger(tempFile);
+        final File tempFile = prepareBufferFile(6);
+        final BuildOutputLogger logger = new BuildOutputLogger(tempFile);
 
         assertEquals(6, logger.retrieveLines(0).length);
         assertEquals(6, logger.retrieveLines(0).length);
@@ -122,12 +121,12 @@ public class BuildOutputLoggerTest extends TestCase {
     }
 
     public void testShouldNotFailIfFileDoesNotExist() throws Exception {
-        BuildOutputLogger logger = new BuildOutputLogger(new File("notexists.tmp"));
+        final BuildOutputLogger logger = new BuildOutputLogger(new File("notexists.tmp"));
         assertEquals(0, logger.retrieveLines(0).length);
     }
 
     public void testShouldThrowExceptionIfOutfileDoesNotExistWhenConsuming() throws Exception {
-        BuildOutputLogger logger = new BuildOutputLogger(null);
+        final BuildOutputLogger logger = new BuildOutputLogger(null);
         try {
             logger.consumeLine("should fail");
             fail("Should not be able to consume a line when no log file specified");
@@ -137,34 +136,33 @@ public class BuildOutputLoggerTest extends TestCase {
     }
 
     public void testShouldWriteToOutfileWhenConsumingLine() throws Exception {
-        BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
         logger.consumeLine("one");
-        String[] lines = logger.retrieveLines(0);
+        final String[] lines = logger.retrieveLines(0);
         assertEquals(1, lines.length);
         assertEquals("one", lines[0]);
     }
 
     private void addLineToFile(final File file) throws FileNotFoundException {
-        PrintStream out = null;
+        final PrintStream out = new PrintStream(new FileOutputStream(file, true));
         try {
-            out = new PrintStream(new FileOutputStream(file, true));
             out.println("1");
         } finally {
-            if (out != null) { out.close(); }
+            out.close();
         }
     }
 
     private File prepareBufferFile(final int count) throws IOException {
         final File tempFile = File.createTempFile("bufferload-test", ".tmp");
         tempFile.deleteOnExit();
-        PrintStream out = null;
+
+        final PrintStream out = new PrintStream(new FileOutputStream(tempFile));
         try {
-            out = new PrintStream(new FileOutputStream(tempFile));
             for (int i = 0; i < count; i++) {
                 out.println(1 + i);
             }
         } finally {
-            if (out != null) { out.close(); }
+            out.close();
         }
         return tempFile;
     }
