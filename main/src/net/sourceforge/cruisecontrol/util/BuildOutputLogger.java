@@ -47,12 +47,13 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Logs all sysout and syserr to a file.
+ * Log all consumed lines to a file, and also provide methods to read lines from that file.
+ * Can be used to log all sysout and syserr to a file.
  */
 public class BuildOutputLogger implements StreamConsumer {
 
     public static final int MAX_LINES = 1000;
-    private File data;
+    private final File data;
 
     public BuildOutputLogger(File outputFile) {
         data = outputFile;
@@ -63,16 +64,18 @@ public class BuildOutputLogger implements StreamConsumer {
         data.delete();
     }
 
-    public synchronized void consumeLine(String line) {
+    public synchronized void consumeLine(final String line) {
         if (data == null) { throw new RuntimeException("No log file specified"); }
-        PrintStream out = null;
+
         try {
-            out = new PrintStream(new FileOutputStream(data, true));
-            out.println(line);
+            final PrintStream out = new PrintStream(new FileOutputStream(data, true));
+            try {
+                out.println(line);
+            } finally {
+                out.close();
+            }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        } finally {
-            if (out != null) { out.close(); }
         }
     }
 
@@ -80,27 +83,23 @@ public class BuildOutputLogger implements StreamConsumer {
      * @param firstLine line to skip to.
      * @return All lines available from firstLine (inclusive) up to MAX_LINES.
      */
-    public String[] retrieveLines(int firstLine) {
+    public String[] retrieveLines(final int firstLine) {
         if (noDataFile()) { return new String[0]; }
-        List<String> lines = loadFile(firstLine);
+        final List<String> lines = loadFile(firstLine);
         return lines.toArray(new String[lines.size()]);
     }
 
-    private List<String> loadFile(int firstLine) {
-        BufferedReader reader = null;
+    private List<String> loadFile(final int firstLine) {
         try {
-            reader = new BufferedReader(new FileReader(data));
-            skipLines(reader, firstLine);
-            return readUptoMaxLines(reader);
+            final BufferedReader reader = new BufferedReader(new FileReader(data));
+            try {
+                skipLines(reader, firstLine);
+                return readUptoMaxLines(reader);
+            } finally {
+                reader.close();
+            }
         } catch (IOException e) {
             return new ArrayList<String>();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 
@@ -114,7 +113,7 @@ public class BuildOutputLogger implements StreamConsumer {
         return result;
     }
 
-    private void skipLines(BufferedReader inFile, int numToSkip) throws IOException {
+    private void skipLines(final BufferedReader inFile, final int numToSkip) throws IOException {
         for (int i = 0; i < numToSkip; i++) { inFile.readLine(); }
     }
 
@@ -122,7 +121,7 @@ public class BuildOutputLogger implements StreamConsumer {
         return data == null || !data.exists();
     }
 
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         if (this == other) { return true; }
         if (other == null) { return false; }
         if (this.getClass() != other.getClass()) { return false; }
@@ -130,14 +129,14 @@ public class BuildOutputLogger implements StreamConsumer {
         return equals((BuildOutputLogger) other);
     }
 
-    private boolean equals(BuildOutputLogger other) {
+    private boolean equals(final BuildOutputLogger other) {
         return dataEquals(this.data, other.data);
     }
 
-    private boolean dataEquals(File mine, File other) {
+    private boolean dataEquals(final File mine, final File other) {
         if (mine == null) { return other == null; }
-        boolean pathSame = mine.getPath().equals(other.getPath());
-        boolean nameSame = mine.getName().equals(other.getName());
+        final boolean pathSame = mine.getPath().equals(other.getPath());
+        final boolean nameSame = mine.getName().equals(other.getName());
         return pathSame && nameSame;
     }
 
@@ -146,7 +145,7 @@ public class BuildOutputLogger implements StreamConsumer {
     }
 
     public String toString() {
-        String path = data == null ? "null" : (data.getAbsolutePath());
+        final String path = data == null ? "null" : (data.getAbsolutePath());
         return "<BuildOutputLogger data=" + path + ">";
     }
 }
