@@ -9,6 +9,10 @@ build loop
 
 * Add a JMX operation to retrieve build logs (CC-908). Adapted from patch by Ivan "Rambius" Ivanov. Tested by Antoine Levy Lambert.
 
+Dashboard
+======================
+* Add guard for NPE in BuildLoopQueryService, as per comment in CC-831. Suggested by David Williams.
+
 
 CruiseControl Release Notes - 2.8.3
 

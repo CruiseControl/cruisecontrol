@@ -105,7 +105,9 @@ public class BuildLoopQueryService {
                 closableProjectMBeanConnection.getMBeanServerConnection()
                         .invoke(getObjectName(projectName), JMXCOMMAND_BUILD, null, null);
             } finally {
-                closableProjectMBeanConnection.close();
+                if (closableProjectMBeanConnection != null) {
+                    closableProjectMBeanConnection.close();
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Could not force build on", e);
@@ -143,7 +145,9 @@ public class BuildLoopQueryService {
                         JMXCOMMAND_BUILD_OUTPUT, new Object[] {new Integer(firstLine)},
                         new String[] {Integer.class.getName()});
             } finally {
-                closableProjectMBeanConnection.close();
+                if (closableProjectMBeanConnection != null) {
+                    closableProjectMBeanConnection.close();
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Problem getting build output", e);
