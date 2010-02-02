@@ -45,6 +45,7 @@ public class Maven2Builder extends Builder {
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private String flags;
     private final List<Property> properties = new ArrayList<Property>();
+    static final String MAVEN2_BUILDER_OUTPUT_LOG = "maven2BuilderOutput.log";
 
     /**
      * Set an Alternate path for the user settings file.
@@ -224,7 +225,7 @@ public class Maven2Builder extends Builder {
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
 
-            final BuildOutputLogger buildOutputConsumer = getBuildOuputConsumer(workingDir);
+            final BuildOutputLogger buildOutputConsumer = getBuildOutputConsumer(workingDir);
 
             final ScriptRunner scriptRunner = new ScriptRunner();
             final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout, buildOutputConsumer);
@@ -256,9 +257,9 @@ public class Maven2Builder extends Builder {
         }
     }
 
-    private BuildOutputLogger getBuildOuputConsumer(final File workingDir) {
+    BuildOutputLogger getBuildOutputConsumer(final File workingDir) {
         if (showBuildOutput) {
-            final File maven2BuilderOutput = new File(workingDir, "maven2BuilderOutput.log");
+            final File maven2BuilderOutput = new File(workingDir, MAVEN2_BUILDER_OUTPUT_LOG);
             final BuildOutputLogger buildOutputConsumer 
                 = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(maven2BuilderOutput);
             buildOutputConsumer.clear();
