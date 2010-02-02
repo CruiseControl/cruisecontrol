@@ -184,7 +184,8 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
         // set to a non-null value, use the build and state attribute values
         // in the baseline creation
         if (version >= 6.4 && build != null) {
-            cmd.createArguments("-build", build);
+            String buildName = parsePropertiesInString(build, logProperties);
+            cmd.createArguments("-build", buildName);
         }
         if (version >= 6.4) {
             cmd.createArguments("-state", state);
