@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -39,6 +41,7 @@ public class Maven2Builder extends Builder {
     private String sitegoal;
     private String settingsFile;
     private String activateProfiles;
+    private boolean showBuildOutput = true;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private String flags;
     private final List<Property> properties = new ArrayList<Property>();
@@ -124,6 +127,10 @@ public class Maven2Builder extends Builder {
     public void setTimeout(long timeout) {
 
         this.timeout = timeout;
+    }
+
+    public void setShowBuildOutput(final boolean showMavenOutput) {
+        this.showBuildOutput = showMavenOutput;
     }
 
     /**
@@ -217,8 +224,10 @@ public class Maven2Builder extends Builder {
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
 
+            final BuildOutputLogger buildOutputConsumer = getBuildOuputConsumer(workingDir);
+
             final ScriptRunner scriptRunner = new ScriptRunner();
-            final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+            final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout, buildOutputConsumer);
             script.flushCurrentElement();
 
             if (!scriptCompleted) {
@@ -244,6 +253,18 @@ public class Maven2Builder extends Builder {
             synchronized (buildLogElement) {
                 buildLogElement.setAttribute(saveErrorAttribute);
             }
+        }
+    }
+
+    private BuildOutputLogger getBuildOuputConsumer(final File workingDir) {
+        if (showBuildOutput) {
+            final File maven2BuilderOutput = new File(workingDir, "maven2BuilderOutput.log");
+            final BuildOutputLogger buildOutputConsumer 
+                = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(maven2BuilderOutput);
+            buildOutputConsumer.clear();
+            return buildOutputConsumer;
+        } else {
+            return null;
         }
     }
 

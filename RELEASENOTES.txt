@@ -13,6 +13,10 @@ CMSynergyBaselinePublisher
 ----------------------
 * Allow property resolution in build attribute (CC-973).
 
+Maven2Builder
+----------------------
+* Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This all may change if we use Dependency Injection or add showBuildOutput to the base Builder class.
+
 Dashboard
 ======================
 * Add guard for NPE in BuildLoopQueryService, as per comment in CC-831. Suggested by David Williams.
