@@ -8,6 +8,7 @@ build loop
 ======================
 
 * Add a JMX operation to retrieve build logs (CC-908). Adapted from patch by Ivan "Rambius" Ivanov. Tested by Antoine Levy Lambert.
+* Add FileResolver/ResolverUser to detect and re-read changed property files (CC-952). Patch by Daniel Tihelka. 
 
 CMSynergyBaselinePublisher
 ----------------------

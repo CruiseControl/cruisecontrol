@@ -128,6 +128,9 @@ public class PluginXMLHelper {
 
         LOG.debug("configure " + objectElement.getName() + " instance " + pluginInstance.getClass()
                   + " skip:" + skipChildElements);
+        if (pluginInstance instanceof ResolverUser) {
+            ((ResolverUser) pluginInstance).setFileResolver(projectHelper.getFileResolver());
+        }
         if (pluginInstance instanceof PluginPlugin) {
             ((PluginPlugin) pluginInstance).configure(objectElement);
         } else {

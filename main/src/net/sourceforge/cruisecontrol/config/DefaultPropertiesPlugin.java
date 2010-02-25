@@ -41,13 +41,12 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.ResolverUser;
 
 import java.util.Map;
-import java.io.File;
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 
 /**
  * <p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
@@ -83,12 +82,27 @@ import java.io.FileNotFoundException;
  * <a href=\"plugins.html#preconfiguration\">plugin preconfigurations</a>.
  * </p>
  */
-public class DefaultPropertiesPlugin implements PropertiesPlugin {
+public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    private String file;
    private String environment;
    private String name;
    private String value;
    private String toupper;
+   private FileResolver fileResolver; // used to get file to read properties from
+
+
+  /**
+   * Sets the instance of {@link FileResolver}. It must be ensured that this method
+   * is called earlier than the other methods using the file resolver. And it is claimed
+   * in {@link ResolverUser#setFileResolver(FileResolver)} description that it really is
+   * ensured.
+   *
+   * @param resolver the instance to fill;
+   */
+  public void setFileResolver(final FileResolver resolver) {
+
+    fileResolver = resolver;
+  }
 
   /**
    * @param name name of the property to set.
@@ -159,13 +173,12 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
 
   public void loadProperties(final Map<String, String> props, final boolean failIfMissing)
           throws CruiseControlException {
-      
+
     final boolean toUpperValue = "true".equals(toupper);
     if (file != null && file.trim().length() > 0) {
-        final File theFile = new File(this.file);
         // TODO FIXME add exists check.
         try {
-            final BufferedReader reader = new BufferedReader(new FileReader(theFile));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(fileResolver.getInputStream(file)));
             try {
                 // Read the theFile line by line, expanding macros
                 // as we go. We must do this manually to preserve the
@@ -189,11 +202,8 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
             } finally {
                 reader.close();
             }
-        } catch (FileNotFoundException e) {
-            throw new CruiseControlException("Could not load properties from theFile \"" + this.file
-                    + "\". The theFile does not exist", e);
         } catch (IOException e) {
-            throw new CruiseControlException("Could not load properties from theFile \"" + this.file
+            throw new CruiseControlException("Could not load properties from theFile \"" + file
                     + "\".", e);
         }
     } else if (environment != null) {
@@ -220,4 +230,5 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin {
         ProjectXMLHelper.setProperty(props, name, parsedValue);
     }
   }
+
 }

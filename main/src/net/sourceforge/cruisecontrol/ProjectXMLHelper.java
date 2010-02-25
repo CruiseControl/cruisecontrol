@@ -36,6 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,6 +50,7 @@ import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
+import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -57,23 +64,25 @@ public class ProjectXMLHelper implements ProjectHelper {
 
     private final Map<String, String> projectProperties;
     private final PluginRegistry projectPlugins;
+    private final FileResolver fileResolver;
 
     private final CruiseControlController controller;
 
     public ProjectXMLHelper() {
         this(new HashMap<String, String>(), PluginRegistry.createRegistry(PluginRegistry.loadDefaultPluginRegistry()),
-                null);
+                null, null);
     }
 
     public ProjectXMLHelper(final Map<String, String> projectProperties, final PluginRegistry projectPlugins) {
-        this(projectProperties, projectPlugins, null);
+        this(projectProperties, projectPlugins, null, null);
     }
-    
+
     public ProjectXMLHelper(final Map<String, String> projectProperties, final PluginRegistry projectPlugins,
-                            final CruiseControlController controller) {
+             final FileResolver fileResolver, final CruiseControlController controller) {
         this.projectProperties = projectProperties;
         this.projectPlugins = projectPlugins;
         this.controller = controller;
+        this.fileResolver = fileResolver != null ? fileResolver : new DummyResolver();
     }
 
     /**
@@ -90,7 +99,7 @@ public class ProjectXMLHelper implements ProjectHelper {
         if (projectPlugins.isPluginRegistered(pluginName)) {
             final Object pluginInstance = getConfiguredPlugin(pluginHelper, pluginElement.getName());
             if (pluginInstance != null) { // preconfigured
-                return pluginHelper.configure(pluginElement, pluginInstance, skipChildElements);
+              return pluginHelper.configure(pluginElement, pluginInstance, skipChildElements);
             }
             return pluginHelper.configure(pluginElement, projectPlugins.getPluginClass(pluginName), skipChildElements);
         } else {
@@ -98,6 +107,10 @@ public class ProjectXMLHelper implements ProjectHelper {
         }
     }
 
+    /** Implementation of {@link ProjectHelper#getFileResolver()}. */
+    public FileResolver getFileResolver() {
+        return fileResolver;
+    }
 
     /**
      * Get a [partially] configured plugin instance given its plugin name.
@@ -111,7 +124,7 @@ public class ProjectXMLHelper implements ProjectHelper {
      */
     private Object getConfiguredPlugin(final PluginXMLHelper pluginHelper, final String pluginName)
             throws CruiseControlException {
-        
+
         final Class pluginClass = projectPlugins.getPluginClass(pluginName);
         if (pluginClass == null) {
             return null;
@@ -163,14 +176,15 @@ public class ProjectXMLHelper implements ProjectHelper {
         propertiesObject.loadProperties(props, failIfMissing);
         return propertiesObject;
     }
-    
+
     public static PropertiesPlugin registerCustomProperty(final Map<String, String> props,
-            final Element propertyElement, final boolean failIfMissing,
+            final Element propertyElement, final FileResolver fileResolver, final boolean failIfMissing,
             final PluginRegistry registry) throws CruiseControlException {
 
         parsePropertiesInElement(propertyElement, props, failIfMissing);
 
-        final Object o = new ProjectXMLHelper(props, registry, null).configurePlugin(propertyElement, false);
+        final Object o = new ProjectXMLHelper(props, registry, fileResolver, null).configurePlugin(propertyElement,
+                false);
         if (!(o instanceof PropertiesPlugin)) {
           throw new CruiseControlException("Element " + propertyElement.getName()
                   + " does not implement PropertiesPlugin interface."
@@ -211,4 +225,18 @@ public class ProjectXMLHelper implements ProjectHelper {
         props.put(name, parsedValue);
     }
 
+
+
+    /** Dummy FileResolver implementation for case when "real" FileResolver is not set in ProjectXMLHelper
+        constructor */
+    private class DummyResolver implements FileResolver {
+        public InputStream getInputStream(final String path) throws CruiseControlException {
+            final File file = new File(path);
+            try {
+                return new BufferedInputStream(new FileInputStream(file));
+            } catch (FileNotFoundException e) {
+                throw new CruiseControlException("exception when opening file " + file.getAbsolutePath(), e);
+            }
+        }
+    }
 }
