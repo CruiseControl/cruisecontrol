@@ -38,16 +38,21 @@ package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.config.FileResolver;
 
-import org.jdom.Element;
-
 /**
- * Manages the config.
- * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
+ * Plugins which require {@link FileResolver} should implement this interface.
+ * It is ensured that the resolver is pushed to the plugin through this interface
+ * just after the instance of plugin is created.
  */
-public interface ProjectHelper {
-    Object configurePlugin(Element pluginElement, boolean skipChildElements)
-            throws CruiseControlException;
+public interface ResolverUser {
 
-    /** @return an instance of FileResolver class available for the project. */
-    FileResolver getFileResolver();
+    /**
+     * The method is called to push the instance of {@link FileResolver} into
+     * the implementing class.
+     *
+     * @param resolver the instance to push.
+     */
+    void setFileResolver(FileResolver resolver);
+
+
+    // TODO: extend to the use of XmlResolver as well?
 }

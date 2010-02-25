@@ -36,9 +36,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -83,7 +87,7 @@ public class XMLConfigManager {
         LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadRootElement(file);
         resolver.resetResolvedFiles();
-        config = new CruiseControlConfig(element, resolver, controller);
+        config = new CruiseControlConfig(element, resolver, resolver, controller);
     }
 
     public File getConfigFile() {
@@ -140,13 +144,23 @@ public class XMLConfigManager {
         return md5;
     }
 
-    class Resolver implements XmlResolver {
+    class Resolver implements XmlResolver, FileResolver {
         private final Set<File> resolvedFiles = new HashSet<File>();
 
         public Element getElement(final String path) throws CruiseControlException {
             final File file = new File(configFile.getParentFile(), path);
             resolvedFiles.add(file);
             return Util.loadRootElement(file);
+        }
+
+        public InputStream getInputStream(final String path) throws CruiseControlException {
+            final File file = new File(configFile.getParentFile(), path);
+            resolvedFiles.add(file);
+            try {
+                return new BufferedInputStream(new FileInputStream(file));
+            } catch (FileNotFoundException e) {
+                throw new CruiseControlException("exception when opening file " + file.getAbsolutePath(), e);
+            }
         }
 
         public Set<File> getResolvedFiles() {

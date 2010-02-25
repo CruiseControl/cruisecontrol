@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
+import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
@@ -95,6 +96,7 @@ public class CruiseControlConfig {
     private final Map<String, PluginRegistry> projectPluginRegistries = new TreeMap<String, PluginRegistry>();
 
     private final XmlResolver xmlResolver;
+    private final FileResolver fileResolver;
 
     private SystemPlugin system;
 
@@ -113,21 +115,25 @@ public class CruiseControlConfig {
 
     private final Set<String> customPropertiesPlugins = new HashSet<String>();
 
-    public CruiseControlConfig(Element ccElement) throws CruiseControlException {
-        this(ccElement, null, null);
+    public CruiseControlConfig(final Element ccElement) throws CruiseControlException {
+        this(ccElement, null, null, null);
     }
 
-    public CruiseControlConfig(Element ccElement, CruiseControlController controller) throws CruiseControlException {
-        this(ccElement, null, controller);
-    }
-
-    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver) throws CruiseControlException {
-        this(ccElement, xmlResolver, null);
-    }
-
-    public CruiseControlConfig(Element ccElement, XmlResolver xmlResolver, CruiseControlController controller)
+    public CruiseControlConfig(final Element ccElement, final CruiseControlController controller)
             throws CruiseControlException {
+
+        this(ccElement, null, null, controller);
+    }
+
+    public CruiseControlConfig(final Element ccElement, final XmlResolver xmlResolver, final FileResolver fileResolver)
+            throws CruiseControlException {
+        this(ccElement, xmlResolver, fileResolver, null);
+    }
+
+    public CruiseControlConfig(final Element ccElement, final XmlResolver xmlResolver, final FileResolver fileResolver,
+            final CruiseControlController controller) throws CruiseControlException {
         this.xmlResolver = xmlResolver;
+        this.fileResolver = fileResolver;
         this.controller = controller;
         parse(ccElement);
     }
@@ -177,9 +183,12 @@ public class CruiseControlConfig {
         }
     }
 
-    private CruiseControlConfig(Element includedElement, CruiseControlConfig parent) throws CruiseControlException {
+    private CruiseControlConfig(final Element includedElement, final CruiseControlConfig parent)
+            throws CruiseControlException {
+
         this.controller = parent.controller;
         xmlResolver = parent.xmlResolver;
+        fileResolver = parent.fileResolver;
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap<String, String>(parent.rootProperties);
         templatePluginProperties = new HashMap<String, List>(parent.templatePluginProperties);
@@ -283,7 +292,7 @@ public class CruiseControlConfig {
     }
 
     private void handleCustomRootProperty(final Element childElement) throws CruiseControlException {
-        ProjectXMLHelper.registerCustomProperty(rootProperties, childElement,
+        ProjectXMLHelper.registerCustomProperty(rootProperties, childElement, fileResolver,
                 FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
     }
 
@@ -413,7 +422,7 @@ public class CruiseControlConfig {
         projectElement.removeChildren("plugin");
 
         LOG.debug("**************** configuring project " + projectName + " *******************");
-        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, controller);
+        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, fileResolver, controller);
 
         final ProjectInterface project;
         try {

@@ -34,20 +34,34 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol;
+package net.sourceforge.cruisecontrol.config;
 
-import net.sourceforge.cruisecontrol.config.FileResolver;
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.jdom.Element;
+import java.io.InputStream;
 
 /**
- * Manages the config.
- * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
+ * The interface defining methods responsible for the general resolving of files used
+ * to control CruiseControl.
+ * 
+ * The aim is to limit file system access to a {@link FileResolver} implementation,
+ * which is good for testing, but also useful if we wanted to do something like try resolving 
+ * paths against different known contexts (e.g. parent directories) rather than being limited 
+ * to the working directory.
+ * 
+ * As the bonus, the resolved files are automatically monitored for changes which cause the 
+ * reload of Cruisecontrol configuration.   
  */
-public interface ProjectHelper {
-    Object configurePlugin(Element pluginElement, boolean skipChildElements)
-            throws CruiseControlException;
+public interface FileResolver {
 
-    /** @return an instance of FileResolver class available for the project. */
-    FileResolver getFileResolver();
+    /**
+     * Resolves the path (either absolute or relative to the location of CruiseControl 
+     * configuration file).
+     * 
+     * @param path to file to resolve. 
+     * @return stream to read the content of file from.
+     * @throws CruiseControlException if file can not be read.
+     */
+    InputStream getInputStream(String path) throws CruiseControlException;
+
 }

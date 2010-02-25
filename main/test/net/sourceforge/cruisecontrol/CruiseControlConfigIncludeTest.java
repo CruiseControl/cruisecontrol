@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -14,7 +15,8 @@ public class CruiseControlConfigIncludeTest extends TestCase {
 
     private Element rootElement;
     private Element includeElement;
-    private XmlResolver resolver;
+    private XmlResolver xmlResolver;
+    private FileResolver fileResolver;
 
     protected void setUp() throws Exception {
         StringBuffer configText = new StringBuffer(200);
@@ -32,17 +34,19 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeText.append("</cruisecontrol>");
         includeElement = elementFromString(includeText.toString());
 
-        resolver = new IncludeXmlResolver(includeElement);
+        xmlResolver = new IncludeXmlResolver(includeElement);
+
+        fileResolver = new EmptyFileResolver();
     }
 
     protected void tearDown() throws Exception {
         rootElement = null;
         includeElement = null;
-        resolver = null;
+        xmlResolver = null;
     }
 
     public void testShouldLoadIncludedProjects() throws Exception {
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, xmlResolver, null);
         assertEquals(2, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
         assertIsFooProject(config.getProject("in.include"));
@@ -59,9 +63,9 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         Element[] elements = new Element[2];
         elements[0] = includeWithNestedInclude;
         elements[1] = includeElement;
-        resolver = new IncludeXmlResolver(elements);
+        xmlResolver = new IncludeXmlResolver(elements);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);        
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, xmlResolver, null);        
         assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
         assertIsFooProject(config.getProject("in.first.include"));
@@ -80,7 +84,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         barElement.setAttribute("name", "bar");
         includeElement.addContent(barElement);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver, null);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, xmlResolver, null);
         assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("bar"));
     }
@@ -95,7 +99,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         project.setAttribute("name", "${baz}");
         includeElement.addContent(project);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, xmlResolver, fileResolver);
         assertEquals(3, config.getProjectNames().size());
         assertIsFooProject(config.getProject("goo"));
     }
@@ -104,7 +108,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         Element unknownPlugin = new Element("unknown.plugin.error");
         includeElement.addContent(unknownPlugin);
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, xmlResolver, fileResolver);
         assertEquals(1, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
     }
@@ -116,7 +120,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
             }
         };
         
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolverHitsError);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, resolverHitsError, fileResolver);
         assertEquals(1, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
     }
@@ -147,7 +151,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeTagElement.setAttribute("file", "include${filenameswitch}.xml");
         rootElement.addContent(includeTagElement);
 
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeFOOXmlResolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeFOOXmlResolver, fileResolver);
         assertEquals(2, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
         assertIsFooProject(config.getProject("in.include.withproperty"));
@@ -165,7 +169,7 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         includeTagElement.setAttribute("file", "include${filenameswitch}.xml");
         rootElement.addContent(includeTagElement);
 
-        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeUnknownXmlResolver);
+        CruiseControlConfig config = new CruiseControlConfig(rootElement, includeUnknownXmlResolver, fileResolver);
         assertEquals(1, config.getProjectNames().size());
         assertIsFooProject(config.getProject("in.root"));
     }
@@ -201,4 +205,12 @@ public class CruiseControlConfigIncludeTest extends TestCase {
         }
     }
 
+    private class EmptyFileResolver implements FileResolver {
+
+        public InputStream getInputStream(String path)
+            throws CruiseControlException {
+            // FIXME add correct implementation, if required!
+            throw new CruiseControlException("Method not implemented yet! Fix it!");
+        }
+    }
 }
