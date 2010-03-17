@@ -202,6 +202,17 @@
 		</sequential>
 	</macrodef>
 
+    <!-- the setting of the tmpdir would be required under Mac OS Snow Leopard (see CC-976)
+    os.name=Mac OS X
+    os.version=10.6.2
+    -->
+    <condition property="tmpdir.jvmarg" value="-Djava.io.tmpdir=/tmp" else="">
+        <and>
+            <os family="mac"/>
+            <matches pattern="10\.6\.*" string="${os.version}"/>
+        </and>
+    </condition>
+
 	<macrodef name="start.jetty.server">
 		<sequential>
             <echo message="stopping any running jetty server"/>
@@ -215,6 +226,7 @@
                 <daemons>
                     <java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.WebTestingServer" fork="true">
                         <classpath refid="test.classpath" />
+                        <jvmarg value="${tmpdir.jvmarg}"/>
                     </java>
                 </daemons>
     			<waitfor maxwait="90" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
