@@ -214,7 +214,7 @@
     </condition>
 
 	<macrodef name="start.jetty.server">
-		<sequential>
+        <sequential>
             <echo message="stopping any running jetty server"/>
             <waitfor maxwait="10" maxwaitunit="second" checkevery="500">
                 <not>
@@ -226,7 +226,7 @@
                 <daemons>
                     <java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.WebTestingServer" fork="true">
                         <classpath refid="test.classpath" />
-                        <jvmarg value="${tmpdir.jvmarg}"/>
+                        <jvmarg line="${tmpdir.jvmarg}"/>
                     </java>
                 </daemons>
     			<waitfor maxwait="90" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
