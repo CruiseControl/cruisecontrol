@@ -36,15 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.bootstrappers;
 
-import com.trinem.harvest.hsdkwrap.JCaCheckoutWrap;
-import com.trinem.harvest.hsdkwrap.JCaConstWrap;
-import com.trinem.harvest.hsdkwrap.JCaContextWrap;
-import com.trinem.harvest.hsdkwrap.JCaHarvestWrap;
-import com.trinem.harvest.hsdkwrap.JCaHarvestLogStreamWrap;
-import com.trinem.harvest.hsdkwrap.JCaVersionChooserWrap;
-import com.trinem.harvest.hsdkwrap.IJCaLogStreamListenerImpl; // import
-                                                                // com.trinem.harvest.hsdkwrap.hutils.JCaAttrKeyWrap;
-import com.trinem.harvest.hsdkwrap.hutils.JCaHarvestExceptionWrap;
+import com.ca.harvest.jhsdk.JCaCheckout;
+import com.ca.harvest.jhsdk.JCaConst;
+import com.ca.harvest.jhsdk.JCaContext;
+import com.ca.harvest.jhsdk.JCaHarvest;
+import com.ca.harvest.jhsdk.JCaHarvestLogStream;
+import com.ca.harvest.jhsdk.JCaVersionChooser;
+import com.ca.harvest.jhsdk.IJCaLogStreamListener;
+//import com.ca.harvest.jhsdk.hutils.JCaAttrKey;
+import com.ca.harvest.jhsdk.hutils.JCaHarvestException;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -64,7 +64,7 @@ import org.apache.log4j.Logger;
  */
 public class AllFusionHarvestBootstrapper implements Bootstrapper {
 
-    private JCaHarvestWrap harvest = null;
+    private JCaHarvest harvest = null;
 
     private String broker = null;
     private String username = null;
@@ -78,9 +78,14 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
     private String viewPath = null;
     private String filename = null;
 
+    private int itemOption = JCaConst.VERSION_FILTER_ITEM_BOTH;
+    private int versionOption = JCaConst.VERSION_FILTER_LATEST_IN_VIEW;
+    private int statusOption = JCaConst.VERSION_FILTER_ALL_TAG;
+    private int branchOption = JCaConst.BRANCH_FILTER_TRUNK_ONLY;
+
     private boolean loggedIn = false;
 
-    private JCaHarvestLogStreamWrap logstream = null;
+    private JCaHarvestLogStream logstream = null;
 
     private static final Logger LOG = Logger.getLogger(AllFusionHarvestBootstrapper.class);
 
@@ -182,6 +187,97 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
     }
 
     /**
+     * Sets the version item option to use when making calls to HSDK.
+     *
+     * @param itemOption
+     *            String indicating the item option.
+     */
+    public void setItem(String io)
+            throws CruiseControlException {
+        if (io.equals("baseline") || io.equals("not_modified")) {
+            this.itemOption = JCaConst.VERSION_FILTER_ITEM_BASELINE;
+        } else if (io.equals("modified")) {
+            this.itemOption = JCaConst.VERSION_FILTER_ITEM_MODIFIED;
+        } else if (io.equals("both")) {
+            this.itemOption = JCaConst.VERSION_FILTER_ITEM_BOTH;
+        } else {
+            throw new CruiseControlException("item must be one of: "
+                      + "baseline, modified, (both)");
+        }
+    }
+
+    /**
+     * Sets the version item option to use when making calls to HSDK.
+     *
+     * @param versionOption
+     *            String indicating the version option.
+     */
+    public void setVersion(String vo)
+            throws CruiseControlException {
+        if (vo.equals("latest_in_view")) {
+            this.versionOption = JCaConst.VERSION_FILTER_LATEST_IN_VIEW;
+        } else if (vo.equals("all_in_view")) {
+            this.versionOption = JCaConst.VERSION_FILTER_ALL_IN_VIEW;
+        } else if (vo.equals("all")) {
+            this.versionOption = JCaConst.VERSION_FILTER_ALL;
+        } else if (vo.equals("latest")) {
+            this.versionOption = JCaConst.VERSION_FILTER_LATEST;
+        } else {
+            throw new CruiseControlException("version must be one of: "
+                      + "(latest_in_view), all_in_view, all, latest");
+        }
+    }
+
+    /**
+     * Sets the version status option to use when making calls to HSDK.
+     *
+     * @param statusOption
+     *            String indicating the status option.
+     */
+    public void setStatus(String so)
+            throws CruiseControlException {
+        if (so.equals("all") || so.equals("all_tags")) {
+            this.statusOption = JCaConst.VERSION_FILTER_ALL_TAG;
+        } else if (so.equals("no_tag") || so.equals("normal")) {
+            this.statusOption = JCaConst.VERSION_FILTER_NORMAL_VERSION;
+        } else if (so.equals("reserved")) {
+            this.statusOption = JCaConst.VERSION_FILTER_RESERVED_VERSION;
+        } else if (so.equals("merged")) {
+            this.statusOption = JCaConst.VERSION_FILTER_MERGED_VERSION;
+        } else if (so.equals("removed") || so.equals("deleted")) {
+            this.statusOption = JCaConst.VERSION_FILTER_DELETED_VERSION;
+        } else if (so.equals("any") || so.equals("any_tag")) {
+            this.statusOption = JCaConst.VERSION_FILTER_ANY_TAG;
+        } else {
+            throw new CruiseControlException("status must be one of: "
+                      + "(all), no_tag, reserved, merged, removed, any");
+        }
+    }
+
+    /**
+     * Sets the version branch option to use when making calls to HSDK.
+     *
+     * @param branchOption
+     *            String indicating the branch option.
+     */
+    public void setBranch(String bo)
+            throws CruiseControlException {
+        /* Also: BRANCH_FILTER_MERGED_ONLY, BRANCH_FILTER_VCI_ONLY? */
+        if (bo.equals("trunk") || bo.equals("trunk_only")) {
+            this.branchOption = JCaConst.BRANCH_FILTER_TRUNK_ONLY;
+        } else if (bo.equals("branch") || bo.equals("branch_only")) {
+            this.branchOption = JCaConst.BRANCH_FILTER_BRANCH_ONLY;
+        } else if (bo.equals("trunk_and_branch")) {
+            this.branchOption = JCaConst.BRANCH_FILTER_TRUNK_AND_BRANCH;
+        } else if (bo.equals("unmerged") || bo.equals("unmerged_branch")) {
+            this.branchOption = JCaConst.BRANCH_FILTER_UNMERGED_ONLY;
+        } else {
+            throw new CruiseControlException("branch must be one of: "
+                      + "(trunk), branch, trunk_and_branch, unmerged");
+        }
+    }    
+    
+    /**
      * Internal method which connects to Harvest using the details provided.
      */
     protected boolean login() {
@@ -190,9 +286,9 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
             return true;
         }
 
-        harvest = new JCaHarvestWrap(broker);
+        harvest = new JCaHarvest(broker);
 
-        logstream = new JCaHarvestLogStreamWrap();
+        logstream = new JCaHarvestLogStream();
         logstream.addLogStreamListener(new MyLogStreamListener());
 
         harvest.setStaticLog(logstream);
@@ -213,7 +309,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
     protected void logout() {
         try {
             harvest.logout();
-        } catch (JCaHarvestExceptionWrap e) {
+        } catch (JCaHarvestException e) {
             LOG.error(e.getMessage());
         }
     }
@@ -248,7 +344,7 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
         }
 
         try {
-            JCaContextWrap context = harvest.getContext();
+            JCaContext context = harvest.getContext();
             context.setProject(project);
             context.setState(state);
 
@@ -256,51 +352,51 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
                 LOG.error("No checkout process named \"" + process + "\" in this project/state");
                 return;
             }
-            if (!context.isProcessSet(JCaConstWrap.HAR_CHECKOUT_PROCESS_TYPE)) {
+            if (!context.isProcessSet(JCaConst.HAR_CHECKOUT_PROCESS_TYPE)) {
                 LOG.error("No checkout process in this project/state");
                 return;
             }
 
-            JCaCheckoutWrap coproc = context.getCheckout();
-            coproc.setCheckoutMode(JCaConstWrap.CO_MODE_SYNCHRONIZE);
-            coproc.setPathOption(JCaConstWrap.CO_OPTION_PRESERVE_AND_CREATE);
+            JCaCheckout coproc = context.getCheckout();
+            coproc.setCheckoutMode(JCaConst.CO_MODE_SYNCHRONIZE);
+            coproc.setPathOption(JCaConst.CO_OPTION_PRESERVE_AND_CREATE);
             coproc.setReplaceFile(true);
             coproc.setClientDir(clientPath);
             coproc.setViewPath(viewPath);
             coproc.setShareWorkDir(true);
             coproc.setUseCITimeStamp(true);
 
-            JCaVersionChooserWrap vc = context.getVersionChooser();
+            JCaVersionChooser vc = context.getVersionChooser();
 
             vc.clear();
             vc.setRecursive(true);
-            vc.setVersionItemOption(JCaConstWrap.VERSION_FILTER_ITEM_BOTH);
-            vc.setVersionOption(JCaConstWrap.VERSION_FILTER_LATEST_IN_VIEW);
-            vc.setVersionStatusOption(JCaConstWrap.VERSION_FILTER_ALL_TAG);
-            vc.setBranchOption(JCaConstWrap.BRANCH_FILTER_TRUNK_ONLY);
+            vc.setVersionItemOption(itemOption);      // Defaults to JCaConst.VERSION_FILTER_ITEM_BOTH
+            vc.setVersionOption(versionOption);       // Defaults to JCaConst.VERSION_FILTER_LATEST_IN_VIEW
+            vc.setVersionStatusOption(statusOption);  // Defaults to JCaConst.VERSION_FILTER_ALL_TAG
+            vc.setBranchOption(branchOption);         // Defaults to JCaConst.BRANCH_FILTER_TRUNK_ONLY
             vc.setItemName(filename);
 
             vc.execute();
 
-            /* JCaContainerWrap versionList = */vc.getVersionList();
+            /* JCaContainer versionList = */ vc.getVersionList();
 
             /*
              * int numVers = versionList.isEmpty() ? 0 :
-             * versionList.getKeyElementCount(JCaAttrKeyWrap.CA_ATTRKEY_NAME);
+             * versionList.getKeyElementCount(JCaAttrKey.CA_ATTRKEY_NAME);
              *
              * for (int n = 0; n < numVers; n++) {
-             * System.out.println(versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_NAME,
+             * System.out.println(versionList.getString(JCaAttrKey.CA_ATTRKEY_NAME,
              * n) + ";" +
-             * versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_MAPPED_VERSION_NAME,
+             * versionList.getString(JCaAttrKey.CA_ATTRKEY_MAPPED_VERSION_NAME,
              * n) + ";" +
-             * versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_VERSION_STATUS,
+             * versionList.getString(JCaAttrKey.CA_ATTRKEY_VERSION_STATUS,
              * n));
              *  }
              */
 
             coproc.execute();
 
-        } catch (JCaHarvestExceptionWrap e) {
+        } catch (JCaHarvestException e) {
             LOG.error(e.toString() /* , getLocation() */);
             // e.printStackTrace();
         }
@@ -312,9 +408,9 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
      *
      * @author <a href="mailto:info@trinem.com">Trinem Consulting Ltd</a>
      */
-    public class MyLogStreamListener implements IJCaLogStreamListenerImpl {
+    public class MyLogStreamListener implements IJCaLogStreamListener {
 
-        // From IJCaLogStreamListenerImpl
+        // From IJCaLogStreamListener
         /**
          * Takes the given message from Harvest, figures out its severity and
          * reports it back to CruiseControl.
@@ -324,23 +420,23 @@ public class AllFusionHarvestBootstrapper implements Bootstrapper {
          */
         public void handleMessage(String message) {
 
-            int level = JCaHarvestLogStreamWrap.getSeverityLevel(message);
+            int level = JCaHarvestLogStream.getSeverityLevel(message);
 
             // Convert Harvest level to log4j level
             switch (level) {
-            case JCaHarvestLogStreamWrap.OK:
-                LOG.debug(message);
-                break;
-            case JCaHarvestLogStreamWrap.INFO:
+            case JCaHarvestLogStream.INFO:
                 LOG.info(message);
                 break;
-            case JCaHarvestLogStreamWrap.WARNING:
+            case JCaHarvestLogStream.WARNING:
                 LOG.warn(message);
                 break;
-            case JCaHarvestLogStreamWrap.ERROR:
+            case JCaHarvestLogStream.ERROR:
                 LOG.error(message);
                 break;
+            case JCaHarvestLogStream.OK:
             default:
+                LOG.debug(message);
+                break;
             }
         }
     }

@@ -2322,6 +2322,35 @@ password=P@ssW0rd!
                 <td>Yes</td>
                 <td>The name of the file to be bootstrapped.</td>
             </tr>
+            <tr>
+                <td>item</td>
+                <td>No</td>
+                <td>The item filter to use.  One of: <code>baseline</code>,
+                    <code>modified</code>, <code>both</code>.  Default is
+                    <code>both</code>.</td>
+            </tr>
+            <tr>
+                <td>version</td>
+                <td>No</td>
+                <td>The version filter to use.  One of: <code>latest_in_view</code>,
+                    <code>all_in_view</code>, <code>all</code>, <code>latest</code>.
+                    Default is <code>latest_in_view</code>.</td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td>No</td>
+                <td>The status option to use.  One of: <code>all</code>,
+                    <code>no_tag</code>, <code>reserved</code>, <code>merged</code>,
+                    <code>removed</code>, <code>any</code>.  Default is
+                    <code>all</code>.</td>
+            </tr>
+            <tr>
+                <td>branch</td>
+                <td>No</td>
+                <td>The branch option to use.  One of: <code>trunk</code>,
+                    <code>branch</code>, <code>trunk_and_branch</code>,
+                    <code>unmerged</code>.  Default is <code>trunk</code>.</td>
+            </tr>
             </tbody>
         </table>
         </div>
@@ -4302,11 +4331,12 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 <a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
   <a href="#project">&lt;project&gt;</a>
     <a href="#modificationset">&lt;modificationset&gt;</a>
-      &lt;harvest7&gt;</pre>
+      &lt;harvest&gt;</pre>
         </div>
 
         <p>Triggers a build if there is a change within an AllFusion Harvest
-           repository.</p>
+           repository.  Can be set to monitors for either new versions being
+           checked in or for packages being promoted and demoted.</p>
 
         <p>In order to use this element, you must have the AllFusion Harvest
            client installed on the CruiseControl machine.  Additionally, the
@@ -4356,11 +4386,60 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>The state in which you want to search for changes.</td>
             </tr>
             <tr>
+                <td>prevstate</td>
+                <td>No</td>
+                <td>The state in which you want to search for demotion changes.
+                    Only used if mode is set to package.</td>
+            </tr>
+            <tr>
+                <td>viewpath</td>
+                <td>No</td>
+                <td>The Harvest view path within which to limit the search.</td>
+            </tr>
+            <tr>
                 <td>project</td>
                 <td>Yes</td>
                 <td>The name of the project in AllFusion Harvest that you want
                     to watch.  Note that this can be different than the
                     CruiseControl project name.</td>
+            </tr>
+            <tr>
+                <td>item</td>
+                <td>No</td>
+                <td>The item filter to use.  One of: <code>baseline</code>,
+                    <code>modified</code>, <code>both</code>.  Default is
+                    <code>both</code>.</td>
+            </tr>
+            <tr>
+                <td>version</td>
+                <td>No</td>
+                <td>The version filter to use.  One of: <code>latest_in_view</code>,
+                    <code>all_in_view</code>, <code>all</code>, <code>latest</code>.
+                    Default is <code>latest_in_view</code>.</td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td>No</td>
+                <td>The status option to use.  One of: <code>all</code>,
+                    <code>no_tag</code>, <code>reserved</code>, <code>merged</code>,
+                    <code>removed</code>, <code>any</code>.  Default is
+                    <code>all</code>.</td>
+            </tr>
+            <tr>
+                <td>branch</td>
+                <td>No</td>
+                <td>The branch option to use.  One of: <code>trunk</code>,
+                    <code>branch</code>, <code>trunk_and_branch</code>,
+                    <code>unmerged</code>.  Default is <code>trunk</code>.</td>
+            </tr>
+            <tr>
+                <td>mode</td>
+                <td>No</td>
+                <td>The mode to use for searching.  One of: <code>version</code>,
+                    <code>package</code>.  <code>version</code> monitors for new
+                    versions being checked in.  <code>package</code> monitors for
+                    the promotion and demotion of packages.  Default is
+                    <code>version</code>.</td>
             </tr>
             <tr>
                 <td>property</td>
@@ -8910,6 +8989,40 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                             mapped to the property value, which is assumed to
                             be valid email name or a complete email address.</td>
                         </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td><a name="harvestmapper"><code>&lt;harvestmapper&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Map source control user names to their respective email address using
+                    the Harvest user id and email address stored in the Harvest repository.
+                    <code>&lt;harvestmapper&gt;</code> has the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>broker</td>
+                                <td>Yes</td>
+                                <td>The name of the Harvest Broker to connect to.</td>
+                            </tr>
+                            <tr>
+                                <td>username</td>
+                                <td>Yes</td>
+                                <td>Usename to use in connecting to the Harvest Broker.</td>
+                            </tr>
+                            <tr>
+                                <td>password</td>
+                                <td>Yes</td>
+                                <td>Password to use in connecting to the Harvest Broker.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </td>
