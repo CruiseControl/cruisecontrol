@@ -47,6 +47,8 @@ public class LinkEmailPublisherTest extends TestCase {
     private EmailPublisher publisher;
     private String baseURLString =
         "http://mybuildserver.com:8080/buildservlet/BuildServlet";
+    private String baseURLString2 =
+        "http://mybuildserver.com:8080/dashboard/tab/build/detail/connectfour";
 
     protected void setUp() throws Exception {
         successLogHelper = createLogHelper(true, true);
@@ -71,6 +73,13 @@ public class LinkEmailPublisherTest extends TestCase {
         publisher.setBuildResultsURL(baseURLString);
         assertEquals(
             "View results here -> " + baseURLString + "?log=log20020206120000",
+            publisher.createMessage(successLogHelper));
+    }
+
+    public void testCreateMessage2() {
+        publisher.setBuildResultsURL(baseURLString2);
+        assertEquals(
+            "View results here -> " + baseURLString2 + "/20020206120000",
             publisher.createMessage(successLogHelper));
     }
 
