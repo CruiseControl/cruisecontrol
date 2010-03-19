@@ -36,9 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.sourcecontrols;
 
-import com.trinem.harvest.hsdkwrap.hutils.JCaAttrKeyWrap;
-import com.trinem.harvest.hsdkwrap.hutils.JCaContainerWrap;
-import com.trinem.harvest.hsdkwrap.hutils.JCaTimeStampWrap;
+import com.ca.harvest.jhsdk.hutils.JCaAttrKey;
+import com.ca.harvest.jhsdk.hutils.JCaContainer;
+import com.ca.harvest.jhsdk.hutils.JCaTimeStamp;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -132,6 +132,42 @@ public class AllFusionHarvestTest
     }
     
     
+    public void testOptionalAttributes() {
+        try {
+            AllFusionHarvest harvest = new AllFusionHarvest();
+            harvest.setItem("baseline");
+            harvest.setItem("not_modified");
+            harvest.setItem("modified");
+            harvest.setItem("both");
+            harvest.setVersion("latest_in_view");
+            harvest.setVersion("all_in_view");
+            harvest.setVersion("all");
+            harvest.setVersion("latest");
+            harvest.setStatus("all");
+            harvest.setStatus("all_tags");
+            harvest.setStatus("no_tag");
+            harvest.setStatus("normal");
+            harvest.setStatus("reserved");
+            harvest.setStatus("merged");
+            harvest.setStatus("removed");
+            harvest.setStatus("deleted");
+            harvest.setStatus("any");
+            harvest.setStatus("any_tag");
+            harvest.setBranch("trunk");
+            harvest.setBranch("trunk_only");
+            harvest.setBranch("branch");
+            harvest.setBranch("branch_only");
+            harvest.setBranch("trunk_and_branch");
+            harvest.setBranch("unmerged");
+            harvest.setBranch("unmerged_branch");
+            harvest.setMode("version");
+            harvest.setMode("package");
+            harvest.setPrevState("Development");
+        } catch (CruiseControlException e) {
+            fail("AllFusionHarvest should not throw exceptions when optional attributes are set.");
+        }
+    }
+
     public void testGetVersionsInRange() {
         
         // Setup some data to use in testing
@@ -148,12 +184,14 @@ public class AllFusionHarvestTest
         };
         
         ArrayList reference = new ArrayList();
-        JCaContainerWrap versionList = new JCaContainerWrap();
+        JCaContainer versionList = new JCaContainer();
         
-        // Test to see whether the JHSDK is present
-        if (versionList.getRealObject() == null) {
-            return;
-        }
+        // Test to see whether the JHSDK is present - only if using wrapper - RHT 11/05/2008
+        /*
+         * if (versionList.getRealObject() == null) {
+         *    return;
+         * }
+         */
         
         // Copy the test data into some reference objects and a data source
         for (int d = 0; d < data.length; d++) {
@@ -174,15 +212,15 @@ public class AllFusionHarvestTest
                 reference.add(ref);
             }
         
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_MAPPED_VERSION_NAME, data[d][0], d);
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_NAME, data[d][1], d);
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_FULL_PATH_NAME, data[d][2], d);
-            versionList.setTimeStamp(JCaAttrKeyWrap.CA_ATTRKEY_MODIFIED_TIME,
-                new JCaTimeStampWrap(dates[d][0], dates[d][1] + 1, dates[d][2],
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_MAPPED_VERSION_NAME, data[d][0], d);
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_NAME, data[d][1], d);
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_FULL_PATH_NAME, data[d][2], d);
+            versionList.setTimeStamp(JCaAttrKey.CA_ATTRKEY_MODIFIED_TIME,
+                new JCaTimeStamp(dates[d][0], dates[d][1] + 1, dates[d][2],
                         dates[d][3], dates[d][4], dates[d][5], dates[d][6]), d);
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_VERSION_STATUS, data[d][4], d);
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_MODIFIER_NAME, data[d][5], d);
-            versionList.setString(JCaAttrKeyWrap.CA_ATTRKEY_DESCRIPTION, data[d][7], d);
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_VERSION_STATUS, data[d][4], d);
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_MODIFIER_NAME, data[d][5], d);
+            versionList.setString(JCaAttrKey.CA_ATTRKEY_DESCRIPTION, data[d][7], d);
         }
         
         // Now setup the sourcecontrol and test - this code is based on getVersionsInRange()
@@ -193,14 +231,14 @@ public class AllFusionHarvestTest
 
         // This test is critical, as sometimes the count throws an exception
         int numVers = versionList.isEmpty() ? 0
-                : versionList.getKeyElementCount(JCaAttrKeyWrap.CA_ATTRKEY_NAME);
+                : versionList.getKeyElementCount(JCaAttrKey.CA_ATTRKEY_NAME);
         
         for (int n = 0; n < numVers; n++) {
-            String status = versionList.getString(JCaAttrKeyWrap.CA_ATTRKEY_VERSION_STATUS, n);
+            String status = versionList.getString(JCaAttrKey.CA_ATTRKEY_VERSION_STATUS, n);
             
             // Don't add reserved tagged files - the file hasn't actually changed
             if (!status.equals("R")) {
-                list.add(test.transformJCaVersionContainerToModification(versionList, n));
+                list.add(test.transformJCaVersionContainerToModification(versionList, n, true));
             }
         }     
         

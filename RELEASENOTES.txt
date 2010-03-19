@@ -14,6 +14,10 @@ CMSynergyBaselinePublisher
 ----------------------
 * Allow property resolution in build attribute (CC-973).
 
+Harvest
+----------------------
+* Improvements to AllFusionHarvest integration to support promotion/demotion of versions and additional properties (CC-808). Patch by Robert Thornburrow and David Letcher.
+
 Maven2Builder
 ----------------------
 * Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This all may change if we use Dependency Injection or add showBuildOutput to the base Builder class.

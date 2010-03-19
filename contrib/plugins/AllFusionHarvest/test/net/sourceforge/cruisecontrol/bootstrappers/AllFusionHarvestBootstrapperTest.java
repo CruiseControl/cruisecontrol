@@ -158,4 +158,37 @@ public class AllFusionHarvestBootstrapperTest
             fail("AllFusionHarvest should not throw exceptions when required attributes are set." + e.getMessage());
         }
     }
+
+    public void testOptionalAttributes() {
+        try {
+            AllFusionHarvestBootstrapper harvest = new AllFusionHarvestBootstrapper();
+            harvest.setItem("baseline");
+            harvest.setItem("not_modified");
+            harvest.setItem("modified");
+            harvest.setItem("both");
+            harvest.setVersion("latest_in_view");
+            harvest.setVersion("all_in_view");
+            harvest.setVersion("all");
+            harvest.setVersion("latest");
+            harvest.setStatus("all");
+            harvest.setStatus("all_tags");
+            harvest.setStatus("no_tag");
+            harvest.setStatus("normal");
+            harvest.setStatus("reserved");
+            harvest.setStatus("merged");
+            harvest.setStatus("removed");
+            harvest.setStatus("deleted");
+            harvest.setStatus("any");
+            harvest.setStatus("any_tag");
+            harvest.setBranch("trunk");
+            harvest.setBranch("trunk_only");
+            harvest.setBranch("branch");
+            harvest.setBranch("branch_only");
+            harvest.setBranch("trunk_and_branch");
+            harvest.setBranch("unmerged");
+            harvest.setBranch("unmerged_branch");
+        } catch (CruiseControlException e) {
+            fail("AllFusionHarvest should not throw exceptions when optional attributes are set.");
+        }
+    }
 }
