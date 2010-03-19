@@ -18,6 +18,10 @@ Harvest
 ----------------------
 * Improvements to AllFusionHarvest integration to support promotion/demotion of versions and additional properties (CC-808). Patch by Robert Thornburrow and David Letcher.
 
+LinkEmailPublisher
+----------------------
+* LinkEmailPublisher outputs links which do not work with the new dashboard (CC-809). Patch by Robert Thornburrow.
+
 Maven2Builder
 ----------------------
 * Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This all may change if we use Dependency Injection or add showBuildOutput to the base Builder class.

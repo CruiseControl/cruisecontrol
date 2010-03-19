@@ -77,14 +77,32 @@ public class LinkEmailPublisher extends EmailPublisher {
         String buildResultsURL = getBuildResultsURL();
         message.append(buildResultsURL);
 
-        if (buildResultsURL.indexOf("?") == -1) {
-            message.append("?");
-        } else {
-            message.append("&");
-        }
+        // New dashboard uses a different URL format
+        if (buildResultsURL.indexOf("dashboard") == -1) {
+            if (buildResultsURL.indexOf("?") == -1) {
+                message.append("?");
+            } else {
+                message.append("&");
+            }
 
-        message.append("log=");
-        message.append(baseLogFileName);
+            message.append("log=");
+            message.append(baseLogFileName);
+        } else {
+            message.append("/");
+            if (baseLogFileName.indexOf("log") == 0) {
+                String temp = baseLogFileName.substring(3);
+                int n;
+                for (n = 0; n < temp.length(); n++) {
+                    if (!Character.isDigit(temp.charAt(n))) {
+                        temp = temp.substring(0, n);
+                        break;
+                    }
+                }
+                message.append(temp);
+            } else {
+                message.append(baseLogFileName);
+            }
+        }
 
         return message.toString();
     }
