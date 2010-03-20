@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.dashboard;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -150,7 +149,7 @@ public class BuildDetailTest extends MockObjectTestCase {
         assertEquals("cate3", (String) iterator.next());
     }
 
-    public void testShouldReturnAllArtifactsForTheBuild() throws IOException {
+    public void testShouldReturnAllArtifactsForTheBuild() throws Exception {
         String projectName = "p1";
         String timeStamp = "20001212050505";
         File artifactsRoot = FilesystemUtils.createDirectory(projectName);
@@ -162,9 +161,21 @@ public class BuildDetailTest extends MockObjectTestCase {
         Map props = new HashMap();
         LogFile logFile = new LogFile("log20001212050505.xml");
         props.put("artifactfolder", artifactsRoot);
-        BuildDetail detail = new BuildDetail(logFile, props);
+        final BuildDetail detail = new BuildDetail(logFile, props);
 
-        assertEquals(3, detail.getArtifactFiles().size());
+        assertEquals(getErrMsgTimeZone(timeStamp, detail), 3, detail.getArtifactFiles().size());
+    }
+
+    private static String getErrMsgTimeZone(final String timeStamp, final BuildDetail detail) {
+        return "This test failure could be a JVM TimeZone issue: "
+                + "\ntimestamp: " + timeStamp
+                + "; \nBuildDetail.getTimeStamp(): " + detail.getTimeStamp()
+                + "; \nBuildDetail.getBuildDate(): " + detail.getBuildDate().toString(
+                        org.joda.time.format.DateTimeFormat.forPattern("yyyyMMddHHmmss"))
+                + "; \nDo you see the extra/missing '5' above?" 
+                + "; \nJoda TimeZone: " + org.joda.time.DateTimeZone.getDefault()
+                + "; \nIs Joda TimeZone above what you'd expect? Does it match your OS setting?"
+                + "; \nsee: http://www.mail-archive.com/joda-interest@lists.sourceforge.net/msg01073.html\n";
     }
 
     public void testShouldGetArtifactsInSubDirectories() throws Exception {
@@ -183,19 +194,19 @@ public class BuildDetailTest extends MockObjectTestCase {
         Map props = new HashMap();
         LogFile logFile = new LogFile("log20001212050505.xml");
         props.put("artifactfolder", artifactsRoot);
-        BuildDetail detail = new BuildDetail(logFile, props);
+        final BuildDetail detail = new BuildDetail(logFile, props);
         List artifactNames = toFileNameList(detail.getArtifactFiles());
-        assertEquals(4, artifactNames.size());
+        assertEquals(getErrMsgTimeZone(timeStamp, detail), 4, artifactNames.size());
         assertTrue(artifactNames.contains("p2.war"));
         assertTrue(artifactNames.contains("p2.jar"));
         assertTrue(artifactNames.contains("p2.ear"));
         assertTrue(artifactNames.contains("subdir"));
     }
 
-    private List toFileNameList(List files) {
-        List fileNames = new ArrayList();
-        for (Iterator iter = files.iterator(); iter.hasNext();) {
-            File file = (File) iter.next();
+    private List toFileNameList(final List files) {
+        final List fileNames = new ArrayList();
+        for (Object fileObj : files) {
+            final File file = (File) fileObj;
             fileNames.add(file.getName());
         }
         return fileNames;
