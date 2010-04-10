@@ -225,7 +225,8 @@ public class Maven2Builder extends Builder {
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
 
-            final BuildOutputLogger buildOutputConsumer = getBuildOutputConsumer(workingDir);
+            final BuildOutputLogger buildOutputConsumer
+                    = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir);
 
             final ScriptRunner scriptRunner = new ScriptRunner();
             final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout, buildOutputConsumer);
@@ -257,11 +258,11 @@ public class Maven2Builder extends Builder {
         }
     }
 
-    BuildOutputLogger getBuildOutputConsumer(final File workingDir) {
+    BuildOutputLogger getBuildOutputConsumer(final String projectName, final File workingDir) {
         if (showBuildOutput) {
             final File maven2BuilderOutput = new File(workingDir, MAVEN2_BUILDER_OUTPUT_LOG);
             final BuildOutputLogger buildOutputConsumer 
-                = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(maven2BuilderOutput);
+                = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, maven2BuilderOutput);
             buildOutputConsumer.clear();
             return buildOutputConsumer;
         } else {

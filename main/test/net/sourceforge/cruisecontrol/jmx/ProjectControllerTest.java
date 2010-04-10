@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ModificationSet;
@@ -15,6 +16,7 @@ import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.ProjectTest;
+import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
@@ -41,7 +43,7 @@ public class ProjectControllerTest extends TestCase {
         assertEquals(message[1][1], "comment2");
     }
 
-    public void testShouldRetrieveBuildOutputWhenProjectIsBuilding() throws Exception {
+    public void testBootstrapperBuildOutputWhenProjectIsBuilding() throws Exception {
         final Project project = new Project();
         project.setName("project1");
 
@@ -69,7 +71,7 @@ public class ProjectControllerTest extends TestCase {
             assertNotNull(output);
             assertEquals("AntBuilder/Bootstrapper/Publisher only create build output if useLogger, showOutput are true",
                     0, output.length);
-
+            assertTrue(mbean.isNewOutputLogger());
 
             IO.delete(validFile);
             Util.doMkDirs(validFile);
@@ -86,8 +88,68 @@ public class ProjectControllerTest extends TestCase {
 
             output = mbean.getBuildOutput(0);
             assertNotNull(output);
-            assertTrue("Unexpected empty build output", output.length > 0);
+            // @todo this test will likely change if we implement 'live output' for bootstrappers
+            //assertTrue("Unexpected empty bootstrapper build output", output.length > 0);
+            assertEquals("Expected empty bootstrapper build output", 0, output.length);
 
+        } finally {
+            IO.delete(validFile);
+        }
+    }
+
+
+    public void testBuilderShouldRetrieveBuildOutputWhenProjectIsBuilding() throws Exception {
+        final Project project = new Project();
+        project.setName("project1");
+
+        final File validFile = new File("project1");
+        Util.doMkDirs(validFile);
+        try {
+            final AntBuilder antBuilder = new AntBuilder();
+
+            antBuilder.setBuildFile(validFile.getAbsolutePath());
+
+            final File expectedTempFile = new File(validFile, "notLog.xml");
+            antBuilder.setTempFile(expectedTempFile.getName());
+
+            antBuilder.setTarget("init");
+            antBuilder.setAntWorkingDir(validFile.getAbsolutePath());
+            antBuilder.validate();
+            
+            // default value of showAntOutput is different between AntBuilder and AntBootstrapper,
+            // must set to false to avoid output logging.
+            antBuilder.setShowAntOutput(false);
+            final Map<String, String> buildProperties = BuilderTest.createPropsWithProjectName(project.getName());
+            try {
+                antBuilder.build(buildProperties, null);
+            } catch (CruiseControlException e) {
+                assertEquals("ant logfile " + expectedTempFile.getAbsolutePath() + " does not exist.", e.getMessage());
+            }
+
+            final ProjectMBean mbean = new ProjectController(project);
+            String[] output = mbean.getBuildOutput(0);
+            assertNotNull(output);
+            assertEquals("AntBuilder/Bootstrapper/Publisher only create build output if useLogger, showOutput are true",
+                    0, output.length);
+
+
+            IO.delete(validFile);
+            Util.doMkDirs(validFile);
+
+            antBuilder.setUseLogger(true);
+            antBuilder.setShowAntOutput(true);
+            antBuilder.setProgressLoggerLib("dummyLib");
+            try {
+                antBuilder.build(buildProperties, null);
+            } catch (Exception e) {
+                assertEquals("ant logfile " + expectedTempFile.getAbsolutePath()
+                    + " is empty. Your build probably failed. Check your CruiseControl logs.", e.getMessage());
+            }
+
+            output = mbean.getBuildOutput(0);
+            assertNotNull(output);
+            assertTrue("Unexpected empty build output", output.length > 0);
+            assertFalse(mbean.isNewOutputLogger());
         } finally {
             IO.delete(validFile);
         }

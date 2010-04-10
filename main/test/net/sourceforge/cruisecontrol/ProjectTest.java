@@ -43,6 +43,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+//import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,6 +59,8 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+//import java.util.zip.ZipEntry;
+//import java.util.zip.ZipInputStream;
 
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
@@ -75,6 +78,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+//import org.jdom.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -832,7 +836,87 @@ public class ProjectTest {
         long time = project.getTimeToNextBuild(postNoonBuild);
         assertEquals(Schedule.ONE_DAY, time);
     }
+/* @todo Look into fixing test below, possibly using smaller 'units'.
+    @Test
+    public void testGetLabels() throws Exception {
+        final Date now = new Date();
+        final MockModificationSet modSet = new MockModificationSet();
+        modSet.setTimeOfCheck(now);
+        projectConfig.add(modSet);
+        final MockSchedule sched = new MockSchedule();
+        projectConfig.add(sched);
 
+        final Log log = new Log();
+        final File logDir = new File(TEST_DIR + File.separator + "test-results");
+        logDir.mkdir();
+        filesToDelete.add(logDir);
+        final String projectName = "testGetLabels";
+        log.setProjectName(projectName);
+        filesToDelete.add(new File(TestUtil.getTargetDir(), projectName + ".ser"));
+        log.setDir(logDir.getAbsolutePath());
+        log.setEncoding("ISO-8859-1");
+        log.validate();
+
+        projectConfig.add(log);
+
+        project.init();
+        project.start();
+        project.build();
+        project.stop();
+
+        List<String> labels = project.getLogLabels();
+        assertEquals("The logs should be zero", 1, labels.size());
+    }
+
+    @Test
+    public void testGetLog() throws Exception {
+        final Date now = new Date();
+        final MockModificationSet modSet = new MockModificationSet();
+        modSet.setTimeOfCheck(now);
+        projectConfig.add(modSet);
+        final MockSchedule sched = new MockSchedule();
+        projectConfig.add(sched);
+
+        final Log log = new Log();
+        final File logDir = new File(TEST_DIR + File.separator + "test-results");
+        logDir.mkdir();
+        filesToDelete.add(logDir);
+        final String projectName = "testGetLabels";
+        log.setProjectName(projectName);
+        filesToDelete.add(new File(TestUtil.getTargetDir(), projectName + ".ser"));
+        log.setDir(logDir.getAbsolutePath());
+        log.setEncoding("ISO-8859-1");
+        log.validate();
+
+        projectConfig.add(log);
+
+        project.init();
+        project.start();
+        project.build();
+        project.stop();
+
+        List<String> labels = project.getLogLabels();
+        assertEquals("The logs should be zero", 1, labels.size());
+
+        ByteArrayInputStream bais = null;
+        ZipInputStream zis = null;
+
+        try {
+            String logLabel = labels.get(0);
+            byte[] logContents = project.getLog(logLabel);
+            bais = new ByteArrayInputStream(logContents);
+            zis = new ZipInputStream(bais);
+            ZipEntry zipEntry = zis.getNextEntry();
+            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            Element el = builder.build(zis).getRootElement();
+            assertEquals("The root element of the log should be 'cruisecontrol'",
+                         "cruisecontrol", el.getName());
+        } finally {
+            IO.close(bais);
+            IO.close(zis);
+        }
+    }
+*/
     private void writeFile(String fileName, String contents) throws CruiseControlException {
 
         File f = new File(fileName);

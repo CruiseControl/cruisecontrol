@@ -46,6 +46,30 @@ import java.io.PrintStream;
 
 public class BuildOutputLoggerTest extends TestCase {
 
+    public void testIsDataFileSet() throws Exception {
+        assertFalse((new BuildOutputLogger(null).isDataFileSet()));
+        assertTrue((new BuildOutputLogger(prepareBufferFile(0)).isDataFileSet()));
+    }
+
+    public void testIsNewLogger() throws Exception {
+        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
+        assertTrue(logger.isNew());
+
+        assertEquals(0, logger.retrieveLines(0).length);
+        assertTrue(logger.isNew());
+
+        logger.consumeLine("1");
+        assertFalse(logger.isNew());
+
+        assertEquals("1", logger.retrieveLines(0)[0]);
+        assertEquals(0, logger.retrieveLines(1).length);
+        assertFalse(logger.isNew());
+
+        logger.clear();
+        assertTrue(logger.isNew());
+        assertEquals(0, logger.retrieveLines(1).length);
+    }
+
     public void testShouldReturnEmptyArrayWhenFileIsEmpty() throws Exception {
 
         final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));

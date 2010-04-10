@@ -53,6 +53,9 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private boolean multipleSet = false;
     private boolean showProgress = true;
 
+    /** Build property name of property that is pass to all builders. */
+    public static final String BUILD_PROP_PROJECTNAME = "projectname";
+
     /**
      * Execute a build.
      * @param properties build properties

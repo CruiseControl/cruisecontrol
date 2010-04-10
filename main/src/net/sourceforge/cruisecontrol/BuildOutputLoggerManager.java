@@ -39,8 +39,9 @@ package net.sourceforge.cruisecontrol;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * Lazy load a BuildOutputLogger.
@@ -49,27 +50,42 @@ public class BuildOutputLoggerManager {
 
     public static final BuildOutputLoggerManager INSTANCE = new BuildOutputLoggerManager();
 
-    private BuildOutputLogger logger;
-    private Map<File, BuildOutputLogger> loggers = new HashMap<File, BuildOutputLogger>();
+    private final Map<String, BuildOutputLogger> loggers = new ConcurrentHashMap<String, BuildOutputLogger>();
 
     BuildOutputLoggerManager() {
     }
 
     /**
      * If we haven't already created one, create a temporary BuildOutputLogger to retrieve empty lines.
+     * @param projectName a project name
      * @return Either logger or a temporary empty logger.
      */
-    public BuildOutputLogger lookup() {
-        if (logger != null) { return logger; }
-        return new BuildOutputLogger(null);
+    public BuildOutputLogger lookup(final String projectName) {
+        return lookupOrCreate(projectName, null);
     }
 
-    public BuildOutputLogger lookupOrCreate(File outputFile) {
-        logger = loggers.get(outputFile);
+    public BuildOutputLogger lookupOrCreate(final String projectName, final File outputFile) {
+        BuildOutputLogger logger;
+        if (projectName == null) {
+            // eg: AntBootstrapper executes with empty buildProperties object, so no 'projectName' prop will exist,
+            // so we can't cache the logger. Therefore, just create one and hand it back.
+            return new BuildOutputLogger(outputFile);
+        } else {
+            logger = loggers.get(projectName);
+        }
+
         if (logger == null) {
             logger = new BuildOutputLogger(outputFile);
-            loggers.put(outputFile, logger);
+            loggers.put(projectName, logger);
         }
+
+        if (outputFile != null && !logger.isDataFileSet()) {
+            // replace current temp logger with a new logger with a data file
+            logger = new BuildOutputLogger(outputFile);
+            loggers.put(projectName, logger);
+        }
+
         return logger;
     }
+
 }

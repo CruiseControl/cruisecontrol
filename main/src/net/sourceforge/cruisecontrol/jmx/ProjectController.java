@@ -264,10 +264,10 @@ public class ProjectController extends NotificationBroadcasterSupport
         }
         final String[][] commitMessages = new String[modifications.size()][];
         for (int i = 0; i < modifications.size(); i++) {
-            final Modification modication = modifications.get(i);
+            final Modification modification = modifications.get(i);
             commitMessages[i] = new String[2];
-            commitMessages[i][0] = modication.userName;
-            commitMessages[i][1] = modication.comment;
+            commitMessages[i][0] = modification.userName;
+            commitMessages[i][1] = modification.comment;
         }
         return commitMessages;
     }
@@ -277,7 +277,20 @@ public class ProjectController extends NotificationBroadcasterSupport
      * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger
      */
     public String[] getBuildOutput(final Integer firstLine) {
-        //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
-        return  BuildOutputLoggerManager.INSTANCE.lookup().retrieveLines(firstLine);
+        // @todo Note that CompositeBuilder will clear output data file if same builder type is run in composite.
+        return  BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).retrieveLines(firstLine);
+    }
+
+    /**
+     * @return true if the {@link net.sourceforge.cruisecontrol.util.BuildOutputLogger#clear()} method has been called
+     * AND no call to {@link net.sourceforge.cruisecontrol.util.BuildOutputLogger#consumeLine(String)} has occurred
+     * since the call to clear().
+     * This is intended to allow reporting apps (eg: Dashboard) to check if
+     * the "live output" log file has been reset and to start asking for output from the first line
+     * of the current output file if the logger is new.
+     * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger#retrieveLines(int)}.
+     */
+    public boolean isNewOutputLogger() {
+        return  BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).isNew();
     }
 }

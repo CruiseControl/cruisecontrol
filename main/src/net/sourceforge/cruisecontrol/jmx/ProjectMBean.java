@@ -168,4 +168,5 @@ public interface ProjectMBean {
     public String[][] commitMessages();
 
     public String[] getBuildOutput(Integer firstLine);
+    public boolean isNewOutputLogger();
 }

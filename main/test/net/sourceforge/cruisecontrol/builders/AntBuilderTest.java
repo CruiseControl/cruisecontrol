@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
@@ -316,7 +317,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTempFile("notLog.xml");
         builder.setTarget("init");
         builder.validate();
-        final Map<String, String> buildProperties = new HashMap<String, String>();
+        final Map<String, String> buildProperties = BuilderTest.createPropsWithProjectName("testproject");
         Element buildElement = builder.build(buildProperties, null);
         int initCount = getInitCount(buildElement);
         assertEquals(1, initCount);
@@ -537,7 +538,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTarget("all");
         builder.setTempFile("notLog.xml");
         builder.validate();
-        final Map<String, String> buildProperties = new HashMap<String, String>();
+        final Map<String, String> buildProperties = BuilderTest.createPropsWithProjectName("test1");
         builder.build(buildProperties, null);
 
         //Now verify a JUnit report was created
