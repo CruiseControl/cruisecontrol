@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
@@ -28,7 +29,9 @@ public class XcodeBuilderTest {
     private XcodeBuilder builder;
 
     private Directory directoryDoesntFailValidation;
-    
+
+    private Map<String, String> buildProperties;
+
     @Before
     public void setUp() throws Exception {
         directoryDoesntFailValidation = new Directory() {
@@ -39,6 +42,8 @@ public class XcodeBuilderTest {
 
         builder = new XcodeBuilder();
         builder.directory = directoryDoesntFailValidation;
+
+        buildProperties = BuilderTest.createPropsWithProjectName("testproject");
     }
 
     @After
@@ -185,7 +190,7 @@ public class XcodeBuilderTest {
         };
         
         builder.setTimeout(515);
-        builder.build(null, null);
+        builder.build(buildProperties, null);
         assertTrue(runScript.called);
         assertEquals("515", runScript.with);
     }
@@ -215,7 +220,7 @@ public class XcodeBuilderTest {
         };
         
         builder.setTimeout(515);
-        Element result = builder.build(null, null);
+        Element result = builder.build(buildProperties, null);
         assertNotNull(result.getAttribute("error"));
         assertEquals("build timed out", result.getAttributeValue("error"));
     }
@@ -225,7 +230,7 @@ public class XcodeBuilderTest {
         final Called cmdLine = new Called();        
         builder = builderForBuildTest(cmdLine);
         
-        builder.buildWithTarget(null, "target", null);
+        builder.buildWithTarget(buildProperties, "target", null);
         assertTrue(cmdLine.called);
         assertTrue(cmdLine.with.contains("-target target"));
     }
@@ -235,8 +240,8 @@ public class XcodeBuilderTest {
         final Called cmdLine = new Called();        
         builder = builderForBuildTest(cmdLine);
         
-        builder.buildWithTarget(null, "target", null);
-        builder.build(null, null);
+        builder.buildWithTarget(buildProperties, "target", null);
+        builder.build(buildProperties, null);
         assertTrue(cmdLine.called);
         assertFalse(cmdLine.with.contains("-target target"));
     }
@@ -247,7 +252,7 @@ public class XcodeBuilderTest {
         builder = builderForBuildTest(cmdLine);
         
         builder.createArg().setValue("-target oldTarget");
-        builder.buildWithTarget(null, "newTarget", null);
+        builder.buildWithTarget(buildProperties, "newTarget", null);
         assertTrue(cmdLine.called);
         assertTrue(cmdLine.with.contains("-target newTarget"));
         assertFalse(cmdLine.with.contains("-target oldTarget"));
@@ -259,8 +264,8 @@ public class XcodeBuilderTest {
         builder = builderForBuildTest(cmdLine);
         
         builder.createArg().setValue("-target oldTarget");
-        builder.buildWithTarget(null, "newTarget", null);
-        builder.build(null, null);
+        builder.buildWithTarget(buildProperties, "newTarget", null);
+        builder.build(buildProperties, null);
         assertTrue(cmdLine.called);
         assertTrue(cmdLine.with.contains("-target oldTarget"));
         assertFalse(cmdLine.with.contains("-target newTarget"));

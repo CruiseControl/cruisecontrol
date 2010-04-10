@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class XcodeBuilder extends Builder implements Script {
     private boolean hitBuildFailedMessage;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean buildTimedOut;
-    private Arguments arguments = new Arguments();
+    private final Arguments arguments = new Arguments();
     private Map<String, String> buildProperties;
     
     @Override
@@ -48,7 +49,8 @@ public class XcodeBuilder extends Builder implements Script {
 
     private void runScript(OutputFile file) throws CruiseControlException {
         LOG.info("starting build");
-        boolean finished = createScriptRunner().runScript(this, timeout, file.getBuildOutputLogger());
+        String projectName = buildProperties.get(Builder.BUILD_PROP_PROJECTNAME);
+        boolean finished = createScriptRunner().runScript(this, timeout, file.getBuildOutputLogger(projectName));
         buildTimedOut = !finished;
         LOG.info("build finished with exit code " + exitCode);
     }
@@ -174,7 +176,7 @@ public class XcodeBuilder extends Builder implements Script {
     }
     
     static class OutputFile {
-        private File file;
+        private final File file;
         private BufferedReader reader;
         private String nextLine;
 
@@ -232,8 +234,8 @@ public class XcodeBuilder extends Builder implements Script {
             }
         }
 
-        private BuildOutputLogger getBuildOutputLogger() {
-            final BuildOutputLogger logger = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(file);
+        private BuildOutputLogger getBuildOutputLogger(final String projectName) {
+            final BuildOutputLogger logger = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, file);
             logger.clear();
             return logger;
         }
@@ -243,8 +245,11 @@ public class XcodeBuilder extends Builder implements Script {
         return arguments.createArg();
     }
     
-    class Arguments {
-        private List<Arg> args = new ArrayList<Arg>();
+    class Arguments implements Serializable {
+
+        private static final long serialVersionUID = -6252774653884713089L;
+
+        private final List<Arg> args = new ArrayList<Arg>();
         private Arg overrideTarget;
         private Arg originalTarget;
 
@@ -303,9 +308,12 @@ public class XcodeBuilder extends Builder implements Script {
 
     }
     
-    public class Arg {
+    public class Arg implements Serializable {
+
+        private static final long serialVersionUID = 832468395631809962L;
+
         String value;
-        
+
         public void setValue(String value) {
             this.value = value.trim();
         }
@@ -317,6 +325,9 @@ public class XcodeBuilder extends Builder implements Script {
         }
         
         class InvalidValueException extends CruiseControlException {
+
+            private static final long serialVersionUID = -1464414088701915032L;
+
             InvalidValueException() {
                 super("value of arg can't be an empty string");
             }

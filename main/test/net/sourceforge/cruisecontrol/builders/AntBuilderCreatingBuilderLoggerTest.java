@@ -1,7 +1,10 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
@@ -19,6 +22,8 @@ public class AntBuilderCreatingBuilderLoggerTest {
     private TestAntBuilder builder;
     private BuildOutputLogger buildOutputLogger;
 
+    private Map<String, String> buildProperties;
+    
     @Before
     public void setUp() throws Exception {
         builder = new TestAntBuilder();
@@ -26,6 +31,9 @@ public class AntBuilderCreatingBuilderLoggerTest {
         File buildFile = File.createTempFile("build", ".xml", TestUtil.getTargetDir());
         filesToDelete.add(buildFile);
         builder.setBuildFile(buildFile.getAbsolutePath());
+
+        buildProperties = new HashMap<String, String>();
+        buildProperties.put(Builder.BUILD_PROP_PROJECTNAME, "testproject");
     }
 
     @After
@@ -38,7 +46,7 @@ public class AntBuilderCreatingBuilderLoggerTest {
     @Test
     public void testShouldCreateBuildOutputLoggerByDefault() throws CruiseControlException {
         builder.validate();
-        builder.build(null, null);
+        builder.build(buildProperties, null);
         Assert.assertNotNull(buildOutputLogger);
     }
 
@@ -46,7 +54,7 @@ public class AntBuilderCreatingBuilderLoggerTest {
     public void testShouldCreateBuildOutputLoggerWithShowAntOutputTrue() throws CruiseControlException {
         builder.setShowAntOutput(true);
         builder.validate();
-        builder.build(null, null);
+        builder.build(buildProperties, null);
         Assert.assertNotNull(buildOutputLogger);
     }
 
@@ -54,7 +62,7 @@ public class AntBuilderCreatingBuilderLoggerTest {
     public void testShouldNotCreateBuildOutputLoggerWithShowAntOutputFalse() throws CruiseControlException {
         builder.setShowAntOutput(false);
         builder.validate();
-        builder.build(null, null);
+        builder.build(buildProperties, null);
         Assert.assertNull(buildOutputLogger);
     }
 

@@ -199,7 +199,8 @@ public class AntBuilder extends Builder {
         if (showAntOutput) {
             // TODO: I think there's a bug here when workingDir == null
             final File antBuilderOutput = new File(workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
-            buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(antBuilderOutput);
+            final String projectName = buildProperties.get(BUILD_PROP_PROJECTNAME);
+            buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, antBuilderOutput);
             buildOutputConsumer.clear();
         } else {
             buildOutputConsumer = null;

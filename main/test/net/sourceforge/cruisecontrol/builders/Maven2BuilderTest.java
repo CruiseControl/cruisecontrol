@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Builder;
+import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
@@ -286,7 +288,8 @@ public class Maven2BuilderTest extends TestCase {
         // this time let's test multiple runs
         mb.setGoal("fakegoal|otherfakegoal");
         // this should "double succeed"
-        logElement = mb.build(new HashMap<String, String>(), null);
+        final Map<String, String> buildProperties = BuilderTest.createPropsWithProjectName(getName());
+        logElement = mb.build(buildProperties, null);
         assertNotNull(statusType, logElement);
         goalTags = logElement.getChildren("mavengoal");
         assertNotNull(statusType, goalTags);
@@ -372,7 +375,7 @@ public class Maven2BuilderTest extends TestCase {
         buildProperties.put("label", "build.11");
         buildProperties.put("lastbuildsuccessful", "false");
         buildProperties.put("cvstimestamp", "2007-06-14 07:59:22 GMT"); // should have spaces
-        buildProperties.put("projectname", "java_32.A01");
+        buildProperties.put(Builder.BUILD_PROP_PROJECTNAME, "java_32.A01");
         buildProperties.put("cctimestamp", "20070614095922");
         return buildProperties;
     }
@@ -471,7 +474,7 @@ public class Maven2BuilderTest extends TestCase {
                 expectedBuildOutputFile.exists());
         
         final Maven2Builder mb = new Maven2Builder();
-        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null); 
+        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null, null);
         assertNotNull(buildOutputLogger);
         assertEquals("<BuildOutputLogger data=" + expectedBuildOutputFile.getAbsolutePath() + ">",
                 buildOutputLogger.toString());
@@ -489,7 +492,7 @@ public class Maven2BuilderTest extends TestCase {
 
         final Maven2Builder mb = new Maven2Builder();
         mb.setShowBuildOutput(false);
-        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null);
+        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null, null);
         assertNull(buildOutputLogger);
         assertFalse(expectedBuildOutputFile.exists());
     }

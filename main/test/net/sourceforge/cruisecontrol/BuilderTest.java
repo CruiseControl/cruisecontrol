@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
@@ -121,5 +122,11 @@ public class BuilderTest extends TestCase {
         public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
             return null;
         }
+    }
+
+    public static Map<String, String> createPropsWithProjectName(final String projectName) {
+        final Map<String, String> buildProperties = new HashMap<String, String>();
+        buildProperties.put(Builder.BUILD_PROP_PROJECTNAME, projectName);
+        return buildProperties;
     }
 }
