@@ -17,6 +17,7 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.ProjectTest;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
+import net.sourceforge.cruisecontrol.builders.AntOutputLogger;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
@@ -71,7 +72,8 @@ public class ProjectControllerTest extends TestCase {
             assertNotNull(output);
             assertEquals("AntBuilder/Bootstrapper/Publisher only create build output if useLogger, showOutput are true",
                     0, output.length);
-            assertTrue(mbean.isNewOutputLogger());
+            assertFalse("Null data file should NOT have appended anything to ID: " + mbean.getOutputLoggerID(),
+                    mbean.getOutputLoggerID().endsWith(AntOutputLogger.DEFAULT_OUTFILE_NAME));
 
             IO.delete(validFile);
             Util.doMkDirs(validFile);
@@ -149,7 +151,8 @@ public class ProjectControllerTest extends TestCase {
             output = mbean.getBuildOutput(0);
             assertNotNull(output);
             assertTrue("Unexpected empty build output", output.length > 0);
-            assertFalse(mbean.isNewOutputLogger());
+            assertFalse("Non-existant data file should NOT have appended anything to ID: " + mbean.getOutputLoggerID(),
+                    mbean.getOutputLoggerID().endsWith(AntOutputLogger.DEFAULT_OUTFILE_NAME));
         } finally {
             IO.delete(validFile);
         }

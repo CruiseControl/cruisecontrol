@@ -282,15 +282,18 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     /**
-     * @return true if the {@link net.sourceforge.cruisecontrol.util.BuildOutputLogger#clear()} method has been called
-     * AND no call to {@link net.sourceforge.cruisecontrol.util.BuildOutputLogger#consumeLine(String)} has occurred
-     * since the call to clear().
+     * @return  A unique (for this VM) identifying string for this logger instance.
      * This is intended to allow reporting apps (eg: Dashboard) to check if
      * the "live output" log file has been reset and to start asking for output from the first line
-     * of the current output file if the logger is new.
+     * of the current output file if the logger has changed.
+     *
+     * Before the first call to retrieveLines(), the client should call getOutputLoggerID(), and hold that ID value.
+     * If a client later calls retrieveLines() with a non-zero 'firstLine' parameter, and receives an empty array
+     * as a result, that client should call getOutputLoggerID() again, and if the ID value differs, start reading
+     * using a zero 'firstLine' parameter.
      * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger#retrieveLines(int)}.
      */
-    public boolean isNewOutputLogger() {
-        return  BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).isNew();
+    public String getOutputLoggerID() {
+        return  BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).getID();
     }
 }

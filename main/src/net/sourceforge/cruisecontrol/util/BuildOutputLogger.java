@@ -55,26 +55,33 @@ public class BuildOutputLogger implements StreamConsumer {
     public static final int MAX_LINES = 1000;
     private final File data;
 
-    private boolean isNew = true;
+    /** A unique (for this VM) identifying string for this logger instance. */
+    private String id;
 
     public BuildOutputLogger(File outputFile) {
         data = outputFile;
+        // use parent hashCode(), as this class overrides and is not unique per instance.
+        id = "" + super.hashCode();
     }
 
     public void clear() {
         if (noDataFile()) { return; }
         data.delete();
-        isNew = true;
+
+        // reset ID after data file is cleared.
+        // Allows clients to read from beginning if readUptoMaxLines() was called before a reset.
+        id += "__" + data.getName();
     }
 
     /**
-     * @return true if the {@link #clear()} method has been called AND no call to {@link #consumeLine(String)}
-     * has occurred since the call to clear(). This is intended to allow reporting apps (eg: Dashboard) to check if
-     * the "live output" log file has been reset (possibly due to a CompositeBuilder moving to a new Builder, etc.),
-     * and to start asking for output from the first line of the current output file if the logger is new.
+     * @return A unique (for this VM) identifying string for this logger instance.
+     * This is intended to allow reporting apps (eg: Dashboard) to check if the logger instance changes mid-build,
+     * causing the "live output" log file to reset (possibly due to a CompositeBuilder moving to a new Builder, etc.).
+     * If the logger instance changes (indicated by a new ID value), the client should  start asking for output from
+     * the first line of the current output file.
      * See also: {@link #retrieveLines(int)}.
      */
-    public boolean isNew() { return isNew; }
+    public String getID() { return id; }
 
 
     public synchronized void consumeLine(final String line) {
@@ -86,12 +93,6 @@ public class BuildOutputLogger implements StreamConsumer {
                 out.println(line);
             } finally {
                 out.close();
-
-                // after any output has been written, the logger is no longer "new", and therefor clients that
-                // get an empty array from a call to retrieveLines() need not re-read from line zero.
-                if (isNew) {
-                    isNew = false;
-                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -101,10 +102,12 @@ public class BuildOutputLogger implements StreamConsumer {
     /**
      * @param firstLine line to skip to.
      * @return All lines available from firstLine (inclusive) up to MAX_LINES.
-     * If a client calls retrieveLines() with a non-zero 'firstLine' parameter and receives an empty array
-     * as a result, that client should also call {@link #isNew()}. If {@link #isNew ()} returns true,
-     * the client should make another call to retrieveLines() with the firstLine parameter set back to zero. This
-     * will allow the client to live output when the output logger is changed during a build.
+     * Before the first call to retrieveLines(), the client should call {@link #getID()}, and hold that id value.
+     * If a client later calls retrieveLines() with a non-zero 'firstLine' parameter, and receives an empty array
+     * as a result, that client should also call {@link #getID()}. If {@link #getID ()} returns a different value
+     * from the prior call to {@link #getID ()}, the client should make another call to retrieveLines() with the
+     * firstLine parameter set back to zero. This will allow the client to live output when the output logger is
+     * changed during a build.
      */
     public String[] retrieveLines(final int firstLine) {
         if (noDataFile()) { return new String[0]; }
