@@ -51,23 +51,46 @@ public class BuildOutputLoggerTest extends TestCase {
         assertTrue((new BuildOutputLogger(prepareBufferFile(0)).isDataFileSet()));
     }
 
-    public void testIsNewLogger() throws Exception {
-        final BuildOutputLogger logger = new BuildOutputLogger(prepareBufferFile(0));
-        assertTrue(logger.isNew());
+    public void testGetIDAfterReset() throws Exception {
+        final File origFile = prepareBufferFile(0);
+        final BuildOutputLogger logger = new BuildOutputLogger(origFile);
+        final String origID = logger.getID();
+        assertFalse(origID.endsWith(origFile.getName()));
+
+        assertEquals(origID, logger.getID());
+        logger.clear();
+        final String newId = logger.getID();
+        assertFalse(origID.equals(newId));
+
+        assertTrue(newId.endsWith(origFile.getName()));
+        assertTrue(newId.startsWith(origID));
+    }
+
+    public void testGetID() throws Exception {
+        final File origFile = prepareBufferFile(0);
+        final BuildOutputLogger logger = new BuildOutputLogger(origFile);
+        logger.clear();
+        final String origID = logger.getID();
+        assertTrue(origID.endsWith(origFile.getName()));
 
         assertEquals(0, logger.retrieveLines(0).length);
-        assertTrue(logger.isNew());
+        assertEquals(origID, logger.getID());
 
         logger.consumeLine("1");
-        assertFalse(logger.isNew());
+        assertEquals(origID, logger.getID());
 
         assertEquals("1", logger.retrieveLines(0)[0]);
         assertEquals(0, logger.retrieveLines(1).length);
-        assertFalse(logger.isNew());
+        assertEquals(origID, logger.getID());
 
         logger.clear();
-        assertTrue(logger.isNew());
-        assertEquals(0, logger.retrieveLines(1).length);
+        assertFalse("Clear should reset logger instance ID.", origID.equals(logger.getID()));
+        assertEquals("Client would normally re-read from firstLine=0 here.", 0, logger.retrieveLines(1).length);
+
+
+        final BuildOutputLogger logger2 = new BuildOutputLogger(origFile);
+        assertTrue(!origID.equals(logger2.getID()));
+        assertEquals("Client would normally re-read from firstLine=0 here.", 0, logger.retrieveLines(0).length);
     }
 
     public void testShouldReturnEmptyArrayWhenFileIsEmpty() throws Exception {
