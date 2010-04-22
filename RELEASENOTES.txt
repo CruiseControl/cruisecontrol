@@ -4,6 +4,10 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8.4-dev
 
+general
+======================
+* Fix binaryrelease/cruisecontrol.sh startup script to convert JETTY_LOGS variable when run under cygwin (CC-983). Patch by Mark Bretl.
+
 build loop
 ======================
 

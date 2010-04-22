@@ -86,6 +86,10 @@ if [ -z "$JETTY_LOGS" ] ; then
  JETTY_LOGS=$CCDIR/logs 
 fi 
 
+if [ `uname | grep -n CYGWIN` ]; then
+ JETTY_LOGS=`cygpath --windows "$JETTY_LOGS"`
+fi
+
 # convert the existing path to unix
 if [ `uname | grep -n CYGWIN` ]; then
    JAVA_HOME=`cygpath --path --unix "$JAVA_HOME"`
