@@ -36,6 +36,10 @@ Dashboard
 * Add guard for NPE in BuildLoopQueryService, as per comment in CC-831. Suggested by David Williams.
 * Change dashboard 'start.jetty.server' target to use /tmp under MacOS Snow Leopard, avoiding 'path with characters' error (CC-976). Patch by Antoine Levy Lambert. 
 
+reporting jsp app
+======================
+* Show CruiseControl version string on index and main jsp pages.
+
 
 CruiseControl Release Notes - 2.8.3
 

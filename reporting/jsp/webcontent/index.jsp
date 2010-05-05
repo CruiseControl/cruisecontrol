@@ -147,6 +147,14 @@
   else if (!(sort.equals("none")||sort.equals("project")||sort.equals("status")||sort.equals("last failure")||sort.equals("last successful"))){
     sort = "none";
   }
+
+  final Package pkg = BuildStatus.class.getPackage();
+  final String ccVersionString;
+  if (pkg != null) {
+      ccVersionString = pkg.getImplementationVersion();
+  } else {
+      ccVersionString = "";
+  }
 %>
 
 
@@ -455,7 +463,16 @@
 
 <body onload="checkIframe('<%=baseURL + "css/cruisecontrol.css"%>')">
 <div class="header">
-    <div class="logo"><a href="http://cruisecontrol.sourceforge.net/"><img alt="CruiseControl" src="images/banner.png"/></a></div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td valign="top">
+                <div class="logo"><a href="http://cruisecontrol.sourceforge.net/"><img alt="CruiseControl" src="images/banner.png"/></a></div>
+            </td>
+            <td style="text-align:right;vertical-align:bottom">
+                <div class="modifications-data" align=right align=top font=10><%=ccVersionString%></div>
+            </td>
+        </tr>
+    </table>
 </div>
 <div class="container">&nbsp;
     <div class="content">
