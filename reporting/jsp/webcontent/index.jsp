@@ -150,7 +150,7 @@
 
   final Package pkg = BuildStatus.class.getPackage();
   final String ccVersionString;
-  if (pkg != null) {
+  if (pkg != null && pkg.getImplementationVersion() != null) {
       ccVersionString = pkg.getImplementationVersion();
   } else {
       ccVersionString = "";

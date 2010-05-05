@@ -38,7 +38,7 @@ Dashboard
 
 reporting jsp app
 ======================
-* Show CruiseControl version string on index and main jsp pages.
+* Show CruiseControl version string (if available) on index and main jsp pages.
 
 
 CruiseControl Release Notes - 2.8.3
