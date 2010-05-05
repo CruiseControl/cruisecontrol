@@ -107,12 +107,12 @@ import org.apache.log4j.Logger;
 public class StreamPumper implements Runnable {
 
     private final BufferedReader in;
-    private StreamConsumer consumer = null;
+    private final StreamConsumer consumer;
 
     private static final int SIZE = 1024;
     private static final Logger LOG = Logger.getLogger(StreamPumper.class);
 
-    public StreamPumper(InputStream in, StreamConsumer consumer) {
+    public StreamPumper(final InputStream in, final StreamConsumer consumer) {
         this.in = new BufferedReader(new InputStreamReader(in), SIZE);
         this.consumer = consumer;
     }
@@ -135,7 +135,7 @@ public class StreamPumper implements Runnable {
         }
     }
 
-    private void consumeLine(String line) {
+    private void consumeLine(final String line) {
         if (consumer != null) {
             try {
                 consumer.consumeLine(line);
