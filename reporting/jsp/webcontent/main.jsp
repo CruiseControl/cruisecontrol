@@ -43,6 +43,14 @@
 
     String ccname = System.getProperty("ccname", "");
     String project = request.getPathInfo().substring(1);
+
+    final Package pkg = BuildStatus.class.getPackage();
+    final String ccVersionString;
+    if (pkg != null) {
+        ccVersionString = pkg.getImplementationVersion();
+    } else {
+        ccVersionString = "";
+    }
 %>
 <html>
 <head>
@@ -53,7 +61,16 @@
 </head>
 <body>
 <div class="header">
-    <div class="logo"><img alt="CruiseControl" src="images/banner.png"/></div>
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td valign="top">
+                <div class="logo"><img alt="CruiseControl" src="images/banner.png"/></div>
+            </td>
+            <td style="text-align:right;vertical-align:bottom">
+                <div class="modifications-data" align=right align=top font=10><%=ccVersionString%></div>
+            </td>
+        </tr>
+    </table>
 </div>
 <div class="container">&nbsp;
         <%@ include file="navigation.jsp" %>
