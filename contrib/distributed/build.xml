@@ -127,8 +127,6 @@
              <include name="lib/javaws.jar"/>
              <!-- location in jre1.4 -->
              <include name="javaws/javaws.jar"/>
-             <!-- location in open jdk1.6 -->
-             <include name="lib/rt.jar"/>
          </fileset>
     </path>
 
