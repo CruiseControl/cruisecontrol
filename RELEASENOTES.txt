@@ -22,6 +22,7 @@ CMSynergyBaselinePublisher
 EmailPublisher
 ----------------------
 * Add support for sending build notification emails without requiring an SMTP relay server (CC-981). Patch by Kent R. Spillner.
+* Add default buildresultsurl attribute on email publishers (CC-982). Patch by Kent R. Spillner.
 
 Harvest
 ----------------------

@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.publishers;
 import java.io.File;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -529,7 +531,31 @@ public abstract class EmailPublisher implements Publisher {
     }
 
     public String getBuildResultsURL() {
+        if (buildResultsURL == null) {
+            return defaultBuildResultsURL();
+        }
+
         return buildResultsURL;
+    }
+
+    private static String defaultBuildResultsURL() {
+        return "http://" + canonicalHostName() + port() + "/dashboard";
+    }
+
+    private static String canonicalHostName() {
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
+
+    private static String port() {
+        if (System.getProperty("cc.webport") == null) {
+            return "";
+        }
+
+        return ":" + System.getProperty("cc.webport");
     }
 
     public void setBuildResultsURL(final String url) {

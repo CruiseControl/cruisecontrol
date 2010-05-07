@@ -98,12 +98,6 @@ public class LinkEmailPublisherTest extends TestCase {
         publisher.setReturnAddress("returnaddress");
         try {
             publisher.validate();
-            fail("should throw exception if BuildResultURL not set");
-        } catch (CruiseControlException e) {
-        }
-        publisher.setBuildResultsURL("buildResultsURL");
-        try {
-            publisher.validate();
         } catch (CruiseControlException e) {
             fail("should NOT throw exception if BuildResultURL not set");
         }

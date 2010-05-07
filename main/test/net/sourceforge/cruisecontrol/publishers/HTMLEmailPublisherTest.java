@@ -42,6 +42,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.InetAddress;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -144,7 +145,7 @@ public class HTMLEmailPublisherTest extends TestCase {
         assertEquals(4, newFileNames.length);
     }
 
-    public void testCreateLinkLine() {
+    public void testCreateLinkLine() throws Exception {
         String serverURL = "http://myserver/context/servlet";
         publisher.setBuildResultsURL(serverURL);
         String path = "logs" + File.separator;
@@ -159,7 +160,11 @@ public class HTMLEmailPublisherTest extends TestCase {
         assertEquals(successLink, publisher.createLinkLine(successLogFileName));
 
         publisher.setBuildResultsURL(null);
-        assertEquals("", publisher.createLinkLine(successLogFileName));
+        final InetAddress localhost = InetAddress.getLocalHost();
+        final String defaultBuildResultsURL = "http://" + localhost.getCanonicalHostName() + "/dashboard?log="
+                + successFilePrefix;
+        assertEquals("View results here -> <a href=\"" + defaultBuildResultsURL + "\">" + defaultBuildResultsURL
+                + "</a>", publisher.createLinkLine(successLogFileName));
 
         publisher.setBuildResultsURL(serverURL);
         String failFilePrefix = "log" + date;

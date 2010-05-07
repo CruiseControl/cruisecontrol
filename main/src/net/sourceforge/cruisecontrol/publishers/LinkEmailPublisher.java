@@ -37,7 +37,6 @@
 package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
 
@@ -106,16 +105,4 @@ public class LinkEmailPublisher extends EmailPublisher {
 
         return message.toString();
     }
-
-    /*
-    *  Called  after the configuration is read to make sure that all the
-    * mandatory parameters  were specified..
-    *
-    *  @throws  CruiseControlException if there was a configuration error.
-     */
-    public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(getBuildResultsURL(), "buildresulturl", this.getClass());
-        super.validate();
-    }
-
 }

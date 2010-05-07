@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.publishers;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.StringReader;
+import java.net.InetAddress;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
@@ -424,5 +425,49 @@ public class EmailPublisherTest extends TestCase {
 
         assertEquals("always1@host.com,always2@host.com,always3@host.com",
                 emailPublisher.createEmailString(emailSet));
+    }
+
+    public void testBuildResultsURLShouldDefaultToTheDashboardAppRunningOnTheSameServer() throws Exception {
+        final InetAddress localhost = InetAddress.getLocalHost();
+        System.setProperty("cc.webport", "123456789");
+
+        final String expectedBuildResultsURL = "http://" + localhost.getCanonicalHostName() + ":123456789/dashboard";
+
+        final EmailPublisher defaultPublisher = new EmailPublisher() {
+            @Override
+            protected String createMessage(final XMLLogHelper logHelper) {
+                return "";
+            }
+        };
+
+        assertEquals(expectedBuildResultsURL, defaultPublisher.getBuildResultsURL());
+    }
+
+    public void testDefaultBuildResultsURLShouldNotIncludeExplicitPortWhenWebPortPropertyIsNotSet() throws Exception {
+        final InetAddress localhost = InetAddress.getLocalHost();
+        System.getProperties().remove("cc.webport");
+
+        final String expectedBuildResultsURL = "http://" + localhost.getCanonicalHostName() + "/dashboard";
+
+        final EmailPublisher defaultPublisher = new EmailPublisher() {
+            @Override
+            protected String createMessage(final XMLLogHelper logHelper) {
+                return "";
+            }
+        };
+
+        assertEquals(expectedBuildResultsURL, defaultPublisher.getBuildResultsURL());
+    }
+
+    public void testBuildResultsURLShouldNotDefaultWhenExplicitlySet() throws Exception {
+        final EmailPublisher publisher = new EmailPublisher() {
+            @Override
+            protected String createMessage(final XMLLogHelper logHelper) {
+                return "";
+            }
+        };
+        publisher.setBuildResultsURL("http://cruise/cruisecontrol");
+
+        assertEquals("http://cruise/cruisecontrol", publisher.getBuildResultsURL());
     }
 }
