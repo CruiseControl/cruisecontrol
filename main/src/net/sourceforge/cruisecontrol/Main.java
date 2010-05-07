@@ -165,17 +165,18 @@ public final class Main implements CruiseControlMain {
         String configFileName = parseConfigFileName(args, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
         int jmxPort = parseJMXHttpPort(args);
         int rmiPort = parseRmiPort(args);
-        setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort);
+        int webPort = parseWebPort(args);
+        setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort, webPort);
         
         String ccHome = System.getProperty(Launcher.CCHOME_PROPERTY, ".");
         System.setProperty("jetty.home", ccHome);
         
         File jettyXml = new File(parseJettyXml(args, ccHome));
-        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, parseWebPort(args));
+        EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, webPort);
         embeddedJettyServer.start();
     }
     
-    private void setUpSystemPropertiesForDashboard(String configFileName, int jmxPort, int rmiPort) {
+    public static void setUpSystemPropertiesForDashboard(String configFileName, int jmxPort, int rmiPort, int webPort) {
         if (configFileName != null) {
             File configFile = new File(configFileName);
             if (!configFile.exists()) {
@@ -185,6 +186,7 @@ public final class Main implements CruiseControlMain {
         }
         System.setProperty("cc.rmiport", String.valueOf(rmiPort));
         System.setProperty("cc.jmxport", String.valueOf(jmxPort));
+        System.setProperty("cc.webport", String.valueOf(webPort));
     }
 
     static void checkDeprecatedArguments(String[] args, Logger logger) {

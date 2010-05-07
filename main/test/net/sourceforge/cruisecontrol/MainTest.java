@@ -206,6 +206,15 @@ public class MainTest extends TestCase {
         }
     }
 
+    public void testShouldSetWebPortAsSystemProperty() throws Exception {
+        final File temporaryConfigFile = File.createTempFile("temp-config", ".xml");
+        temporaryConfigFile.deleteOnExit();
+
+        Main.setUpSystemPropertiesForDashboard(temporaryConfigFile.getAbsolutePath(), 123, 456, 789);
+
+        assertEquals("789", System.getProperty("cc.webport"));
+    }
+
     public void testParseWebappPath() throws Exception {
         final String tempDirName = System.getProperty("java.io.tmpdir");
         final File webappDir = new File(tempDirName, "testwebapp");
