@@ -166,7 +166,6 @@ public class EmailPublisherTest extends TestCase {
         } catch (CruiseControlException e) {
         }
 
-        publisher.setMailHost("mailhost");
         publisher.setReturnAddress("returnaddress");
         publisher.validate();
     }

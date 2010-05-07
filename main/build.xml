@@ -86,6 +86,9 @@
              but is added automatically to the javac classpath -->
         <fileset dir="../binaryrelease/lib" includes="jetty-*.jar" />
         <pathelement location="dist/cruisecontrol-antprogresslogger.jar"/>
+        <fileset dir="../lib/aspirin/v0.8.3" includes="aspirin.jar" />
+        <fileset dir="../lib/commons-pool/v1.5.4" includes="commons-pool-1.5.4.jar" />
+        <fileset dir="../lib/dnsjava/v2.0.8" includes="dnsjava-2.0.8.jar" />
     </path>
 
     <path id="project.runtime.classpath">

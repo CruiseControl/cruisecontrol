@@ -19,6 +19,10 @@ CMSynergyBaselinePublisher
 ----------------------
 * Allow property resolution in build attribute (CC-973).
 
+EmailPublisher
+----------------------
+* Add support for sending build notification emails without requiring an SMTP relay server (CC-981). Patch by Kent R. Spillner.
+
 Harvest
 ----------------------
 * Improvements to AllFusionHarvest integration to support promotion/demotion of versions and additional properties (CC-808). Patch by Robert Thornburrow and David Letcher.

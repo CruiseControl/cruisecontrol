@@ -148,6 +148,9 @@
             <zipfileset file="binaryrelease/JETTY-WORKDIR-README.txt" prefix="${cc.bin.zip.prefix}/webapps/cruisecontrol/WEB-INF/work"/>
             <zipfileset src="reporting/dashboard/dist/dashboard.war" prefix="${cc.bin.zip.prefix}/webapps/dashboard"/>
             <zipfileset dir="target/website" prefix="${cc.bin.zip.prefix}/webapps/documentation"/>
+            <zipfileset dir="lib/aspirin/v0.8.3" includes="aspirin.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset dir="lib/commons-pool/v1.5.4" includes="commons-pool-1.5.4.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset dir="lib/dnsjava/v2.0.8" includes="dnsjava-2.0.8.jar" prefix="${cc.bin.zip.prefix}/lib"/>
         </zip>
     </target>
 
