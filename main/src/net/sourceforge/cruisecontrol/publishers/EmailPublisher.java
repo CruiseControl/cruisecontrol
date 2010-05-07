@@ -65,6 +65,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapperHelper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
+import net.sourceforge.cruisecontrol.publishers.email.EmailTransmissionResult;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
@@ -73,6 +74,7 @@ import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
 import org.apache.commons.validator.EmailValidator;
 import org.jdom.Element;
+import org.masukomi.aspirin.core.MailQue;
 
 /**
  * Abstract implementation of the <code>Publisher</code> interface, specifically tailored for sending email. The only
@@ -134,7 +136,6 @@ public abstract class EmailPublisher implements Publisher {
      * CruiseControlException if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(getMailHost(), "mailhost", this.getClass());
         ValidationHelper.assertIsSet(getReturnAddress(), "returnaddress", this.getClass());
         ValidationHelper.assertFalse(getUsername() != null && getPassword() == null,
                 "'password' is required if 'username' is set for email.");
@@ -394,11 +395,10 @@ public abstract class EmailPublisher implements Publisher {
 
             LOG.debug("Sending email to: " + toList);
 
-            final Session session = Session.getDefaultInstance(getMailProperties(), null);
-            session.setDebug(LOG.isDebugEnabled());
+            final Session session = initializeSession();
 
             try {
-                final Message msg = new MimeMessage(session);
+                final MimeMessage msg = new MimeMessage(session);
                 msg.setFrom(getFromAddress());
                 msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList, false));
                 msg.setSubject(subject);
@@ -408,17 +408,7 @@ public abstract class EmailPublisher implements Publisher {
 
                 addContentToMessage(message, msg);
 
-                if (userName != null && password != null) {
-                    msg.saveChanges(); // implicit with send()
-                    final Transport transport = session.getTransport("smtp");
-                    transport.connect(mailHost, userName, password);
-                    transport.sendMessage(msg, msg.getAllRecipients());
-                    transport.close();
-                } else {
-                    Transport.send(msg);
-                }
-
-                emailSent = true;
+                emailSent = send(session, msg);
 
             } catch (SendFailedException e) {
                 LOG.warn(e.getMessage(), e);
@@ -428,6 +418,45 @@ public abstract class EmailPublisher implements Publisher {
         }
 
         return emailSent;
+    }
+
+    private boolean send(Session session, MimeMessage message) throws MessagingException {
+        if (shouldUseSMTPServer()) {
+            if (userName != null && password != null) {
+                message.saveChanges(); // implicit with send()
+                final Transport transport = session.getTransport("smtp");
+                transport.connect(mailHost, userName, password);
+                transport.sendMessage(message, message.getAllRecipients());
+                transport.close();
+            } else {
+                Transport.send(message);
+            }
+
+            return true;
+        } else {
+            final MailQue queue = new MailQue();
+            final EmailTransmissionResult result = new EmailTransmissionResult();
+            queue.addWatcher(result);
+            queue.queMail(message);
+
+            return result.isSuccess();
+        }
+    }
+
+    private Session initializeSession() {
+        if (shouldUseSMTPServer()) {
+            final Session session = Session.getDefaultInstance(getMailProperties(), null);
+            session.setDebug(LOG.isDebugEnabled());
+            return session;
+        } else {
+            final Properties configuration = new Properties();
+            configuration.setProperty("mail.transport.protocol", "smtp");
+            return Session.getDefaultInstance(configuration);
+        }
+    }
+
+    private boolean shouldUseSMTPServer() {
+        return !(getMailHost() == null || "".equals(getMailHost().trim()));
     }
 
     /**
