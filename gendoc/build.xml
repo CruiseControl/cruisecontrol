@@ -61,10 +61,6 @@
     <property name="tests" value="*Test" />
     <property name="xsl" value="${basedir}/xsl" />
 
-    <property name="checkstyle.fail.on.violation" value="true" />
-    <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
-    <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.3.jar" />
-
     <!-- ****************************************************
     Define the project classpath references.  Any jar found
     in lib directory will be included in CLASSPATH
