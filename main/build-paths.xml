@@ -4,7 +4,7 @@
         Main classpaths.
     </description>
 
-    <path id="project.classpath">
+    <path id="compile.path">
         <fileset refid="activation.lib" />
         <fileset refid="antprogresslogger.lib" />
         <fileset refid="aspirin.lib" />
@@ -21,7 +21,6 @@
         <fileset refid="jetty.lib" />
         <fileset refid="jetty.util.lib" />
         <fileset refid="jug.lib" />
-        <fileset refid="junit.lib" />
         <fileset refid="log4j.lib" />
         <fileset refid="mail.lib" />
         <fileset refid="maven-embedder.lib" />
@@ -36,10 +35,33 @@
         <fileset refid="xstream.lib" />
     </path>
 
-    <path id="project.runtime.classpath">
-        <pathelement location="${test.classes}" />
-        <pathelement location="${classes}" />
-        <path refid="project.classpath" />
+    <path id="compile.out">
+        <path refid="compile.path"/>
+        <pathelement location="${classes}"/>
+    </path>
+
+    <path id="test.functional.compile.path">
+        <path refid="compile.out"/>
+        <fileset refid="junit.lib"/>
+    </path>
+
+    <path id="test.unit.compile.path">
+        <path refid="compile.out"/>
+        <fileset refid="junit.lib"/>
+    </path>
+
+    <path id="test.functional.run.path">
+        <path refid="test.unit.compile.path"/>
+        <pathelement location="${test.classes}"/>
+        <fileset refid="comm.lib" />
+        <fileset refid="commons-codec.lib" />
+        <fileset refid="jaxen.lib" />
+        <fileset refid="xerces.lib" />
+    </path>
+
+    <path id="test.unit.run.path">
+        <path refid="test.unit.compile.path"/>
+        <pathelement location="${test.classes}"/>
         <fileset refid="comm.lib" />
         <fileset refid="commons-codec.lib" />
         <fileset refid="jaxen.lib" />
