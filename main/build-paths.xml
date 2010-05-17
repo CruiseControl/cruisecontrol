@@ -33,6 +33,7 @@
         <fileset refid="xmlrpc.lib" />
         <fileset refid="xpp.lib" />
         <fileset refid="xstream.lib" />
+        <fileset dir="lib" includes="*.jar"/>
     </path>
 
     <path id="compile.out">
