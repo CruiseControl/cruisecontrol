@@ -65,7 +65,7 @@
     <property name="xsl" value="${basedir}/xsl" />
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
-    <property name="checkstyle.config" value="../common/checkstyle.xml"/>
+    <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
 
     <import file="build-paths.xml" />
 
@@ -76,7 +76,7 @@
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
 
-    <import file="../common/checkstyle-build.xml"/>
+    <import file="${project.root}/common/checkstyle-build.xml"/>
 
     <path id='emma.classpath'>
         <fileset refid="emma.lib" />
