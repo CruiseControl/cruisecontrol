@@ -36,6 +36,11 @@
  ****************************************************************************-->
 
 <project name="CruiseControl" default="dist" basedir=".">
+    <property name="project.root" location="${basedir}/.." />
+    <property name="ant.scripts" location="${project.root}/.ant-scripts" />
+
+    <import file="${ant.scripts}/build-dependencies.xml"/>
+
     <property environment="env" />
     <property file="override.properties" />
 
@@ -63,7 +68,10 @@
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="../common/checkstyle.xml"/>
-    <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.4.jar" />
+
+    <path id="checkstyle.classpath">
+        <fileset refid="checkstyle.lib" />
+    </path>
 
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
@@ -71,8 +79,8 @@
     <import file="../common/checkstyle-build.xml"/>
 
     <path id='emma.classpath'>
-    <pathelement location="${lib}/emma.jar" />
-    <pathelement location="${lib}/emma_ant.jar" />
+        <fileset refid="emma.lib" />
+        <fileset refid="emma.ant.lib" />
     </path>
     <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
 
@@ -81,24 +89,45 @@
     in lib directory will be included in CLASSPATH
     **************************************************** -->
     <path id="project.classpath">
-        <fileset dir="${lib}" includes="*.jar" />
-        <!-- ant.jar is also needed to compile the ArtifactsPublisher,
-             but is added automatically to the javac classpath -->
-        <fileset dir="../binaryrelease/lib" includes="jetty-*.jar" />
-        <pathelement location="dist/cruisecontrol-antprogresslogger.jar"/>
-        <fileset dir="../lib/aspirin/v0.8.3" includes="aspirin.jar" />
-        <fileset dir="../lib/commons-pool/v1.5.4" includes="commons-pool-1.5.4.jar" />
-        <fileset dir="../lib/dnsjava/v2.0.8" includes="dnsjava-2.0.8.jar" />
+        <fileset refid="activation.lib" />
+        <fileset refid="antprogresslogger.lib" />
+        <fileset refid="aspirin.lib" />
+        <fileset refid="commons-httpclient.lib" />
+        <fileset refid="commons-logging.lib" />
+        <fileset refid="commons-net.lib" />
+        <fileset refid="commons-pool.lib" />
+        <fileset refid="commons-validator.lib" />
+        <fileset refid="dnsjava.lib" />
+        <fileset refid="fast-md5.lib" />
+        <fileset refid="ivy.lib" />
+        <fileset refid="jakarta-oro.lib" />
+        <fileset refid="jdom.lib" />
+        <fileset refid="jetty.lib" />
+        <fileset refid="jetty.util.lib" />
+        <fileset refid="jug.lib" />
+        <fileset refid="junit.lib" />
+        <fileset refid="log4j.lib" />
+        <fileset refid="mail.lib" />
+        <fileset refid="maven-embedder.lib" />
+        <fileset refid="mx4j.lib" />
+        <fileset refid="mx4j.tools.lib" />
+        <fileset refid="sfee.lib" />
+        <fileset refid="smack.lib" />
+        <fileset refid="twitter4j.lib" />
+        <fileset refid="x10.lib" />
+        <fileset refid="xmlrpc.lib" />
+        <fileset refid="xpp.lib" />
+        <fileset refid="xstream.lib" />
     </path>
 
     <path id="project.runtime.classpath">
         <pathelement location="${test.classes}" />
-        <path refid="project.classpath" />
         <pathelement location="${classes}" />
-        <fileset dir="${basedir}/../binaryrelease/lib">
-            <include name="**/*.jar" />
-        </fileset>
-        <pathelement path="${java.class.path}" />
+        <path refid="project.classpath" />
+        <fileset refid="comm.lib" />
+        <fileset refid="commons-codec.lib" />
+        <fileset refid="jaxen.lib" />
+        <fileset refid="xerces.lib" />
     </path>
 
     <target name="checklabel">
@@ -308,7 +337,7 @@
 
     <target name="checkstyle" description="run checkstyle">
         <checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}">
-            <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}" />
+            <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath" />
         </checkstyle-macro>
     </target>
 
@@ -317,7 +346,11 @@
     <target name="dist" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
     <target name="vizant" description="Visualise the Ant build file" >
-        <taskdef name="vizant" classname="vizant.Vizant" classpath="${lib}/ant/vizant.jar" />
+        <path id="vizant.classpath">
+            <fileset refid="vizant.lib" />
+        </path>
+
+        <taskdef name="vizant" classname="vizant.Vizant" classpathref="vizant.classpath" />
         <vizant antfile="build.xml" outfile="${target}/build.dot" />
         <exec executable="dot">
             <arg line="-Tpng ${target}/build.dot -o ${target}/build.png" />
@@ -337,7 +370,7 @@
          clirr-core-uber.jar or alternatively
          clirr-core.jar and the libraries it depends on -->
         <path id="buildtools.classpath">
-            <fileset dir="${lib-buildtools}" includes="*.jar" />
+            <fileset refid="clirr.lib" />
         </path>
 
         <taskdef
