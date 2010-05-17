@@ -313,8 +313,8 @@
         <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*" breakiterator="yes" failonerror="true">
             <classpath>
                 <path refid="project.classpath" />
-                <pathelement location="${lib}/ant/ant.jar" />
-                <pathelement location="${lib}/ant/ant-launcher.jar" />
+                <fileset refid="ant.lib" />
+                <fileset refid="ant-launcher.lib" />
                 <pathelement location="${src}" />
             </classpath>
         </javadoc>
@@ -325,10 +325,11 @@
 
         <java classname="net.sourceforge.cruisecontrol.gendoc.Gendoc">
             <classpath>
-                <pathelement location="../gendoc/dist/gendoc.jar"/>
-                <pathelement location="../gendoc/lib/qdox-1.6.1.jar"/>
-                <pathelement location="../gendoc/lib/velocity-1.5.jar"/>
-                <pathelement location="../gendoc/lib/velocity-dep-1.5.jar"/>
+                <fileset refid="gendoc.lib"/>
+                <fileset refid="log4j.lib"/>
+                <fileset refid="qdox.lib"/>
+                <fileset refid="velocity.lib"/>
+                <fileset refid="velocity-dep.lib"/>
                 <pathelement location="../gendoc/src/"/>
             </classpath>
         </java>
