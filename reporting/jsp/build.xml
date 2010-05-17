@@ -35,6 +35,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="reporting-jsp" default="clean-all" basedir=".">
+    <property name="project.root" location="${basedir}/../.." />
+    <property name="ant.scripts" location="${project.root}/.ant-scripts" />
+
+    <import file="${ant.scripts}/build-dependencies.xml"/>
+
     <property environment="env"/>
     <property file="override.properties"/>
 
@@ -55,11 +60,14 @@
     <property name="tests" value="*Test"/>
     <property name="webcontent" value="webcontent"/>
 
-    <property name="checkstyle.cache" value="${target}/checkstyle.cache"/>
-	<property name="checkstyle.config" value="../../common/checkstyle.xml"/>
-    <property name="checkstyle.jar" value="${lib}/checkstyle-all-4.4.jar"/>
+    <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
+    <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
 
-    <import file="../../common/checkstyle-build.xml"/>
+    <path id="checkstyle.classpath">
+        <fileset refid="checkstyle.lib" />
+    </path>
+
+    <import file="${project.root}/common/checkstyle-build.xml"/>
 
     <path id="project.classpath" >
         <fileset dir="${lib}" includes="*.jar"/>
@@ -141,7 +149,7 @@
             configfile="${checkstyle.config}"
             checkstylecache="${checkstyle.cache}">
 
-            <taskdef resource="checkstyletask.properties" classpath="${checkstyle.jar}" />
+            <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath" />
 
         </checkstyle-macro>
     </target>
