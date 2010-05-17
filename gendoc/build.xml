@@ -37,6 +37,11 @@
 
 
 <project name="GenDoc" default="clean-all" basedir=".">
+    <property name="project.root" location="${basedir}/.." />
+    <property name="ant.scripts" location="${project.root}/.ant-scripts" />
+
+    <import file="${ant.scripts}/build-dependencies.xml"/>
+
     <property environment="env" />
     <property file="override.properties" />
 
@@ -54,32 +59,13 @@
     <property name="classes" value="${target}/classes" />
     <property name="dist" value="dist" />
     <property name="junit.results" value="${target}/test-results" />
-    <property name="lib" value="${basedir}/lib" />
     <property name="src" value="${basedir}/src" />
     <property name="test" value="${basedir}/test" />
     <property name="test.classes" value="${target}/test-classes" />
     <property name="tests" value="*Test" />
     <property name="xsl" value="${basedir}/xsl" />
 
-    <!-- ****************************************************
-    Define the project classpath references.  Any jar found
-    in lib directory will be included in CLASSPATH
-    **************************************************** -->
-    <path id="project.classpath">
-        <fileset dir="${lib}" includes="*.jar" />
-        <!-- ant.jar is also needed to compile the ArtifactsPublisher,
-    	     but is added automatically to the javac classpath -->
-    </path>
-
-    <path id="project.runtime.classpath">
-        <pathelement location="${test.classes}" />
-        <path refid="project.classpath" />
-        <pathelement location="${classes}" />
-        <fileset dir="${basedir}/../binaryrelease/lib">
-          <include name="**/*.jar"/>
-        </fileset>
-        <pathelement path="${java.class.path}" />
-    </path>
+    <import file="build-paths.xml" />
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined." />
@@ -107,7 +93,7 @@
     <macrodef name="compile-macro">
         <attribute name="destdir" default="${classes}" />
         <attribute name="srcdir" default="${src}" />
-        <attribute name="classpathref" default="project.classpath" />
+        <attribute name="classpathref" default="compile.path" />
         <element name="nested" implicit="true" optional="true" />
         <sequential>
             <javac destdir="@{destdir}"
@@ -125,22 +111,21 @@
     </macrodef>
 
     <target name="compile" depends="init" unless="compile.skip" description="Compile source code">
-        <compile-macro/>
+        <compile-macro classpathref="compile.path" />
     </target>
 
     <target name="compile-test" depends="compile" description="Compile test code">
-        <compile-macro srcdir="${test}" destdir="${test.classes}">
-            <classpath refid="project.runtime.classpath" />
-        </compile-macro>
+        <compile-macro srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" />
     </target>
 
     <macrodef name="test-macro">
         <attribute name="includes" default="**/${tests}.class" />
+        <attribute name="classpathref" default="test.unit.run.path" />
         <element implicit="true" name="nested" optional="true" />
         <sequential>
             <junit fork="true" forkmode="perBatch" haltonfailure="true" printsummary="true" dir="${target}">
                 <classpath>
-                    <path refid="project.runtime.classpath" />
+                    <path refid="@{classpathref}" />
                 </classpath>
                 <formatter type="brief" usefile="false" />
                 <formatter type="xml" />
@@ -153,14 +138,13 @@
     </macrodef>
 
     <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
-        <test-macro>
-        </test-macro>
+        <test-macro classpathref="test.unit.run.path" />
     </target>
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
         <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
             <classpath>
-                <path refid="project.runtime.classpath" />
+                <path refid="test.unit.run.path" />
             </classpath>
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
@@ -188,7 +172,7 @@
                  breakiterator="yes"
                  failonerror="true">
             <classpath>
-                <path refid="project.classpath" />
+                <path refid="compile.path" />
                 <pathelement location="${src}" />
             </classpath>
         </javadoc>
