@@ -6,9 +6,12 @@
 
     <!-- Paths to build artifacts for each module -->
     <fileset id="antprogresslogger.lib" file="${project.root}/main/dist/cruisecontrol-antprogresslogger.jar" />
+    <fileset id="gendoc.lib" file="${project.root}/gendoc/dist/gendoc.jar" />
 
     <!-- Paths to 3rd party libraries -->
     <fileset id="activation.lib" file="${project.root}/main/lib/activation.jar" />
+    <fileset id="ant.lib" file="${project.root}/main/lib/ant/ant.jar" />
+    <fileset id="ant-launcher.lib" file="${project.root}/main/lib/ant/ant-launcher.jar" />
     <fileset id="aspirin.lib" file="${project.root}/lib/aspirin/v0.8.3/aspirin.jar" />
     <fileset id="checkstyle.lib" file="${project.root}/main/lib/checkstyle-all-4.4.jar"/>
     <fileset id="clirr.lib" file="${project.root}/main/lib-buildtools/clirr-core-0.6-uber.jar"/>
@@ -36,9 +39,12 @@
     <fileset id="maven-embedder.lib" file="${project.root}/main/lib/maven-embedder-2.0.4-dep.jar"/>
     <fileset id="mx4j.lib" file="${project.root}/main/lib/mx4j.jar"/>
     <fileset id="mx4j.tools.lib" file="${project.root}/main/lib/mx4j-tools.jar"/>
+    <fileset id="qdox.lib" file="${project.root}/gendoc/lib/qdox-1.6.1.jar"/>
     <fileset id="sfee.lib" file="${project.root}/main/lib/inmemorysfee-1.0.1.jar"/>
     <fileset id="smack.lib" file="${project.root}/main/lib/smack.jar"/>
     <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
+    <fileset id="velocity.lib" file="${project.root}/gendoc/lib/velocity-1.5.jar"/>
+    <fileset id="velocity-dep.lib" file="${project.root}/gendoc/lib/velocity-dep-1.5.jar"/>
     <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
     <fileset id="x10.lib" file="${project.root}/main/lib/x10.jar"/>
     <fileset id="xerces.lib" file="${project.root}/main/lib/xercesImpl-2.8.0.jar"/>
