@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project>
+    <description>
+        Common dependencies shared across all submodules.
+    </description>
+
+    <!-- Paths to build artifacts for each module -->
+    <fileset id="antprogresslogger.lib" file="${project.root}/main/dist/cruisecontrol-antprogresslogger.jar" />
+
+    <!-- Paths to 3rd party libraries -->
+    <fileset id="activation.lib" file="${project.root}/main/lib/activation.jar" />
+    <fileset id="aspirin.lib" file="${project.root}/lib/aspirin/v0.8.3/aspirin.jar" />
+    <fileset id="checkstyle.lib" file="${project.root}/main/lib/checkstyle-all-4.4.jar"/>
+    <fileset id="clirr.lib" file="${project.root}/main/lib-buildtools/clirr-core-0.6-uber.jar"/>
+    <fileset id="comm.lib" file="${project.root}/main/lib/comm.jar" />
+    <fileset id="commons-codec.lib" file="${project.root}/main/lib/commons-codec-1.3.jar" />
+    <fileset id="commons-httpclient.lib" file="${project.root}/main/lib/commons-httpclient-3.0.1.jar" />
+    <fileset id="commons-logging.lib" file="${project.root}/main/lib/commons-logging.jar" />
+    <fileset id="commons-net.lib" file="${project.root}/main/lib/commons-net-1.1.0.jar" />
+    <fileset id="commons-pool.lib" file="${project.root}/lib/commons-pool/v1.5.4/commons-pool-1.5.4.jar" />
+    <fileset id="commons-validator.lib" file="${project.root}/main/lib/commons-validator-1.3.1.jar" />
+    <fileset id="dnsjava.lib" file="${project.root}/lib/dnsjava/v2.0.8/dnsjava-2.0.8.jar" />
+    <fileset id="emma.lib" file="${project.root}/main/lib/emma.jar"/>
+    <fileset id="emma.ant.lib" file="${project.root}/main/lib/emma_ant.jar"/>
+    <fileset id="fast-md5.lib" file="${project.root}/main/lib/fast-md5.jar"/>
+    <fileset id="ivy.lib" file="${project.root}/main/lib/ivy-2.0.0-beta2.jar"/>
+    <fileset id="jakarta-oro.lib" file="${project.root}/main/lib/jakarta-oro-2.0.8.jar"/>
+    <fileset id="jaxen.lib" file="${project.root}/main/lib/jaxen-1.1-beta-8.jar"/>
+    <fileset id="jdom.lib" file="${project.root}/main/lib/jdom.jar"/>
+    <fileset id="jetty.lib" file="${project.root}/binaryrelease/lib/jetty-6.1.11.jar"/>
+    <fileset id="jetty.util.lib" file="${project.root}/binaryrelease/lib/jetty-util-6.1.11.jar"/>
+    <fileset id="jug.lib" file="${project.root}/main/lib/jug-lgpl-2.0.0.jar"/>
+    <fileset id="junit.lib" file="${project.root}/main/lib/junit-4.4.jar"/>
+    <fileset id="log4j.lib" file="${project.root}/main/lib/log4j.jar"/>
+    <fileset id="mail.lib" file="${project.root}/main/lib/mail.jar"/>
+    <fileset id="maven-embedder.lib" file="${project.root}/main/lib/maven-embedder-2.0.4-dep.jar"/>
+    <fileset id="mx4j.lib" file="${project.root}/main/lib/mx4j.jar"/>
+    <fileset id="mx4j.tools.lib" file="${project.root}/main/lib/mx4j-tools.jar"/>
+    <fileset id="sfee.lib" file="${project.root}/main/lib/inmemorysfee-1.0.1.jar"/>
+    <fileset id="smack.lib" file="${project.root}/main/lib/smack.jar"/>
+    <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
+    <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
+    <fileset id="x10.lib" file="${project.root}/main/lib/x10.jar"/>
+    <fileset id="xerces.lib" file="${project.root}/main/lib/xercesImpl-2.8.0.jar"/>
+    <fileset id="xmlrpc.lib" file="${project.root}/main/lib/xmlrpc-2.0.1.jar"/>
+    <fileset id="xpp.lib" file="${project.root}/main/lib/xpp3_min-1.1.3.4.O.jar"/>
+    <fileset id="xstream.lib" file="${project.root}/main/lib/xstream-1.2.2.jar"/>
+</project>
