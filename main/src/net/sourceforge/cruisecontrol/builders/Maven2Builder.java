@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
@@ -41,11 +40,9 @@ public class Maven2Builder extends Builder {
     private String sitegoal;
     private String settingsFile;
     private String activateProfiles;
-    private boolean showBuildOutput = true;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private String flags;
     private final List<Property> properties = new ArrayList<Property>();
-    static final String MAVEN2_BUILDER_OUTPUT_LOG = "maven2BuilderOutput.log";
 
     /**
      * Set an Alternate path for the user settings file.
@@ -130,8 +127,19 @@ public class Maven2Builder extends Builder {
         this.timeout = timeout;
     }
 
+    /**
+     * @param showMavenOutput true if a BuildOutputLogger will be used to show live output.
+     * @deprecated Use {@link #setLiveOutput(boolean)} instead.
+     */
     public void setShowBuildOutput(final boolean showMavenOutput) {
-        this.showBuildOutput = showMavenOutput;
+        setLiveOutput(showMavenOutput);
+    }
+    /**
+     * @return showMavenOutput true if a BuildOutputLogger will be used to show live output.
+     * @deprecated Use {@link #isLiveOutput()} instead.
+     */
+    boolean getShowBuildOutput() {
+        return isLiveOutput();
     }
 
     /**
@@ -226,7 +234,7 @@ public class Maven2Builder extends Builder {
             script.setProperties(properties);
 
             final BuildOutputLogger buildOutputConsumer
-                    = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir);
+                    = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir, null);
 
             final ScriptRunner scriptRunner = new ScriptRunner();
             final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout, buildOutputConsumer);
@@ -258,17 +266,6 @@ public class Maven2Builder extends Builder {
         }
     }
 
-    BuildOutputLogger getBuildOutputConsumer(final String projectName, final File workingDir) {
-        if (showBuildOutput) {
-            final File maven2BuilderOutput = new File(workingDir, MAVEN2_BUILDER_OUTPUT_LOG);
-            final BuildOutputLogger buildOutputConsumer 
-                = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, maven2BuilderOutput);
-            buildOutputConsumer.clear();
-            return buildOutputConsumer;
-        } else {
-            return null;
-        }
-    }
 
     void validatePomFile(final File filePomFile) throws CruiseControlException {
         ValidationHelper.assertTrue(filePomFile.exists(),

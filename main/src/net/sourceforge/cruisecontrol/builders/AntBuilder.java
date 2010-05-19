@@ -49,7 +49,6 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
-import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -89,8 +88,6 @@ public class AntBuilder extends Builder {
     private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private boolean isLoggerClassNameSet;
-    // @todo Verify default showAntOutput=true doesn't break AntBootstrapper and AntPublisher (see constructors)
-    private boolean showAntOutput = true;
     private File saveLogDir = null;
     private long timeout = ScriptRunner.NO_TIMEOUT;
     private boolean wasValidated = false;
@@ -120,7 +117,7 @@ public class AntBuilder extends Builder {
         // the AntBuilder.build() method is called (as parent Builders/Schedule may override the showProgress value).
 
         // Validate showAntOutput
-        if (shouldAddDashboardLoggerJarToCommandLine(showAntOutput, useLogger)) {
+        if (shouldAddDashboardLoggerJarToCommandLine(isLiveOutput(), useLogger)) {
             if (progressLoggerLib == null) {
                 // since progressLoggerLib is not specified in the config.xml,
                 // we must be able to find the path to {@link AntScript#LIBNAME_PROGRESS_LOGGER}
@@ -183,7 +180,7 @@ public class AntBuilder extends Builder {
         script.setTarget(target);
         script.setLoggerClassName(loggerClassName);
         script.setIsLoggerClassNameSet(isLoggerClassNameSet);
-        script.setShowAntOutput(showAntOutput);
+        script.setShowAntOutput(isLiveOutput());
         script.setTempFileName(tempFileName);
         script.setUseDebug(useDebug);
         script.setUseQuiet(useQuiet);
@@ -196,12 +193,11 @@ public class AntBuilder extends Builder {
         final File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 
         final BuildOutputLogger buildOutputConsumer;
-        if (showAntOutput) {
+        if (isLiveOutput()) {
             // TODO: I think there's a bug here when workingDir == null
-            final File antBuilderOutput = new File(workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
-            final String projectName = buildProperties.get(BUILD_PROP_PROJECTNAME);
-            buildOutputConsumer = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, antBuilderOutput);
-            buildOutputConsumer.clear();
+            buildOutputConsumer = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), 
+                    workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
+
         } else {
             buildOutputConsumer = null;
         }
@@ -392,14 +388,20 @@ public class AntBuilder extends Builder {
     }
 
     /**
-     * Sets whether Ant will use the custom AntOutputLogger as a listener.
+     * Sets whether Ant will use the custom AntOutputLogger as a listener in order to show live output.
      * @param showAntOutput if true, add AntOutputLogger as a listener.
+     * @deprecated Use {@link #setLiveOutput(boolean)} instead.
      */
     public void setShowAntOutput(final boolean showAntOutput) {
-        this.showAntOutput = showAntOutput;
+        setLiveOutput(showAntOutput);
     }
+
+    /**
+     * @return true if Ant will use the custom AntOutputLogger as a listener in order to show live output.
+     * @deprecated Use {@link #isLiveOutput()} instead.
+     */
     boolean getShowAntOutput() {
-        return showAntOutput;
+        return isLiveOutput();
     }
 
     /**

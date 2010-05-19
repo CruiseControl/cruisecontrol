@@ -278,7 +278,8 @@ public class ExecBuilderTest extends TestCase {
             return script;
         }
 
-        protected boolean runScript(ExecScript script, ScriptRunner scriptRunner, String dir)
+        @Override
+        protected boolean runScript(ExecScript script, ScriptRunner scriptRunner, String dir, final String projectName)
           throws CruiseControlException {
             return true;
         }

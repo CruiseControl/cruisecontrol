@@ -108,7 +108,8 @@ public class RakeBuilder extends Builder {
         long startTime = System.currentTimeMillis();
 
         final File workDir = workingDir != null ? new File(workingDir) : null;
-        final boolean scriptCompleted = new ScriptRunner().runScript(workDir, script, timeout);
+        final boolean scriptCompleted = new ScriptRunner().runScript(workDir, script, timeout,
+                getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workDir, null));
         final long endTime = System.currentTimeMillis();
         if (!scriptCompleted) {
             LOG.warn("Build timeout timer of " + timeout + " seconds has expired");

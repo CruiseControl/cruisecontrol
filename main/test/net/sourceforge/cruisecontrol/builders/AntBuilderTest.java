@@ -117,7 +117,7 @@ public class AntBuilderTest extends TestCase {
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
 
-        // builder.build() will create an antBuilderOutput.log file when showAntOutput=true, so clean it up.
+        // builder.build() will create an antBuilderOutput.log file when isLiveOutput=true, so clean it up.
         filesToDelete.add(new File(AntOutputLogger.DEFAULT_OUTFILE_NAME));
     }
 
@@ -216,19 +216,19 @@ public class AntBuilderTest extends TestCase {
         assertTrue(AntBuilder.shouldAddDashboardLoggerJarToCommandLine(true, true));
     }
 
-    public void testValidateShowAntOutput() throws Exception {
+    public void testValidateIsLiveOutput() throws Exception {
         builder = new AntBuilder();
 
-        assertTrue("Wrong default value for showAntOutput", builder.getShowAntOutput());
+        assertTrue("Wrong default value for LiveOutput", builder.isLiveOutput());
         assertNull("Wrong default value for progressLoggerLib", builder.getProgressLoggerLib());
 
         final File fakeProgressLoggerLibJar = AntScriptTest.createFakeProgressLoggerLib();
         filesToDelete.add(fakeProgressLoggerLibJar);
 
-        builder.setShowAntOutput(false);
+        builder.setLiveOutput(false);
         builder.validate();
 
-        builder.setShowAntOutput(true);
+        builder.setLiveOutput(true);
         builder.validate(); // should pass since fakeProgressLoggerLibJar exists
 
         final String dummyLoggerLib = "dummyLoggerLib";
@@ -251,10 +251,10 @@ public class AntBuilderTest extends TestCase {
         // reset to default
         builder.setProgressLoggerLib(null);
 
-        builder.setShowAntOutput(false);
+        builder.setLiveOutput(false);
         builder.validate();
 
-        builder.setShowAntOutput(true);
+        builder.setLiveOutput(true);
         // should pass since default useLogger is false (see AntBuilder.isDashboardLoggerRequired())
         builder.validate();
 
@@ -362,7 +362,7 @@ public class AntBuilderTest extends TestCase {
         builder.setTimeout(testTimeoutSecs);
         builder.setUseDebug(true);
         builder.setUseLogger(true);
-        builder.setShowAntOutput(false); // required to bypass Dashboard logger
+        builder.setLiveOutput(false); // required to bypass Dashboard logger
         builder.validate();
 
         final Map<String, String> buildProperties = new HashMap<String, String>();
@@ -544,6 +544,21 @@ public class AntBuilderTest extends TestCase {
         //Now verify a JUnit report was created
         File htmlJUnitReportFile = new File(tempSubdir, "reports/html/index.html");
         assertTrue("JUnit HTML Report was not created", htmlJUnitReportFile.exists());
+    }
+
+    // @todo Remove when deprecated methods get/setShowAntOutput are removed.
+    @SuppressWarnings("deprecation")    
+    public void testSetShowAntOutputLinkedToSetLiveOutput() {
+        assertTrue(builder.isLiveOutput());
+        assertTrue(builder.getShowAntOutput());
+
+        builder.setShowAntOutput(false);
+        assertFalse(builder.isLiveOutput());
+        assertFalse(builder.getShowAntOutput());
+
+        builder.setLiveOutput(true);
+        assertTrue(builder.isLiveOutput());
+        assertTrue(builder.getShowAntOutput());
     }
 
     private void createFakeProjectInTempDir(File dir, File buildFile) throws CruiseControlException {

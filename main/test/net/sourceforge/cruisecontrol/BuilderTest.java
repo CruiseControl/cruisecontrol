@@ -37,11 +37,14 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 
 import org.jdom.Element;
@@ -64,6 +67,48 @@ public class BuilderTest extends TestCase {
 
     protected void setUp() throws Exception {
         builder = new TestBuilder();
+    }
+
+    public void testLiveOutput() {
+        assertTrue(builder.isLiveOutput());
+        builder.setLiveOutput(false);
+        assertFalse(builder.isLiveOutput());
+    }
+
+    public void testGetBuildOutputConsumerNulls() {
+        assertNotSame("Null project name results in no cached buildOutputLogger.",
+                builder.getBuildOutputConsumer(null, null, null),
+                BuildOutputLoggerManager.INSTANCE.lookup(null));
+    }
+
+    public void testGetBuildOutputConsumerSpecifyLogFile() {
+        final File outputFile = new File(TestUtil.getTargetDir(), "testLiveOutputFile.xyz");
+        assertFalse(outputFile.exists());
+
+        final BuildOutputLogger buildOutputLogger
+                = builder.getBuildOutputConsumer(null, outputFile.getParentFile(), outputFile.getName());
+        assertFalse(outputFile.exists());
+
+        final String testLogData = "testLogData";
+        buildOutputLogger.consumeLine(testLogData);
+        assertTrue(outputFile.exists());
+        assertEquals(testLogData, buildOutputLogger.retrieveLines(0)[0]);
+        assertTrue(outputFile.delete());
+    }
+
+    public void testGetBuildOutputConsumerLiveOutputOff() {
+        final String projectName = "testProjectName";
+        builder.setLiveOutput(false);
+        assertNull(builder.getBuildOutputConsumer(projectName, null, null));
+    }
+
+    public void testGetBuildOutputConsumer() {
+        final String projectName = "testProjectName";
+        assertSame(builder.getBuildOutputConsumer(projectName, null, null),
+                BuildOutputLoggerManager.INSTANCE.lookup(projectName));
+
+        assertSame(BuildOutputLoggerManager.INSTANCE.lookup(projectName),
+                builder.getBuildOutputConsumer(projectName, null, null));
     }
 
     public void testValidate() throws CruiseControlException {

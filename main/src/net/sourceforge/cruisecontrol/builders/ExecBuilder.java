@@ -109,6 +109,8 @@ public class ExecBuilder extends Builder {
         //script.setBuildProperties(buildProperties); - currently ignored
         script.setProgress(progress);
 
+        final String projectName = buildProperties.get(Builder.BUILD_PROP_PROJECTNAME);
+
         // mimic Ant target/task logging
         final Element task = script.setBuildLogHeader(buildLogElement);
         script.setBuildLogElement(task);
@@ -118,7 +120,7 @@ public class ExecBuilder extends Builder {
         boolean scriptCompleted = false;
         boolean scriptIOError = false;
         try {
-            scriptCompleted = runScript(script, scriptRunner, this.workingDir);
+            scriptCompleted = runScript(script, scriptRunner, workingDir, projectName);
         } catch (CruiseControlException ex) {
           LOG.error("Could not execute command: " + command, ex);
           scriptIOError = true;
@@ -173,9 +175,12 @@ public class ExecBuilder extends Builder {
         return buildLogElement;
     } // build
 
-    protected boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir)
+    protected boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir,
+                                final String projectName)
       throws CruiseControlException {
-        return scriptRunner.runScript(new File(dir), script, timeout);
+        final File workDir = new File(dir);
+        return scriptRunner.runScript(workDir, script, timeout,
+                getBuildOutputConsumer(projectName, workDir, null));
     }
 
     private String substituteProperties(final Map<String, String> properties, final String string) {

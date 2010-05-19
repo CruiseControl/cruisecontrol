@@ -1,6 +1,9 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +14,8 @@ import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ModificationSet;
+import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.ProgressImplTest;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.SourceControl;
@@ -18,6 +23,7 @@ import net.sourceforge.cruisecontrol.MockProject;
 import net.sourceforge.cruisecontrol.ProjectTest;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.AntOutputLogger;
+import net.sourceforge.cruisecontrol.builders.AntScriptTest;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
@@ -79,7 +85,7 @@ public class ProjectControllerTest extends TestCase {
             Util.doMkDirs(validFile);
     
             bootstrapper.setUseLogger(true);
-            bootstrapper.setShowAntOutput(true);
+            bootstrapper.setLiveOutput(true);
             bootstrapper.setProgressLoggerLib("dummyLib");
             try {
                 bootstrapper.bootstrap();
@@ -118,9 +124,9 @@ public class ProjectControllerTest extends TestCase {
             antBuilder.setAntWorkingDir(validFile.getAbsolutePath());
             antBuilder.validate();
             
-            // default value of showAntOutput is different between AntBuilder and AntBootstrapper,
+            // default value of LiveOutput is different between AntBuilder and AntBootstrapper,
             // must set to false to avoid output logging.
-            antBuilder.setShowAntOutput(false);
+            antBuilder.setLiveOutput(false);
             final Map<String, String> buildProperties = BuilderTest.createPropsWithProjectName(project.getName());
             try {
                 antBuilder.build(buildProperties, null);
@@ -138,23 +144,81 @@ public class ProjectControllerTest extends TestCase {
             IO.delete(validFile);
             Util.doMkDirs(validFile);
 
+            final String target = "echoProgress";
+            final File buildFile = new File(validFile, "testBuild.xml");
+            stringToFile("<project name=\"testProj\">\n"
+                    + "<target name=\"" + target + "\">\n"
+                    + "<echo>" + AntScriptTest.MSG_PREFIX_ANT_PROGRESS + "some stuff</echo>\n"
+                    + "</target>\n"
+                    + "</project>\n",
+                    buildFile);
+            antBuilder.setBuildFile(buildFile.getAbsolutePath());
+            antBuilder.setTarget(target);
             antBuilder.setUseLogger(true);
-            antBuilder.setShowAntOutput(true);
+            antBuilder.setLiveOutput(true);
             antBuilder.setProgressLoggerLib("dummyLib");
-            try {
-                antBuilder.build(buildProperties, null);
-            } catch (Exception e) {
-                assertEquals("ant logfile " + expectedTempFile.getAbsolutePath()
-                    + " is empty. Your build probably failed. Check your CruiseControl logs.", e.getMessage());
+
+            // use Progress to make build wait for a while.
+            final String done = "done";
+            final Progress progress = new ProgressImplTest.MockProgress() {
+                public void setValue(String value) {
+                    synchronized (done) {
+                        super.setValue(value);
+                        done.notifyAll();
+                    }
+                }
+            };
+
+            final String buildDone = "buildDone";
+            new Thread("RunBuild") {
+                public void run() {
+                    try {
+                        antBuilder.build(buildProperties, progress);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        synchronized (buildDone) {
+                            progress.setValue(buildDone);
+                            buildDone.notifyAll();
+                        }
+                    }
+                }
+            } .start();
+            // wait for progress message to come through
+            synchronized (done) {
+                while (progress.getText() == null) {
+                    done.wait(5000);
+                }
             }
 
             output = mbean.getBuildOutput(0);
             assertNotNull(output);
             assertTrue("Unexpected empty build output", output.length > 0);
-            assertFalse("Non-existant data file should NOT have appended anything to ID: " + mbean.getOutputLoggerID(),
+
+            // wait for build/scriptRun to complete
+            synchronized (buildDone) {
+                while (!buildDone.equals(progress.getText())) {
+                    buildDone.wait(5000);
+                }
+            }
+            assertTrue("Cleared data file should have reset ID: " + mbean.getOutputLoggerID(),
                     mbean.getOutputLoggerID().endsWith(AntOutputLogger.DEFAULT_OUTFILE_NAME));
         } finally {
             IO.delete(validFile);
+        }
+    }
+
+    private static void stringToFile(final String data, final File outFile) throws IOException {
+        final FileOutputStream fos = new FileOutputStream(outFile);
+        try {
+            final OutputStreamWriter oos = new OutputStreamWriter(fos);
+            try {
+                oos.write(data);
+            } finally {
+                oos.close();
+            }
+        } finally {
+            fos.close();
         }
     }
 

@@ -112,7 +112,8 @@ public class MavenBuilder extends Builder {
             script.setMavenScript(mavenScript);
             script.setProjectFile(projectFile);
             ScriptRunner scriptRunner = new ScriptRunner();
-            boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+            boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout,
+                    getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir, null));
             script.flushCurrentElement();
 
             if (!scriptCompleted) {

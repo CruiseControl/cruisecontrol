@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -50,7 +51,9 @@ import java.util.ArrayList;
  * Log all consumed lines to a file, and also provide methods to read lines from that file.
  * Can be used to log all sysout and syserr to a file.
  */
-public class BuildOutputLogger implements StreamConsumer {
+public class BuildOutputLogger implements StreamConsumer, Serializable {
+
+    private static final long serialVersionUID = -1594678930828433470L;
 
     public static final int MAX_LINES = 1000;
     private final File data;

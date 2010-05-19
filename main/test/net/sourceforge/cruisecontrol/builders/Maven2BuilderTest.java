@@ -41,7 +41,6 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
-import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.jdom.Element;
 
@@ -94,14 +93,28 @@ public class Maven2BuilderTest extends TestCase {
 
     private final TestUtil.FilesToDelete filesToDelete = new TestUtil.FilesToDelete();
 
-    private final File expectedBuildOutputFile = new File(Maven2Builder.MAVEN2_BUILDER_OUTPUT_LOG);
-
     protected void setUp() throws Exception {
-        filesToDelete.add(expectedBuildOutputFile);
     }
 
     protected void tearDown() {
         filesToDelete.delete();
+    }
+
+    // @todo Remove when deprecated methods get/setShowBuildOutput are removed.
+    @SuppressWarnings("deprecation")        
+    public void testSetShowBuildOutputLinkedToSetLiveOutput() {
+        final Maven2Builder builder = new Maven2Builder();
+
+        assertTrue(builder.isLiveOutput());
+        assertTrue(builder.getShowBuildOutput());
+
+        builder.setShowBuildOutput(false);
+        assertFalse(builder.isLiveOutput());
+        assertFalse(builder.getShowBuildOutput());
+
+        builder.setLiveOutput(true);
+        assertTrue(builder.isLiveOutput());
+        assertTrue(builder.getShowBuildOutput());
     }
 
     public void testFindMaven2Script() throws Exception {
@@ -466,35 +479,6 @@ public class Maven2BuilderTest extends TestCase {
                     + "\nsleep " + sleepTime;
         }
         throw new IllegalArgumentException("please use one of the constants");
-    }
-
-
-    public void testGetBuildOutputConsumer() throws Exception {
-        assertFalse("Maven2 Builder output log should not exist: " + expectedBuildOutputFile.getAbsolutePath(),
-                expectedBuildOutputFile.exists());
-        
-        final Maven2Builder mb = new Maven2Builder();
-        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null, null);
-        assertNotNull(buildOutputLogger);
-        assertEquals("<BuildOutputLogger data=" + expectedBuildOutputFile.getAbsolutePath() + ">",
-                buildOutputLogger.toString());
-        assertFalse(expectedBuildOutputFile.exists());
-
-        final String testLogData = "testLogData";
-        buildOutputLogger.consumeLine(testLogData);
-        assertTrue(expectedBuildOutputFile.exists());
-        assertEquals(testLogData, buildOutputLogger.retrieveLines(0)[0]);
-    }
-
-    public void testGetBuildOutputConsumerOff() throws Exception {
-        assertFalse("Maven2 Builder output log should not exist: " + expectedBuildOutputFile.getAbsolutePath(),
-                expectedBuildOutputFile.exists());
-
-        final Maven2Builder mb = new Maven2Builder();
-        mb.setShowBuildOutput(false);
-        final BuildOutputLogger buildOutputLogger = mb.getBuildOutputConsumer(null, null);
-        assertNull(buildOutputLogger);
-        assertFalse(expectedBuildOutputFile.exists());
     }
 
 }
