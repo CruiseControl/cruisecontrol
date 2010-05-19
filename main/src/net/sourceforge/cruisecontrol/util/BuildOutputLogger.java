@@ -123,6 +123,13 @@ public class BuildOutputLogger implements StreamConsumer, Serializable {
      */
     public boolean isDataFileSet() { return data != null; }
 
+    /**
+     * @return true if the data file for this logger and the given file are the same.
+     */
+    public boolean isDataFileEquals(final File otherDataFile) { 
+        return dataEquals(data, otherDataFile);
+    }
+
     private List<String> loadFile(final int firstLine) {
         try {
             final BufferedReader reader = new BufferedReader(new FileReader(data));
