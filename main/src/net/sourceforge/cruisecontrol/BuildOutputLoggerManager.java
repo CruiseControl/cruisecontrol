@@ -79,8 +79,11 @@ public class BuildOutputLoggerManager {
             loggers.put(projectName, logger);
         }
 
-        if (outputFile != null && !logger.isDataFileSet()) {
-            // replace current temp logger with a new logger with a data file
+        if (outputFile != null
+                //&& !logger.isDataFileSet() // replace current temp logger with a new logger with a data file
+                && !logger.isDataFileEquals(outputFile) // replace loogger if files are not the same.
+                ) {
+
             logger = new BuildOutputLogger(outputFile);
             loggers.put(projectName, logger);
         }

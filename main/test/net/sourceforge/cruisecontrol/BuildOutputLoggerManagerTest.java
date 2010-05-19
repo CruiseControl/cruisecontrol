@@ -46,7 +46,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BuildOutputBufferManagerTest extends TestCase {
+public class BuildOutputLoggerManagerTest extends TestCase {
     private BuildOutputLoggerManager loggerManager;
     private File tempFile;
 
@@ -82,12 +82,12 @@ public class BuildOutputBufferManagerTest extends TestCase {
         assertSame(logger, loggerManager.lookupOrCreate("project3", same));
     }
     
-    public void testLoggersWithSameProjectDifferentFilesShouldBeSame() throws IOException {
+    public void testLoggersWithSameProjectDifferentFilesShouldBeDifferent() throws IOException {
         File file = tempFile();
         File different = tempFile();
         assertFalse(file.equals(different));
         BuildOutputLogger logger = loggerManager.lookupOrCreate("project4", file);
-        assertSame(logger, loggerManager.lookupOrCreate("project4", different));
+        assertNotSame(logger, loggerManager.lookupOrCreate("project4", different));
     }
 
     public void testLoggersWithDifferentProjectDifferentFilesShouldBeDifferent() throws IOException {
