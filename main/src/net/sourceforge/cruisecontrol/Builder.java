@@ -37,10 +37,13 @@
 
 package net.sourceforge.cruisecontrol;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -52,6 +55,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private int multiple = 1;
     private boolean multipleSet = false;
     private boolean showProgress = true;
+    private boolean isLiveOutput = true;
+    private BuildOutputLogger buildOutputLogger;
 
     /** Build property name of property that is pass to all builders. */
     public static final String BUILD_PROP_PROJECTNAME = "projectname";
@@ -120,6 +125,43 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     }
     public boolean getShowProgress() {
         return showProgress;
+    }
+
+    public void setLiveOutput(final boolean isLiveOutputEnabled) {
+        isLiveOutput = isLiveOutputEnabled;
+    }
+    public boolean isLiveOutput() {
+        return isLiveOutput;
+    }
+
+    protected BuildOutputLogger getBuildOutputConsumer(final String projectName,
+                                                       final File workingDir, final String logFilename) {
+
+        if (isLiveOutput && buildOutputLogger == null) {
+
+            final File outputFile;
+            if (logFilename != null) {
+                outputFile = new File(workingDir, logFilename);
+            } else {
+                try {
+                    outputFile = File.createTempFile(
+                            "ccLiveOutput-" + projectName + "-" + getClass().getName() + "-",
+                            ".tmp",
+                            workingDir);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            outputFile.deleteOnExit();
+
+            final BuildOutputLogger buildOutputConsumer
+                = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, outputFile);
+            buildOutputConsumer.clear();
+
+            buildOutputLogger = buildOutputConsumer;
+        }
+
+        return buildOutputLogger;
     }
 
     /**

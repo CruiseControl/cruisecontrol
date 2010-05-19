@@ -5934,6 +5934,19 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 the days of the week (Sunday, Monday, Tuesday, etc). Does not
                 support multiple days except for the default of every day.</td>
             </tr>
+            <tr>
+                <td><a name="buildershowProgress">showProgress</a></td>
+                <td>No (defaults to true)</td>
+                <td>If true, the builder will provide short progress messages, visible in the JSP reporting application.
+                    If parent builders exist (eg: composite), and any parent's showProgress=false,
+                    then no progress messages will be shown, regardless of this builder's showProgress setting.</td>
+            </tr>
+            <tr>
+                <td><a name="builderliveOutput">liveOutput</a></td>
+                <td>No (defaults to true)</td>
+                <td>If true, the builder will write all output to a file that can be read by the Dashboard reporting
+                    application while the builder is executing.</td>
+            </tr>
             </tbody>
         </table>
 
@@ -6136,7 +6149,15 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 Set to false to have Ant echo ant messages to console using its
                 DefaultLogger, which is useful when debugging your ant build.
                 Defaults to 'false' to make initial setup easier but setting it to
-                'true' is recommended for production situations.</td>
+                'true' is recommended for production situations.
+                <p>RE: liveOutput: If liveOutput=true AND uselogger=true, this builder will write the ant output to a
+                    file (antBuilderOutput.log) that can be read by the Dashboard reporting application.
+                    The liveOutput setting has no effect if uselogger=false.
+                    <a href="#antbootstrapper">AntBootstrapper</a> and <a href="#antpublisher">AntPublisher</a>
+                    do not provide access to liveOutput, and operate as if liveOutput=false.
+                    NOTE: In order to show ant output while uselogger=true, the AntBuilder uses a custom Build Listener.
+                    If this interferes with your Ant build, set showAntOutput=false (and please report the problem).</p>
+                </td>
             </tr>
             <tr>
                 <td>loggerclassname</td>
@@ -6167,7 +6188,11 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 cannot be set to 'true' if usedebug is also set to 'true'.
                 Smaller logfiles are only achieved when used in combination
                 with uselogger="true", otherwise there will just be less
-                output echoed to the console by Ant's DefaultLogger.</td>
+                output echoed to the console by Ant's DefaultLogger.
+                <p>RE: showProgress: useQuiet="true" will prevent any progress messages from being displayed.
+                    NOTE: In order to show progress, the AntBuilder uses custom Build Loggers and Listeners.
+                    If these interfere with your Ant build, set showProgress=false (and please report the problem).</p>
+                </td>
             </tr>
             <tr>
                 <td>keepgoing</td>
@@ -6191,28 +6216,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                     are available on the classpath of the ant builder VM. You should not normally
                     set this value. If you do set this value, you should use the full path (including filename)
                     to cruisecontrol-antprogresslogger.jar. This setting has no effect if showProgress=false.
-                </td>
-            </tr>
-            <tr>
-                <td>showProgress</td>
-                <td>No  (defaults to true)</td>
-                <td>If true or omitted, this builder will provide progress messages.
-                    If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings. Also, useQuiet="true"
-		    will prevent any progress messages from being displayed.
-                    NOTE: In order to show progress, the AntBuilder uses custom Build Loggers and Listeners.
-                    If these interfere with your Ant build, set showProgress=false (and please report the problem).
-                </td>
-            </tr>
-            <tr>
-                <td>showAntOutput</td>
-                <td>No  (defaults to true)</td>
-                <td>If true AND uselogger=true, this builder will write the ant output to a file (antBuilderOutput.log)
-                    that can be read by the Dashboard reporting application. This setting has no effect if uselogger=false.
-                    <a href="#antbootstrapper">AntBootstrapper</a> and <a href="#antpublisher">AntPublisher</a> do not
-                    provide access to showAntOutput, and operate as if showAntOutput=false.<br/>
-                    NOTE: In order to show ant output while uselogger=true, the AntBuilder uses a custom Build Listener.
-                    If this interferes with your Ant build, set showAntOutput=false (and please report the problem).
                 </td>
             </tr>
             </tbody>
@@ -6400,14 +6403,6 @@ endlocal</pre>
                 <td>No</td>
                 <td>Build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
             </tr>
-            <tr>
-                <td>showProgress</td>
-                <td>No  (defaults to true)</td>
-                <td>If true or omitted, this builder will provide progress messages.
-                    If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings.
-                </td>
-            </tr>
             </tbody>
         </table>
         <h2><a name="maven2">&lt;maven2&gt;</a></h2>
@@ -6520,21 +6515,6 @@ endlocal</pre>
                 <td>No</td>
                 <td>Build will be halted if it continues longer than the specified timeout. Value in seconds.</td>
             </tr>
-            <tr>
-                <td>showProgress</td>
-                <td>No  (defaults to true)</td>
-                <td>If true or omitted, this builder will provide progress messages.
-                    If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings.
-                </td>
-            </tr>
-            <tr>
-                <td>showBuildOutput</td>
-                <td>No  (defaults to true)</td>
-                <td>If true, this builder will write all the System.out/.err output from this builder to a file
-                    that can be read by the Dashboard reporting application while the builder is executing.
-                </td>
-            </tr>
             </tbody>
         </table>
 
@@ -6610,6 +6590,12 @@ endlocal</pre>
                     If false, no progress messages will be shown by the composite builder or child builders - regardless of child builder
                     showProgress settings. If any parent showProgress is false, then no progress will be shown, regardless
                     of the composite or child builder settings.
+                </td>
+            </tr>
+            <tr>
+                <td>liveOutput</td>
+                <td>No  (defaults to true)</td>
+                <td>Currently, the liveOutput setting has no effect on composite builders.
                 </td>
             </tr>
             </tbody>
@@ -7149,14 +7135,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Rake build will be halted if it continues longer than the
                 specified timeout. Value in seconds.</td>
             </tr>
-            <tr>
-                <td>showProgress</td>
-                <td>No  (defaults to true)</td>
-                <td>If true or omitted, this builder will provide progress messages.
-                    If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings.
-                </td>
-            </tr>
             </tbody>
         </table>
         </div>
@@ -7225,14 +7203,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>No</td>
                 <td>Build will be halted if the script or command continues longer
                 than the specified timeout. Value in seconds.</td>
-            </tr>
-            <tr>
-                <td>showProgress</td>
-                <td>No  (defaults to true)</td>
-                <td>If true or omitted, this builder will provide progress messages.
-                    If false, no progress messages will be shown. If any parent showProgress is false,
-                    then no progress will be shown, regardless of this builder's settings.
-                </td>
             </tr>
             </tbody>
         </table>

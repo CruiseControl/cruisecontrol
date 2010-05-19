@@ -13,7 +13,8 @@ build loop
 
 * Add a JMX operation to retrieve build logs (CC-908). Adapted from patch by Ivan "Rambius" Ivanov. Tested by Antoine Levy Lambert.
 * Add FileResolver/ResolverUser to detect and re-read changed property files (CC-952). Patch by Daniel Tihelka. 
-* BuildOutputLogger with multiple builds interfere with each other with multiple threads (CC-911). Patch by Grzegorz Olędzki. Additional changes to support more 'live output' are in development. See CC-911 for details.
+* BuildOutputLogger with multiple builds interfere with each other with multiple threads (CC-911). Patch by Grzegorz Olędzki. 
+  Additional changes to support 'liveOutput' (visible in Dashboard) and 'showProgress' (visible in JSP) from all builders. See CC-911 for details.
 
 CMSynergyBaselinePublisher
 ----------------------

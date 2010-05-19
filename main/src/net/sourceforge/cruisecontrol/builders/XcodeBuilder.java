@@ -10,11 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
-import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Directory;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -36,7 +34,12 @@ public class XcodeBuilder extends Builder implements Script {
     private Map<String, String> buildProperties;
     
     @Override
-    public Element build(Map<String, String> properties, Progress progress) throws CruiseControlException {
+    public Element build(Map<String, String> properties, Progress progressIn) throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
+        // @todo To support progress, determine text pattern indicating progress messages in output,
+        // see AntScript.consumeLine() as an example
+
         setProperties(properties);
         OutputFile file = createOutputFile(directory, DEFAULT_OUTFILE_NAME);
         runScript(file);
@@ -50,7 +53,8 @@ public class XcodeBuilder extends Builder implements Script {
     private void runScript(OutputFile file) throws CruiseControlException {
         LOG.info("starting build");
         String projectName = buildProperties.get(Builder.BUILD_PROP_PROJECTNAME);
-        boolean finished = createScriptRunner().runScript(this, timeout, file.getBuildOutputLogger(projectName));
+        boolean finished = createScriptRunner().runScript(this, timeout,
+                getBuildOutputConsumer(projectName, file.file, file.file.getName()));
         buildTimedOut = !finished;
         LOG.info("build finished with exit code " + exitCode);
     }
@@ -232,12 +236,6 @@ public class XcodeBuilder extends Builder implements Script {
                 }
                 throw new RuntimeException(e);
             }
-        }
-
-        private BuildOutputLogger getBuildOutputLogger(final String projectName) {
-            final BuildOutputLogger logger = BuildOutputLoggerManager.INSTANCE.lookupOrCreate(projectName, file);
-            logger.clear();
-            return logger;
         }
     }
 

@@ -52,7 +52,7 @@ public class AntBuilderCreatingBuilderLoggerTest {
 
     @Test
     public void testShouldCreateBuildOutputLoggerWithShowAntOutputTrue() throws CruiseControlException {
-        builder.setShowAntOutput(true);
+        builder.setLiveOutput(true);
         builder.validate();
         builder.build(buildProperties, null);
         Assert.assertNotNull(buildOutputLogger);
@@ -60,7 +60,7 @@ public class AntBuilderCreatingBuilderLoggerTest {
 
     @Test
     public void testShouldNotCreateBuildOutputLoggerWithShowAntOutputFalse() throws CruiseControlException {
-        builder.setShowAntOutput(false);
+        builder.setLiveOutput(false);
         builder.validate();
         builder.build(buildProperties, null);
         Assert.assertNull(buildOutputLogger);

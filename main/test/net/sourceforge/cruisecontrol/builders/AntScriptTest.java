@@ -109,7 +109,9 @@ public class AntScriptTest extends TestCase {
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
     private static String windowsPathWithoutSaxonJars;
 
-    
+    /** Expose package level constant for unit testing only. */
+    public static final String MSG_PREFIX_ANT_PROGRESS = AntScript.MSG_PREFIX_ANT_PROGRESS;
+
     protected void setUp() throws Exception {
         script = new AntScript();
 

@@ -85,8 +85,12 @@ public class NantBuilder extends Builder {
      * Build and return the results via xml. Debug status can be determined from
      * log4j category once we get all the logging in place.
      */
-    public Element build(final Map<String, String> buildProperties, final Progress progress)
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
             throws CruiseControlException {
+
+        final Progress progress = getShowProgress() ? progressIn : null;
+        // @todo To support progress, determine text pattern indicating progress messages in output,
+        // see AntScript.consumeLine() as an example
 
         final File workingDir = nantWorkingDir != null ? new File(nantWorkingDir) : null;
         final NantScript script = getNantScript();
@@ -105,7 +109,8 @@ public class NantBuilder extends Builder {
         final long startTime = System.currentTimeMillis();
 
         final ScriptRunner scriptRunner = new ScriptRunner();
-        final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout);
+        final boolean scriptCompleted = scriptRunner.runScript(workingDir, script, timeout,
+                getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir, null));
         final long endTime = System.currentTimeMillis();
 
         final File logFile = new File(nantWorkingDir, tempFileName);

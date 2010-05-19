@@ -184,6 +184,10 @@ public class ScriptRunner  {
 
         script.setExitCode(exitCode);
 
+        if (buildOutputConsumer != null) {
+            buildOutputConsumer.clear();
+        }
+
         return !killer.processKilled();
     }
     

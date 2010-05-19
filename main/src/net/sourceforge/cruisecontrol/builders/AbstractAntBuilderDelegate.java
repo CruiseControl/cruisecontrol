@@ -18,7 +18,7 @@ public class AbstractAntBuilderDelegate {
      * Required if showAntOutput defaults to true.
      */
     public AbstractAntBuilderDelegate() {
-        delegate.setShowAntOutput(false);
+        delegate.setLiveOutput(false);
     }
 
     /** @return delegate AntBuilder instance. */
@@ -94,10 +94,17 @@ public class AbstractAntBuilderDelegate {
     }
     /**
      * Defaults to false in constructor.
-     * @see net.sourceforge.cruisecontrol.builders.AntBuilder#showAntOutput
+     * @deprecated use {@link #setLiveOutput(boolean)} instead.
      */
     public void setShowAntOutput(final boolean showAntOutput) {
-        delegate.setShowAntOutput(showAntOutput);
+       setLiveOutput(showAntOutput);
+    }
+    /**
+     * Defaults to false in constructor.
+     * @see AntBuilder#setLiveOutput(boolean)
+     */
+    public void setLiveOutput(final boolean showAntOutput) {
+        delegate.setLiveOutput(showAntOutput);
     }
     /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#setProgressLoggerLib(String)

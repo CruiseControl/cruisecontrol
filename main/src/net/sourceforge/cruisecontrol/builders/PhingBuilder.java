@@ -79,7 +79,7 @@ public class PhingBuilder extends Builder {
      * build and return the results via xml.  debug status can be determined
      * from log4j category once we get all the logging in place.
      */
-    public Element build(final Map<String, String> buildProperties, final Progress progress)
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn)
             throws CruiseControlException {
         
         if (!wasValidated) {
@@ -88,6 +88,10 @@ public class PhingBuilder extends Builder {
         }
 
         validateBuildFileExists();
+
+        final Progress progress = getShowProgress() ? progressIn : null;
+        // @todo To support progress, determine text pattern indicating progress messages in output,
+        // see AntScript.consumeLine() as an example
 
         final PhingScript script = new PhingScript();
         script.setBuildProperties(buildProperties);
@@ -103,7 +107,8 @@ public class PhingBuilder extends Builder {
 
         final File workingDir = phingWorkingDir != null ? new File(phingWorkingDir) : null;
 
-        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout);
+        final boolean scriptCompleted = new ScriptRunner().runScript(workingDir, script, timeout,
+                getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir, null));
 
         final File logFile = new File(phingWorkingDir, tempFileName);
         final Element buildLogElement;
