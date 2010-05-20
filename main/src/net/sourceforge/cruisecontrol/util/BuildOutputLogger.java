@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.util;
 
+import net.sourceforge.cruisecontrol.LiveOutputReader;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -51,7 +53,7 @@ import java.util.ArrayList;
  * Log all consumed lines to a file, and also provide methods to read lines from that file.
  * Can be used to log all sysout and syserr to a file.
  */
-public class BuildOutputLogger implements StreamConsumer, Serializable {
+public class BuildOutputLogger implements StreamConsumer, LiveOutputReader, Serializable {
 
     private static final long serialVersionUID = -1594678930828433470L;
 
@@ -76,16 +78,6 @@ public class BuildOutputLogger implements StreamConsumer, Serializable {
         id += "__" + data.getName();
     }
 
-    /**
-     * @return A unique (for this VM) identifying string for this logger instance.
-     * This is intended to allow reporting apps (eg: Dashboard) to check if the logger instance changes mid-build,
-     * causing the "live output" log file to reset (possibly due to a CompositeBuilder moving to a new Builder, etc.).
-     * If the logger instance changes (indicated by a new ID value), the client should  start asking for output from
-     * the first line of the current output file.
-     * See also: {@link #retrieveLines(int)}.
-     */
-    public String getID() { return id; }
-
 
     public synchronized void consumeLine(final String line) {
         if (data == null) { throw new RuntimeException("No log file specified"); }
@@ -102,6 +94,17 @@ public class BuildOutputLogger implements StreamConsumer, Serializable {
         }
     }
 
+
+    /**
+     * @return A unique (for this VM) identifying string for this logger instance.
+     * This is intended to allow reporting apps (eg: Dashboard) to check if the logger instance changes mid-build,
+     * causing the "live output" log file to reset (possibly due to a CompositeBuilder moving to a new Builder, etc.).
+     * If the logger instance changes (indicated by a new ID value), the client should  start asking for output from
+     * the first line of the current output file.
+     * @see #retrieveLines(int)
+     */
+    public String getID() { return id; }
+
     /**
      * @param firstLine line to skip to.
      * @return All lines available from firstLine (inclusive) up to MAX_LINES.
@@ -117,6 +120,7 @@ public class BuildOutputLogger implements StreamConsumer, Serializable {
         final List<String> lines = loadFile(firstLine);
         return lines.toArray(new String[lines.size()]);
     }
+
 
     /**
      * @return true if a data output file has been specified.

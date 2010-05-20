@@ -57,11 +57,13 @@ import net.jini.export.Exporter;
 import net.jini.config.Configuration;
 import net.jini.config.ConfigurationProvider;
 import net.jini.config.ConfigurationException;
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.Builder;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
+import net.sourceforge.cruisecontrol.distributed.core.BuildOutputLoggerRemote;
 import net.sourceforge.cruisecontrol.distributed.core.MulticastDiscovery;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
 import net.sourceforge.cruisecontrol.distributed.core.ReggieUtil;
@@ -70,6 +72,7 @@ import net.sourceforge.cruisecontrol.distributed.core.FileUtil;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemoteImpl;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
+import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -79,6 +82,8 @@ import org.jdom.Element;
 public class DistributedMasterBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(DistributedMasterBuilder.class);
+
+    private static final long serialVersionUID = -393558168970690238L;
 
     private static final String CRUISE_PROPERTIES = "cruise.properties";
     private static final String CRUISE_RUN_DIR = "cruise.run.dir";
@@ -220,7 +225,15 @@ public class DistributedMasterBuilder extends Builder {
     public boolean isTimeBuilder() {
         return nestedBuilder.isTimeBuilder();
     }
-    
+
+
+    @Override
+    protected BuildOutputLogger getBuildOutputConsumer(final String projectName,
+                                                       final File workingDir, final String logFilename) {
+
+        throw new IllegalStateException("Should never be called on DistributedMasterBuilder");
+    }
+
     public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
         
@@ -316,10 +329,21 @@ public class DistributedMasterBuilder extends Builder {
                     exporter = null;
                 }
 
+
+                if (isLiveOutput()) {
+                    // put LiveOutputReader into manager
+                    final BuildOutputLoggerRemote remoteReader = new BuildOutputLoggerRemote(projectName, agent);
+                    BuildOutputLoggerManager.INSTANCE.put(projectName, remoteReader);
+                }
+
+
                 try {
                     buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps,
                             progressRemote, remoteResults);
                 } finally {
+                    // always remove remote reader (in case liveOutput setting changed - don't leave remote refs).
+                    BuildOutputLoggerManager.INSTANCE.remove(projectName);
+
                     unexportProgressRemote(exporter);
                 }
 

@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import net.sourceforge.cruisecontrol.BuildOutputLoggerManager;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
@@ -83,6 +84,8 @@ import javax.jnlp.UnavailableServiceException;
 public class BuildAgentServiceImpl implements BuildAgentService {
 
     private static final Logger LOG = Logger.getLogger(BuildAgentServiceImpl.class);
+
+    private static final long serialVersionUID = 2116738757011580074L;
 
     private static final String CRUISE_BUILD_DIR = "cruise.build.dir";
 
@@ -459,6 +462,9 @@ public class BuildAgentServiceImpl implements BuildAgentService {
 
     
     private final class WrappedRemoteProgress implements Progress {
+
+        private static final long serialVersionUID = -5980080533166620643L;
+
         private final ProgressRemote progressRemote;
 
         private WrappedRemoteProgress(final ProgressRemote progressRemote) {
@@ -499,7 +505,16 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         }
     }
 
-    
+
+    public String getIDRemote() {
+        return BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).getID();
+    }
+
+    public String[] retrieveLinesRemote(final int firstLine) {
+        return BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).retrieveLines(firstLine);
+    }
+
+
     static void injectAntProgressLoggerLibIfNeeded(final Builder builder) {
         if (builder instanceof AntBuilder) {
             doInjectAntProgressLoggerLibIfNeeded((AntBuilder) builder);
