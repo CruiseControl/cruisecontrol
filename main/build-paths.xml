@@ -25,7 +25,7 @@
         <fileset refid="mail.lib" />
         <fileset refid="maven-embedder.lib" />
         <fileset refid="mx4j.lib" />
-        <fileset refid="mx4j.tools.lib" />
+        <fileset refid="mx4j-tools.lib" />
         <fileset refid="sfee.lib" />
         <fileset refid="smack.lib" />
         <fileset refid="twitter4j.lib" />
