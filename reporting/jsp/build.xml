@@ -75,32 +75,44 @@
              but is added automatically to the javac classpath -->
     </path>
 
+    <fileset dir="${lib}" id="req.libs">
+        <include name="batik*.jar"/>
+        <include name="cewolf*.jar"/>
+        <include name="commons-lang*.jar"/>
+        <include name="commons-logging*.jar"/>
+        <include name="el-api.jar"/>
+        <include name="jcommon*.jar"/>
+        <include name="jaxen*.jar"/>
+        <include name="jdom*.jar"/>
+        <include name="jfreechart*.jar"/>
+        <include name="junit*.jar"/>
+        <include name="mx4j*.jar"/>
+        <include name="ognl*.jar"/>
+        <include name="oscore*.jar"/>
+        <include name="velocity-dep*.jar"/>
+        <include name="webwork*.jar"/>
+        <include name="saxon*.jar"/>
+        <include name="serializer*.jar"/>
+        <include name="xerces*.jar"/>
+        <include name="xml*.jar"/>
+        <include name="xwork*.jar"/>
+    </fileset>
+
     <path id="project.runtime.classpath" >
+        <fileset refid="main.lib" />
 
-        <fileset file="../../main/dist/cruisecontrol.jar"/>
+        <fileset refid="cewolf.lib" />
+        <fileset refid="commons-lang.lib" />
+        <fileset refid="commons-logging.lib" />
+        <fileset refid="el-api.lib" />
+        <fileset refid="jcommon.lib" />
+        <fileset refid="jdom.lib" />
+        <fileset refid="jfreechart.lib" />
+        <fileset refid="junit.lib" />
+        <fileset refid="servlet-api.lib" />
+        <fileset refid="webwork.lib" />
+        <fileset refid="xwork.lib" />
 
-        <fileset dir="${lib}" id="req.libs">
-            <include name="batik*.jar"/>
-            <include name="cewolf*.jar"/>
-            <include name="commons-lang*.jar"/>
-            <include name="commons-logging*.jar"/>
-            <include name="el-api.jar"/>
-            <include name="jcommon*.jar"/>
-            <include name="jaxen*.jar"/>
-            <include name="jdom*.jar"/>
-            <include name="jfreechart*.jar"/>
-            <include name="junit*.jar"/>
-            <include name="mx4j*.jar"/>
-            <include name="ognl*.jar"/>
-            <include name="oscore*.jar"/>
-            <include name="velocity-dep*.jar"/>
-            <include name="webwork*.jar"/>
-            <include name="saxon*.jar"/>
-            <include name="serializer*.jar"/>
-            <include name="xerces*.jar"/>
-            <include name="xml*.jar"/>
-            <include name="xwork*.jar"/>
-        </fileset>
         <fileset dir="${lib}" includes="servlet*.jar"/>
         <fileset dir="${lib}" includes="jsp*.jar"/>
         <pathelement location="${classes}"/>
