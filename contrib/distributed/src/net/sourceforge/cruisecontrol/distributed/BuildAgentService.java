@@ -37,17 +37,17 @@
 
 package net.sourceforge.cruisecontrol.distributed;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.Date;
 
+import net.sourceforge.cruisecontrol.distributed.core.LiveOutputReaderRemote;
 import org.jdom.Element;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;
 
-public interface BuildAgentService extends Remote {
+public interface BuildAgentService extends LiveOutputReaderRemote {
 
     /**
      * Performs a build on a build agent.

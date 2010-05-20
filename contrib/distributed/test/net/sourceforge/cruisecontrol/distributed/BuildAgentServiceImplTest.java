@@ -163,10 +163,10 @@ public class BuildAgentServiceImplTest extends TestCase {
         }
         final MyAntBuilder antBuilder = new MyAntBuilder();
         antBuilder.setUseLogger(true);
-        antBuilder.setShowAntOutput(true);
+        antBuilder.setLiveOutput(true);
         antBuilder.setProgressLoggerLib(LOGGER_JAR_REAL_MAIN_DIST.getAbsolutePath());
-        
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
 
         final Map<String, String> distributedAgentProps = new HashMap<String, String>();
 
@@ -215,6 +215,11 @@ public class BuildAgentServiceImplTest extends TestCase {
         } finally {
             agentImpl.clearOutputFiles();
         }
+    }
+
+    public static BuildAgentServiceImpl createTestAgentImpl() {
+        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        return agentImpl;
     }
 
     public void testInjectAntProgressLoggerLibIfNeeded() throws  Exception {
@@ -293,7 +298,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testBuildOverrideTarget() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         final Map<String, String> distributedAgentProps = new HashMap<String, String>();
@@ -334,7 +339,7 @@ public class BuildAgentServiceImplTest extends TestCase {
      * @throws Exception if anything unexpected goes wrong in the test
      */
      public void testGetPropertiesMap() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         MyAgentStatusListener agentListener = new MyAgentStatusListener();  
@@ -394,9 +399,56 @@ public class BuildAgentServiceImplTest extends TestCase {
         assertTrue("Wrong value: \n" + agentAsString + "\n expected suffix: \n" + expectedSuffix,
                 agentAsString.endsWith(expectedSuffix));
     }
-    
+
+    public void testGetIDRemoteNullProject() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
+        assertFalse(agentImpl.getIDRemote().equals(agentImpl.getIDRemote()));
+    }
+
+    public void testGetIDRemote() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
+
+        final String testProjectName = "testProjectName";
+        final Map<String, String> projectProperties = new HashMap<String, String>();
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
+        try {
+            // gets far enough to set Project name...
+            agentImpl.doBuild(null, projectProperties, null, null, null);
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+
+        assertEquals(agentImpl.getIDRemote(), agentImpl.getIDRemote());
+    }
+
+
+    public void testRetrieveLinesRemoteNullProject() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
+        assertEquals(0, agentImpl.retrieveLinesRemote(0).length);
+    }
+
+    public void testRetrieveLinesRemote() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
+
+        final String testProjectName = "testProjectName";
+        final Map<String, String> projectProperties = new HashMap<String, String>();
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
+        try {
+            // gets far enough to set Project name...
+            agentImpl.doBuild(null, projectProperties, null, null, null);
+            fail("should fail w/ NPE");
+        } catch (NullPointerException e) {
+            assertEquals(null, e.getMessage());
+        }
+
+        final String[] lines = agentImpl.retrieveLinesRemote(0);
+        assertEquals("Expected no lines: " + Arrays.asList(lines).toString(),  0, lines.length);
+    }
+
+
     public void testAsString() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         String agentAsString = agentImpl.asString();
@@ -454,7 +506,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testGetBuildingProject() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertNull(agentImpl.getProjectName());
@@ -480,7 +532,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testKillNoWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -505,7 +557,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRestartNoWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -534,7 +586,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testKillWithWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -558,7 +610,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     public void testRestartWithWait() throws Exception {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());
@@ -961,7 +1013,7 @@ public class BuildAgentServiceImplTest extends TestCase {
     }
 
     private static BuildAgentServiceImpl createTestAgent(final Map<String, String> distributedAgentProps) {
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         if (!distributedAgentProps.containsKey(PropertiesHelper.DISTRIBUTED_OVERRIDE_TARGET)) {
@@ -1199,7 +1251,7 @@ public class BuildAgentServiceImplTest extends TestCase {
 
     private static BuildAgentServiceImpl createAndClaimNewBuildAgent() {
 
-        final BuildAgentServiceImpl agentImpl = new BuildAgentServiceImpl(null);
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
         agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
 
         assertFalse(agentImpl.isBusy());

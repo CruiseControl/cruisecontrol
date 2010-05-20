@@ -91,4 +91,23 @@ public class BuildOutputLoggerManager {
         return logger;
     }
 
+    /**
+     * Allows use of remote live output readers.
+     * @param projectName the unique name of this project.
+     * @param buildOutputLoggerRemote a live output reader connected to a distributed agent.
+     * @return prior logger for this project if one existed.
+     */
+    public BuildOutputLogger put(final String projectName, final BuildOutputLogger buildOutputLoggerRemote) {
+        return loggers.put(projectName, buildOutputLoggerRemote);
+    }
+
+    /**
+     * Allows cleanup of remote live output readers.
+     * Don't hold onto remote references, could get nasty otherwise.
+     * @param projectName an existing project name who's reader should be removed.
+     * @return the removed reader or null if none existed.
+     */
+    public BuildOutputLogger remove(final String projectName) {
+        return loggers.remove(projectName);
+    }
 }

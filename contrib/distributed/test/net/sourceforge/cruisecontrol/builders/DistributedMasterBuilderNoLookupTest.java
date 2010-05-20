@@ -149,4 +149,13 @@ public class DistributedMasterBuilderNoLookupTest extends TestCase {
         assertNull("Shouldn't find any available agents", masterBuilder.pickAgent(null, null));
     }
 
+    public void testGetBuildOutputConsumerFails() throws Exception {
+        final DistributedMasterBuilder masterBuilder = new DistributedMasterBuilder();
+        try {
+            masterBuilder.getBuildOutputConsumer(null, null, null);
+            fail("should be illegal");
+        } catch (IllegalStateException e) {
+            assertTrue(e.getMessage().contains("never be called"));
+        }
+    }
 }
