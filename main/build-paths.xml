@@ -41,6 +41,14 @@
         <pathelement location="${classes}"/>
     </path>
 
+    <path id="run.path">
+        <path refid="compile.out" />
+        <fileset refid="comm.lib" />
+        <fileset refid="commons-codec.lib" />
+        <fileset refid="jaxen.lib" />
+        <fileset refid="xerces.lib" />
+    </path>
+
     <path id="test.functional.compile.path">
         <path refid="compile.out"/>
         <fileset refid="junit.lib"/>
@@ -54,18 +62,12 @@
     <path id="test.functional.run.path">
         <path refid="test.unit.compile.path"/>
         <pathelement location="${test.classes}"/>
-        <fileset refid="comm.lib" />
-        <fileset refid="commons-codec.lib" />
-        <fileset refid="jaxen.lib" />
-        <fileset refid="xerces.lib" />
+        <path refid="run.path" />
     </path>
 
     <path id="test.unit.run.path">
         <path refid="test.unit.compile.path"/>
         <pathelement location="${test.classes}"/>
-        <fileset refid="comm.lib" />
-        <fileset refid="commons-codec.lib" />
-        <fileset refid="jaxen.lib" />
-        <fileset refid="xerces.lib" />
+        <path refid="run.path" />
     </path>
 </project>
