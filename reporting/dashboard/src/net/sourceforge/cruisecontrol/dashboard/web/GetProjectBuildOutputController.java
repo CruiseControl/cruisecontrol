@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 
@@ -49,21 +50,58 @@ import java.io.PrintWriter;
 
 public class GetProjectBuildOutputController implements Controller {
 
+    private static final Logger LOGGER = Logger.getLogger(GetProjectBuildOutputController.class);
+
+    /** Url parameter name. */
+    static final String PARAM_OUTPUT_ID = "outputid";
+    /** Default value initialized in build_detail_observer.js for outputid. */
+    static final String DEFAULT_OUTPUT_ID = "emptyid";
+
     private final BuildLoopQueryService buildLoopQueryService;
 
     public GetProjectBuildOutputController(BuildLoopQueryService service) {
         this.buildLoopQueryService = service;
     }
 
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String projectName = request.getParameter("project");
-        String start = request.getParameter("start");
-        int startAsInt = (start == null) ? 0 : Integer.parseInt(start);
-        String[] output = buildLoopQueryService.getBuildOutput(projectName, startAsInt);
-        response.addHeader("X-JSON", "[" + calculateNextStart(startAsInt, output) + "]");
+    public ModelAndView handleRequest(final HttpServletRequest request, final HttpServletResponse response)
+            throws Exception {
+        
+        final String projectName = request.getParameter("project");
+
+        final String oldOutputID = request.getParameter(PARAM_OUTPUT_ID);
+
+        final String start = request.getParameter("start");
+        final int startAsInt = (start == null) ? 0 : Integer.parseInt(start);
+
+        final String[] output = buildLoopQueryService.getBuildOutput(projectName, startAsInt);
+
+        final String newOutputID;
+        if (output == null || output.length == 0
+                // see build_detail_observer.js for how outputid default and how is set as a parameter
+                || DEFAULT_OUTPUT_ID.equals(oldOutputID)) {
+            newOutputID = buildLoopQueryService.getLiveOutputID(projectName);
+        } else {
+            // only read new ID if output is empty
+            newOutputID = oldOutputID;
+        }
+
+        final int nextStart = calculateNextStart(oldOutputID, newOutputID, startAsInt, output);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("*********** ----------- **************"
+                    + "\nparam start: " + start
+                    + "\nparam oldOutputID: " + oldOutputID
+                    + "\nnewOutputID: " + newOutputID
+                    + "\nnextStart: " + nextStart
+                    + "\noutput: " + (output == null ? null : "lines: " + output.length)
+                    + "\n*********** ----------- **************"
+            );
+        }
+        
+        response.addHeader("X-JSON", "[" + nextStart + ", \"" + newOutputID + "\"]");
         response.setContentType("text/plain");
         if (output != null) {
-            PrintWriter writer = response.getWriter();
+            final PrintWriter writer = response.getWriter();
             try {
                 writer.write(StringUtils.join(output, "\n"));
                 if (output.length > 0) {
@@ -76,13 +114,20 @@ public class GetProjectBuildOutputController implements Controller {
         return null;
     }
 
-    int calculateNextStart(int start, String[] outputs) {
+    int calculateNextStart(final String oldOutputID, final String newOutputID,
+                           final int start, final String[] outputs) {
+
         if (outputs == null || outputs.length == 0) {
-            return start;
+            // Use OutputID change to determine if logger changed, and reset start line if needed.
+            if (newOutputID == null || newOutputID.equals(oldOutputID)) {
+                return start;
+            } else {
+                return 0;
+            }
         }
-        String firstLine = outputs[0];
+        final String firstLine = outputs[0];
         if (firstLine.startsWith("Skipped") && firstLine.endsWith("lines")) {
-            String skippedLines = StringUtils.remove(StringUtils.remove(firstLine, "Skipped"), "lines").trim();
+            final String skippedLines = StringUtils.remove(StringUtils.remove(firstLine, "Skipped"), "lines").trim();
             return start + Integer.parseInt(skippedLines) + outputs.length - 1;
         }
         return start + outputs.length;

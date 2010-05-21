@@ -73,8 +73,13 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
         serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(2))).will(
                 returnValue(output));
 
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue("LiveOutputIDValue"));
+
         request.setParameter("project", "project1");
         request.setParameter("start", "2");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID,
+                GetProjectBuildOutputController.DEFAULT_OUTPUT_ID);
         controller.handleRequest(request, response);
 
         assertEquals("text/plain", response.getContentType());
@@ -85,7 +90,12 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
         serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(0))).will(
                 returnValue(new String[] {"Doesn't matter"}));
 
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue("LiveOutputIDValue"));
+
         request.setParameter("project", "project1");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID,
+                GetProjectBuildOutputController.DEFAULT_OUTPUT_ID);
         controller.handleRequest(request, response);
     }
 
@@ -93,40 +103,97 @@ public class GetProjectBuildOutputControllerTest extends MockObjectTestCase {
         serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
                 returnValue(new String[] {"1", "2", "3"}));
 
+        final String liveOutputID = "LiveOutputIDValue";
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue(liveOutputID));
+
         request.setParameter("project", "project1");
         request.setParameter("start", "500");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID,
+                GetProjectBuildOutputController.DEFAULT_OUTPUT_ID);
         controller.handleRequest(request, response);
 
         String nextStartLine = (String) response.getHeader("X-JSON");
-        assertEquals("[503]", nextStartLine);
+        assertEquals("[503, \"" + liveOutputID + "\"]", nextStartLine);
     }
 
-    public void testNextLineShouldEqualsStartLineWhenNoOutputReturns() throws Exception {
+    public void testNextLineShouldEqualsStartLineWhenNoOutputReturnsSameOutputID() throws Exception {
         serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
                 returnValue(new String[] {}));
 
+        final String liveOutputID = "LiveOutputIDValue";
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue(liveOutputID));
+
         request.setParameter("project", "project1");
         request.setParameter("start", "500");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID, liveOutputID);
         controller.handleRequest(request, response);
 
         String nextStartLine = (String) response.getHeader("X-JSON");
-        assertEquals("[500]", nextStartLine);
+        assertEquals("[500, \"" + liveOutputID + "\"]", nextStartLine);
+    }
+
+    public void testNextLineShouldEqualsStartLineWhenNoOutputReturnsNewOutputID() throws Exception {
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
+                returnValue(new String[] {}));
+
+        final String newID = "NewID";
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue(newID));
+
+        request.setParameter("project", "project1");
+        request.setParameter("start", "500");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID, "OldID");
+        controller.handleRequest(request, response);
+
+        String nextStartLine = (String) response.getHeader("X-JSON");
+        assertEquals("[0, \"" + newID + "\"]", nextStartLine);
+    }
+
+    public void testShouldGetNewOutputIDWhenNoOldOutputIDParameterAndSomeOutputLines() throws Exception {
+        serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
+                returnValue(new String[] {"1", "2", "3"}));
+
+        final String newID = "NewID";
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue(newID));
+
+        request.setParameter("project", "project1");
+        request.setParameter("start", "500");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID,
+                GetProjectBuildOutputController.DEFAULT_OUTPUT_ID);
+        controller.handleRequest(request, response);
+
+        String nextStartLine = (String) response.getHeader("X-JSON");
+        assertEquals("[503, \"" + newID + "\"]", nextStartLine);
+    }
+
+    public void testShouldReturnZeroStartWhenOutputIsEmptyAndIDChanged() throws Exception {
+        assertEquals(0, controller.calculateNextStart("id", "id2", 10, null));
+        assertEquals(0, controller.calculateNextStart("id", "id2", 10, new String[0]));
     }
 
     public void testShouldReturnSameStartWhenOutputIsEmpty() throws Exception {
-        assertEquals(10, controller.calculateNextStart(10, null));
-        assertEquals(10, controller.calculateNextStart(10, new String[0]));
+        assertEquals(10, controller.calculateNextStart(null, null, 10, null));
+        assertEquals(10, controller.calculateNextStart(null, null, 10, new String[0]));
     }
 
     public void testShouldReturnNextStartLineEvenSkipSomeLines() throws Exception {
         serviceMock.expects(once()).method("getBuildOutput").with(eq("project1"), eq(new Integer(500))).will(
                 returnValue(new String[] {"Skipped 2 lines", "1", "2", "3"}));
 
+        final String liveOutputID = "LiveOutputIDValue";
+        serviceMock.expects(once()).method("getLiveOutputID").with(eq("project1")).will(
+                returnValue(liveOutputID));
+
         request.setParameter("project", "project1");
         request.setParameter("start", "500");
+        request.setParameter(GetProjectBuildOutputController.PARAM_OUTPUT_ID,
+                GetProjectBuildOutputController.DEFAULT_OUTPUT_ID);
         controller.handleRequest(request, response);
 
         String nextStartLine = (String) response.getHeader("X-JSON");
-        assertEquals("[505]", nextStartLine);
+        assertEquals("[505, \"" + liveOutputID + "\"]", nextStartLine);
     }
 }

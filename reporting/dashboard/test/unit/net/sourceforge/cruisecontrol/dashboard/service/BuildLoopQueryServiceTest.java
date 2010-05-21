@@ -44,6 +44,7 @@ import net.sourceforge.cruisecontrol.dashboard.Projects;
 import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
 import net.sourceforge.cruisecontrol.dashboard.repository.ClosableProjectMBeanConnection;
 import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionBuildOutputStub;
+import net.sourceforge.cruisecontrol.dashboard.testhelpers.jmxstub.MBeanServerConnectionOutputIDStub;
 import org.jmock.Mock;
 import org.jmock.cglib.MockObjectTestCase;
 
@@ -108,6 +109,16 @@ public class BuildLoopQueryServiceTest extends MockObjectTestCase {
         String[] output = buildLoopQueryService.getBuildOutput(PROJECT_NAME, 0);
         assertEquals("Build Failed", output[0]);
         assertEquals("Build Duration: 10s", output[1]);
+    }
+
+    public void testShouldReturnLiveOutputID() throws Exception {
+        repository.expects(once()).method("getJmxConnection").
+                will(returnValue(closableProjectMBeanConnection.proxy()));
+        closableProjectMBeanConnection.expects(once()).method("getMBeanServerConnection").
+                will(returnValue(new MBeanServerConnectionOutputIDStub()));
+        closableProjectMBeanConnection.expects(once()).method("close");
+        String outputID = buildLoopQueryService.getLiveOutputID(PROJECT_NAME);
+        assertEquals("LiveOutputID", outputID);
     }
 
     public void testShouldReturnStatusMapKeyedOnProjectName() throws Exception {

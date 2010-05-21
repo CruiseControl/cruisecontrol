@@ -62,6 +62,8 @@ public class BuildOutputLogger implements StreamConsumer, LiveOutputReader, Seri
 
     /** A unique (for this VM) identifying string for this logger instance. */
     private String id;
+    /** Counter used to change the id after data reset. */
+    private long resetCount;
 
     public BuildOutputLogger(File outputFile) {
         data = outputFile;
@@ -75,7 +77,7 @@ public class BuildOutputLogger implements StreamConsumer, LiveOutputReader, Seri
 
         // reset ID after data file is cleared.
         // Allows clients to read from beginning if readUptoMaxLines() was called before a reset.
-        id += "__" + data.getName();
+        id += "__" + resetCount++;
     }
 
 

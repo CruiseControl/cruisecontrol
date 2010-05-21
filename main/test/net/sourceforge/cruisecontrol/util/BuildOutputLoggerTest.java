@@ -55,14 +55,14 @@ public class BuildOutputLoggerTest extends TestCase {
         final File origFile = prepareBufferFile(0);
         final BuildOutputLogger logger = new BuildOutputLogger(origFile);
         final String origID = logger.getID();
-        assertFalse(origID.endsWith(origFile.getName()));
+        assertFalse(origID.endsWith("__0"));
 
         assertEquals(origID, logger.getID());
         logger.clear();
         final String newId = logger.getID();
         assertFalse(origID.equals(newId));
 
-        assertTrue(newId.endsWith(origFile.getName()));
+        assertTrue(newId.endsWith("__0"));
         assertTrue(newId.startsWith(origID));
     }
 
@@ -71,7 +71,7 @@ public class BuildOutputLoggerTest extends TestCase {
         final BuildOutputLogger logger = new BuildOutputLogger(origFile);
         logger.clear();
         final String origID = logger.getID();
-        assertTrue(origID.endsWith(origFile.getName()));
+        assertTrue(origID.endsWith("__0"));
 
         assertEquals(0, logger.retrieveLines(0).length);
         assertEquals(origID, logger.getID());
