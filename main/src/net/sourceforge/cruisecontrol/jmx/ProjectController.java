@@ -277,7 +277,6 @@ public class ProjectController extends NotificationBroadcasterSupport
      * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger
      */
     public String[] getBuildOutput(final Integer firstLine) {
-        // @todo Note that CompositeBuilder will clear output data file if same builder type is run in composite.
         return  BuildOutputLoggerManager.INSTANCE.lookup(getProjectName()).retrieveLines(firstLine);
     }
 
