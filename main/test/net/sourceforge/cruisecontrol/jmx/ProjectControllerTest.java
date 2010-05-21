@@ -202,7 +202,7 @@ public class ProjectControllerTest extends TestCase {
                 }
             }
             assertTrue("Cleared data file should have reset ID: " + mbean.getOutputLoggerID(),
-                    mbean.getOutputLoggerID().endsWith(AntOutputLogger.DEFAULT_OUTFILE_NAME));
+                    mbean.getOutputLoggerID().endsWith("__0"));
         } finally {
             IO.delete(validFile);
         }

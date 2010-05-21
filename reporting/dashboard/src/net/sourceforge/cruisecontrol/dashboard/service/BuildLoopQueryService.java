@@ -62,6 +62,7 @@ public class BuildLoopQueryService {
 
     public static final String JMXCOMMAND_COMMIT_MESSAGE = "CommitMessages";
 
+    public static final String JMXCOMMAND_OUTPUT_ID = "OutputLoggerID";
     public static final String JMXCOMMAND_BUILD_OUTPUT = "getBuildOutput";
 
     public static final String JMXCOMMAND_ALL_PROJECT_STATUS = "AllProjectsStatus";
@@ -136,7 +137,7 @@ public class BuildLoopQueryService {
         return result;
     }
 
-    public String[] getBuildOutput(String projectName, int firstLine) {
+    public String[] getBuildOutput(final String projectName, final int firstLine) {
         try {
             final ClosableProjectMBeanConnection closableProjectMBeanConnection = getJMXConnection(projectName);
             try {
@@ -152,6 +153,23 @@ public class BuildLoopQueryService {
         } catch (Exception e) {
             LOGGER.error("Problem getting build output", e);
             return new String[] {" - Unable to connect to build loop at " + getServerName(projectName)};
+        }
+    }
+
+    public String getLiveOutputID(final String projectName) {
+        try {
+            final ClosableProjectMBeanConnection closableProjectMBeanConnection = getJMXConnection(projectName);
+            try {
+                final MBeanServerConnection jmxConnection = closableProjectMBeanConnection.getMBeanServerConnection();
+                return (String) jmxConnection.getAttribute(getObjectName(projectName), JMXCOMMAND_OUTPUT_ID);
+            } finally {
+                if (closableProjectMBeanConnection != null) {
+                    closableProjectMBeanConnection.close();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Problem getting output ID", e);
+            return " - Unable to connect to build loop at " + getServerName(projectName);
         }
     }
 

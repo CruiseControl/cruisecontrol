@@ -41,6 +41,7 @@ BuildDetailObserver.prototype = {
         this.project_name = project_name;
         this.is_timer_observer_notified = false;
         this.start_line_number = 0;
+        this.output_id = "emptyid";
     },
     notify : function(jsonArray) {
         for (var i = 0; i < jsonArray.length; i++) {
@@ -67,10 +68,11 @@ BuildDetailObserver.prototype = {
         var ajaxRequest = new Ajax.Request(context_path('getProjectBuildOutput.ajax'), {
             asynchronous:false,
             method: 'GET',
-            parameters: 'project=' + _this.project_name + '&start=' + _this.start_line_number,
+            parameters: 'project=' + _this.project_name + '&start=' + _this.start_line_number + '&outputid=' + _this.output_id,
             onSuccess: function(transport, next_start_as_json) {
                 if (next_start_as_json) {
                     _this.start_line_number = next_start_as_json[0];
+                    _this.output_id = next_start_as_json[1];
                     var build_output = transport.responseText;
                     is_output_empty = _this._update_live_output(build_output);
                 } else
