@@ -46,6 +46,13 @@ reporting jsp app
 ======================
 * Show CruiseControl version string (if available) on index and main jsp pages.
 
+contrib
+======================
+
+distributed
+----------------------
+* Add ability to read Live Output from remote agents using Build Agent Utility.
+
 
 CruiseControl Release Notes - 2.8.3
 
