@@ -63,6 +63,7 @@ public final class BuildAgentUtility {
         private final JComboBox cmbAgents = new JComboBox();
         private final Action atnInvoke;
         private final Action atnEditEntries;
+        private final Action atnLiveOutput;
         private final Action atnListLookupServices;
         private static final String METH_RESTART = "restart";
         private static final String METH_KILL = "kill";
@@ -85,6 +86,7 @@ public final class BuildAgentUtility {
             buildAgentUtility = null;
             atnInvoke = null;
             atnEditEntries = null;
+            atnLiveOutput = null;
             atnListLookupServices = null;
         }
 
@@ -116,6 +118,7 @@ public final class BuildAgentUtility {
                 public void actionPerformed(final ActionEvent e) {
                     atnInvoke.setEnabled(true);
                     atnEditEntries.setEnabled(true);
+                    atnLiveOutput.setEnabled(true);
                 }
             });
 
@@ -155,6 +158,28 @@ public final class BuildAgentUtility {
                 }
             };
             atnEditEntries.setEnabled(false);
+
+            atnLiveOutput = new AbstractAction("Live Output") {
+                public void actionPerformed(final ActionEvent e) {
+                    final ComboItemWrapper agentWrapper = ((ComboItemWrapper) cmbAgents.getSelectedItem());
+                    final BuildAgentService agentService = agentWrapper.getAgent();
+
+                    final String agentMachineName;
+                    try {
+                        agentMachineName = agentService.getMachineName();
+                    } catch (RemoteException e1) {
+                        throw new RuntimeException(e1);
+                    }
+
+                    final LiveOutputUI liveOutputUI
+                            = new LiveOutputUI(BuildAgentUtility.UI.this, agentService,
+                            agentMachineName + ": " + agentWrapper.getServiceID(), atnLiveOutput);
+                    liveOutputUI.setVisible(true);
+                    liveOutputUI.pack();
+                    atnLiveOutput.setEnabled(false);
+                }
+            };
+            atnLiveOutput.setEnabled(false);
 
             atnListLookupServices = new AbstractAction("Lookup Services") {
                 public void actionPerformed(final ActionEvent e) {
@@ -204,10 +229,17 @@ public final class BuildAgentUtility {
             pnlNS.add(new JButton(atnListLookupServices), BorderLayout.WEST);
             pnlNS.add(btnClose, BorderLayout.EAST);
 
+
             pnlEdit.add(cmbRestartOrKill, BorderLayout.WEST);
-            pnlEdit.add(chkAfterBuildFinished, BorderLayout.CENTER);
+
+            final JPanel pnlMiddleCenter = new JPanel(new BorderLayout());
+            pnlMiddleCenter.add(chkAfterBuildFinished, BorderLayout.WEST);
+            pnlMiddleCenter.add(new JButton(atnLiveOutput), BorderLayout.EAST);
+            pnlEdit.add(pnlMiddleCenter, BorderLayout.CENTER);
+
             pnlEdit.add(btnInvokeOnAll, BorderLayout.EAST);
 
+            
             final JPanel northPanel = new JPanel(new BorderLayout());
             northPanel.add(pnlNN, BorderLayout.NORTH);
             northPanel.add(pnlEdit, BorderLayout.CENTER);
@@ -296,6 +328,7 @@ public final class BuildAgentUtility {
                 public void run() {
                     btnRefresh.setEnabled(false);
                     atnInvoke.setEnabled(false);
+                    atnLiveOutput.setEnabled(false);
                     atnEditEntries.setEnabled(false);
                     btnInvokeOnAll.setEnabled(false);
                     cmbAgents.setEnabled(false);
