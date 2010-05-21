@@ -334,6 +334,8 @@ public class DistributedMasterBuilder extends Builder {
                     // put LiveOutputReader into manager
                     final BuildOutputLoggerRemote remoteReader = new BuildOutputLoggerRemote(projectName, agent);
                     BuildOutputLoggerManager.INSTANCE.put(projectName, remoteReader);
+                    LOG.debug("Distributed Builder set Remote Logger: ProjectName: " + projectName
+                            + "; OutputID: " + remoteReader.getID());
                 }
 
 

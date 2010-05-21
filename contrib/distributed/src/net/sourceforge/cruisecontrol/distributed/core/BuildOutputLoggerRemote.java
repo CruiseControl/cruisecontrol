@@ -39,7 +39,7 @@ public class BuildOutputLoggerRemote extends BuildOutputLogger implements Serial
             return agent.retrieveLinesRemote(firstLine);
         } catch (RemoteException e) {
             final String msg = project + MSG_PART + "retrieveLinesRemote(): ";
-            LOG.debug(msg, e);
+            LOG.warn(msg, e);
             return new String[] {msg + e.getMessage()};
         }
     }
@@ -50,7 +50,7 @@ public class BuildOutputLoggerRemote extends BuildOutputLogger implements Serial
             return agent.getIDRemote();
         } catch (RemoteException e) {
             final String msg = project + MSG_PART + "getIDRemote(): ";
-            LOG.debug(msg, e);
+            LOG.warn(msg, e);
             return msg + e.getMessage();
         }
     }
