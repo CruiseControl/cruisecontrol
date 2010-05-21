@@ -51,9 +51,8 @@ public class BuildOutputLoggerRemoteTest extends TestCase {
         final String projectName = "projectName";
 
         final BuildAgentService agent = BuildAgentServiceImplTest.createTestAgentImpl();
-        final String testProjectName = "testProjectName";
         final Map<String, String> projectProperties = new HashMap<String, String>();
-        projectProperties.put(PropertiesHelper.PROJECT_NAME, testProjectName);
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, projectName);
         try {
             // gets far enough to set Project name...
             agent.doBuild(null, projectProperties, null, null, null);
