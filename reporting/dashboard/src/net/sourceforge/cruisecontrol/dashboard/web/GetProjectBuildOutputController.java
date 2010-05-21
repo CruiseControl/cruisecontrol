@@ -88,14 +88,14 @@ public class GetProjectBuildOutputController implements Controller {
         final int nextStart = calculateNextStart(oldOutputID, newOutputID, startAsInt, output);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("*********** ----------- **************"
+            final String msg = "*********** ----------- **************"
                     + "\nparam start: " + start
                     + "\nparam oldOutputID: " + oldOutputID
                     + "\nnewOutputID: " + newOutputID
                     + "\nnextStart: " + nextStart
                     + "\noutput: " + (output == null ? null : "lines: " + output.length)
-                    + "\n*********** ----------- **************"
-            );
+                    + "\n*********** ----------- **************";
+            LOGGER.debug(msg);
         }
         
         response.addHeader("X-JSON", "[" + nextStart + ", \"" + newOutputID + "\"]");
