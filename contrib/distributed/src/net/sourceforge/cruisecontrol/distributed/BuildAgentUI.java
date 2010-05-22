@@ -4,6 +4,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -105,6 +106,12 @@ final class BuildAgentUI extends JFrame implements BuildAgent.AgentStatusListene
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(pnlN, BorderLayout.NORTH);
         getContentPane().add(scrConsole, BorderLayout.CENTER);
+
+        final Image imgIcon = PreferencesHelper.getCCImageIcon();
+        if (imgIcon != null) {
+            setIconImage(imgIcon);
+        }
+
         pack();
 
         // apply screen info from last run

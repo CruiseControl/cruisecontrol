@@ -721,6 +721,10 @@
             <zipfileset dir="dist/agent/conf" prefix="conf">
                 <include name="log4j.properties"/>
             </zipfileset>
+
+            <zipfileset dir="${classes}/net/sourceforge/cruisecontrol/distributed/core" prefix="conf">
+                <include name="frameicon.png"/>
+            </zipfileset>
         </war>
     </target>
 

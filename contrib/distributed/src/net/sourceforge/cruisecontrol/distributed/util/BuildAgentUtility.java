@@ -34,6 +34,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Window;
+import java.awt.Image;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -246,6 +247,12 @@ public final class BuildAgentUtility {
             northPanel.add(pnlNS, BorderLayout.SOUTH);
             getContentPane().add(northPanel, BorderLayout.NORTH);
             getContentPane().add(scrConsole, BorderLayout.CENTER);
+
+            final Image imgIcon = PreferencesHelper.getCCImageIcon();
+            if (imgIcon != null) {
+                setIconImage(imgIcon);
+            }
+
             pack();
 
             // set screen info from last run

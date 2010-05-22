@@ -6,6 +6,7 @@
         <vendor>CruiseControl</vendor>
         <description>CruiseControl distributed Build Agent Ant Progress support installer</description>
         <description kind="short">Installs Ant Progress support libs for Build Agent on this machine.</description>
+        <icon href="conf/frameicon.png"/>
     </information>
     <security>
         <all-permissions/>

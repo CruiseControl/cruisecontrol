@@ -1,5 +1,8 @@
 package net.sourceforge.cruisecontrol.distributed.core;
 
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import java.net.URL;
 import java.util.prefs.Preferences;
 import java.awt.Window;
 
@@ -83,6 +86,36 @@ public final class PreferencesHelper {
                 prfSize.getInt(PREFS_NODE_WIDTH, uiPrefs.getWindow().getWidth()),
                 prfSize.getInt(PREFS_NODE_HEIGHT, uiPrefs.getWindow().getHeight()));
 
+    }
+
+
+    /**
+     * Load a CruiseControl icon for use in JFrame.setImageIcon().
+     * Maybe not the perfect place for this, but not really worth a whole new class.
+     * @return an Image or null if resource not found.
+     */
+    public static Image getCCImageIcon() {
+        return getImageIcon("net/sourceforge/cruisecontrol/distributed/core/frameicon.png");
+    }
+
+    /**
+     * Load an icon for use in JFrame.setImageIcon().
+     * Maybe not the perfect place for this, but not really worth a whole new class.
+     * @param iconFile the path to the icon resource
+     * @return an Image or null if resource not found.
+     */
+    private static Image getImageIcon(final String iconFile) {
+
+        final URL urlIcon = FileUtil.class.getClassLoader().getResource(iconFile);
+
+        final Image imgIcon;
+        if (urlIcon != null) {
+            imgIcon = new ImageIcon(urlIcon).getImage();
+        } else {
+            imgIcon = null;
+        }
+
+        return imgIcon;
     }
 
 
