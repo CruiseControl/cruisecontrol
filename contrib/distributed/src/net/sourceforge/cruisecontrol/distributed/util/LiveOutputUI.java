@@ -176,6 +176,7 @@ class LiveOutputUI extends JDialog {
         pnlMain.add(pnlTop, BorderLayout.NORTH);
 
         txaLines = new JTextArea();
+        txaLines.setEditable(false);
 
         final Action atnRefresh = new AbstractAction("Refresh") {
             public void actionPerformed(final ActionEvent e) {
