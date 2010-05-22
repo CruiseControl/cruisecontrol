@@ -65,7 +65,9 @@ public class AntOutputLogger extends DefaultLogger {
             mystream = new PrintStream(new FileOutputStream(outfile, true));
             super.printMessage(message, mystream, priority);
         } catch (FileNotFoundException e) {
-            super.printMessage("Error (" + e.getMessage() + "): " + message, stream, priority);
+            if (stream != null) {
+                super.printMessage("Error (" + e.getMessage() + "): " + message, stream, priority);
+            }
         } finally {
             if (mystream != null) { mystream.close(); }
         }

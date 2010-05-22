@@ -38,10 +38,13 @@ package net.sourceforge.cruisecontrol.builders;
 
 import junit.framework.TestCase;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -89,6 +92,63 @@ public class AntOutputLoggerTest extends TestCase {
         lines = fileLoad();
         assertEquals(1, lines.length);
         assertEquals("1", lines[0]);
+    }
+
+    public void testPrintMessageFileNotFoundExceptionWithNullStream() throws Exception {
+        // create output file as a Directory to trigger Exception
+        if (outputFile.exists()) {
+            assertTrue(outputFile.delete());
+        }
+        assertFalse(outputFile.exists());
+
+        final File dummyInDir = new File(outputFile.getAbsolutePath(), "dummyInDir");
+        assertTrue(dummyInDir.mkdirs());
+        assertTrue("delete dummy as dir", dummyInDir.delete());
+        new FileOutputStream(dummyInDir).close();
+        try {
+            assertTrue(outputFile.exists());
+            assertTrue(outputFile.isDirectory());
+
+            AntOutputLogger logger = new AntOutputLogger();
+            logger.printMessage("0", null, -1);
+
+            String[] lines = fileLoad();
+            assertEquals("FileNotFoundException leads to missed message, but does not fail build.", 0, lines.length);
+        } finally {
+            assertTrue("delete dummy as file", dummyInDir.delete());
+            dummyInDir.deleteOnExit();    
+        }
+    }
+
+    public void testPrintMessageFileNotFoundExceptionWithStream() throws Exception {
+        // create output file as a Directory to trigger Exception
+        if (outputFile.exists()) {
+            assertTrue(outputFile.delete());
+        }
+        assertFalse(outputFile.exists());
+
+        final File dummyInDir = new File(outputFile.getAbsolutePath(), "dummyInDir");
+        assertTrue(dummyInDir.mkdirs());
+        assertTrue("delete dummy as dir", dummyInDir.delete());
+        new FileOutputStream(dummyInDir).close();
+        try {
+            assertTrue(outputFile.exists());
+            assertTrue(outputFile.isDirectory());
+
+            AntOutputLogger logger = new AntOutputLogger();
+
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final PrintStream stream = new PrintStream(baos);
+            logger.printMessage("0", stream, -1);
+
+            String[] lines = fileLoad();
+            assertEquals("FileNotFoundException leads to missed message, but does not fail build.", 0, lines.length);
+
+            assertTrue(baos.toString().startsWith("Error ("));
+        } finally {
+            assertTrue("delete dummy as file", dummyInDir.delete());
+            dummyInDir.deleteOnExit();
+        }
     }
 
 
