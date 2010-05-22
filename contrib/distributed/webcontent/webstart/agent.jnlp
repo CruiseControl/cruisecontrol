@@ -10,6 +10,7 @@
             <desktop/>
             <menu submenu="CruiseControl Distributed"/>
         </shortcut>
+        <icon href="conf/frameicon.png"/> 
     </information>
     <security>
         <all-permissions/>
