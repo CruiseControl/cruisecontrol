@@ -16,6 +16,10 @@ build loop
 * BuildOutputLogger with multiple builds interfere with each other with multiple threads (CC-911). Patch by Grzegorz Olędzki. 
   Additional changes to support 'liveOutput' (visible in Dashboard) and 'showProgress' (visible in JSP) from all builders. See CC-911 for details.
 
+AntBuilder
+----------------------
+* Fix possible build failure due to NPE in AntOutputLogger (CC-913). Patch by Ivan "Rambius" Ivanov.
+
 CMSynergyBaselinePublisher
 ----------------------
 * Allow property resolution in build attribute (CC-973).
