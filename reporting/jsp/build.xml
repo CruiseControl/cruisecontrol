@@ -44,7 +44,7 @@
     <property file="override.properties"/>
 
     <!-- define version -->
-    <property file="../../build.properties"/>
+    <property file="${project.root}/build.properties"/>
 
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
@@ -117,7 +117,7 @@
         <fileset dir="${lib}" includes="jsp*.jar"/>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
-        <pathelement location="../../main/target/test-classes"/>
+        <pathelement location="${project.root}/main/target/test-classes"/>
     </path>
 
     <target name="clean">
@@ -243,7 +243,7 @@
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
             <lib refid="req.libs"/>
-            <lib file="../../main/dist/cruisecontrol.jar"/>
+            <lib refid="main.lib"/>
             <manifest>
                 <attribute name="Implementation-Version" value="${label}"/>
             </manifest>
@@ -257,7 +257,7 @@
         <mkdir dir="target/jsp-precompile/src"/>
         <taskdef classname="org.apache.jasper.JspC" name="jasper2">
             <classpath id="jspc.classpath">
-                <fileset dir="../../binaryrelease/lib">
+                <fileset dir="${project.root}/binaryrelease/lib">
                     <include name="*.jar"/>
                 </fileset>
                 <path refid="project.runtime.classpath"/>
