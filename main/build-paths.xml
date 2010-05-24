@@ -60,7 +60,7 @@
     </path>
 
     <path id="test.functional.run.path">
-        <path refid="test.unit.compile.path"/>
+        <path refid="test.functional.compile.path"/>
         <pathelement location="${test.classes}"/>
         <path refid="run.path" />
     </path>

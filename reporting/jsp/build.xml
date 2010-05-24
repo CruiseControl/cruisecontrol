@@ -69,11 +69,7 @@
 
     <import file="${project.root}/common/checkstyle-build.xml"/>
 
-    <path id="project.classpath" >
-        <fileset dir="${lib}" includes="*.jar"/>
-        <!-- ant.jar is also needed to compile the ArtifactsPublisher,
-             but is added automatically to the javac classpath -->
-    </path>
+    <import file="build-paths.xml" />
 
     <fileset dir="${lib}" id="req.libs">
         <include name="batik*.jar"/>
@@ -81,8 +77,8 @@
         <include name="commons-lang*.jar"/>
         <include name="commons-logging*.jar"/>
         <include name="el-api.jar"/>
-        <include name="jcommon*.jar"/>
         <include name="jaxen*.jar"/>
+        <include name="jcommon*.jar"/>
         <include name="jdom*.jar"/>
         <include name="jfreechart*.jar"/>
         <include name="junit*.jar"/>
@@ -97,27 +93,6 @@
         <include name="xml*.jar"/>
         <include name="xwork*.jar"/>
     </fileset>
-
-    <path id="project.runtime.classpath" >
-        <fileset refid="main.lib" />
-
-        <fileset refid="cewolf.lib" />
-        <fileset refid="commons-lang.lib" />
-        <fileset refid="commons-logging.lib" />
-        <fileset refid="el-api.lib" />
-        <fileset refid="jcommon.lib" />
-        <fileset refid="jdom.lib" />
-        <fileset refid="jfreechart.lib" />
-        <fileset refid="jsp-api.lib" />
-        <fileset refid="junit.lib" />
-        <fileset refid="servlet-api.lib" />
-        <fileset refid="webwork.lib" />
-        <fileset refid="xwork.lib" />
-
-        <pathelement location="${classes}"/>
-        <pathelement location="${test.classes}"/>
-        <pathelement location="${project.root}/main/target/test-classes"/>
-    </path>
 
     <target name="clean">
         <delete dir="${target}"/>
@@ -168,7 +143,7 @@
     <macrodef name="compile-macro">
         <attribute name="destdir" default="${classes}" />
         <attribute name="srcdir" default="${src}" />
-        <attribute name="classpathref" default="project.runtime.classpath" />
+        <attribute name="classpathref" />
         <element name="nested" implicit="true" optional="true" />
         <sequential>
             <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
@@ -178,17 +153,17 @@
     </macrodef>
 
     <target name="compile" depends="init">
-        <compile-macro/>
+        <compile-macro classpathref="compile.path" />
     </target>
 
     <target name="compile-test" depends="compile"
         description="Compile test code">
-        <compile-macro srcdir="${test}" destdir="${test.classes}"/>
+        <compile-macro srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" />
     </target>
 
     <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
         <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath refid="project.runtime.classpath" />
+            <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false" />
             <formatter type="xml"/>
             <batchtest todir="${test.results}" >
@@ -199,7 +174,7 @@
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
         <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath refid="project.runtime.classpath" />
+            <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false"/>
             <formatter type="xml"/>
             <test name="${testcase}" todir="${test.results}"/>
@@ -258,7 +233,7 @@
             <classpath id="jspc.classpath">
                 <fileset refid="jetty-util.lib" />
                 <fileset refid="jsp.lib" />
-                <path refid="project.runtime.classpath"/>
+                <path refid="compile.path"/>
             </classpath>
         </taskdef>
         <jasper2 compile="true" outputdir="${basedir}/target/jsp-precompile/src"
@@ -271,8 +246,7 @@
        <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*"
            breakiterator="yes" failonerror="true" source="1.5">
            <classpath>
-               <path refid="project.classpath" />
-               <path refid="project.runtime.classpath" />
+               <path refid="run.path" />
                <pathelement location="${src}" />
            </classpath>
        </javadoc>
