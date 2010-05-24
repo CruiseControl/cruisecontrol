@@ -127,16 +127,8 @@
 	<target name="-check.license.exist">
 		<available file="${basedir}/lib/${production.library.file}" property="jar.exist" />
 		<available file="${basedir}/lib/licenses/${production.license.file}" property="license.exist" />
-		<fail message="You are missing ${production.library.file} ">
-			<condition>
-				<isFalse value="${jar.exist}" />
-			</condition>
-		</fail>
-		<fail message="You may be missing ${production.license.file}">
-			<condition>
-				<isFalse value="${license.exist}" />
-			</condition>
-		</fail>
+		<fail message="You are missing ${production.library.file} " unless="jar.exist" />
+		<fail message="You may be missing ${production.license.file}" unless="license.exist" />
 	</target>
 
 	<target name="--check.license" depends="-check.license" />
