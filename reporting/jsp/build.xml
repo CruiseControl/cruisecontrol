@@ -108,13 +108,12 @@
         <fileset refid="jcommon.lib" />
         <fileset refid="jdom.lib" />
         <fileset refid="jfreechart.lib" />
+        <fileset refid="jsp-api.lib" />
         <fileset refid="junit.lib" />
         <fileset refid="servlet-api.lib" />
         <fileset refid="webwork.lib" />
         <fileset refid="xwork.lib" />
 
-        <fileset dir="${lib}" includes="servlet*.jar"/>
-        <fileset dir="${lib}" includes="jsp*.jar"/>
         <pathelement location="${classes}"/>
         <pathelement location="${test.classes}"/>
         <pathelement location="${project.root}/main/target/test-classes"/>
