@@ -69,7 +69,6 @@
 
 	<import file="${project.root}/common/checkstyle-build.xml"/>
 	<import file="checklicense.xml" />
-	<import file="${project.root}/common/checkstyle-build.xml" />
 	<import file="jsunit/jsunit.xml" />
 
 	<path id="lib.classpath">
