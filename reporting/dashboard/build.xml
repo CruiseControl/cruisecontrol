@@ -37,9 +37,10 @@
  ********************************************************************************/
 -->
 <project name="cruise-dashboard" default="dist">
-	
+	<property name="project.root" location="${basedir}/../.." />
+
 	<!-- define cc.version -->
-	<property file="../../build.properties" />
+	<property file="${project.root}/build.properties" />
 	<!-- Use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one.
          Note: the release.xml overrides this property -->
@@ -47,7 +48,7 @@
 	
 	<property name="build.dir" value="target" />
 	<property name="properties.dir" value="properties" />
-	<property name="ccmain.dist.dir" value="${basedir}/../../main/dist" />
+	<property name="ccmain.dist.dir" value="${project.root}/main/dist" />
 	<property name="dist.dir" value="dist" />
 	<property name="war.dir" value="${build.dir}/war" />
 	<property name="app.classes.dir" value="${war.dir}/WEB-INF/classes" />
@@ -63,12 +64,12 @@
 	<property name="emma.dir" location="target/emma" />
 	<property name="jsunit.dir" location="jsunit" />
 	<property name="checkstyle.cache" value="${build.dir}/checkstyle.cache" />
-	<property name="checkstyle.config" value="../../common/checkstyle.xml" />
+	<property name="checkstyle.config" value="${project.root}/common/checkstyle.xml" />
 	<property environment="env" />
 
-	<import file="../../common/checkstyle-build.xml"/>
+	<import file="${project.root}/common/checkstyle-build.xml"/>
 	<import file="checklicense.xml" />
-	<import file="../../common/checkstyle-build.xml" />
+	<import file="${project.root}/common/checkstyle-build.xml" />
 	<import file="jsunit/jsunit.xml" />
 
 	<path id="lib.classpath">
@@ -135,7 +136,7 @@
 	</target>
 
 	<target name="-compile">
-		<ant antfile="build.xml" dir="../../main" target="jar" inheritall="false" />
+		<ant antfile="build.xml" dir="${project.root}/main" target="jar" inheritall="false" />
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${app.classes.dir}" />
 		<javac destdir="${app.classes.dir}" classpathref="app.classpath" debug="true" fork="true" source="1.5" target="1.5">
