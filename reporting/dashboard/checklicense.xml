@@ -125,7 +125,6 @@
     </target>
 
 	<target name="-check.license.exist">
-		<echo message="checking license for included jar ${production.library.file}....." />
 		<available file="${basedir}/lib/${production.library.file}" property="jar.exist" />
 		<available file="${basedir}/lib/licenses/${production.license.file}" property="license.exist" />
 		<fail message="You are missing ${production.library.file} ">
