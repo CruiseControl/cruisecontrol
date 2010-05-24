@@ -40,8 +40,9 @@
     <fileset id="jcommon.lib" file="${project.root}/reporting/jsp/lib/jcommon-0.8.0.jar"/>
     <fileset id="jdom.lib" file="${project.root}/main/lib/jdom.jar"/>
     <fileset id="jetty.lib" file="${project.root}/binaryrelease/lib/jetty-6.1.11.jar"/>
-    <fileset id="jetty.util.lib" file="${project.root}/binaryrelease/lib/jetty-util-6.1.11.jar"/>
+    <fileset id="jetty-util.lib" file="${project.root}/binaryrelease/lib/jetty-util-6.1.11.jar"/>
     <fileset id="jfreechart.lib" file="${project.root}/reporting/jsp/lib/jfreechart-0.9.8.jar"/>
+    <fileset id="jsp.lib" file="${project.root}/binaryrelease/lib/jsp-2.1.jar"/>
     <fileset id="jsp-api.lib" file="${project.root}/reporting/jsp/lib/jsp-api-2.1.jar"/>
     <fileset id="jug.lib" file="${project.root}/main/lib/jug-lgpl-2.0.0.jar"/>
     <fileset id="junit.lib" file="${project.root}/main/lib/junit-4.4.jar"/>

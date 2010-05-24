@@ -19,7 +19,7 @@
         <fileset refid="jakarta-oro.lib" />
         <fileset refid="jdom.lib" />
         <fileset refid="jetty.lib" />
-        <fileset refid="jetty.util.lib" />
+        <fileset refid="jetty-util.lib" />
         <fileset refid="jug.lib" />
         <fileset refid="log4j.lib" />
         <fileset refid="mail.lib" />
