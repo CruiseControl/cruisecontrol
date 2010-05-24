@@ -48,7 +48,7 @@
 
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
-	<property name="reports.dir" value="${target}/reports" />
+    <property name="reports.dir" value="${target}/reports" />
     <property name="deploy.dir" value="${dist}"/>
     <property name="lib" value="lib"/>
     <property name="src" value="src"/>
