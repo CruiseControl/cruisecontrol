@@ -126,13 +126,7 @@
             <fileset dir="${cruisecontrol.binaryrelease}/lib"/>
         </copy>
         <copy todir="${install.docs}">
-            <fileset dir="${cruisecontrol}/docs"/>
-        </copy>
-        <copy todir="${install.docs}/main">
-            <fileset dir="${cruisecontrol.main}/docs"/>
-        </copy>
-        <copy todir="${install.docs}/reporting">
-            <fileset dir="${cruisecontrol.reporting}/docs"/>
+            <fileset dir="${cruisecontrol}/documentation"/>
         </copy>
         <copy todir="${install.bin}">
             <fileset file="${cruisecontrol.main}/bin/cruisecontrol.sh"/>
@@ -166,11 +160,9 @@
     </target>
 
     <target name="install.sample.project" depends="install.cc">
-        <!-- Make sure we have the sample connectfour project checked out -->
-        <echo message="Checking out sample connectfour project..."/>
-        <exec executable="svn" dir="${build.dir}/${reporting.cruise.checkout.dir}" failonerror="true">
-            <arg line="co http://cruisecontrol.svn.sf.net/svnroot/cruisecontrol/trunk/connectfour"/>
-        </exec>
+        <!-- Make sure we have the sample connectfour project available (do not checkout, lest SF block that site again). -->
+        <echo message="Unzipping sample connectfour project..."/>
+        <unzip src="${cruisecontrol}/binaryrelease/connectfour.zip" dest="${build.dir}/${reporting.cruise.checkout.dir}"/>
     </target>
 
     <target name="deb" depends="pre-package" if="dpkg.available">
