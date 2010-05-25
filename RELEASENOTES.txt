@@ -57,6 +57,10 @@ distributed
 ----------------------
 * Add ability to read Live Output from remote agents using Build Agent Utility.
 
+packager
+----------------------
+* Update to work with new documentation location.
+
 
 CruiseControl Release Notes - 2.8.3
 
