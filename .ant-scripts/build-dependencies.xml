@@ -12,6 +12,7 @@
     <!-- Paths to 3rd party libraries -->
     <fileset id="activation.lib" file="${project.root}/main/lib/activation.jar" />
     <fileset id="ant.lib" file="${project.root}/main/lib/ant/ant.jar" />
+    <fileset id="ant-contrib.lib" file="${project.root}/reporting/dashboard/lib/buildtime/ant-contrib-1.0b3.jar" />
     <fileset id="ant-junit.lib" file="${project.root}/reporting/jsp/lib/ant/ant-junit.jar" />
     <fileset id="ant-launcher.lib" file="${project.root}/main/lib/ant/ant-launcher.jar" />
     <fileset id="aspirin.lib" file="${project.root}/lib/aspirin/v0.8.3/aspirin.jar" />

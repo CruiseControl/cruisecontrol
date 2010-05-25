@@ -42,6 +42,12 @@
 
 	<import file="${ant.scripts}/build-dependencies.xml"/>
 
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <fileset refid="ant-contrib.lib"/>
+        </classpath>
+    </taskdef>
+
 	<!-- define cc.version -->
 	<property file="${project.root}/build.properties" />
 	<!-- Use a local variable to make sure that a script that would read the
@@ -78,7 +84,6 @@
 
 	<property environment="env" />
 
-	<import file="checklicense.xml" />
 	<import file="jsunit/jsunit.xml" />
 
 	<path id="lib.classpath">
@@ -563,7 +568,7 @@
 	<target name="--run.jwebunit.tests" depends="--prepare.functional.tests, -start.jwebunit.functional.testing.server, -prepare.functional.test.property, -jwebunit-tests, -stop.jwebunit.functional.testing.server, -check.jwebunit.testing.result" />
 
 	<target name="--start-jetty-server" depends="--package.development, -start.jetty.server.with.sys" />
-	<target name="--run.all.tests" depends="--check.license, checkstyle, --run.unit.tests, smoke, --run.jwebunit.tests" />
+	<target name="--run.all.tests" depends="check-licenses, checkstyle, --run.unit.tests, smoke, --run.jwebunit.tests" />
 	<target name="--package.production" depends="clean, --compile, --war.production" />
 	<target name="--package.development" depends="clean, --compile, -compile-tests, --war.development" />
 	<target name="--prepare.smoke.tests" depends="--compile, -compile-tests, --war.smoke" />
@@ -601,5 +606,26 @@
 	<target name="dist" depends="-check.dotsvn.dir, -generate.svn.revsion, --run.all.tests, --war.production" description="build and package war" />
 	<target name="product" depends="--compile, --war.production" description="build and package war without testing" />
 	<target name="compress" depends="-contact.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
-</project>
 
+    <target name="check-licenses" description="--> Checks if any required license files are missing">
+        <foreach target="--check-exists" param="file">
+            <path>
+                <!-- aopalliance.jar is public domain -->
+                <filelist dir="${project.root}/reporting/dashboard/lib/licenses">
+                    <file name="LICENSE.dom-documentation.txt"/>
+                    <file name="LICENSE.dom-software.txt"/>
+                    <file name="LICENSE.sax.txt"/>
+                    <file name="MIT-LICENSE.txt"/>
+                    <file name="apache-license-2.0.txt"/>
+                    <file name="mx4j-license.txt"/>
+                    <file name="p4-license.txt"/>
+                </filelist>
+            </path>
+        </foreach>
+    </target>
+
+    <target name="--check-exists">
+        <available file="${file}" property="exists"/>
+        <fail message="You are missing ${file}" unless="exists"/>
+    </target>
+</project>
