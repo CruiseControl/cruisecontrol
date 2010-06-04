@@ -53,4 +53,22 @@
         <pathelement location="${project.root}/main/target/test-classes"/>
         <path refid="run.path" />
     </path>
+
+    <path id="war.libs.path">
+        <path refid="compile.path" />
+        <fileset refid="batik-awt-util.lib"/>
+        <fileset refid="batik-svggen.lib"/>
+        <fileset refid="batik-util.lib"/>
+        <fileset refid="jaxen.lib"/>
+        <fileset refid="mx4j.lib"/>
+        <fileset refid="mx4j-remote.lib"/>
+        <fileset refid="ognl.lib"/>
+        <fileset refid="oscore.lib"/>
+        <fileset refid="saxon.lib"/>
+        <fileset refid="serializer.lib"/>
+        <fileset refid="velocity-dep.lib"/>
+        <fileset refid="webwork.lib"/>
+        <fileset refid="xerces.lib"/>
+        <fileset refid="xml-apis.lib"/>
+    </path>
 </project>

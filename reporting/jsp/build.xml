@@ -40,6 +40,12 @@
 
     <import file="${ant.scripts}/build-dependencies.xml"/>
 
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <fileset refid="ant-contrib.lib"/>
+        </classpath>
+    </taskdef>
+
     <property environment="env"/>
     <property file="override.properties"/>
 
@@ -70,29 +76,6 @@
     <import file="${project.root}/common/checkstyle-build.xml"/>
 
     <import file="build-paths.xml" />
-
-    <fileset dir="${lib}" id="req.libs">
-        <include name="batik*.jar"/>
-        <include name="cewolf*.jar"/>
-        <include name="commons-lang*.jar"/>
-        <include name="commons-logging*.jar"/>
-        <include name="el-api.jar"/>
-        <include name="jaxen*.jar"/>
-        <include name="jcommon*.jar"/>
-        <include name="jdom*.jar"/>
-        <include name="jfreechart*.jar"/>
-        <include name="junit*.jar"/>
-        <include name="mx4j*.jar"/>
-        <include name="ognl*.jar"/>
-        <include name="oscore*.jar"/>
-        <include name="velocity-dep*.jar"/>
-        <include name="webwork*.jar"/>
-        <include name="saxon*.jar"/>
-        <include name="serializer*.jar"/>
-        <include name="xerces*.jar"/>
-        <include name="xml*.jar"/>
-        <include name="xwork*.jar"/>
-    </fileset>
 
     <target name="clean">
         <delete dir="${target}"/>
@@ -210,14 +193,25 @@
         <input message="WARNING! Property cruise.build.jmxport not set!  Please enter the jmxport on which cruisecontrol is running:" addproperty="cruise.build.jmxport"/>
     </target>
 
-    <target name="war" depends="compile, create-web-xml">
+    <target name="--war-init">
+        <mkdir dir="target/war/libs" />
+    </target>
+
+    <target name="--war-copy-libs">
+        <pathtofileset name="war.libs" pathrefid="war.libs.path" dir="${project.root}"/>
+        <copy todir="target/war/libs" flatten="true">
+            <fileset refid="war.libs" />
+        </copy>
+    </target>
+
+    <target name="war" depends="compile, create-web-xml,--war-init,--war-copy-libs">
         <copy file="webwork.properties" todir="${classes}"/>
         <copy file="xwork.xml" todir="${classes}"/>
         <war warfile="${deploy.dir}/cruisecontrol.war" webxml="${temp.dir}/web.xml">
             <fileset dir="${webcontent}" excludes="WEB-INF/web.xml"/>
             <classes dir="${classes}"/>
-            <lib refid="req.libs"/>
-            <lib refid="main.lib"/>
+            <lib dir="target/war/libs" />
+            <lib refid="main.lib" />
             <manifest>
                 <attribute name="Implementation-Version" value="${label}"/>
             </manifest>
