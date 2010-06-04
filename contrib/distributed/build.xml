@@ -653,31 +653,31 @@
         <property file="build-sign.properties"/>
 
         <fileset id="fs.id.ws.conf" dir="${dir.webstart}/conf"/>
-        <antcall target="signDir">
+        <antcall target="signDir" inheritRefs="true">
             <param name="dirToSignID" value="fs.id.ws.conf"/>
         </antcall>
 
         <fileset id="fs.id.ws.jinicore" dir="${dir.webstart}/${jini.core.DirName}"/>
-        <antcall target="signDir">
+        <antcall target="signDir" inheritRefs="true">
             <param name="dirToSignID" value="fs.id.ws.jinicore"/>
         </antcall>
 
         <fileset id="fs.id.ws.jinilib" dir="${dir.webstart}/${jini.lib.DirName}"/>
-        <antcall target="signDir">
+        <antcall target="signDir" inheritRefs="true">
             <param name="dirToSignID" value="fs.id.ws.jinilib"/>
         </antcall>
 
         <fileset id="fs.id.ws.lib" dir="${dir.webstart}/lib"/>
-        <antcall target="signDir">
+        <antcall target="signDir" inheritRefs="true">
             <param name="dirToSignID" value="fs.id.ws.lib"/>
         </antcall>
 
     </target>
     <target name="signDir">
-        <antcall target="signDirIfKeypass">
+        <antcall target="signDirIfKeypass" inheritRefs="true">
             <param name="dirToSignID" value="${dirToSignID}"/>
         </antcall>
-        <antcall target="signDirUnlessKeypass">
+        <antcall target="signDirUnlessKeypass" inheritRefs="true">
             <param name="dirToSignID" value="${dirToSignID}"/>
         </antcall>
     </target>
