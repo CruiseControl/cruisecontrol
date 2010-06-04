@@ -68,6 +68,7 @@
     <fileset id="webwork.lib" file="${project.root}/reporting/jsp/lib/webwork-2.1.7.jar"/>
     <fileset id="x10.lib" file="${project.root}/main/lib/x10.jar"/>
     <fileset id="xerces.lib" file="${project.root}/main/lib/xercesImpl-2.8.0.jar"/>
+    <fileset id="xml-apis.lib" file="${project.root}/reporting/jsp/lib/xml-apis-2.8.0.jar"/>
     <fileset id="xmlrpc.lib" file="${project.root}/main/lib/xmlrpc-2.0.1.jar"/>
     <fileset id="xpp.lib" file="${project.root}/main/lib/xpp3_min-1.1.3.4.O.jar"/>
     <fileset id="xstream.lib" file="${project.root}/main/lib/xstream-1.2.2.jar"/>
