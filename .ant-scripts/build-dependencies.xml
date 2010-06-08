@@ -15,17 +15,29 @@
     <fileset id="ant-contrib.lib" file="${project.root}/reporting/dashboard/lib/buildtime/ant-contrib-1.0b3.jar" />
     <fileset id="ant-junit.lib" file="${project.root}/reporting/jsp/lib/ant/ant-junit.jar" />
     <fileset id="ant-launcher.lib" file="${project.root}/main/lib/ant/ant-launcher.jar" />
+    <fileset id="antlr.lib" file="${project.root}/reporting/dashboard/lib/buildtime/antlr-2.7.6.jar" />
+    <fileset id="aopalliance.lib" file="${project.root}/reporting/dashboard/lib/aopalliance.jar" />
+    <fileset id="asm.lib" file="${project.root}/reporting/dashboard/lib/asm-2.2.3.jar" />
+    <fileset id="asm-commons.lib" file="${project.root}/reporting/dashboard/lib/asm-commons-2.2.3.jar" />
+    <fileset id="asm-util.lib" file="${project.root}/reporting/dashboard/lib/asm-util-2.2.3.jar" />
+    <fileset id="aspectjrt.lib" file="${project.root}/reporting/dashboard/lib/aspectjrt.jar" />
+    <fileset id="aspectjweaver.lib" file="${project.root}/reporting/dashboard/lib/aspectjweaver.jar" />
     <fileset id="aspirin.lib" file="${project.root}/lib/aspirin/v0.8.3/aspirin.jar" />
     <fileset id="batik-awt-util.lib" file="${project.root}/reporting/jsp/lib/batik-awt-util.jar"/>
     <fileset id="batik-svggen.lib" file="${project.root}/reporting/jsp/lib/batik-svggen.jar"/>
     <fileset id="batik-util.lib" file="${project.root}/reporting/jsp/lib/batik-util.jar"/>
     <fileset id="cewolf.lib" file="${project.root}/reporting/jsp/lib/cewolf.jar"/>
+    <fileset id="cglib.lib" file="${project.root}/reporting/dashboard/lib/cglib-nodep-2.1_3.jar"/>
     <fileset id="checkstyle.lib" file="${project.root}/main/lib/checkstyle-all-4.4.jar"/>
     <fileset id="clirr.lib" file="${project.root}/main/lib-buildtools/clirr-core-0.6-uber.jar"/>
     <fileset id="comm.lib" file="${project.root}/main/lib/comm.jar" />
+    <fileset id="commons-beanutils-core.lib" file="${project.root}/reporting/dashboard/lib/commons-beanutils-core-1.7.0.jar" />
     <fileset id="commons-codec.lib" file="${project.root}/main/lib/commons-codec-1.3.jar" />
+    <fileset id="commons-collections.lib" file="${project.root}/reporting/dashboard/lib/commons-collections-3.2.jar" />
+    <fileset id="commons-digester.lib" file="${project.root}/reporting/dashboard/lib/commons-digester-1.8.jar" />
     <fileset id="commons-httpclient.lib" file="${project.root}/main/lib/commons-httpclient-3.0.1.jar" />
-    <fileset id="commons-lang.lib" file="${project.root}/reporting/jsp/lib/commons-lang-2.1.jar" />
+    <fileset id="commons-io.lib" file="${project.root}/reporting/dashboard/lib/commons-io-1.3.jar" />
+    <fileset id="commons-lang.lib" file="${project.root}/reporting/dashboard/lib/commons-lang-2.2.jar" />
     <fileset id="commons-logging.lib" file="${project.root}/main/lib/commons-logging.jar" />
     <fileset id="commons-net.lib" file="${project.root}/main/lib/commons-net-1.1.0.jar" />
     <fileset id="commons-pool.lib" file="${project.root}/lib/commons-pool/v1.5.4/commons-pool-1.5.4.jar" />
@@ -35,40 +47,62 @@
     <fileset id="emma.lib" file="${project.root}/main/lib/emma.jar"/>
     <fileset id="emma.ant.lib" file="${project.root}/main/lib/emma_ant.jar"/>
     <fileset id="fast-md5.lib" file="${project.root}/main/lib/fast-md5.jar"/>
+    <fileset id="htmlunit.lib" file="${project.root}/reporting/dashboard/lib/buildtime/htmlunit-1.11.jar"/>
     <fileset id="ivy.lib" file="${project.root}/main/lib/ivy-2.0.0-beta2.jar"/>
     <fileset id="jakarta-oro.lib" file="${project.root}/main/lib/jakarta-oro-2.0.8.jar"/>
+    <fileset id="jakarta-regexp.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jakarta-regexp-1.4.jar"/>
     <fileset id="jaxen.lib" file="${project.root}/main/lib/jaxen-1.1-beta-8.jar"/>
     <fileset id="jcommon.lib" file="${project.root}/reporting/jsp/lib/jcommon-0.8.0.jar"/>
     <fileset id="jdom.lib" file="${project.root}/main/lib/jdom.jar"/>
     <fileset id="jetty.lib" file="${project.root}/binaryrelease/lib/jetty-6.1.11.jar"/>
     <fileset id="jetty-util.lib" file="${project.root}/binaryrelease/lib/jetty-util-6.1.11.jar"/>
     <fileset id="jfreechart.lib" file="${project.root}/reporting/jsp/lib/jfreechart-0.9.8.jar"/>
+    <fileset id="jmock.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jmock-1.1.0.jar"/>
+    <fileset id="jmock-cglib.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jmock-cglib-1.1.0.jar"/>
+    <fileset id="joda-time.lib" file="${project.root}/reporting/dashboard/lib/joda-time-1.4.jar"/>
+    <fileset id="js.lib" file="${project.root}/reporting/dashboard/lib/buildtime/js-1.6R5.jar"/>
     <fileset id="jsp.lib" file="${project.root}/binaryrelease/lib/jsp-2.1.jar"/>
     <fileset id="jsp-api.lib" file="${project.root}/reporting/jsp/lib/jsp-api-2.1.jar"/>
     <fileset id="jug.lib" file="${project.root}/main/lib/jug-lgpl-2.0.0.jar"/>
     <fileset id="junit.lib" file="${project.root}/main/lib/junit-4.4.jar"/>
+    <fileset id="junit-addons.lib" file="${project.root}/reporting/dashboard/lib/buildtime/junit-addons-1.4.jar"/>
+    <fileset id="jwebunit-core.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jwebunit-core-1.4.jar"/>
+    <fileset id="jwebunit-htmlunit-plugin.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jwebunit-htmlunit-plugin-1.4.jar"/>
     <fileset id="log4j.lib" file="${project.root}/main/lib/log4j.jar"/>
     <fileset id="mail.lib" file="${project.root}/main/lib/mail.jar"/>
     <fileset id="maven-embedder.lib" file="${project.root}/main/lib/maven-embedder-2.0.4-dep.jar"/>
     <fileset id="mx4j.lib" file="${project.root}/main/lib/mx4j.jar"/>
     <fileset id="mx4j-remote.lib" file="${project.root}/reporting/jsp/lib/mx4j-remote.jar"/>
     <fileset id="mx4j-tools.lib" file="${project.root}/main/lib/mx4j-tools.jar"/>
+    <fileset id="nekohtml.lib" file="${project.root}/reporting/dashboard/lib/buildtime/nekohtml-0.9.5.jar"/>
     <fileset id="ognl.lib" file="${project.root}/reporting/jsp/lib/ognl.jar"/>
     <fileset id="oscore.lib" file="${project.root}/reporting/jsp/lib/oscore.jar"/>
     <fileset id="qdox.lib" file="${project.root}/gendoc/lib/qdox-1.6.1.jar"/>
     <fileset id="saxon.lib" file="${project.root}/reporting/jsp/lib/saxon9.jar"/>
     <fileset id="serializer.lib" file="${project.root}/reporting/jsp/lib/serializer-2.7.0.jar"/>
     <fileset id="servlet-api.lib" file="${project.root}/reporting/jsp/lib/servlet-api-2.5.jar"/>
+    <fileset id="selenium-java-client-driver.lib" file="${project.root}/reporting/dashboard/lib/buildtime/selenium-java-client-driver.jar"/>
+    <fileset id="selenium-server.lib" file="${project.root}/reporting/dashboard/lib/buildtime/selenium-server.jar"/>
     <fileset id="sfee.lib" file="${project.root}/main/lib/inmemorysfee-1.0.1.jar"/>
     <fileset id="smack.lib" file="${project.root}/main/lib/smack.jar"/>
+    <fileset id="spring-aop.lib" file="${project.root}/reporting/dashboard/lib/spring-aop.jar"/>
+    <fileset id="spring-beans.lib" file="${project.root}/reporting/dashboard/lib/spring-beans.jar"/>
+    <fileset id="spring-context.lib" file="${project.root}/reporting/dashboard/lib/spring-context.jar"/>
+    <fileset id="spring-core.lib" file="${project.root}/reporting/dashboard/lib/spring-core.jar"/>
+    <fileset id="spring-jmx.lib" file="${project.root}/reporting/dashboard/lib/spring-jmx.jar"/>
+    <fileset id="spring-mock.lib" file="${project.root}/reporting/dashboard/lib/buildtime/spring-mock.jar"/>
+    <fileset id="spring-support.lib" file="${project.root}/reporting/dashboard/lib/spring-support.jar"/>
+    <fileset id="spring-web.lib" file="${project.root}/reporting/dashboard/lib/spring-web.jar"/>
+    <fileset id="spring-webmvc.lib" file="${project.root}/reporting/dashboard/lib/spring-webmvc.jar"/>
     <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
     <fileset id="velocity.lib" file="${project.root}/gendoc/lib/velocity-1.5.jar"/>
-    <fileset id="velocity-dep.lib" file="${project.root}/gendoc/lib/velocity-dep-1.5.jar"/>
+    <fileset id="velocity-dep.lib" file="${project.root}/reporting/dashboard/lib/velocity-dep-1.4.jar"/>
+    <fileset id="velocity-tools-view.lib" file="${project.root}/reporting/dashboard/lib/velocity-tools-view-1.2.jar"/>
     <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
     <fileset id="webwork.lib" file="${project.root}/reporting/jsp/lib/webwork-2.1.7.jar"/>
     <fileset id="x10.lib" file="${project.root}/main/lib/x10.jar"/>
-    <fileset id="xerces.lib" file="${project.root}/main/lib/xercesImpl-2.8.0.jar"/>
-    <fileset id="xml-apis.lib" file="${project.root}/reporting/jsp/lib/xml-apis-2.8.0.jar"/>
+    <fileset id="xerces.lib" file="${project.root}/reporting/dashboard/lib/xercesImpl-2.8.1.jar"/>
+    <fileset id="xml-apis.lib" file="${project.root}/reporting/dashboard/lib/xml-apis-1.3.03.jar"/>
     <fileset id="xmlrpc.lib" file="${project.root}/main/lib/xmlrpc-2.0.1.jar"/>
     <fileset id="xpp.lib" file="${project.root}/main/lib/xpp3_min-1.1.3.4.O.jar"/>
     <fileset id="xstream.lib" file="${project.root}/main/lib/xstream-1.2.2.jar"/>
