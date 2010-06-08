@@ -85,12 +85,47 @@
 
 	<import file="jsunit/jsunit.xml" />
 
-	<path id="lib.classpath">
-		<fileset refid="main.lib" />
-		<fileset dir="${basedir}/lib" includes="**/*.jar" />
-	</path>
+    <path id="lib.classpath">
+        <fileset refid="main.lib"/>
+        <fileset refid="aopalliance.lib" />
+        <fileset refid="asm.lib" />
+        <fileset refid="asm-commons.lib" />
+        <fileset refid="asm-util.lib" />
+        <fileset refid="aspectjrt.lib"/>
+        <fileset refid="aspectjweaver.lib" />
+        <fileset refid="cglib.lib" />
+        <fileset refid="commons-beanutils-core.lib"/>
+        <fileset refid="commons-collections.lib"/>
+        <fileset refid="commons-digester.lib"/>
+        <fileset refid="commons-io.lib"/>
+        <fileset refid="commons-lang.lib"/>
+        <fileset refid="commons-logging.lib"/>
+        <fileset refid="jdom.lib"/>
+        <fileset refid="joda-time.lib"/>
+        <fileset refid="jug.lib" />
+        <fileset refid="log4j.lib"/>
+        <fileset refid="mx4j.lib"/>
+        <fileset refid="mx4j-remote.lib"/>
+        <fileset refid="mx4j-tools.lib"/>
+        <fileset refid="servlet-api.lib"/>
+        <fileset refid="spring-aop.lib" />
+        <fileset refid="spring-beans.lib"/>
+        <fileset refid="spring-context.lib"/>
+        <fileset refid="spring-core.lib"/>
+        <fileset refid="spring-jmx.lib"/>
+        <fileset refid="spring-support.lib"/>
+        <fileset refid="spring-web.lib"/>
+        <fileset refid="spring-webmvc.lib"/>
+        <fileset refid="velocity.lib" />
+        <fileset refid="velocity-dep.lib" />
+        <fileset refid="velocity-tools-view.lib" />
+        <fileset refid="xerces.lib" />
+        <fileset refid="xml-apis.lib" />
+        <fileset refid="xpp.lib" />
+        <fileset refid="xstream.lib" />
+    </path>
 
-	<path id="emma.lib.dir">
+    <path id="emma.lib.dir">
 		<fileset dir="${basedir}/lib" includes="**/emma*.jar" />
 	</path>
 
@@ -117,6 +152,25 @@
 	</path>
 
 	<path id="test.classpath">
+        <fileset refid="antlr.lib" />
+        <fileset refid="commons-codec.lib" />
+        <fileset refid="commons-httpclient.lib" />
+        <fileset refid="htmlunit.lib" />
+        <fileset refid="jakarta-regexp.lib" />
+        <fileset refid="jaxen.lib" />
+        <fileset refid="jetty.lib" />
+        <fileset refid="jetty-util.lib" />
+        <fileset refid="jmock.lib" />
+        <fileset refid="jmock-cglib.lib" />
+        <fileset refid="js.lib" />
+        <fileset refid="junit.lib" />
+        <fileset refid="junit-addons.lib" />
+        <fileset refid="jwebunit-core.lib" />
+        <fileset refid="jwebunit-htmlunit-plugin.lib" />
+        <fileset refid="nekohtml.lib" />
+        <fileset refid="selenium-java-client-driver.lib" />
+        <fileset refid="selenium-server.lib" />
+        <fileset refid="spring-mock.lib" />
 		<path refid="emma.classpath" />
 		<path refid="app.classpath" />
 		<pathelement path="${test.classes.dir}" />
