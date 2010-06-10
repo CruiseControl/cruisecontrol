@@ -80,7 +80,7 @@
 
     <path id='emma.classpath'>
         <fileset refid="emma.lib" />
-        <fileset refid="emma.ant.lib" />
+        <fileset refid="emma-ant.lib" />
     </path>
     <taskdef resource="emma_ant.properties" classpathref="emma.classpath" />
 

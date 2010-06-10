@@ -45,7 +45,7 @@
     <fileset id="dnsjava.lib" file="${project.root}/lib/dnsjava/v2.0.8/dnsjava-2.0.8.jar" />
     <fileset id="el-api.lib" file="${project.root}/reporting/jsp/lib/el-api.jar" />
     <fileset id="emma.lib" file="${project.root}/main/lib/emma.jar"/>
-    <fileset id="emma.ant.lib" file="${project.root}/main/lib/emma_ant.jar"/>
+    <fileset id="emma-ant.lib" file="${project.root}/main/lib/emma_ant.jar"/>
     <fileset id="fast-md5.lib" file="${project.root}/main/lib/fast-md5.jar"/>
     <fileset id="htmlunit.lib" file="${project.root}/reporting/dashboard/lib/buildtime/htmlunit-1.11.jar"/>
     <fileset id="ivy.lib" file="${project.root}/main/lib/ivy-2.0.0-beta2.jar"/>
