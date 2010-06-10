@@ -479,9 +479,7 @@
 			</fileset>
 			<lib refid="main.lib" />
 			<lib refid="product.lib" />
-			<lib dir="lib/buildtime">
-				<include name="jdom-1.0.jar" />
-			</lib>
+			<lib refid="jdom.lib" />
 			<lib dir="lib">
 				<include name="licenses/*" />
 			</lib>
