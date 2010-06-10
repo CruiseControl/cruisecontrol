@@ -94,6 +94,9 @@
     <fileset id="spring-support.lib" file="${project.root}/reporting/dashboard/lib/spring-support.jar"/>
     <fileset id="spring-web.lib" file="${project.root}/reporting/dashboard/lib/spring-web.jar"/>
     <fileset id="spring-webmvc.lib" file="${project.root}/reporting/dashboard/lib/spring-webmvc.jar"/>
+    <fileset id="svn-ant.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnant.jar"/>
+    <fileset id="svn-client-adapter.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnClientAdapter.jar"/>
+    <fileset id="svn-java-high-level.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnjavahl.jar"/>
     <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
     <fileset id="velocity.lib" file="${project.root}/gendoc/lib/velocity-1.5.jar"/>
     <fileset id="velocity-dep.lib" file="${project.root}/reporting/dashboard/lib/velocity-dep-1.4.jar"/>
