@@ -150,10 +150,6 @@
 		<include name="*.jar" />
 	</fileset>
 
-	<path id="product.lib.path">
-		<fileset refid="product.lib" />
-	</path>
-
 	<path id="test.classpath">
         <fileset refid="antlr.lib" />
         <fileset refid="commons-codec.lib" />
