@@ -126,7 +126,8 @@
     </path>
 
     <path id="emma.lib.dir">
-		<fileset dir="${basedir}/lib" includes="**/emma*.jar" />
+		<fileset refid="emma.lib" />
+		<fileset refid="emma-ant.lib" />
 	</path>
 
 	<path id="svn.lib.dir">
@@ -139,7 +140,7 @@
 	</path>
 
 	<path id="emma.classpath">
-		<path refid="lib.classpath" />
+		<path refid="app.classpath" />
 		<pathelement path="${emma.dir}/classes" />
 	</path>
 
