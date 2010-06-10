@@ -131,7 +131,9 @@
 	</path>
 
 	<path id="svn.lib.dir">
-		<fileset dir="${basedir}/lib" includes="**/svn*.jar" />
+		<fileset refid="svn-ant.lib" />
+		<fileset refid="svn-client-adapter.lib" />
+		<fileset refid="svn-java-high-level.lib" />
 	</path>
 
 	<path id="app.classpath">
