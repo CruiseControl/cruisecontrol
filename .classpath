@@ -195,5 +195,6 @@
 	<classpathentry kind="lib" path="reporting/jsp/lib/jsp-api-2.1.jar"/>
 	<classpathentry kind="lib" path="reporting/jsp/lib/el-api.jar"/>
 	<classpathentry kind="lib" path="main/lib/twitter4j-1.1.4.jar"/>
+	<classpathentry kind="lib" path="lib/aspirin/v0.8.3/aspirin.jar"/>
 	<classpathentry kind="output" path="target/classes.from.eclipse"/>
 </classpath>
