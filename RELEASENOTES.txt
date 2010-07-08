@@ -50,6 +50,7 @@ Dashboard
 reporting jsp app
 ======================
 * Show CruiseControl version string (if available) on index and main jsp pages.
+* Add JSONP Support to JSP Reporting Application (CC-994). Patch by Julian Simpson.
 
 contrib
 ======================
