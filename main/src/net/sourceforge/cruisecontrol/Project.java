@@ -105,6 +105,7 @@ public class Project implements Serializable, Runnable {
     private boolean stopped = true;
     private boolean forceOnly = false;
     private boolean requiremodification = true;
+    private Map<String, String> additionalProperties;
 
     public Project() {
         initializeTransientFields();
@@ -374,6 +375,11 @@ public class Project implements Serializable, Runnable {
     public void forceBuildWithTarget(String buildTarget) {
         this.buildTarget = buildTarget;
         setBuildForced(true);
+    }
+
+    public void forceBuildWithTarget(String buildTarget, Map<String, String> addedProperties) {
+        additionalProperties = addedProperties;
+        forceBuildWithTarget(buildTarget);
     }
 
     void waitForBuildToFinish() throws InterruptedException {
@@ -708,7 +714,7 @@ public class Project implements Serializable, Runnable {
     }
 
     protected Map<String, String> getProjectPropertiesMap(final Date now) {
-        Map<String, String> buildProperties = new HashMap<String, String>();
+        final Map<String, String> buildProperties = new HashMap<String, String>();
 
         buildProperties.put("projectname", name);
 
@@ -725,7 +731,20 @@ public class Project implements Serializable, Runnable {
         if (projectConfig.getModificationSet() != null) {
             buildProperties.putAll(projectConfig.getModificationSet().getProperties());
         }
+        if (additionalProperties != null && !additionalProperties.isEmpty()) {
+            buildProperties.putAll(additionalProperties);
+            additionalProperties.clear();
+            additionalProperties = null;
+        }
         return buildProperties;
+    }
+
+    /**
+     * Intended only for unit testing.
+     * @return additional Properties variable.
+     */
+    Map<String, String> getAdditionalProperties() {
+        return additionalProperties;
     }
 
     /**

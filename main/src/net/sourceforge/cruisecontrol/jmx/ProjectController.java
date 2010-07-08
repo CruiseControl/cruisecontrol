@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
@@ -140,6 +141,11 @@ public class ProjectController extends NotificationBroadcasterSupport
     public void buildWithTarget(final String buildTarget) {
         log("forcing build with target \"" + buildTarget + "\"");
         project.forceBuildWithTarget(buildTarget);
+    }
+
+    public void buildWithTarget(String buildTarget, Map<String, String> addedProperties) {
+        log("forcing build with target \"" + buildTarget + "\" with added Properties");
+        project.forceBuildWithTarget(buildTarget, addedProperties);
     }
 
     public void serialize() {

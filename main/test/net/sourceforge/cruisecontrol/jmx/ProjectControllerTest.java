@@ -6,28 +6,37 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.BuildQueue;
+import net.sourceforge.cruisecontrol.BuildQueueTest;
 import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Log;
+import net.sourceforge.cruisecontrol.MockProject;
+import net.sourceforge.cruisecontrol.MockSchedule;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ModificationSet;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProgressImplTest;
 import net.sourceforge.cruisecontrol.Project;
 import net.sourceforge.cruisecontrol.ProjectConfig;
-import net.sourceforge.cruisecontrol.SourceControl;
-import net.sourceforge.cruisecontrol.MockProject;
+import net.sourceforge.cruisecontrol.ProjectConfigTest;
 import net.sourceforge.cruisecontrol.ProjectTest;
+import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.AntOutputLogger;
 import net.sourceforge.cruisecontrol.builders.AntScriptTest;
+import net.sourceforge.cruisecontrol.events.BuildResultEvent;
+import net.sourceforge.cruisecontrol.events.BuildResultListener;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.bootstrappers.AntBootstrapper;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
+import net.sourceforge.cruisecontrol.sourcecontrols.AlwaysBuild;
 
 public class ProjectControllerTest extends TestCase {
 
@@ -83,7 +92,7 @@ public class ProjectControllerTest extends TestCase {
 
             IO.delete(validFile);
             Util.doMkDirs(validFile);
-    
+
             bootstrapper.setUseLogger(true);
             bootstrapper.setLiveOutput(true);
             bootstrapper.setProgressLoggerLib("dummyLib");
@@ -161,6 +170,8 @@ public class ProjectControllerTest extends TestCase {
             // use Progress to make build wait for a while.
             final String done = "done";
             final Progress progress = new ProgressImplTest.MockProgress() {
+                private static final long serialVersionUID = 6607524919179888057L;
+
                 public void setValue(String value) {
                     synchronized (done) {
                         super.setValue(value);
@@ -242,9 +253,83 @@ public class ProjectControllerTest extends TestCase {
         assertFalse(mbean.isLastBuildSuccessful());
     }
 
+    public void testBuildWithTargetAndAddedProps() throws Exception {
+        final ProjectConfig projectConfig = new ProjectConfig();
+        projectConfig.setName("testproject");
+        projectConfig.add(new DefaultLabelIncrementer());
+
+        // Override to allow us to read props and check for existence of extra props.
+        final class MockScheduleExposingProps extends MockSchedule {
+            private static final long serialVersionUID = -8394080367390959431L;
+
+            protected Map<String, String> getBuildProperties() { return super.getBuildProperties(); }
+        }
+        final MockScheduleExposingProps mockSchedule = new MockScheduleExposingProps();
+        projectConfig.add(mockSchedule);
+
+        final ModificationSet modificationSet = new ModificationSet();
+        modificationSet.add(new AlwaysBuild());
+        modificationSet.setQuietPeriod(0);
+        projectConfig.add(modificationSet);
+
+        final Log log = new Log() {
+            private static final long serialVersionUID = 1101933013536150534L;
+
+            public void writeLogFile(final Date now) throws CruiseControlException {
+                // don't write anything, so we don't need to clean up temp files.
+            }
+        };
+        log.setDir(System.getProperty("java.io.tmpdir"));
+        projectConfig.add(log);
+        projectConfig.configureProject();
+
+        final Project project = ProjectConfigTest.getProjectFromProjectConfig(projectConfig);
+        final ProjectController mbean = new ProjectController(project);
+
+        final Map<String, String> properties = new HashMap<String, String>();
+        properties.put("environment", "UIT");
+        properties.put("webbrowser", "IE6");
+
+        final BuildQueue buildQueue = new BuildQueue();
+        projectConfig.setBuildQueue(buildQueue);
+        BuildQueueTest.startBuildQueue(buildQueue);
+        project.start();
 
 
-    private class SVNStub implements SourceControl {
+        final class Result {
+            boolean isBuilt;
+        }
+        final Result result = new Result();
+
+        project.addBuildResultListener(new BuildResultListener() {
+            public void handleBuildResult(final BuildResultEvent event) {
+                synchronized (result) {
+                    result.isBuilt = true;
+                    result.notifyAll();
+                }
+            }
+        });
+
+        // trigger build with added props
+        mbean.buildWithTarget("sometarget", properties);
+
+        int count = 0;
+        while (!result.isBuilt && count < 5) {
+            count++;
+            synchronized (result) {
+                result.wait(count * 1000);
+            }
+        }
+
+        final Map<String, String> props = mockSchedule.getBuildProperties();
+        assertTrue("Property environment should exist", props.containsKey("environment"));
+        assertEquals(props.get("environment"), "UIT");
+
+        assertTrue("Property webbrowser should exist", props.containsKey("webbrowser"));
+        assertEquals(props.get("webbrowser"), "IE6");
+    }
+
+    private static class SVNStub implements SourceControl {
         private static final long serialVersionUID = 1L;
 
         public List<Modification> getModifications(Date lastBuild, Date now) {

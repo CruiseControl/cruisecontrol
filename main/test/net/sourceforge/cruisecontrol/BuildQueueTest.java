@@ -77,4 +77,13 @@ public class BuildQueueTest extends TestCase {
             buildRequested = true;
         }
     }
+
+
+    /**
+     * Unit test helper method to allow tests access to package visible method, w/out exposing setter in production API.
+     * @param testBuildQueue the unit test buildQueue to be started
+     */
+    public static void startBuildQueue(final BuildQueue testBuildQueue) {
+        testBuildQueue.start();
+    }
 }

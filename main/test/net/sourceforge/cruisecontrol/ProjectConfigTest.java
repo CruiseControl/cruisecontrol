@@ -152,6 +152,7 @@ public class ProjectConfigTest extends TestCase {
     }
 
     private static class MockBootstrappers extends ProjectConfig.Bootstrappers {
+        private static final long serialVersionUID = -5153057018042808513L;
 
         private boolean validateWasCalled = false;
 
@@ -166,6 +167,7 @@ public class ProjectConfigTest extends TestCase {
     }
 
     private static class MockModificationSet extends ModificationSet {
+        private static final long serialVersionUID = 8989470034003908232L;
 
         private boolean validateWasCalled = false;
         private boolean getCurrentModificationsWasCalled = false;
@@ -195,6 +197,7 @@ public class ProjectConfigTest extends TestCase {
     }
 
     private static class MockListeners extends ProjectConfig.Listeners {
+        private static final long serialVersionUID = -7337292775258305694L;
 
         private boolean validateWasCalled = false;
 
@@ -209,6 +212,7 @@ public class ProjectConfigTest extends TestCase {
     }
 
     private static class MockPublishers extends ProjectConfig.Publishers {
+        private static final long serialVersionUID = -1415458015948891698L;
 
         private boolean validateWasCalled = false;
 
@@ -223,6 +227,7 @@ public class ProjectConfigTest extends TestCase {
     }
 
     private static class MockLog extends Log {
+        private static final long serialVersionUID = 2971590697118224761L;
 
         private boolean validateWasCalled = false;
 
@@ -236,4 +241,13 @@ public class ProjectConfigTest extends TestCase {
 
     }
 
+
+    /**
+     * Unit test helper method to allow tests access to package visible getter, w/out exposing setter in production API.
+     * @param testProjectConfig the unit test ProjectConfig
+     * @return the package visible project variable
+     */
+    public static Project getProjectFromProjectConfig(final ProjectConfig testProjectConfig) {
+        return testProjectConfig.getProject();
+    }
 }

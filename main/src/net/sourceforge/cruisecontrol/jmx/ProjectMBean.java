@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import java.util.List;
 
+import java.util.Map;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 public interface ProjectMBean {
@@ -62,6 +64,14 @@ public interface ProjectMBean {
      * @param target the target to build
      */
     public void buildWithTarget(String target);
+
+    /**
+     * Runs a build now, overriding the target of the used builder
+     * and passing additional properties
+     * @param target the target to build
+     * @param addedProperties the additional properties that will be passed to the build
+     */
+    public void buildWithTarget(String target, Map<String, String> addedProperties);
 
     /**
      * Serialize the project
