@@ -15,6 +15,7 @@ build loop
 * Add FileResolver/ResolverUser to detect and re-read changed property files (CC-952). Patch by Daniel Tihelka. 
 * BuildOutputLogger with multiple builds interfere with each other with multiple threads (CC-911). Patch by Grzegorz Olędzki. 
   Additional changes to support 'liveOutput' (visible in Dashboard) and 'showProgress' (visible in JSP) from all builders. See CC-911 for details.
+* Add a JMX operation that passes additional properties to a build (CC-909). Based on Patch by Ivan "Rambius" Ivanov and Antoine Levy Lambert.
 
 AntBuilder
 ----------------------
