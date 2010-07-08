@@ -279,6 +279,8 @@ public class ProjectTest {
     @Test
     public void testBuildRequiresSchedule() throws CruiseControlException {
         MockProject mockProject = new MockProject() {
+            private static final long serialVersionUID = 7421208807053841468L;
+
             public void run() {
                 loop();
             }
@@ -306,6 +308,8 @@ public class ProjectTest {
     @Test
     public void testBuild_forceOnly() throws CruiseControlException {
         MockProject mockProject = new MockProject() {
+            private static final long serialVersionUID = 6420860433590771835L;
+
             public void run() {
                 loop();
             }
@@ -351,6 +355,8 @@ public class ProjectTest {
     @Test
     public void testBuildWithNewProjectConfigDuringBuild() throws CruiseControlException {
         projectConfig = new ProjectConfig() {
+            private static final long serialVersionUID = -3851689566246777173L;
+
             Project readProject(String projectName) {
                 return project;
             }
@@ -389,6 +395,8 @@ public class ProjectTest {
 
         MockPublisher publisher = new MockPublisher();
         Publisher exceptionThrower = new MockPublisher() {
+            private static final long serialVersionUID = -8476214888230413824L;
+
             public void publish(Element log) throws CruiseControlException {
                 throw new CruiseControlException("exception");
             }
@@ -522,6 +530,8 @@ public class ProjectTest {
     @Test
     public void testWaitIfPaused() throws InterruptedException, CruiseControlException {
         MockProject mockProject = new MockProject() {
+            private static final long serialVersionUID = 4815988988116502160L;
+
             public void run() {
                 loop();
             }
@@ -563,6 +573,8 @@ public class ProjectTest {
         projectConfig.add(new MockSchedule());
 
         MockProject mockProject = new MockProject() {
+            private static final long serialVersionUID = 4262693344992901684L;
+
             public void run() {
                 loop();
             }
@@ -593,6 +605,8 @@ public class ProjectTest {
     @Test
     public void testWaitForBuildToFinish() throws InterruptedException {
         MockProject mockProject = new MockProject() {
+            private static final long serialVersionUID = -8172748698812254496L;
+
             public void run() {
                 loop();
             }
@@ -836,6 +850,7 @@ public class ProjectTest {
         long time = project.getTimeToNextBuild(postNoonBuild);
         assertEquals(Schedule.ONE_DAY, time);
     }
+
 /* @todo Look into fixing test below, possibly using smaller 'units'.
     @Test
     public void testGetLabels() throws Exception {
@@ -928,7 +943,9 @@ public class ProjectTest {
         return new SimpleDateFormat("yyyyMMddHHmmss").format(time);
     }
 
-    private class MockPublisher implements Publisher {
+    private static class MockPublisher implements Publisher {
+        private static final long serialVersionUID = 318946828157075347L;
+
         private int publishCount = 0;
 
         public void validate() {
@@ -943,7 +960,9 @@ public class ProjectTest {
         }
     }
 
-    private class MockListener implements Listener {
+    private static class MockListener implements Listener {
+        private static final long serialVersionUID = 7151687645856649093L;
+
         private boolean notified = false;
 
         public boolean wasNotified() {
@@ -959,6 +978,8 @@ public class ProjectTest {
     }
 
     private static class TestProject extends Project {
+        private static final long serialVersionUID = 8959072893967115075L;
+
         private boolean createNewSchedulingThreadCalled = false;
 
         protected void createNewSchedulingThread() {
@@ -974,7 +995,8 @@ public class ProjectTest {
         }
     }
 
-    private class MockLog extends Log {
+    private static class MockLog extends Log {
+        private static final long serialVersionUID = 8435380397735943132L;
 
         protected void callManipulators() {
         }
@@ -984,7 +1006,8 @@ public class ProjectTest {
 
     }
 
-    public class MockBuilderChangesProjectConfig extends MockBuilder {
+    public static class MockBuilderChangesProjectConfig extends MockBuilder {
+        private static final long serialVersionUID = 8740082489736387798L;
 
         private final ProjectConfig oldProjectConfig;
 
