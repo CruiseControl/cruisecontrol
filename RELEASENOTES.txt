@@ -10,7 +10,6 @@ general
 
 build loop
 ======================
-
 * Add a JMX operation to retrieve build logs (CC-908). Adapted from patch by Ivan "Rambius" Ivanov. Tested by Antoine Levy Lambert.
 * Add FileResolver/ResolverUser to detect and re-read changed property files (CC-952). Patch by Daniel Tihelka. 
 * BuildOutputLogger with multiple builds interfere with each other with multiple threads (CC-911). Patch by Grzegorz Olędzki. 
@@ -40,7 +39,7 @@ LinkEmailPublisher
 
 Maven2Builder
 ----------------------
-* Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This all may change if we use Dependency Injection or add showBuildOutput to the base Builder class.
+* Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This affected by the addition of a 'LiveOutput' attribute to the base Builder class. See CC-911 for details.
 
 Dashboard
 ======================
