@@ -39,7 +39,8 @@ LinkEmailPublisher
 
 Maven2Builder
 ----------------------
-* Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. This affected by the addition of a 'LiveOutput' attribute to the base Builder class. See CC-911 for details.
+* Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. 
+  This is affected by the addition of the 'LiveOutput' attribute to the base Builder class, therefore 'setShowBuildOutput' is actually deprecated, and 'setLiveOutput' should be used instead. See CC-911 for details.
 
 Dashboard
 ======================
