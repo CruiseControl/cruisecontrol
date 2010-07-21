@@ -107,9 +107,11 @@
 
 	<target name="-check-jdk">
 		<condition property="not.jdk1.5">
-			<not>
-				<equals arg1="${ant.java.version}" arg2="1.5" />
-			</not>
+			<or>
+				<equals arg1="${ant.java.version}" arg2="1.2" />
+				<equals arg1="${ant.java.version}" arg2="1.3" />
+				<equals arg1="${ant.java.version}" arg2="1.4" />
+			</or>
 		</condition>
 	</target>
 
