@@ -518,7 +518,7 @@
 	</target>
 
 
-	<target name="-contact.js">
+	<target name="-concat.js">
 		<concat destfile="${war.src.dir}/compressed/all.js">
 			<fileset file="${war.src.dir}/javascripts/prototype.js" />
 			<fileset file="${war.src.dir}/javascripts/build_base_observer.js" />
@@ -578,7 +578,7 @@
 	<target name="smoke" depends="--prepare.smoke.tests, -start.smoke.testing.server, -prepare.functional.test.property, -smoke.tests,-stop.smoke.testing.server, -check.smoke.testing.result" description="run selenium test" />
 	<target name="dist" depends="-check.dotsvn.dir, -generate.svn.revsion, --run.all.tests, --war.production" description="build and package war" />
 	<target name="product" depends="--compile, --war.production" description="build and package war without testing" />
-	<target name="compress" depends="-contact.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
+	<target name="compress" depends="-concat.js, -copy.compress.jsunit" description="compresses all the js and css files to speed up browser load" />
 
     <target name="check-licenses" description="--> Checks if any required license files are missing">
         <foreach target="--check-exists" param="file">
