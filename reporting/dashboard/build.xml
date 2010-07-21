@@ -81,49 +81,11 @@
 
 	<import file="${project.root}/common/checkstyle-build.xml"/>
 
+    <import file="build-paths.xml" />
+
 	<property environment="env" />
 
 	<import file="jsunit/jsunit.xml" />
-
-    <path id="lib.classpath">
-        <fileset refid="main.lib"/>
-        <fileset refid="aopalliance.lib" />
-        <fileset refid="asm.lib" />
-        <fileset refid="asm-commons.lib" />
-        <fileset refid="asm-util.lib" />
-        <fileset refid="aspectjrt.lib"/>
-        <fileset refid="aspectjweaver.lib" />
-        <fileset refid="cglib.lib" />
-        <fileset refid="commons-beanutils-core.lib"/>
-        <fileset refid="commons-collections.lib"/>
-        <fileset refid="commons-digester.lib"/>
-        <fileset refid="commons-io.lib"/>
-        <fileset refid="commons-lang.lib"/>
-        <fileset refid="commons-logging.lib"/>
-        <fileset refid="jdom.lib"/>
-        <fileset refid="joda-time.lib"/>
-        <fileset refid="jug.lib" />
-        <fileset refid="log4j.lib"/>
-        <fileset refid="mx4j.lib"/>
-        <fileset refid="mx4j-remote.lib"/>
-        <fileset refid="mx4j-tools.lib"/>
-        <fileset refid="servlet-api.lib"/>
-        <fileset refid="spring-aop.lib" />
-        <fileset refid="spring-beans.lib"/>
-        <fileset refid="spring-context.lib"/>
-        <fileset refid="spring-core.lib"/>
-        <fileset refid="spring-jmx.lib"/>
-        <fileset refid="spring-support.lib"/>
-        <fileset refid="spring-web.lib"/>
-        <fileset refid="spring-webmvc.lib"/>
-        <fileset refid="velocity.lib" />
-        <fileset refid="velocity-dep.lib" />
-        <fileset refid="velocity-tools-view.lib" />
-        <fileset refid="xerces.lib" />
-        <fileset refid="xml-apis.lib" />
-        <fileset refid="xpp.lib" />
-        <fileset refid="xstream.lib" />
-    </path>
 
     <path id="emma.lib.dir">
 		<fileset refid="emma.lib" />
@@ -149,33 +111,6 @@
 	<fileset dir="lib" id="product.lib">
 		<include name="*.jar" />
 	</fileset>
-
-	<path id="test.classpath">
-        <fileset refid="antlr.lib" />
-        <fileset refid="commons-codec.lib" />
-        <fileset refid="commons-httpclient.lib" />
-        <fileset refid="htmlunit.lib" />
-        <fileset refid="jakarta-regexp.lib" />
-        <fileset refid="jaxen.lib" />
-        <fileset refid="jetty.lib" />
-        <fileset refid="jetty-util.lib" />
-        <fileset refid="jmock.lib" />
-        <fileset refid="jmock-cglib.lib" />
-        <fileset refid="js.lib" />
-        <fileset refid="junit.lib" />
-        <fileset refid="junit-addons.lib" />
-        <fileset refid="jwebunit-core.lib" />
-        <fileset refid="jwebunit-htmlunit-plugin.lib" />
-        <fileset refid="nekohtml.lib" />
-        <fileset refid="selenium-java-client-driver.lib" />
-        <fileset refid="selenium-server.lib" />
-        <fileset refid="spring-mock.lib" />
-		<path refid="emma.classpath" />
-		<path refid="app.classpath" />
-		<pathelement path="${test.classes.dir}" />
-		<pathelement path="${functionaltest.classes.dir}" />
-		<pathelement path="${war.src.dir}" />
-	</path>
 
 	<taskdef resource="emma_ant.properties" classpathref="emma.lib.dir" />
     <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.lib.dir" />
@@ -205,7 +140,7 @@
 		<ant antfile="build.xml" dir="${project.root}/main" target="jar" inheritall="false" />
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${app.classes.dir}" />
-		<javac destdir="${app.classes.dir}" classpathref="app.classpath" debug="true" fork="true" source="1.5" target="1.5">
+		<javac destdir="${app.classes.dir}" classpathref="compile.path" debug="true" fork="true" source="1.5" target="1.5">
 			<src location="${src.dir}" />
 		</javac>
 	</target>
@@ -213,10 +148,10 @@
 	<target name="-compile-tests" unless="test.skip">
 		<mkdir dir="${test.classes.dir}" />
 		<mkdir dir="${functionaltest.classes.dir}" />
-		<javac destdir="${test.classes.dir}" classpathref="test.classpath" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
+		<javac destdir="${test.classes.dir}" classpathref="test.unit.compile.path" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
 			<src location="${unittest.dir}" />
 		</javac>
-		<javac destdir="${functionaltest.classes.dir}" classpathref="test.classpath" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
+		<javac destdir="${functionaltest.classes.dir}" classpathref="test.functional.compile.path" debug="true" fork="true" failonerror="true" source="1.5" target="1.5">
 			<src location="${functionaltest.dir}" />
 		</javac>
 		<copy todir="${test.classes.dir}">
@@ -231,7 +166,7 @@
 		<mkdir dir="${reports.dir}" />
 		<mkdir dir="${test.classes.dir}/build" />
 		<junit printsummary="yes" dir="${basedir}" haltonfailure="true" fork="true" forkMode="once">
-			<classpath refid="test.classpath" />
+			<classpath refid="test.unit.run.path" />
 
 			<formatter type="brief" usefile="false" />
 			<formatter type="xml" />
@@ -256,7 +191,7 @@
 		<sequential>
 			<mkdir dir="${reports.dir}" />
 			<junit printsummary="yes" fork="true" failureproperty="functional.test.failed" dir="${basedir}">
-				<classpath refid="test.classpath" />
+				<classpath refid="test.functional.run.path" />
 				<formatter type="brief" usefile="false" />
 				<formatter type="xml" />
 				<batchtest todir="${reports.dir}">
@@ -292,7 +227,7 @@
 			<parallel>
                 <daemons>
                     <java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.WebTestingServer" fork="true">
-                        <classpath refid="test.classpath" />
+                        <classpath refid="test.functional.run.path" />
                         <jvmarg line="${tmpdir.jvmarg}"/>
                     </java>
                 </daemons>
