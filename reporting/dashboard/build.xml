@@ -474,7 +474,7 @@
 	</target>
 
 	<target name="-not.run.jsunit">
-		<condition property="tesk.not.run.jsunit">
+		<condition property="test.not.run.jsunit">
 			<or>
 				<istrue value="${test.skip}" />
 				<istrue value="${not.jdk1.5}" />
@@ -482,7 +482,7 @@
 		</condition>
 	</target>
 
-	<target name="-jsunit" unless="tesk.not.run.jsunit">
+	<target name="-jsunit" unless="test.not.run.jsunit">
 		<echo message="${lib}" />
 		<echo message="${basedir}" />
 		<junit showoutput="true" haltonerror="true" haltonfailure="true">
