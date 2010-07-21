@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<project>
+    <description>
+        Dashboard classpaths.
+    </description>
+
+    <path id="compile.path">
+        <fileset refid="aspectjweaver.lib" />
+        <fileset refid="commons-collections.lib"/>
+        <fileset refid="commons-io.lib"/>
+        <fileset refid="commons-lang.lib" />
+        <fileset refid="jdom.lib" />
+        <fileset refid="joda-time.lib"/>
+        <fileset refid="log4j.lib" />
+        <fileset refid="main.lib" />
+        <fileset refid="mx4j.lib"/>
+        <fileset refid="servlet-api.lib" />
+        <fileset refid="spring-beans.lib"/>
+        <fileset refid="spring-context.lib"/>
+        <fileset refid="spring-core.lib"/>
+        <fileset refid="spring-web.lib"/>
+        <fileset refid="spring-webmvc.lib"/>
+<!--        <fileset dir="lib" includes="*.jar"/> -->
+    </path>
+
+    <path id="compile.out">
+        <path refid="compile.path"/>
+        <pathelement location="${app.classes.dir}"/>
+    </path>
+
+    <path id="run.path">
+        <path refid="compile.out" />
+        <pathelement location="${war.src.dir}"/>
+        <fileset refid="aopalliance.lib" />
+        <fileset refid="asm.lib" />
+        <fileset refid="asm-commons.lib" />
+        <fileset refid="cglib.lib" />
+        <fileset refid="commons-logging.lib"/>
+        <fileset refid="jug.lib" />
+        <fileset refid="spring-aop.lib" />
+        <fileset refid="spring-support.lib" />
+        <fileset refid="velocity.lib" />
+        <fileset refid="velocity-dep.lib" />
+        <fileset refid="velocity-tools-view.lib" />
+        <fileset refid="xerces.lib" />
+        <fileset refid="xstream.lib" />
+    </path>
+
+    <path id="test.functional.compile.path">
+        <path refid="compile.out"/>
+        <pathelement location="${test.classes.dir}"/>
+        <fileset refid="commons-httpclient.lib" />
+        <fileset refid="junit.lib"/>
+        <fileset refid="junit-addons.lib"/>
+        <fileset refid="jwebunit-core.lib" />
+        <fileset refid="nekohtml.lib" />
+        <fileset refid="selenium-java-client-driver.lib" />
+    </path>
+
+    <path id="test.unit.compile.path">
+        <path refid="compile.out"/>
+        <fileset refid="junit.lib"/>
+        <fileset refid="jetty.lib" />
+        <fileset refid="jetty-util.lib" />
+        <fileset refid="jmock.lib" />
+        <fileset refid="jmock-cglib.lib" />
+        <fileset refid="junit-addons.lib" />
+        <fileset refid="spring-mock.lib" />
+    </path>
+
+    <path id="test.functional.run.path">
+        <path refid="test.functional.compile.path"/>
+        <pathelement location="${functionaltest.classes.dir}"/>
+        <path refid="run.path" />
+        <fileset refid="antlr.lib" />
+        <fileset refid="commons-codec.lib" />
+        <fileset refid="htmlunit.lib" />
+        <fileset refid="jakarta-regexp.lib" />
+        <fileset refid="jaxen.lib" />
+        <fileset refid="jetty.lib" />
+        <fileset refid="jetty-util.lib" />
+        <fileset refid="js.lib" />
+        <fileset refid="jwebunit-htmlunit-plugin.lib" />
+        <fileset refid="selenium-server.lib" />
+    </path>
+
+    <path id="test.unit.run.path">
+        <path refid="test.unit.compile.path"/>
+        <pathelement location="${test.classes.dir}"/>
+        <path refid="run.path" />
+    </path>
+</project>
