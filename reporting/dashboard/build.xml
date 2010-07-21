@@ -419,7 +419,7 @@
 			<sysproperty key="cc.logdir" value="${basedir}/test/data/logs" />
 			<sysproperty key="cc.config.forcebuild" value="enabled" />
 			<sysproperty key="dashboard.config" value="${basedir}/test/data/dashboard-config.xml" />
-			<classpath refid="test.classpath" />
+			<classpath refid="test.functional.run.path" />
 		</java>
 	</target>
 
