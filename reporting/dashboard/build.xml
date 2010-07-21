@@ -98,16 +98,6 @@
 		<fileset refid="svn-java-high-level.lib" />
 	</path>
 
-	<path id="app.classpath">
-		<path refid="lib.classpath" />
-		<pathelement path="${app.classes.dir}" />
-	</path>
-
-	<path id="emma.classpath">
-		<path refid="app.classpath" />
-		<pathelement path="${emma.dir}/classes" />
-	</path>
-
 	<fileset dir="lib" id="product.lib">
 		<include name="*.jar" />
 	</fileset>
