@@ -83,10 +83,6 @@
 
 	<import file="jsunit/jsunit.xml" />
 
-	<fileset dir="lib" id="product.lib">
-		<include name="*.jar" />
-	</fileset>
-
 	<taskdef resource="emma_ant.properties">
         <classpath>
             <fileset refid="emma.lib"/>
@@ -247,12 +243,7 @@
 				</fileset>
 				<filename name="${war.dir}/javascripts/all.js" />
 				<classes dir="${test.classes.dir}" />
-				<lib dir="lib">
-					<include name="*.jar" />
-				</lib>
-				<lib dir="lib">
-					<include name="buildtime/*.jar" />
-				</lib>
+                <lib dir="target/war/libs"/>
 				<lib dir="lib">
 					<include name="licenses/*" />
 				</lib>
@@ -349,11 +340,11 @@
 		<run.functional.tests base.filter="**/smoketests/**" file.filter="${functional.test}" />
 	</target>
 
-	<target name="-war.smoke" unless="test.skip">
+	<target name="-war.smoke" depends="--war-init,--war-copy-libs" unless="test.skip">
 		<war.development />
 	</target>
 
-	<target name="-war.development" unless="test.skip">
+	<target name="-war.development" depends="--war-init,--war-copy-libs" unless="test.skip">
 		<war.development />
 	</target>
 
@@ -391,7 +382,18 @@
 		<echo file="${war.dir}/WEB-INF/vm/admin/page_admin_version.txt" message="${cc.release.label}(${current.revision})" />
 	</target>
 
-	<target name="-war.production">
+    <target name="--war-init">
+        <mkdir dir="target/war/libs" />
+    </target>
+
+    <target name="--war-copy-libs">
+        <pathtofileset name="war.libs" pathrefid="war.libs.path" dir="${project.root}"/>
+        <copy todir="target/war/libs" flatten="true">
+            <fileset refid="war.libs" />
+        </copy>
+    </target>
+
+	<target name="-war.production" depends="--war-init,--war-copy-libs">
 		<mkdir dir="${dist.dir}" />
 		<manifest file="${war.dir}/MANIFEST.MF">
 			<attribute name="CruiseControl-Version" value="${cc.release.label}(${current.revision})" />
@@ -401,9 +403,7 @@
 				<exclude name="**/applicationContext-development.xml" />
 				<exclude name="javascripts/*.js" />
 			</fileset>
-			<lib refid="main.lib" />
-			<lib refid="product.lib" />
-			<lib refid="jdom.lib" />
+            <lib dir="target/war/libs"/>
 			<lib dir="lib">
 				<include name="licenses/*" />
 			</lib>
