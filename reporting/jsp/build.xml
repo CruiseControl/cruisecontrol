@@ -56,7 +56,6 @@
     <property name="target" value="target"/>
     <property name="reports.dir" value="${target}/reports" />
     <property name="deploy.dir" value="${dist}"/>
-    <property name="lib" value="lib"/>
     <property name="src" value="src"/>
     <property name="classes" value="${target}/classes"/>
     <property name="test.classes" value="${target}/test-classes"/>
