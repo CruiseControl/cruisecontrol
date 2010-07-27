@@ -50,11 +50,11 @@
 
 	<!-- define cc.version -->
 	<property file="${project.root}/build.properties" />
-	<!-- Use a local variable to make sure that a script that would read the
+    <!-- Use a local variable to make sure that a script that would read the
          properties file would still be capable of overidding this one.
          Note: the release.xml overrides this property -->
 	<property name="cc.release.label" value="${cc.version}" />
-	
+
 	<property name="build.dir" value="target" />
 	<property name="properties.dir" value="properties" />
 	<property name="dist.dir" value="dist" />
@@ -83,7 +83,7 @@
 
 	<import file="jsunit/jsunit.xml" />
 
-	<taskdef resource="emma_ant.properties">
+    <taskdef resource="emma_ant.properties">
         <classpath>
             <fileset refid="emma.lib"/>
             <fileset refid="emma-ant.lib"/>
@@ -146,7 +146,6 @@
 		</copy>
 	</target>
 
-
 	<target name="-unit-tests" unless="test.skip">
 		<mkdir dir="${reports.dir}" />
 		<mkdir dir="${test.classes.dir}/build" />
@@ -200,7 +199,7 @@
         </and>
     </condition>
 
-	<macrodef name="start.jetty.server">
+    <macrodef name="start.jetty.server">
         <sequential>
             <echo message="stopping any running jetty server"/>
             <waitfor maxwait="10" maxwaitunit="second" checkevery="500">
@@ -209,20 +208,20 @@
                 </not>
             </waitfor>
             <echo message="starting jetty server"/>
-			<parallel>
+            <parallel>
                 <daemons>
                     <java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.WebTestingServer" fork="true">
                         <classpath refid="test.functional.run.path" />
                         <jvmarg line="${tmpdir.jvmarg}"/>
                     </java>
                 </daemons>
-    			<waitfor maxwait="90" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
-    				<http url="http://localhost:9090/dashboard/admin/config" />
-    			</waitfor>
-			</parallel>
+                <waitfor maxwait="90" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.start.timeout">
+                    <http url="http://localhost:9090/dashboard/admin/config" />
+                </waitfor>
+            </parallel>
             <fail if="jetty.server.start.timeout" message="Unable to start jetty server." />
         </sequential>
-	</macrodef>
+    </macrodef>
 
 	<macrodef name="stop.jetty.server">
 		<sequential>
@@ -234,33 +233,33 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="war.development">
-		<sequential>
-			<mkdir dir="${dist.dir}" />
-			<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
-				<fileset dir="${war.dir}">
-					<exclude name="javascripts" />
-				</fileset>
-				<filename name="${war.dir}/javascripts/all.js" />
-				<classes dir="${test.classes.dir}" />
+    <macrodef name="war.development">
+        <sequential>
+            <mkdir dir="${dist.dir}"/>
+            <war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve">
+                <fileset dir="${war.dir}">
+                    <exclude name="javascripts"/>
+                </fileset>
+                <filename name="${war.dir}/javascripts/all.js"/>
+                <classes dir="${test.classes.dir}"/>
                 <lib dir="target/war/libs"/>
-				<lib dir="lib">
-					<include name="licenses/*" />
-				</lib>
-			</war>
-		</sequential>
-	</macrodef>
+                <lib dir="lib">
+                    <include name="licenses/*"/>
+                </lib>
+            </war>
+        </sequential>
+    </macrodef>
 
-	<target name="-properties.production">
+    <target name="-properties.production">
 		<prepare.properties filter="src" />
 	</target>
-	
-	<target name="filterTest" description="testing the filter">
-		<filter token="buildNumber" value="${cc.release.label}"/>
-	  	<copy todir="/tmp/filtered" filtering="true" overwrite="true">
-	    	<fileset file="/tmp/testing"/>
-	  	</copy>
-	</target>
+
+    <target name="filterTest" description="testing the filter">
+        <filter token="buildNumber" value="${cc.release.label}"/>
+        <copy todir="/tmp/filtered" filtering="true" overwrite="true">
+            <fileset file="/tmp/testing"/>
+        </copy>
+    </target>
 
 	<target name="-properties.unit" unless="test.skip">
 		<prepare.properties filter="test" />
@@ -383,23 +382,23 @@
         </copy>
     </target>
 
-	<target name="-war.production" depends="--war-init,--war-copy-libs">
-		<mkdir dir="${dist.dir}" />
-		<manifest file="${war.dir}/MANIFEST.MF">
-			<attribute name="CruiseControl-Version" value="${cc.release.label}(${current.revision})" />
-		</manifest>
-		<war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve" manifest="${war.dir}/MANIFEST.MF">
-			<fileset dir="${war.dir}">
-				<exclude name="**/applicationContext-development.xml" />
-				<exclude name="javascripts/*.js" />
-			</fileset>
+    <target name="-war.production" depends="--war-init,--war-copy-libs">
+        <mkdir dir="${dist.dir}"/>
+        <manifest file="${war.dir}/MANIFEST.MF">
+            <attribute name="CruiseControl-Version" value="${cc.release.label}(${current.revision})"/>
+        </manifest>
+        <war destfile="${dist.dir}/dashboard.war" webxml="${war.dir}/WEB-INF/web.xml" duplicate="preserve"
+             manifest="${war.dir}/MANIFEST.MF">
+            <fileset dir="${war.dir}">
+                <exclude name="**/applicationContext-development.xml"/>
+                <exclude name="javascripts/*.js"/>
+            </fileset>
             <lib dir="target/war/libs"/>
-			<lib dir="lib">
-				<include name="licenses/*" />
-			</lib>
-		</war>
-	</target>
-
+            <lib dir="lib">
+                <include name="licenses/*"/>
+            </lib>
+        </war>
+    </target>
 
 	<target name="-start.jetty.server.with.sys">
 		<java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer" fork="true">
@@ -411,8 +410,6 @@
 			<classpath refid="test.functional.run.path" />
 		</java>
 	</target>
-
-
 
 	<target name="-emma.instr">
 		<mkdir dir="${emma.dir}" />
@@ -489,13 +486,13 @@
 		</junit>
 	</target>
 
-	<target name="-stop.selenium.server" unless="test.skip">
+    <target name="-stop.selenium.server" unless="test.skip">
         <waitfor maxwait="10" maxwaitunit="second" checkevery="500">
             <not>
                 <http url="http://localhost:4444/selenium-server/driver/?cmd=shutDown" />
             </not>
         </waitfor>
-	</target>
+    </target>
 
 	<target name="-start.selenium.server" unless="test.skip">
 		<java jar="lib/buildtime/selenium-server.jar" fork="true" spawn="true">
@@ -505,7 +502,6 @@
 			<socket server="localhost" port="4444" />
 		</waitfor>
 	</target>
-
 
 	<target name="-concat.js">
 		<concat destfile="${war.src.dir}/compressed/all.js">
@@ -556,15 +552,15 @@
 
 	<target name="stat" depends="-emma.clean, --compile, -compile-tests,-properties.unit, -emma.instr, -unit-tests, -emma.reporting, -emma.check" description="generating the test coverage of source code" />
 
-	<target name="checkstyle" description="checkstyle">
-		<checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}" testdir="${unittest.dir}">
-			<taskdef resource="checkstyletask.properties">
+    <target name="checkstyle" description="checkstyle">
+        <checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}" testdir="${unittest.dir}">
+            <taskdef resource="checkstyletask.properties">
                 <classpath>
                     <fileset refid="checkstyle.lib" />
                 </classpath>
             </taskdef>
-		</checkstyle-macro>
-	</target>
+        </checkstyle-macro>
+    </target>
 
 	<target name="js.unit" depends="-check-jdk, -report-no-jsunit-tests, -check-browser-path, -report-failed-to-find-browser, --jsunit" description="run jsunit test" />
 	<target name="selenium" depends="--prepare.functional.tests, -start.selenium.server, -start.selenium.functional.testing.server, -prepare.functional.test.property, -selenium.tests, -stop.selenium.server, -stop.selenium.functional.testing.server, -check.selenium.testing.result" description="run selenium test" />
