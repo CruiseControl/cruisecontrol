@@ -89,4 +89,25 @@
         <pathelement location="${test.classes.dir}"/>
         <path refid="run.path" />
     </path>
+
+    <path id="war.libs.path">
+        <path id="war.libs.path">
+            <path refid="compile.path" />
+            <fileset refid="aopalliance.lib" />
+            <fileset refid="asm.lib" />
+            <fileset refid="asm-commons.lib" />
+            <fileset refid="cglib.lib" />
+            <fileset refid="commons-beanutils-core.lib"/>
+            <fileset refid="commons-digester.lib"/>
+            <fileset refid="commons-logging.lib"/>
+            <fileset refid="jug.lib" />
+            <fileset refid="spring-aop.lib" />
+            <fileset refid="spring-support.lib" />
+            <fileset refid="velocity.lib" />
+            <fileset refid="velocity-dep.lib" />
+            <fileset refid="velocity-tools-view.lib" />
+            <fileset refid="xerces.lib" />
+            <fileset refid="xstream.lib" />
+        </path>
+    </path>
 </project>
