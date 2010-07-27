@@ -20,7 +20,7 @@
         <fileset refid="spring-core.lib"/>
         <fileset refid="spring-web.lib"/>
         <fileset refid="spring-webmvc.lib"/>
-<!--        <fileset dir="lib" includes="*.jar"/> -->
+        <fileset dir="lib" includes="*.jar"/>
     </path>
 
     <path id="compile.out">
