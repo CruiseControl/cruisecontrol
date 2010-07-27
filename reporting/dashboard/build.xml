@@ -83,11 +83,6 @@
 
 	<import file="jsunit/jsunit.xml" />
 
-    <path id="emma.lib.dir">
-		<fileset refid="emma.lib" />
-		<fileset refid="emma-ant.lib" />
-	</path>
-
 	<path id="svn.lib.dir">
 		<fileset refid="svn-ant.lib" />
 		<fileset refid="svn-client-adapter.lib" />
@@ -98,7 +93,12 @@
 		<include name="*.jar" />
 	</fileset>
 
-	<taskdef resource="emma_ant.properties" classpathref="emma.lib.dir" />
+	<taskdef resource="emma_ant.properties">
+        <classpath>
+            <fileset refid="emma.lib"/>
+            <fileset refid="emma-ant.lib"/>
+        </classpath>
+    </taskdef>
     <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.lib.dir" />
 
 	<target name="-check-jdk">
