@@ -239,10 +239,7 @@
        <mkdir dir="target/javadoc"/>
        <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*"
            breakiterator="yes" failonerror="true" source="1.5">
-           <classpath>
-               <path refid="run.path" />
-               <pathelement location="${src}" />
-           </classpath>
+           <classpath refid="run.path"/>
        </javadoc>
     </target>
 
