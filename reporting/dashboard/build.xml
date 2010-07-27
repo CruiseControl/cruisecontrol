@@ -357,16 +357,6 @@
 		</copy>
 	</target>
 
-	<target name="dashboard.jar">
-		<mkdir dir="${dist.dir}" />
-		<jar destfile="${dist.dir}/dashboard.jar">
-			<fileset dir="${war.dir}/WEB-INF/classes">
-				<include name="**/*.class" />
-				<exclude name="**/web/**" />
-			</fileset>
-		</jar>
-	</target>
-
 	<target name="-check.dotsvn.dir">
 		<available file=".svn" property="has.dotsvn.dir">
 		</available>
