@@ -69,10 +69,6 @@
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
 
-    <path id="checkstyle.classpath">
-        <fileset refid="checkstyle.lib" />
-    </path>
-
     <import file="${project.root}/common/checkstyle-build.xml"/>
 
     <import file="build-paths.xml" />
@@ -118,7 +114,11 @@
             configfile="${checkstyle.config}"
             checkstylecache="${checkstyle.cache}">
 
-            <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath" />
+            <taskdef resource="checkstyletask.properties">
+                <classpath>
+                    <fileset refid="checkstyle.lib" />
+                </classpath>
+            </taskdef>
 
         </checkstyle-macro>
     </target>
