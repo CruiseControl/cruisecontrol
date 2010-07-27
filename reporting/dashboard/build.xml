@@ -83,12 +83,6 @@
 
 	<import file="jsunit/jsunit.xml" />
 
-	<path id="svn.lib.dir">
-		<fileset refid="svn-ant.lib" />
-		<fileset refid="svn-client-adapter.lib" />
-		<fileset refid="svn-java-high-level.lib" />
-	</path>
-
 	<fileset dir="lib" id="product.lib">
 		<include name="*.jar" />
 	</fileset>
@@ -99,7 +93,14 @@
             <fileset refid="emma-ant.lib"/>
         </classpath>
     </taskdef>
-    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svn.lib.dir" />
+
+    <typedef resource="org/tigris/subversion/svnant/svnantlib.xml">
+        <classpath>
+            <fileset refid="svn-ant.lib"/>
+            <fileset refid="svn-client-adapter.lib"/>
+            <fileset refid="svn-java-high-level.lib"/>
+        </classpath>
+    </typedef>
 
 	<target name="-check-jdk">
 		<condition property="not.jdk1.5">
