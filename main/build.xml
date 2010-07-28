@@ -157,7 +157,6 @@
         </copy>
     </target>
 
-    
     <target name="compile-functional-test"  depends="compile">
         <compile-macro srcdir="${functionaltest}" destdir="${test.classes}" classpathref="test.functional.compile.path" />
         <copy todir="${test.classes}">
@@ -219,8 +218,7 @@
 
         <fail if="test.failed"/>
     </target>
-    
-    
+
     <target name="functional-test" depends="init, compile-functional-test" unless="test.skip" description="Executes the functional tests">
         <test-macro includes="**/BuildLoopMonitorTest.class" classpathref="test.functional.run.path" />
     </target>
@@ -317,13 +315,11 @@
     <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
      allow running on other jars (reporting, ccdist, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
     <target name="checkbinarycompatibility" depends="jar">
-
-
-        <taskdef
-                resource="clirrtask.properties">
-            <!-- buildtools.classpath should either contain
-             clirr-core-uber.jar or alternatively
-             clirr-core.jar and the libraries it depends on -->
+        <taskdef resource="clirrtask.properties">
+            <!--
+              ~  buildtools.classpath should either contain clirr-core-uber.jar or alternatively
+              ~  clirr-core.jar and the libraries it depends on
+              -->
             <classpath>
                 <fileset refid="clirr.lib" />
             </classpath>
@@ -355,7 +351,5 @@
              <!--<formatter type="xml" outfile="${target}/clirr.xml" />-->
             <!-- TODO: example for 3rd party classpath -->
         </clirr>
-
     </target>
-
 </project>
