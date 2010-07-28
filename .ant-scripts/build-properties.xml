@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<project>
+    <description>
+        Common properties shared across all submodules.
+    </description>
+
+    <property name="libs" location="${project.root}/libs"/>
+    <property name="ant.scripts" location="${project.root}/.ant-scripts"/>
+
+    <property file="${ant.scripts}/build.properties"/>
+</project>

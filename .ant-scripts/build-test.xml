@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project>
+    <description>
+        Common test targets shared across all submodules.
+    </description>
+
+    <target name="--test-unit-init">
+        <available property="should.test.unit" file="${test}"/>
+        <mkdir dir="${test.classes}"/>
+        <mkdir dir="${junit.results}"/>
+        <mkdir dir="target/reports/test/unit"/>
+    </target>
+
+    <target name="--test-unit-compile" if="should.test.unit">
+        <javac srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" debug="on"
+               source="${javac.source}" target="${javac.target}"/>
+    </target>
+
+    <target name="--test-unit" if="should.test.unit">
+        <junit dir="${target}" fork="yes" forkmode="perBatch" haltonfailure="yes" maxmemory="${heapsize.max}"
+               printsummary="true">
+            <classpath refid="test.unit.run.path"/>
+
+            <formatter type="brief" usefile="no"/>
+            <formatter type="xml" usefile="yes"/>
+
+            <batchtest fork="yes" todir="${junit.results}">
+                <fileset dir="${test.classes}" includes="**/${tests}.class"/>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="--test-unit-report" if="should.test.unit">
+        <junitreport todir="target/reports/test/unit">
+            <fileset dir="${junit.results}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="target/reports/test/unit"/>
+        </junitreport>
+    </target>
+</project>
