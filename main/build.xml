@@ -134,7 +134,7 @@
         <compile-macro classpathref="compile.path" />
 
         <copy todir="${classes}">
-            <fileset dir="${basedir}" includes="*.properties" />
+            <fileset file="*.properties" />
             <filterset>
                 <filter token="VERSION" value="${build.version}" />
                 <filter token="VERSION_INFO" value="${build.version.info}" />
