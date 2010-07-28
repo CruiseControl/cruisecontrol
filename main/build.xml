@@ -52,18 +52,18 @@
          Note: the release.xml overrides this property -->
     <property name="cc.release.label" value="${cc.version}" />
 
-    <property name="target" value="${basedir}/target" />
+    <property name="target" value="target" />
     <property name="reports.dir" value="${target}/reports" />
 
     <property name="classes" value="${target}/classes" />
     <property name="dist" value="dist" />
     <property name="junit.results" value="${target}/test-results" />
-    <property name="src" value="${basedir}/src" />
-    <property name="test" value="${basedir}/test" />
-    <property name="functionaltest" value="${basedir}/functionaltest" />
+    <property name="src" value="src" />
+    <property name="test" value="test" />
+    <property name="functionaltest" value="functionaltest" />
     <property name="test.classes" value="${target}/test-classes" />
     <property name="tests" value="*Test" />
-    <property name="xsl" value="${basedir}/xsl" />
+    <property name="xsl" value="xsl" />
 
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
