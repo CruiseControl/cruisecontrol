@@ -70,10 +70,6 @@
 
     <import file="build-paths.xml" />
 
-    <path id="checkstyle.classpath">
-        <fileset refid="checkstyle.lib" />
-    </path>
-
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
 
@@ -293,7 +289,11 @@
 
     <target name="checkstyle" description="run checkstyle">
         <checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}">
-            <taskdef resource="checkstyletask.properties" classpathref="checkstyle.classpath" />
+            <taskdef resource="checkstyletask.properties">
+                <classpath>
+                    <fileset refid="checkstyle.lib" />
+                </classpath>
+            </taskdef>
         </checkstyle-macro>
     </target>
 
