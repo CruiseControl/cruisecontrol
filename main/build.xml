@@ -349,7 +349,7 @@
 
             <newfiles dir="${dist}" includes="cruisecontrol*.jar"/>
             <newclasspath>
-                <fileset dir="${lib}" includes="**/*.jar" />
+                <fileset dir="lib" includes="**/*.jar" />
             </newclasspath>
 
              <!--<formatter type="xml" outfile="${target}/clirr.xml" />-->
