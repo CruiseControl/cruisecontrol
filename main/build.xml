@@ -298,11 +298,11 @@
     <target name="dist" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
 
     <target name="vizant" description="Visualise the Ant build file" >
-        <path id="vizant.classpath">
-            <fileset refid="vizant.lib" />
-        </path>
-
-        <taskdef name="vizant" classname="vizant.Vizant" classpathref="vizant.classpath" />
+        <taskdef name="vizant" classname="vizant.Vizant">
+            <classpath>
+                <fileset refid="vizant.lib" />
+            </classpath>
+        </taskdef>
         <vizant antfile="build.xml" outfile="${target}/build.dot" />
         <exec executable="dot">
             <arg line="-Tpng ${target}/build.dot -o ${target}/build.png" />
