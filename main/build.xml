@@ -277,6 +277,8 @@
         <java classname="net.sourceforge.cruisecontrol.gendoc.Gendoc">
             <classpath>
                 <fileset refid="gendoc.lib"/>
+                <fileset refid="commons-collections.lib"/>
+                <fileset refid="commons-lang.lib"/>
                 <fileset refid="log4j.lib"/>
                 <fileset refid="qdox.lib"/>
                 <fileset refid="velocity.lib"/>
