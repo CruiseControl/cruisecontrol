@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project>
+    <description>
+        Common reporting targets shared across all submodules.
+    </description>
+
+    <taskdef resource="checkstyletask.properties">
+        <classpath>
+            <fileset refid="checkstyle.lib"/>
+        </classpath>
+    </taskdef>
+
+    <target name="--checkstyle-init">
+        <mkdir dir="target/checkstyle"/>
+        <mkdir dir="target/reports"/>
+    </target>
+
+    <target name="--checkstyle">
+        <checkstyle failOnViolation="false" failureProperty="checkstyle.errors"
+                    config="${project.root}/common/checkstyle.xml">
+            <property key="checkstyle.cache.file" file="target/checkstyle/cachefile"/>
+            <fileset dir="${src}" includes="**/*.java"/>
+            <formatter type="plain"/>
+            <formatter type="xml" toFile="target/reports/checkstyle-log.xml"/>
+        </checkstyle>
+    </target>
+
+    <target name="--checkstyle-report">
+        <xslt in="target/reports/checkstyle-log.xml" out="target/reports/checkstyle.html"
+              style="${project.root}/common/checkstyle-simple.xsl"/>
+    </target>
+
+    <target name="--checkstyle-check">
+        <!--<fail if="checkstyle.errors" message="Please remember to flush after coding!"/>-->
+    </target>
+</project>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project name="delegates">
+    <description>
+        Common target dependencies shared across all submodules.
+    </description>
+
+    <import file="${ant.scripts}/build-targets.xml"/>
+
+    <target name="-checkstyle" depends="--checkstyle-init,--checkstyle,--checkstyle-report,--checkstyle-check"/>
+
+    <target name="-clean" depends="--clean"/>
+
+    <target name="-compile" depends="--compile-init,--compile"/>
+
+    <target name="-dev" depends="-compile,-test"/>
+
+    <target name="-javadoc" depends="--javadoc-init,--javadoc"/>
+
+    <target name="-package" depends="-javadoc,--package-init,--package-jar"/>
+
+    <target name="-test-unit"
+            depends="--test-unit-init,--test-unit-compile,--test-unit,--test-unit-report"/>
+
+    <target name="-test" depends="-test-unit,-checkstyle"/>
+</project>
