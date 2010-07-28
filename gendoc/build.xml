@@ -36,7 +36,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
 
-
 <project name="gendoc" default="clean-all" basedir=".">
     <description>
         CruiseControl gendoc - automates the generation of plugin configuration documentation.
@@ -86,6 +85,14 @@
       ~      The Ant targets below are deprecated and will be removed in a future release.
       -->
 
+    <target name="all" depends="init,compile,test,jar"/>
+    <target name="clean-all" depends="clean, all"/>
+    <target name="compile" depends="-compile" unless="compile.skip"/>
+    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
+    <target name="jar" depends="compile,-package"/>
+    <target name="javadoc" depends="-javadoc"/>
+    <target name="test" depends="-test" unless="test.skip"/>
+
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined." />
     </target>
@@ -95,12 +102,6 @@
         <property name="build.version" value="${cc.release.label}" />
         <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}" />
     </target>
-
-    <target name="compile" depends="-compile" unless="compile.skip"/>
-
-    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
-
-    <target name="test" depends="-test" unless="test.skip"/>
 
     <target name="test-one" depends="compile-test" if="testcase">
         <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
@@ -112,14 +113,4 @@
             <test name="${testcase}" todir="${junit.results}" />
         </junit>
     </target>
-
-    <target name="jar" depends="compile,-package"/>
-
-    <target name="javadoc" depends="-javadoc"/>
-
-    <target name="clean-all" depends="clean, all"/>
-
-    <target name="all"
-            depends="init,compile,test,jar"/>
-
 </project>
