@@ -318,16 +318,16 @@
      allow running on other jars (reporting, ccdist, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
     <target name="checkbinarycompatibility" depends="jar">
 
-        <!-- buildtools.classpath should either contain
-         clirr-core-uber.jar or alternatively
-         clirr-core.jar and the libraries it depends on -->
-        <path id="buildtools.classpath">
-            <fileset refid="clirr.lib" />
-        </path>
 
         <taskdef
-                classpathref="buildtools.classpath"
-                resource="clirrtask.properties"/>
+                resource="clirrtask.properties">
+            <!-- buildtools.classpath should either contain
+             clirr-core-uber.jar or alternatively
+             clirr-core.jar and the libraries it depends on -->
+            <classpath>
+                <fileset refid="clirr.lib" />
+            </classpath>
+        </taskdef>
 
         <!--value="${ant.project.name}-${compatibility.baseline.version}.jar"/>-->
         <property
