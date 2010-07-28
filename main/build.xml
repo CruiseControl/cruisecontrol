@@ -192,9 +192,7 @@
         <element implicit="true" name="nested" optional="true" />
         <sequential>
             <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="${target}" failureproperty="test.failed">
-                <classpath>
-                    <path refid="@{classpathref}" />
-                </classpath>
+                <classpath refid="@{classpathref}" />
                 <formatter type="brief" usefile="false" />
                 <formatter type="xml" />
                 <batchtest todir="${junit.results}">
@@ -229,9 +227,7 @@
 
     <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
         <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
-            <classpath>
-                <path refid="test.unit.run.path" />
-            </classpath>
+            <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
             <test name="${testcase}" todir="${junit.results}" />
