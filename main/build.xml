@@ -36,11 +36,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ****************************************************************************-->
 
-<project name="CruiseControl" default="dist">
-    <property name="project.root" location="${basedir}/.." />
-    <property name="ant.scripts" location="${project.root}/.ant-scripts" />
-
-    <import file="${ant.scripts}/build-dependencies.xml"/>
+<project name="cruisecontrol" default="dist">
+    <description>
+        CruiseControl - continuous build server.
+    </description>
 
     <property environment="env" />
     <property file="override.properties" />
@@ -53,7 +52,9 @@
     <property name="cc.release.label" value="${cc.version}" />
 
     <property name="target" value="target" />
+    <property name="apidocs" value="${target}/javadoc" />
     <property name="reports.dir" value="${target}/reports" />
+    <property name="functional-reports.dir" value="${target}/reports-functional" />
 
     <property name="classes" value="${target}/classes" />
     <property name="dist" value="dist" />
@@ -65,15 +66,19 @@
     <property name="tests" value="*Test" />
     <property name="xsl" value="xsl" />
 
+    <property name="project.root" location="${basedir}/.."/>
+
+    <import file="${project.root}/.ant-scripts/build-properties.xml"/>
+
+    <import file="build-paths.xml"/>
+
+    <import file="${ant.scripts}/build-delegates.xml"/>
+
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
 
-    <import file="build-paths.xml" />
-
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
-
-    <import file="${project.root}/common/checkstyle-build.xml"/>
 
     <taskdef resource="emma_ant.properties">
         <classpath>
@@ -81,6 +86,56 @@
             <fileset refid="emma-ant.lib" />
         </classpath>
     </taskdef>
+
+    <target name="clean" depends="-clean" description="--> Cleans all build artifacts and temporary files">
+        <delete quiet="yes" dir="${dist}"/>
+        <ant dir="loggers" target="clean"/>
+    </target>
+
+    <target name="dev" depends="logger.jar,-dev" description="--> Compiles all source code, runs all tests"/>
+
+    <target name="package" depends="-package" description="--> Compiles, tests, and creates package for release"/>
+
+    <!--
+      ~  OVERRIDES:
+      ~      The Ant targets below customize the behavior of the common Ant tasks for this module.
+      -->
+
+    <target name="--package-jar">
+        <jar jarfile="${dist}/${ant.project.name}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="CruiseControl" />
+            </manifest>
+            <fileset dir="${classes}" />
+            <fileset dir="${xsl}" />
+            <manifest>
+                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${dist}/cruisecontrol-launcher.jar">
+            <manifest>
+                <attribute name="Main-Class" value="net.sourceforge.cruisecontrol.launch.Launcher" />
+            </manifest>
+            <fileset dir="${classes}" includes="**/launch/**" />
+        </jar>
+    </target>
+
+    <!--
+      ~  DEPRECATED:
+      ~      The Ant targets below are deprecated and will be removed in a future release.
+      -->
+
+    <target name="all" depends="init,compile,test,functional-test,jar"/>
+    <target name="clean-all" depends="clean, all"/>
+    <target name="checkstyle" depends="-checkstyle"/>
+    <target name="compile" depends="logger.jar,-compile" unless="compile.skip"/>
+    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
+    <target name="compile-functional-test" depends="--test-functional-init,--test-functional-compile"/>
+    <target name="dist" depends="clean, all"/>
+    <target name="jar" depends="compile,-package"/>
+    <target name="javadoc" depends="-javadoc"/>
+    <target name="test" depends="-test" unless="test.skip"/>
+    <target name="functional-test" depends="-test-functional" unless="test.skip"/>
 
     <target name="checklabel">
         <fail unless="cc.release.label" message="label is not defined." />
@@ -92,12 +147,8 @@
         <echo>CruiseControl: ${cc.release.label}</echo>        
     </target>
 
-    <target name="init" description="Setup build system" depends="checklabel">
-        <mkdir dir="${classes}" />
-        <mkdir dir="${test.classes}" />
+    <target name="init" depends="checklabel,--compile-init,--javadoc-init,--package-init,--test-unit-init">
         <mkdir dir="${target}/tmp" />
-        <mkdir dir="${dist}" />
-        <mkdir dir="${junit.results}" />
         <mkdir dir="${emma.results}" />
 
         <available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
@@ -107,62 +158,6 @@
         <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}" />
     </target>
 
-    <target name="clean" description="Cleans out the build directories">
-        <delete quiet="yes">
-            <fileset dir="${dist}" />
-        </delete>
-        <delete dir="${target}" />
-
-        <ant dir="loggers" target="clean"/>
-    </target>
-
-    <macrodef name="compile-macro">
-        <attribute name="destdir" default="${classes}" />
-        <attribute name="srcdir" default="${src}" />
-        <attribute name="classpathref" default="compile.path" />
-        <element name="nested" implicit="true" optional="true" />
-        <sequential>
-            <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
-                <nested />
-                <!-- @todo add other compiler warning flags -->
-                <compilerarg value="-Xlint:unchecked"/>
-            </javac>
-        </sequential>
-    </macrodef>
-
-    <target name="compile" depends="init, logger.jar" unless="compile.skip" description="Compile source code">
-        <compile-macro classpathref="compile.path" />
-
-        <copy todir="${classes}">
-            <fileset file="*.properties" />
-            <filterset>
-                <filter token="VERSION" value="${build.version}" />
-                <filter token="VERSION_INFO" value="${build.version.info}" />
-            </filterset>
-        </copy>
-        <!-- copy resources like properties from the src-dir -->
-        <copy todir="${classes}">
-            <fileset dir="${src}" excludes="**/*.java" />
-        </copy>
-    </target>
-
-    <target name="compile-test" depends="compile" description="Compile test code">
-        <compile-macro srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" />
-
-        <copy todir="${test.classes}">
-            <fileset dir="${test}" includes="**/*.xml" />
-            <fileset dir="${test}" includes="**/*.txt" />
-            <fileset dir="${test}" includes="**/*.jar" />
-            <fileset dir="${test}" includes="**/*.properties" />
-        </copy>
-    </target>
-
-    <target name="compile-functional-test"  depends="compile">
-        <compile-macro srcdir="${functionaltest}" destdir="${test.classes}" classpathref="test.functional.compile.path" />
-        <copy todir="${test.classes}">
-            <fileset dir="${functionaltest}" excludes="**/*.java" />
-        </copy>
-    </target>
 
     <target name="emma-instrument" depends="init, compile">
         <emma>
@@ -184,46 +179,7 @@
         <echo message="View EMMA's HTML report at ${emma.html.report}" />
     </target>
 
-    <macrodef name="test-macro">
-        <attribute name="includes" default="**/${tests}.class" />
-        <attribute name="excludes" default="" />
-        <attribute name="classpathref" default="test.unit.run.path" />
-        <element implicit="true" name="nested" optional="true" />
-        <sequential>
-            <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="${target}" failureproperty="test.failed">
-                <classpath refid="@{classpathref}" />
-                <formatter type="brief" usefile="false" />
-                <formatter type="xml" />
-                <batchtest todir="${junit.results}">
-                    <fileset dir="${test.classes}" includes="@{includes}" excludes="@{excludes}" />
-                </batchtest>
-                <nested />
-            </junit>
-        </sequential>
-    </macrodef>
-
-    <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
-        <test-macro excludes="**/ThreadQueueTest*" classpathref="test.unit.run.path">
-            <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
-            <jvmarg value="-Demma.coverage.out.merge=true" />
-        </test-macro>
-
-        <mkdir dir="target/test-report"/>
-        <junitreport todir="target/test-report">
-          <fileset dir="${junit.results}">
-            <include name="TEST-*.xml"/>
-          </fileset>
-          <report format="frames" todir="target/test-report"/>
-        </junitreport>
-
-        <fail if="test.failed"/>
-    </target>
-
-    <target name="functional-test" depends="init, compile-functional-test" unless="test.skip" description="Executes the functional tests">
-        <test-macro includes="**/BuildLoopMonitorTest.class" classpathref="test.functional.run.path" />
-    </target>
-
-    <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
+    <target name="test-one" depends="compile-test" if="testcase">
         <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
             <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false" />
@@ -232,38 +188,7 @@
         </junit>
     </target>
 
-    <target name="jar" depends="compile">
-        <jar jarfile="${dist}/cruisecontrol.jar">
-            <manifest>
-                <attribute name="Main-Class" value="CruiseControl" />
-            </manifest>
-            <fileset dir="${classes}" />
-            <fileset dir="${xsl}" />
-            <manifest>
-                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
-            </manifest>
-        </jar>
-        <jar jarfile="${dist}/cruisecontrol-launcher.jar">
-            <manifest>
-                <attribute name="Main-Class" value="net.sourceforge.cruisecontrol.launch.Launcher" />
-            </manifest>
-            <fileset dir="${classes}" includes="**/launch/**" />
-        </jar>
-    </target>
-
-    <target name="javadoc" depends="init,compile" description="Generate the javadocs">
-        <mkdir dir="target/javadoc" />
-        <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*" breakiterator="yes" failonerror="true">
-            <classpath>
-                <path refid="compile.path" />
-                <fileset refid="ant.lib" />
-                <fileset refid="ant-launcher.lib" />
-                <pathelement location="${src}" />
-            </classpath>
-        </javadoc>
-    </target>
-
-    <target name="gendoc" depends="init,compile" description="generate the plugin documentation">
+    <target name="gendoc" depends="init,compile">
         <ant dir="../gendoc" target="all" inheritall="false"/>
 
         <java classname="net.sourceforge.cruisecontrol.gendoc.Gendoc">
@@ -281,21 +206,7 @@
 
     </target>
 
-    <target name="checkstyle" description="run checkstyle">
-        <checkstyle-macro reportsdir="${reports.dir}" configfile="${checkstyle.config}" checkstylecache="${checkstyle.cache}">
-            <taskdef resource="checkstyletask.properties">
-                <classpath>
-                    <fileset refid="checkstyle.lib" />
-                </classpath>
-            </taskdef>
-        </checkstyle-macro>
-    </target>
-
-    <target name="all" depends="init, compile, checkstyle, test, functional-test, jar" description="Performs a build, runs tests, and builds jar" />
-
-    <target name="dist" depends="clean, all" description="Performs a clean build, runs tests, and builds jar" />
-
-    <target name="vizant" description="Visualise the Ant build file" >
+    <target name="vizant">
         <taskdef name="vizant" classname="vizant.Vizant">
             <classpath>
                 <fileset refid="vizant.lib" />

@@ -24,7 +24,23 @@
 
     <target name="--compile" if="should.compile">
         <javac srcdir="${src}" destdir="${classes}" classpathref="compile.path" debug="${javac.debug}"
-               source="${javac.source}" target="${javac.target}"/>
+               source="${javac.source}" target="${javac.target}">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="--compile-copy-resources">
+        <copy todir="${classes}">
+            <fileset file="*.properties" />
+            <filterset>
+                <filter token="VERSION" value="${build.version}" />
+                <filter token="VERSION_INFO" value="${build.version.info}" />
+            </filterset>
+        </copy>
+        <!-- copy resources like properties from the src-dir -->
+        <copy todir="${classes}">
+            <fileset dir="${src}" excludes="**/*.java" />
+        </copy>
     </target>
 
     <target name="--javadoc-init">

@@ -12,7 +12,7 @@
 
     <target name="--checkstyle-init">
         <mkdir dir="target/checkstyle"/>
-        <mkdir dir="target/reports"/>
+        <mkdir dir="${reports.dir}"/>
     </target>
 
     <target name="--checkstyle">
@@ -21,12 +21,12 @@
             <property key="checkstyle.cache.file" file="target/checkstyle/cachefile"/>
             <fileset dir="${src}" includes="**/*.java"/>
             <formatter type="plain"/>
-            <formatter type="xml" toFile="target/reports/checkstyle-log.xml"/>
+            <formatter type="xml" toFile="${reports.dir}/checkstyle-log.xml"/>
         </checkstyle>
     </target>
 
     <target name="--checkstyle-report">
-        <xslt in="target/reports/checkstyle-log.xml" out="target/reports/checkstyle.html"
+        <xslt in="${reports.dir}/checkstyle-log.xml" out="${reports.dir}/checkstyle.html"
               style="${project.root}/common/checkstyle-simple.xsl"/>
     </target>
 
