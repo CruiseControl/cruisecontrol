@@ -105,9 +105,7 @@
 
     <target name="test-one" depends="compile-test" if="testcase">
         <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
-            <classpath>
-                <path refid="test.unit.run.path" />
-            </classpath>
+            <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
             <test name="${testcase}" todir="${junit.results}" />
