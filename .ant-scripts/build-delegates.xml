@@ -10,7 +10,7 @@
 
     <target name="-clean" depends="--clean"/>
 
-    <target name="-compile" depends="--compile-init,--compile"/>
+    <target name="-compile" depends="--compile-init,--compile,--compile-copy-resources"/>
 
     <target name="-dev" depends="-compile,-test"/>
 
@@ -18,8 +18,11 @@
 
     <target name="-package" depends="-javadoc,--package-init,--package-jar"/>
 
-    <target name="-test-unit"
-            depends="--test-unit-init,--test-unit-compile,--test-unit,--test-unit-report"/>
+    <target name="-test-functional"
+            depends="--test-functional-init,--test-functional-compile,--test-functional-copy-resources,--test-functional,--test-functional-report"/>
 
-    <target name="-test" depends="-test-unit,-checkstyle"/>
+    <target name="-test-unit"
+            depends="--test-unit-init,--test-unit-compile,--test-unit-copy-resources,--test-unit,--test-unit-report"/>
+
+    <target name="-test" depends="-test-unit,-test-functional,-checkstyle"/>
 </project>

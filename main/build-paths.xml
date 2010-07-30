@@ -4,6 +4,8 @@
         Main classpaths.
     </description>
 
+    <import file="${ant.scripts}/build-dependencies.xml" />
+
     <path id="compile.path">
         <fileset refid="activation.lib" />
         <fileset refid="antprogresslogger.lib" />

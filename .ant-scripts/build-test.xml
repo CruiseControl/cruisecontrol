@@ -4,11 +4,52 @@
         Common test targets shared across all submodules.
     </description>
 
+    <target name="--test-functional-init">
+        <available property="should.test.functional" file="${functionaltest}"/>
+        <mkdir dir="${test.classes}"/>
+        <mkdir dir="target/test/functional/results"/>
+        <mkdir dir="${functional-reports.dir}"/>
+    </target>
+
+    <target name="--test-functional-compile" if="should.test.functional">
+        <javac srcdir="${functionaltest}" destdir="${test.classes}" classpathref="test.functional.compile.path" debug="on"
+               source="${javac.source}" target="${javac.target}"/>
+    </target>
+
+    <target name="--test-functional-copy-resources" if="should.test.functional">
+        <copy todir="${test.classes}">
+            <fileset dir="${functionaltest}" excludes="**/*.java" />
+        </copy>
+    </target>
+
+    <target name="--test-functional" if="should.test.functional">
+        <junit dir="${target}" fork="yes" forkmode="perBatch" haltonfailure="yes" maxmemory="${heapsize.max}"
+               printsummary="true">
+            <classpath refid="test.functional.run.path"/>
+
+            <formatter type="brief" usefile="no"/>
+            <formatter type="xml" usefile="yes"/>
+
+            <batchtest fork="yes" todir="target/test/functional/results">
+                <fileset dir="${test.classes}" includes="**/BuildLoopMonitorTest.class"/>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="--test-functional-report" if="should.test.functional">
+        <junitreport todir="${functional-reports.dir}">
+            <fileset dir="target/test/functional/results">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${functional-reports.dir}"/>
+        </junitreport>
+    </target>
+
     <target name="--test-unit-init">
         <available property="should.test.unit" file="${test}"/>
         <mkdir dir="${test.classes}"/>
         <mkdir dir="${junit.results}"/>
-        <mkdir dir="target/reports/test/unit"/>
+        <mkdir dir="${reports.dir}"/>
     </target>
 
     <target name="--test-unit-compile" if="should.test.unit">
@@ -16,26 +57,38 @@
                source="${javac.source}" target="${javac.target}"/>
     </target>
 
+    <target name="--test-unit-copy-resources">
+        <copy todir="${test.classes}">
+            <fileset dir="${test}" includes="**/*.xml" />
+            <fileset dir="${test}" includes="**/*.txt" />
+            <fileset dir="${test}" includes="**/*.jar" />
+            <fileset dir="${test}" includes="**/*.properties" />
+        </copy>
+    </target>
+
     <target name="--test-unit" if="should.test.unit">
         <junit dir="${target}" fork="yes" forkmode="perBatch" haltonfailure="yes" maxmemory="${heapsize.max}"
                printsummary="true">
             <classpath refid="test.unit.run.path"/>
 
+            <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
+            <jvmarg value="-Demma.coverage.out.merge=true" />
+
             <formatter type="brief" usefile="no"/>
             <formatter type="xml" usefile="yes"/>
 
             <batchtest fork="yes" todir="${junit.results}">
-                <fileset dir="${test.classes}" includes="**/${tests}.class"/>
+                <fileset dir="${test.classes}" includes="**/${tests}.class" excludes="**/ThreadQueueTest*"/>
             </batchtest>
         </junit>
     </target>
 
     <target name="--test-unit-report" if="should.test.unit">
-        <junitreport todir="target/reports/test/unit">
+        <junitreport todir="${reports.dir}">
             <fileset dir="${junit.results}">
                 <include name="TEST-*.xml"/>
             </fileset>
-            <report format="frames" todir="target/reports/test/unit"/>
+            <report format="frames" todir="${reports.dir}"/>
         </junitreport>
     </target>
 </project>

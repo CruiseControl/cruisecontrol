@@ -54,6 +54,7 @@
     <property name="target" value="target" />
     <property name="docs" value="${target}/docs" />
     <property name="apidocs" value="${docs}/api" />
+    <property name="reports.dir" value="${target}/reports" />
 
     <property name="classes" value="${target}/classes" />
     <property name="dist" value="dist" />
