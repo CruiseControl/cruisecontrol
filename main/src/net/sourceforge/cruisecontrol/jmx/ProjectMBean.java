@@ -61,14 +61,14 @@ public interface ProjectMBean {
 
     /**
      * Runs a build now, overriding the target of the used builder
-     * @param target the target to build
+     * @param target the target to invoke
      */
     public void buildWithTarget(String target);
 
     /**
      * Runs a build now, overriding the target of the used builder
      * and passing additional properties
-     * @param target the target to build
+     * @param target the target to invoke
      * @param addedProperties the additional properties that will be passed to the build
      */
     public void buildWithTarget(String target, Map<String, String> addedProperties);
@@ -129,10 +129,8 @@ public interface ProjectMBean {
      * Change the directory where CruiseControl logs are kept
      *
      * @param logdir Relative or absolute path to the log directory
-     * @throws CruiseControlException well...never
      */
-    // @todo Remove throws CruiseControlException?
-    public void setLogDir(String logdir) throws CruiseControlException;
+    public void setLogDir(String logdir) ;
 
     public String getLogDir();
 
@@ -177,6 +175,24 @@ public interface ProjectMBean {
      */
     public String[][] commitMessages();
 
+
+    /**
+     * @param firstLine The starting line to skip to.
+     * @return Output from the live output buffer, after line specified (inclusive).
+     */
     public String[] getBuildOutput(Integer firstLine);
+
+    /**
+     * @return  A unique (for this VM) identifying string for this logger instance.
+     * Intended to allow reporting apps (eg: Dashboard) to check if
+     * the "live output" log file has been reset and to start asking for output from the first line
+     * of the current output file if the logger has changed.
+     *
+     * Before the first call to retrieveLines(), the client should call getOutputLoggerID(), and hold that ID value.
+     * If a client later calls retrieveLines() with a non-zero 'firstLine' parameter, and receives an empty array
+     * as a result, that client should call getOutputLoggerID() again, and if the ID value differs, start reading
+     * using a zero 'firstLine' parameter.
+     * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger#retrieveLines(int)}.
+     */
     public String getOutputLoggerID();
 }
