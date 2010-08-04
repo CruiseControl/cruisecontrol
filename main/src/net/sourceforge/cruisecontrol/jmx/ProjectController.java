@@ -194,8 +194,7 @@ public class ProjectController extends NotificationBroadcasterSupport
         return buildStartTime == null ? "" : buildStartTime;
     }
 
-    // @todo Remove throws CruiseControlException?
-    public void setLogDir(final String logdir) throws CruiseControlException {
+    public void setLogDir(final String logdir)  {
         log("setting log dir to [" + logdir + "]");
         project.getLog().setDir(logdir);
     }
@@ -279,7 +278,7 @@ public class ProjectController extends NotificationBroadcasterSupport
     }
 
     /**
-     * Ouptut from the build output buffer, after line specified (inclusive).
+     * Output from the live output buffer, after line specified (inclusive).
      * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger
      */
     public String[] getBuildOutput(final Integer firstLine) {
