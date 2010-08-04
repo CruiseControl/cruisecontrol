@@ -59,6 +59,45 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         METHOD_DESCRIPTIONS.put("serialize", "Persists the state of the project to disk");
         METHOD_DESCRIPTIONS.put("commitMessages", "Gets the commit messages which"
                  + " include the user name and the message.");
+
+        METHOD_DESCRIPTIONS.put("getLogLabelLines", "Lines from the given firstLine up to max lines, "
+                + "or an empty array if no more lines exist");
+
+        METHOD_DESCRIPTIONS.put("getBuildOutput", "Output from the live output buffer, after line "
+                + "specified (inclusive)");
+    }
+
+    private static final Map<String, String> METHOD_PARAMETER_NAME;
+    
+    static {
+        METHOD_PARAMETER_NAME = new HashMap<String, String>();
+
+        METHOD_PARAMETER_NAME.put("buildWithTarget-0", "target");
+        METHOD_PARAMETER_NAME.put("buildWithTarget-1", "addedProperties");
+
+        METHOD_PARAMETER_NAME.put("getLogLabelLines-0", "logLabel");
+        METHOD_PARAMETER_NAME.put("getLogLabelLines-1", "firstLine");
+
+        METHOD_PARAMETER_NAME.put("getBuildOutput-0", "firstLine");
+
+    }
+    
+    private static final Map<String, String> METHOD_PARAMETER_DESCRIPTIONS;
+    
+    static {
+        METHOD_PARAMETER_DESCRIPTIONS = new HashMap<String, String>();
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("buildWithTarget-0", "The target to invoke");
+        METHOD_PARAMETER_DESCRIPTIONS.put("buildWithTarget-1",
+                "The additional properties that will be passed to the build");
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("getLogLabelLines-0", "A valid build label, must exist in the list "
+                + "returned by getLogLabels()");
+        METHOD_PARAMETER_DESCRIPTIONS.put("getLogLabelLines-1", "The starting line to skip to in the log for the given "
+                + "build label");
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("getBuildOutput-0", "The starting line to skip to");
+
     }
 
     private static final Map<String, String> ATTR_DESCRIPTIONS;
@@ -87,9 +126,11 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
         ATTR_DESCRIPTIONS.put("LogLabels", 
                               "A list with the names of the available log files.");
 
-        ATTR_DESCRIPTIONS.put("LogLabelLines",
-                              "Lines from the given log file, the firstLine up to max lines, "
-                            + "or an empty array if no more lines exist.");
+        ATTR_DESCRIPTIONS.put("OutputLoggerID",
+                              "A unique (for this VM) identifying string for a logger instance. Intended to allow "
+                                      + "reporting apps (eg: Dashboard) to check if the live output log file has been "
+                                      + "reset and to start asking for output from the first line "
+                                      + "of the current output file if the logger has changed.");
 
         ATTR_DESCRIPTIONS.put("ProjectName", "The name of this project");
 
@@ -104,15 +145,38 @@ public class ProjectControllerMBeanDescription extends MBeanDescriptionAdapter {
                               "Start Time of the last build, using the format 'yyyyMMddHHmmss'");
     }
 
-    public String getOperationDescription(Method method) {
-        String methodName = method.getName();
+    public String getOperationDescription(final Method method) {
+        final String methodName = method.getName();
         if (METHOD_DESCRIPTIONS.containsKey(methodName)) {
             return METHOD_DESCRIPTIONS.get(methodName);
         }
         return super.getOperationDescription(method);
     }
+    
 
-    public String getAttributeDescription(String attr) {
+    public String getOperationParameterName(final Method method, final int index) {
+        if (method != null) {
+            final String methodName = method.getName() + "-" + index;
+            if (METHOD_PARAMETER_NAME.containsKey(methodName)) {
+                return METHOD_PARAMETER_NAME.get(methodName);
+            }
+        }
+        return super.getOperationParameterName(method, index);
+    }
+    
+    public String getOperationParameterDescription(final Method method, final int index) {
+        if (method != null) {
+            final String methodName = method.getName() + "-" + index;
+            if (METHOD_PARAMETER_DESCRIPTIONS.containsKey(methodName)) {
+                return METHOD_PARAMETER_DESCRIPTIONS.get(methodName);
+            }
+        }
+        return super.getOperationParameterDescription(method, index);
+    }
+    
+    
+
+    public String getAttributeDescription(final String attr) {
         if (ATTR_DESCRIPTIONS.containsKey(attr)) {
             return ATTR_DESCRIPTIONS.get(attr);
         }
