@@ -1,6 +1,7 @@
 package net.sourceforge.cruisecontrol.jmx;
 
 import junit.framework.TestCase;
+import mx4j.MBeanDescriptionAdapter;
 import net.sourceforge.cruisecontrol.Project;
 
 import java.lang.reflect.Method;
@@ -14,16 +15,16 @@ import java.util.Map;
 public class ProjectControllerMBeanDescriptionTest extends TestCase {
 
     /** The default parameter name prefix. */
-    private static final String DEFAULT_PREFIX_PARAM_NAME = "param";
+    static final String DEFAULT_PREFIX_PARAM_NAME = "param";
 
     /** The default parameter description prefix. */
-    private static final String DEFAULT_PREFIX_PARAM_DESC = "Operation's parameter n. ";
+    static final String DEFAULT_PREFIX_PARAM_DESC = "Operation's parameter n. ";
 
-    private ProjectControllerMBean mbeanProjectController;
-    private ProjectControllerMBeanDescription mbeanDescription;
+    private ProjectControllerMBean mbean;
+    private MBeanDescriptionAdapter mbeanDescription;
 
     protected void setUp() throws Exception {
-        mbeanProjectController = new ProjectController(new Project());
+        mbean = new ProjectController(new Project());
 
         mbeanDescription = new ProjectControllerMBeanDescription();
     }
@@ -38,7 +39,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     }
 
     public void testGetOperationParameterDefaults() throws Exception {
-        final Method method = mbeanProjectController.getClass().getMethod("getLastBuild", new Class[]{});
+        final Method method = mbean.getClass().getMethod("getLastBuild", new Class[]{});
 
         assertEquals("Invalid param: index should still call super.",
                 DEFAULT_PREFIX_PARAM_NAME + "0", mbeanDescription.getOperationParameterName(method, -1));
@@ -56,14 +57,27 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
 
 
     private void checkAttribute(final String attributeName, final String expectedMethodDescription) {
+        checkAttribute(mbeanDescription, attributeName, expectedMethodDescription);
+    }
+    static void checkAttribute(final MBeanDescriptionAdapter mbeanDescription,
+                               final String attributeName, final String expectedMethodDescription) {
         assertEquals(expectedMethodDescription, mbeanDescription.getAttributeDescription(attributeName));
     }
 
     private void checkMethod(final Method method, final String expectedMethodDescription) {
+        checkMethod(mbeanDescription, method, expectedMethodDescription);
+    }
+    static void checkMethod(final MBeanDescriptionAdapter mbeanDescription,
+                            final Method method, final String expectedMethodDescription) {
         assertEquals(expectedMethodDescription, mbeanDescription.getOperationDescription(method));
     }
 
     private void checkParameter(final Method method,
+                                           final int parameterIndex,
+                                           final String expectedParameterName, final String expectedParameterDesc) {
+        checkParameter(mbeanDescription, method, parameterIndex, expectedParameterName, expectedParameterDesc);
+    }
+    static void checkParameter(final MBeanDescriptionAdapter mbeanDescription, final Method method,
                                            final int parameterIndex,
                                            final String expectedParameterName, final String expectedParameterDesc)
             {
@@ -75,7 +89,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoPause() throws Exception {
         final String methodName = "pause";
         final Class[] paramTypes = new Class[]{};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Pauses the project");
     }
@@ -83,7 +97,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoResume() throws Exception {
         final String methodName = "resume";
         final Class[] paramTypes = new Class[]{};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Resumes the project when it's paused");
     }
@@ -91,7 +105,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoBuild() throws Exception {
         final String methodName = "build";
         final Class[] paramTypes = new Class[]{};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Forces a build of the project");
     }
@@ -99,7 +113,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoBuildWithTarget() throws Exception {
         final String methodName = "buildWithTarget";
         final Class[] paramTypes = new Class[]{String.class};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Forces a build of the project using the given target");
 
@@ -109,7 +123,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoBuildWithTargetAdditionalProps() throws Exception {
         final String methodName = "buildWithTarget";
         final Class[] paramTypes = new Class[]{String.class, Map.class};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Forces a build of the project using the given target");
 
@@ -120,7 +134,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoSerialize() throws Exception {
         final String methodName = "serialize";
         final Class[] paramTypes = new Class[]{};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Persists the state of the project to disk");
     }
@@ -128,7 +142,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
     public void testInfoCommitMessages() throws Exception {
         final String methodName = "commitMessages";
         final Class[] paramTypes = new Class[]{};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Gets the commit messages which include the user name and the message.");
     }
@@ -147,7 +161,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
 
         final String methodName = "getLogLabelLines";
         final Class[] paramTypes = new Class[]{String.class, int.class};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Lines from the given firstLine up to max lines, or an empty array if no more lines exist");
 
@@ -160,7 +174,7 @@ public class ProjectControllerMBeanDescriptionTest extends TestCase {
 
         final String methodName = "getBuildOutput";
         final Class[] paramTypes = new Class[]{Integer.class};
-        final Method method = mbeanProjectController.getClass().getMethod(methodName, paramTypes);
+        final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         checkMethod(method, "Output from the live output buffer, after line specified (inclusive)");
 
