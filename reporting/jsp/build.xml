@@ -34,7 +34,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
-<project name="reporting-jsp" default="clean-all" basedir=".">
+<project name="reporting-jsp" default="clean-all">
     <property name="project.root" location="${basedir}/../.." />
     <property name="ant.scripts" location="${project.root}/.ant-scripts" />
 
