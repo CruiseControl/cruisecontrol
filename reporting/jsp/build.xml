@@ -229,7 +229,7 @@
                 <path refid="compile.path"/>
             </classpath>
         </taskdef>
-        <jasper2 compile="true" outputdir="${basedir}/target/jsp-precompile/src"
+        <jasper2 compile="true" outputdir="target/jsp-precompile/src"
                  listerrors="true" validatexml="true" verbose="2"
                  uriroot="${basedir}/target/jsp-precompile/exploded-war"/>
     </target>
