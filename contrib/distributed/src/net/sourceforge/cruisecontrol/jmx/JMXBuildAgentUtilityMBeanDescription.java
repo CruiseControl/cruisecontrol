@@ -28,6 +28,33 @@ public class JMXBuildAgentUtilityMBeanDescription extends MBeanDescriptionAdapte
         METHOD_DESCRIPTIONS.put("restartAll", "Restart all (webstart) Build Agents.");
     }
 
+    private static final Map<String, String> METHOD_PARAMETER_NAME;
+
+    static {
+        METHOD_PARAMETER_NAME = new HashMap<String, String>();
+
+        METHOD_PARAMETER_NAME.put("destroyLUS-0", "lusServiceId");
+
+        METHOD_PARAMETER_NAME.put("kill-0", "agentServiceId");
+
+        METHOD_PARAMETER_NAME.put("restart-0", "agentServiceId");
+
+    }
+
+    private static final Map<String, String> METHOD_PARAMETER_DESCRIPTIONS;
+
+    static {
+        METHOD_PARAMETER_DESCRIPTIONS = new HashMap<String, String>();
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("destroyLUS-0", "The ServiceID of the Registrar to be destroyed.");
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("kill-0", "The ServiceID of the Build Agent to be killed.");
+
+        METHOD_PARAMETER_DESCRIPTIONS.put("restart-0", "The ServiceID of the Build Agent to be restarted.");
+
+    }
+
+
     private static final Map<String, String> ATTR_DESCRIPTIONS;
 
     static {
@@ -50,6 +77,27 @@ public class JMXBuildAgentUtilityMBeanDescription extends MBeanDescriptionAdapte
         }
         return super.getOperationDescription(method);
     }
+
+    public String getOperationParameterName(final Method method, final int index) {
+        if (method != null) {
+            final String methodName = method.getName() + "-" + index;
+            if (METHOD_PARAMETER_NAME.containsKey(methodName)) {
+                return METHOD_PARAMETER_NAME.get(methodName);
+            }
+        }
+        return super.getOperationParameterName(method, index);
+    }
+
+    public String getOperationParameterDescription(final Method method, final int index) {
+        if (method != null) {
+            final String methodName = method.getName() + "-" + index;
+            if (METHOD_PARAMETER_DESCRIPTIONS.containsKey(methodName)) {
+                return METHOD_PARAMETER_DESCRIPTIONS.get(methodName);
+            }
+        }
+        return super.getOperationParameterDescription(method, index);
+    }
+
 
     public String getAttributeDescription(String attr) {
         if (ATTR_DESCRIPTIONS.containsKey(attr)) {
