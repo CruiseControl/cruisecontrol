@@ -182,6 +182,7 @@
             <patternset refid="ps.main.lib-common" />
             <patternset refid="ps.jarnames-xml-libs"/>
             <include name="jakarta-oro*.jar" />
+            <include name="mx4j.jar" /> <!-- required by tests of JMX MBean Description -->
             <include name="ant/*.jar" /> <!-- required by tests that run a build via a build agent -->
         </fileset>
         <path refid="jini.core.classpath"/>
