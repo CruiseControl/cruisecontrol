@@ -149,7 +149,7 @@
 	<target name="-unit-tests" unless="test.skip">
 		<mkdir dir="${reports.dir}" />
 		<mkdir dir="${test.classes.dir}/build" />
-		<junit printsummary="yes" dir="${basedir}" haltonfailure="true" fork="true" forkMode="once">
+		<junit printsummary="yes" dir="." haltonfailure="true" fork="true" forkMode="once">
 			<classpath refid="test.unit.run.path" />
 
 			<formatter type="brief" usefile="false" />
@@ -174,7 +174,7 @@
 		<attribute name="file.filter" />
 		<sequential>
 			<mkdir dir="${reports.dir}" />
-			<junit printsummary="yes" fork="true" failureproperty="functional.test.failed" dir="${basedir}">
+			<junit printsummary="yes" fork="true" failureproperty="functional.test.failed" dir=".">
 				<classpath refid="test.functional.run.path" />
 				<formatter type="brief" usefile="false" />
 				<formatter type="xml" />
@@ -363,7 +363,7 @@
 
 	<target name="-generate.svn.revsion" if="has.dotsvn.dir" unless="current.revision">
 		<svn>
-			<status path="${basedir}" revisionProperty="current.revision" />
+			<status path="${project.root}" revisionProperty="current.revision" />
 		</svn>
 	</target>
 
@@ -402,11 +402,11 @@
 
 	<target name="-start.jetty.server.with.sys">
 		<java classname="net.sourceforge.cruisecontrol.dashboard.testhelpers.CruiseDashboardServer" fork="true">
-			<sysproperty key="cc.artifacts" value="${basedir}/test/data/arbitrary_artifacts/artifacts" />
-			<sysproperty key="cc.config.file" value="${basedir}/test/data/config.xml" />
-			<sysproperty key="cc.logdir" value="${basedir}/test/data/logs" />
+			<sysproperty key="cc.artifacts" value="test/data/arbitrary_artifacts/artifacts" />
+			<sysproperty key="cc.config.file" value="test/data/config.xml" />
+			<sysproperty key="cc.logdir" value="test/data/logs" />
 			<sysproperty key="cc.config.forcebuild" value="enabled" />
-			<sysproperty key="dashboard.config" value="${basedir}/test/data/dashboard-config.xml" />
+			<sysproperty key="dashboard.config" value="test/data/dashboard-config.xml" />
 			<classpath refid="test.functional.run.path" />
 		</java>
 	</target>
