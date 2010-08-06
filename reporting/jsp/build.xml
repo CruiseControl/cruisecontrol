@@ -35,22 +35,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************-->
 <project name="reporting-jsp" default="clean-all">
-    <property name="project.root" location="${basedir}/../.." />
-    <property name="ant.scripts" location="${project.root}/.ant-scripts" />
-
-    <import file="${ant.scripts}/build-dependencies.xml"/>
-
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
-        <classpath>
-            <fileset refid="ant-contrib.lib"/>
-        </classpath>
-    </taskdef>
+    <description>
+        CruiseControl reporting - original JSP webapp.
+    </description>
 
     <property environment="env"/>
     <property file="override.properties"/>
 
     <!-- define version -->
-    <property file="${project.root}/build.properties"/>
+    <property file="../../build.properties"/>
 
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
@@ -65,6 +58,14 @@
     <property name="tests" value="*Test"/>
     <property name="webcontent" value="webcontent"/>
 
+    <property name="project.root" location="${basedir}/../.."/>
+
+    <import file="${project.root}/.ant-scripts/build-properties.xml"/>
+
+    <import file="build-paths.xml"/>
+
+    <import file="${ant.scripts}/build-delegates.xml"/>
+
     <property name="checkstyle.cache" value="${target}/checkstyle.cache" />
     <property name="checkstyle.config" value="${project.root}/common/checkstyle.xml"/>
 
@@ -72,11 +73,33 @@
 
     <import file="build-paths.xml" />
 
-    <target name="clean">
-        <delete dir="${target}"/>
-    </target>
+    <target name="clean" depends="-clean" description="--> Cleans all build artifacts and temporary files"/>
 
-    <target name="init">
+    <target name="dev" depends="-dev" description="--> Compiles all source code, runs all tests"/>
+
+    <target name="package" depends="-package" description="--> Compiles, tests, and creates package for release"/>
+
+    <!--
+      ~  OVERRIDES:
+      ~      The Ant targets below customize the behavior of the common Ant tasks for this module.
+      -->
+
+    <target name="-package" depends="war"/>
+
+    <!--
+      ~  DEPRECATED:
+      ~      The Ant targets below are deprecated and will be removed in a future release.
+      -->
+
+    <target name="all" depends="init,compile,-checkstyle,test,war, jsp-precompile"/>
+    <target name="checkstyle" depends="-checkstyle"/>
+    <target name="clean-all" depends="clean, all"/>
+    <target name="compile" depends="-compile"/>
+    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
+    <target name="javadoc" depends="-javadoc"/>
+    <target name="test" depends="-test" unless="test.skip"/>
+
+    <target name="init" depends="--compile-init,--javadoc-init,--package-init,--test-unit-init">
         <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
 
         <echo>Java: ${java.version} (${java.vm.name})</echo>
@@ -86,12 +109,6 @@
         <echo>CruiseControl: ${cc.version}
         </echo>
 
-        <mkdir dir="${dist}"/>
-        <mkdir dir="${classes}"/>
-        <mkdir dir="${test.classes}"/>
-        <mkdir dir="${test.results}"/>
-        <mkdir dir="${temp.dir}"/>
-
         <tstamp/>
         <property name="label" value="${cc.version} Compiled on ${TODAY} ${TSTAMP}"/>
     </target>
@@ -99,7 +116,7 @@
     <!-- **************************************************** -->
     <!-- Run duplication check on code -->
     <!-- **************************************************** -->
-    <target name="check-duplication" description="Check for duplicated code">
+    <target name="check-duplication">
         <taskdef resource="simiantask.properties" classpath="${simian.jar}" />
         <!-- Switch this to true with a threshold once we deal with current duplication -->
         <simian failOnDuplication="false">
@@ -107,54 +124,7 @@
         </simian>
     </target>
 
-    <target name="-checkstyle">
-        <checkstyle-macro
-            reportsdir="${reports.dir}"
-            configfile="${checkstyle.config}"
-            checkstylecache="${checkstyle.cache}">
-
-            <taskdef resource="checkstyletask.properties">
-                <classpath>
-                    <fileset refid="checkstyle.lib" />
-                </classpath>
-            </taskdef>
-
-        </checkstyle-macro>
-    </target>
-
-    <macrodef name="compile-macro">
-        <attribute name="destdir" default="${classes}" />
-        <attribute name="srcdir" default="${src}" />
-        <attribute name="classpathref" />
-        <element name="nested" implicit="true" optional="true" />
-        <sequential>
-            <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
-                <nested />
-            </javac>
-        </sequential>
-    </macrodef>
-
-    <target name="compile" depends="init">
-        <compile-macro classpathref="compile.path" />
-    </target>
-
-    <target name="compile-test" depends="compile"
-        description="Compile test code">
-        <compile-macro srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" />
-    </target>
-
-    <target name="test" depends="compile-test" unless="test.skip" description="Executes the unit tests">
-        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" dir="${target}">
-            <classpath refid="test.unit.run.path" />
-            <formatter type="brief" usefile="false" />
-            <formatter type="xml"/>
-            <batchtest todir="${test.results}" >
-                <fileset dir="${test.classes}" includes="**/${tests}.class" />
-            </batchtest>
-        </junit>
-    </target>
-
-    <target name="test-one" depends="compile-test" description="Executes one unit test" if="testcase">
+    <target name="test-one" depends="compile-test" if="testcase">
         <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
             <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false"/>
@@ -233,19 +203,4 @@
                  listerrors="true" validatexml="true" verbose="2"
                  uriroot="${basedir}/target/jsp-precompile/exploded-war"/>
     </target>
-
-    <target name="javadoc" depends="init,compile" description="Generate the javadocs">
-       <mkdir dir="target/javadoc"/>
-       <javadoc sourcepath="${src}" destdir="target/javadoc" packagenames="net.sourceforge.cruisecontrol.*"
-           breakiterator="yes" failonerror="true" source="1.5">
-           <classpath refid="run.path"/>
-       </javadoc>
-    </target>
-
-    <target name="clean-all" depends="clean, all" description="Performs a clean build, runs tests, and builds war"/>
-
-    <target name="all" depends="init,compile,-checkstyle,test,war, jsp-precompile"
-            description="Performs a build, runs tests, and builds war" />
-    <target name="checkstyle" depends="-checkstyle" description="Run Checkstyle" />
-
 </project>
