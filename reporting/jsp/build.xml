@@ -47,6 +47,7 @@
 
     <property name="dist" value="dist"/>
     <property name="target" value="target"/>
+    <property name="apidocs" value="${target}/javadoc"/>
     <property name="reports.dir" value="${target}/reports" />
     <property name="deploy.dir" value="${dist}"/>
     <property name="src" value="src"/>
@@ -54,7 +55,8 @@
     <property name="test.classes" value="${target}/test-classes"/>
     <property name="temp.dir" value="${target}/tmp"/>
     <property name="test" value="test"/>
-    <property name="test.results" value="${target}/test-results"/>
+    <property name="junit.results" value="${target}/test-results"/>
+    <property name="test.results" value="${junit.results}"/>
     <property name="tests" value="*Test"/>
     <property name="webcontent" value="webcontent"/>
 
@@ -95,11 +97,11 @@
     <target name="checkstyle" depends="-checkstyle"/>
     <target name="clean-all" depends="clean, all"/>
     <target name="compile" depends="-compile"/>
-    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
+    <target name="compile-test" depends="--test-init,--test-unit-init,--test-unit-compile"/>
     <target name="javadoc" depends="-javadoc"/>
     <target name="test" depends="-test" unless="test.skip"/>
 
-    <target name="init" depends="--compile-init,--javadoc-init,--package-init,--test-unit-init">
+    <target name="init" depends="--compile-init,--javadoc-init,--package-init,--test-init,--test-unit-init">
         <fail unless="cc.version" message="cc.version property is not defined. Check your build.properties"/>
 
         <echo>Java: ${java.version} (${java.vm.name})</echo>

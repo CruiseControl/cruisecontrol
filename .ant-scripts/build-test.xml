@@ -4,8 +4,12 @@
         Common test targets shared across all submodules.
     </description>
 
-    <target name="--test-functional-init">
+    <target name="--test-init">
         <available property="should.test.functional" file="${functionaltest}"/>
+        <available property="should.test.unit" file="${test}"/>
+    </target>
+
+    <target name="--test-functional-init" if="should.test.functional">
         <mkdir dir="${test.classes}"/>
         <mkdir dir="target/test/functional/results"/>
         <mkdir dir="${functional-reports.dir}"/>
@@ -45,8 +49,7 @@
         </junitreport>
     </target>
 
-    <target name="--test-unit-init">
-        <available property="should.test.unit" file="${test}"/>
+    <target name="--test-unit-init" if="should.test.unit">
         <mkdir dir="${test.classes}"/>
         <mkdir dir="${junit.results}"/>
         <mkdir dir="${reports.dir}"/>

@@ -19,10 +19,10 @@
     <target name="-package" depends="-javadoc,--package-init,--package-jar"/>
 
     <target name="-test-functional"
-            depends="--test-functional-init,--test-functional-compile,--test-functional-copy-resources,--test-functional,--test-functional-report"/>
+            depends="--test-init,--test-functional-init,--test-functional-compile,--test-functional-copy-resources,--test-functional,--test-functional-report"/>
 
     <target name="-test-unit"
-            depends="--test-unit-init,--test-unit-compile,--test-unit-copy-resources,--test-unit,--test-unit-report"/>
+            depends="--test-init,--test-unit-init,--test-unit-compile,--test-unit-copy-resources,--test-unit,--test-unit-report"/>
 
-    <target name="-test" depends="-test-unit,-test-functional,-checkstyle"/>
+    <target name="-test" depends="--test-init,-test-unit,-test-functional,-checkstyle"/>
 </project>
