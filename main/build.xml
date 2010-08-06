@@ -129,8 +129,8 @@
     <target name="clean-all" depends="clean, all"/>
     <target name="checkstyle" depends="-checkstyle"/>
     <target name="compile" depends="logger.jar,-compile" unless="compile.skip"/>
-    <target name="compile-test" depends="--test-unit-init,--test-unit-compile"/>
-    <target name="compile-functional-test" depends="--test-functional-init,--test-functional-compile"/>
+    <target name="compile-test" depends="--test-init,--test-unit-init,--test-unit-compile"/>
+    <target name="compile-functional-test" depends="--test-init,--test-functional-init,--test-functional-compile"/>
     <target name="dist" depends="clean, all"/>
     <target name="jar" depends="compile,-package"/>
     <target name="javadoc" depends="-javadoc"/>
@@ -147,7 +147,7 @@
         <echo>CruiseControl: ${cc.release.label}</echo>        
     </target>
 
-    <target name="init" depends="checklabel,--compile-init,--javadoc-init,--package-init,--test-unit-init">
+    <target name="init" depends="checklabel,--compile-init,--javadoc-init,--package-init,--test-init,--test-unit-init">
         <mkdir dir="${target}/tmp" />
         <mkdir dir="${emma.results}" />
 
