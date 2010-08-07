@@ -462,7 +462,8 @@ public class BuildAgent implements DiscoveryListener,
         // @todo technically, should serviceID be stored permanently and reused?....
         this.serviceID = serviceID;
         LOG.info("ServiceID assigned: " + this.serviceID
-                + (testAgentID == 0 ? "" : " (agentID: " + testAgentID) + ")");
+                + (testAgentID == 0 ? "" : " (agentID: " + testAgentID + ")")
+        );
         if (ui != null) {
             ui.updateAgentInfoUI(getService());
         }
