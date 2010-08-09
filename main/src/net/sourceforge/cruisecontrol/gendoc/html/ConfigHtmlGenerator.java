@@ -71,7 +71,7 @@ public class ConfigHtmlGenerator {
      * @throws Exception if anything goes wrong.
      */
     public ConfigHtmlGenerator() throws Exception {
-        final VelocityEngine engine = getVelocityEngine();
+        getVelocityEngine();
 
         final String myTemplateBody = getTemplateFromJar();
 
