@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.tools.ant.Project;
@@ -161,6 +162,7 @@ public class ArtifactsPublisher implements Publisher {
         this.moveInsteadOfCopy = moveInsteadOfCopy;
     }
 
+    @SkipDoc // Gendoc should not interpret this as a Copy child.
     public Copy createCopier() {
         return moveInsteadOfCopy ? new Move() : new Copy();
     }

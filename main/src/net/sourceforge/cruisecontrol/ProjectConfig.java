@@ -135,17 +135,21 @@ public class ProjectConfig implements ProjectInterface {
     /**
      * Defines a name/value pair used in configuration.
      * @param plugin plugin
+     * @deprecated exists only for gendoc, should not be called.
      */
     public void add(DefaultPropertiesPlugin plugin) {
-        // currently only declared for documentation generation purposes
+        // FIXME currently only declared for documentation generation purposes
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     /**
      * Registers a classname with an alias.
      * @param plugin plugin
+     * @deprecated exists only for gendoc, should not be called.
      */
     public void add(PluginPlugin plugin) {
         // currently only declared for documentation generation purposes
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     public void add(LabelIncrementer labelIncrementer) {

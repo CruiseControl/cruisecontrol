@@ -47,6 +47,7 @@ import com.vasoftware.sf.soap42.webservices.docman.IDocumentAppSoap;
 import com.vasoftware.sf.soap42.webservices.filestorage.IFileStorageAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XPathAwareChild;
 import org.jdom.Element;
@@ -73,11 +74,16 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
     private boolean lock;
     private String documentPath;
 
-    public Status createStatus() {
+    
+    @ManualChildName("status")
+    public XPathAwareChild createStatus() {
+        // This really returns a Status object, but the return type is declared as
+        // XPathAwareChild for documentation purpopses.
         status = new Status();
         return status;
     }
 
+    @ManualChildName("versioncomment")
     public XPathAwareChild createVersionComment() {
         versionComment = new XPathAwareChild();
         return versionComment;
@@ -91,11 +97,13 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         this.dataSrc = dataSrc;
     }
 
+    @ManualChildName("documentname")
     public XPathAwareChild createDocumentName() {
         documentName = new XPathAwareChild();
         return documentName;
     }
 
+    @ManualChildName("description")
     public XPathAwareChild createDescription() {
         description = new XPathAwareChild();
         return description;

@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
@@ -67,6 +68,9 @@ import net.sourceforge.cruisecontrol.PluginType;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.gendoc.PluginInfo;
+import net.sourceforge.cruisecontrol.gendoc.PluginInfoParser;
+import net.sourceforge.cruisecontrol.gendoc.html.ConfigHtmlGenerator;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
@@ -80,6 +84,10 @@ import org.jdom.Element;
  */
 public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSupport
         implements CruiseControlControllerJMXAdaptorMBean, CruiseControlController.Listener {
+        
+    /** Root plugin name for use during gendoc parsing. */
+    public static final String ROOT_PLUGIN = "cruisecontrol";
+    
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerJMXAdaptor.class);
     private static final Object SEQUENCE_LOCK = new Object();
     private static int sequence = 0;
@@ -333,5 +341,62 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
             allStatus.put(projectName, status);
         }
         return allStatus;
+    }
+
+    /**
+     * Gets a PluginInfo tree representing the plugins accepted by this server.
+     * @param projectName Null to get the plugins from the root context. Otherwise, this should
+     *        be the name of a project on the server to use as a context for loading the plugin
+     *        tree. In that case, plugins defined by those projects will be included.
+     * @return The PluginInfo tree.
+     */
+    public PluginInfo getPluginInfo(final String projectName) {
+        return parsePlugins(projectName).getRootPlugin();
+    }
+    
+    /**
+     * Generates the HTML documentation for the plugins.
+     * @param projectName Null to get the plugins from the root context. Otherwise, this should
+     *        be the name of a project on the server to use as a context for loading the plugin
+     *        tree. In that case, plugins defined by those projects will be included in the
+     *        documentation.
+     * @return The HTML content of the document.
+     */
+    public String getPluginHTML(final String projectName) {
+        final PluginInfoParser parser = parsePlugins(projectName);
+        
+        try {
+            final ConfigHtmlGenerator gen = new ConfigHtmlGenerator();
+            return gen.generate(parser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "ERROR; projectName: " + projectName + "; msg: " + e.getMessage();
+        }
+    }
+    
+    /**
+     * Runs a parse of all available plugins, generating the PluginInfo tree.
+     * @param projectName Null to get the plugins from the root context. Otherwise, this should
+     *        be the name of a project on the server to use as a context for loading the plugin
+     *        tree. In that case, plugins defined by those projects will be included.
+     * @return The PluginInfoParser, after it has finished parsing.
+     */
+    private PluginInfoParser parsePlugins(final String projectName) {
+        // Get the PluginRegistry to use.
+        final PluginRegistry registry;
+        final CruiseControlConfig config = controller.getConfigManager().getCruiseControlConfig();
+        if (projectName == null) {
+            // Use the root registry.
+            registry = config.getRootPlugins();
+        } else {
+            // Use a project-specific registry.
+            registry = config.getProjectPlugins(projectName);
+            if (registry == null) {
+                throw new NoSuchElementException("Project " + projectName + " does not exist");
+            }
+        }
+        
+        // Create a PluginInfoParser and invoke it to parse the PluginInfo tree.
+        return new PluginInfoParser(registry, ROOT_PLUGIN);
     }
 }

@@ -116,21 +116,21 @@ public class AbstractAntBuilderDelegate {
     /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createJVMArg()
      */
-    public Object createJVMArg() {
+    public AntBuilder.JVMArg createJVMArg() {
         return delegate.createJVMArg();
     }
 
     /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createLib()
      */
-    public Object createLib() {
+    public AntBuilder.Lib createLib() {
         return delegate.createLib();
     }
 
     /**
      * @see net.sourceforge.cruisecontrol.builders.AntBuilder#createListener()
      */
-    public Object createListener() {
+    public AntBuilder.Listener createListener() {
         return delegate.createListener();
     }
 

@@ -49,6 +49,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Listener;
 import net.sourceforge.cruisecontrol.ProjectEvent;
 import net.sourceforge.cruisecontrol.ProjectState;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -102,6 +103,7 @@ public class CMSynergySessionMonitor implements Listener {
      *
      * @return The newly created <code>CMSynergySession</code> object.
      */
+@ManualChildName("session")
     public CMSynergySession createSession() {
         final CMSynergySession session = new CMSynergySession();
         sessions.add(session);

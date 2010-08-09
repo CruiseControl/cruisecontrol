@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.jdom.Element;
@@ -145,9 +146,12 @@ public class SocketPublisher implements Publisher {
     public void setPort(int port) {
         this.port = port;
     }
+    
+    @SkipDoc
     public void setPort(String port) {
         this.port = Integer.parseInt(port);
     }
+    
     public void setSendProjectName(boolean state) {
        this.isProjectNameSendingEnabled = state;
     }

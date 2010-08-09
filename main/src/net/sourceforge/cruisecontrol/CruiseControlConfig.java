@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
+import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
@@ -301,8 +302,6 @@ public class CruiseControlConfig {
      *
      * @param project other project to add
      * @throws CruiseControlException when something breaks
-     *
-     * @cardinality 0..*;
      */
     public void add(final IncludeProjectsPlugin project) throws CruiseControlException {
         final String file = project.getFile();
@@ -327,8 +326,6 @@ public class CruiseControlConfig {
      * element.
      *
      * @param system system place holder plugin
-     *
-     * @cardinality 0..1;
      */
     public void add(final SystemPlugin system) {
         this.system = system;
@@ -338,24 +335,43 @@ public class CruiseControlConfig {
      * Registers a classname with an alias.
      *
      * @param plugin only for gendoc
-     *
-     * @cardinality 0..*;
+     * @deprecated exists only for gendoc, should not be called.
      */
     public void add(final PluginPlugin plugin) {
-        // FIXME this is empty today for the documentation to be generated
-        // properly
+        // FIXME this is empty today for the documentation to be generated properly
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     /**
      * Defines a basic unit of work
      *
      * @param project only for gendoc
-     *
-     * @cardinality 1..*;
+     * @deprecated exists only for gendoc, should not be called.
      */
     public void add(final ProjectInterface project) {
-        // FIXME this is empty today for the documentation to be generated
-        // properly
+        // FIXME this is empty today for the documentation to be generated properly
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
+    }
+        
+    /**
+     * Defines a name/value pair used in configuration.
+     * @param plugin only for gendoc
+     * @deprecated exists only for gendoc, should not be called.
+     */
+    public void add(final DefaultPropertiesPlugin plugin) {
+        // FIXME currently only declared for documentation generation purposes
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
+    }
+    
+    /**
+     * Defines a dashboard
+     *
+     * @param dashboard only for gendoc
+     * @deprecated exists only for gendoc, should not be called.
+     */
+    public void add(final DashboardConfigurationPlugin dashboard) {
+        // FIXME this is empty today for the documentation to be generated properly
+        throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     private void handleProject(final Element projectElement) throws CruiseControlException {
@@ -431,7 +447,8 @@ public class CruiseControlConfig {
             throw new CruiseControlException("error configuring project " + projectName, e);
         }
 
-        add(project);
+        // Why call method that is a no-op, and exists only for gendoc purposes?
+        //add(project);
 
         project.validate();
         LOG.debug("**************** end configuring project " + projectName + " *******************");
@@ -456,11 +473,11 @@ public class CruiseControlConfig {
         return Collections.unmodifiableSet(this.projects.keySet());
     }
 
-    PluginRegistry getRootPlugins() {
+    public PluginRegistry getRootPlugins() {
         return rootPlugins;
     }
 
-    PluginRegistry getProjectPlugins(String name) {
+    public PluginRegistry getProjectPlugins(String name) {
         return this.projectPluginRegistries.get(name);
     }
 

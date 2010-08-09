@@ -34,6 +34,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.util.NamedXPathAwareChild;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.jdom.Element;
@@ -169,6 +170,7 @@ public class HTTPPublisher implements Publisher {
      * @return NamedXPathAwareChild representing attribute-value HTTP parameter pair.
      * @see NamedXPathAwareChild
      */
+    @ManualChildName("parameter")
     public NamedXPathAwareChild createParameter() {
         NamedXPathAwareChild parameter = new NamedXPathAwareChild();
         parameters.add(parameter);

@@ -56,6 +56,10 @@ import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.Property;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Title;
 import net.sourceforge.cruisecontrol.launch.Launcher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -71,6 +75,15 @@ import org.apache.tools.ant.launch.Locator;
  * @author Alden Almagro
  * @author <a href="vwiewior@valuecommerce.ne.jp">Victor Wiewiorowski</a>
  */
+@Description(
+    "<p>Sends an email with the build results embedded as HTML. By default the same information as "
+    + "the JSP build results page is sent.</p><p>Typical usage is to define xsldir and css to point "
+    + "to cruisecontrol locations. This publisher creates HTML email by transforming information "
+    + "based on a set of internally pre-defined xsl files. (Currently \"header.xsl\", and "
+    + "\"buildresults.xsl\") This list can be changed, or appended to, using xslfilelist attribute. "
+    + "Alternatively, you can specify a single xsl file to handle the full transformation using the "
+    + "xslfile attribute.</p>"
+)
 public class HTMLEmailPublisher extends EmailPublisher {
 
     private static final Logger LOG = Logger.getLogger(HTMLEmailPublisher.class);
@@ -138,6 +151,14 @@ public class HTMLEmailPublisher extends EmailPublisher {
     /**
      * @return new parameter that has been added to xslt params list already.
      */
+    @Title("Parameter")
+    @Description(
+            "Parameters passed to the XSL files before transforming them to HTML. Check the "
+            + "Reporting application's <a href=\"http://cruisecontrol.sourceforge.net/reporting/"
+            + "jsp/custom.html#XSLT_parameters\">documentation</a> for parameters used in the "
+            + "standard XSL files."
+    )
+    @ManualChildName("parameter")
     public Property createParameter() {
         final Property param = new Property();
         xsltParameters.add(param);
@@ -271,6 +292,15 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * if xslFile is set, this is ignored.
      * @param relativePathToXslFile relative path to xsl file
      */
+    @Title("XSL File List")
+    @Description(
+            "Works with xsldir and css. String, representing ordered list of xsl files located in "
+            + "xsldir, which are used to format HTML email. List is comma or space separated. If first "
+            + "character of list is plus sign (\"+\"), the listed file(s) are added to existing set of "
+            + "xsl files used by HTMLEmailPublisher. If xslfilelist is not specified, email is published "
+            + "using hard-coded list of xsl files."
+    )
+    @Optional
     public void setXSLFileList(String relativePathToXslFile) {
         if (relativePathToXslFile == null || relativePathToXslFile.equals("")) {
             throw new IllegalArgumentException("xslFileList shouldn't be null or empty");
@@ -308,6 +338,12 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * etc.
      * @param fullPathToXslFile full path to xsl file
      */
+    @Title("XSL File")
+    @Description(
+            "If specified, xsldir, xslfilelist, and css are ignored. Must handle the "
+            + "entire document."
+    )
+    @Optional
     public void setXSLFile(final String fullPathToXslFile) {
         xslFile = fullPathToXslFile;
     }
@@ -316,6 +352,13 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * Directory where xsl files are located.
      * @param xslDirectory directory where xsl files are located.
      */
+    @Title("XSL Dir")
+    @Description(
+            "Directory where standard CruiseControl xsl files are located. Starting with version "
+            + "2.3, the HTMLEmailPublisher will try to determine the correct value itself when it's "
+            + "not specified and xslfile isn't used."
+    )
+    @Optional
     public void setXSLDir(final String xslDirectory) {
         xslDir = xslDirectory;
     }
@@ -354,6 +397,13 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * Path to cruisecontrol.css.  Only used with xslDir, not xslFile.
      * @param cssFilename css file name
      */
+    @Title("CSS")
+    @Description(
+            "Path to cruisecontrol.css. Used only if xsldir set and not xslfile. Starting with "
+            + "version 2.3, the HTMLEmailPublisher will try to determine the correct value itself "
+            + "when it's not specified and xslfile isn't used."
+    )
+    @Optional
     public void setCSS(final String cssFilename) {
         css = cssFilename;
     }
@@ -363,6 +413,12 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * xml file.
      * @param directory log dir
      */
+    @Title("Log Dir")
+    @Description(
+            "Path to the log directory as set in the log element of the configuration xml file. "
+            + "Follows default of <a href=\"#log\">log</a>'s dir-attribute since version 2.2"
+    )
+    @Optional
     public void setLogDir(final String directory) {
         if (directory == null) {
             throw new IllegalArgumentException("logDir cannot be null!");
@@ -371,6 +427,12 @@ public class HTMLEmailPublisher extends EmailPublisher {
         logDir = directory;
     }
 
+    @Title("Charset")
+    @Description(
+            "If not set the content type will be set to 'text/html'. If set the "
+            + "content type will be 'text/html;charset=\"value\"'."
+    )
+    @Optional
     public void setCharset(final String characterSet) {
         charset = characterSet;
     }

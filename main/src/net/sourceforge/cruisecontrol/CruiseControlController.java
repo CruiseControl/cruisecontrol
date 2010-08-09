@@ -166,7 +166,7 @@ public class CruiseControlController {
         return allProjects;
     }
 
-    protected XMLConfigManager getConfigManager() {
+    public XMLConfigManager getConfigManager() {
         return configManager;
     }
 

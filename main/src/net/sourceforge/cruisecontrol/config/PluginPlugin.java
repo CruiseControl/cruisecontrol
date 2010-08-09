@@ -56,7 +56,7 @@ public class PluginPlugin {
    * @param name the plugin name
    * @required
    */
-  void setName(final String name) {
+  public void setName(final String name) {
     this.name = name;
   }
 
@@ -65,7 +65,7 @@ public class PluginPlugin {
    * @param className the plugin class name
    * @required
    */
-  void setClassname(final String className) {
+  public void setClassname(final String className) {
     this.classname = className;
   }
 

@@ -188,24 +188,6 @@
         </junit>
     </target>
 
-    <target name="gendoc" depends="init,compile">
-        <ant dir="../gendoc" target="all" inheritall="false"/>
-
-        <java classname="net.sourceforge.cruisecontrol.gendoc.Gendoc">
-            <classpath>
-                <fileset refid="gendoc.lib"/>
-                <fileset refid="commons-collections.lib"/>
-                <fileset refid="commons-lang.lib"/>
-                <fileset refid="log4j.lib"/>
-                <fileset refid="qdox.lib"/>
-                <fileset refid="velocity.lib"/>
-                <fileset refid="velocity-dep.lib"/>
-                <pathelement location="../gendoc/src/"/>
-            </classpath>
-        </java>
-
-    </target>
-
     <target name="vizant">
         <taskdef name="vizant" classname="vizant.Vizant">
             <classpath>
