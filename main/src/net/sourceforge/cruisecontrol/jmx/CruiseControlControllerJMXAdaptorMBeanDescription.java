@@ -18,10 +18,10 @@ public class CruiseControlControllerJMXAdaptorMBeanDescription extends MBeanDesc
     static {
         METHOD_DESCRIPTIONS = new HashMap<String, String>();
 
-        METHOD_DESCRIPTIONS.put("pause", "Pauses the server");
+        METHOD_DESCRIPTIONS.put("pause", "Pauses the server.");
         METHOD_DESCRIPTIONS.put("reloadConfigFile", "Re-read the server configuration file.");
-        METHOD_DESCRIPTIONS.put("resume", "Resumes the server when it is paused");
-        METHOD_DESCRIPTIONS.put("halt", "Shutdown this server");
+        METHOD_DESCRIPTIONS.put("resume", "Resumes the server when it is paused.");
+        METHOD_DESCRIPTIONS.put("halt", "Shutdown this server.");
 
         METHOD_DESCRIPTIONS.put("getPluginInfo",
                 "The PluginInfo tree for the give project, or whole server if projectName parameter is null.");
@@ -61,7 +61,7 @@ public class CruiseControlControllerJMXAdaptorMBeanDescription extends MBeanDesc
     static {
         ATTR_DESCRIPTIONS = new HashMap<String, String>();
         ATTR_DESCRIPTIONS.put("ConfigFileName",
-                              "The name of the config file this server reads its settings from");
+                              "The name of the config file this server reads its settings from.");
 
     }
 
