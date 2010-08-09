@@ -36,7 +36,7 @@ public class CruiseControlControllerJMXAdaptorMBeanDescriptionTest extends TestC
     }
 
     public void testGetOperationParameterDefaults() throws Exception {
-        final Method method = mbean.getClass().getMethod("getLUSServiceIds", new Class[]{});
+        final Method method = mbean.getClass().getMethod("getProjects", new Class[]{});
 
         assertEquals("Invalid param: index should still call super.",
                 ProjectControllerMBeanDescriptionTest.DEFAULT_PREFIX_PARAM_NAME + "0",
