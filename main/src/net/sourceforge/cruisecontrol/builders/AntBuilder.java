@@ -414,19 +414,19 @@ public class AntBuilder extends Builder {
         return showAntOutput && useLogger;
     }
 
-    public Object createJVMArg() {
+    public JVMArg createJVMArg() {
         final JVMArg arg = new JVMArg();
         args.add(arg);
         return arg;
     }
 
-    public Object createLib() {
+    public Lib createLib() {
         final Lib lib = new Lib();
         libs.add(lib);
         return lib;
     }
 
-    public Object createListener() {
+    public Listener createListener() {
         final Listener listener = new Listener();
         listeners.add(listener);
         return listener;

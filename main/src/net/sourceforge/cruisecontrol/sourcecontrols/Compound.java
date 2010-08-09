@@ -158,7 +158,7 @@ public class Compound implements SourceControl {
      *
      * @return  an empty Triggers object
      */
-    public Object createTriggers() {
+    public Triggers createTriggers() {
         Triggers tr = new Triggers(this);
         this.triggers = tr;
         return tr;
@@ -170,7 +170,7 @@ public class Compound implements SourceControl {
      *
      * @return  an empty Targets object
      */
-    public Object createTargets() {
+    public Targets createTargets() {
         Targets targ = new Targets(this);
         this.targets = targ;
         return targ;

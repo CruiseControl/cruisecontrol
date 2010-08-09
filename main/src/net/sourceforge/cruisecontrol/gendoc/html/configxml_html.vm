@@ -1,0 +1,194 @@
+#********************************************************************************
+ * CruiseControl, a Continuous Integration Toolkit
+ * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
+ * 200 E. Randolph, 25th Floor
+ * Chicago, IL 60601 USA
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *	 + Redistributions of source code must retain the above copyright
+ *	   notice, this list of conditions and the following disclaimer.
+ *
+ *	 + Redistributions in binary form must reproduce the above
+ *	   copyright notice, this list of conditions and the following
+ *	   disclaimer in the documentation and/or other materials provided
+ *	   with the distribution.
+ *
+ *	 + Neither the name of ThoughtWorks, Inc., CruiseControl, nor the
+ *	   names of its contributors may be used to endorse or promote
+ *	   products derived from this software without specific prior
+ *	   written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************#
+#macro(addemptylines $nb)
+#if($nb > 0)
+#foreach($i in [1..$nb])
+&nbsp;
+#end
+#end
+#end
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+	<title>CruiseControl Configuration Reference</title>
+	<style type="text/css" media="all">
+		@import "http://cruisecontrol.sourceforge.net/cruisecontrol.css";
+
+		.index h2 {
+			margin-top: 1em;
+		}
+
+		#alphabetical {
+			float: right;
+			width: 43%;
+		}
+
+		#hierarchical {
+			float: left;
+			width: 55%;
+		}
+
+		a.toplink {
+			float: right;
+			font-size: smaller;
+			font-weight: bold;
+		}
+		
+		.errors {
+			color: red;
+		}
+
+		@media print {
+			.elementdocumentation p,
+			.hierarchy {
+				page-break-inside: avoid;
+			}
+
+			#alphabetical,
+			#hierarchical,
+			a.toplink {
+				display: none;
+			}
+		}
+	</style>
+	<link href="http://cruisecontrol.sourceforge.net/print.css" type="text/css" rel="stylesheet" media="print"/>
+	<script type="text/javascript" src="http://cruisecontrol.sourceforge.net/tables.js"></script>
+</head>
+<body>
+<div class="header">
+	<a name="top"/>
+	<div class="hostedby">
+		Hosted By:<br/>
+		<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
+	</div>
+	<img alt="CruiseControl" src="http://cruisecontrol.sourceforge.net/banner.png"/>
+</div> <!-- header -->
+<div class="container">&nbsp;
+	<div id="menu">
+		<ul id="menulist">
+			<li><a href="http://cruisecontrol.sourceforge.net/index.html">home</a></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/download.html">download</a></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/license.html">license</a></li>
+			<li><h2>documentation</h2></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/overview.html">overview</a></li>
+			<li><p id="menuselected">config ref</p></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/faq.html">faq</a></li>
+			<li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
+			<li><h2>contributing</h2></li>
+			<li><a class="expandmenu" href="http://cruisecontrol.sourceforge.net/developers.html">developers</a></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/contact.html">mailing lists</a></li>
+			<li><a href="http://cruisecontrol.sourceforge.net/svn.html">source repository</a></li>
+			<li><p id="menubottom">Release: $utils.release</p></li>
+		</ul>
+	</div>
+	<div class="content">
+		<h1><span class="printonly">CruiseControl</span> Configuration Reference</h1>
+
+		<p>CruiseControl configuration files are written in XML. This document
+		describes the XML elements and attributes for a valid configuration
+		file.</p>
+
+		<p>The use of <a href="plugins.html">plugins</a> means that other
+		elements not documented here can also be used in the configuration.
+		At a minimum, though, the config file contains a single top level
+		<code>&lt;cruisecontrol&gt;</code> element, with one or more child
+		<code>&lt;project&gt;</code> elements.</p>
+
+		<!------ BEGIN INITIAL ERROR LIST ------>
+		
+		#if(!$generalErrors.isEmpty())
+		<h3 class="errors">Parsing Errors</h3>
+		<p class="errors">This HTML generator encountered errors when loading plugin information.</p>
+		<table class="documentation">
+		<tbody>
+			#foreach($generalError in $generalErrors)
+			<tr><td class="errors">
+				$generalError
+            </td></tr>
+			#end
+        </tbody>
+        </table>
+		#end
+		
+		<!------ BEGIN TABLE OF CONTENTS ------>
+		
+#set($numPlugins = $allPlugins.size())
+#set($hierarchicalTree = $utils.generateHierarchyToc($rootPlugin))
+#set($numLinesInTree = $utils.lineCount)
+		<div>
+			<div id="alphabetical" class="index">
+				<h2>Alphabetical Index</h2>
+<pre style="font-size: smaller;">
+$utils.generateAlphabeticalToc($allPlugins)
+#set($missingEmptyLines = $numLinesInTree - $numPlugins)
+#addemptylines($missingEmptyLines)
+</pre>
+			</div>
+			<div id="hierarchical" class="index">
+				<h2>Hierarchical Index</h2>
+<pre style="font-size: smaller;">
+$hierarchicalTree
+</pre>
+			</div>
+		</div>
+		<p style="clear: both">&nbsp;</p>
+
+		<!------ BEGIN CONTENTS ------>
+		
+		#foreach($plugin in $allPlugins)
+			$plugin.htmlDocumentation
+		#end
+
+		<div class="elementdocumentation"> 
+			<a class="toplink" href="#top">top</a> 
+	 
+			<h2><a name="buildingpluginsthatneedexternallibs">Building Plugins That Need External Libraries</a></h2> 
+	 
+			<p>Several plugins require libraries to build that can't be distributed with CruiseControl. To use these
+			plugins you'll need to acquire the required libraries and build them. The source for these plugins is
+			available in the source distribution or in the repository at <code>cruisecontrol/contrib/plugin/</code>.</p> 
+	 
+			<p>To build the plugin you'll need to put the required jars for the plugin into the <code>[name]/lib</code> directory
+			then run the build file <code>[name]/build.xml</code>. After you've built the plugin you'll need to move all the files
+			in <code>[name]/target/dist</code> into the library path of CruiseControl &mdash; which means just copying them to the
+			<code>cruisecontrol/lib</code> &mdash; and restart the server.</p> 
+		</div> 
+		
+	</div> <!-- content -->
+</div> <!-- container -->
+</body>
+</html>

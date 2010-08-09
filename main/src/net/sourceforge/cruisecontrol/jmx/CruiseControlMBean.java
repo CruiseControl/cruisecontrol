@@ -47,6 +47,7 @@ import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.PluginType;
 import net.sourceforge.cruisecontrol.ProjectInterface;
+import net.sourceforge.cruisecontrol.gendoc.PluginInfo;
 
 /**
  *
@@ -78,4 +79,20 @@ public interface CruiseControlMBean {
     void halt();
     void reloadConfigFile();
     String getBuildQueueStatus();
+    
+    /**
+     * Gets a PluginInfo representing the metadata for all plugins allowed in the tree.
+     * @param projectName Project whose plugin registry will be used, or null to use the root plugin registry.
+     * @return A PluginInfo for the root cruisecontrol node, which provides access to all the nodes beneath it.
+     * @throws java.util.NoSuchElementException If the project name cannot be resolved.
+     */
+    PluginInfo getPluginInfo(String projectName);
+    
+    /**
+     * Returns a generated HTML page documenting all the plugins currently loaded in the CruiseControl server'
+     * @param projectName Project to generate the html file from, if null root registry will be used
+     * @return The HTML content.
+     * @throws java.util.NoSuchElementException If the project name cannot be resolved
+     */
+    String getPluginHTML(String projectName);
 }

@@ -40,9 +40,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -69,7 +71,7 @@ import net.sourceforge.cruisecontrol.config.PluginPlugin;
  *
  * @see PluginXMLHelper
  */
-public final class PluginRegistry implements Serializable {
+public final class PluginRegistry implements Serializable, Iterable<String> {
 
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class);
 
@@ -403,5 +405,63 @@ public final class PluginRegistry implements Serializable {
             pluginConfig = this.parentRegistry.overridePluginConfig(pluginName, pluginClass, pluginConfig);
         }
         return pluginConfig;
+    }
+    
+    /**
+     * Gets an iterator for iterating over all the plugin class names in this registry and
+     * its parents.
+     * @return The iterator object. Iteration over the class names is not guaranteed to take
+     *         place in any particular order.
+     */
+    public Iterator<String> iterator() {
+        return new PluginIterator();
+    }
+    
+    /**
+     * Iterator for compositing this registry's class names with its parent's class names.
+     * @author pollens
+     */
+    private class PluginIterator implements Iterator<String> {
+
+        /** Iterator over this registry's class names. */
+        private final Iterator<String> myClassNames;
+        
+        /** Iterator over parent registry's classes. */
+        private final Iterator<String> parentClassNames;
+        
+        /**
+         * Instantiates a PluginIterator for iterating over the classes in this PluginRegistry.
+         */
+        public PluginIterator() {
+            myClassNames = PluginRegistry.this.plugins.values().iterator();
+            if (PluginRegistry.this.parentRegistry != null) {
+                parentClassNames = PluginRegistry.this.parentRegistry.iterator();
+            } else {
+                parentClassNames = null;
+            }
+        }
+        
+        public boolean hasNext() {
+            return myClassNames.hasNext()
+                    || (parentClassNames != null && parentClassNames.hasNext());
+        }
+        
+        public String next() {
+            // First, use up this registry's classes.
+            if (myClassNames.hasNext()) {
+                return myClassNames.next();
+            } else if (parentClassNames != null) {
+                // This registry has run out of classes, so fall back on the parent registry.
+                return parentClassNames.next();
+            } else {
+                // We have run out of plugins.
+                throw new NoSuchElementException();
+            }
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("Removal not supported by this iterator.");
+        }
+        
     }
 }

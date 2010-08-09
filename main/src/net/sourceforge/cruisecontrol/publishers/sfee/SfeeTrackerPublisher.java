@@ -43,6 +43,7 @@ import com.vasoftware.sf.soap42.webservices.tracker.ITrackerAppSoap;
 import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapList;
 import com.vasoftware.sf.soap42.webservices.tracker.TrackerSoapRow;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XPathAwareChild;
 import net.sourceforge.cruisecontrol.util.NamedXPathAwareChild;
@@ -79,22 +80,26 @@ public class SfeeTrackerPublisher extends SfeePublisher {
         this.projectName = projectName;
     }
 
+    @ManualChildName("field")
     public NamedXPathAwareChild createField() {
         NamedXPathAwareChild field = new NamedXPathAwareChild();
         fields.add(field);
         return field;
     }
 
+    @ManualChildName("title")
     public XPathAwareChild createTitle() {
         title = new XPathAwareChild();
         return title;
     }
 
+    @ManualChildName("description")
     public XPathAwareChild createDescription() {
         description = new XPathAwareChild();
         return description;
     }
 
+    @ManualChildName("status")
     public XPathAwareChild createStatus() {
         status = new XPathAwareChild();
         return status;
