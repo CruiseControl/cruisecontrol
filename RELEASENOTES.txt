@@ -21,6 +21,10 @@ AntBuilder
 ----------------------
 * Fix possible build failure due to NPE in AntOutputLogger (CC-913). Patch by Ivan "Rambius" Ivanov.
 
+CVS
+----------------------
+* CVS modification check extremely slow on branches (CC-548). Now always adds -N and -S to cvs log command. Patch by Jason Day. Tested by Sanjay Madhavan.
+
 CMSynergyBaselinePublisher
 ----------------------
 * Allow property resolution in build attribute (CC-973).

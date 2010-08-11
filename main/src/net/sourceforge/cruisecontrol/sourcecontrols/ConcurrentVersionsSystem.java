@@ -664,9 +664,8 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             commandLine.createArgument("rlog");
         }
 
-        if (useHead()) {
-            commandLine.createArgument("-N");
-        }
+        commandLine.createArgument("-N");
+        commandLine.createArgument("-S");
         final String dateRange = formatCVSDate(lastBuildTime) + "<" + formatCVSDate(checkTime);
         commandLine.createArgument("-d" + dateRange);
 
@@ -795,7 +794,6 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             workingFileName = workingFileLine.substring(CVS_WORKINGFILE_LINE.length());
         }
 
-        final String branchRevisionName = parseBranchRevisionName(reader);
         final boolean newCVSVersion = isCvsNewOutputFormat();
         while (nextLine != null && !nextLine.startsWith(CVS_FILE_DELIM)) {
             nextLine = readToNotPast(reader, "revision", CVS_FILE_DELIM);
@@ -807,15 +805,6 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             StringTokenizer tokens = new StringTokenizer(nextLine, " ");
             tokens.nextToken();
             final String revision = tokens.nextToken();
-            if (!useHead()) {
-                if (!revision.equals(branchRevisionName)) {
-                    // Indeed this is a branch, not just a regular tag
-                    final String itsBranchRevisionName = revision.substring(0, revision.lastIndexOf('.'));
-                    if (!itsBranchRevisionName.equals(branchRevisionName)) {
-                        break;
-                    }
-                }
-            }
 
             // Read to the revision date. It is ASSUMED that each revision
             // section will include this date information line.
