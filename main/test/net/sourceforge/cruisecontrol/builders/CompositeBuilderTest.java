@@ -323,7 +323,7 @@ public class CompositeBuilderTest extends TestCase {
 
                 // wait for longer than timeout
                 try {                               // + 1 works on linux, not on winz 
-                    Thread.sleep((timeoutSecs * 1000L) + 100);
+                    Thread.sleep((timeoutSecs * 1000L) + 500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
