@@ -36,10 +36,10 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc.html;
 
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -84,7 +84,9 @@ public class HtmlUtils {
         }
         final Properties buildProps = new Properties();
         try {
-            buildProps.load(new BufferedReader(new FileReader(buildPropFile)));
+            // @todo Restore use of Reader after minimum JDK >= 1.6.
+            //buildProps.load(new BufferedReader(new FileReader(buildPropFile)));
+            buildProps.load(new BufferedInputStream(new FileInputStream(buildPropFile)));
         } catch (FileNotFoundException e) {
             LOG.debug("Build props not found.", e);
         } catch (IOException e) {
