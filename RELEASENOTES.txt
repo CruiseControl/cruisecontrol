@@ -2,7 +2,7 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - 2.8.4-rc1
+CruiseControl Release Notes - 2.8.4-dev
 
 general
 ======================
