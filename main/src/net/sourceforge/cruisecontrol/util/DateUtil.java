@@ -48,6 +48,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 
 // @todo Find alternative "logging" approach for classes where log4j may not be available
 //import org.apache.log4j.Logger;
+
 import org.apache.tools.ant.util.DateUtils;
 
 public final class DateUtil {
@@ -56,7 +57,7 @@ public final class DateUtil {
     // @todo Find alternative "logging" approach for classes where log4j may not be available
     //private static final Logger LOG = Logger.getLogger(DateUtil.class);
 
-    public static final transient long ONE_SECOND = 1000;
+    public static final long ONE_SECOND = 1000;
 
     public static final long ONE_MINUTE = 60 * ONE_SECOND;
 

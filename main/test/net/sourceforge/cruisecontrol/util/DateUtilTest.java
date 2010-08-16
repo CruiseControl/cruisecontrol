@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
@@ -57,9 +58,9 @@ public class DateUtilTest extends TestCase {
     public void setUp() {
         // create a couple calendars/dates
         cal = Calendar.getInstance();
-        cal.set(2001, Calendar.NOVEMBER, 22, 10, 01, 01);
+        cal.set(2001, Calendar.NOVEMBER, 22, 10, 1, 1);
         cal2 = Calendar.getInstance();
-        cal2.set(2001, Calendar.NOVEMBER, 22, 11, 01, 01);
+        cal2.set(2001, Calendar.NOVEMBER, 22, 11, 1, 1);
     }
 
     public void testGetThreadLocal8601Format() throws Exception {
@@ -147,5 +148,21 @@ public class DateUtilTest extends TestCase {
         long timeInMillis = millis + seconds * 1000 + minutes * 60 * 1000;
         assertEquals("50 minute(s) 30 second(s)",
             DateUtil.getDurationAsString(timeInMillis));
+    }
+
+    /**
+     * This test exists mostly to ensure the CC classpath includes the ant.jar, which contains the dependency:
+     * org.apache.tools.ant.util.DateUtils.class.
+     * If missing, we expect to see:
+     * java.lang.NoClassDefFoundError: org/apache/tools/ant/util/DateUtils
+     * ...
+     * Caused by: java.lang.ClassNotFoundException: org.apache.tools.ant.util.DateUtils
+     */
+    public void testFormatIso8601() {
+        assertNotNull(DateUtil.formatIso8601(new Date()));
+    }
+
+    public void testFormatIso8601WithNull() {
+        assertNull(DateUtil.formatIso8601(null));
     }
 }

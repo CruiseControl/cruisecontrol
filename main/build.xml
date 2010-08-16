@@ -180,7 +180,9 @@
     </target>
 
     <target name="test-one" depends="compile-test" if="testcase">
-        <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}">
+        <junit fork="yes" haltonfailure="true" printsummary="true" dir="${target}"
+               includeAntRuntime="false"
+                >
             <classpath refid="test.unit.run.path" />
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />

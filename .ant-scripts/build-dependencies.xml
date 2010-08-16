@@ -13,7 +13,14 @@
     <fileset id="activation.lib" file="${project.root}/main/lib/activation.jar" />
     <fileset id="ant.lib" file="${project.root}/main/lib/ant/ant.jar" />
     <fileset id="ant-contrib.lib" file="${project.root}/reporting/dashboard/lib/buildtime/ant-contrib-1.0b3.jar" />
-    <fileset id="ant-junit.lib" file="${project.root}/reporting/jsp/lib/ant/ant-junit.jar" />
+
+    <!--<fileset id="ant-junit.lib" file="${project.root}/reporting/jsp/lib/ant/ant-junit.jar" />-->
+    <!-- For some reason, ant/junit can't find required ant.jar unless ant-junit.jar is used from main/lib/ant dir.
+     Otherwise, fails with:
+    /home/dan/devtools/cc-808/cruisecontrol/main/loggers/build.xml:54: /home/dan/devtools/cc-808/cruisecontrol/reporting/jsp/lib/ant does not exist.
+    -->
+    <fileset id="ant-junit.lib" file="${project.root}/main/lib/ant/ant-junit.jar" />
+
     <fileset id="ant-launcher.lib" file="${project.root}/main/lib/ant/ant-launcher.jar" />
     <fileset id="antlr.lib" file="${project.root}/reporting/dashboard/lib/buildtime/antlr-2.7.6.jar" />
     <fileset id="aopalliance.lib" file="${project.root}/reporting/dashboard/lib/aopalliance.jar" />
