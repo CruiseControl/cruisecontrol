@@ -17,6 +17,7 @@
 
     <target name="--test-functional-compile" if="should.test.functional">
         <javac srcdir="${functionaltest}" destdir="${test.classes}" classpathref="test.functional.compile.path" debug="on"
+               includeAntRuntime="false"
                source="${javac.source}" target="${javac.target}"/>
     </target>
 
@@ -28,7 +29,9 @@
 
     <target name="--test-functional" if="should.test.functional">
         <junit dir="${target}" fork="yes" forkmode="perBatch" haltonfailure="yes" maxmemory="${heapsize.max}"
-               printsummary="true">
+               printsummary="true"
+               includeAntRuntime="false"
+                >
             <classpath refid="test.functional.run.path"/>
 
             <formatter type="brief" usefile="no"/>
@@ -57,6 +60,7 @@
 
     <target name="--test-unit-compile" if="should.test.unit">
         <javac srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" debug="on"
+               includeAntRuntime="false"
                source="${javac.source}" target="${javac.target}"/>
     </target>
 
@@ -71,7 +75,9 @@
 
     <target name="--test-unit" if="should.test.unit">
         <junit dir="${target}" fork="yes" forkmode="perBatch" haltonfailure="yes" maxmemory="${heapsize.max}"
-               printsummary="true">
+               printsummary="true"
+               includeAntRuntime="false"
+                >
             <classpath refid="test.unit.run.path"/>
 
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
