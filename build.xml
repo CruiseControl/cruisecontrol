@@ -163,7 +163,8 @@
     <target name="prep-cc-config" unless="test.skip">
         <mkdir dir="target"/>
         <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}" proxyUser="${http.proxyUser}" proxyPassword="${http.proxyPassword}"/>
-        <get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_1.8_build2.zip" dest="${java.io.tmpdir}/cc-config.zip" verbose="on" usetimestamp="true"/>
+        <!--<get src="http://internap.dl.sourceforge.net/sourceforge/cc-config/cc-config_1.8_build2.zip" dest="${java.io.tmpdir}/cc-config.zip" verbose="on" usetimestamp="true"/>-->
+        <get src="http://sourceforge.net/projects/cc-config/files/swing-interface/Version%201.8%20Build%202/cc-config_1.8_build2.zip/download" dest="${java.io.tmpdir}/cc-config.zip" verbose="on" usetimestamp="true"/>
         <unzip src="${java.io.tmpdir}/cc-config.zip" dest="target/cc-config" />
         <ant antfile="build.xml" target="setup" dir="target/cc-config" inheritAll="false">
             <property name="main.dir" value="../../main" />
