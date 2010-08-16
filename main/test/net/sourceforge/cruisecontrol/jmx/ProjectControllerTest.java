@@ -293,6 +293,7 @@ public class ProjectControllerTest extends TestCase {
         final BuildQueue buildQueue = new BuildQueue();
         projectConfig.setBuildQueue(buildQueue);
         BuildQueueTest.startBuildQueue(buildQueue);
+        project.setPaused(true);
         project.start();
 
 
@@ -309,6 +310,8 @@ public class ProjectControllerTest extends TestCase {
                 }
             }
         });
+
+        project.setPaused(false);
 
         // trigger build with added props
         mbean.buildWithTarget("sometarget", properties);
