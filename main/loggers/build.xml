@@ -1,64 +1,97 @@
 <project name="loggers" default="dist">
 
-  <path id="class.path">
-    <fileset dir="../lib" includes="*.jar" />
-  </path>
+    <property name="target" value="target"/>
+    <property name="classes" value="${target}/classes"/>
+    <property name="dist" value="dist" />
+    <property name="junit.results" value="${target}/test-results" />
+    <property name="src" value="src" />
+    <property name="test" value="test" />
+    <property name="test.classes" value="${target}/test-classes"/>
 
-  <target name="dist" depends="clean, compile, test, jar"/>
+    <property name="project.root" location="${basedir}/../.."/>
 
-  <target name="clean">
-    <delete dir="target"/>
-  </target>
+    <import file="${project.root}/.ant-scripts/build-properties.xml"/>
 
-  <target name="compile">
-    <mkdir dir="target/classes"/>
-    <javac srcdir="src" destdir="target/classes" classpathref="class.path" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4">
-      <compilerarg value="-Xlint:unchecked"/>
-    </javac>
+    <import file="build-paths.xml"/>
 
-    <mkdir dir="target/test-classes"/>
-    <javac srcdir="test" destdir="target/test-classes" debug="true" deprecation="true" fork="true" source="1.4" target="1.4" compiler="javac1.4">
-      <classpath>
-        <path refid="class.path"/>
-        <pathelement location="target/classes"/>
-      </classpath>
-      <compilerarg value="-Xlint:unchecked"/>
-    </javac>        
-  </target>
+    <import file="${ant.scripts}/build-delegates.xml"/>
 
-  <target name="test">
-    <mkdir dir="target/test-results"/>
-    <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="target" failureproperty="test.failed">
-      <classpath>
-        <path refid="class.path"/>
-        <pathelement location="target/classes"/>
-        <pathelement location="target/test-classes"/>
-      </classpath>
-      <formatter type="brief" usefile="false" />
-      <formatter type="xml" />
-      <batchtest todir="target/test-results">
-        <fileset dir="target/test-classes" includes="**/*Test.class"/>
-      </batchtest>
-    </junit>
 
-    <mkdir dir="target/test-report"/>
-    <junitreport todir="target/test-report">
-      <fileset dir="target/test-results">
-        <include name="TEST-*.xml"/>
-      </fileset>
-      <report format="frames" todir="target/test-report"/>
-    </junitreport>
+    <target name="dist" depends="clean, compile, test, jar"/>
 
-    <fail if="test.failed"/>
-  </target>
+    <target name="clean">
+        <delete dir="target"/>
+    </target>
 
-  <target name="jar">
-    <mkdir dir="target/dist"/>
-    <jar destfile="target/dist/cruisecontrol-antprogresslogger.jar" basedir="target/classes">
-      <manifest>
-        <attribute name="Implementation-Version" value="${build.version} ${build.version.info}" />
-      </manifest>
-    </jar>
-  </target>
+    <target name="compile">
+        <mkdir dir="target/classes"/>
+
+        <!-- we compile to older 1.4 spec so these classes can be used inside builds using older JVM's. -->
+
+        <javac srcdir="${src}" destdir="${classes}" classpathref="compile.path" debug="true" deprecation="true"
+               fork="true"
+               source="1.4" target="1.4" compiler="javac1.4"
+               includeAntRuntime="false"
+                >
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+
+        <mkdir dir="${test.classes}"/>
+        <javac srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" debug="true" deprecation="true" 
+               fork="true"
+               source="1.4" target="1.4" compiler="javac1.4"
+               includeAntRuntime="false"
+                >
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="test">
+        <mkdir dir="target/test-results"/>
+        <junit fork="true" forkmode="perBatch" haltonfailure="false" printsummary="true" dir="target"
+               failureproperty="test.failed"
+               includeAntRuntime="false"
+                >
+            <classpath refid="test.unit.run.path"/>
+
+            <formatter type="brief" usefile="false"/>
+            <formatter type="xml"/>
+            <batchtest todir="target/test-results">
+                <fileset dir="target/test-classes" includes="**/*Test.class"/>
+            </batchtest>
+        </junit>
+
+        <mkdir dir="target/test-report"/>
+        <junitreport todir="target/test-report">
+            <fileset dir="target/test-results">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="target/test-report"/>
+        </junitreport>
+
+        <fail if="test.failed"/>
+    </target>
+
+    <target name="jar" depends="initVersionInfo">
+        <mkdir dir="target/dist"/>
+        <jar destfile="target/dist/cruisecontrol-antprogresslogger.jar" basedir="target/classes">
+            <manifest>
+                <attribute name="Implementation-Version" value="${build.version} ${build.version.info}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="initVersionInfo" unless="build.version.info">
+        <!-- define cc.version -->
+        <property file="${project.root}/build.properties"/>
+        <!-- Use a local variable to make sure that a script that would read the
+        properties file would still be capable of overidding this one.
+        Note: the release.xml overrides this property -->
+        <property name="cc.release.label" value="${cc.version}"/>
+
+        <tstamp/>
+        <property name="build.version" value="${cc.release.label}"/>
+        <property name="build.version.info" value="Compiled on ${TODAY} ${TSTAMP}"/>
+    </target>
 
 </project>
