@@ -387,7 +387,9 @@
         <attribute name="classpathref" default="project.classpath" />
         <element name="nested" implicit="true" optional="true" />
         <sequential>
-            <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}">
+            <javac destdir="@{destdir}" debug="true" deprecation="true" fork="true" source="1.5" target="1.5" compiler="javac1.5" classpathref="@{classpathref}" srcdir="@{srcdir}"
+                   includeAntRuntime="false"
+                    >
                 <nested />
                 <!-- @todo add other compiler warning flags -->
                 <compilerarg value="-Xlint:unchecked"/>
@@ -488,7 +490,9 @@
     <target name="test" depends="compile-test, setupTestEntry" description="Runs unit tests for distributed extensions to Cruise Control">
 
         <!-- @todo haltonfailure? -->
-        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true" dir="${target}">
+        <junit fork="yes" forkmode="perBatch" haltonfailure="yes" printsummary="on" showoutput="true" dir="${target}"
+               includeAntRuntime="false"
+                >
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
 
@@ -507,7 +511,9 @@
 	</target>
 
     <target name="test-one" depends="compile-test, setupTestEntry" description="Executes one distributed unit test" if="testcase">
-        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}">
+        <junit fork="yes" haltonfailure="yes" printsummary="on" dir="${target}"
+               includeAntRuntime="false"
+                >
             <classpath>
                 <path refid="ccdist.project.runtime.classpath" />
                 <path refid="main.lib.junit"/>
