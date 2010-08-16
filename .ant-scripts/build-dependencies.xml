@@ -6,7 +6,6 @@
 
     <!-- Paths to build artifacts for each module -->
     <fileset id="antprogresslogger.lib" file="${project.root}/main/dist/cruisecontrol-antprogresslogger.jar" />
-    <fileset id="gendoc.lib" file="${project.root}/gendoc/dist/gendoc.jar" />
     <fileset id="main.lib" file="${project.root}/main/dist/cruisecontrol.jar" />
 
     <!-- Paths to 3rd party libraries -->
@@ -84,7 +83,6 @@
     <fileset id="nekohtml.lib" file="${project.root}/reporting/dashboard/lib/buildtime/nekohtml-0.9.5.jar"/>
     <fileset id="ognl.lib" file="${project.root}/reporting/jsp/lib/ognl.jar"/>
     <fileset id="oscore.lib" file="${project.root}/reporting/jsp/lib/oscore.jar"/>
-    <fileset id="qdox.lib" file="${project.root}/gendoc/lib/qdox-1.6.1.jar"/>
     <fileset id="saxon.lib" file="${project.root}/reporting/jsp/lib/saxon9.jar"/>
     <fileset id="serializer.lib" file="${project.root}/reporting/jsp/lib/serializer-2.7.0.jar"/>
     <fileset id="servlet-api.lib" file="${project.root}/reporting/jsp/lib/servlet-api-2.5.jar"/>
@@ -105,7 +103,7 @@
     <fileset id="svn-client-adapter.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnClientAdapter.jar"/>
     <fileset id="svn-java-high-level.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnjavahl.jar"/>
     <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
-    <fileset id="velocity.lib" file="${project.root}/gendoc/lib/velocity-1.5.jar"/>
+    <fileset id="velocity.lib" file="${project.root}/main/lib/velocity-1.5.jar"/>
     <fileset id="velocity-dep.lib" file="${project.root}/reporting/dashboard/lib/velocity-dep-1.4.jar"/>
     <fileset id="velocity-tools-view.lib" file="${project.root}/reporting/dashboard/lib/velocity-tools-view-1.2.jar"/>
     <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
