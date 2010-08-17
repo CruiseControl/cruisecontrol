@@ -2,11 +2,12 @@ CruiseControl Release Notes
 
 Changes listed by release, then alphabetically.
 
-CruiseControl Release Notes - 2.8.4-dev
+CruiseControl Release Notes - 2.8.4-rc2
 
 general
 ======================
 * Fix binaryrelease/cruisecontrol.sh startup script to convert JETTY_LOGS variable when run under cygwin (CC-983). Patch by Mark Bretl.
+* build script cleanups.
 
 build loop
 ======================
@@ -51,6 +52,7 @@ Dashboard
 ======================
 * Add guard for NPE in BuildLoopQueryService, as per comment in CC-831. Suggested by David Williams.
 * Change dashboard 'start.jetty.server' target to use /tmp under MacOS Snow Leopard, avoiding 'path with characters' error (CC-976). Patch by Antoine Levy Lambert. 
+* Use same velocity-dep.jar version as main.
 
 reporting jsp app
 ======================
