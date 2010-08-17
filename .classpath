@@ -158,7 +158,7 @@
 	<classpathentry kind="lib" path="reporting/dashboard/lib/spring-web.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/spring-webmvc.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/velocity-1.5.jar"/>
-	<classpathentry kind="lib" path="reporting/dashboard/lib/velocity-dep-1.4.jar"/>
+	<classpathentry kind="lib" path="main/lib/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/velocity-tools-view-1.2.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/xercesImpl-2.8.1.jar"/>
 	<classpathentry kind="lib" path="reporting/dashboard/lib/xml-apis-1.3.03.jar"/>
