@@ -50,7 +50,7 @@
 	<classpathentry kind="lib" path="lib/spring-web.jar" sourcepath="/home/khu/lib_source/spring-framework-2.0.4"/>
 	<classpathentry kind="lib" path="lib/spring-webmvc.jar" sourcepath="D:/java/spring-framework-2.0.6/src"/>
 	<classpathentry kind="lib" path="lib/velocity-1.5.jar"/>
-	<classpathentry kind="lib" path="lib/velocity-dep-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/velocity-dep-1.5.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-view-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis-1.3.03.jar"/>
 	<classpathentry kind="lib" path="lib/mx4j.jar"/>

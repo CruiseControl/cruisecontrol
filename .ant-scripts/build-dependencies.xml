@@ -104,7 +104,7 @@
     <fileset id="svn-java-high-level.lib" file="${project.root}/reporting/dashboard/lib/buildtime/svnjavahl.jar"/>
     <fileset id="twitter4j.lib" file="${project.root}/main/lib/twitter4j-1.1.4.jar"/>
     <fileset id="velocity.lib" file="${project.root}/main/lib/velocity-1.5.jar"/>
-    <fileset id="velocity-dep.lib" file="${project.root}/reporting/dashboard/lib/velocity-dep-1.4.jar"/>
+    <fileset id="velocity-dep.lib" file="${project.root}/main/lib/velocity-dep-1.5.jar"/>
     <fileset id="velocity-tools-view.lib" file="${project.root}/reporting/dashboard/lib/velocity-tools-view-1.2.jar"/>
     <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
     <fileset id="webwork.lib" file="${project.root}/reporting/jsp/lib/webwork-2.1.7.jar"/>
