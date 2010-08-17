@@ -392,6 +392,7 @@
             <fileset dir="${war.dir}">
                 <exclude name="**/applicationContext-development.xml"/>
                 <exclude name="javascripts/*.js"/>
+                <exclude name="libs/"/>
             </fileset>
             <lib dir="target/war/libs"/>
             <lib dir="lib">
