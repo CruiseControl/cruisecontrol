@@ -16,7 +16,7 @@
     </target>
 
     <target name="--checkstyle">
-        <checkstyle failOnViolation="false" failureProperty="checkstyle.errors"
+        <checkstyle failOnViolation="true" failureProperty="checkstyle.errors"
                     config="${project.root}/common/checkstyle.xml">
             <property key="checkstyle.cache.file" file="target/checkstyle/cachefile"/>
             <fileset dir="${src}" includes="**/*.java"/>
