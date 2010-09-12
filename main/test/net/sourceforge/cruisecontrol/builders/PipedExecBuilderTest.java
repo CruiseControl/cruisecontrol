@@ -162,8 +162,9 @@ public final class PipedExecBuilderTest extends TestCase {
 
         /* Prepare test binaries */ 
         if (Util.isWindows()) {
-            fail("Tests for windows are not supported now, they must be built yet as "
-               + "strongly simplyfied version of the Linux tests");
+            System.err.println("***\n*** WARNING: Skipping setup for test: " + getClass().getName() + "." + getName()
+                    + "();");
+            return;
         } else {
             testaddbin = makeTestScript(
                     "#!/bin/awk -f \n" 
@@ -209,6 +210,16 @@ public final class PipedExecBuilderTest extends TestCase {
     }    
     
 
+    private boolean skipTest() {
+        if (Util.isWindows()) {
+            System.err.println("***\n*** WARNING: Skipping test: " + getClass().getName() + "." + getName()
+                    + "();\n*** PipedExec tests for windows are not supported now, they must be built yet as strongly "
+                    + "simplified version of the Linux tests\".\n***");
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Checks the validation when ID of the program is not set (ID is required item). The pipe 
      * looks like:
@@ -218,6 +229,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_noID() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -243,6 +256,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_noUniqueID() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -268,6 +283,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_invalidPipeFrom() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -293,6 +310,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_invalidWaitFor() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -323,6 +342,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_pipeLoop() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -358,6 +379,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * </pre>
      */
     public void testValidate_waitLoop() {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat",      "/dev/zero");
@@ -397,6 +420,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails! 
      */
     public void testScript_pipe() throws IOException, CruiseControlException {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder = new PipedExecBuilder();
         File inpFile = getFile();
         File tmpFile = getFile();
@@ -552,6 +577,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails! 
      */
     public void testBuild_badCommand() throws IOException, CruiseControlException {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
         Element buildLog;
         Attribute error;
@@ -602,6 +629,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails! 
      */
     public void testBuild_badOption() throws IOException, CruiseControlException {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder  = new PipedExecBuilder();
         Element buildLog;
         Attribute error;
@@ -645,6 +674,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails! 
      */
     public void testBuild_timeout() throws CruiseControlException, IOException {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder = new PipedExecBuilder();
         Element buildLog;
         Attribute error;
@@ -693,6 +724,8 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails! 
      */
     public void testBuild_stdinClose() throws CruiseControlException, IOException {
+        if (skipTest()) { return; } // @todo Remove when windows tests supported
+
         PipedExecBuilder builder = new PipedExecBuilder();
         Element buildLog;
         long startTime = System.currentTimeMillis();
