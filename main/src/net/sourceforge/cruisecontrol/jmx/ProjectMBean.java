@@ -192,7 +192,7 @@ public interface ProjectMBean {
      * If a client later calls retrieveLines() with a non-zero 'firstLine' parameter, and receives an empty array
      * as a result, that client should call getOutputLoggerID() again, and if the ID value differs, start reading
      * using a zero 'firstLine' parameter.
-     * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger#retrieveLines(int)}.
+     * @see net.sourceforge.cruisecontrol.util.BuildOutputLogger#retrieveLines(int).
      */
     public String getOutputLoggerID();
 }
