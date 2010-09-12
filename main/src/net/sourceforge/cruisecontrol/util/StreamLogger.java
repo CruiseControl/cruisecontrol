@@ -44,12 +44,16 @@ import org.apache.log4j.Logger;
  * Logs the content of a Stream line by line.
  */
 public final class StreamLogger implements StreamConsumer {
-    private Logger logger;
-    private Level level;
+    private final Logger logger;
+    private final Level level;
 
     private StreamLogger(Logger log, Level level) {
         this.logger = log;
         this.level = level;
+    }
+
+    public static StreamConsumer getDebugLogger(Logger log) {
+        return new StreamLogger(log, Level.DEBUG);
     }
 
     public static StreamConsumer getInfoLogger(Logger log) {

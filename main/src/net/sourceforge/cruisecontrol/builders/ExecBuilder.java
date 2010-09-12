@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 import net.sourceforge.cruisecontrol.Builder;
@@ -61,7 +62,9 @@ import org.jdom.Element;
  */
 public class ExecBuilder extends Builder {
 
-    private static final Logger LOG = Logger.getLogger(ExecBuilder.class);
+    private static final long serialVersionUID = 895840816672824159L;
+
+    static final Logger LOG = Logger.getLogger(ExecBuilder.class);
 
     private String command;
     private String args;
@@ -92,6 +95,24 @@ public class ExecBuilder extends Builder {
      */
     public Element build(final Map<String, String> buildProperties, final Progress progressIn)
             throws CruiseControlException {
+        return build(buildProperties, progressIn, null);
+    } // build
+
+    /**
+     * Execute the command and return the results as XML. The script may optionally be fed up
+     * by data through its STDIN, and its STDOUT may optionally be stored in for later use.
+     * In any case, STDOUT and STDERR of the script are read and print to log as well as checked
+     * against the error string set by {@link #setErrorStr(String)}. They are also included in
+     * the XML element with the build result.
+     *
+     * @param buildProperties see {@link Builder#build(Map, Progress)}
+     * @param progressIn see {@link Builder#build(Map, Progress)}
+     * @param stdinProvider Optional script input provider. If set, data read from it are passed into the STDIN
+     *        of the script.
+     * @return the result of the command.
+     */
+    Element build(final Map<String, String> buildProperties, final Progress progressIn,
+            final InputStream stdinProvider) {
 
         final Progress progress = getShowProgress() ? progressIn : null;
 
@@ -116,11 +137,11 @@ public class ExecBuilder extends Builder {
         script.setBuildLogElement(task);
 
         // execute the command
-        final ScriptRunner scriptRunner = new ScriptRunner();
+        final ScriptRunner scriptRunner = createScriptRunner();
         boolean scriptCompleted = false;
         boolean scriptIOError = false;
         try {
-            scriptCompleted = runScript(script, scriptRunner, workingDir, projectName);
+            scriptCompleted = runScript(script, scriptRunner, workingDir, projectName, stdinProvider);
         } catch (CruiseControlException ex) {
           LOG.error("Could not execute command: " + command, ex);
           scriptIOError = true;
@@ -175,11 +196,11 @@ public class ExecBuilder extends Builder {
         return buildLogElement;
     } // build
 
-    protected boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir,
-                                final String projectName)
+    boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir,
+                                final String projectName, final InputStream stdinProvider)
       throws CruiseControlException {
         final File workDir = new File(dir);
-        return scriptRunner.runScript(workDir, script, timeout,
+        return scriptRunner.runScript(workDir, script, timeout, stdinProvider,
                 getBuildOutputConsumer(projectName, workDir, null));
     }
 
@@ -193,10 +214,13 @@ public class ExecBuilder extends Builder {
         return value;
     }
 
-    protected ExecScript createExecScript() {
+    ExecScript createExecScript() {
         return new ExecScript();
     }
 
+    ScriptRunner createScriptRunner() {
+        return new ScriptRunner();
+    }
 
     public Element buildWithTarget(final Map<String, String> properties, final String target, final Progress progress)
             throws CruiseControlException {
@@ -217,6 +241,15 @@ public class ExecBuilder extends Builder {
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     } // setTimeout
+
+    /**
+     * Gets the timeout set by {@link #setTimeout(long)}, or {@link ScriptRunner#NO_TIMEOUT}
+     * if not set yet.
+     * @return the build timeout in seconds.
+     */
+    public long getTimeout() {
+        return this.timeout;
+    } // getTimeout
 
     /**
      * Sets the command to execute
@@ -257,6 +290,15 @@ public class ExecBuilder extends Builder {
     public void setWorkingDir(String dir) {
         this.workingDir = dir;
     } // setWorkingDir
+
+    /**
+     * Gets the working directory set by {@link #setWorkingDir(String)}, or 
+     * <code>null</code> if not set yet.
+     * @return the working directory where the command is to be executed.
+     */
+    public String getWorkingDir() {
+        return this.workingDir;
+    } // getworkingDir
 
     /**
      * Get whether there was n error written to the build log

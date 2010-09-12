@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +186,7 @@ public class ExecBuilderTest extends TestCase {
     /*
      * execute the build and check results
      */
-    protected void internalTestBuild(String statusType, ExecBuilder eb, String script) {
+    void internalTestBuild(String statusType, ExecBuilder eb, String script) {
         Element logElement = null;
         try {
             eb.setCommand(script);
@@ -274,13 +275,14 @@ public class ExecBuilderTest extends TestCase {
             this.script = script;
         }
 
+        @Override
         protected ExecScript createExecScript() {
             return script;
         }
 
         @Override
-        protected boolean runScript(ExecScript script, ScriptRunner scriptRunner, String dir, final String projectName)
-          throws CruiseControlException {
+        protected boolean runScript(final ExecScript script, final ScriptRunner scriptRunner, final String dir,
+                                    final String projectName, final InputStream stdinProvider) {
             return true;
         }
         
