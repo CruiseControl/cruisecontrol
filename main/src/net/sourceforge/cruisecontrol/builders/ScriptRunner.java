@@ -309,7 +309,7 @@ public class ScriptRunner  {
      *         is called.
      */
     StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
-    	return new StreamPumper(p.getInputStream(), consumer);
+        return new StreamPumper(p.getInputStream(), consumer);
     } // getOutPumper
 
     /**
@@ -324,7 +324,7 @@ public class ScriptRunner  {
      *         is called.
      */
     StreamPumper getErrPumper(final Process p, final StreamConsumer consumer) {
-    	return new StreamPumper(p.getErrorStream(), consumer);
+        return new StreamPumper(p.getErrorStream(), consumer);
     } // getErrPumper
 
     /**

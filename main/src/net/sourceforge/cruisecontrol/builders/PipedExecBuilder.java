@@ -728,48 +728,54 @@ public class PipedExecBuilder extends Builder {
                     + ", wait for " + (waitFor != null ? waitFor : "-") + "]";
         } // toString
 
-        /** Returns script runner which does not allow to consume STDOUT, and it logs STDOUT in 
-         *  debug mode only (the output i passed to the piped script, and it may be huge, or it may
-         *  contain binary data ...) */
+        /**
+         * Returns script runner which does not allow to consume STDOUT, and it logs STDOUT in
+         * debug mode only (the output i passed to the piped script, and it may be huge, or it may
+         * contain binary data ...)
+         */
         @Override
         protected ScriptRunner createScriptRunner() {
-            return new ScriptRunner() {
-                /** Disables script to consume STDOUT - although errors cannot be found in it now,
-                 *  it can be expected that errors are printed to STDERR when a sequence of piped
-                 *  commands is started. Moreover, the STDOUT of the script may contain binary
-                 *  data - it is generally bad idea pass t through text-expected classes ... */
+            final class MyDebugScriptRunner extends ScriptRunner {
+                /**
+                 * Disable script consumption of STDOUT - although errors cannot be found in it now, it is expected
+                 * that errors are printed to STDERR when a sequence of piped commands is started. Also, STDOUT of the
+                 * script may contain binary data - it is generally bad idea pass through text-expected classes.
+                 */
                 @Override
                 protected boolean letConsumeOut() {
                     return false;
                 }
+
                 /** Returns the consumer printing STDOUT of the script on {@link org.apache.log4j.Level#DEBUG} level. */
                 @Override
                 protected StreamConsumer getDirectOutLogger() {
                     return StreamLogger.getDebugLogger(ScriptRunner.LOG);
                 }
-        		/** Assigns the STDOUT of the process directly to the StdoutBuffer (as byte stream). 
-        		 *  It bypasses problems with text encoding, when the output of the process is not in 
-        		 *  utf8. Reading it through StreamPumper would cause passing it through String which 
-        		 *  will change the STDOUT before piped to STDIN of the associated script.
-        		 *
-        		 *  Returns StreamPumper reading the binary data cached in the StdoutBuffer.  */
-        		@Override
-        		protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
-        			/* Read STDOUt of the process directly */
-        			final InputStream instream = p.getInputStream();
-        			final StdioPumper outpumper = new StdioPumper(instream, Script.this.stdoutBuffer);
-        			final Thread stdout = new Thread(outpumper);
-        	        stdout.start();
 
-        	        try {
-        		        /* Return the pumper reading the binary data from StdoutBuffer */
-        				return new StreamPumper(Script.this.stdoutBuffer.getContent(), consumer);
-        	    	} catch (IOException e) {
-        	    		LOG.error("Error when joining STDOUT with various consumers. Build is likely to fail soon", e);
-        	    		return new StreamPumper(instream, consumer);
-        			}
-        	    } // getPumper4Out
-            };
+                /**
+                 * Assign STDOUT of the process directly to the StdoutBuffer (as byte stream). Bypasses problems with
+                 * text encoding, when the output of the process is not utf8. Reading it through StreamPumper would
+                 * pass it through String, which changes the STDOUT before piped to STDIN of the associated script.
+                 * Returns StreamPumper reading the binary data cached in the StdoutBuffer.
+                 */
+                @Override
+                protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
+                    /* Read STDOUt of the process directly */
+                    final InputStream instream = p.getInputStream();
+                    final StdioPumper outpumper = new StdioPumper(instream, Script.this.stdoutBuffer);
+                    final Thread stdout = new Thread(outpumper);
+                    stdout.start();
+
+                    try {
+                        /* Return the pumper reading the binary data from StdoutBuffer */
+                        return new StreamPumper(Script.this.stdoutBuffer.getContent(), consumer);
+                    } catch (IOException e) {
+                        LOG.error("Error when joining STDOUT with various consumers. Build is likely to fail soon", e);
+                        return new StreamPumper(instream, consumer);
+                    }
+                } // getPumper4Out
+            }
+            return new MyDebugScriptRunner();
         } // createScriptRunner
 
     } // PipedExecScript
