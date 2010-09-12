@@ -48,6 +48,11 @@ Maven2Builder
 * Add showBuildOutput property to show builder output in Dashboard while build is executing (CC-966). Patch by Jeff Johnson. Tested by Paolo D'Apice. 
   This is affected by the addition of the 'LiveOutput' attribute to the base Builder class, therefore 'setShowBuildOutput' is actually deprecated, and 'setLiveOutput' should be used instead. See CC-911 for details.
 
+PipedExecBuilder
+----------------------
+* Add new builder: Piped exec builder executes a list of exec builders (commands or scripts),
+  where the STDIN of any number of the builders may be fed by STDOUT of a builder running under the piped exec builder. (CC-991). Patch by Daniel Tihelka
+
 Dashboard
 ======================
 * Add guard for NPE in BuildLoopQueryService, as per comment in CC-831. Suggested by David Williams.

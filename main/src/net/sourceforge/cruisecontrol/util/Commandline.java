@@ -128,6 +128,8 @@ public class Commandline implements Cloneable {
     private File workingDir = null;
     private final CruiseRuntime runtime;
 
+    private boolean closeStdIn = true; // close it by default to prevent deadlocks (see revision 3143) 
+    
     public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
         super();
         this.runtime = cruiseRuntime;
@@ -220,7 +222,7 @@ public class Commandline implements Cloneable {
     // elements of &lt;execon&gt; and &lt;transform&gt; - don't know
     // whether there might be additional use cases.</p> --SB
     public class Marker {
-        private int position;
+        private final int position;
 
         private int realPos = -1;
 
@@ -592,6 +594,20 @@ public class Commandline implements Cloneable {
     }
 
     /**
+     * Should STDIN of the process be closed just after executed? By default it is closed
+     * to prevent deadlocks. Set this to <code>false</code> <b>only</b> when you need to 
+     * read {@link Process#getOutputStream()} of the process returned by {@link #execute()} 
+     * (and close it when you finish the reading!). 
+     * 
+     * @param close close the STDIN or not (by default it is <code>True</code> when not set
+     *        otherwise)
+     * @see   #execute()
+     */
+    public void setCloseStdIn(boolean close) {
+        this.closeStdIn = close;
+    }
+
+    /**
      * Executes the command.
      * @return command Process object
      * @throws IOException if something breaks
@@ -619,7 +635,9 @@ public class Commandline implements Cloneable {
             }
         }
 
-        process.getOutputStream().close();
+        if (closeStdIn) {
+            process.getOutputStream().close();
+        }
 
         return process;
     }

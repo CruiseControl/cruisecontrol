@@ -165,6 +165,7 @@
 <a href="#p4bootstrapper">&lt;p4bootstrapper&gt;</a>
 <a href="#p4changelistlabelincrementer">&lt;p4changelistlabelincrementer&gt;</a>
 <a href="#pause">&lt;pause&gt;</a>
+<a href="#pipedexec">&lt;pipedexec&gt;</a>
 <a href="#plasticscm">&lt;plasticscm&gt;</a>
 <a href="#plasticscmbootstrapper">&lt;plasticscmbootstrapper&gt;</a>
 <a href="#plugin">&lt;plugin&gt;</a>
@@ -327,6 +328,7 @@
          <a href="#phing">&lt;phing/&gt;</a>
          <a href="#rake">&lt;rake/&gt;</a>
          <a href="#exec">&lt;exec/&gt;</a>
+         <a href="#pipedexec">&lt;pipedexec/&gt;</a>
          <a href="#composite">&lt;composite/&gt;</a>
          <a href="#xcode">&lt;xcode/&gt;</a>
       &lt;/schedule&gt;
@@ -996,9 +998,9 @@
                 taken. If it is not, a new CM Synergy session is started, and the new ID recorded in the
                 file.</li>
         </ol>
-        
+
         <p>If you are planning to run Cruisecontrol as a headless scheduled task, you may encounter an error
-           stating "Cannot open logfile 'C:\\ccm_ui.log'" in the log file. This issue can be worked around 
+           stating "Cannot open logfile 'C:\\ccm_ui.log'" in the log file. This issue can be worked around
            by setting the following system environment variables:</p>
         <table class="documentation">
             <thead>
@@ -5896,6 +5898,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>0 .. *</td>
                 <td>Builds the project using the ExecBuilder.</td>
             </tr>
+            <tr>
+                <td><a href="#pipedexec">&lt;pipedexec&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using the PipedExecBuilder.</td>
+            </tr>
 	        <tr>
                 <td><a href="#xcode">&lt;xcode&gt;</a></td>
                 <td>0 .. *</td>
@@ -6647,6 +6654,11 @@ endlocal</pre>
                 <td>0 .. *</td>
                 <td>Builds the project using the ExecBuilder.</td>
             </tr>
+            <tr>
+                <td><a href="#pipedexec">&lt;pipedexec&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using the PipedExecBuilder.</td>
+            </tr>
 	        <tr>
                 <td><a href="#xcode">&lt;xcode&gt;</a></td>
                 <td>0 .. *</td>
@@ -7243,6 +7255,226 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 &lt;/schedule&gt;</pre>
 
 	    </li>
+        </ol>
+        </div>
+
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
+        <h2><a name="pipedexec">&lt;pipedexec&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;pipedexec&gt;</pre>
+        </div>
+
+        <p>Piped exec builder executes a list of <a href="#exec">&lt;exec&gt;</a> builders (commands
+           or scripts), where the STDIN of any number of the builders may be fed by STDOUT of a
+           builder running under the piped exec builder. All the child builders are started in
+           parallel, and those requiring data on STDIN are blocked by the OS until their STDINs are filled
+           by data. The PipedExecBuilder captures the STDOUTs of the running child builders, caches
+           the data, and distributes them as soon as possible to the children waiting for them.</p>
+
+        <p>To prevent memory exhaustion when several large-memory-consuming builders are running at
+           the same time, the builders may be set to wait for each other. Still, they may be piped from
+           the same builder, even if the builder was already finished (because the data are cached).</p>
+
+        <p>The whole piped exec builder finishes when all its child builders are finished. When any of
+           children fails, the piped exec builder terminates all the running commands or scripts, and
+           the piped exec builder reports build failure. Let us note here the scripts used in
+           this builder must be ready for piping - for example: they must use STDERR for
+           state/error reporting.</p>
+
+        <p>The child &lt;exec&gt; builders have the same capabilities as the original <a href="#exec">&lt;exec&gt;</a>
+           builders.</p>
+
+        <p>See below for <a href="#pipedexec-examples">examples</a> of the
+        <code>&lt;pipedexec&gt;</code> element.</p>
+
+        <h3>Attributes</h3>
+
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>workingdir</td>
+                <td>No</td>
+                <td>The directory in which all the scripts or commands are to be
+                executed. Each individual script or command may override this value.
+                Defaults to the Java temporary directory.</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Build will be halted if the scripts or commands running under the pipedexec
+                continue longer than the specified timeout. Each individual script or command
+                may also set its own limitation. Value in seconds.</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+        <h3>Child Elements</h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a href="#exec"><code>&lt;exec&gt;</code></a></td>
+                <td>0 .. *</td>
+                <td>Runs a specified command or script under the piped exec builder, and optionally
+                    pipe it with another command(s) or script(s). <br/><br/>
+
+                    The &lt;exec&gt; element is based on the <a href="#exec">ExecBuilder</a>, so it
+                    has the same attributes and capabilities (i.e. setting its own workingdir, timeout
+                    and/or error string). In addition, <code>&lt;exec&gt;</code> as piped exec
+                    builder children have the following attributes:
+                    <table class="documentation">
+                        <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>id</td>
+                                <td>Yes</td>
+                                <td>The unique identifier of the command or script script (any
+                                    string). The value is referenced by <code>pipefrom</code>
+                                    and <code>waitfor</code> attributes.</td>
+                            </tr>
+                            <tr>
+                                <td>pipefrom</td>
+                                <td>No</td>
+                                <td>The ID of script to connect to - the STDIO of this command or
+                                    script is fed up by STDOUT of &lt;exec&gt; with the given ID.
+                                    Several &lt;exec&gt; may be piped from one ID.</td>
+                            </tr>
+                            <tr>
+                                <td>waitfor</td>
+                                <td>No</td>
+                                <td>The execution of this command or script will be hold until
+                                    &lt;exec&gt; with the given ID finishes. It may be used
+                                    to prevent memory exhausting/swapping, or to wait for data
+                                    generated by another script and not passed through STDOUT-STDIN
+                                    pipe.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="pipedexec-examples">Examples</a></h3>
+
+        Suppose that all the scripts read data either from input file (option -i), or from
+        STDIN if no file is given. Also suppose that they write output into file (option -o)
+        or into STDOUT if no file is given.
+        <ol>
+            <li> Invoke piped exec builder, specifying the
+            working directory as <code>/workspace/myproject</code> using property substitution and
+            executing the sequence of Perl scripts <code>first.pl -i data.txt | second.pl -o result.txt</code>.
+
+            <pre>&lt;schedule&gt;
+    &lt;pipedexec workingdir="/workspace/${projectname}"&gt;
+        &lt;exec id="1"
+             command="/usr/local/bin/Perl"
+             args="first.pl -i data.txt" /&gt;
+        &lt;exec id="2"
+             pipefrom="1"
+             command="/usr/local/bin/Perl"
+             args="second.pl -o result.txt" /&gt;
+    &lt;/pipedexec&gt;
+&lt;/schedule&gt;</pre>
+            </li>
+
+            <li>Invoke piped exec builder, specifying another working directory for the last script,
+            and an independent timeout for the first script. An error in the first script is
+            signalled by an <code>error occurred</code> message instead of the script's return error code. The sequence
+            is now <code>first.pl -i data.txt | tee >(second.pl -o result.txt) | third.pl -o result.txt</code>.
+
+            <pre>&lt;schedule&gt;
+    &lt;pipedexec workingdir="/workspace/${projectname}"&gt;
+        timeout="60"
+        &lt;exec id="1"
+             command="/usr/local/bin/Perl"
+             args="first.pl -i data.txt" /&gt;
+             timeout="10" /&gt;
+             errorstr="error occurred" /&gt;
+        &lt;exec id="2"
+             pipefrom="1"
+             command="/usr/local/bin/Perl"
+             args="second.pl -o results.txt" /&gt;
+        &lt;exec id="3"
+             pipefrom="1"
+             command="/usr/local/bin/Perl"
+             args="third.pl -o result.txt"
+             workingdir="/distribution/${projectname}" /&gt;
+    &lt;/pipedexec&gt;
+&lt;/schedule&gt;</pre>
+            </li>
+
+      <li>Invoke more complicated piped exec builder, where 5th script required data generated by
+          2nd and 4th scripts, and 6th script requires data generated by 2th and 5th script. Therefore,
+          scripts must wait for each other.
+
+            <pre>&lt;schedule&gt;
+    &lt;pipedexec workingdir="/workspace/${projectname}"&gt;
+        &lt;exec id="1"
+             command="/usr/local/bin/Perl"
+             args="first.pl -i data.txt" /&gt;
+        &lt;exec id="2"
+             pipefrom="1"
+             command="/usr/local/bin/Perl"
+             args="second.pl" /&gt;
+        &lt;exec id="3"
+             pipefrom="2"
+             command="/usr/local/bin/Perl"
+             args="third.pl" /&gt;
+        &lt;exec id="4"
+             pipefrom="3"
+             command="/usr/local/bin/Perl"
+             args="fourth.pl -o 4out.txt" /&gt;
+        &lt;!-- must not start until 4out.txt is ready. Without 'waitfor' it would be started
+             before 4 is finished! --&gt;
+        &lt;exec id="5"
+             pipefrom="2"
+             waitfor="4"
+             command="/usr/local/bin/Perl"
+             args="fiveth.pl -e 4out.txt -o 5out.txt" /&gt;
+        &lt;!-- The same here --&gt;
+        &lt;exec id="6"
+             pipefrom="2"
+             waitfor="5"
+             command="/usr/local/bin/Perl"
+             args="sixth.pl -e 5out.txt" /&gt;
+        &lt;exec id="7"
+             pipefrom="6"
+             command="/usr/local/bin/Perl"
+             args="seventh.pl -o results.txt" /&gt;
+    &lt;/pipedexec&gt;
+&lt;/schedule&gt;</pre>
+            </li>
         </ol>
         </div>
 
