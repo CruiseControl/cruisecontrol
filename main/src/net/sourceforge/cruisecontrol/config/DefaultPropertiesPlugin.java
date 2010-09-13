@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
@@ -106,8 +108,9 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
 
   /**
    * @param name name of the property to set.
-   * @required Exactly one of name, environment, or file.
    */
+  @Required
+  @Description("Exactly one of name, environment, or file.")
   public void setName(String name) {
     this.name = name;
   }
@@ -118,8 +121,9 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    * Thus if you specify environment="myenv" you will be able to access OS-specific environment variables
    * via property names such as "myenv.PATH" or "myenv.MAVEN_HOME".
    * @param environment The prefix to use when retrieving environment variables.
-   * @required Exactly one of name, environment, or file.
    */
+  @Required
+  @Description("Exactly one of name, environment, or file.")
   public void setEnvironment(String environment) {
     this.environment = environment;
   }
@@ -127,16 +131,18 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
   /**
    * The filename of the property file to load.
    * @param file filename of the property file to load.
-   * @required Exactly one of name, environment, or file.
    */
+  @Required
+  @Description("Exactly one of name, environment, or file.")
   public void setFile(String file) {
     this.file = file;
   }
 
   /**
    * @param value must be set if name was set.
-   * @required Yes, if name was set.
    */
+  @Required
+  @Description("Required if name was set.")
   public void setValue(String value) {
     this.value = value;
   }

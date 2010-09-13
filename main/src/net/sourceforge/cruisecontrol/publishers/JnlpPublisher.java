@@ -9,6 +9,9 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.tools.ant.Project;
@@ -37,6 +40,8 @@ public class JnlpPublisher implements Publisher {
 
     // @todo Needs unit tests, documentation in configxml.html, and a new entry in default-plugins.properties
 
+    private static final long serialVersionUID = -5939441135781954954L;
+
     private static final Logger LOG = Logger.getLogger(JnlpPublisher.class);
 
     private String strTarget;
@@ -46,32 +51,33 @@ public class JnlpPublisher implements Publisher {
 
     /**
      * @param target Specifies where the jar file should be published.
-     * @required
      */
+    @Required
     public void setTarget(final String target) {
         this.strTarget = target;
     }
 
     /**
      * @param jnlp specifies the jnlp file to be updated.
-     * @required
      */
+    @Required
     public void setJnlp(final String jnlp) {
         this.strJnlp = jnlp;
     }
 
     /**
      * @param source specifies where to get the jar.
-     * @defaultValue tries to find it from ant (don't think it's working though)
      */
+    @Default("")
+    @Description("tries to find default from ant (don't think it's working though)")
     public void setSource(final String source) {
         this.strSource = source;
     }
 
     /**
      * @param bDel if true deletes old jars with the same name.
-     * @defaultValue "false"
      */
+    @Default("false")
     public void setDeleteOldJars(final boolean bDel) {
         this.bDeleteOldJars = bDel;
     }

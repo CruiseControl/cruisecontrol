@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+
 /**
  * Currently just a placeholder for the &lt;configuration&gt; element, which in its turn is just a
  * placeholder for the <a href=\"#threads\">&lt;threads&gt;</a> element.<br/>
@@ -44,7 +46,7 @@ package net.sourceforge.cruisecontrol.config;
 public class SystemPlugin {
   private ConfigurationPlugin config;
 
-  /** @cardinality = "0..1" */
+  @Cardinality(min = 0, max = 1)
   public void add(ConfigurationPlugin configuration) {
     this.config = configuration;
   }

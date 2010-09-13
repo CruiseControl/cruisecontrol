@@ -51,6 +51,8 @@ import java.util.Set;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
@@ -91,7 +93,6 @@ import org.jdom.Element;
  * </pre>
  *
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
- * @cc-plugin
  */
 public class PipedExecBuilder extends Builder {
 
@@ -320,8 +321,9 @@ public class PipedExecBuilder extends Builder {
      * specified, nothing will be executed.
      *
      * @return new {@link Script} object to configure.
-     * @cardinality 0..*
-       */
+     *
+     */
+    @Cardinality(min = 0, max = -1)
     public Object createExec() {
         scripts.add(new Script());
         return scripts.getLast();
@@ -484,8 +486,6 @@ public class PipedExecBuilder extends Builder {
      *
      * The class is the implementation of {@link Runnable} interface, as several scripts piped
      * one with another are started simultaneously.
-     *
-     * @cc-plugin
      */
     public class Script extends ExecBuilder implements Runnable {
 
@@ -575,10 +575,11 @@ public class PipedExecBuilder extends Builder {
         /**
          * Sets the ID of the script from <code>id=""</code> attribute in XML configuration
          * (referenced by <code>pipefrom=""</code> and <code>waitfor=""</code>). Required.
+         * Each script must have <b>unique</b> ID assigned.
          *
          * @param value ID of the script.
-         * @required each script must have <b>unique</b> ID assigned.
          */
+        @Required
         public void setID(String value) {
             this.id = value;
         } // setID

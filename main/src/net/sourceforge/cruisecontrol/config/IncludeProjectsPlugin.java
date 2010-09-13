@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
+
 /**
  * 
  * <p>The &lt;include.projects&gt; tag is used to consolidate several configuration
@@ -54,10 +56,9 @@ public class IncludeProjectsPlugin {
   private String file;
 
   /**
-   * Relative path from current configuration file to the configuration file to process.
-   * @param file
-   * @required
+   * @param file Relative path from current configuration file to the configuration file to process.
    */
+  @Required
   public void setFile(String file) {
     this.file = file;
   }
