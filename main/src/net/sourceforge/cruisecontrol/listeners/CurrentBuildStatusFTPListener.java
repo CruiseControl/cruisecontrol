@@ -53,12 +53,15 @@ import java.io.File;
 /**
  * Does the same thing as CurrentBuildStatusListener, but also sends it to an FTP server.
  *
- * <p>{@link net.sourceforge.cruisecontrol.DateFormatFactory} for the dateformat
+ * <p>{@link net.sourceforge.cruisecontrol.util.DateUtil#formatIso8601(Date)} for the dateformat
  *
- * @see net.sourceforge.cruisecontrol.DateFormatFactory
+ * @see net.sourceforge.cruisecontrol.util.DateUtil#formatIso8601(Date)
  * @author jerome@coffeebreaks.org
  */
 public class CurrentBuildStatusFTPListener extends AbstractFTPClass implements Listener {
+
+    private static final long serialVersionUID = 516572359323207132L;
+
     private static final Logger LOG = Logger.getLogger(CurrentBuildStatusListener.class);
     private String fileName;
     private String destdir;
