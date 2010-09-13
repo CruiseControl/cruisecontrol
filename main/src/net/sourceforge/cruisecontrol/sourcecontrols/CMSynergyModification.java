@@ -300,7 +300,7 @@ public class CMSynergyModification extends Modification {
      * @see Modification#fromElement(Element)
      */
     @Override
-    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
+    @SuppressWarnings("unchecked") // we know Element.getChildren() returns Elements
     public void fromElement(final Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
