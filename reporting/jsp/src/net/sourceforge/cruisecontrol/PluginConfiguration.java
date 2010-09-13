@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.AttributeNotFoundException;
@@ -54,13 +54,14 @@ import org.jdom.JDOMException;
  * Understands how to map parameter values to plugin attributes.
  */
 public class PluginConfiguration {
-    private Map details;
+    private Map<String, String> details;
     private String name;
     private PluginType type;
 
-    public PluginConfiguration(PluginDetail pluginDetail, Configuration configuration)
+    public PluginConfiguration(final PluginDetail pluginDetail, final Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
+
         this.name = pluginDetail.getName();
         this.type = pluginDetail.getType();
         this.details = createDetails(pluginDetail, configuration);
@@ -82,34 +83,37 @@ public class PluginConfiguration {
         return this.details;
     }
 
-    public void setDetail(String name, String value) {
-        Map.Entry detail = getEntryCaseInsensitive(name, details);
-        if (detail != null && (StringUtils.isNotBlank((String) detail.getValue()) || StringUtils.isNotBlank(value))) {
+    public void setDetail(final String name, final String value) {
+        final Map.Entry<String, String> detail = getEntryCaseInsensitive(name, details);
+        if (detail != null && (StringUtils.isNotBlank(detail.getValue()) || StringUtils.isNotBlank(value))) {
             details.remove(detail.getKey());
             details.put(detail.getKey(), value);
         }
     }
 
-    private Map createDetails(PluginDetail pluginDetail, Configuration configuration)
+    private Map<String, String> createDetails(final PluginDetail pluginDetail, final Configuration configuration)
             throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException,
             IOException, JDOMException {
-        Map newDetails = new HashMap();
-        Element currentConfiguration = getElement(configuration);
 
-        Attribute[] attributes = pluginDetail.getRequiredAttributes();
-        for (int i = 0; i < attributes.length; i++) {
-            Attribute attribute = attributes[i];
-            String key = attribute.getName();
-            String realName = key.substring(0, 1).toLowerCase() + key.substring(1);
+        final Map<String, String> newDetails = new HashMap<String, String>();
+        final Element currentConfiguration = getElement(configuration);
+
+        final Attribute[] attributes = pluginDetail.getRequiredAttributes();
+        for (final Attribute attribute : attributes) {
+            final String key = attribute.getName();
+            final String realName = key.substring(0, 1).toLowerCase() + key.substring(1);
             newDetails.put(realName, findAttributeValue(currentConfiguration, realName));
         }
 
         return newDetails;
     }
 
-    private String findAttributeValue(Element configuration, String attributeName) {
-        for (Iterator i = configuration.getAttributes().iterator(); i.hasNext();) {
-            String nextAttributeName = ((org.jdom.Attribute) i.next()).getName();
+    @SuppressWarnings("unchecked") // we know Element.getAttributes() returns List<org.jdom.Attribute>
+    private String findAttributeValue(final Element configuration, final String attributeName) {
+        final List<org.jdom.Attribute> lstAttributes = configuration.getAttributes();
+
+        for (final org.jdom.Attribute attribute : lstAttributes) {
+            final String nextAttributeName = attribute.getName();
             if (attributeName.equalsIgnoreCase(nextAttributeName)) {
                 return configuration.getAttributeValue(nextAttributeName);
             }
@@ -117,18 +121,18 @@ public class PluginConfiguration {
         return null;
     }
 
-    private static Map.Entry getEntryCaseInsensitive(String key, Map map) {
-        for (Iterator i = map.entrySet().iterator(); i.hasNext();) {
-            Map.Entry nextDetail = (Map.Entry) i.next();
-            if (key.equalsIgnoreCase((String) nextDetail.getKey())) {
+    private static Map.Entry<String, String> getEntryCaseInsensitive(final String key, final Map<String, String> map) {
+        for (final Map.Entry<String, String> nextDetail : map.entrySet()) {
+            if (key.equalsIgnoreCase(nextDetail.getKey())) {
                 return nextDetail;
             }
         }
         return null;
     }
 
-    private Element getElement(Configuration configuration) throws AttributeNotFoundException,
+    private Element getElement(final Configuration configuration) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException {
+
         Element currentConfiguration = configuration.getElement(name);
         if (currentConfiguration == null) {
             currentConfiguration = new Element(name);

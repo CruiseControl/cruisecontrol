@@ -57,7 +57,9 @@ import net.sourceforge.cruisecontrol.taglib.CruiseControlSuccessfulLogFileFilter
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class BuildInfo implements Comparable, Serializable {
+public class BuildInfo implements Comparable<BuildInfo>, Serializable {
+    private static final long serialVersionUID = 5896165618310498253L;
+
     public static final String LOG_PREFIX = "log";
     public static final char LABEL_SEPARATOR = 'L';
     public static final String LOG_DATE_PATTERN = "yyyyMMddHHmmss";
@@ -136,7 +138,7 @@ public class BuildInfo implements Comparable, Serializable {
     }
 
     /**
-     * Gets the log's name with a file extension.
+     * @return the log's name with a file extension.
      */
     public String getLogName() {
         return logFile.getName();
@@ -146,22 +148,22 @@ public class BuildInfo implements Comparable, Serializable {
         return logFile;
     }
 
-    public static BuildInfoSummary loadFromDir(File logDir) throws CruiseControlWebAppException {
-        File [] logFileNames = logDir.listFiles(new CruiseControlLogFileFilter());
+    public static BuildInfoSummary loadFromDir(final File logDir) throws CruiseControlWebAppException {
+        final File[] logFileNames = logDir.listFiles(new CruiseControlLogFileFilter());
         if (logFileNames == null) {
             throw new CruiseControlWebAppException("Could not access the directory " + logDir.getAbsolutePath());
         } else if (logFileNames.length == 0) {
             throw new CruiseControlWebAppException("Configuration problem? No logs found in logDir: "
                                              + logDir.getAbsolutePath());
         }
-        List buildInfoList = new ArrayList(logFileNames.length);
-        for (int i = 0; i < logFileNames.length; i++) {
-            File file = logFileNames[i];
+
+        final List<BuildInfo> buildInfoList = new ArrayList<BuildInfo>(logFileNames.length);
+        for (final File file : logFileNames) {
             try {
                 buildInfoList.add(new BuildInfo(file));
             } catch (ParseException e) {
                 throw new CruiseControlWebAppException("Could not parse log file name " + file.getName()
-                                           + ". Is the filter broken?", e);
+                        + ". Is the filter broken?", e);
             }
         }
         Collections.sort(buildInfoList);
@@ -172,8 +174,7 @@ public class BuildInfo implements Comparable, Serializable {
      * Return a comparison based on the build time.
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object arg0) {
-        BuildInfo other = (BuildInfo) arg0;
+    public int compareTo(final BuildInfo other) {
         return this.buildDate.compareTo(other.buildDate);
     }
 }

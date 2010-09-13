@@ -45,16 +45,15 @@ import java.util.List;
 public final class BuildInfoSummary implements Serializable {
     private static final long serialVersionUID = 994064080136410358L;
 
-    private final List buildInfoList;
+    private final List<BuildInfo> buildInfoList;
     private final int numBrokenBuilds;
     private final int numSuccessfulBuilds;
 
-    public BuildInfoSummary(List buildInfoList) {
+    public BuildInfoSummary(final List<BuildInfo> buildInfoList) {
         this.buildInfoList = Collections.unmodifiableList(buildInfoList);
         int brokenBuildsCounter = 0;
         int successfulBuildsCounter = 0;
-        for (Iterator i = buildInfoList.iterator(); i.hasNext();) {
-            BuildInfo buildInfo = (BuildInfo) i.next();
+        for (final BuildInfo buildInfo : buildInfoList) {
             if (buildInfo.isSuccessful()) {
                 successfulBuildsCounter++;
             } else {
@@ -86,7 +85,7 @@ public final class BuildInfoSummary implements Serializable {
         return numSuccessfulBuilds;
     }
 
-    public Iterator iterator() {
+    public Iterator<BuildInfo> iterator() {
         return buildInfoList.iterator();
     }
 
@@ -97,6 +96,6 @@ public final class BuildInfoSummary implements Serializable {
 
 
     public BuildInfo[] asArray() {
-        return (BuildInfo[]) buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
+        return buildInfoList.toArray(new BuildInfo[buildInfoList.size()]);
     }
 }

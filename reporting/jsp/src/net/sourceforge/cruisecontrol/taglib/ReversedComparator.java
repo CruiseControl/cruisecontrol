@@ -36,14 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import net.sourceforge.cruisecontrol.BuildInfo;
+
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  */
-class ReversedComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-        return ((Comparable) o2).compareTo(o1);
+class ReversedComparator implements Comparator<BuildInfo>, Serializable {
+
+    private static final long serialVersionUID = 2363169859096285465L;
+
+    public int compare(final BuildInfo o1, final BuildInfo o2) {
+        return o2.compareTo(o1);
     }
 }

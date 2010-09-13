@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.taglib;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.JspWriter;
@@ -55,7 +54,9 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class TabSheetTag extends CruiseControlBodyTagSupport {
-    private List tabs = new ArrayList();
+    private static final long serialVersionUID = -4009246347755254851L;
+
+    private final List<Tab> tabs = new ArrayList<Tab>();
     private Tab selectedTab;
     private static final Tab NONE_SELECTED = null;
     private static final String EOL = "\r\n";
@@ -76,7 +77,7 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
      * Add a Tab to the list of tabs.
      * @param tab   the tab to add.
      */
-    public void addTab(Tab tab) {
+    public void addTab(final Tab tab) {
         if (tab.isSelected()) {
             selectedTab = tab;
         }
@@ -123,16 +124,16 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
 
     /**
      * Print out the tab headers. The selected tab is rendered as a plain label, the other tabs are rendered as links.
+     * @param out the output writer
      * @throws IOException  if there's an IO error.
      */
-    private void printTabHeaders(JspWriter out) throws IOException {
+    private void printTabHeaders(final JspWriter out) throws IOException {
         out.write("<tr>");
         out.write("<td bgcolor=\"#FFFFFF\">");
         out.write("<div align=\"left\">");
         out.write("<table class=\"tab-table\" align=\"center\" valign=\"middle\" cellspacing=\"0\"");
         out.write(" cellpadding=\"0\" border=\"1\"><tbody><tr>");
-        for (Iterator iterator = tabs.iterator(); iterator.hasNext();) {
-            Tab tab = (Tab) iterator.next();
+        for (final Tab tab : tabs) {
             if (tab.isRow()) {
                 out.write("</tr><tr>");
             } else if (tab == selectedTab) {
@@ -156,9 +157,10 @@ public class TabSheetTag extends CruiseControlBodyTagSupport {
 
     /**
      * Print out the body of the selected tab (if any).
+     * @param out the output writer
      * @throws IOException  if there's an IO error.
      */
-    private void printBody(JspWriter out) throws IOException {
+    private void printBody(final JspWriter out) throws IOException {
         if (selectedTab != NONE_SELECTED) {
             getBodyContent().writeOut(out);
         }

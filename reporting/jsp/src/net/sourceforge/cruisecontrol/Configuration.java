@@ -42,7 +42,6 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -81,14 +80,15 @@ public class Configuration {
     private String configuration;
     private PluginDetail[] pluginDetails;
 
-    public Configuration(String jmxServer, int rmiPort) throws IOException, MalformedObjectNameException {
-        JMXServiceURL address = new JMXServiceURL("service:jmx:rmi://" + jmxServer + ":" + rmiPort + "/jndi/jrmp");
+    public Configuration(final String jmxServer, final int rmiPort) throws IOException, MalformedObjectNameException {
+        final JMXServiceURL address
+                = new JMXServiceURL("service:jmx:rmi://" + jmxServer + ":" + rmiPort + "/jndi/jrmp");
 
-        Map environment = new HashMap();
+        final Map<String, Object> environment = new HashMap<String, Object>();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.rmi.registry.RegistryContextFactory");
         environment.put(Context.PROVIDER_URL, "rmi://" + jmxServer + ":" + rmiPort);
 
-        JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
+        final JMXConnector cntor = JMXConnectorFactory.connect(address, environment);
         server = cntor.getMBeanServerConnection();
         ccMgr = ObjectName.getInstance("CruiseControl Manager:id=unique");
     }
@@ -124,37 +124,37 @@ public class Configuration {
     public PluginDetail[] getConfiguredBootstrappers(String project) throws CruiseControlException,
             AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, IOException,
             JDOMException {
-        return getConfiguredPluginDetails(project, getProjectConfig(project).getBootstrappers());
+        return getConfiguredPluginDetails(getProjectConfig(project).getBootstrappers());
     }
 
     public PluginDetail[] getConfiguredBuilders(String project) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
-        return getConfiguredPluginDetails(project, getProjectConfig(project).getSchedule().getBuilders());
+        return getConfiguredPluginDetails(getProjectConfig(project).getSchedule().getBuilders());
     }
 
     public PluginDetail[] getConfiguredListeners(String project) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
-        return getConfiguredPluginDetails(project, getProjectConfig(project).getListeners());
+        return getConfiguredPluginDetails(getProjectConfig(project).getListeners());
     }
 
     public PluginDetail[] getConfiguredLoggers(String project) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
-        return getConfiguredPluginDetails(project, Arrays.asList(getProjectConfig(project).getLog().getLoggers()));
+        return getConfiguredPluginDetails(Arrays.asList(getProjectConfig(project).getLog().getLoggers()));
     }
 
     public PluginDetail[] getConfiguredPublishers(String project) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
-        return getConfiguredPluginDetails(project, getProjectConfig(project).getPublishers());
+        return getConfiguredPluginDetails(getProjectConfig(project).getPublishers());
     }
 
     public PluginDetail[] getConfiguredSourceControls(String project) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
-        return getConfiguredPluginDetails(project, getProjectConfig(project).getModificationSet().getSourceControls());
+        return getConfiguredPluginDetails(getProjectConfig(project).getModificationSet().getSourceControls());
     }
 
     public void load() throws MBeanException, AttributeNotFoundException, InstanceNotFoundException,
@@ -176,21 +176,26 @@ public class Configuration {
         setConfiguration(docToString(doc));
     }
 
-    public void updatePluginConfiguration(PluginConfiguration pluginConfiguration) throws AttributeNotFoundException,
+    // we know pluginConfiguration.getDetails().entrySet() returns <Map.Entry<String, String>>
+    @SuppressWarnings("unchecked")
+    public void updatePluginConfiguration(final PluginConfiguration pluginConfiguration)
+            throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, JDOMException,
             InvalidAttributeValueException {
-        Element plugin = new Element(pluginConfiguration.getName());
-        for (Iterator i = pluginConfiguration.getDetails().entrySet().iterator(); i.hasNext();) {
-            Map.Entry element = (Map.Entry) i.next();
-            String key = (String) element.getKey();
-            String value = (String) element.getValue();
+
+        final Element plugin = new Element(pluginConfiguration.getName());
+        for (final Map.Entry<String, String> element
+                : (Iterable<Map.Entry<String, String>>) pluginConfiguration.getDetails().entrySet()) {
+            
+            final String key = element.getKey();
+            final String value = element.getValue();
             if (StringUtils.isNotBlank(value)) {
                 plugin.setAttribute(key, value);
             }
         }
 
-        Document doc = getDocument();
-        Element parent = JDOMSearcher.getElement(doc, pluginConfiguration.getParentElementName());
+        final Document doc = getDocument();
+        final Element parent = JDOMSearcher.getElement(doc, pluginConfiguration.getParentElementName());
         parent.removeChild(plugin.getName());
         parent.addContent(plugin);
 
@@ -205,17 +210,18 @@ public class Configuration {
         return new SAXBuilder().build(new StringReader(configuration));
     }
 
-    private PluginDetail[] getConfiguredPluginDetails(String project, List plugins) throws AttributeNotFoundException,
+    private PluginDetail[] getConfiguredPluginDetails(final List plugins) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException {
-        Collection details = new LinkedList();
-        PluginRegistry registry = getPluginRegistry();
 
-        for (Iterator i = plugins.iterator(); i.hasNext();) {
-            Class nextClass = i.next().getClass();
+        final Collection<PluginDetail> details = new LinkedList<PluginDetail>();
+        final PluginRegistry registry = getPluginRegistry();
+
+        for (final Object plugin : plugins) {
+            Class nextClass = plugin.getClass();
             details.add(new GenericPluginDetail(registry.getPluginName(nextClass), nextClass));
         }
 
-        return (PluginDetail[]) details.toArray(new PluginDetail[details.size()]);
+        return details.toArray(new PluginDetail[details.size()]);
     }
 
     private PluginRegistry getPluginRegistry() throws AttributeNotFoundException, InstanceNotFoundException,

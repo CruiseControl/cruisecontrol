@@ -56,32 +56,32 @@ public abstract class AbstractCruiseControlChartData implements DatasetProducer,
      * Helper method to see if the graph is out of date. We will check the BuildInfoSummary
      * to see if a new log file is available.
      */
-    public boolean hasExpired(Map params, Date dateOfCachedData) {
-        BuildInfoSummary summary = getBuildInfoSummary(params);
+    public boolean hasExpired(final Map params, final Date dateOfCachedData) {
+        final BuildInfoSummary summary = getBuildInfoSummary(params);
         if (noBuilds(summary)) {
             return false;
         }
         
         Date newestBuild = null;
-        Iterator iterator = summary.iterator();
+        final Iterator<BuildInfo> iterator = summary.iterator();
         while (iterator.hasNext()) {
-            BuildInfo info = (BuildInfo) iterator.next();
-            Date buildDate = info.getBuildDate();
+            final BuildInfo info = iterator.next();
+            final Date buildDate = info.getBuildDate();
             if (newestBuild == null || buildDate.after(newestBuild)) {
                 newestBuild = buildDate;
             }
         }
-        
+
+        // @todo May produce NullPointerException?
         return newestBuild.after(dateOfCachedData);
     }
 
-    private boolean noBuilds(BuildInfoSummary summary) {
+    private boolean noBuilds(final BuildInfoSummary summary) {
         return summary.getBuildInfoList().size() == 0;
     }
 
-    protected BuildInfoSummary getBuildInfoSummary(Map params) {
-        BuildInfoSummary summary = (BuildInfoSummary) params.get(BuildInfoTag.INFO_ATTRIBUTE);
-        return summary;
+    protected BuildInfoSummary getBuildInfoSummary(final Map params) {
+        return (BuildInfoSummary) params.get(BuildInfoTag.INFO_ATTRIBUTE);
     }
 
 
