@@ -147,7 +147,7 @@ public class XMLLogHelper {
      *  Looks in modifications/changelist/ or modifications/modification/user depending on SouceControl implementation.
      *  @return <code>Set</code> of usernames that have modified code since the last build
      */
-    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
+    @SuppressWarnings("unchecked") // we know Element.getChildren() returns Elements
     public Set<String> getBuildParticipants() {
         final Set<String> results = new HashSet<String>();
         final List<Element> mods = log.getChild("modifications").getChildren("modification");
@@ -191,7 +191,7 @@ public class XMLLogHelper {
         return findProperty(props, name);
     }
 
-    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
+    @SuppressWarnings("unchecked") // we know Element.getChildren() returns Elements
     public Set<Modification> getModifications() {
         final Set<Modification> results = new HashSet<Modification>();
         final List<Element> mods = log.getChild("modifications").getChildren("modification");
