@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
@@ -52,11 +54,10 @@ public class ThreadsPlugin {
   private int count;
 
   /**
-   * Maximum number of threads to be in use simultaneously to build projects.
-   * @param count
-   * @defaultValue 1
-   * @required true
+   * @param count Maximum number of threads to be in use simultaneously to build projects.
    */
+  @Required
+  @Default("1")
   public void setCount(int count) {
     this.count = count;
   }

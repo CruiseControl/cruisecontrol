@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import org.jdom.Element;
 
 /**
@@ -54,8 +55,8 @@ public class PluginPlugin {
   /**
    * The alias used to refer to the plugin elsewhere in the configuration file.
    * @param name the plugin name
-   * @required
    */
+  @Required
   public void setName(final String name) {
     this.name = name;
   }
@@ -63,8 +64,8 @@ public class PluginPlugin {
   /**
    * The class that implements the plugin.
    * @param className the plugin class name
-   * @required
    */
+  @Required
   public void setClassname(final String className) {
     this.classname = className;
   }

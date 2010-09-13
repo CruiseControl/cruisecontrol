@@ -36,13 +36,15 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+
 /**
  * FIXME: What is a configuration plugin?
  */
 public class ConfigurationPlugin {
   private ThreadsPlugin threads;
 
-  /** @cardinality = "0..1" */
+  @Cardinality(min = 0, max = 1)
   public void add(ThreadsPlugin threads) {
     this.threads = threads;
   }
