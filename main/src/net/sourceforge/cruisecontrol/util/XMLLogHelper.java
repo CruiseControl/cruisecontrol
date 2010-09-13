@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.util;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -115,11 +116,10 @@ public class XMLLogHelper {
         return getCruiseControlInfoProperty("lastbuildsuccessful").equals("true");
     }
 
-    /**
-     * @TODO This method is dubious at best and needs to be reviewed. JTF & PJ
-     *  @return true if the build was necessary
-     */
+    /** @return true if the build was necessary */
     public boolean isBuildNecessary() {
+        // @todo This method is dubious at best and needs to be reviewed. JTF & PJ
+        
         if (log.getChild("build") != null && log.getChild("build").getAttributeValue("error") != null) {
 
             return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary");
@@ -147,11 +147,11 @@ public class XMLLogHelper {
      *  Looks in modifications/changelist/ or modifications/modification/user depending on SouceControl implementation.
      *  @return <code>Set</code> of usernames that have modified code since the last build
      */
+    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
     public Set<String> getBuildParticipants() {
         final Set<String> results = new HashSet<String>();
-        final Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
-        while (modificationIterator.hasNext()) {
-            Element modification = (Element) modificationIterator.next();
+        final List<Element> mods = log.getChild("modifications").getChildren("modification");
+        for (final Element modification : mods) {
             Element emailElement = modification.getChild("email");
             if (emailElement == null) {
                 emailElement = modification.getChild("user");
@@ -191,11 +191,11 @@ public class XMLLogHelper {
         return findProperty(props, name);
     }
 
+    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
     public Set<Modification> getModifications() {
         final Set<Modification> results = new HashSet<Modification>();
-        final Iterator modificationIterator = log.getChild("modifications").getChildren("modification").iterator();
-        while (modificationIterator.hasNext()) {
-            final Element modification = (Element) modificationIterator.next();
+        final List<Element> mods = log.getChild("modifications").getChildren("modification");
+        for (final Element modification : mods) {
             final Modification mod = new Modification();
             mod.fromElement(modification);
             results.add(mod);

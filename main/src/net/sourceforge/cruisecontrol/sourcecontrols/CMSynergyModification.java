@@ -39,7 +39,6 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -57,6 +56,8 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
 public class CMSynergyModification extends Modification {
+
+    private static final long serialVersionUID = -2182546421385101702L;
 
     private static final Logger LOG = Logger.getLogger(CMSynergyModification.class);
 
@@ -299,12 +300,13 @@ public class CMSynergyModification extends Modification {
      * @see Modification#fromElement(Element)
      */
     @Override
+    @SuppressWarnings( "unchecked" ) // we know Element.getChildren() returns Elements
     public void fromElement(final Element modification) {
 
         type = modification.getAttributeValue(TAGNAME_TYPE);
 
         try {
-            String s = modification.getChildText(TAGNAME_DATE);
+            final String s = modification.getChildText(TAGNAME_DATE);
             if (s == null) {
                 XMLOutputter outputter = new XMLOutputter();
                 LOG.info("XML: " + outputter.outputString(modification));
@@ -321,24 +323,20 @@ public class CMSynergyModification extends Modification {
         emailAddress = modification.getChildText(TAGNAME_EMAIL);
 
         files.clear();
-        List modfiles = modification.getChildren(TAGNAME_OBJECT);
+        final List<Element> modfiles = modification.getChildren(TAGNAME_OBJECT);
         if (modfiles != null) {
-            Iterator it = modfiles.iterator();
-            while (it.hasNext()) {
-                Element modfileElement = (Element) it.next();
-                ModifiedObject modfile = new ModifiedObject();
+            for (final Element modfileElement : modfiles) {
+                final ModifiedObject modfile = new ModifiedObject();
                 modfile.fromElement(modfileElement);
                 files.add(modfile);
             }
         }
 
         changeRequests.clear();
-        List crs = modification.getChildren(TAGNAME_CHANGEREQUEST);
+        final List<Element> crs = modification.getChildren(TAGNAME_CHANGEREQUEST);
         if (crs != null) {
-            Iterator it = crs.iterator();
-            while (it.hasNext()) {
-                Element crElement = (Element) it.next();
-                ChangeRequest cr = new ChangeRequest();
+            for (final Element crElement : crs) {
+                final ChangeRequest cr = new ChangeRequest();
                 cr.fromElement(crElement);
                 changeRequests.add(cr);
             }
@@ -390,7 +388,7 @@ public class CMSynergyModification extends Modification {
         /**
          * @return element representing this ModifiedObject.
          *
-         * @see Modification.ModifiedFile#toElement()
+         * @see net.sourceforge.cruisecontrol.Modification.ModifiedFile#toElement()
          */
         @Override
         public Element toElement() {
@@ -433,7 +431,8 @@ public class CMSynergyModification extends Modification {
         /**
          * @param modification mod element used to poplulate field values.
          *
-         * NOT an override of {@link Modification#fromElement}, since base class is {@link Modification.ModifiedFile}.
+         * NOT an override of {@link Modification#fromElement},
+         * since base class is {@link net.sourceforge.cruisecontrol.Modification.ModifiedFile}.
          */
         public void fromElement(final Element modification) {
             name = modification.getChildText(TAGNAME_NAME);
@@ -453,6 +452,8 @@ public class CMSynergyModification extends Modification {
      * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
      */
     public final class ChangeRequest extends Modification {
+
+        private static final long serialVersionUID = -3104550188816277543L;
 
         public String href = null;
         public String number = "";
