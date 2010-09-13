@@ -50,6 +50,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 public class NavigationTag extends CruiseControlBodyTagSupport {
+
+    private static final long serialVersionUID = -8759903560888980228L;
+
     public static final String LINK_TEXT_ATTR = "linktext";
     public static final String URL_ATTR = "url";
     public static final String LOG_FILE_ATTR = "logfile";
@@ -63,17 +66,19 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     private int endPoint;
     private DateFormat dateFormat = null;
 
-    protected String getLinkText(BuildInfo info) {
-        String label = "";
+    protected String getLinkText(final BuildInfo info) {
+        final String label;
         if (info.getLabel() != null) {
             label = " (" + info.getLabel() + ")";
+        } else {
+            label = "";
         }
 
         return getDateFormat().format(info.getBuildDate()) + label;
     }
 
     public int doStartTag() throws JspException {
-        BuildInfo [] logFileNames = findLogFiles();
+        final BuildInfo[] logFileNames = findLogFiles();
         //sort links...
         Arrays.sort(logFileNames, new ReversedComparator());
         buildInfo = logFileNames;
@@ -87,7 +92,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
     }
 
     private BuildInfo[] findLogFiles() throws JspException {
-        File logDir = findLogDir();
+        final File logDir = findLogDir();
         return BuildInfo.loadFromDir(logDir).asArray();
     }
 
@@ -97,7 +102,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
 
     void setupLinkVariables() throws JspTagException {
         final BuildInfo info = buildInfo[count];
-        String logName = info.getLogName();
+        final String logName = info.getLogName();
         getPageContext().setAttribute(URL_ATTR, createUrl(LOG_PARAMETER, logName));
         getPageContext().setAttribute(LINK_TEXT_ATTR, getLinkText(info));
         getPageContext().setAttribute(LOG_FILE_ATTR, logName);
@@ -111,7 +116,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
             return EVAL_BODY_TAG;
         } else {
             try {
-                BodyContent out = getBodyContent();
+                final BodyContent out = getBodyContent();
                 out.writeOut(out.getEnclosingWriter());
             } catch (IOException e) {
                 err(e);
@@ -125,7 +130,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
         return startingBuildNumber;
     }
 
-    public void setStartingBuildNumber(int startingBuildNumber) {
+    public void setStartingBuildNumber(final int startingBuildNumber) {
         this.startingBuildNumber = startingBuildNumber;
     }
 
@@ -133,7 +138,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
         return finalBuildNumber;
     }
 
-    public void setFinalBuildNumber(int finalBuildNumber) {
+    public void setFinalBuildNumber(final int finalBuildNumber) {
         this.finalBuildNumber = finalBuildNumber;
     }
 
@@ -146,7 +151,7 @@ public class NavigationTag extends CruiseControlBodyTagSupport {
      *                         {@link SimpleDateFormat} is okay to use.
      * @see SimpleDateFormat
      */
-    public void setDateFormat(String dateFormatString) {
+    public void setDateFormat(final String dateFormatString) {
         dateFormat = new SimpleDateFormat(dateFormatString);
     }
 

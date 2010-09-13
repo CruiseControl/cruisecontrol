@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.taglib;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +51,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.ServletConfig;
@@ -74,6 +74,9 @@ import net.sourceforge.cruisecontrol.util.CCTagException;
  *  @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
 public class XSLTag extends CruiseControlTagSupport {
+
+    private static final long serialVersionUID = -948954553781627362L;
+
     private static final String XSLT_PARAMETER_PREFIX = "xslt.";
     private static final String SAXON_VERSION_WARNING =
             "http://saxon.sf.net/feature/version-warning";
@@ -86,17 +89,18 @@ public class XSLTag extends CruiseControlTagSupport {
 
 
     /**
-     *  Perform an xsl transform.  This body of this method is based upon the xalan sample code.
+     * Perform an xsl transform.  This body of this method is based upon the xalan sample code.
      *
-     *  @param xmlFile the xml file to be transformed
-     *  @param style resource containing the xsl stylesheet
-     *  @param out stream to output the results of the transformation
+     * @param xmlFile the xml file to be transformed
+     * @param style resource containing the xsl stylesheet
+     * @param out stream to output the results of the transformation
+     * @throws JspTagException if any error occurs
      */
-    protected void transform(LogFile xmlFile, URL style, OutputStream out) throws JspTagException {
-        InputStream in = null;
+    protected void transform(final LogFile xmlFile, final URL style, final OutputStream out) throws JspTagException {
 
         try {
-            Transformer transformer = newTransformer(style);
+            final Transformer transformer = newTransformer(style);
+            final InputStream in;
             try {
                 in = xmlFile.getInputStream();
             } catch (IOException ioex) {
@@ -104,7 +108,11 @@ public class XSLTag extends CruiseControlTagSupport {
                 throw new CCTagException("Cannot read logfile: "
                         + ioex.getMessage(), ioex);
             }
-            transformer.transform(new StreamSource(in), new StreamResult(out));
+            try {
+                transformer.transform(new StreamSource(in), new StreamResult(out));
+            } finally {
+                closeQuietly(in);
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             String message = "Error transforming '" + xmlFile.getName()
                     + "'. You might be experiencing XML parser issues."
@@ -116,25 +124,22 @@ public class XSLTag extends CruiseControlTagSupport {
             err(e);
             throw new CCTagException("Error transforming '" + xmlFile.getName()
                     + "': " + e.getMessage(), e);
-        } finally {
-            closeQuietly(in);
         }
     }
 
     private Transformer newTransformer(final URL style) throws TransformerException {
-        TransformerFactory tFactory = TransformerFactory.newInstance();
+        final TransformerFactory tFactory = TransformerFactory.newInstance();
         try {
             tFactory.setAttribute(SAXON_VERSION_WARNING, Boolean.FALSE);
         } catch (IllegalArgumentException iaex) {
             debug("could not silence Saxon XSLT 2.0 warning, processor is probably not saxon: " + iaex.getMessage());
         }
-        Transformer transformer = tFactory.newTransformer(new StreamSource(style.toExternalForm()));
-        Map parameters = getXSLTParameters();
+        final Transformer transformer = tFactory.newTransformer(new StreamSource(style.toExternalForm()));
+        final Map<String, String> parameters = getXSLTParameters();
         if (!parameters.isEmpty()) {
             transformer.clearParameters();
-            for (Iterator i = parameters.entrySet().iterator(); i.hasNext(); ) {
-                Map.Entry entry = (Map.Entry) i.next();
-                transformer.setParameter((String) entry.getKey(), entry.getValue());
+            for (final Map.Entry<String, String> entry : parameters.entrySet()) {
+                transformer.setParameter(entry.getKey(), entry.getValue());
             }
         }
         return transformer;
@@ -144,35 +149,38 @@ public class XSLTag extends CruiseControlTagSupport {
      *  Determine whether the cache file is current or not.  The file will be current if it is newer than both the
      *  xml log file and the xsl file used to create it.
      *
-     *  @return true if the cache file is current.
+     * @param xmlFile xml log file
+     * @param cacheFile cached file
+     * @return true if the cache file is current.
      */
-    protected boolean isCacheFileCurrent(File xmlFile, File cacheFile) {
+    protected boolean isCacheFileCurrent(final File xmlFile, final File cacheFile) {
         if (!cacheFile.exists() || cacheFile.length() == 0) {
             return false;
         }
-        boolean isCurrent = false;
-        long xmlLastModified = xmlFile.lastModified();
-        long cacheLastModified = cacheFile.lastModified();
+
+        final long xmlLastModified = xmlFile.lastModified();
+        final long cacheLastModified = cacheFile.lastModified();
         try {
-            URL xslUrl = getPageContext().getServletContext().getResource(xslFileName);
-            URLConnection con = xslUrl.openConnection();
-            long xslLastModified = con.getLastModified();
-            isCurrent = (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
+            final URL xslUrl = getPageContext().getServletContext().getResource(xslFileName);
+            final URLConnection con = xslUrl.openConnection();
+            final long xslLastModified = con.getLastModified();
+            return (cacheLastModified > xmlLastModified) && (cacheLastModified > xslLastModified);
         } catch (Exception e) {
             err("Failed to retrieve lastModified of xsl file " + xslFileName);
+            return false;
         }
-        return isCurrent;
     }
 
     /**
-     *  Serves the cached copy rather than re-performing the xsl transform for every request.
+     * Serves the cached copy rather than re-performing the xsl transform for every request.
      *
-     *  @param cacheFile The filename of the cached copy of the transform.
-     *  @param out The writer to write to
+     * @param cacheFile The filename of the cached copy of the transform.
+     * @param out The writer to write to
+     * @throws JspTagException if an error occurs.
      */
-    protected void serveCachedCopy(File cacheFile, Writer out) throws JspTagException {
+    protected void serveCachedCopy(final File cacheFile, final Writer out) throws JspTagException {
         try {
-            InputStream input = new FileInputStream(cacheFile);
+            final InputStream input = new FileInputStream(cacheFile);
             copy(input, out);
         } catch (IOException e) {
             err(e);
@@ -181,14 +189,13 @@ public class XSLTag extends CruiseControlTagSupport {
         }
     }
 
-    private void copy(InputStream input, Writer out) throws IOException {
-        BufferedReader in;
-        in = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+    private void copy(final InputStream input, final Writer out) throws IOException {
+        final BufferedReader in = new BufferedReader(new InputStreamReader(input, "UTF-8"));
 
         try {
-            char[] cbuf = new char[8192];
+            final char[] cbuf = new char[8192];
             while (true) {
-                int charsRead = in.read(cbuf);
+                final int charsRead = in.read(cbuf);
                 if (charsRead == -1) {
                     break;
                 }
@@ -206,36 +213,41 @@ public class XSLTag extends CruiseControlTagSupport {
      *  @param xmlFile The log file used as input to the transform
      *  @return The filename for the cached file
      */
-    protected String getCachedCopyFileName(File xmlFile) {
-        String xmlFileName = xmlFile.getName().substring(0, xmlFile.getName().lastIndexOf("."));
+    protected String getCachedCopyFileName(final File xmlFile) {
+        final String xmlFileName = xmlFile.getName().substring(0, xmlFile.getName().lastIndexOf("."));
 
         // The use of '/' is correct, xslFileName is a resource URL so it will
         // always start with a slash and only always use normal slashes
-        int slashIndex = xslFileName.lastIndexOf("/");
-        String styleSheetName = xslFileName.substring(slashIndex + 1, xslFileName.lastIndexOf("."));
+        final int slashIndex = xslFileName.lastIndexOf("/");
+        final String styleSheetName = xslFileName.substring(slashIndex + 1, xslFileName.lastIndexOf("."));
         return xmlFileName + "-" + styleSheetName + ".html";
     }
 
-    Map getXSLTParameters() {
-        Map xsltParameters = new HashMap();
-        ServletConfig config = pageContext.getServletConfig();
-        Enumeration names = config.getInitParameterNames();
-        while (names.hasMoreElements()) {
-            String parameterName = (String) names.nextElement();
+    // we know ServletConfig.getInitParameterNames() and ServletContext.getInitParameterNames() 
+    // both return Enumeration<String>
+    @SuppressWarnings("unchecked")
+    Map<String, String> getXSLTParameters() {
+        final Map<String, String> xsltParameters = new HashMap<String, String>();
+
+        final ServletConfig config = pageContext.getServletConfig();
+        final Enumeration<String> configNames = config.getInitParameterNames();
+        while (configNames.hasMoreElements()) {
+            final String parameterName = configNames.nextElement();
             if (parameterName.startsWith(XSLT_PARAMETER_PREFIX)) {
-                String value = config.getInitParameter(parameterName);
-                String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
+                final String value = config.getInitParameter(parameterName);
+                final String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
                 info("using XSLT parameter: " + name + "=" + value);
                 xsltParameters.put(name, value);
             }
         }
-        ServletContext context = config.getServletContext();
-        names = context.getInitParameterNames();
-        while (names.hasMoreElements()) {
-            String parameterName = (String) names.nextElement();
+
+        final ServletContext context = config.getServletContext();
+        final Enumeration<String> contextNames = context.getInitParameterNames();
+        while (contextNames.hasMoreElements()) {
+            final String parameterName = contextNames.nextElement();
             if (parameterName.startsWith(XSLT_PARAMETER_PREFIX)) {
-                String value = context.getInitParameter(parameterName);
-                String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
+                final String value = context.getInitParameter(parameterName);
+                final String name = parameterName.substring(XSLT_PARAMETER_PREFIX.length());
                 info("using XSLT parameter: " + name + "=" + value);
                 xsltParameters.put(name, value);
             }
@@ -250,7 +262,7 @@ public class XSLTag extends CruiseControlTagSupport {
      *
      *  @param xslFile The path to the xslFile.
      */
-    public void setXslFile(String xslFile) {
+    public void setXslFile(final String xslFile) {
         xslFileName = xslFile;
     }
 
@@ -259,10 +271,11 @@ public class XSLTag extends CruiseControlTagSupport {
      * The content must be prepared if a transformation is required.
      *
      * @return the file to serve
+     * @throws JspException if an error occurs
      */
     File prepareContent() throws JspException {
-        LogFile xmlFile = findLogFile();
-        File cacheFile = findCacheFile(xmlFile);
+        final LogFile xmlFile = findLogFile();
+        final File cacheFile = findCacheFile(xmlFile);
         if (!isCacheFileCurrent(xmlFile.getFile(), cacheFile)) {
             info("Updating cached copy: " + cacheFile.getAbsolutePath());
             updateCacheFile(xmlFile, cacheFile);
@@ -272,11 +285,18 @@ public class XSLTag extends CruiseControlTagSupport {
         return cacheFile;
     }
 
-    protected void updateCacheFile(LogFile xmlFile, File cacheFile) throws JspTagException {
-        OutputStream out = null;
+    protected void updateCacheFile(final LogFile xmlFile, final File cacheFile) throws JspTagException {
+        final OutputStream out;
         try {
             out = new FileOutputStream(cacheFile);
-            URL style = getPageContext().getServletContext().getResource(xslFileName);
+        } catch (FileNotFoundException e) {
+            err(e);
+            throw new CCTagException("Error saving a cached transformation '"
+                    + cacheFile.getName() + "': " + e.getMessage(), e);
+        }
+
+        try {
+            final URL style = getPageContext().getServletContext().getResource(xslFileName);
             transform(xmlFile, style, out);
         } catch (IOException e) {
             err(e);
@@ -287,25 +307,24 @@ public class XSLTag extends CruiseControlTagSupport {
         }
     }
 
-    private File findCacheFile(LogFile xmlFile) {
-        String cacheRoot = getContextParam("cacheRoot");
-        File cacheDir = cacheRoot == null
+    private File findCacheFile(final LogFile xmlFile) {
+        final String cacheRoot = getContextParam("cacheRoot");
+        final File cacheDir = cacheRoot == null
             ? new File(xmlFile.getLogDirectory(), CACHE_DIR)
             : new File(cacheRoot + File.separator + getProject());
         if (!cacheDir.exists()) {
             cacheDir.mkdir();
         }
-        File cacheFile = new File(cacheDir, getCachedCopyFileName(xmlFile.getFile()));
-        return cacheFile;
+        return new File(cacheDir, getCachedCopyFileName(xmlFile.getFile()));
     }
 
     public int doEndTag() throws JspException {
-        File cachedFile = prepareContent();
+        final File cachedFile = prepareContent();
         serveCachedCopy(cachedFile, getPageContext().getOut());
         return EVAL_PAGE;
     }
 
-    private void closeQuietly(InputStream in) {
+    private void closeQuietly(final InputStream in) {
         if (in != null) {
             try {
                 in.close();
@@ -314,7 +333,7 @@ public class XSLTag extends CruiseControlTagSupport {
             }
         }
     }
-    private void closeQuietly(Reader in) {
+    private void closeQuietly(final Reader in) {
         if (in != null) {
             try {
                 in.close();
@@ -323,7 +342,7 @@ public class XSLTag extends CruiseControlTagSupport {
             }
         }
     }
-    private void closeQuietly(OutputStream out) {
+    private void closeQuietly(final OutputStream out) {
         if (out != null) {
             try {
                 out.close();

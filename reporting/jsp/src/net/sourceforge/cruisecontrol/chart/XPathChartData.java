@@ -64,7 +64,9 @@ import org.jfree.data.time.TimeSeriesCollection;
  */
 public class XPathChartData extends AbstractCruiseControlChartData implements ChartPostProcessor {
 
-    private List xpaths = new LinkedList();
+    private static final long serialVersionUID = 8456361615017707874L;
+
+    private final List<XPathData> xpaths = new LinkedList<XPathData>();
 
     /**
      * Creates a new instance of XPathChartData
@@ -72,31 +74,29 @@ public class XPathChartData extends AbstractCruiseControlChartData implements Ch
     public XPathChartData() {
     }
 
-    public void add(String name, String expression) throws JDOMException {
+    public void add(final String name, final String expression) throws JDOMException {
         xpaths.add(new XPathData(name, expression));
     }
 
-    public Object produceDataset(Map params) throws DatasetProduceException {
-        BuildInfoSummary summary = getBuildInfoSummary(params);
-        TimeSeriesCollection dataset = new TimeSeriesCollection();
-        Map timeSeries = new LinkedHashMap(xpaths.size());
-        for (Iterator i = xpaths.iterator(); i.hasNext(); ) {
-            XPathData data = (XPathData) i.next();
-            TimeSeries serie = new TimeSeries(data.getName(), Minute.class);
+    public Object produceDataset(final Map params) throws DatasetProduceException {
+        final BuildInfoSummary summary = getBuildInfoSummary(params);
+        final TimeSeriesCollection dataset = new TimeSeriesCollection();
+        final Map<XPathData, TimeSeries> timeSeries = new LinkedHashMap<XPathData, TimeSeries>(xpaths.size());
+        for (final XPathData data : xpaths) {
+            final TimeSeries serie = new TimeSeries(data.getName(), Minute.class);
             timeSeries.put(data, serie);
             dataset.addSeries(serie);
         }
-        for (Iterator iter = summary.iterator(); iter.hasNext();) {
-            BuildInfo buildInfo = (BuildInfo) iter.next();
-            Date buildTime = buildInfo.getBuildDate();
-            Minute timePeriod = new Minute(buildTime);
+        for (final Iterator<BuildInfo> iter = summary.iterator(); iter.hasNext();) {
+            final BuildInfo buildInfo = iter.next();
+            final Date buildTime = buildInfo.getBuildDate();
+            final Minute timePeriod = new Minute(buildTime);
             try {
-                Document log = buildInfo.getLogFile().asDocument();
-                for (Iterator i = timeSeries.entrySet().iterator(); i.hasNext(); ) {
-                    Map.Entry pair = (Map.Entry) i.next();
-                    TimeSeries serie = (TimeSeries) pair.getValue();
-                    Number result = ((XPathData) pair.getKey()).evaluate(log);
-                    serie.addOrUpdate(timePeriod, result);
+                final Document log = buildInfo.getLogFile().asDocument();
+                for (final Map.Entry<XPathData, TimeSeries> pair : timeSeries.entrySet()) {
+                    final TimeSeries series = pair.getValue();
+                    final Number result = pair.getKey().evaluate(log);
+                    series.addOrUpdate(timePeriod, result);
                 }
             } catch (JDOMException jex) {
                 throw new DatasetProduceException(jex.getMessage());
@@ -114,27 +114,27 @@ public class XPathChartData extends AbstractCruiseControlChartData implements Ch
     /**
      * @see ChartPostProcessor#processChart(Object, Map)
      */
-    public void processChart(Object chartObject, Map params) {
-        JFreeChart chart = (JFreeChart) chartObject;
-        XYPlot plot = chart.getXYPlot();
+    public void processChart(final Object chartObject, final Map params) {
+        final JFreeChart chart = (JFreeChart) chartObject;
+        final XYPlot plot = chart.getXYPlot();
         configurePlotRendererForShapesOnly(plot);
         setXAxisFormat(plot);
         //setYAxisFormat(plot);
     }
 
     /**
-     * @param plot
+     * @param plot XYPlot
      */
-    private void setXAxisFormat(XYPlot plot) {
-        DateAxis xAxis = (DateAxis) plot.getHorizontalValueAxis();
+    private void setXAxisFormat(final XYPlot plot) {
+        final DateAxis xAxis = (DateAxis) plot.getHorizontalValueAxis();
         xAxis.setDateFormatOverride(new SimpleDateFormat("dd/MM"));
     }
 
     /**
-     * @param plot
+     * @param plot XYPlot
      */
-    private void configurePlotRendererForShapesOnly(XYPlot plot) {
-        StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES);
+    private void configurePlotRendererForShapesOnly(final XYPlot plot) {
+        final StandardXYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.LINES);
         renderer.setDefaultShapeFilled(true);
         plot.setRenderer(renderer);
     }

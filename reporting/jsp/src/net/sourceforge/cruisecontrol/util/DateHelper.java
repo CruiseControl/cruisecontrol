@@ -63,10 +63,10 @@ public final class DateHelper {
      * @param locale    the locale.
      * @return  the date format.
      */
-    public static SimpleDateFormat createDateFormat(Locale locale) {
-        SimpleDateFormat standardFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale);
-        String standardPattern = standardFormat.toPattern();
-        char firstLetterInPattern = standardPattern.charAt(0);
+    public static SimpleDateFormat createDateFormat(final Locale locale) {
+        final SimpleDateFormat standardFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale);
+        final String standardPattern = standardFormat.toPattern();
+        final char firstLetterInPattern = standardPattern.charAt(0);
         switch (firstLetterInPattern) {
             case MONTH:
                 return MONTH_FORMAT;

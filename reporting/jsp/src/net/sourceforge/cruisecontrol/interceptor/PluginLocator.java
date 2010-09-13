@@ -56,35 +56,36 @@ import org.jdom.JDOMException;
  * Understands how to find plugins.
  */
 public class PluginLocator {
-    private Configuration configuration;
+    private final Configuration configuration;
 
-    public PluginLocator(Configuration configuration) {
+    public PluginLocator(final Configuration configuration) {
         this.configuration = configuration;
     }
 
-    public PluginDetail[] getAvailablePlugins(String type) throws AttributeNotFoundException,
+    public PluginDetail[] getAvailablePlugins(final String type) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException {
         return getAvailablePlugins(PluginType.find(type));
     }
 
-    public PluginDetail[] getAvailablePlugins(PluginType type) throws ReflectionException, IOException,
+    public PluginDetail[] getAvailablePlugins(final PluginType type) throws ReflectionException, IOException,
             InstanceNotFoundException, MBeanException, AttributeNotFoundException {
-        PluginDetail[] availablePlugins = configuration.getPluginDetails();
-        Collection desiredPlugins = new LinkedList();
-        for (int i = 0; i < availablePlugins.length; i++) {
-            PluginDetail nextPlugin = availablePlugins[i];
 
+        final PluginDetail[] availablePlugins = configuration.getPluginDetails();
+        final Collection<PluginDetail> desiredPlugins = new LinkedList<PluginDetail>();
+        for (final PluginDetail nextPlugin : availablePlugins) {
             if (nextPlugin.getType() == type) {
                 desiredPlugins.add(nextPlugin);
             }
         }
 
-        return (PluginDetail[]) desiredPlugins.toArray(new PluginDetail[desiredPlugins.size()]);
+        return desiredPlugins.toArray(new PluginDetail[desiredPlugins.size()]);
     }
 
-    public PluginDetail[] getConfiguredPlugins(String project, String type) throws AttributeNotFoundException,
+    public PluginDetail[] getConfiguredPlugins(final String project, final String type)
+            throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException, CruiseControlException,
             JDOMException {
+
         if ("listener".equals(type)) {
             return configuration.getConfiguredListeners(project);
         } else if ("bootstrapper".equals(type)) {
@@ -102,12 +103,13 @@ public class PluginLocator {
         }
     }
 
-    public PluginDetail getPluginDetail(String name, String type) throws AttributeNotFoundException,
+    public PluginDetail getPluginDetail(final String name, final String type) throws AttributeNotFoundException,
             InstanceNotFoundException, MBeanException, ReflectionException, IOException {
-        PluginDetail[] plugins = getAvailablePlugins(type);
-        for (int i = 0; i < plugins.length; i++) {
-            if (plugins[i].getName().equals(name)) {
-                return plugins[i];
+
+        final PluginDetail[] plugins = getAvailablePlugins(type);
+        for (PluginDetail plugin : plugins) {
+            if (plugin.getName().equals(name)) {
+                return plugin;
             }
         }
 

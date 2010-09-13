@@ -52,34 +52,39 @@ import com.opensymphony.xwork.interceptor.AroundInterceptor;
  * Understands how to load the configuration for ConfigurationAware actions.
  */
 public class ConfigurationInterceptor extends AroundInterceptor {
-    protected void before(ActionInvocation invocation) throws Exception {
-        Action action = invocation.getAction();
 
-        Map parameters = invocation.getInvocationContext().getParameters();
+    // it appears ActionInvocation.getInvocationContext().getSession() returns Map<String, Object>
+    @SuppressWarnings("unchecked")
+    protected void before(final ActionInvocation invocation) throws Exception {
+        final Action action = invocation.getAction();
+
+        final Map parameters = invocation.getInvocationContext().getParameters();
         if (parameters.get("project") != null) {
-            Map session = invocation.getInvocationContext().getSession();
+            final Map<String, Object> session = invocation.getInvocationContext().getSession();
             session.put("project", ((String[]) parameters.get("project"))[0]);
         }
 
-        Configuration configuration = getConfiguration(invocation);
+        final Configuration configuration = getConfiguration(invocation);
 
         if (action instanceof ConfigurationAware) {
             ((ConfigurationAware) action).setConfiguration(configuration);
         }
     }
 
-    protected void after(ActionInvocation dispatcher, String result) throws Exception {
+    protected void after(final ActionInvocation dispatcher, final String result) throws Exception {
     }
 
     private Configuration createConfiguration() throws IOException, MalformedObjectNameException {
-        int rmiPort = Integer.parseInt(System.getProperty("cruisecontrol.rmiport"));
-        Configuration configuration = new Configuration(getJMXServer(), rmiPort);
-        return configuration;
+        final int rmiPort = Integer.parseInt(System.getProperty("cruisecontrol.rmiport"));
+        return new Configuration(getJMXServer(), rmiPort);
     }
 
-    private Configuration getConfiguration(ActionInvocation invocation)
+    // it appears ActionInvocation.getInvocationContext().getSession() returns Map<String, Object>
+    @SuppressWarnings("unchecked")
+    private Configuration getConfiguration(final ActionInvocation invocation)
             throws IOException, MalformedObjectNameException {
-        Map session = invocation.getInvocationContext().getSession();
+
+        final Map<String, Object> session = invocation.getInvocationContext().getSession();
         Configuration configuration = (Configuration) session.get("cc-configuration");
 
         if (configuration == null) {

@@ -60,9 +60,11 @@ import org.apache.commons.logging.LogFactory;
  * @author <a href="mailto:jeffjensen@upstairstechnology.com">Jeff Jensen </a>
  */
 public class CruiseControlTagSupport extends TagSupport {
+    private static final long serialVersionUID = 8248280337148037681L;
+
     protected static final String LOG_PARAMETER = "log";
 
-    public static Log getLog(Class clazz) {
+    public static Log getLog(final Class clazz) {
         return (LogFactory.getLog(clazz));
     }
 
@@ -74,31 +76,31 @@ public class CruiseControlTagSupport extends TagSupport {
 
     private String projectName = null;
 
-    protected void debug(String message) {
+    protected void debug(final String message) {
         getLog(this.getClass()).debug(message);
     }
-    protected void debug(String message, Throwable throwable) {
+    protected void debug(final String message, final Throwable throwable) {
         getLog(this.getClass()).debug(message, throwable);
     }
 
-    protected void info(String message) {
+    protected void info(final String message) {
         getLog(this.getClass()).info(message);
     }
 
-    protected void err(String message) {
+    protected void err(final String message) {
         getLog(this.getClass()).error(message);
     }
 
-    protected void err(Throwable exception) {
+    protected void err(final Throwable exception) {
         getLog(this.getClass()).error(exception);
     }
 
-    protected void err(String message, Throwable cause) {
+    protected void err(final String message, Throwable cause) {
         getLog(this.getClass()).error(message, cause);
     }
 
     protected String getBaseLogDir() throws JspException {
-        String logDirName = getContextParam("logDir");
+        final String logDirName = getContextParam("logDir");
         if (logDirName == null) {
             throw new JspException("You need to specify a log directory as a context param");
         }
@@ -106,8 +108,8 @@ public class CruiseControlTagSupport extends TagSupport {
     }
 
     protected File findLogDir() throws JspException {
-        String logDirName = getBaseLogDir() + getProject();
-        File logDir = new File(logDirName);
+        final String logDirName = getBaseLogDir() + getProject();
+        final File logDir = new File(logDirName);
         if (!logDir.isDirectory()) {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
@@ -123,12 +125,12 @@ public class CruiseControlTagSupport extends TagSupport {
      * @throws JspException if logDir either does not exist, or is not a directory
      */
     protected LogFile findLogFile() throws JspException {
-        String logFile = getPageContext().getRequest().getParameter(LOG_PARAMETER);
+        final String logFile = getPageContext().getRequest().getParameter(LOG_PARAMETER);
         return getXMLFile(findLogDir(), logFile);
     }
 
-    LogFile getXMLFile(File logDir, String logName) {
-        LogFile logFile;
+    LogFile getXMLFile(final File logDir, final String logName) {
+        final LogFile logFile;
         if (logName == null || logName.trim().equals("")) {
             logFile = LogFile.getLatestLogFile(logDir);
             info("Using latest log file: " + logFile.getFile().getAbsolutePath());
@@ -140,12 +142,12 @@ public class CruiseControlTagSupport extends TagSupport {
     }
 
     protected String[] findProjects() throws JspException {
-        String logDirName = getBaseLogDir();
-        File logDir = new File(logDirName);
+        final String logDirName = getBaseLogDir();
+        final File logDir = new File(logDirName);
         if (!logDir.isDirectory()) {
             throw new JspException(logDirName + " either does not exist, or is not a directory");
         }
-        String[] projects = logDir.list(DIR_FILTER);
+        final String[] projects = logDir.list(DIR_FILTER);
         Arrays.sort(projects);
         return projects;
     }
@@ -158,7 +160,7 @@ public class CruiseControlTagSupport extends TagSupport {
         return value;
     }
 
-    public void setProject(String projectName) {
+    public void setProject(final String projectName) {
         this.projectName = projectName;
     }
 
@@ -172,7 +174,7 @@ public class CruiseControlTagSupport extends TagSupport {
             info("in singleProjectMode");
             return "";
         }
-        String pathInfo = getRequest().getPathInfo();
+        final String pathInfo = getRequest().getPathInfo();
         if (pathInfo == null) {
             info("pathInfo is null");
             return "";
@@ -186,11 +188,11 @@ public class CruiseControlTagSupport extends TagSupport {
      * @return true if this is a single project config.
      */
     protected boolean isSingleProject() {
-        String singleProjectMode = getContextParam("singleProject");
-        return Boolean.valueOf(singleProjectMode).booleanValue();
+        final String singleProjectMode = getContextParam("singleProject");
+        return Boolean.valueOf(singleProjectMode);
     }
 
-    public void setPageContext(PageContext pageContext) {
+    public void setPageContext(final PageContext pageContext) {
         this.pageContext = pageContext;
     }
 
@@ -213,20 +215,20 @@ public class CruiseControlTagSupport extends TagSupport {
      * @param paramValue the value of the parameter
      * @return a link to the app, including the supplied parameter, but preserving all other parameters.
      */
-    protected String createUrl(String paramName, String paramValue) {
-        StringBuffer url = new StringBuffer(getServletPath());
+    @SuppressWarnings("unchecked") // we know ServletRequest.getParameterNames() returns Enumeration<String>
+    protected String createUrl(final String paramName, final String paramValue) {
+        final StringBuffer url = new StringBuffer(getServletPath());
         url.append(getProject());
-        StringBuffer queryString = new StringBuffer("?");
+        final StringBuffer queryString = new StringBuffer("?");
         final ServletRequest request = getPageContext().getRequest();
-        Enumeration requestParams = request.getParameterNames();
+        final Enumeration<String> requestParams = request.getParameterNames();
         while (requestParams.hasMoreElements()) {
-            String requestParamName = (String) requestParams.nextElement();
-            if (!requestParamName.equals(paramName)) {
-                requestParamName = removeCrossSiteChars(requestParamName);
-                String[] requestParamValues = request.getParameterValues(requestParamName);
-                for (int i = 0; i < requestParamValues.length; i++) {
-                    String requestParamValue = requestParamValues[i];
-                    requestParamValue = removeCrossSiteChars(requestParamValue);
+            final String requestParamNameRaw = requestParams.nextElement();
+            if (!requestParamNameRaw.equals(paramName)) {
+                final String requestParamName = removeCrossSiteChars(requestParamNameRaw);
+                final String[] requestParamValues = request.getParameterValues(requestParamName);
+                for (final String requestParamValueRaw : requestParamValues) {
+                    final String requestParamValue = removeCrossSiteChars(requestParamValueRaw);
                     appendParam(queryString, requestParamName, requestParamValue);
                 }
             }
@@ -239,7 +241,7 @@ public class CruiseControlTagSupport extends TagSupport {
         return url.toString();
     }
     
-    public String removeCrossSiteChars(String fromValue) {
+    public String removeCrossSiteChars(final String fromValue) {
         final StringBuffer buf = new StringBuffer(fromValue.length());
         for (int i = 0; i < fromValue.length(); i++) {
             final char c = fromValue.charAt(i);
@@ -261,14 +263,14 @@ public class CruiseControlTagSupport extends TagSupport {
     
     
 
-    private void appendParam(StringBuffer queryString, String name, final String value) {
+    private void appendParam(final StringBuffer queryString, final String name, final String value) {
         queryString.append(name);
         queryString.append("=");
         queryString.append(value);
         queryString.append("&");
     }
 
-    protected String createUrl(String paramToExclude) {
+    protected String createUrl(final String paramToExclude) {
         return createUrl(paramToExclude, null);
     }
 

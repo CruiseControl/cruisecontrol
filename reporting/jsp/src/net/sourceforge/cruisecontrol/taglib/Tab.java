@@ -36,12 +36,16 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.taglib;
 
+import java.io.Serializable;
+
 /**
  *
  * @author <a href="mailto:robertdw@users.sourceforge.net">Robert Watkins</a>
  * @author <a href="mailto:hak@2mba.dk">Hack Kampbjorn</a>
  */
-public class Tab {
+public class Tab implements Serializable {
+    private static final long serialVersionUID = -8682721992247670302L;
+
     private final String name;
     private String url;
     private final String label;
