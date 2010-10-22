@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -45,6 +46,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest;
 import net.sourceforge.cruisecontrol.Progress;
 
+import org.jdom.CDATA;
 import org.jdom.Element;
 
 /**
@@ -86,7 +88,10 @@ public class CompositeBuilderTest extends TestCase {
 
     public void testValidateCalledOncePerChildBuilder() throws Exception {
         final Builder mockBuilder = new MockBuilder() {
+            private static final long serialVersionUID = 8004066753999645164L;
+
             private int validateCallCount;
+
             public void validate() {
                 assertFalse("builder.validate() has been called multiple times", validateCallCount > 0);
                 validateCallCount++;
@@ -126,6 +131,40 @@ public class CompositeBuilderTest extends TestCase {
             fail();
         } catch (CruiseControlException expected) {
         }
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    public void testInsertBuildLogHeader() throws Exception {
+
+        final String buildElementName = "build";
+        final Element buildResult = new Element(buildElementName);
+        assertEquals(0, buildResult.getContent().size());
+
+        final String buildLogMsg = "buildLogMsg; child";
+        final String attribName = "attribName";
+        final String attribSubName = "attribSubName";
+
+        // @todo Rearrange these elements (even nesting childLog elements?), might display this info in reporting apps
+
+        CompositeBuilder.insertBuildLogHeader(buildResult, buildLogMsg, 0, attribName, attribSubName);
+
+        assertEquals(buildElementName, buildResult.getName());
+
+        final List<Element> content = (List<Element>) buildResult.getContent();
+        int idx = 0;
+        final Element elmTarget = content.get(idx++);
+        assertEquals("[Element: <target/>]", elmTarget.toString());
+        assertEquals(attribName, elmTarget.getAttribute("name").getValue());
+        assertNotNull(elmTarget.getAttribute("time").getValue());
+        final Element elmTask = (Element) elmTarget.getContent(0);
+        assertEquals(attribSubName, elmTask.getAttribute("name").getValue());
+
+        final Element elmMessage = content.get(idx);
+        assertEquals("[Element: <message/>]", elmMessage.toString());
+        final CDATA elmCData = (CDATA) elmMessage.getContent(0);
+        assertEquals(buildLogMsg + " build attributes: ", elmCData.getValue());
+
+        assertEquals(2, content.size());
     }
 
     public void testBuildAllBuildersWhenNoErrorOccured() throws Exception {
