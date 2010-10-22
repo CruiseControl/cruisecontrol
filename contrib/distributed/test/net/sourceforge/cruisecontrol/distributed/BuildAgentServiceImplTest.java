@@ -2,6 +2,7 @@ package net.sourceforge.cruisecontrol.distributed;
 
 import junit.framework.TestCase;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.Map;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import java.io.IOException;
 
 import java.rmi.RemoteException;
 
+import org.jdom.CDATA;
 import org.jdom.Element;
 import org.apache.log4j.Logger;
 
@@ -294,6 +296,51 @@ public class BuildAgentServiceImplTest extends TestCase {
             BuildAgentServiceImpl.injectAntProgressLoggerLibIfNeeded(compositeBuilder);
         } finally {
             unhideAntProgressLoggerLib();
+        }
+    }
+
+    @SuppressWarnings(value = "unchecked")
+    public void testAgentBuildAddRemoteInfoToBuildResults() throws Exception {
+        final BuildAgentServiceImpl agentImpl = createTestAgentImpl();
+        agentImpl.setAgentPropertiesFilename(TEST_AGENT_PROPERTIES_FILE);
+
+        final Map<String, String> distributedAgentProps = new HashMap<String, String>();
+        final MockBuilder mockBuilder = createMockBuilder(false, REMOTE_RESULTS_EMPTY);
+        assertNull(mockBuilder.getTarget());
+
+        final Map<String, String> projectProperties = new HashMap<String, String>();
+        projectProperties.put(PropertiesHelper.PROJECT_NAME, TEST_PROJECT_SUCCESS);
+
+        final Element buildResult;
+        try {
+            buildResult = agentImpl.doBuild(
+                    mockBuilder, projectProperties, distributedAgentProps, null, REMOTE_RESULTS_EMPTY);
+
+            assertEquals("build", buildResult.getName());
+
+            final List<Element> content = (List<Element>) buildResult.getContent();
+            int idx = 0;
+            final Element elmTarget = content.get(idx++);
+            assertEquals("[Element: <target/>]", elmTarget.toString());
+            assertEquals("agent", elmTarget.getAttribute("name").getValue());
+            assertNotNull(elmTarget.getAttribute("time").getValue());
+            final Element elmTask = (Element) elmTarget.getContent(0);
+            assertEquals("agent-childbuilder", elmTask.getAttribute("name").getValue());
+
+            final Element elmMessage = content.get(idx);
+            assertEquals("[Element: <message/>]", elmMessage.toString());
+            final CDATA elmCData = (CDATA) elmMessage.getContent(0);
+            assertEquals(BuildAgentServiceImpl.LOGMSGPREFIX_PREFIX + agentImpl.getMachineName() + "; "
+                    + mockBuilder.getClass().getName() + "; agent build attributes: ",
+                    elmCData.getValue());
+
+            assertEquals(2, content.size());
+
+
+            clearDefaultSuccessResultDirs();
+            assertNull(mockBuilder.getTarget());
+        } finally {
+            agentImpl.clearOutputFiles();
         }
     }
 

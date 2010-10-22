@@ -130,6 +130,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     private final List<BuildAgent.AgentStatusListener> agentStatusListeners
             = new ArrayList<BuildAgent.AgentStatusListener>();
 
+    static final String LOGMSGPREFIX_PREFIX = "Agent Host: ";
     private final String logMsgPrefix;
     /**
      * Prepends Agent machine name to error message. This is especially
@@ -168,7 +169,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
     }
 
 
-    private final BuildAgent serviceContainer;
+    private final transient BuildAgent serviceContainer;
 
     /**
      * Constructor. 
@@ -188,7 +189,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
             System.err.println(message + " - " + e.getMessage());
             throw new RuntimeException(message, e);
         }
-        logMsgPrefix = "Agent Host: " + machineName + "; ";
+        logMsgPrefix = LOGMSGPREFIX_PREFIX + machineName + "; ";
     }
 
     /** @return the date this Build Agent started running (not when a specific build started). */
@@ -210,7 +211,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
         return agentPropertiesFilename;
     }
 
-    private DelayedAction lastDelayedAction;
+    private transient DelayedAction lastDelayedAction;
     DelayedAction getLastDelayedAction() { return lastDelayedAction; }
     private void setLastDelayedAction(DelayedAction lastDelayedAction) { this.lastDelayedAction = lastDelayedAction; }
 
@@ -425,6 +426,7 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 progressRemote.setValueRemote("running remote builder");
                 fireAgentStatusChanged(); // update UI
             }
+            final long startTime = System.currentTimeMillis();
             final Element buildResults;
             try {
                 if (overrideTarget == null) {
@@ -438,6 +440,10 @@ public class BuildAgentServiceImpl implements BuildAgentService {
                 System.err.println(message + " - " + e.getMessage());
                 throw new RemoteException(message, e);
             }
+            // add agent builder info to build log
+            CompositeBuilder.insertBuildLogHeader(buildResults,
+                    logMsgPrefix + nestedBuilder.getClass().getName() + "; agent",
+                    startTime, "agent", "agent-childbuilder");
 
             if (progressRemote != null) {
                 progressRemote.setValueRemote("preparing results");

@@ -1,5 +1,6 @@
 package net.sourceforge.cruisecontrol.distributed.core;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Date;
@@ -10,7 +11,7 @@ import java.util.Date;
  * Date: Jul 25, 2007
  * Time: 10:18:04 PM
  */
-public interface ProgressRemote extends Remote {
+public interface ProgressRemote extends Remote, Serializable {
 
     /**
      * @param value new progress value.

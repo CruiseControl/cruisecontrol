@@ -339,6 +339,7 @@ public class DistributedMasterBuilder extends Builder {
                 }
 
 
+                final long masterStartTime = System.currentTimeMillis();
                 try {
                     buildResults = agent.doBuild(nestedBuilder, projectProperties, distributedAgentProps,
                             progressRemote, remoteResults);

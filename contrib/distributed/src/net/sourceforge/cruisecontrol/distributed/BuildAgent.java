@@ -38,6 +38,7 @@
 package net.sourceforge.cruisecontrol.distributed;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.rmi.Remote;
@@ -634,7 +635,7 @@ public class BuildAgent implements DiscoveryListener,
         }
     }
 
-    static interface AgentStatusListener {
+    static interface AgentStatusListener extends Serializable {
         public void statusChanged(BuildAgentService buildAgentServiceImpl);
     }
 

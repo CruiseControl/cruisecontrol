@@ -4,6 +4,13 @@ Changes listed by release, then alphabetically.
 
 CruiseControl Release Notes - 2.8.5-dev
 
+contrib
+======================
+
+distributed
+----------------------
+* Add BuildAgent Host Name info into remote build results, similar to how CompositeBuilder inserts child builder info.
+
 
 CruiseControl Release Notes - 2.8.4
 
