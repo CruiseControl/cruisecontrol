@@ -24,10 +24,10 @@ public class CruiseControlControllerJMXAdaptorMBeanDescription extends MBeanDesc
         METHOD_DESCRIPTIONS.put("halt", "Shutdown this server.");
 
         METHOD_DESCRIPTIONS.put("getPluginInfo",
-                "The PluginInfo tree for the give project, or whole server if projectName parameter is null.");
+                "The PluginInfo tree for the given project, or whole server if projectName parameter is null.");
 
         METHOD_DESCRIPTIONS.put("getPluginHTML",
-                "The HTML plugin content for the give project, or whole server if projectName parameter is null.");
+                "The HTML plugin content for the given project, or whole server if projectName parameter is null.");
 
     }
 
