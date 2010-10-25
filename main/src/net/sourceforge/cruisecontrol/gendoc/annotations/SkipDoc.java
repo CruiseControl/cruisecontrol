@@ -42,9 +42,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Instructs GenDoc to ignore a particular method during processing. The method will not be used
- * for the purposes of model and document generation.
- * Applies to: Attribute setter or child add/create method.
+ * <p>Instructs GenDoc to ignore a particular method during processing. The method will not be used
+ * for the purposes of metadata and document generation.</p>
+ * 
+ * <p>Applies to: Attribute setter or child add/create method.</p>
+ * 
  * @author Seth Pollen (pollens@msoe.edu)
  */
 @Retention(RetentionPolicy.RUNTIME)

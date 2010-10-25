@@ -40,6 +40,7 @@ import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 
 import org.apache.log4j.Logger;
 
@@ -51,6 +52,9 @@ import org.apache.log4j.Logger;
  * @author J D Glanville
  */
 public class P4Bootstrapper implements Bootstrapper {
+
+    private static final long serialVersionUID = 273614195753810011L;
+
     private static final Logger LOG = Logger.getLogger(P4Bootstrapper.class);
     private String view;
     private String port;
@@ -93,6 +97,7 @@ public class P4Bootstrapper implements Bootstrapper {
         executeCommandLine(commandline);
     }
 
+    @SkipDoc
     public Commandline createCommandline() throws CruiseControlException {
         validate();
         Commandline cmd = new Commandline();

@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,17 +48,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Title;
+import net.sourceforge.cruisecontrol.util.IO;
 
 /**
  * Utility class for parsing PluginInfo objects reflexively.
@@ -106,6 +109,9 @@ public class PluginInfoParser {
     /** List of general errors occurring during parsing. Use a Set to prevent duplicate messages. */
     private final Set<String> parsingErrors = new LinkedHashSet<String>();
     
+    /** Validator for XML descriptions and notes. */
+    private final XMLValidator validator = new XMLValidator();
+    
     /**
      * Creates a new PluginInfoParser.
      * @param registry PluginRegistry to use for this parser.
@@ -125,7 +131,7 @@ public class PluginInfoParser {
         }
         
         rootPlugin = parsePlugin(rootClass, null);
-        rootPlugin.computeDepths();
+        rootPlugin.finishConstruction();
     }
     
     /**
@@ -228,7 +234,7 @@ public class PluginInfoParser {
         if (pluginInfo == null) {
             // We haven't done this class already, so we have to do it now. Associate this parser with
             // the plugin.
-            pluginInfo = new PluginInfo();
+            pluginInfo = new PluginInfo(pluginClass.getName());
             
             // Put the plugin info object into the cache now (before parsing it), in case it makes
             // a reference to itself in one of its children.
@@ -236,8 +242,13 @@ public class PluginInfoParser {
             
             // Populate the plugin info fields.
             pluginInfo.setName(pluginName);
-            pluginInfo.setDescription(computePluginDescription(pluginClass));
             pluginInfo.setTitle(computePluginTitle(pluginClass));
+            try {
+                pluginInfo.setDescription(computePluginDescription(pluginClass));
+            } catch (PluginInfoParsingException e) {
+                // Log the error. Leave description as null.
+                pluginInfo.addParsingError("Error - " + e.getMessage());
+            }
             
             // Parse attributes and children.
             parsePluginAttributes(pluginInfo, pluginClass);
@@ -257,23 +268,91 @@ public class PluginInfoParser {
         return name;
     }
     
-    private String computePluginDescription(Class< ? > pluginClass) {
-        Description annotation = pluginClass.getAnnotation(Description.class);
-        if (annotation == null) {
-            return null;
-        } else {
-            String description = annotation.value();
-            
+    private String computePluginDescription(Class< ? > pluginClass) throws PluginInfoParsingException {
+        String text = computeDescription(pluginClass);
+        
+        if (text != null) {
             // Make sure the description is properly surrounded with <p></p> tags.
-            if (!description.startsWith("<p>")) {
-                description = "<p>" + description;
+            if (!text.startsWith("<p>") && !text.endsWith("</p>")) {
+                text = "<p>" + text + "</p>";
             }
-            if (!description.endsWith("</p>")) {
-                description = description + "</p>";
-            }
-            
-            return description;
         }
+        
+        return text;
+    }
+    
+    /**
+     * Computes the description text from the annotations on a class or method.
+     * @param classOrMethod A Class or Method object to compute the description from.
+     * @return The description text, without any modification.
+     * @throws PluginInfoParsingException if error occurs during parsing.
+     */
+    private String computeDescription(Object classOrMethod) throws PluginInfoParsingException {
+        boolean isClass = classOrMethod instanceof Class;
+        
+        Class< ? > clazz;
+        Method method;
+        Description description;
+        DescriptionFile descriptionFile;
+        if (isClass) {
+            method = null;
+            clazz = (Class< ? >) classOrMethod;
+            description = clazz.getAnnotation(Description.class);
+            descriptionFile = clazz.getAnnotation(DescriptionFile.class);
+        } else {
+            method = (Method) classOrMethod;
+            clazz = method.getDeclaringClass(); // Keep a reference to the declaring class, so we can get its loader.
+            description = method.getAnnotation(Description.class);
+            descriptionFile = method.getAnnotation(DescriptionFile.class);
+        }
+        
+        if (description != null && descriptionFile != null) {
+            throw new PluginInfoParsingException(
+                    "Cannot have @Description and @DescriptionFile on the same element.");
+        }
+        
+        String text;
+        if (description == null) {
+            if (descriptionFile == null) {
+                text = null;
+                
+            } else { // Use the DescriptionFile annotation to load text from a file.
+                String path = descriptionFile.value();
+                if (path.length() == 0) {
+                    // Use the default path.
+                    path = isClass
+                        ? computeDefaultDescriptionFilePath(clazz)
+                        : computeDefaultDescriptionFilePath(method);
+                }
+                
+                // Load the description text file using the class loader for the
+                // plugin class.
+                InputStream stream = clazz.getResourceAsStream(path);
+                try {
+                    text = IO.readText(stream);
+                } catch (IOException e) {
+                    throw new PluginInfoParsingException(
+                            "Could not read from description file: " + path);
+                }
+            }
+        } else { // Load description text directly from the annotation.
+            text = description.value();
+        }
+        
+        if (text != null) {
+            validator.validateWellFormed(text, "description");
+        }
+        
+        return text;
+    }
+    
+    private String computeDefaultDescriptionFilePath(Class< ? > clazz) {
+        return clazz.getSimpleName() + ".html";
+    }
+    
+    private String computeDefaultDescriptionFilePath(Method method) {
+        return method.getDeclaringClass().getSimpleName()
+            + "." + method.getName() + ".html";
     }
     
     private String computePluginTitle(Class< ? > pluginClass) {
@@ -330,15 +409,10 @@ public class PluginInfoParser {
         pluginInfo.sortAttributes();
     }
     
-    private String computeMemberDescription(Method method) {
-        Description annotation = method.getAnnotation(Description.class);
-        if (annotation == null) {
-            return null;
-        } else {
-            // Don't wrap member declarations with <p> tags, since most members won't have
-            // multi-paragraph descriptions.
-            return annotation.value();
-        }
+    private String computeMemberDescription(Method method) throws PluginInfoParsingException {
+        // Don't wrap member declarations with <p> tags, since most members won't have
+        // multi-paragraph descriptions.
+        return computeDescription(method);
     }
     
     private String computeMemberTitle(Method method) {
@@ -378,10 +452,10 @@ public class PluginInfoParser {
     
     private void parseAttributeCardinality(AttributeInfo memberInfo, Method memberMethod)
             throws PluginInfoParsingException {
-        // Check for an Optional or Required tag.
-        boolean hasOptional =  null != memberMethod.getAnnotation(Optional.class);
-        boolean hasRequired =  null != memberMethod.getAnnotation(Required.class);
-        if (hasOptional && hasRequired) {
+        
+        Optional optional = memberMethod.getAnnotation(Optional.class);
+        Required required = memberMethod.getAnnotation(Required.class);
+        if ((optional != null) && (required != null)) {
             throw new PluginInfoParsingException(
                     "Cannot have @Required and @Optional annotations on the same attribute method");
         }
@@ -389,23 +463,30 @@ public class PluginInfoParser {
         // Multiplicity of attributes is not permitted. Thus, the maximum cardinality is always 1.
         memberInfo.setMaxCardinality(1);
         
+        // Now determine the minimum cardinality and cardinality note.
+        String note = null;
         Cardinality cardinality = memberMethod.getAnnotation(Cardinality.class);
         if (cardinality == null) {
-            if (hasRequired) {
+            if (required != null) {
                 // Make it required (1..1)
                 memberInfo.setMinCardinality(1);
+                note = required.value();
             } else {
-                // For attributes, multiplicity is not permitted, so default the cardinality
-                // to optional (0..1)
+                if (optional != null) {
+                    note = optional.value();
+                }
+                
+                // Default the cardinality to optional, whether or not an @Optional annotation
+                // is present.
                 memberInfo.setMinCardinality(0);
             }
         } else {
             // There is a Cardinality annotation. Error check for the other annotations.
-            if (hasOptional) {
+            if (optional != null) {
                 throw new PluginInfoParsingException(
                         "Cannot have @Cardinality and @Optional annotations on the same attribute method");
             }
-            if (hasRequired) {
+            if (required != null) {
                 throw new PluginInfoParsingException(
                         "Cannot have @Cardinality and @Required annotations on the same attribute method");
             }
@@ -423,7 +504,14 @@ public class PluginInfoParser {
             }
             
             memberInfo.setMinCardinality(min);
+            note = cardinality.note();
         }
+        
+        if (note != null) {
+            validator.validateWellFormed(note, "cardinality");
+        }
+        
+        memberInfo.setCardinalityNote(note);
     }
     
     /**
@@ -492,6 +580,14 @@ public class PluginInfoParser {
             
             memberInfo.setMinCardinality(cardinality.min());
             memberInfo.setMaxCardinality(cardinality.max());
+            
+            String note = cardinality.note();
+            
+            if (note != null) {
+                validator.validateWellFormed(note, "cardinality");
+            }
+            
+            memberInfo.setCardinalityNote(note);
         }
     }
     
@@ -525,6 +621,7 @@ public class PluginInfoParser {
             String manualName = null;
             ManualChildName annotation = childMethod.getAnnotation(ManualChildName.class);
             if (annotation != null) {
+                // Do not force the manual name to lower case.
                 manualName = annotation.value();
             }
             
@@ -562,7 +659,13 @@ public class PluginInfoParser {
             }
             
             // It's a createXXX method, so use the return type as the child class.
-            return childMethod.getReturnType();
+            Class< ? > returnType = childMethod.getReturnType();
+            if (returnType.equals(void.class)) {
+                throw new PluginInfoParsingException(
+                        "Child create method of plugin class must have a non-void return type");
+            }
+            
+            return returnType;
         }
     }
     

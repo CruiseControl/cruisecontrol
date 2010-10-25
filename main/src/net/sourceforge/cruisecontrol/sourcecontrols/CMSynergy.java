@@ -52,6 +52,7 @@ import java.util.Properties;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -67,6 +68,8 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class CMSynergy implements SourceControl {
+
+    private static final long serialVersionUID = -65675636345070572L;
 
     /**
      * A delimiter used for data values returned from a CM Synergy query
@@ -983,6 +986,7 @@ public class CMSynergy implements SourceControl {
      *            the default).
      * @return A configured <code>ManagedCommandline</code>
      */
+    @SkipDoc
     public static ManagedCommandline createCcmCommand(String ccmExe, String sessionName, File sessionFile) {
 
         // If no executable name was provided, use the default

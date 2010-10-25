@@ -42,9 +42,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specifies the required cardinality of an attribute or child of a plugin.
- * Applies to: Attribute setter or child add/create method.
+ * <p>Specifies the required cardinality of an attribute or child of a plugin. Also allows an
+ * optional, supplemental description to be supplied; this description can be used to
+ * qualify or justify the specified cardinality. Note that if no cardinality is specified
+ * (either using this annotation or {@link Required} or {@link Optional}), the cardinality is
+ * assumed to be 0..* for children and 0..1 for attributes.</p>
+ * 
+ * <p>Applies to: Attribute setter or child add/create method.</p>
+ * 
  * @author Seth Pollen (pollens@msoe.edu)
+ * @see Required
+ * @see Optional
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -58,5 +66,8 @@ public @interface Cardinality {
      * value must be greater than or equal to the min.
      */
     int max();
+    
+    /** @return An optional, supplemental note explaining this cardinality. */
+    String note() default "";
 
 }

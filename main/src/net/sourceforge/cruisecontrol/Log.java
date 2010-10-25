@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -295,6 +296,7 @@ public class Log implements Serializable {
         return logFileName.toString();
     }
 
+    @SkipDoc
     public void addContent(final Content newContent) {
         buildLog.addContent(newContent);
     }

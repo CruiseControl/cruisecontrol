@@ -43,7 +43,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -66,7 +66,6 @@ public class HtmlUtils {
     private final String releaseVersion;
 
     public HtmlUtils() {
-
         final String tmpVersion = readVerFromManifest();
         if (tmpVersion != null) {
             releaseVersion = tmpVersion;
@@ -75,13 +74,27 @@ public class HtmlUtils {
         }
     }
 
-    static String readVerFromBuildProps() {
-        // should only need this when running from source tree.
-        
-        File buildPropFile = new File("build.properties");
-        if (!buildPropFile.exists()) {
-            buildPropFile = new File("../../build.properties");
+    private static String readVerFromBuildProps() {
+        // Should only need this when running from source tree. Search upwards
+        // for build.properties.
+        String fileName = "build.properties";
+        File dir = new File(System.getProperty("user.dir"));
+        File buildPropFile;
+        while (true) {
+            buildPropFile = new File(dir, fileName);
+            if (buildPropFile.exists()) {
+                break;
+            } else {
+                // Move up one level in the directory structure and check again.
+                dir = dir.getParentFile();
+                if (dir == null) {
+                    // We have run out of places to search.
+                    LOG.debug("Build props not found.");
+                    return "UNKNOWN";
+                }
+            }
         }
+        
         final Properties buildProps = new Properties();
         try {
             // @todo Restore use of Reader after minimum JDK >= 1.6.
@@ -89,14 +102,16 @@ public class HtmlUtils {
             buildProps.load(new BufferedInputStream(new FileInputStream(buildPropFile)));
         } catch (FileNotFoundException e) {
             LOG.debug("Build props not found.", e);
+            return "UNKNOWN";
         } catch (IOException e) {
             LOG.debug("IOError reading build props.", e);
+            return "UNKNOWN";
         }
 
         return buildProps.getProperty("cc.version");
     }
 
-    static String readVerFromManifest() {
+    private static String readVerFromManifest() {
         // This should work when running from jars.
 
         final Package pkg = HtmlUtils.class.getPackage();
@@ -106,7 +121,7 @@ public class HtmlUtils {
         return null;
     }
 
-    public String getRelease() {
+    public String getReleaseVersion() {
         return releaseVersion;
     }
 
@@ -150,19 +165,17 @@ public class HtmlUtils {
             w.append("\">&lt;");
             w.append(nodeName);
             
-            HashSet<PluginInfo> children = checkChildren(node);
-            if (children == null) {
+            if (node.getChildren().isEmpty()) {
                 w.append("/");
             }
             w.append("&gt;</a>\n");
             
-            if (children != null) {
-                for (PluginInfo pi : children) {
-                    writePluginInfo(pi, node, w, depth + 1, indentationStr);
-                }
+            List<PluginInfo> childrenToPrint = getChildrenToPrint(node);
+            for (PluginInfo pi : childrenToPrint) {
+                writePluginInfo(pi, node, w, depth + 1, indentationStr);
             }
 
-            if (children != null) {
+            if (!childrenToPrint.isEmpty()) {
                 count++;
                 indent(w, depth, indentationStr);
                 w.append("&lt;").append("/").append(nodeName).append("&gt;\n");
@@ -171,26 +184,25 @@ public class HtmlUtils {
     }
     
     /**
-     * Returns a Set of all Nodes to be displayed, null if there are none.
+     * Returns a List of all Nodes to be displayed under a given node in the
+     * hierarchical TOC.
      * 
      * @param node The Node whose children are to be checked
-     * @return The Set containing all nodes to be displayed
+     * @return The List containing all nodes to be displayed. This may be an
+     *         empty set.
      */
-    private HashSet<PluginInfo> checkChildren(PluginInfo node) {
-        HashSet<PluginInfo> mySet = new HashSet<PluginInfo>();
-        if (node.getChildren().size() > 0) {
-            for (ChildInfo ci : node.getChildren()) {
-                for (PluginInfo pi : ci.getAllowedNodes()) {
-                    if (pi.getDirectParent() == node) {
-                        mySet.add(pi);
-                    }
+    private List<PluginInfo> getChildrenToPrint(PluginInfo node) {
+        // To make sure each node appears in the TOC only once, only return the
+        // nodes that consider this node to be their one and only direct parent.
+        List<PluginInfo> list = new ArrayList<PluginInfo>();
+        for (ChildInfo ci : node.getChildren()) {
+            for (PluginInfo pi : ci.getAllowedNodes()) {
+                if (pi.getDirectParent() == node) {
+                    list.add(pi);
                 }
-            }  
+            }
         }
-        if (mySet.size() == 0) {
-            mySet = null;
-        }
-        return mySet;
+        return list;
     }
     
     
@@ -229,10 +241,20 @@ public class HtmlUtils {
 
     /**
      * Returns the number of lines in the hierarchical TOC
-     * 
+     * // @todo Not used. Make package visible, private, or remove?
      * @return The number of lines in the hierarchical TOC
      */
     public int getLineCount() {
         return count;
     }
+    
+    /**
+     * Converts null Strings to empty Strings.
+     * @param str Input string, which may be null.
+     * @return Output string, which will be "" if the input was null.
+     */
+    public static String emptyIfNull(String str) {
+        return (str == null) ? "" : str;
+    }
+    
 }

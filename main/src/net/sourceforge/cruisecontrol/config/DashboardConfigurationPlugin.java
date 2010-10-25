@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.config;
 import net.sourceforge.cruisecontrol.ControllerAware;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.report.BuildLoopPostingConfiguration;
 
@@ -80,6 +81,7 @@ public class DashboardConfigurationPlugin implements ControllerAware {
                 new BuildLoopPostingConfiguration(getUrl(), getPostinterval()));
     }
 
+    @SkipDoc
     public void setController(CruiseControlController controller) {
         this.controller = controller;
     }

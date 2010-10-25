@@ -42,24 +42,37 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Manually specifies the node name to use for a child. This overrides any child node
- * name that could be inferred from code. This allows a single child plugin to be
- * referred to by multiple parent plugins using different names.</p> 
+ * <p>Provides the human-readable description of a plugin or one of its attributes or children.
+ * Instead of being specified at compile-time, the description will be loaded from a file at
+ * runtime. The description text in the file may use HTML markup.</p>
  * 
- * <p>Applies to: Child create method ONLY. Since a create method can only specify a single
- * child class, this allows that single child node to be manually named. This cannot be
- * used on child add methods, since an add method can refer to multiple children plugin
- * types through polymorphism.</p>
+ * <p>Applies to: Plugin class, attribute setter, or child add/create method.</p>
  * 
  * @author Seth Pollen (pollens@msoe.edu)
- * @see net.sourceforge.cruisecontrol.util.XPathAwareChild Example of a child used
- * by multiple parent plugins.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ManualChildName {
+public @interface DescriptionFile {
 
-    /** @return String name to use. */
-    String value();
-    
+    /**
+     * <p>The path to the file containing the description of this plugin, attribute, or child.
+     * If this path begins with a slash character ("/"), it will be interpreted relative to
+     * the root of the package structure containing the class using the annotation. Otherwise,
+     * it will be interpreted relative to the package containing the class using the annotation.
+     * Do not use backward slashes in this path.</p>
+     * 
+     * <p>The contents of the file must adhere to the requirements of {@link Description#value()}.</p>
+     * 
+     * <p>If <code>value</code> is left unspecified, a default file path will be assumed:</p>
+     * <ul>
+     * <li>If this annotation is applied to a class, the default path is to a file in the same
+     * directory as the class with the same name as the class and a ".html" extension.</li>
+     * <li>If this annotation is applied to a method, the default path is to a file in the same
+     * directory as the class with the name CLASS.METHOD.html, where CLASS and METHOD are the
+     * names of the class and the annotated method, respectively.</li>
+     * </ul>
+     * @return The path to the file containing the description of this plugin, attribute, or child. 
+     */
+    String value() default "";
+
 }

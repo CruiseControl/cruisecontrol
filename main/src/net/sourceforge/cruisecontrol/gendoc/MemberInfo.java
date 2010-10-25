@@ -58,6 +58,9 @@ public class MemberInfo implements Serializable {
 
     /** The human-readable title for the member. */
     private String title = null;
+    
+    /** A note explaining this child's cardinality. */
+    private String cardinalityNote = null;
 
     /**
      * Creates a MemberInfo object with all fields defaulted.
@@ -65,13 +68,36 @@ public class MemberInfo implements Serializable {
     public MemberInfo() {
         // Empty.
     }
+    
+    /**
+     * Creates a pre-populated MemberInfo. This can be used to create mock objects
+     * for testing.
+     * @param description Description.
+     * @param title Title.
+     * @param minCardinality Minimum cardinality.
+     * @param maxCardinality Maximum cardinality.
+     * @param cardinalityNote Cardinality note.
+     */
+    public MemberInfo(
+            String description,
+            String title,
+            int minCardinality,
+            int maxCardinality,
+            String cardinalityNote
+    ) {
+        setDescription(description);
+        setTitle(title);
+        setMinCardinality(minCardinality);
+        setMaxCardinality(maxCardinality);
+        setCardinalityNote(cardinalityNote);
+    }
 
     /**
      * Sets the member's Title to the given value
      * 
      * @param title The new title for the member.
      */
-    protected void setTitle(String title) {
+    void setTitle(String title) {
         this.title = title;
     }
     
@@ -97,7 +123,7 @@ public class MemberInfo implements Serializable {
      * Sets the member's description to the given value
      * @param description the new value of description
      */
-    protected void setDescription(String description) {
+    void setDescription(String description) {
         this.description = description;
     }
     
@@ -115,7 +141,7 @@ public class MemberInfo implements Serializable {
      * 
      * @param minCardinality The desired minimum cardinality
      */
-    protected void setMinCardinality(int minCardinality) {
+    void setMinCardinality(int minCardinality) {
         // Error check the value before assigning it.
         if (minCardinality < 0) {
             minCardinality = 0;
@@ -137,12 +163,77 @@ public class MemberInfo implements Serializable {
      * 
      * @param maxCardinality The desired maximum cardinality
      */
-    protected void setMaxCardinality(int maxCardinality) {
+    void setMaxCardinality(int maxCardinality) {
         // Error check the value before assigning it.
         if (maxCardinality < -1) {
             maxCardinality = -1;
         }
         this.maxCardinality = maxCardinality;
+    }
+    
+    /**
+     * Writes the contents of the "Required?" column for this member.
+     * @param text Text buffer to write to.
+     */
+    void writeMemberRequired(StringBuilder text) {
+        text
+        .append("<td>")
+        .append((getMinCardinality() > 0) ? "<b>Required</b>" : "Optional");
+        
+        String note = getCardinalityNote();
+        if (note != null) {
+            text
+            .append(". ")
+            .append(note);
+        }
+        
+        text.append("</td>\n");
+    }
+    
+    /**
+     * Generates the HTML text to display the cardinality of this member.
+     * @param text Text buffer to write to.
+     */
+    void writeMemberCardinality(StringBuilder text) {
+        final int min = getMinCardinality();
+        final int max = getMaxCardinality();
+
+        text.append("<td>");
+        
+        if (min == max) {
+            text.append(min);
+        } else {
+            text.append(min);
+            text.append("..");
+            if (max == -1) {
+                text.append("*");
+            } else {
+                text.append(max);
+            }
+        }
+        
+        text.append("</td>\n");
+    }
+    
+    /**
+     * Gets the cardinality note.
+     * @return The note text, or null if no note exists.
+     */
+    public String getCardinalityNote() {
+        return cardinalityNote;
+    }
+    
+    /**
+     * Sets the cardinality note.
+     * @param note The new note text, or null or "" if no note exists.
+     */
+    void setCardinalityNote(String note) {
+        // Translate empty notes to nonexistent notes.
+        if (note == null || note.isEmpty()) {
+            this.cardinalityNote = null;
+        } else {
+            this.cardinalityNote = note;
+        }
     }
     
 }

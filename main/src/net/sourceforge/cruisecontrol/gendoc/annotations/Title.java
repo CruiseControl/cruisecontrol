@@ -42,8 +42,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the brief human-readable title of a plugin or one of its attributes or children.
- * Applies to: Plugin class, attribute setter, or child add/create method.
+ * <p>Provides the brief human-readable title of a plugin or one of its attributes or children.
+ * This title may contain HTML tags. The intention for the title is that it be displayed on
+ * the GUI of any third-party application wishing to interface with the CruiseControl
+ * configuration.</p>
+ * 
+ * <p>Applies to: Plugin class, attribute setter, or child add/create method.</p>
+ * 
  * @author Matthew Cummings (cummingsm@msoe.edu)
  */
 @Retention(RetentionPolicy.RUNTIME)

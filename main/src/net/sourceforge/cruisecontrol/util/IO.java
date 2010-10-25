@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
@@ -216,4 +217,26 @@ public final class IO {
         return result;
     }
 
+    /**
+     * Reads all the text from an InputStream.
+     * @param stream The stream to read from.
+     * @return The full text read from the stream
+     * @throws IOException if an IO error occurs
+     */
+    public static String readText(final InputStream stream) throws IOException {
+        if (stream == null) {
+            throw new IOException("No stream provided");
+        } else {
+            final InputStreamReader reader = new InputStreamReader(stream);
+            final StringBuilder textBuilder = new StringBuilder();
+            
+            final char[] buffer = new char[1000];
+            int charsRead;
+            while ((charsRead = reader.read(buffer)) > 0) {
+               textBuilder.append(buffer, 0, charsRead);
+            }
+            
+            return textBuilder.toString();
+        }
+    }
 }

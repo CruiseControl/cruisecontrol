@@ -36,54 +36,23 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.config;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
-import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ResolverUser;
-
 import java.util.Map;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/**
- * <p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
- * within the CruiseControl configuration file. Properties may be set at the global level
- * and/or within the scope of a project. There are three ways to set properties within CruiseControl:</p>
- *
- * <ol>
- *     <li>By supplying both the name and value attributes.</li>
- *     <li>By setting the file attribute with the filename of the property file to load.
- *         This property file must follow the format defined by the class java.util.Properties,
- *         with the same rules about how non-ISO8859-1 characters must be escaped.</li>
- *     <li>By setting the environment attribute with a prefix to use. Properties will be defined
- *         for every environment variable by prefixing the supplied name and a period to the name
- *         of the variable.</li>
- *
- * </ol>
- *
- * <p>Properties in CruiseControl are <i>not entirely</i> immutable: whoever sets a property <i>last</i>
- * will freeze it's value <i>within the scope in which the property was set</i>. In other words,
- * you may define a property at the global level, then eclipse this value within the scope of a single
- * project by redefining the property within that project. You may not, however, set a property more
- * than once within the same scope. If you do so, only the last assignment will be used.</p>
- *
- * <p>Just as in Ant, the value part of a property being set may contain references to other properties.
- * These references are resolved at the time these properties are set. This also holds for properties
- * loaded from a property file, or from the environment.</p>
- *
- * <p>Also note that the property <code>${project.name}</code> is set for you automatically and will always resolve
- * to the name of the project currently being serviced - even outside the scope of the project
- * definition.</p>
- *
- * <p>Finally, note that properties bring their best when combined with
- * <a href=\"plugins.html#preconfiguration\">plugin preconfigurations</a>.
- * </p>
- */
+@DescriptionFile
 public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    private String file;
    private String environment;
@@ -101,61 +70,47 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    *
    * @param resolver the instance to fill;
    */
+  @SkipDoc
   public void setFileResolver(final FileResolver resolver) {
 
     fileResolver = resolver;
   }
 
-  /**
-   * @param name name of the property to set.
-   */
-  @Required
-  @Description("Exactly one of name, environment, or file.")
+  @Description("The name of the property to set.")
+  @Optional("Exactly one of name, environment, or file is required.")
   public void setName(String name) {
     this.name = name;
   }
 
-
-  /**
-   * The prefix to use when retrieving environment variables.
-   * Thus if you specify environment="myenv" you will be able to access OS-specific environment variables
-   * via property names such as "myenv.PATH" or "myenv.MAVEN_HOME".
-   * @param environment The prefix to use when retrieving environment variables.
-   */
-  @Required
-  @Description("Exactly one of name, environment, or file.")
+  @Description(
+      "The prefix to use when retrieving environment variables. Thus if you specify "
+      + "environment=\"myenv\" you will be able to access OS-specific environment variables "
+      + "via property names such as \"myenv.PATH\" or \"myenv.MAVEN_HOME\".")
+  @Optional("Exactly one of name, environment, or file is required.")
   public void setEnvironment(String environment) {
     this.environment = environment;
   }
 
-  /**
-   * The filename of the property file to load.
-   * @param file filename of the property file to load.
-   */
-  @Required
-  @Description("Exactly one of name, environment, or file.")
+  @Description("The filename of the property file to load.")
+  @Optional("Exactly one of name, environment, or file is required.")
   public void setFile(String file) {
     this.file = file;
   }
 
-  /**
-   * @param value must be set if name was set.
-   */
-  @Required
-  @Description("Required if name was set.")
+  @Description("The value of the property. This may contain any previously defined properties.")
+  @Optional("Must be set if name was set.")
   public void setValue(String value) {
     this.value = value;
   }
 
-  /**
-   * Used in conjunction with <code>environment</code>. If set to <code>true</code>, all
-   * environment variable names will be converted to upper case.
-   * @param toupper If set to <code>true</code>, all
-   * environment variable names will be converted to upper case.
-   */
+  @Description("Used in conjunction with environment. If set to true, all environment "
+      + "variable names will be converted to upper case.")
+  @Optional
+  @Default("false")
   public void setToupper(String toupper) {
     this.toupper = toupper;
   }
+  
   /**
    * Called after the configuration is read to make sure that all the mandatory parameters were specified..
    * @throws CruiseControlException if there was a configuration error.

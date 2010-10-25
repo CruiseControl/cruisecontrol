@@ -84,9 +84,6 @@ import org.jdom.Element;
  */
 public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSupport
         implements CruiseControlControllerJMXAdaptorMBean, CruiseControlController.Listener {
-        
-    /** Root plugin name for use during gendoc parsing. */
-    public static final String ROOT_PLUGIN = "cruisecontrol";
     
     private static final Logger LOG = Logger.getLogger(CruiseControlControllerJMXAdaptor.class);
     private static final Object SEQUENCE_LOCK = new Object();
@@ -374,6 +371,17 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
     }
     
+    public String getPluginCSS() {
+        // Read the CSS from the file that is bundled with the JAR, in the gendoc.html
+        // package. Return an empty string if there is any kind of error.
+        final InputStream stream = ConfigHtmlGenerator.class.getResourceAsStream("gendoc.css");
+        try {
+            return IO.readText(stream);
+        } catch (IOException e) {
+            return "";
+        }
+    }
+    
     /**
      * Runs a parse of all available plugins, generating the PluginInfo tree.
      * @param projectName Null to get the plugins from the root context. Otherwise, this should
@@ -397,6 +405,7 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         }
         
         // Create a PluginInfoParser and invoke it to parse the PluginInfo tree.
-        return new PluginInfoParser(registry, ROOT_PLUGIN);
+        return new PluginInfoParser(registry, PluginRegistry.ROOT_PLUGIN);
     }
+    
 }

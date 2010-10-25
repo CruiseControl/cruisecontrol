@@ -1,6 +1,9 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -33,6 +36,24 @@ public class IOTest extends TestCase {
             name = new Date().getTime() + "";
         }
         return name;
+    }
+    
+    public void testReadText() throws IOException {
+        File file = File.createTempFile("testReadText", "txt");
+        filesToDelete.add(file);
+        
+        // Populate the file.
+        PrintWriter writer = new PrintWriter(file);
+        try {
+            for (int i = 0; i < 500; i++) {
+                writer.write("abcdef");
+            }
+        } finally {
+            writer.close();
+        }
+        
+        // Read it back in.
+        assertEquals(500 * 6, IO.readText(new FileInputStream(file)).length());
     }
 
 }

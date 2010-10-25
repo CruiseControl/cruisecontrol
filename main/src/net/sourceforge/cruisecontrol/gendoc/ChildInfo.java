@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.sourceforge.cruisecontrol.gendoc.html.HtmlUtils;
+
 /**
  * This class represents an Child of a Plugin
  * The setter methods of this class are package-private to prevent modification
@@ -65,10 +67,37 @@ public class ChildInfo extends MemberInfo implements Serializable {
     }
     
     /**
+     * Creates a pre-populated ChildInfo. This can be used to create mock objects
+     * for testing.
+     * @param description Description.
+     * @param title Title.
+     * @param minCardinality Minimum cardinality.
+     * @param maxCardinality Maximum cardinality.
+     * @param cardinalityNote Cardinality note.
+     * @param allowedNodes Array of allowed PluginInfos.
+     */
+    public ChildInfo(
+            String description,
+            String title,
+            int minCardinality,
+            int maxCardinality,
+            String cardinalityNote,
+            PluginInfo[] allowedNodes
+    ) {
+        super(description, title, minCardinality, maxCardinality, cardinalityNote);
+        
+        for (PluginInfo allowedNode : allowedNodes) {
+            addAllowedNode(allowedNode);
+        }
+        
+        sortAllowedNodes();
+    }
+    
+    /**
      * Adds a plugin as the parent to all the child plugins contained in this ChildInfo object.
      * @param p The parent plugin to add.
      */
-    protected void addParent(PluginInfo p) {
+    void addParent(PluginInfo p) {
         for (PluginInfo node : allowedNodes) {
             node.addParent(p);
         }
@@ -104,15 +133,45 @@ public class ChildInfo extends MemberInfo implements Serializable {
      * 
      * @param node The node to add
      */
-    protected void addAllowedNode(PluginInfo node) {
+    void addAllowedNode(PluginInfo node) {
         allowedNodes.add(node);
     }
     
     /**
      * Sorts the allowed nodes in this child by name.
      */
-    protected void sortAllowedNodes() {
+    void sortAllowedNodes() {
         Collections.sort(allowedNodes);
+    }
+    
+    /**
+     * Generates the HTML documentation for this child.
+     * @param text Text buffer to write to.
+     */
+    void writeHtml(StringBuilder text) {
+        text
+        .append("<tr>\n")
+        .append("<td>\n");
+
+        for (PluginInfo childNode : getAllowedNodes()) {
+            text
+            .append("<a href=\"#")
+            .append(childNode.getAncestralName())
+            .append("\">&lt;")
+            .append(childNode.getName())
+            .append("&gt;</a><br/>\n");
+        }
+
+        text.append("</td>\n");
+        
+        writeMemberRequired(text);
+        writeMemberCardinality(text);
+        
+        text
+        .append("<td>")
+        .append(HtmlUtils.emptyIfNull(getDescription()))
+        .append("</td>\n")
+        .append("</tr>\n");
     }
     
 }

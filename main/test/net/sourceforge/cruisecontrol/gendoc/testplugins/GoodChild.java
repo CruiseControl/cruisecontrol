@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
+ * Copyright (c) 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,32 +34,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.gendoc.annotations;
+package net.sourceforge.cruisecontrol.gendoc.testplugins;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
 
-/**
- * <p>Manually specifies the node name to use for a child. This overrides any child node
- * name that could be inferred from code. This allows a single child plugin to be
- * referred to by multiple parent plugins using different names.</p> 
- * 
- * <p>Applies to: Child create method ONLY. Since a create method can only specify a single
- * child class, this allows that single child node to be manually named. This cannot be
- * used on child add methods, since an add method can refer to multiple children plugin
- * types through polymorphism.</p>
- * 
- * @author Seth Pollen (pollens@msoe.edu)
- * @see net.sourceforge.cruisecontrol.util.XPathAwareChild Example of a child used
- * by multiple parent plugins.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ManualChildName {
+@DescriptionFile
+public interface GoodChild {
+    
+    // Put in a setter for every supported attribute type.
+    
+    public void setIntegerP(int i);
+    public void setIntegerO(Integer i);
+    public void setLongP(long l);
+    public void setLongO(Long l);
+    public void setShortP(short s);
+    public void setShortO(Short s);
+    public void setByteP(byte b);
+    public void setByteO(byte b);
+    public void setFloatP(float f);
+    public void setFloatO(float f);
+    public void setDoubleP(double d);
+    public void setDoubleO(Double d);
+    public void setBooleanP(boolean b);
+    public void setBooleanO(boolean b);
+    public void setString(String s);
 
-    /** @return String name to use. */
-    String value();
+    @DescriptionFile("TestDoc.html")
+    public RecursiveChild createAnotherRecursiveChild();
     
 }

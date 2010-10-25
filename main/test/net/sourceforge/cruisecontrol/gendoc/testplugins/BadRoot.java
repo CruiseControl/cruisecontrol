@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
+ * Copyright (c) 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,32 +34,48 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.gendoc.annotations;
+package net.sourceforge.cruisecontrol.gendoc.testplugins;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 
-/**
- * <p>Manually specifies the node name to use for a child. This overrides any child node
- * name that could be inferred from code. This allows a single child plugin to be
- * referred to by multiple parent plugins using different names.</p> 
- * 
- * <p>Applies to: Child create method ONLY. Since a create method can only specify a single
- * child class, this allows that single child node to be manually named. This cannot be
- * used on child add methods, since an add method can refer to multiple children plugin
- * types through polymorphism.</p>
- * 
- * @author Seth Pollen (pollens@msoe.edu)
- * @see net.sourceforge.cruisecontrol.util.XPathAwareChild Example of a child used
- * by multiple parent plugins.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ManualChildName {
-
-    /** @return String name to use. */
-    String value();
+public interface BadRoot {
+    public void setOK(boolean ok); // Will not cause a parse error.
     
+    public void setData(Object badType);
+    
+    public void setData(StringBuilder badType2);
+    
+    @Cardinality(min = 1, max = 2)
+    public void setBadCardinality(int i);
+    
+    @Cardinality(min = -1, max = 2)
+    public GoodChild createMoreBadCardinality();
+    
+    @Cardinality(min = 10, max = 1)
+    public GoodChild createEvenMoreBadCardinality();
+    
+    @Optional @Required
+    public void setTooManyAnnotations(int j);
+    
+    public void createBar();
+    
+    public void addBar();
+    
+    public void addImpossibleChild(String child);
+    
+    @Description("") @DescriptionFile
+    public void setTooManyDescriptions(String d);
+    
+    @Description("This is a malformed Description. <b><i> It has no closing tags")
+    public void setInvalidDescription(String d);
+    
+    @Required("This is a malformed <blah>note")
+    public void setInvalidNote(String d);
+    
+    public void addOK(SourceControl child); // Will not cause a parse error.
 }

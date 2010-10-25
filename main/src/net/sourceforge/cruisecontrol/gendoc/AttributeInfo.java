@@ -38,6 +38,8 @@ package net.sourceforge.cruisecontrol.gendoc;
 
 import java.io.Serializable;
 
+import net.sourceforge.cruisecontrol.gendoc.html.HtmlUtils;
+
 /**
  * This class represents an attribute that can be associated with * a plugin.
  * The setter methods of this class are package-private to prevent modification
@@ -52,19 +54,48 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
     private static final long serialVersionUID = 1L;
 
     /** The name of the attribute, as it would appear in an XML config file */
-    private String name = null;
+    private String name;
     
     /** The Attribute's type. */
-    private AttributeType type = null;
+    private AttributeType type;
 
     /** The Attribute's default value */
-    private String defaultValue = null;
+    private String defaultValue;
     
     /**
      * Creates an Attribute Object with all fields defaulted.
      */
     public AttributeInfo() {
         // Empty.
+    }
+    
+    /**
+     * Creates a pre-populated AttributeInfo. This can be used to create mock objects
+     * for testing.
+     * @param name Name.
+     * @param type Type.
+     * @param description Description.
+     * @param title Title.
+     * @param defaultValue Default value.
+     * @param cardinality Array of 2 integers. The first is the minimum cardinality. The
+     *        second is the maximum cardinality. This has to be an array to obey the
+     *        checkstyle requirement that no method have more than 7 parameters.
+     * @param cardinalityNote Cardinality note.
+     */
+    public AttributeInfo(
+            String name,
+            AttributeType type,
+            String description,
+            String title,
+            String defaultValue,
+            int[] cardinality,
+            String cardinalityNote
+    ) {
+        super(description, title, cardinality[0], cardinality[1], cardinalityNote);
+        
+        setName(name);
+        setType(type);
+        setDefaultValue(defaultValue);
     }
     
     /**
@@ -86,6 +117,18 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
     }
     
     /**
+     * Returns the member's Title, or the name if the title was not
+     * specified.
+     * 
+     * @return The member's Title
+     */
+    @Override
+    public String getTitle() {
+        String title = super.getTitle();
+        return (title == null) ? name : title;
+    }
+    
+    /**
      * Returns the Attribute's type
      * 
      * @return The Attribute's type
@@ -99,7 +142,7 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
      * 
      * @param type The new type for this attribute.
      */
-    protected void setType(AttributeType type) {
+    void setType(AttributeType type) {
         this.type = type;
     }
 
@@ -117,8 +160,32 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
      * 
      * @param defaultValue The desired default value
      */
-    protected void setDefaultValue(String defaultValue) {
+    void setDefaultValue(String defaultValue) {
         this.defaultValue = defaultValue;
+    }
+    
+    /**
+     * Generates the HTML documentation for this attribute.
+     * @param text Text buffer to write to.
+     */
+    void writeHtml(StringBuilder text) {
+        text
+        .append("<tr>\n")
+        .append("<td>")
+        .append(getName())
+        .append("</td>\n");
+        
+        writeMemberRequired(text);
+        writeMemberCardinality(text);
+        
+        text
+        .append("<td>")
+        .append(HtmlUtils.emptyIfNull(getDefaultValue()))
+        .append("</td>\n")
+        .append("<td>")
+        .append(HtmlUtils.emptyIfNull(getDescription()))
+        .append("</td>\n")
+        .append("</tr>\n");
     }
     
     /**
@@ -127,8 +194,12 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
      * @return Result of comparison.
      */
     public int compareTo(Object o) {
-        // Sort plugins by name.
-        return this.toString().compareTo(o.toString());
+        if (o == null) {
+            return 1; // Sort nulls before non-nulls.
+        } else {
+            // Sort attributes by name.
+            return this.toString().compareTo(o.toString());
+        }
     }
     
     /**

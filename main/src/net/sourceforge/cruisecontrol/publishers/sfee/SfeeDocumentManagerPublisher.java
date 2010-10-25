@@ -48,6 +48,7 @@ import com.vasoftware.sf.soap42.webservices.filestorage.IFileStorageAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XPathAwareChild;
 import org.jdom.Element;
@@ -64,6 +65,8 @@ import java.util.StringTokenizer;
  */
 public class SfeeDocumentManagerPublisher extends SfeePublisher {
 
+    private static final long serialVersionUID = -7627885106114057078L;
+
     private String projectName;
     private XPathAwareChild documentName;
     private XPathAwareChild description;
@@ -74,7 +77,7 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
     private boolean lock;
     private String documentPath;
 
-    
+
     @ManualChildName("status")
     public XPathAwareChild createStatus() {
         // This really returns a Status object, but the return type is declared as
@@ -93,6 +96,7 @@ public class SfeeDocumentManagerPublisher extends SfeePublisher {
         this.lock = lock;
     }
 
+    @SkipDoc
     public void setData(DataSource dataSrc) {
         this.dataSrc = dataSrc;
     }
