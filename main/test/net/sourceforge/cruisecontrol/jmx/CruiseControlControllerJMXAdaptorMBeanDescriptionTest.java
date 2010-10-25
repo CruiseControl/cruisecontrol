@@ -98,7 +98,7 @@ public class CruiseControlControllerJMXAdaptorMBeanDescriptionTest extends TestC
         final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         ProjectControllerMBeanDescriptionTest.checkMethod(mbeanDescription, method,
-                "The PluginInfo tree for the give project, or whole server if projectName parameter is null.");
+                "The PluginInfo tree for the given project, or whole server if projectName parameter is null.");
 
         ProjectControllerMBeanDescriptionTest.checkParameter(mbeanDescription,
                 method, 0, "projectName", "Null to fetch entire tree, or a single project name.");
@@ -110,7 +110,7 @@ public class CruiseControlControllerJMXAdaptorMBeanDescriptionTest extends TestC
         final Method method = mbean.getClass().getMethod(methodName, paramTypes);
 
         ProjectControllerMBeanDescriptionTest.checkMethod(mbeanDescription, method,
-                "The HTML plugin content for the give project, or whole server if projectName parameter is null.");
+                "The HTML plugin content for the given project, or whole server if projectName parameter is null.");
 
         ProjectControllerMBeanDescriptionTest.checkParameter(mbeanDescription,
                 method, 0, "projectName", "Null to fetch entire tree, or a single project name.");
