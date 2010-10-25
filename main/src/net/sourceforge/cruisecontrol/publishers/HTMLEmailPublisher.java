@@ -86,6 +86,8 @@ import org.apache.tools.ant.launch.Locator;
 )
 public class HTMLEmailPublisher extends EmailPublisher {
 
+    private static final long serialVersionUID = 7140930723694451861L;
+
     private static final Logger LOG = Logger.getLogger(HTMLEmailPublisher.class);
 
     private String xslFile;
@@ -358,7 +360,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             + "2.3, the HTMLEmailPublisher will try to determine the correct value itself when it's "
             + "not specified and xslfile isn't used."
     )
-    @Optional
+    @Optional("<i>Versions up to 2.3</i>: <b>Required</b> unless xslfile specified.")
     public void setXSLDir(final String xslDirectory) {
         xslDir = xslDirectory;
     }
@@ -403,7 +405,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             + "version 2.3, the HTMLEmailPublisher will try to determine the correct value itself "
             + "when it's not specified and xslfile isn't used."
     )
-    @Optional
+    @Optional("<i>Versions up to 2.3</i>: <b>Required</b> unless xslfile specified.")
     public void setCSS(final String cssFilename) {
         css = cssFilename;
     }
@@ -418,7 +420,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
             "Path to the log directory as set in the log element of the configuration xml file. "
             + "Follows default of <a href=\"#log\">log</a>'s dir-attribute since version 2.2"
     )
-    @Optional
+    @Optional("Required for versions &lt; 2.2")
     public void setLogDir(final String directory) {
         if (directory == null) {
             throw new IllegalArgumentException("logDir cannot be null!");

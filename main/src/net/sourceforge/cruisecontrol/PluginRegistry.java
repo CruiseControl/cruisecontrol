@@ -73,6 +73,11 @@ import net.sourceforge.cruisecontrol.config.PluginPlugin;
  */
 public final class PluginRegistry implements Serializable, Iterable<String> {
 
+    private static final long serialVersionUID = 5941716771646177086L;
+
+    /** Root plugin name. */
+    public static final String ROOT_PLUGIN = "cruisecontrol";
+    
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class);
 
     /**
@@ -373,6 +378,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
      * @return an Element representing the combination of the various plugin configurations for
      * the same plugin, following the hierarchy.
      */
+    @SuppressWarnings("unchecked")
     private Element overridePluginConfig(final String pluginName, final String pluginClass, Element pluginConfig) {
         Element pluginElement = this.pluginConfigs.get(pluginName);
         // clone the first found plugin config
@@ -385,18 +391,16 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
             // do not override if class names do not match
             if (pluginElement != null && pluginClass.equals(this.internalGetPluginClassname(pluginName))) {
                 // override properties
-                final List attributes = pluginElement.getAttributes();
-                for (int i = 0; i < attributes.size(); i++) {
-                    final Attribute attribute = (Attribute) attributes.get(i);
+                final List<Attribute> attributes = (List<Attribute>) pluginElement.getAttributes();
+                for (final Attribute attribute : attributes) {
                     final String name = attribute.getName();
                     if (pluginConfig.getAttribute(name) == null) {
                         pluginConfig.setAttribute(name, attribute.getValue());
                     }
                 }
                 // combine child elements
-                final List children = pluginElement.getChildren();
-                for (int i = 0; i < children.size(); i++) {
-                    final Element child = (Element) children.get(i);
+                final List<Element> children = (List<Element>) pluginElement.getChildren();
+                for (final Element child : children) {
                     pluginConfig.addContent((Element) child.clone());
                 }
             }

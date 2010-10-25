@@ -49,6 +49,7 @@ import javax.management.MBeanServer;
 
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -137,6 +138,7 @@ public class ProjectConfig implements ProjectInterface {
      * @param plugin plugin
      * @deprecated exists only for gendoc, should not be called.
      */
+    @SuppressWarnings("unused")
     public void add(DefaultPropertiesPlugin plugin) {
         // FIXME currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
@@ -147,6 +149,7 @@ public class ProjectConfig implements ProjectInterface {
      * @param plugin plugin
      * @deprecated exists only for gendoc, should not be called.
      */
+    @SuppressWarnings("unused")
     public void add(PluginPlugin plugin) {
         // currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
@@ -412,6 +415,7 @@ public class ProjectConfig implements ProjectInterface {
         project.register(server);
     }
 
+    @SkipDoc
     public void setBuildQueue(BuildQueue buildQueue) {
         project.setBuildQueue(buildQueue);
     }

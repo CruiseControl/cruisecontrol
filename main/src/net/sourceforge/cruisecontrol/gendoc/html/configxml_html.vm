@@ -41,51 +41,16 @@
 #end
 #end
 #end
+#set($release = $utils.releaseVersion)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
 	<title>CruiseControl Configuration Reference</title>
-	<style type="text/css" media="all">
-		@import "http://cruisecontrol.sourceforge.net/cruisecontrol.css";
-
-		.index h2 {
-			margin-top: 1em;
-		}
-
-		#alphabetical {
-			float: right;
-			width: 43%;
-		}
-
-		#hierarchical {
-			float: left;
-			width: 55%;
-		}
-
-		a.toplink {
-			float: right;
-			font-size: smaller;
-			font-weight: bold;
-		}
-		
-		.errors {
-			color: red;
-		}
-
-		@media print {
-			.elementdocumentation p,
-			.hierarchy {
-				page-break-inside: avoid;
-			}
-
-			#alphabetical,
-			#hierarchical,
-			a.toplink {
-				display: none;
-			}
-		}
-	</style>
-	<link href="http://cruisecontrol.sourceforge.net/print.css" type="text/css" rel="stylesheet" media="print"/>
+	
+	<link href="../cruisecontrol.css" type="text/css" rel="stylesheet" />
+	<link href="../configxml-gendoc.css" type="text/css" rel="stylesheet" />
+	<link href="../print.css" type="text/css" rel="stylesheet" media="print"/>
+	
 	<script type="text/javascript" src="http://cruisecontrol.sourceforge.net/tables.js"></script>
 </head>
 <body>
@@ -112,7 +77,7 @@
 			<li><a class="expandmenu" href="http://cruisecontrol.sourceforge.net/developers.html">developers</a></li>
 			<li><a href="http://cruisecontrol.sourceforge.net/contact.html">mailing lists</a></li>
 			<li><a href="http://cruisecontrol.sourceforge.net/svn.html">source repository</a></li>
-			<li><p id="menubottom">Release: $utils.release</p></li>
+			<li><p id="menubottom">Release: $release</p></li>
 		</ul>
 	</div>
 	<div class="content">
@@ -128,7 +93,7 @@
 		<code>&lt;cruisecontrol&gt;</code> element, with one or more child
 		<code>&lt;project&gt;</code> elements.</p>
 
-		<!------ BEGIN INITIAL ERROR LIST ------>
+		<!-- BEGIN INITIAL ERROR LIST -->
 		
 		#if(!$generalErrors.isEmpty())
 		<h3 class="errors">Parsing Errors</h3>
@@ -144,7 +109,7 @@
         </table>
 		#end
 		
-		<!------ BEGIN TABLE OF CONTENTS ------>
+		<!-- BEGIN TABLE OF CONTENTS -->
 		
 #set($numPlugins = $allPlugins.size())
 #set($hierarchicalTree = $utils.generateHierarchyToc($rootPlugin))
@@ -153,26 +118,35 @@
 			<div id="alphabetical" class="index">
 				<h2>Alphabetical Index</h2>
 <pre style="font-size: smaller;">
+<!-- BEGIN ALPHABETICAL TOC -->
 $utils.generateAlphabeticalToc($allPlugins)
 #set($missingEmptyLines = $numLinesInTree - $numPlugins)
 #addemptylines($missingEmptyLines)
+<!-- END ALPHABETICAL TOC -->
 </pre>
 			</div>
+			
+			<!-- Hierarchical TOC -->
+			
 			<div id="hierarchical" class="index">
 				<h2>Hierarchical Index</h2>
 <pre style="font-size: smaller;">
+<!-- BEGIN HIERARCHICAL TOC -->
 $hierarchicalTree
+<!-- END HIERARCHICAL TOC -->
 </pre>
 			</div>
 		</div>
 		<p style="clear: both">&nbsp;</p>
 
-		<!------ BEGIN CONTENTS ------>
+		<!-- BEGIN CONTENTS -->
 		
 		#foreach($plugin in $allPlugins)
 			$plugin.htmlDocumentation
 		#end
-
+		
+		<!-- BEGIN FOOTER -->
+		
 		<div class="elementdocumentation"> 
 			<a class="toplink" href="#top">top</a> 
 	 

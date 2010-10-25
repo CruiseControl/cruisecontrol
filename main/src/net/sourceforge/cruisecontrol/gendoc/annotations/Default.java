@@ -42,8 +42,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the human-readable default value for an attribute of a plugin.
- * Applies to: Attribute setter method.
+ * <p>Provides the human-readable default value for an attribute of a plugin. This should
+ * correspond to the actual default value which the code will use if the attribute setter
+ * method is never called.</p>
+ * 
+ * <p>Applies to: Attribute setter method.</p>
+ * 
  * @author Seth Pollen (pollens@msoe.edu)
  */
 @Retention(RetentionPolicy.RUNTIME)

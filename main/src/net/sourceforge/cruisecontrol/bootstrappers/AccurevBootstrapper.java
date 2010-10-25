@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
@@ -50,6 +51,9 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class AccurevBootstrapper implements Bootstrapper {
+
+    private static final long serialVersionUID = -8790465364314947316L;
+
     private boolean verbose;
     private boolean keep;
     private boolean synctime;
@@ -120,6 +124,7 @@ public class AccurevBootstrapper implements Bootstrapper {
         runAccurev(AccurevCommand.UPDATE.create());
     }
 
+    @SkipDoc
     public void setRunner(Runner runner) {
         this.runner = runner;
     }

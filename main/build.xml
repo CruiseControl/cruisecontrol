@@ -80,6 +80,9 @@
     <property name="emma.results" value="${target}/emma-results" />
     <property name="emma.stats" value="${emma.results}/coverage.emma" />
 
+	<property name="gendoc.output" value="${project.root}/documentation/main/configxml-gendoc.html" />
+	<property name="gendoc.css" value="${src}/net/sourceforge/cruisecontrol/gendoc/html/gendoc.css" />
+	
     <taskdef resource="emma_ant.properties">
         <classpath>
             <fileset refid="emma.lib" />
@@ -125,16 +128,16 @@
       ~      The Ant targets below are deprecated and will be removed in a future release.
       -->
 
-    <target name="all" depends="init,compile,test,functional-test,jar"/>
+    <target name="all" depends="init,compile,test,functional-test,gendoc,jar"/>
     <target name="clean-all" depends="clean, all"/>
     <target name="checkstyle" depends="-checkstyle"/>
     <target name="compile" depends="logger.jar,-compile" unless="compile.skip"/>
     <target name="compile-test" depends="--test-init,--test-unit-init,--test-unit-compile"/>
     <target name="compile-functional-test" depends="--test-init,--test-functional-init,--test-functional-compile"/>
     <target name="dist" depends="clean, all"/>
-    <target name="jar" depends="compile,-package"/>
+    <target name="jar" depends="compile,copy-css,-package"/>
     <target name="javadoc" depends="-javadoc"/>
-    <target name="test" depends="-test" unless="test.skip"/>
+    <target name="test" depends="copy-css,-test" unless="test.skip"/>
     <target name="functional-test" depends="-test-functional" unless="test.skip"/>
 
     <target name="checklabel">
@@ -206,6 +209,26 @@
         <ant dir="loggers"/>
         <copy file="loggers/target/dist/cruisecontrol-antprogresslogger.jar" todir="dist"/>
     </target>
+	
+	<!-- Generates the config.xml documentation. -->
+	<target name="gendoc" depends="compile">
+		<java
+			classname="net.sourceforge.cruisecontrol.gendoc.GendocMain"
+			failonerror="true"
+			classpathref="compile.out">
+			
+			<arg file="${gendoc.output}" />
+		</java>
+	</target>
+	
+	<!-- Merges the CSS files needed to format config.xml documentation into a single
+	     file that will be included in the JAR. -->
+	<target name="copy-css">
+		<concat destfile="${gendoc.css}">
+			<filelist dir="${project.root}/documentation"
+				files="cruisecontrol.css,configxml-gendoc.css" />
+		</concat>
+	</target>
 
     <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
      allow running on other jars (reporting, ccdist, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->

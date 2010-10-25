@@ -68,6 +68,8 @@
         <copy todir="${test.classes}">
             <fileset dir="${test}" includes="**/*.xml" />
             <fileset dir="${test}" includes="**/*.txt" />
+        	<fileset dir="${test}" includes="**/*.html" />
+        	<fileset dir="${test}" includes="**/*.css" />
             <fileset dir="${test}" includes="**/*.jar" />
             <fileset dir="${test}" includes="**/*.properties" />
         </copy>

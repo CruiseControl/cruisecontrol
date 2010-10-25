@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, ThoughtWorks, Inc.
+ * Copyright (c) 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,34 +34,60 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.publishers.email;
+package net.sourceforge.cruisecontrol.gendoc.testplugins;
 
-import java.io.Serializable;
-import java.util.Set;
-
+import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
-import net.sourceforge.cruisecontrol.publishers.EmailPublisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Title;
 
-public class EmailMapper implements Serializable {
-
-    private static final long serialVersionUID = 2177102804122865887L;
-
-    private EmailPublisher publisher = null;
-
+@Description("A") @Title("B")
+public interface GoodRoot {
+    
+    @Cardinality(min = 1, max = 15) @Description("C") @Title("D")
+    public GoodChild createChild();
+    
+    @ManualChildName("goodchild2")
+    public GoodChild createChild2();
+    
+    @Cardinality(min = 2, max = -1, note="E") @ManualChildName("goodchild3")
+    public GoodChild createChild3();
+    
+    @DescriptionFile
+    public RecursiveChild createRecursiveChild();
+    
+    @DescriptionFile("/net/sourceforge/cruisecontrol/gendoc/testplugins/TestDoc.html")
+    public void addSourceControl(SourceControl s);
+    
+    // Put in attributes to test possible annotation combinations.
+    
+    @Cardinality(min = 0, max = 1) @Description("F") @Title("G") @Default("H")
+    public void set1(String a);
+    
+    @Cardinality(min = 1, max = 1, note="I")
+    public void set2(String b);
+    
+    @Required
+    public void set3(String c);
+    
+    @Optional
+    public void set4(String d);
+    
+    @Required("J")
+    public void set5(String e);
+    
+    @Optional("K")
+    public void set6(String f);
+    
+    public void set7(String g);
+    
     @SkipDoc
-    public void setPublisher(final EmailPublisher publisher) {
-        this.publisher = publisher;
-    }
+    public void setSomethingElse(Object obj);
 
-    public EmailPublisher getEmailPublisher() {
-        return publisher;
-    }
-
-    /*
-     * This method maps users in the set users: if a map is found the mapped value is inserted into mappedUsers, and the
-     * user mapped is removed from users
-     */
-    public void mapUsers(Set<String> users, Set<String> mappedUsers) {
-        // this implementation doesn't map any users, override in subclass
-    }
 }

@@ -42,8 +42,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Provides the human-readable description of a plugin or one of its attributes or children.
- * Applies to: Plugin class, attribute setter, or child add/create method.
+ * <p>Provides the human-readable description of a plugin or one of its attributes or children.
+ * This description may use HTML markup.</p>
+ * 
+ * <p>Applies to: Plugin class, attribute setter, or child add/create method.</p>
+ * 
  * @author Seth Pollen (pollens@msoe.edu)
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -51,8 +54,9 @@ import java.lang.annotation.Target;
 public @interface Description {
 
     /**
-     * @return The description of this plugin, attribute, or child. This value must be well-formed XML. Any tags that
-     * appear in it must be properly closed, and special characters must be properly escaped.
+     * @return The description of this plugin, attribute, or child. This value must be well-formed
+     * XML. Any tags that appear in it must be properly closed, and special characters must be
+     * properly escaped.
      */
     String value();
 

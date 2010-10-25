@@ -37,7 +37,7 @@
                     <li><a class="expandmenu" href="../dashboard.html">dashboard</a></li>
                     <li><a class="expandmenu" href="../distributed/index.html">distributed</a></li>
                 </ul>
-	    </li>
+        </li>
             <li><a href="configxml.html">config.xml</a></li>
             <li><a href="../faq.html">faq</a></li>
             <li><a class="external" href="http://confluence.public.thoughtworks.org/display/CC/Home">wiki</a></li>
@@ -252,40 +252,58 @@
         <h2><a name="xmldocumentation"/>Plugin XML Documentation</h2>
 
         <p>The <a href="configxml.html">config reference</a> is automatically generated from
-        comments and tags contained in the plugins code.</p>
+        Java annotations contained in the plugin code. Developers of CruiseControl plugins should
+        include all the applicable documentation annotations in their code to ensure that their
+        plugins will be properly documented and will work correctly with any third-party tools
+        that use these annotations.</p>
+        
+        <p>When CruiseControl parses a plugin class to generate documentation and other metadata,
+        it looks at the class's methods to determine the plugin's allowable attributes and children.
+        Methods beginning with "set" are interpreted as attributes, and methods beginning with "add" or
+        "create" are interpreted as children. Annotations describing the attributes and children are
+        placed on these methods.</p>
 
-        Here's a simple self-commented example:
+        Here's a simple self-documenting example:
 <pre>
-/**
- * This will make it into the plugin description.
- * &lt;p&gt;You can also have HTML code &lt;/p&gt;
- * @cc-plugin
- * @see other javadoc tags are not taken into account.
- */
+import net.sourceforge.cruisecontrol.gendoc.annotations.*;
+
+@Description("This will make it into the plugin description. " +
+    "&lt;b&gt;You can also have HTML code.&lt;/b&gt;")
 public class MyPlugin {
-    /** The default value is automatically identified whenever possible */
-    private String myField = "defaultValue";
 
     /**
-     * A comment that will describe the entry in the parameter table for the plugin.
-     * @required "the comment that will make it into the required column"
-     * @defaultValue "forceDefaultValue"
+     * A method starting with "set" will become an entry in the attribute table for
+     * the plugin.
      */
-    public void setMyField(String myField) {
-        this.myField = myField;
-    }
+    @Description("Detailed description of this attribute")
+    @Title("A concise, human-readable title")
+    @DefaultValue("defaultValue")
+    @Required
+    public void setMyField(String myField) { ... }
+    
+    /**
+     * A @SkipDoc annotation instructs gendoc to ignore a method it would otherwise
+     * try to interpret.
+     */
+    @SkipDoc
+    public void setThread(Thread t) { ... }
 
     /**
-     * A comment that will describe the entry in the Child table for the plugin.
-     * @cardinality 0..*
+     * A method starting with "set" or "create" will become an entry in the child
+     * table for this plugin.
      */
-    public void addObject(Object object) {
-        ...
-    }
+    @Description("description")
+    @Title("title")
+    @Cardinality(0, -1) // Indicates any nonnegative number of children may occur.
+    public void addSourceControl(SourceControl s) { ... }
+
 }
 </pre>
 
-    For more information look at the gendoc API (FIXME link).
+    For more information, see the JavaDoc for these annotations, in the <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/annotations/package-summary.html">net.sourceforge.cruisecontrol.gendoc.annotations</a></code>
+	package. The class responsible for reading these annotations is the <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/PluginInfoParser.html">PluginInfoParser</a></code> class.
 
         <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 

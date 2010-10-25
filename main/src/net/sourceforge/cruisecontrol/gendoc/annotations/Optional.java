@@ -42,15 +42,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Specifies the cardinality of an attribute of a plugin. This is shorthand for
- * <code>@Cardinality(min = 0, max = 1)</code>.
- * Applies to: Attribute setter method.
+ * <p>Specifies the cardinality of an attribute of a plugin. This is shorthand for
+ * <code>@Cardinality(min = 0, max = 1)</code>. Also allows an optional, supplemental
+ * description to be supplied. This description can be used to justify or qualify
+ * the specified cardinality.</p>
+ * 
+ * <p>Applies to: Attribute setter method.</p>
+ * 
  * @author Seth Pollen (pollens@msoe.edu)
+ * @see Cardinality
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Optional {
 
-    // No attributes.
+    /** @return An optional, supplemental note explaining this cardinality. */
+    String value() default "";
 
 }

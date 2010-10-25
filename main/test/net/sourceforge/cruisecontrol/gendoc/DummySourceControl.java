@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
+ * Copyright (c) 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,32 +34,34 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.gendoc.annotations;
+package net.sourceforge.cruisecontrol.gendoc;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.SourceControl;
 
 /**
- * <p>Manually specifies the node name to use for a child. This overrides any child node
- * name that could be inferred from code. This allows a single child plugin to be
- * referred to by multiple parent plugins using different names.</p> 
- * 
- * <p>Applies to: Child create method ONLY. Since a create method can only specify a single
- * child class, this allows that single child node to be manually named. This cannot be
- * used on child add methods, since an add method can refer to multiple children plugin
- * types through polymorphism.</p>
- * 
- * @author Seth Pollen (pollens@msoe.edu)
- * @see net.sourceforge.cruisecontrol.util.XPathAwareChild Example of a child used
- * by multiple parent plugins.
+ * Dummy SourceControl implementation for testing.
+ * @author pollens@msoe.edu
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ManualChildName {
+public class DummySourceControl implements SourceControl {
 
-    /** @return String name to use. */
-    String value();
+    private static final long serialVersionUID = -2577266085784525099L;
+
+    public List<Modification> getModifications(Date lastBuild, Date now) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void validate() throws CruiseControlException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Map<String, String> getProperties() {
+        throw new UnsupportedOperationException();
+    }
     
 }

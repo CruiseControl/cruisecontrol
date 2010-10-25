@@ -216,4 +216,10 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
         assertEquals(configContents + "\n", // trailing newline always added 
                 actualContents.toString());
     }
+    
+    public void testGetPluginCSS() {
+        String css = adaptor.getPluginCSS().trim();
+        assertTrue("CSS not loaded", css.length() > 1000);
+    }
+    
 }

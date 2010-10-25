@@ -49,6 +49,7 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevInputParser;
@@ -65,6 +66,9 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
 public class Accurev implements SourceControl, AccurevInputParser {
+
+    private static final long serialVersionUID = -4513634989355045950L;
+
     private static final Logger LOG = Logger.getLogger(Accurev.class);
     private String stream;
     private boolean verbose;
@@ -198,6 +202,7 @@ public class Accurev implements SourceControl, AccurevInputParser {
         return parts;
     }
 
+    @SkipDoc
     public void setRunner(Runner runner) {
         this.runner = runner;
     }

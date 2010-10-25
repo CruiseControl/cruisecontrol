@@ -115,10 +115,9 @@ public class ConfigHtmlGenerator {
     /**
      * Creates a VelocityEngine singleton
      * 
-     * @return The initiated VelocityEngine
      * @throws Exception In Case of Initialize Error
      */
-    private static VelocityEngine getVelocityEngine() throws Exception {
+    private static void getVelocityEngine() throws Exception {
 
         //@todo Dan Rollo changed this to a singleton because multiple calls during unit test resulted
         // in "engine already inited" errors from Velocity. We may want to revert the singleton if keeping it around is
@@ -134,8 +133,6 @@ public class ConfigHtmlGenerator {
             engine = new VelocityEngine();
             engine.init(p);
         }
-
-        return (engine);
     }
 
     /**
@@ -151,16 +148,10 @@ public class ConfigHtmlGenerator {
         context.put("generalErrors", parser.getParsingErrors());
         context.put("allPlugins", parser.getAllPlugins());
         context.put("rootPlugin", parser.getRootPlugin());
-        
         context.put("utils", new HtmlUtils());
 
-        try {
-            this.template.merge(context, sw);
-            return sw.getBuffer().toString();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            throw e;
-        }
+        template.merge(context, sw);
+        return sw.getBuffer().toString();
     }
 
 }

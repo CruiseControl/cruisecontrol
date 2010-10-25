@@ -37,6 +37,8 @@
 package net.sourceforge.cruisecontrol.util;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+
 import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -87,6 +89,7 @@ public class XPathAwareChild {
      * If this value is set, then it is considered to be a "fixed" value that will be returned by the
      * <code>lookupValue</code> method. If this is set, then <code>xpathExpression</code> and <code>xmlFile</code>
      * should NOT be set.
+     * @param value the new value
      */
     public void setValue(String value) {
         markDirty();
@@ -102,7 +105,9 @@ public class XPathAwareChild {
      * Used for testing. CruiseControl will not be able to call this method directly, so it has not applicability to
      * the intended use of this class. Use this method from unit tests to set an InputStream instead of an actual
      * xmlFile.
+     * @param in the new input stream
      */
+    @SkipDoc
     public void setInputStream(InputStream in) {
         markDirty();
         this.in = in;
@@ -124,6 +129,9 @@ public class XPathAwareChild {
     /**
      * Looks up the appropriate value based on how the class is being used. It will return either the fixed value, or
      * execute the xpath expression against the appropriate xml file/log.
+     * @param log element to evaluate xpath expression against.
+     * @return value or xpath result
+     * @throws CruiseControlException if it breaks
      */
     public String lookupValue(Element log) throws CruiseControlException {
         if (!wasValidated) {
@@ -172,7 +180,7 @@ public class XPathAwareChild {
     /**
      * Must be called after setting all the instance values and before calling <code>lookupValue</code>.
      *
-     * @throws CruiseControlException
+     * @throws CruiseControlException if it breaks
      */
     public void validate() throws CruiseControlException {
         if (xpathExpression == null && xmlFile != null) {

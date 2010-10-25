@@ -95,4 +95,12 @@ public interface CruiseControlMBean {
      * @throws java.util.NoSuchElementException If the project name cannot be resolved
      */
     String getPluginHTML(String projectName);
+
+    /**
+     * Gets the CSS content that can be used when formatting HTML descriptions of individual
+     * plugins.
+     * @return The CSS content.
+     */
+    String getPluginCSS();
+    
 }

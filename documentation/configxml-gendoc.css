@@ -1,0 +1,36 @@
+.index h2 {
+	margin-top: 1em;
+}
+
+#alphabetical {
+	float: right;
+	width: 43%;
+}
+
+#hierarchical {
+	float: left;
+	width: 55%;
+}
+
+a.toplink {
+	float: right;
+	font-size: smaller;
+	font-weight: bold;
+}
+
+.errors {
+	color: red;
+}
+
+@media print {
+	.elementdocumentation p,
+	.hierarchy {
+		page-break-inside: avoid;
+	}
+
+	#alphabetical,
+	#hierarchical,
+	a.toplink {
+		display: none;
+	}
+}

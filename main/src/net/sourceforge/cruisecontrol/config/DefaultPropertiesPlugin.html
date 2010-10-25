@@ -1,0 +1,174 @@
+<p>The <code>&lt;property&gt;</code> element is used to set a property (or set of properties)
+within the CruiseControl configuration file. Properties may be set at the global level
+and/or within the scope of a project. There are three ways to set properties within CruiseControl:</p>
+<ol>
+    <li>By supplying both the name and value attributes.</li>
+    <li>By setting the file attribute with the filename of the property file to load.
+        This property file must follow the format defined by the class java.util.Properties,
+        with the same rules about how non-ISO8859-1 characters must be escaped.</li>
+    <li>By setting the environment attribute with a prefix to use. Properties will be defined
+        for every environment variable by prefixing the supplied name and a period to the name
+        of the variable.</li>
+</ol>
+
+<p>Properties in CruiseControl are <i>not entirely</i> immutable: whoever sets a property <i>last</i>
+will freeze it's value <i>within the scope in which the property was set</i>. In other words,
+you may define a property at the global level, then eclipse this value within the scope of a single
+project by redefining the property within that project. You may not, however, set a property more
+than once within the same scope. If you do so, only the last assignment will be used.</p>
+
+<p>Just as in Ant, the value part of a property being set may contain references to other properties.
+These references are resolved at the time these properties are set. This also holds for properties
+loaded from a property file, or from the environment.</p>
+
+<p>Also note that the property <code>${project.name}</code> is set for you automatically and will always resolve
+to the name of the project currently being serviced - even outside the scope of the project
+definition.</p>
+
+<p>Finally, note that properties bring their best when combined with 
+<a href="plugins.html#preconfiguration">plugin preconfigurations</a>.
+</p>
+
+<h3>Examples</h3> 
+ 
+        <ol> 
+            <li>Set a couple of global properties using name/value pairs:
+            <pre> 
+&lt;cruisecontrol&gt;
+    &lt;property name="cruisedir" value="/home/cruise"/&gt;
+    &lt;property name="logdir"    value="${cruisedir}/logs"/&gt;
+    ...
+&lt;cruisecontrol&gt;
+            </pre> 
+            </li> 
+ 
+            <li>Set a collection of global properties from the properties file "config.properties":
+            <pre> 
+&lt;cruisecontrol&gt;
+    &lt;property file="config.properties"/&gt;
+    ...
+&lt;cruisecontrol&gt;
+            </pre> 
+            </li> 
+ 
+            <li>Load the system's environment into a collection of global properties.
+                Uppercase all environment variable names:
+            <pre> 
+&lt;cruisecontrol&gt;
+    &lt;property environment="env" toupper="true"/&gt;
+    &lt;property name="logdir"     value="${env.CCDIR}/logs"/&gt;
+    ...
+&lt;cruisecontrol&gt;
+            </pre> 
+            </li> 
+ 
+            <li>Define a global property called "buildmanager". Override it's value
+                only within the scope of the project called "project2".
+            <pre> 
+&lt;cruisecontrol&gt;
+ 
+    &lt;property name="buildmanager" value="buildmgr@here.com"/&gt;
+ 
+    &lt;project name="project1"&gt;
+        &lt;!-- ${buildmanager} resolves to "buildmgr@here.com" --&gt;
+    &lt;/project&gt;
+ 
+    &lt;project name="project2"&gt;
+        &lt;property name="buildmanager" value="someoneelse@here.com"/&gt;
+        &lt;!-- ${buildmanager} resolves to "someoneelse@here.com" --&gt;
+    &lt;/project&gt;
+ 
+&lt;cruisecontrol&gt;
+            </pre> 
+            </li> 
+ 
+            <li>As demonstrated here, properties and
+                <a href="plugins.html#preconfiguration">plugin pre-configuration</a> 
+                can be an extremely powerful combination.
+           <pre> 
+&lt;cruisecontrol&gt;
+ 
+    &lt;!-- Load environment variables -->
+    &lt;property environment="env" toupper="true"/&gt;
+ 
+    &lt;!-- Commonly used directories --&gt;
+    &lt;property name="reportdir"  value="${env.CCDIR}/report"/&gt;
+    &lt;property name="projectdir" value="${env.CCDIR}/checkout/${project.name}"/&gt;
+    &lt;property name="testdir" value="${projectdir}/build/junit-reports"/&gt;
+    &lt;property name="logdir" value="${env.CCDIR}/logs/${project.name}"/&gt;
+ 
+    &lt;!-- Defaults for email --&gt;
+    &lt;property name="buildmaster.email"  value="buildmaster@example.com"/&gt;
+    &lt;property name="buildmaster.name"  value="Buildmaster"/&gt;
+ 
+    &lt;!-- Preconfigure our plugins --&gt;
+    &lt;plugin name="log"
+            dir="${logdir}"/&gt;
+ 
+    &lt;plugin name="currentbuildstatuslistener"
+            file="${logdir}/buildstatus.html"/>
+ 
+    &lt;plugin name="cvs"
+            localworkingcopy="${projectdir}"/&gt;
+ 
+    &lt;plugin name="ant"
+            antscript="${env.ANT_HOME}/bin/ant"
+            antWorkingDir="${projectdir}"
+            target="cruise"/&gt;
+ 
+    &lt;plugin name="htmlemail"
+            buildresultsurl="http://servername/cruisecontrol/buildresults/${project.name}"
+            mailhost="smtp.example.com"
+            returnaddress="${buildmaster.email}"
+            returnname="${buildmaster.name}"
+            subjectprefix="[BUILD ${project.name}]"
+            xsldir="${reportdir}/jsp/webcontent/xsl"
+            css="${reportdir}/jsp/webcontent/css/cruisecontrol.css"/&gt;
+ 
+    &lt;project name="project1"/&gt;
+        &lt;listeners&gt;
+            &lt;currentbuildstatuslistener/&gt;
+        &lt;/listeners&gt;
+        &lt;log&gt;
+            &lt;merge dir="${testdir}"&gt;
+        &lt;/log&gt;
+        &lt;modificationset&gt;
+            &lt;cvs/&gt;
+        &lt;/modificationset&gt;
+        &lt;schedule&gt;
+            &lt;ant/&gt;
+        &lt;/schedule&gt;
+        &lt;publishers&gt;
+            &lt;htmlemail&gt;
+                &lt;always  address="${buildmaster.email}"&gt;
+                &lt;failure address="proj1dev@example.com"&gt;
+                &lt;ignore address="buildmaster"&gt;
+            &lt;/htmlemail&gt;
+        &lt;/publishers&gt;
+    &lt;/project&gt;
+ 
+    &lt;project name="project2"/&gt;
+        &lt;listeners&gt;
+            &lt;currentbuildstatuslistener/&gt;
+        &lt;/listeners&gt;
+        &lt;log&gt;
+            &lt;merge dir="${testdir}"&gt;
+        &lt;/log&gt;
+        &lt;modificationset&gt;
+            &lt;cvs/&gt;
+        &lt;/modificationset&gt;
+        &lt;schedule&gt;
+            &lt;ant/&gt;
+        &lt;/schedule&gt;
+        &lt;publishers&gt;
+            &lt;htmlemail&gt;
+                &lt;always  address="${buildmaster.email}"&gt;
+                &lt;failure address="proj2dev@example.com"&gt;
+            &lt;/htmlemail&gt;
+        &lt;/publishers&gt;
+    &lt;/project&gt;
+ 
+&lt;/cruisecontrol&gt;
+            </pre>
+            </li>
+        </ol>

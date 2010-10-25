@@ -44,6 +44,7 @@ import java.util.Vector;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.publishers.origo.OrigoApiClient;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -101,6 +102,7 @@ public class OrigoPublisher implements Publisher {
      * @param logFileName file name to link to.
      * @return a link to the given file name
      */
+    @SkipDoc
     public String createLinkURL(final String logFileName) {
         if (buildResultsURL == null) {
             return "";
@@ -285,6 +287,7 @@ public class OrigoPublisher implements Publisher {
     /**
      * @param client the origo api client to set
      */
+    @SkipDoc
     public void setClient(OrigoApiClient client) {
         this.client = client;
     }
