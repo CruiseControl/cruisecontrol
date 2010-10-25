@@ -60,16 +60,16 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     private static final String PATH_SEPARATOR = "::";
 
     /** The name of the Plugin, as it would appear in an XML config file */
-    private String name = null;
+    private String name;
     
     /** Name of the Java class that corresponds with this Plugin. */
     private final String className;
 
     /** The Plugin's description */
-    private String description = null;
+    private String description;
 
     /** The human-readable title for the plugin. */
-    private String title = null;
+    private String title;
 
     /** List of attributes, preserving order. */
     private final List<AttributeInfo> attributes = new ArrayList<AttributeInfo>();
@@ -90,7 +90,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
      * Direct parent for this plugin. This is the parent directly above it on the shortest path
      * up to the root plugin node. This value is lazily calculated and cached here.
      */
-    private PluginInfo directParent = null;
+    private PluginInfo directParent;
 
     /**
      * Depth of this plugin in the tree. A depth of zero means this is the root plugin of the
@@ -105,7 +105,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     private final List<String> parsingErrors = new ArrayList<String>(0);
     
     /** Cache of HTML documentation for this plugin. */
-    private String html = null;
+    private String html;
 
     /**
      * Creates a new PluginInfo with all fields defaulted.

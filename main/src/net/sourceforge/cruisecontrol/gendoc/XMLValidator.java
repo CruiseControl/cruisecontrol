@@ -58,7 +58,7 @@ class XMLValidator {
     
     private final ErrorHandler handler;
     
-    private SAXParseException error = null;
+    private SAXParseException error;
     
     public XMLValidator() {
         try {

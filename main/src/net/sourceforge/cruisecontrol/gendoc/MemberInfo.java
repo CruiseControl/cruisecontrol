@@ -48,7 +48,7 @@ public class MemberInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     
     /** The description of the member. */
-    private String description = null;
+    private String description;
     
     /** The member's minimum cardinality */
     private int minCardinality = 0;
@@ -57,10 +57,10 @@ public class MemberInfo implements Serializable {
     private int maxCardinality = -1;
 
     /** The human-readable title for the member. */
-    private String title = null;
+    private String title;
     
     /** A note explaining this child's cardinality. */
-    private String cardinalityNote = null;
+    private String cardinalityNote;
 
     /**
      * Creates a MemberInfo object with all fields defaulted.
