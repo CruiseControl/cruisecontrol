@@ -90,7 +90,7 @@
         </classpath>
     </taskdef>
 
-    <target name="clean" depends="-clean" description="--> Cleans all build artifacts and temporary files">
+    <target name="clean" depends="-clean,clean-gendoc" description="--> Cleans all build artifacts and temporary files">
         <delete quiet="yes" dir="${dist}"/>
         <ant dir="loggers" target="clean"/>
     </target>
@@ -150,7 +150,7 @@
         <echo>CruiseControl: ${cc.release.label}</echo>        
     </target>
 
-    <target name="init" depends="checklabel,--compile-init,--javadoc-init,--package-init,--test-init,--test-unit-init">
+    <target name="init" depends="checklabel,--compile-init,copy-css,--javadoc-init,--package-init,--test-init,--test-unit-init">
         <mkdir dir="${target}/tmp" />
         <mkdir dir="${emma.results}" />
 
@@ -228,7 +228,18 @@
 			<filelist dir="${project.root}/documentation"
 				files="cruisecontrol.css,configxml-gendoc.css" />
 		</concat>
+
+        <copy todir="${classes}">
+            <fileset dir="${src}" includes="${gendoc.css}"/>
+        </copy>
 	</target>
+
+    <!-- remove gendoc generated files. -->
+    <target name="clean-gendoc">
+        <delete quiet="yes" file="${gendoc.css}"/>
+        <delete quiet="yes" file="${gendoc.output}"/>
+    </target>
+
 
     <!-- @todo Move this check to "common", use props files to fetch prior release version to more stable dir (like cc-config),
      allow running on other jars (reporting, ccdist, etc), and move clirr-core-uber.jar to shared lib-buildtools dir -->
