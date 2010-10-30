@@ -279,7 +279,8 @@ public class PluginRegistryTest extends TestCase {
     static void verifyPluginClass(final String pluginName, final String expectedName) throws Exception {
         final PluginRegistry registry = PluginRegistry.loadDefaultPluginRegistry();
 
-        assertTrue(registry.isPluginRegistered(pluginName));
+        assertTrue("the plugin name of '"+ pluginName +"' does not appear in the registry",
+                registry.isPluginRegistered(pluginName));
 
         final String className = registry.getPluginClassname(pluginName);
         assertEquals(expectedName, className);
