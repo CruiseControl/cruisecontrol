@@ -137,7 +137,7 @@
     <target name="dist" depends="clean, all"/>
     <target name="jar" depends="compile,copy-css,-package"/>
     <target name="javadoc" depends="-javadoc"/>
-    <target name="test" depends="copy-css,-test" unless="test.skip"/>
+    <target name="test" depends="compile,-test" unless="test.skip"/>
     <target name="functional-test" depends="-test-functional" unless="test.skip"/>
 
     <target name="checklabel">
@@ -153,6 +153,7 @@
     <target name="init" depends="checklabel,--compile-init,copy-css,--javadoc-init,--package-init,--test-init,--test-unit-init">
         <mkdir dir="${target}/tmp" />
         <mkdir dir="${emma.results}" />
+        <mkdir dir="${dist}"/>
 
         <available file="${env.NANT_HOME}/NAnt.exe" property="nant-present" />
 
