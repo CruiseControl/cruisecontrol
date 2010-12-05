@@ -479,17 +479,18 @@ public class Project implements Serializable, Runnable {
      */
     public void serializeProject() {
 
+        final String safeProjectName = Builder.getFileSystemSafeProjectName(name);
         try {
-            final ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(name + ".ser"));
+            final ObjectOutputStream s = new ObjectOutputStream(new FileOutputStream(safeProjectName + ".ser"));
             try {
                 s.writeObject(this);
                 s.flush();
-                debug("Serializing project to [" + name + ".ser]");
+                debug("Serializing project to [" + safeProjectName + ".ser]");
             } finally {
                 s.close();
             }
         } catch (Exception e) {
-            LOG.warn("Error serializing project to [" + name + ".ser]: "
+            LOG.warn("Error serializing project to [" + safeProjectName + ".ser]: "
                     + e.getMessage(), e);
         }
     }

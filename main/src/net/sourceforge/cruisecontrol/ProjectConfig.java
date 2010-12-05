@@ -329,7 +329,7 @@ public class ProjectConfig implements ProjectInterface {
      *         never return null
      */
     Project readProject(final String projectName) {
-        File serializedProjectFile = new File(projectName + ".ser");
+        File serializedProjectFile = new File(Builder.getFileSystemSafeProjectName(projectName) + ".ser");
         LOG.debug("Reading serialized project from: " + serializedProjectFile.getAbsolutePath());
 
         if (!serializedProjectFile.exists() || !serializedProjectFile.canRead()) {
