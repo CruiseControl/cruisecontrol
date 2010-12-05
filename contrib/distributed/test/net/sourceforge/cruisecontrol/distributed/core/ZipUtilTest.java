@@ -130,6 +130,14 @@ public class ZipUtilTest extends TestCase {
         assertFalse(tempDir.exists());
     }
 
+    public void testGetTempResultsZipFileProjectNameWithSlashes() throws Exception {
+        final String projectNameWithSlash = "testProjectName/trunk";
+        final File tmpFile = ZipUtil.getTempResultsZipFile(emptyDir, projectNameWithSlash, null);
+        assertTrue(tmpFile.exists());
+        tmpFile.deleteOnExit();
+        assertTrue(tmpFile.delete());
+    }
+
     public void testEmptyZip() {
         String emptyZipFilePath = rootTempDir + File.separator + "empty.zip";
         ZipUtil.zipFolderContents(emptyZipFilePath, emptyDirPath);

@@ -51,6 +51,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+import net.sourceforge.cruisecontrol.Builder;
 import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -286,7 +287,8 @@ public final class ZipUtil {
     public static File getTempResultsZipFile(final File workDir, final String projectName, final String resultsType) {
         final File tempResultsFile;
         try {
-            tempResultsFile = File.createTempFile(projectName + "-" + resultsType + "-", ".zip", workDir)
+            tempResultsFile = File.createTempFile(Builder.getFileSystemSafeProjectName(projectName)
+                    + "-" + resultsType + "-", ".zip", workDir)
                     .getCanonicalFile();
         } catch (IOException e) {
             final String message = "Couldn't create temp " + resultsType + " results zip file in: "
