@@ -143,15 +143,10 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
             if (logFilename != null) {
                 outputFile = new File(workingDir, logFilename);
             } else {
-                final String safeProjectName;
-                if (projectName != null) {
-                    safeProjectName = projectName.replaceAll("/", "_"); // replace prevents error if name has slash
-                } else {
-                    safeProjectName = null;
-                }
                 try {
                     outputFile = File.createTempFile(
-                            "ccLiveOutput-" + safeProjectName + "-" + getClass().getSimpleName() + "-",
+                            "ccLiveOutput-" + getFileSystemSafeProjectName(projectName)
+                                    + "-" + getClass().getSimpleName() + "-",
                             ".tmp",
                             workingDir);
                 } catch (IOException e) {
@@ -168,6 +163,20 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         }
 
         return buildOutputLogger;
+    }
+
+    /**
+     * @param projectName the actual project name from the config file.
+     * @return a string that is safe to using in a file system path (eg: with slashes replaced by underscores).
+     */
+    public static String getFileSystemSafeProjectName(final String projectName) {
+        final String safeProjectName;
+        if (projectName != null) {
+            safeProjectName = projectName.replaceAll("/", "_"); // replace prevents error if name has slash
+        } else {
+            safeProjectName = null;
+        }
+        return safeProjectName;
     }
 
     /**

@@ -111,6 +111,12 @@ public class BuilderTest extends TestCase {
                 builder.getBuildOutputConsumer(projectName, null, null));
     }
 
+    public void testGetFileSystemSafeProjectName() {
+        assertEquals(null, Builder.getFileSystemSafeProjectName(null));
+        assertEquals("", Builder.getFileSystemSafeProjectName(""));
+        assertEquals("testProjectName_trunk", Builder.getFileSystemSafeProjectName("testProjectName/trunk"));
+    }
+
     public void testGetBuildOutputConsumerProjectNameWithSlash() {
         final String projectNameWithSlash = "testProjectName/trunk";
         assertSame(builder.getBuildOutputConsumer(projectNameWithSlash, null, null),
