@@ -8,6 +8,10 @@ general
 ======================
 * Functional version of 'gendoc' -> configxml-gendoc.html generated from Java annotations contained in the plugin code. See plugins.html for more details (CC-202). Original patch by Jerome Lacoste, Rewritten annotation based impl by Seth Pollen, et al.
 
+build loop
+======================
+* Fix error in Builder.getBuildOutputConsumer() when live output is enabled and the project name contained a slash.
+
 contrib
 ======================
 
