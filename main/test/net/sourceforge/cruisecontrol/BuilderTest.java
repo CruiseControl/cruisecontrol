@@ -111,6 +111,12 @@ public class BuilderTest extends TestCase {
                 builder.getBuildOutputConsumer(projectName, null, null));
     }
 
+    public void testGetBuildOutputConsumerProjectNameWithSlash() {
+        final String projectNameWithSlash = "testProjectName/trunk";
+        assertSame(builder.getBuildOutputConsumer(projectNameWithSlash, null, null),
+                BuildOutputLoggerManager.INSTANCE.lookup(projectNameWithSlash));
+    }
+
     public void testValidate() throws CruiseControlException {
         try {
             builder.validate();
