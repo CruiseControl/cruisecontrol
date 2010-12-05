@@ -44,7 +44,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 //import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -662,16 +661,47 @@ public class ProjectTest {
 
     @Test
     public void testSerialization() throws IOException {
-        ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
-        ObjectOutputStream objects = new ObjectOutputStream(outBytes);
-        try {
-            objects.writeObject(new Project());
-            objects.flush();
-        } finally {
-            objects.close();
+        final File expectedSerFile = new File(project.getName() + ".ser");
+        if (expectedSerFile.exists()) {
+            assertTrue(expectedSerFile.delete());
         }
+        filesToDelete.add(expectedSerFile);
 
         project.serializeProject();
+        assertTrue(expectedSerFile.exists());
+    }
+
+    @Test
+    public void testSerializationWhenProjectNameHasSlash() throws IOException {
+        project.setName("testProjectName/trunk");
+
+        final File expectedSerFile = new File(Builder.getFileSystemSafeProjectName(project.getName()) + ".ser");
+        if (expectedSerFile.exists()) {
+            assertTrue(expectedSerFile.delete());
+        }
+        filesToDelete.add(expectedSerFile);
+
+        project.serializeProject();
+        assertTrue(expectedSerFile.exists());
+    }
+
+    @Test
+    public void testDeserializationWhenProjectNameHasSlash() throws IOException {
+        project.setName("testProjectName/trunk");
+
+        final File expectedSerFile = new File(Builder.getFileSystemSafeProjectName(project.getName()) + ".ser");
+        if (expectedSerFile.exists()) {
+            assertTrue(expectedSerFile.delete());
+        }
+        filesToDelete.add(expectedSerFile);
+
+        project.serializeProject();
+        assertTrue(expectedSerFile.exists());
+
+        final ProjectConfig config = new ProjectConfig();
+        final Project deSerProj = config.readProject(project.getName());
+        assertFalse("Should find file: " + expectedSerFile.getAbsolutePath() + ", making build forced false.",
+                deSerProj.isBuildForced());
     }
 
     @Test
