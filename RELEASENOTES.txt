@@ -7,6 +7,7 @@ CruiseControl Release Notes - 2.8.5-dev
 general
 ======================
 * Functional version of 'gendoc' -> configxml-gendoc.html generated from Java annotations contained in the plugin code. See plugins.html for more details (CC-202). Original patch by Jerome Lacoste, Rewritten annotation based impl by Seth Pollen, et al.
+* Remove duplicates and missing jars from from eclipse .classpath (CC-1023). Patch by John Patrick.
 
 build loop
 ======================
