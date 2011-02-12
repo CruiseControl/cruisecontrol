@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.gendoc;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,7 +55,7 @@ import net.sourceforge.cruisecontrol.gendoc.html.HtmlUtils;
 public class PluginInfo implements Serializable, Comparable<Object> {
 
     /** ID for serialization. */
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /** Path separator for ancestry paths. */
     private static final String PATH_SEPARATOR = "::";
@@ -65,13 +66,16 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     /** Name of the Java class that corresponds with this Plugin. */
     private final String className;
 
-    /** The Plugin's description */
+    /** The Plugin's description. */
     private String description;
+    
+    /** The Plugin's example documentation. */
+    private String examples;
 
     /** The human-readable title for the plugin. */
     private String title;
 
-    /** List of attributes, preserving order. */
+    /** List of attributes, preserving order as defined by AttributeInfo.compareTo(). */
     private final List<AttributeInfo> attributes = new ArrayList<AttributeInfo>();
 
     /**
@@ -105,7 +109,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     private final List<String> parsingErrors = new ArrayList<String>(0);
     
     /** Cache of HTML documentation for this plugin. */
-    private String html;
+    private transient String html;
 
     /**
      * Creates a new PluginInfo with all fields defaulted.
@@ -131,6 +135,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
             String className,
             String name,
             String description,
+            String examples,
             String title,
             AttributeInfo[] attributes,
             ChildInfo[] children
@@ -138,6 +143,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
         this(className);
         setName(name);
         setDescription(description);
+        setExamples(examples);
         setTitle(title);
         
         for (AttributeInfo attr : attributes) {
@@ -150,40 +156,28 @@ public class PluginInfo implements Serializable, Comparable<Object> {
         sortAttributes();
     }
 
-    /**
-     * Returns the name of the plugin
-     * 
-     * @return The name of the plugin
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Set's the Plugin's name
-     * 
-     * @param name The desired name
-     */
     protected void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * Returns this Plugin's description
-     * 
-     * @return The Plugin's description
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     * Sets the plugin's description
-     * 
-     * @param description The desired description
-     */
     void setDescription(String description) {
         this.description = description;
+    }
+    
+    public String getExamples() {
+        return examples;
+    }
+
+    void setExamples(String description) {
+        this.examples = description;
     }
 
     /**
@@ -191,7 +185,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
      * 
      * @return The List of Children for the plugin
      */
-    public List<ChildInfo> getChildren() {
+    public Collection<ChildInfo> getChildren() {
         return children;
     }
 
@@ -211,7 +205,7 @@ public class PluginInfo implements Serializable, Comparable<Object> {
      * 
      * @return The List of Attributes for the plugin
      */
-    public List<AttributeInfo> getAttributes() {
+    public Collection<AttributeInfo> getAttributes() {
         return attributes;
     }
 
@@ -224,11 +218,6 @@ public class PluginInfo implements Serializable, Comparable<Object> {
         attributes.add(att);
     }
 
-    /**
-     * Sets the Title to the given value
-     * 
-     * @param title The new title.
-     */
     void setTitle(String title) {
         this.title = title;
     }
@@ -236,8 +225,6 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     /**
      * Returns the member's Title, or the name if the title was not
      * specified.
-     * 
-     * @return The member's Title
      */
     public String getTitle() {
         return (title == null) ? name : title;
@@ -486,9 +473,12 @@ public class PluginInfo implements Serializable, Comparable<Object> {
         .append(getName()) // Allow linking by simple name ...
         .append("\"></a><a name=\"")
         .append(getAncestralName()) // ... or by full ancestral name.
-        .append("\">&lt;")
-        .append(getName())
-        .append("&gt;</a></h2>\n")
+        .append("\">");
+        
+        writeBracketed(text, getName());
+        
+        text
+        .append("</a></h2>\n")
         .append("<div class=\"hierarchy\">\n")
         .append("<pre>");
         
@@ -502,51 +492,41 @@ public class PluginInfo implements Serializable, Comparable<Object> {
 
         // Print attributes in a table.
         if (!attributes.isEmpty()) {
-            text
-            .append("<h3>Attributes</h3>\n")
-            .append("<table class=\"documentation\">\n")
-            .append("<thead>\n")
-            .append("<tr>\n")
-            .append("<th>Attribute</th>\n")
-            .append("<th>Required?</th>\n")
-            .append("<th>Cardinality</th>\n")
-            .append("<th>Default value</th>\n")
-            .append("<th>Description</th>\n")
-            .append("</tr>\n")
-            .append("</thead>\n")
-            .append("<tbody>\n");
+            text.append("<h3>Attributes of ");
+            writeBracketed(text, getName());
+            text.append("</h3>\n");
 
+            AttributeInfo.writeTableStart(text);
+            
             for (AttributeInfo attribute : attributes) {
                 attribute.writeHtml(text);
             }
 
-            text
-            .append("</tbody>\n")
-            .append("</table>\n");
+            AttributeInfo.writeTableEnd(text);
         }
 
         // Print children in a table.
         if (!children.isEmpty()) {
-            text
-            .append("<h3>Child Elements</h3>\n")
-            .append("<table class=\"documentation\">\n")
-            .append("<thead>\n")
-            .append("<tr>\n")
-            .append("<th>Element</th>\n")
-            .append("<th>Required?</th>\n")
-            .append("<th>Cardinality</th>\n")
-            .append("<th>Description</th>\n")
-            .append("</tr>\n")
-            .append("</thead>\n")
-            .append("<tbody>\n");
-
+            text.append("<h3>Child Elements of ");
+            writeBracketed(text, getName());
+            text.append("</h3>\n");
+            
+            ChildInfo.writeTableStart(text);
+            
             for (ChildInfo child : children) {
                 child.writeHtml(text);
             }
 
-            text
-            .append("</tbody>\n")
-            .append("</table>\n");
+            ChildInfo.writeTableEnd(text);
+        }
+        
+        // Print examples.
+        if (examples != null) {
+            text.append("<h3>Examples of ");
+            writeBracketed(text, getName());
+            text.append(" Usage</h3>");
+            
+            text.append(examples);
         }
 
         // Print parsing errors in a table.
@@ -575,6 +555,16 @@ public class PluginInfo implements Serializable, Comparable<Object> {
     }
     
     /**
+     * Wraps text in angle brackets.
+     */
+    private void writeBracketed(StringBuilder text, String content) {
+        text
+        .append("&lt;")
+        .append(content)
+        .append("&gt;");
+    }
+    
+    /**
      * Generates the HTML text (without the <pre></pre> tags) to display the list of
      * immediate parents of this plugin.
      * @param text Text buffer to write to.
@@ -585,32 +575,39 @@ public class PluginInfo implements Serializable, Comparable<Object> {
         if (!parents.isEmpty()) { // There is at least one parent.
             if (!parents.get(0).getAllParents().isEmpty()) {
                 // There is at least one grandparent. Write an ellipsis to represent it.
-                text.append("&lt;...&gt;\n");
+                writeBracketed(text, "...");
+                text.append("\n");
                 indentation = "  "; // Indent everything else.
             }
             
             // Generate a hyperlink for each parent.
             for (PluginInfo parent : getAllParents()) {
-                text
-                .append(indentation)
-                .append("<a href=\"#")
-                .append(parent.getAncestralName())
-                .append("\">")
-                .append("&lt;")
-                .append(parent.getName())
-                .append("&gt;")
-                .append("</a>\n");
+                text.append(indentation);
+                parent.writeHtmlLink(text);
             }
             
             indentation += "  ";
         }
         
         // Write the plugin itself, indented a little.
+        text.append(indentation);
+        
+        writeBracketed(text, getName());
+    }
+    
+    /**
+     * Writes an HTML hyperlink to this plugin.
+     * @param text Text buffer to write to.
+     */
+    private void writeHtmlLink(StringBuilder text) {
         text
-        .append(indentation)
-        .append("&lt;")
-        .append(getName())
-        .append("&gt;");
+        .append("<a href=\"#")
+        .append(getAncestralName())
+        .append("\">");
+        
+        writeBracketed(text, getName());
+        
+        text.append("</a>\n");
     }
 
     /**

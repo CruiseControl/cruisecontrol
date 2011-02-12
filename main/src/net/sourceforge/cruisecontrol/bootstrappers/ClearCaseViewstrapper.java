@@ -38,6 +38,10 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -59,6 +63,9 @@ import org.apache.log4j.Logger;
  * 
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
+@Description("Can be used to automate the start-up of ClearCase Views and VOBs prior "
+        + "to building in dynamic views.")
+@ExamplesFile
 public class ClearCaseViewstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(ClearCaseViewstrapper.class);
@@ -72,6 +79,11 @@ public class ClearCaseViewstrapper implements Bootstrapper {
      * @param path
      *            path to view to be started
      */
+    @Description("A path into the dynamic view to start-up, i.e. M:\\someview\\somevob\\somepath "
+            + "(Windows) or /view/someview/vobs/somevob/somepath (Linux/Unix). A path is "
+            + "specified rather than a view tag so that you can re-use a CruiseControl "
+            + "property definition.")
+    @Required
     public void setViewpath(String path) {
         viewpath = path;
     }
@@ -82,6 +94,9 @@ public class ClearCaseViewstrapper implements Bootstrapper {
      * @param list
      *            comma separated list of VOBs to mount
      */
+    @Description("A comma separated list of VOBs to mount, i.e. \"\\VOB1,\\VOB2\" (Windows) "
+            + "or \"/vobs/VOB1,/vobs/VOB2\" (Linux/Unix).")
+    @Optional
     public void setVoblist(String list) {
         voblist = list;
     }

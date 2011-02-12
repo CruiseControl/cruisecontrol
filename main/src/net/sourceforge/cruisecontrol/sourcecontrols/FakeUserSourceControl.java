@@ -43,6 +43,9 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 
 /**
  * Abstract superclass for SourceControls that use a static user
@@ -63,10 +66,17 @@ public abstract class FakeUserSourceControl implements SourceControl {
         return userName;
     }
 
+    @Description("The username to use for the single reported (fake) Modification.")
+    @Optional
+    @Default("User")
     public void setUserName(final String userName) {
         this.userName = userName;
     }
     
+    @Description(
+            "Set this property if a modification has occurred. For use in "
+            + "conditionally controlling the build later.")
+    @Optional
     public void setProperty(final String propertyName) {
         properties.assignPropertyName(propertyName);
     }

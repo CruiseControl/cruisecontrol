@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.config;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -53,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 @DescriptionFile
+@ExamplesFile
 public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
    private String file;
    private String environment;

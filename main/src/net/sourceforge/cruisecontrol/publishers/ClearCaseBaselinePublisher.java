@@ -38,6 +38,10 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -49,15 +53,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Creates a ClearCase UCM baseline for the specified view's integration stream.
- * Uses the value of the CruiseControl generated ${label} property as well as the
- * value of the baselineprefix attribute (if specified) to name the baseline.
- * A baseline is only created if UCM modifications are recorded in the build log.
- * By default an incremental baseline is created although a full baseline can be
- * created too (incremental baselines are recommended for Continuous Integration).
- *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
+@Description("<p>Creates a ClearCase UCM baseline for the specified view's integration "
+        + "stream. Uses the value of the CruiseControl generated <code>${label}</code> "
+        + "property as well as the value of the <code>baselineprefix</code> attribute "
+        + "(if specified) to name the baseline. A baseline is only created if UCM "
+        + "modifications are recorded in the build log. By default an incremental "
+        + "baseline is created although a full baseline can be created too (incremental "
+        + "baselines are recommended for Continuous Integration).</p>")
+@ExamplesFile
 public class ClearCaseBaselinePublisher implements Publisher {
     private boolean full = false;
     private String baselineprefix;
@@ -71,6 +76,11 @@ public class ClearCaseBaselinePublisher implements Publisher {
      *
      * @param baselineprefix the status to set the flag to
      */
+    @Description("A prefix which should be applied together with the CruiseControl <code>"
+            + "${label}</code> property, for example specifying \"EXAMPLE_\" with a "
+            + "CruiseControl generated label of \"1_INT\" would create a baseline called "
+            + "\"EXAMPLE_1_INT\".")
+    @Optional
     public void setBaselineprefix(String baselineprefix) {
         this.baselineprefix = baselineprefix;
     } // setBaselineprefix
@@ -89,6 +99,9 @@ public class ClearCaseBaselinePublisher implements Publisher {
      *
      * @param viewtag the status to set the flag to
      */
+    @Description("The view tag of the UCM view that you wish to create the baseline in. "
+            + "The baseline is created in the stream that the view is attached to.")
+    @Required
     public void setViewtag(String viewtag) {
         this.viewtag = viewtag;
     } // setViewtag
@@ -107,6 +120,9 @@ public class ClearCaseBaselinePublisher implements Publisher {
      *
      * @param full the status to set the flag to
      */
+    @Description("Boolean value indicating whether a \"Fully Labelled\" or \"Incremental\" "
+            + "baseline should be created. Default is false, i.e. \"Incremental\".")
+    @Optional
     public void setFull(boolean full) {
         this.full = full;
     } // setFull
@@ -125,6 +141,9 @@ public class ClearCaseBaselinePublisher implements Publisher {
      *
      * @param comp the name of the component
      */
+    @Description("The component to restrict the baseline creation to. By default the "
+            + "baseline is applied to all of the stream's changed components.")
+    @Optional
     public void setComponent(String comp) {
         this.component = comp;
     } // setComponent

@@ -217,9 +217,4 @@ public class CruiseControlControllerJMXAdaptorTest extends TestCase {
                 actualContents.toString());
     }
     
-    public void testGetPluginCSS() {
-        String css = adaptor.getPluginCSS().trim();
-        assertTrue("CSS not loaded", css.length() > 1000);
-    }
-    
 }

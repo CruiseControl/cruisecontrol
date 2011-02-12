@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc;
 
+import java.util.Collection;
 import java.util.List;
 import net.sourceforge.cruisecontrol.gendoc.testplugins.BadRoot;
 import net.sourceforge.cruisecontrol.gendoc.testplugins.GoodChild;
@@ -70,6 +71,7 @@ public class PluginInfoTest extends TestCase {
     
     public void testRootFields() {
         assertEquals("<p>A</p>", goodRoot.getDescription());
+        assertEquals("XXX", goodRoot.getExamples());
         assertEquals("goodroot", goodRoot.getName());
         assertEquals("B", goodRoot.getTitle());
         assertEquals(GoodRoot.class.getName(), goodRoot.getClassName());
@@ -86,10 +88,11 @@ public class PluginInfoTest extends TestCase {
     }
     
     public void testRootAttributeFetching() {
-        List<AttributeInfo> attributes = goodRoot.getAttributes();
-        assertEquals(7, attributes.size());
+        Collection<AttributeInfo> attributes = goodRoot.getAttributes();
+        assertEquals(8, attributes.size());
         
         for (String attrName : new String[] {
+                "0", // Alphabetical ordering.
                 "1",
                 "2",
                 "3",
@@ -106,7 +109,7 @@ public class PluginInfoTest extends TestCase {
     }
     
     public void testRootChildFetching() {
-        List<ChildInfo> children = goodRoot.getChildren();
+        Collection<ChildInfo> children = goodRoot.getChildren();
         assertEquals(5, children.size());
         
         for (String pluginName : new String[] {
@@ -127,6 +130,7 @@ public class PluginInfoTest extends TestCase {
     
     public void testGoodChildFields() {
         assertEquals("<p>123</p>", goodChild.getDescription());
+        assertEquals("Y", goodChild.getExamples());
         assertEquals("goodchild", goodChild.getName());
         assertEquals("goodchild", goodChild.getTitle());
         assertEquals(GoodChild.class.getName(), goodChild.getClassName());
@@ -145,7 +149,7 @@ public class PluginInfoTest extends TestCase {
     }
     
     public void testGoodChildAttributeFetching() {
-        List<AttributeInfo> attributes = goodChild.getAttributes();
+        Collection<AttributeInfo> attributes = goodChild.getAttributes();
         assertEquals(15, attributes.size());
         
         // Leave other checks for the AttributeInfoTest.
@@ -153,6 +157,7 @@ public class PluginInfoTest extends TestCase {
     
     public void testRecursiveChildFields() {
         assertNull(recursiveChild.getDescription());
+        assertNull(recursiveChild.getExamples());
         assertEquals("recursivechild", recursiveChild.getName());
         assertEquals("recursivechild", recursiveChild.getTitle());
         assertEquals(RecursiveChild.class.getName(), recursiveChild.getClassName());
@@ -177,7 +182,7 @@ public class PluginInfoTest extends TestCase {
     }
     
     public void testRecursiveChildAttributeFetching() {
-        List<AttributeInfo> attributes = recursiveChild.getAttributes();
+        Collection<AttributeInfo> attributes = recursiveChild.getAttributes();
         assertEquals(0, attributes.size());
     }
     
@@ -189,6 +194,7 @@ public class PluginInfoTest extends TestCase {
     public void testParsingErrors() {
         assertEquals(0, goodRoot.getParsingErrors().size());
         assertEquals(0, goodChild.getParsingErrors().size());
+        assertEquals(0, recursiveChild.getParsingErrors().size());
         
         // For the BadRoot, there should be 2 successfully parsed attributes and
         // 1 successfully parsed child. Everything else should have errored out.
@@ -198,8 +204,8 @@ public class PluginInfoTest extends TestCase {
         assertNotNull(badRoot.getChildByPluginName("svn")); // Verify there is a sourcecontrol plugin.
         
         // Verify that the number of parsing errors is at least as great as the number
-        // of bad methods we put in the BadRoot class.
-        assertTrue(badRoot.getParsingErrors().size() >= 12);
+        // of bad method/class annotations we put in the BadRoot class.
+        assertTrue(badRoot.getParsingErrors().size() >= 14);
         
         // Make sure the HTML parsing errors were noted.
         boolean descriptionError = false;

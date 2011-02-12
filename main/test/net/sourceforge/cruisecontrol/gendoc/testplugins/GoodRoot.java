@@ -41,13 +41,14 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Title;
 
-@Description("A") @Title("B")
+@Description("A") @Title("B") @ExamplesFile
 public interface GoodRoot {
     
     @Cardinality(min = 1, max = 15) @Description("C") @Title("D")
@@ -73,7 +74,7 @@ public interface GoodRoot {
     @Cardinality(min = 1, max = 1, note="I")
     public void set2(String b);
     
-    @Required
+    @Required @Default("100")
     public void set3(String c);
     
     @Optional
@@ -86,6 +87,10 @@ public interface GoodRoot {
     public void set6(String f);
     
     public void set7(String g);
+    
+    // This is alphabetically before the other attributes, but after them by order
+    // of declaration.
+    public void set0(String i);
     
     @SkipDoc
     public void setSomethingElse(Object obj);

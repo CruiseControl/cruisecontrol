@@ -55,20 +55,19 @@ import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.SystemPlugin;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
- * <p>
- * The <code>&lt;cruisecontrol&gt;</code> element is the root element of the
- * configuration, and acts as a container to the rest of the configuration
- * elements.
- * </p>
- *
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
+@Description(
+    "The root element of the configuration, acting as a container to the rest of "
+    + "the configuration elements.")
 public class CruiseControlConfig {
     private static final Logger LOG = Logger.getLogger(CruiseControlConfig.class);
 
@@ -298,11 +297,10 @@ public class CruiseControlConfig {
     }
 
     /**
-     * Add projects defined in other configuration files.
-     *
      * @param project other project to add
      * @throws CruiseControlException when something breaks
      */
+    @Description("Add projects defined in other configuration files.")
     public void add(final IncludeProjectsPlugin project) throws CruiseControlException {
         final String file = project.getFile();
         final String path = Util.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
@@ -320,55 +318,55 @@ public class CruiseControlConfig {
     }
 
     /**
-     * Currently just a placeholder for the <configuration> element, which in
-     * its turn is just a placeholder for the <threads> element. We expect that
-     * in the future, more system-level features can be configured under this
-     * element.
-     *
      * @param system system place holder plugin
      */
+    @Description(
+        "Currently just a placeholder for the <code>&lt;configuration&gt;</code> element, which in "
+        + "its turn is just a placeholder for the <code>&lt;threads&gt;</code> element. We expect that "
+        + "in the future, more system-level features can be configured under this "
+        + "element.")
+    @Cardinality(min = 0, max = 1)
     public void add(final SystemPlugin system) {
         this.system = system;
     }
 
     /**
-     * Registers a classname with an alias.
-     *
      * @param plugin only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Description("Registers a classname with an alias.")
     public void add(final PluginPlugin plugin) {
         // FIXME this is empty today for the documentation to be generated properly
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     /**
-     * Defines a basic unit of work
-     *
      * @param project only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Description("Defines a basic unit of work.")
+    @Cardinality(min = 1, max = -1)
     public void add(final ProjectInterface project) {
         // FIXME this is empty today for the documentation to be generated properly
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
         
     /**
-     * Defines a name/value pair used in configuration.
      * @param plugin only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Description("Defines a name/value pair used in configuration.")
     public void add(final DefaultPropertiesPlugin plugin) {
         // FIXME currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
     
     /**
-     * Defines a dashboard
-     *
      * @param dashboard only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Description("Configures dashboard-related settings.")
+    @Cardinality(min = 0, max = 1)
     public void add(final DashboardConfigurationPlugin dashboard) {
         // FIXME this is empty today for the documentation to be generated properly
         throw new IllegalStateException("GenDoc-only method should not be invoked.");

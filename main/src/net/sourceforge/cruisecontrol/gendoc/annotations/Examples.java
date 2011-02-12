@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2006, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,33 +34,31 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.gendoc.testplugins;
+package net.sourceforge.cruisecontrol.gendoc.annotations;
 
-import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
-import net.sourceforge.cruisecontrol.gendoc.annotations.Examples;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@DescriptionFile @Examples("Y")
-public interface GoodChild {
-    
-    // Put in a setter for every supported attribute type.
-    
-    public void setIntegerP(int i);
-    public void setIntegerO(Integer i);
-    public void setLongP(long l);
-    public void setLongO(Long l);
-    public void setShortP(short s);
-    public void setShortO(Short s);
-    public void setByteP(byte b);
-    public void setByteO(byte b);
-    public void setFloatP(float f);
-    public void setFloatO(float f);
-    public void setDoubleP(double d);
-    public void setDoubleO(Double d);
-    public void setBooleanP(boolean b);
-    public void setBooleanO(boolean b);
-    public void setString(String s);
+/**
+ * <p>Provides example usage documentation for a plugin, which will appear after
+ * the attribute and child tables in the generated documentation.
+ * The example text may use HTML markup.</p>
+ * 
+ * <p>Applies to: Plugin class.</p>
+ * 
+ * @author Seth Pollen (pollens@msoe.edu)
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+public @interface Examples {
 
-    @DescriptionFile("TestDoc.html")
-    public RecursiveChild createAnotherRecursiveChild();
-    
+    /**
+     * @return The example documentation for this plugin. This value must be well-formed
+     * HTML. Any tags that appear in it must be properly closed, and special characters must be
+     * properly escaped.
+     */
+    String value();
+
 }

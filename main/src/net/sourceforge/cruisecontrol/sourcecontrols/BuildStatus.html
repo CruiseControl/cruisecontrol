@@ -1,0 +1,45 @@
+<p>Used to trigger a build when another CruiseControl project has a
+successful build. When triggered, this will report a modification
+with action \"add\", the successfully built project's logfile, the
+name of the successfully built project's log directory (the final
+component of attribute logdir), and the username set to "cc-" +
+name of the successfully built project. You may need make an
+alias for this username if you are using an <a href="#email">&lt;email&gt;</a>
+publisher.</p>
+
+<h3>Properties Passed to the Builders</h3>
+
+<p>In addition to the standard CruiseControl <a href="#buildproperties">
+properties passed to builders</a>, &lt;buildstatus&gt; sets the
+following properties:</p>
+
+<table class="documentation">
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>most.recent.logdir</td>
+        <td>The location being checked for new log files</td>
+    </tr>
+    <tr>
+        <td>most.recent.logfile</td>
+        <td>The name of the newest logfile included in the
+        modification set</td>
+    </tr>
+    <tr>
+        <td>most.recent.logtime</td>
+        <td>The timestamp of the newest build included in the
+        modification set, using the format
+        <code>yyyyMMddHHmmss</code></td>
+    </tr>
+    <tr>
+        <td>most.recent.loglabel</td>
+        <td>The label of the newest build included in the
+        modification set</td>
+    </tr>
+    </tbody>
+</table>

@@ -48,6 +48,8 @@ import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 
 import org.apache.log4j.Logger;
 
@@ -61,6 +63,10 @@ import org.apache.log4j.Logger;
  *
  * @author <a href="mailto:scottj+cc@escherichia.net">Scott Jacobs</a>
  */
+@Description(
+        "<p>Triggers a build if there is a change in an AlienBrain repository.</p>"
+        + "<p>Changes are detected by running a command similar to the following:</p>"
+        + "<pre>ab find <em>PathToProject</em> -regex \"SCIT &gt; <em>lastbuildtime</em>\"</pre>")
 public class AlienBrain extends AlienBrainCore implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(AlienBrain.class);
@@ -84,6 +90,10 @@ public class AlienBrain extends AlienBrainCore implements SourceControl {
         return properties.getPropertiesAndReset();
     }
     
+    @Description(
+            "Will set this property if a modification has occurred. For use in "
+            + "conditionally controlling the build later.")
+    @Optional
     public void setProperty(String propertyName) {
         properties.assignPropertyName(propertyName);
     }

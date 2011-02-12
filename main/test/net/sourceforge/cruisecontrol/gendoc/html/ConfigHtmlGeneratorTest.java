@@ -210,7 +210,6 @@ public class ConfigHtmlGeneratorTest extends TestCase {
                     if(s.equalsIgnoreCase("<tr>")) {
                         String attribute = scan.nextLine().trim();
                         String required = scan.nextLine().trim();
-                        String cardinality = scan.nextLine().trim();
                         String defaultValue = scan.nextLine().trim();
                         String description = scan.nextLine().trim();
                         
@@ -218,7 +217,6 @@ public class ConfigHtmlGeneratorTest extends TestCase {
                         AttributeInfo ai = info.getAttributeByName(name);
                         
                         assertNotNull(ai);
-                        assertEquals(formatCard(ai), cardinality);
                         assertEquals(formatReq(ai), required);
                         assertEquals("<td>" + HtmlUtils.emptyIfNull(ai.getDefaultValue()) + "</td>", defaultValue);
                         assertEquals("<td>" + HtmlUtils.emptyIfNull(ai.getDescription()) + "</td>", description);

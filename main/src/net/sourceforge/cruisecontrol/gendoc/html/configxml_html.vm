@@ -117,24 +117,24 @@
 		<div>
 			<div id="alphabetical" class="index">
 				<h2>Alphabetical Index</h2>
-<pre style="font-size: smaller;">
 <!-- BEGIN ALPHABETICAL TOC -->
+<pre style="font-size: smaller;">
 $utils.generateAlphabeticalToc($allPlugins)
 #set($missingEmptyLines = $numLinesInTree - $numPlugins)
 #addemptylines($missingEmptyLines)
-<!-- END ALPHABETICAL TOC -->
 </pre>
+<!-- END ALPHABETICAL TOC -->
 			</div>
 			
 			<!-- Hierarchical TOC -->
 			
 			<div id="hierarchical" class="index">
 				<h2>Hierarchical Index</h2>
-<pre style="font-size: smaller;">
 <!-- BEGIN HIERARCHICAL TOC -->
+<pre style="font-size: smaller;">
 $hierarchicalTree
-<!-- END HIERARCHICAL TOC -->
 </pre>
+<!-- END HIERARCHICAL TOC -->
 			</div>
 		</div>
 		<p style="clear: both">&nbsp;</p>

@@ -46,6 +46,8 @@ import org.jdom.Element;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.builders.AbstractAntBuilderDelegate;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 /**
@@ -57,6 +59,8 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
  *
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith </a>
  */
+@DescriptionFile
+@ExamplesFile
 public class AntPublisher extends AbstractAntBuilderDelegate implements Publisher {
 
     private static final Logger LOG = Logger.getLogger(AntPublisher.class);

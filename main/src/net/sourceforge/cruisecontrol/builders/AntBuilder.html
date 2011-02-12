@@ -1,0 +1,25 @@
+<p>Specifies an Ant build to be run at a given time or build number.
+For instance, we can run a clean build every 5 builds, or run more
+comprehensive (and time intensive) system tests every 10 builds.  We
+can also schedule an official build to run every night at midnight,
+if we so desire.</p>
+
+<p>When a build runs, Ant is invoked in a separate Java process. There
+are two alternative ways in which ant may be invoked:</p>
+<ol>
+    <li>Using the <strong><code>antscript</code></strong>, or <strong><code>anthome</code></strong>, attribute (preferred)
+    helps to ensure that builds are run
+    completely independent of the CruiseControl distribution, and that
+    extra jars required in the ant lib-directory need not be duplicated
+    within CruiseControl.</li>
+    <li>Using the ant binaries distributed with CruiseControl. Settings
+    for the virtual machine can be specified using the nested <code>
+    &lt;jvmarg&gt;</code> element. This also requires that java be on
+    the executable path.</li>
+</ol>
+
+<p>The standard CruiseControl <a href="#buildproperties">properties
+passed to builders</a> are available from within the ant build.</p>
+
+<p>See below for <a href="#ant-examples">examples</a> of the
+<code>&lt;ant&gt;</code> element.</p>

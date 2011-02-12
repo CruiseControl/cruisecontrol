@@ -1,0 +1,33 @@
+<ol>
+    <li>Use the session named "j2ee_session" to check for changes within the
+        "j2ee~1.0_int" project. If any changes are detected, reconfigure the
+        project and all of it's subprojects.
+    <pre>
+&lt;modificationset&gt;
+    &lt;cmsynergy project="j2ee~1.0_int"
+               sessionname="j2ee_session"
+               reconfigure="true"/&gt;
+&lt;modificationset/&gt;
+    </pre>
+    </li>
+    <li>For users of CM Synergy older than version 6.3 only. Use the
+        <a href="#cmsynergybootstrapper">&lt;cmsynergybootstrapper&gt;</a>
+        to reconfigure only the top level "j2ee~1.0_int" project. This will
+        update the folders within that project's reconfigure properties.
+        We can then check for changes just as we did in the first example.
+        Notice that we <em>must</em> set the "updatefolder" attribute to false.
+    <pre>
+&lt;bootstrappers&gt;
+    &lt;cmsynergybootstrapper project="j2ee~1.0_int"
+                           sessionname="j2ee_session"
+                           recurse="false"/&gt;
+&lt;bootstrappers&gt;
+&lt;modificationset&gt;
+    &lt;cmsynergy project="j2ee~1.0_int"
+               updatefolders="false"
+               sessionname="j2ee_session"
+               reconfigure="true"/&gt;
+&lt;modificationset/&gt;
+    </pre>
+    </li>
+</ol>

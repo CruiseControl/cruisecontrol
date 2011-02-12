@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.gendoc;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -108,7 +109,7 @@ public class ChildInfo extends MemberInfo implements Serializable {
      * 
      * @return The List of XML Nodes
      */
-    public List<PluginInfo> getAllowedNodes() {
+    public Collection<PluginInfo> getAllowedNodes() {
         return allowedNodes;
     }
     
@@ -164,7 +165,7 @@ public class ChildInfo extends MemberInfo implements Serializable {
 
         text.append("</td>\n");
         
-        writeMemberRequired(text);
+        writeRequired(text);
         writeMemberCardinality(text);
         
         text
@@ -172,6 +173,68 @@ public class ChildInfo extends MemberInfo implements Serializable {
         .append(HtmlUtils.emptyIfNull(getDescription()))
         .append("</td>\n")
         .append("</tr>\n");
+    }
+    
+    /**
+     * Writes the contents of the "Required?" column for this member.
+     * @param text Text buffer to write to.
+     */
+    private void writeRequired(StringBuilder text) {
+        text
+        .append("<td>")
+        .append((getMinCardinality() > 0) ? "<b>Required</b>" : "Optional");
+        
+        String note = getCardinalityNote();
+        if (note != null) {
+            text
+            .append(". ")
+            .append(note);
+        }
+        
+        text.append("</td>\n");
+    }
+    
+    static void writeTableStart(StringBuilder text) {
+        text
+        .append("<table class=\"documentation\">\n")
+        .append("<thead>\n")
+        .append("<tr>\n")
+        .append("<th>Element</th>\n")
+        .append("<th>Required?</th>\n")
+        .append("<th>Cardinality</th>\n")
+        .append("<th>Description</th>\n")
+        .append("</tr>\n")
+        .append("</thead>\n")
+        .append("<tbody>\n");
+    }
+    
+    static void writeTableEnd(StringBuilder text) {
+        text
+        .append("</tbody>\n")
+        .append("</table>\n");
+    }
+    
+    /**
+     * Returns the member's Title, or the title of the first allowed node if no
+     * specific title was given for this ChildInfo.
+     * 
+     * @return The member's Title
+     */
+    @Override
+    public String getTitle() {
+        String title = super.getTitle();
+        if (title != null) {
+            return title;
+        } else {
+            // The @Title annotation was not present. Construct a default title based
+            // on the first allowed node in the list.
+            if (!allowedNodes.isEmpty()) {
+                return allowedNodes.get(0).getTitle();
+            } else {
+                // There are no allowed nodes, so we can't build a title.
+                return null;
+            }
+        }
     }
     
 }

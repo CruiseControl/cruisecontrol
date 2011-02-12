@@ -1,0 +1,9 @@
+Create a baseline with the name "J2EE_" followed by the CruiseControl generated
+build label using the view tag "j2ee_int" and restricting the baseline to the
+"J2EE_SRC" component.
+
+<pre> &lt;publishers&gt;
+     &lt;clearcasebaselinepublisher viewtag        = "j2ee_int"
+                                 baselineprefix = "J2EE_"
+                                 component      = "J2EE_SRC"/&gt;
+ &lt;/publishers&gt;</pre>

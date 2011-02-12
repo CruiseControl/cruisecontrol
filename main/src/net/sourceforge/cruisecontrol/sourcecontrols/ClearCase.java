@@ -55,6 +55,11 @@ import java.util.Locale;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DiscardConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -72,6 +77,7 @@ import org.apache.log4j.Logger;
  * @author Eric Lefevre
  * @author Ralf Krakowski
  */
+@DescriptionFile
 public class ClearCase implements SourceControl {
     private static final int DEFAULT = 0;
     private static final int DISABLED = 1;
@@ -124,6 +130,8 @@ public class ClearCase implements SourceControl {
      *
      * @param path the local working copy to use when making queries.
      */
+    @Description("Local working copy to use when making queries")
+    @Required
     public void setViewpath(final String path) {
         //_viewPath = getAntTask().getProject().resolveFile(path).getAbsolutePath();
         viewPath = new File(path).getAbsolutePath();
@@ -134,6 +142,8 @@ public class ClearCase implements SourceControl {
      *
      * @param branch the branch that we're concerned about checking files into.
      */
+    @Description("The ClearCase branch")
+    @Required
     public void setBranch(final String branch) {
         this.branch = branch;
     }
@@ -142,6 +152,9 @@ public class ClearCase implements SourceControl {
      * Set whether to check against sub-folders in the view path
      * @param recursive whether to check against sub-folders in the view path
      */
+    @Description("Whether to check sub-folders in the viewpath.")
+    @Optional
+    @Default("true")
     public void setRecursive(final boolean recursive) {
         this.recursive = recursive ? ENABLED : DISABLED;
     }
@@ -161,6 +174,16 @@ public class ClearCase implements SourceControl {
      * 'recurse', which only shows items selected by your current view.
      * @param all true when checking the entire view path
      */
+    @Description("Set when checking the entire view path. When checking the entire view "
+            + "path this option invokes 'lshistory -all' instead of 'lshistory -recursive', "
+            + "which is much faster.<br/><br/> This option is mutually exclusive with the "
+            + "recursive property.<br/><br/> Note that 'all' does not use your view's "
+            + "config-spec rules. It behaves like having a single line config-spec that "
+            + "selects just ELEMENT * /&lt;branch&gt;/LATEST (i.e. 'lshistory -all' results "
+            + "that contain @@ are discarded). This differs from 'recurse', which only "
+            + "shows items selected by your current view.")
+    @Optional
+    @Default("false")
     public void setAll(final boolean all) {
         this.all = all ? ENABLED : DISABLED;
 
@@ -169,6 +192,9 @@ public class ClearCase implements SourceControl {
         }
     }
 
+    @Description("Will set this property if a modification has occurred. For use in "
+            + "conditionally controlling the build later.")
+    @Optional
     public void setProperty(final String property) {
         properties.assignPropertyName(property);
     }

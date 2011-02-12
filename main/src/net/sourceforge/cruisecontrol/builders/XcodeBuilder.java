@@ -13,6 +13,8 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.Directory;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -239,6 +241,7 @@ public class XcodeBuilder extends Builder implements Script {
         }
     }
 
+    @Description("Pass specified argument to xcodebuild. The element has the required attribute: value.")
     public Arg createArg() {
         return arguments.createArg();
     }
@@ -306,12 +309,18 @@ public class XcodeBuilder extends Builder implements Script {
 
     }
     
+    @Description("Passes an argument to xcodebuild. Example: <code>&lt;arg value=\"-project "
+            + "${projectname}\"&gt;</code>.")
     public class Arg implements Serializable {
 
         private static final long serialVersionUID = 832468395631809962L;
 
         String value;
 
+        @Description("Argument to be passed on the command line. Any of the <a href=\""
+                + "#buildproperties\">properties passed to builders</a> can "
+                + "be substituted into the value.")
+        @Required
         public void setValue(String value) {
             this.value = value.trim();
         }

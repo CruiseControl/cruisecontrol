@@ -49,7 +49,11 @@ import java.util.StringTokenizer;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevInputParser;
@@ -65,6 +69,7 @@ import org.apache.log4j.Logger;
  * @author <a href="mailto:jason_chown@scee.net">Jason Chown </a>
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
+@Description("Checks for modifications in an Accurev stream.")
 public class Accurev implements SourceControl, AccurevInputParser {
 
     private static final long serialVersionUID = -4513634989355045950L;
@@ -76,20 +81,17 @@ public class Accurev implements SourceControl, AccurevInputParser {
     private Runner runner;
     private SourceControlProperties properties = new SourceControlProperties();
 
-    /**
-     * Sets the Accurev stream to search for changes
-     *
-     * @param stream the name of the stream
-     */
+    @Description(
+            "The name of the AccuRev stream where the plugin looks for "
+            + "Modification(s).")
+    @Required
     public void setStream(String stream) {
         this.stream = stream;
     }
 
-    /**
-     * Enables/disables verbose logging
-     *
-     * @param verbose set to true to enable verbose logging
-     */
+    @Description("Set to \"true\" to enable a more verbose logging style.")
+    @Optional
+    @Default("false")
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
@@ -99,6 +101,10 @@ public class Accurev implements SourceControl, AccurevInputParser {
      *
      * @param propertyName the name of the property
      */
+    @Description(
+            "Will set this property if a modification has occurred. "
+            + "For use in conditionally controlling the build later.")
+    @Optional
     public void setProperty(String propertyName) {
         properties.assignPropertyName(propertyName);
     }

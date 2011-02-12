@@ -49,17 +49,27 @@ import javax.management.MBeanServer;
 
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 
 /**
- * A plugin that represents the project node
- * 
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
+@Description("<p>A <code>&lt;project&gt;</code> is the basic unit of work - it will "
+    + "handle checking for modifications, building, and publishing the results of "
+    + "your project.</p>"
+    + "<p>Note: one config.xml file can contain several <code>&lt;project&gt;</code> "
+    + "elements; these projects will all run in a shared build queue (see the "
+    + "<a href='#threads'><code>&lt;threads&gt;</code></a> element if you want to build "
+    + "multiple projects at the same time).</p>")
 public class ProjectConfig implements ProjectInterface {
     private static final long serialVersionUID = -893779421250033198L;
 
@@ -121,40 +131,54 @@ public class ProjectConfig implements ProjectInterface {
         }
     }
 
+    @Description("Unique identifier for this project.")
+    @Required
     public void setName(String name) {
         this.name = name;
     }
 
+    @Description("Should CruiseControl keep on building even though it has failed and no new "
+        + "modifications are detected? This feature is useful if you want CruiseControl to "
+        + "detect situations where a build fails because of outside dependencies (like "
+        + "temporary failing database connection).")
+    @Default("true")
+    @Optional
     public void setBuildAfterFailed(boolean buildAfterFailed) {
         this.buildAfterFailed = buildAfterFailed;
     }
 
+    @Description("Should CruiseControl force a project to build if the serial file (project.SER)"
+        + " is not found, typically this is when the project is first added. This feature is "
+        + "useful for projects that have or use dependencies.")
+    @Default("true")
+    @Optional
     public void setForceBuildNewProject(boolean forceBuildNewProject) {
         this.forceBuildNewProject = forceBuildNewProject;
     }
 
     /**
-     * Defines a name/value pair used in configuration.
-     * @param plugin plugin
      * @deprecated exists only for gendoc, should not be called.
      */
     @SuppressWarnings("unused")
+    @Description("Defines a name/value pair used in configuration.")
     public void add(DefaultPropertiesPlugin plugin) {
         // FIXME currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
     /**
-     * Registers a classname with an alias.
      * @param plugin plugin
      * @deprecated exists only for gendoc, should not be called.
      */
     @SuppressWarnings("unused")
+    @Description("Registers a classname with an alias.")
     public void add(PluginPlugin plugin) {
         // currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
 
+    @Description("Container element for Label Incrementer plugin instances.")
+    @Cardinality(min = 0, max = 1)
     public void add(LabelIncrementer labelIncrementer) {
         if (this.labelIncrementer != null) {
             LOG.warn("replacing existing label incrememnter [" + this.labelIncrementer.toString()
@@ -163,26 +187,39 @@ public class ProjectConfig implements ProjectInterface {
         this.labelIncrementer = labelIncrementer;
     }
 
+    @Description("Container element for Listener plugin instances.")
+    @Cardinality(min = 0, max = 1)
     public void add(Listeners listeners) {
         this.listeners = listeners;
     }
 
+    @Description("Container element for Source Control plugin instances.")
+    @Cardinality(min = 1, max = 1)
     public void add(ModificationSet modificationSet) {
         this.modificationSet = modificationSet;
     }
 
+    @Description("Container element for Bootstrapper plugin instances.")
+    @Cardinality(min = 0, max = 1)
     public void add(Bootstrappers bootstrappers) {
         this.bootstrappers = bootstrappers;
     }
 
+    @Description("Container element for Publisher plugin instances.")
+    @Cardinality(min = 0, max = 1)
     public void add(Publishers publishers) {
         this.publishers = publishers;
     }
 
+    @Description("Specifies the SourceControl poll interval, and is a parent "
+        + "element for Builder plugin instances.")
+    @Cardinality(min = 1, max = 1)
     public void add(Schedule schedule) {
         this.schedule = schedule;
     }
 
+    @Description("Specifies where project log files are stored.")
+    @Cardinality(min = 0, max = 1)
     public void add(Log log) {
         this.log = log;
     }
@@ -223,10 +260,20 @@ public class ProjectConfig implements ProjectInterface {
         return name;
     }
 
+    @Description(
+        "<p>The <code>&lt;bootstrappers&gt;</code> element is a container element"
+        + "for Bootstrapper plugin instances.</p>"
+        + "<p>Bootstrappers are run before a build takes place, regardless of"
+        + "whether a build is necessary or not, but not if the build is paused."
+        + "Each bootstrapper element is independent of the others so it is quite"
+        + "possible to have multiple bootstrappers of the same time, say 3 CVS or"
+        + "VssBootstrappers to update 3 different files.</p>")
     public static class Bootstrappers implements Serializable {
         private static final long serialVersionUID = 7428779281399848035L;
         private final List<Bootstrapper> bootstrappers = new ArrayList<Bootstrapper>();
 
+        @Description("Adds a bootstrapper to the project.")
+        @Cardinality(min = 0, max = -1)
         public void add(final Bootstrapper bootstrapper) {
             bootstrappers.add(bootstrapper);
         }
@@ -281,10 +328,12 @@ public class ProjectConfig implements ProjectInterface {
         }
     }
 
-    /**
-     * @param forceOnly
-     *            the forceOnly to set
-     */
+    @Description("Indicate that the build for the project only occurs when forced. Note "
+        + "that if the buildAfterFailed attribute is true, then builds will continue to "
+        + "occur based upon the the rules on <a href='#schedule'><code>&lt;schedule&gt;</code></a> "
+        + "until the build is successful.")
+    @Optional
+    @Default("false")
     public void setForceOnly(boolean forceOnly) {
         this.forceOnly = forceOnly;
     }
@@ -307,6 +356,11 @@ public class ProjectConfig implements ProjectInterface {
      * @param requiremodification
      *            the requiremodification to set
      */
+    @Description("Is a modification required for the build to continue? Default value is "
+        + "true. Useful to set to false when the schedule has only time based builds or if "
+        + "you want to run tests to verify an external resource (such as a database).")
+    @Default("true")
+    @Optional
     public void setRequiremodification(boolean requiremodification) {
         this.requiremodification = requiremodification;
     }
