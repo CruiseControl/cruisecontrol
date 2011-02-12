@@ -38,6 +38,10 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -51,6 +55,8 @@ import org.jdom.Element;
 import java.io.File;
 import java.io.IOException;
 
+@Description("Copies build products to unique destination directory based on "
+        + "the build timestamp.")
 public class ArtifactsPublisher implements Publisher {
 
     private String destDir;
@@ -60,18 +66,31 @@ public class ArtifactsPublisher implements Publisher {
     private boolean moveInsteadOfCopy = false;
     private boolean publishOnFailure = true;
 
+    @Description("parent directory of actual destination directory; actual destination "
+            + "directory name will be the build timestamp.")
+    @Required
     public void setDest(String dir) {
         destDir = dir;
     }
 
+    @Description("will copy all files from this directory")
+    @Optional("One of \"file\" or \"dir\" is required.")
     public void setDir(String pDir) {
         targetDirectory = pDir;
     }
 
+    @Description("will copy specified file")
+    @Optional("One of \"file\" or \"dir\" is required.")
     public void setFile(String file) {
         targetFile = file;
     }
 
+    @Description("<strong>Deprecated. Use <a href=\"#onsuccess\">&lt;onsuccess&gt;</a> and"
+            + "<a href=\"#onfailure\">&lt;onfailure&gt;</a> instead.</strong><br/>"
+            + "set this attribute to false to stop the publisher from running when the "
+            + "build fails.")
+    @Optional
+    @Default("true")
     public void setPublishOnFailure(boolean shouldPublish) {
         publishOnFailure = shouldPublish;
     }
@@ -154,10 +173,15 @@ public class ArtifactsPublisher implements Publisher {
             "only one of 'dir' or 'file' may be specified.");
     }
 
+    @Description("subdirectory under the unique (timestamp) directory to contain artifacts")
+    @Optional
     public void setSubdirectory(String subdir) {
         subdirectory = subdir;
     }
 
+    @Description("The publisher will move files/directrories instead of copying them.")
+    @Optional
+    @Default("false")
     public void setMoveInsteadOfCopy(boolean moveInsteadOfCopy) {
         this.moveInsteadOfCopy = moveInsteadOfCopy;
     }

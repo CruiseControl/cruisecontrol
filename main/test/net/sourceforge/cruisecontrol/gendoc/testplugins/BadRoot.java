@@ -40,9 +40,13 @@ import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Examples;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 
+@Description("") @DescriptionFile
+@Examples("") @ExamplesFile
 public interface BadRoot {
     public void setOK(boolean ok); // Will not cause a parse error.
     

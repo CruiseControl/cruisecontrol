@@ -1,6 +1,6 @@
 /********************************************************************************
  * CruiseControl, a Continuous Integration Toolkit
- * Copyright (c) 2006, ThoughtWorks, Inc.
+ * Copyright (c) 2001-2003, 2006, ThoughtWorks, Inc.
  * 200 E. Randolph, 25th Floor
  * Chicago, IL 60601 USA
  * All rights reserved.
@@ -34,33 +34,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
-package net.sourceforge.cruisecontrol.gendoc.testplugins;
+package net.sourceforge.cruisecontrol.gendoc.annotations;
 
-import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
-import net.sourceforge.cruisecontrol.gendoc.annotations.Examples;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@DescriptionFile @Examples("Y")
-public interface GoodChild {
-    
-    // Put in a setter for every supported attribute type.
-    
-    public void setIntegerP(int i);
-    public void setIntegerO(Integer i);
-    public void setLongP(long l);
-    public void setLongO(Long l);
-    public void setShortP(short s);
-    public void setShortO(Short s);
-    public void setByteP(byte b);
-    public void setByteO(byte b);
-    public void setFloatP(float f);
-    public void setFloatO(float f);
-    public void setDoubleP(double d);
-    public void setDoubleO(Double d);
-    public void setBooleanP(boolean b);
-    public void setBooleanO(boolean b);
-    public void setString(String s);
+/**
+ * <p>Provides example usage documentation for a plugin, which will appear after
+ * the attribute and child tables in the generated documentation.
+ * Instead of being specified at compile-time, the description will be loaded from a file at
+ * runtime. The example text may use HTML markup.</p>
+ * 
+ * <p>Applies to: Plugin class.</p>
+ * 
+ * @author Seth Pollen (pollens@msoe.edu)
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.TYPE })
+public @interface ExamplesFile {
 
-    @DescriptionFile("TestDoc.html")
-    public RecursiveChild createAnotherRecursiveChild();
-    
+    /**
+     * <p>The path to the file containing the examples documentation of this plugin.
+     * If this path begins with a slash character ("/"), it will be interpreted relative to
+     * the root of the package structure containing the class using the annotation. Otherwise,
+     * it will be interpreted relative to the package containing the class using the annotation.
+     * Do not use backward slashes in this path.</p>
+     * 
+     * <p>The contents of the file must adhere to the requirements of {@link Examples#value()}.</p>
+     * 
+     * <p>If <code>value</code> is left unspecified, a default file path will be assumed to be
+     * the file in the same directory as the class with the same name as the class and a "examples.html"\
+     * extension.</p>
+     * 
+     * @return The path to the file containing the example documentation of this plugin.
+     */
+    String value() default "";
+
 }

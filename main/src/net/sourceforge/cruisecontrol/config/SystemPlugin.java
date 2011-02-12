@@ -37,15 +37,17 @@
 package net.sourceforge.cruisecontrol.config;
 
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 
-/**
- * Currently just a placeholder for the &lt;configuration&gt; element, which in its turn is just a
- * placeholder for the <a href=\"#threads\">&lt;threads&gt;</a> element.<br/>
- * We expect that in the future, more system-level features can be configured under this element. 
- */
+@Description(
+    "Currently just a placeholder for the <code>&lt;configuration&gt;</code> element, which in "
+    + "its turn is just a placeholder for the <code>&lt;threads&gt;</code> element. We expect that "
+    + "in the future, more system-level features can be configured under this "
+    + "element.")
 public class SystemPlugin {
   private ConfigurationPlugin config;
 
+  @Description("Allows configuration of certain server attributes.")
   @Cardinality(min = 0, max = 1)
   public void add(ConfigurationPlugin configuration) {
     this.config = configuration;

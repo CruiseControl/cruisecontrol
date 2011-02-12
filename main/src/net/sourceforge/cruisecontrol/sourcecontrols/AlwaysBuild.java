@@ -42,12 +42,14 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 
 /**
  * Returns "true" always, so that a build will happen repeatedly.
  *
  * @author <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>
  */
+@Description("Used to always trigger a build by returning a single modification.")
 public class AlwaysBuild extends FakeUserSourceControl {
 
     public void validate() throws CruiseControlException {

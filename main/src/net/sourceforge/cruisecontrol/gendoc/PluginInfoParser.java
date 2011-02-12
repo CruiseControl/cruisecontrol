@@ -54,6 +54,8 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Examples;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
@@ -249,6 +251,12 @@ public class PluginInfoParser {
                 // Log the error. Leave description as null.
                 pluginInfo.addParsingError("Error - " + e.getMessage());
             }
+            try {
+                pluginInfo.setExamples(computePluginExamples(pluginClass));
+            } catch (PluginInfoParsingException e) {
+                // Log the error. Leave description as null.
+                pluginInfo.addParsingError("Error - " + e.getMessage());
+            }
             
             // Parse attributes and children.
             parsePluginAttributes(pluginInfo, pluginClass);
@@ -266,6 +274,48 @@ public class PluginInfoParser {
             name = pluginClass.getSimpleName().toLowerCase(Locale.US);
         }
         return name;
+    }
+    
+    private String computePluginExamples(Class< ? > pluginClass) throws PluginInfoParsingException {
+        Examples examples = pluginClass.getAnnotation(Examples.class);
+        ExamplesFile examplesFile = pluginClass.getAnnotation(ExamplesFile.class);
+        
+        if (examples != null && examplesFile != null) {
+            throw new PluginInfoParsingException(
+                    "Cannot have @Examples and @ExamplesFile on the same element.");
+        }
+        
+        String text;
+        if (examples == null) {
+            if (examplesFile == null) {
+                text = null;
+                
+            } else { // Use the ExamplesFile annotation to load text from a file.
+                String path = examplesFile.value();
+                if (path.length() == 0) {
+                    // Use the default path.
+                    path = computeDefaultExamplesFilePath(pluginClass);
+                }
+                
+                // Load the examples text file using the class loader for the
+                // plugin class.
+                InputStream stream = pluginClass.getResourceAsStream(path);
+                try {
+                    text = IO.readText(stream);
+                } catch (IOException e) {
+                    throw new PluginInfoParsingException(
+                            "Could not read from examples file: " + path);
+                }
+            }
+        } else { // Load examples text directly from the annotation.
+            text = examples.value();
+        }
+        
+        if (text != null) {
+            validator.validateWellFormed(text, "examples");
+        }
+        
+        return text;
     }
     
     private String computePluginDescription(Class< ? > pluginClass) throws PluginInfoParsingException {
@@ -353,6 +403,10 @@ public class PluginInfoParser {
     private String computeDefaultDescriptionFilePath(Method method) {
         return method.getDeclaringClass().getSimpleName()
             + "." + method.getName() + ".html";
+    }
+    
+    private String computeDefaultExamplesFilePath(Class< ? > clazz) {
+        return clazz.getSimpleName() + ".examples.html";
     }
     
     private String computePluginTitle(Class< ? > pluginClass) {

@@ -52,6 +52,12 @@ import java.util.Properties;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.SourceControl;
 import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -67,6 +73,8 @@ import org.apache.log4j.Logger;
  *
  * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
+@DescriptionFile
+@ExamplesFile
 public class CMSynergy implements SourceControl {
 
     private static final long serialVersionUID = -65675636345070572L;
@@ -239,6 +247,10 @@ public class CMSynergy implements SourceControl {
      * @param ccmExe
      *            the name of the CM Synergy executable
      */
+    @Description("The name of the CM Synergy command line client. If not provided, the "
+            + "plugin will search the system path for an executable called \"ccm\" (or "
+            + "\"ccm.exe\" for Windows).")
+    @Optional
     public void setCcmExe(String ccmExe) {
         this.ccmExe = ccmExe;
     }
@@ -251,6 +263,9 @@ public class CMSynergy implements SourceControl {
      * @param projectSpec
      *            The project spec (in 2 part name format).
      */
+    @Description("The project spec (two part name) of the CM Synergy project in which "
+            + "you wish to search for changes.")
+    @Required
     public void setProject(String projectSpec) {
         this.projectSpec = projectSpec;
     }
@@ -264,6 +279,13 @@ public class CMSynergy implements SourceControl {
      * @param projectInstance
      *            The instance number of the project.
      */
+    @Description("Used to set the project's instance value. As CM Synergy only allows a "
+            + "single instance of a project object in any given database, this attribute "
+            + "defaults to \"1\", and should not need to be changed by most users. "
+            + "<strong>You might, however, need to set this value when using the DCM "
+            + "(Distributed Change Management) feature of the tool - which appends the DB "
+            + "name to the instance value.</strong>")
+    @Optional
     public void setInstance(String projectInstance) {
         this.projectInstance = projectInstance;
     }
@@ -278,6 +300,11 @@ public class CMSynergy implements SourceControl {
      * @param url
      *            The URL of your ChangeSynergy installation
      */
+    @Description("If provided, an active link will be created from the build results web "
+            + "page to any change requests associated with any new tasks. The format "
+            + "should be \"http://server:port\". If you wish to use this option, you must "
+            + "also set the \"ccmdb\" attribute.")
+    @Optional
     public void setChangeSynergyURL(String url) {
         this.changeSynergyURL = url;
     }
@@ -292,6 +319,9 @@ public class CMSynergy implements SourceControl {
      *            The remote Synergy database with which to connect (e.g.
      *            /ccmdb/mydb).
      */
+    @Description("Used in conjunction with changesynergyurl. This should be set to the "
+            + "location of the database on the CM Synergy server. (e.g. \"/ccmdb/mydb\")")
+    @Optional
     public void setCcmDb(String db) {
         this.ccmDb = db;
     }
@@ -302,6 +332,16 @@ public class CMSynergy implements SourceControl {
      * contents of the folders contained within the project's reconfigure
      * properties will be updated before we query to find new tasks.
      */
+    @Description("By default, the plugin will always refresh the reconfigure properties of "
+            + "the given project before searching for changes. This allows any query based "
+            + "folders to update themselves with new tasks. If you wish to disable this "
+            + "feature (not recommended), you may set this attribute to false. <strong>This "
+            + "feature will only work with CM Synergy version 6.3 and above. If you are "
+            + "using an older version, you <em>must</em> set this option to false. In this "
+            + "case, you'll want to use the <a href=\"#cmsynergybootstrapper\">&lt;"
+            + "cmsynergybootstrapper&gt;</a> as a workaround. Please see example 2 below "
+            + "as well as the Wiki site for more information.</strong>")
+    @Optional
     public void setUpdateFolders(boolean updateFolders) {
         this.updateFolders = updateFolders;
     }
@@ -319,6 +359,11 @@ public class CMSynergy implements SourceControl {
      * @param sessionFile
      *            The session file
      */
+    @Description("The session file used by the <a href=\"#cmsynergysessionmonitor\">&lt;"
+            + "cmsynergysessionmonitor&gt;</a> to persist your CM Synergy session "
+            + "information. If this attribute is not set, it defaults to the file "
+            + "\".ccmsessionmap\" in your home directory.")
+    @Optional
     public void setSessionFile(String sessionFile) {
         this.sessionFile = new File(sessionFile);
     }
@@ -332,6 +377,10 @@ public class CMSynergy implements SourceControl {
      *
      * @see #setSessionFile(String)
      */
+    @Description("The session name of the CM Synergy session you wish to use. This name "
+            + "must appear in the session file. If not set, the plugin will attempt to "
+            + "use the default (current) session as returned by the \"ccm status\" command.")
+    @Optional
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
     }
@@ -345,6 +394,11 @@ public class CMSynergy implements SourceControl {
      * @param format
      *            the date format
      */
+    @Description("The default (output) date format used by CM Synergy is \"EEE MMM dd "
+            + "HH:mm:ss yyyy\" If you have customized this for your installation, you "
+            + "must provide the correct format here. The format should follow the standard "
+            + "defined in Java's SimpleDateFormat class.")
+    @Optional
     public void setCcmDateFormat(String format) {
         this.ccmDateFormat = format;
     }
@@ -354,6 +408,12 @@ public class CMSynergy implements SourceControl {
      * @param reconfigure If set to true, the project
      * will be reconfigured when changes are detected. Default value is false.
      */
+    @Description("Disabled by default. If you set this option to true, the project (and "
+            + "optionally any subprojects) will be automatically reconfigured when changes "
+            + "are detected. This eliminates the need to handle this from within your build "
+            + "scripts.")
+    @Optional
+    @Default("false")
     public void setReconfigure(boolean reconfigure) {
         this.reconfigure = reconfigure;
     }
@@ -366,6 +426,14 @@ public class CMSynergy implements SourceControl {
      * for Synergy 6.3SP1 and newer only.
      * Default value is false.
      */
+    @Description("If set to true, the time a task came into the reconfigure folder is used "
+            + "to determine modified tasks instead of the tasks completion date. This is a "
+            + "more precise query to find modifications since the last build when the "
+            + "reconfiguration rules are based on other criteria e.g. the status of a "
+            + "Change Synergy change request. <strong>This feature will only work with CM "
+            + "Synergy version 6.3SP1 and above. If you are using an older version, you "
+            + "<em>must</em> set this option to false (default).</strong>")
+    @Optional
     public void setUseBindTime(boolean useBindTime) {
         this.useBindTime = useBindTime;
     }
@@ -376,6 +444,10 @@ public class CMSynergy implements SourceControl {
      * @param recurse If set to true, all subprojects will also be
      * reconfigured when changes are detected. Default is true.
      */
+    @Description("Used in conjunction with the reconfigure option. If set to true (which is "
+            + "the default) all subprojects will also be reconfigured.")
+    @Optional
+    @Default("true")
     public void setRecurse(boolean recurse) {
         this.recurse = recurse;
     }
@@ -386,6 +458,11 @@ public class CMSynergy implements SourceControl {
      * not attempt to determine the location of the project's workarea, nor will
      * we pass the cc.ccm.workarea attribute to the builders. Default is false.
      */
+    @Description("By default, the plugin will query CM Synergy to determine the work area "
+            + "location of the project. This location is then passed to the builders in "
+            + "the property \"cc.ccm.workarea\". If you wish to disable this feature (not "
+            + "recommended), you can set this attribute to <em>true</em>.")
+    @Optional
     public void setIgnoreWorkarea(boolean ignoreWorkarea) {
         this.ignoreWorkarea = ignoreWorkarea;
     }
@@ -398,6 +475,9 @@ public class CMSynergy implements SourceControl {
      * @param language
      *            The language to use when creating the <code>Locale</code>
      */
+    @Description("If you have a non U.S. English installation of CM Synergy, you may "
+            + "specify the ISO language code here. (e.g. fr, de, etc.)")
+    @Optional
     public void setLanguage(String language) {
         this.language = language;
     }
@@ -410,6 +490,9 @@ public class CMSynergy implements SourceControl {
      * @param country
      *            The ISO country code to use
      */
+    @Description("If you have a non U.S. English installation of CM Synergy, you may "
+            + "specify the ISO country code here. (e.g. FR, DE, etc.)")
+    @Optional
     public void setCountry(String country) {
         this.country = country;
     }
@@ -418,6 +501,12 @@ public class CMSynergy implements SourceControl {
         return properties.getPropertiesAndReset();
     }
 
+    @Description("Added for compliance with the CruiseControl API. A property of this "
+            + "name will be provided to the builders if any CM Synergy object has changed "
+            + "since the last build. The default is cc.ccm.haschanged, and probably "
+            + "shouldn't be altered.")
+    @Optional
+    @Default("cc.ccm.haschanged")
     public void setProperty(String property) {
         this.property = property;
     }
@@ -444,7 +533,7 @@ public class CMSynergy implements SourceControl {
             final StringBuilder message = new StringBuilder("Could not connect to provided CM Synergy session: ");
             message.append(sessionName).append(" with session file:").append(sessionFile.getAbsolutePath());
             LOG.error(message.toString(), e);
-            throw new OpperationFailedException(message.toString(), e);
+            throw new OperationFailedException(message.toString(), e);
         }
 
         // Create the projectFourPartName needed for projects with instance
@@ -507,7 +596,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not refresh reconfigure properties for project \"" + projectFourPartName + "\".";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
     }
 
@@ -541,7 +630,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not query for new tasks.";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
 
         // Determine if the project is either of a System Testing or
@@ -604,7 +693,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not query for new tasks.";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
 
         // create a modification list with discovered tasks
@@ -664,7 +753,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not query for latest baseline";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
         String baselineString = cmd.getStdoutAsString();
         String[] baselineList = baselineString.split("\r\n|\r|\n");
@@ -691,7 +780,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not get project release";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
         String[] release = cmd.getStdoutAsString().split("\r\n|\r|\n");
         return release[0].trim();
@@ -889,7 +978,7 @@ public class CMSynergy implements SourceControl {
         } catch (Exception e) {
             String message = "Could not reconfigure project \"" + projectFourPartName + "\".";
             LOG.error(message, e);
-            throw new OpperationFailedException(message, e);
+            throw new OperationFailedException(message, e);
         }
     }
 
@@ -1020,8 +1109,8 @@ public class CMSynergy implements SourceControl {
         return command;
     }
 
-    class OpperationFailedException extends RuntimeException {
-        public OpperationFailedException(String message, Exception e) {
+    class OperationFailedException extends RuntimeException {
+        public OperationFailedException(String message, Exception e) {
             super(message, e);
         }
     }

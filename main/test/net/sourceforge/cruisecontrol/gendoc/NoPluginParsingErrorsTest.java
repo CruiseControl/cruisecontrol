@@ -41,8 +41,8 @@ import net.sourceforge.cruisecontrol.PluginRegistry;
 import junit.framework.TestCase;
 
 /**
- * A test case to make sure that no parsing errors have occurred in the parsed html
- * 
+ * A test case to make sure that no parsing errors have occurred in the parsed html.
+ * This will ensure that the build fails if there are errors in the gendoc output.
  * @author lovea@msoe.edu
  * @version 1.0
  */

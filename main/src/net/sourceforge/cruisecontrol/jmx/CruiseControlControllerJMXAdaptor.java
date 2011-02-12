@@ -351,6 +351,10 @@ public class CruiseControlControllerJMXAdaptor extends NotificationBroadcasterSu
         return parsePlugins(projectName).getRootPlugin();
     }
     
+    public List<PluginInfo> getAllPlugins(final String projectName) {
+        return parsePlugins(projectName).getAllPlugins();
+    }
+    
     /**
      * Generates the HTML documentation for the plugins.
      * @param projectName Null to get the plugins from the root context. Otherwise, this should

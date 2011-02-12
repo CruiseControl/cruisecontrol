@@ -49,6 +49,14 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -66,6 +74,8 @@ import org.apache.log4j.Logger;
  * we can avoid this by just building in a different process which will completely die after every
  * build.
  */
+@DescriptionFile
+@ExamplesFile
 public class AntBuilder extends Builder {
 
     protected static final String DEFAULT_LOGGER = "org.apache.tools.ant.XmlLogger";
@@ -254,15 +264,10 @@ public class AntBuilder extends Builder {
         ValidationHelper.assertExists(build, "buildfile", this.getClass());
     }
 
-
-    /**
-     * Set the location to which the ant log will be saved before Cruise
-     * Control merges the file into its log.
-     *
-     * @param dir
-     *          the absolute path to the directory where the ant log will be
-     *          saved or relative path to where you started CruiseControl
-     */
+    @Description(
+            "If supplied, a copy of the ant log will be saved in the specified "
+            + "local directory. Example: saveLogDir=\"/usr/local/dev/projects/cc/logs\".")
+    @Optional
     public void setSaveLogDir(String dir) {
         saveLogDir = null;
 
@@ -299,35 +304,34 @@ public class AntBuilder extends Builder {
             LOG.error(ioe);
             LOG.error("Unable to create file: " + new File(saveLogDir, tempFileName));
         }
-  }
+    }
 
-    /**
-     * Set the working directory where Ant will be invoked. This parameter gets
-     * set in the XML file via the antWorkingDir attribute. The directory can
-     * be relative (to the cruisecontrol current working directory) or absolute.
-     *
-     * @param dir
-     *          the directory to make the current working directory.
-     */
+    @Description(
+            "Will invoke ANT in the specified directory. This directory can be "
+            + "absolute or relative to the cruisecontrol working directory.")
+    @Optional
     public void setAntWorkingDir(String dir) {
         antWorkingDir = dir;
     }
 
-    /**
-     * Sets the Script file to be invoked (in place of calling the Ant class
-     * directly).  This is a platform dependent script file.
-     *
-     * @param antScript the name of the script file
-     */
+    @Description(
+            "Absolute filename of script (shell script or bat file) used to start Ant. "
+            + "You can use this to make CruiseControl use your own Ant installation. "
+            + "If this is not specified, the AntBuilder uses the Ant distribution that "
+            + "ships with CruiseControl. See below for <a href=\"#ant-examples\">examples"
+            + "</a>.")
+    @Optional(
+            "Recommended, however. Cannot be specified if anthome attribute "
+            + "is also specified")
     public void setAntScript(String antScript) {
         this.antScript = antScript;
     }
 
-    /**
-     * If set CC will use the platform specific script provided by Ant
-     *
-     * @param antHome the path to ANT_HOME
-     */
+    @Description(
+            "Directory in which Ant is installed. CruiseControl will attempt to use the "
+            + "standard Ant execution scripts (i.e. ant.bat or ant). See below for "
+            + "<a href=\"#ant-examples\">examples</a>.")
+    @Optional("Cannot be specified if antscript attribute is also specified.")
     public void setAntHome(String antHome) {
         this.antHome = antHome;
     }
@@ -350,39 +354,50 @@ public class AntBuilder extends Builder {
         }
     }
 
-    /**
-     * Set the name of the temporary file used to capture output.
-     *
-     * @param tempFileName temp file name
-     */
+    @Description("Name of temp file used to capture output.")
+    @Optional
+    @Default("log.xml")
     public void setTempFile(String tempFileName) {
         this.tempFileName = tempFileName;
     }
 
-    /**
-     * Set the Ant target(s) to invoke.
-     *
-     * @param target the target(s) name.
-     */
+    @Description(
+            "Ant target(s) to run. Default is \"\", or the default target for "
+            + "the build file.")
+    @Optional
     public void setTarget(String target) {
         this.target = target;
     }
 
-    /**
-     * Sets the name of the build file that Ant will use.  The Ant default is
-     * build.xml, use this to override it.
-     *
-     * @param buildFile the name of the build file.
-     */
+    @Description("Path to Ant build file.")
+    @Optional
+    @Default("build.xml")
     public void setBuildFile(String buildFile) {
         this.buildFile = buildFile;
     }
 
-    /**
-     * Sets whether Ant will use the custom loggers.
-     *
-     * @param useLogger if true, use custom logger
-     */
+    @Description(
+            "'true' if CruiseControl should call Ant using -logger; 'false' to call Ant "
+            + "using '-listener', thus using the loggerclass as a Listener. uselogger="
+            + "\"true\" will make Ant log its messages using the class specified by "
+            + "loggerclassname as an Ant Logger, which can make for smaller log files since "
+            + "it doesn't log DEBUG messages (see useDebug and useQuiet attributes below, "
+            + "and the <a href=\"http://ant.apache.org/manual/listeners.html\">Ant manual</a>). "
+            + "Set to false to have Ant echo ant messages to console "
+            + "using its DefaultLogger, which is useful when debugging your ant build. "
+            + "Defaults to 'false' to make initial setup easier but setting it to 'true' is "
+            + "recommended for production situations."
+            + "<br/><br/>"
+            + "RE: liveOutput: If liveOutput=true AND uselogger=true, this builder will write "
+            + "the ant output to a file (antBuilderOutput.log) that can be read by the "
+            + "Dashboard reporting application. The liveOutput setting has no effect if "
+            + "uselogger=false. <a href=\"#antbootstrapper\">AntBootstrapper</a> and "
+            + "<a href=\"#antpublisher\">AntPublisher</a> do not provide access to "
+            + "liveOutput, and operate as if liveOutput=false. NOTE: In order to show ant "
+            + "output while uselogger=true, the AntBuilder uses a custom Build Listener. If "
+            + "this interferes with your Ant build, set liveOutput=false (and please report "
+            + "the problem)")
+    @Optional
     public void setUseLogger(boolean useLogger) {
         this.useLogger = useLogger;
     }
@@ -392,6 +407,7 @@ public class AntBuilder extends Builder {
      * @param showAntOutput if true, add AntOutputLogger as a listener.
      * @deprecated Use {@link #setLiveOutput(boolean)} instead.
      */
+    @SkipDoc
     public void setShowAntOutput(final boolean showAntOutput) {
         setLiveOutput(showAntOutput);
     }
@@ -414,24 +430,47 @@ public class AntBuilder extends Builder {
         return showAntOutput && useLogger;
     }
 
+    @Description("Pass specified argument to the jvm used to invoke ant."
+            + "Ignored if using anthome or antscript. The element has a single required"
+            + "attribute: \"arg\".<br />"
+            + "<strong>Example:</strong> <code>&lt;jvmarg arg=\"-Xmx120m\"/&gt;</code>")
+    @Cardinality(min = 0, max = -1)
     public JVMArg createJVMArg() {
         final JVMArg arg = new JVMArg();
         args.add(arg);
         return arg;
     }
 
+    @Description("Used to define additional <a "
+            + "href=\"http://ant.apache.org/manual/running.html#libs\">library directories</a> "
+            + "for the ant build. The element has one required attribute: \"searchPath\".<br /> "
+            + "<strong>Example:</strong> <code>&lt;lib searchPath=\"/home/me/myantextensions\"/"
+            + "&gt;</code>")
+    @Cardinality(min = 0, max = -1)
     public Lib createLib() {
         final Lib lib = new Lib();
         libs.add(lib);
         return lib;
     }
 
+    @Description("Used to define additional <a "
+            + "href=\"http://ant.apache.org/manual/listeners.html\">listeners</a> for the "
+            + "ant build. The element has one required attribute: \"classname\".<br />"
+            + "<strong>Example:</strong> <code>&lt;listener classname=\"org.apache.tools."
+            + "ant.listener.Log4jListener\"/&gt;</code>")
+    @Cardinality(min = 0, max = -1)
     public Listener createListener() {
         final Listener listener = new Listener();
         listeners.add(listener);
         return listener;
     }
 
+    @Description("Used to define properties for the ant build. The element has two "
+            + "required attributes: \"name\" and \"value\". These will be passed on the "
+            + "ant command-line as \"-Dname=value\"<br />"
+            + "<strong>Example:</strong> <code>&lt;property name=\"foo\" value=\"bar\"/"
+            + "&gt;</code>")
+    @Cardinality(min = 0, max = -1)
     public Property createProperty() {
         final Property property = new Property();
         properties.add(property);
@@ -481,14 +520,38 @@ public class AntBuilder extends Builder {
         }
     }
 
+    @Description(
+            "If true will invoke ant with -debug, which can be useful for debugging your "
+            + "ant build. Defaults to 'false', cannot be set to 'true' if usequiet is "
+            + "also set to 'true'. When used in combination with uselogger=\"true\", "
+            + "this will result in bigger XML log files; otherwise, it will cause more "
+            + "output to be written to the console by Ant's DefaultLogger.")
+    @Optional
     public void setUseDebug(boolean debug) {
         useDebug = debug;
     }
 
+    @Description(
+            "If true will invoke ant with -quiet, which can be useful for creating smaller "
+            + "log files since messages with a priority of INFO will not be logged. Defaults "
+            + "to 'false', cannot be set to 'true' if usedebug is also set to 'true'. "
+            + "Smaller logfiles are only achieved when used in combination with uselogger="
+            + "\"true\", otherwise there will just be less output echoed to the console by "
+            + "Ant's DefaultLogger."
+            + "<br/><br/>"
+            + "RE: showProgress: useQuiet=\"true\" will prevent any progress messages from "
+            + "being displayed. NOTE: In order to show progress, the AntBuilder uses custom "
+            + "Build Loggers and Listeners. If these interfere with your Ant build, set "
+            + "showProgress=false (and please report the problem).")
+    @Optional
     public void setUseQuiet(boolean quiet) {
         useQuiet = quiet;
     }
 
+    @Description(
+            "If true will invoke ant with -keep-going, which can be useful for performing "
+            + "build steps after an optional step fails. Defaults to 'false'.")
+    @Optional
     public void setKeepGoing(boolean keepGoing) {
         this.keepGoing = keepGoing;
     }
@@ -497,16 +560,26 @@ public class AntBuilder extends Builder {
         return loggerClassName;
     }
 
+    @Description(
+            "If you want to use another logger (or listener, when uselogger=\"false\") than "
+            + "Ant's XmlLogger, you can specify the classname of the logger here. The logger "
+            + "needs to output compatible XML, and the class needs to be available on the "
+            + "classpath at buildtime.")
+    @Optional
+    @Default("org.apache.tools.ant.XmlLogger")
     public void setLoggerClassName(String string) {
         loggerClassName = string;
         isLoggerClassNameSet = true;
     }
 
+    @Description("Passes an argument to the JVM used to invoke ANT.")
     public class JVMArg implements Serializable {
         private static final long serialVersionUID = 402625457108399047L;
 
         private String arg;
 
+        @Description("Command-line argument to pass to the ANT JVM.")
+        @Required
         public void setArg(String arg) {
             this.arg = arg;
         }
@@ -516,11 +589,14 @@ public class AntBuilder extends Builder {
         }
     }
     
+    @Description("Provides additional library directories for an ANT build.")
     public class Lib implements Serializable {
         private static final long serialVersionUID = 1804469347425625224L;
 
         private String searchPath;
 
+        @Description("Path to use for loading libraries into the ANT JVM.")
+        @Required
         public void setSearchPath(String searchPath) {
             this.searchPath = searchPath;
         }
@@ -530,11 +606,14 @@ public class AntBuilder extends Builder {
         }
     }
     
+    @Description("Provides additional listeners for an ANT build.")
     public class Listener implements Serializable {
         private static final long serialVersionUID = 4813682685614734386L;
 
         private String className;
 
+        @Description("Name of the Java listener class to register with this ANT build.")
+        @Required
         public void setClassName(String className) {
             this.className = className;
         }
@@ -544,27 +623,35 @@ public class AntBuilder extends Builder {
         }
     }
 
-    /**
-     * @param timeout The timeout to set.
-     */
+    @Description(
+            "Ant build will be halted if it continues longer than the specified timeout. "
+            + "Value in seconds.")
+    @Optional
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
-    /**
-     * @param propertyfile The propertyfile to set.
-     */
+    
+    @Description(
+            "Load all properties from file with -D properties (like child <code><a href=\""
+            + "#antbuilderchildprop\">&lt;property&gt;</a></code> elements) taking "
+            + "precedence. Useful when the propertyfile content can change for every build.")
+    @Optional
     public void setPropertyfile(String propertyfile) {
         this.propertyfile = propertyfile;
     }
 
-    /**
-     * @param progressLoggerLib The path (including filename) to the jar file
-     * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
-     * containing the AntProgressLogger/Listener classes.
-     */
+    @Description(
+            "Overrides the default -lib search path used to add support for showProgress "
+            + "features in the ant builder. This search path ensures customized ant "
+            + "Loggers/Listeners are available on the classpath of the ant builder VM. You "
+            + "should not normally set this value. If you do set this value, you should "
+            + "use the full path (including filename) to cruisecontrol-antprogresslogger.jar. "
+            + "This setting has no effect if showProgress=false.")
+    @Optional
     public void setProgressLoggerLib(String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
     }
+    
     /**
      * @return The path (including filename) to the jar file
      * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})

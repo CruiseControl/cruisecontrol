@@ -1,0 +1,58 @@
+<p>Executes an Ant script which implements a custom publisher.</p>
+
+<h3>Properties Passed to the Publisher</h3>
+
+<p>The <code>&lt;antpublisher&gt;</code> passes <a href="#buildproperties">all of
+the same properties</a>
+that are passed by <a href="#ant">&lt;ant&gt;</a> and the other builders.
+Those properties are augmented by <code>&lt;antpublisher&gt;</code>
+to include the following additional properties:
+</p>
+
+<table class="documentation">
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>thisbuildsuccessful</td>
+        <td>Set to true if the current build was successful, false
+            otherwise. See also the <a href="#onsuccess">&lt;onsuccess&gt;</a>
+            and <a href="#onfailure">&lt;onfailure&gt;</a>.
+        </td>
+    </tr>
+    <tr>
+        <td>projectname</td>
+        <td>The name of the CruiseControl project.</td>
+    </tr>
+    <tr>
+        <td>lastbuild</td>
+        <td>The timestamp of the last attempted build, using the format
+        <code>yyyyMMddHHmmss</code>.</td>
+    </tr>
+    <tr>
+        <td>lastsuccessfulbuild</td>
+        <td>The timestamp of the last successful build, using the format
+        <code>yyyyMMddHHmmss</code>.</td>
+    </tr>
+    <tr>
+        <td>builddate</td>
+        <td>The date of the last build, formatted using the default format.</td>
+    </tr>
+    <tr>
+        <td>interval</td>
+        <td>The time interval between builds.</td>
+    </tr>
+    <tr>
+        <td>logdir</td>
+        <td>The directory containing the log file from the last build.</td>
+    </tr>
+    <tr>
+        <td>logfile</td>
+        <td>The name of the log file from the last build.</td>
+    </tr>
+    </tbody>
+</table>

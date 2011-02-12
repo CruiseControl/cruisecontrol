@@ -37,25 +37,23 @@
 package net.sourceforge.cruisecontrol.config;
 
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-/**
- * <p>The <code>&lt;threads&gt;</code> element can be used to configure the number of threads that
- * CruiseControl can use simultaneously to build projects. This is done through the <code>count</code> attribute.
- * If this element (or one of its parent elements) is not specified, this defaults to 1.
- * This means that only one project will be built at a time. Raise this number if your server has enough resources to
- * build multiple projects simultaneously (especially useful on multi-processor systems).
- * If more projects than the maximum number of threads are scheduled to run at a given moment,
- * the extra projects will be queued.</p>
- */
+@Description("Can be used to configure the number of threads that CruiseControl can use "
+    + "simultaneously to build projects. This is done through the <code>count</code> "
+    + "attribute. If this element (or one of its parent elements) is not specified, this "
+    + "defaults to 1. This means that only one project will be built at a time. Raise this "
+    + "number if your server has enough resources to build multiple projects simultaneously "
+    + "(especially useful on multi-processor systems). If more projects than the maximum "
+    + "number of threads are scheduled to run at a given moment, the extra projects will be "
+    + "queued.")
 public class ThreadsPlugin {
   private int count;
 
-  /**
-   * @param count Maximum number of threads to be in use simultaneously to build projects.
-   */
+  @Description("Maximum number of threads to be in use simultaneously to build projects.")
   @Required
   @Default("1")
   public void setCount(int count) {

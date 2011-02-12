@@ -1,0 +1,26 @@
+<p>Triggers a build if there is a change within a ClearCase repository.</p>
+
+<p>In addition to the standard CruiseControl <a href="#buildproperties">
+properties passed to builders</a>, &lt;clearcase&gt; sets the
+following properties:</p>
+
+<table class="documentation">
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="oddrow">
+        <td>clearcaselastbuild</td>
+        <td>Timestamp representing the last built time, using the
+        format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
+    </tr>
+    <tr>
+        <td>clearcasenow</td>
+        <td>Timestamp representing the time the current build
+        started, using the format <code>dd-MMMM-yyyy.HH:mm:ss</code></td>
+    </tr>
+    </tbody>
+</table>

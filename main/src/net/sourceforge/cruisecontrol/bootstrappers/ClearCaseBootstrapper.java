@@ -38,6 +38,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -50,6 +53,8 @@ import org.apache.log4j.Logger;
  * updating a single file from ClearCase before the build begins. Usage: &lt;clearcasebootstrapper file=""
  * viewpath=""/&gt;
  */
+@Description("Can be used to pull a single file (usually build.xml and/or "
+        + "build.properties) from ClearCase prior to building.")
 public class ClearCaseBootstrapper implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(ClearCaseBootstrapper.class);
@@ -57,10 +62,14 @@ public class ClearCaseBootstrapper implements Bootstrapper {
     private String filename;
     private String viewpath;
 
+    @Description("local path to the file")
+    @Optional
     public void setViewpath(String path) {
         viewpath = path;
     }
 
+    @Description("The filename to write")
+    @Required
     public void setFile(String name) {
         filename = name;
     }

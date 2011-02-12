@@ -49,6 +49,11 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Log;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.SourceControl;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
@@ -66,6 +71,7 @@ import org.jdom.input.SAXBuilder;
  *
  * @author Garrick Olson
  */
+@DescriptionFile
 public class BuildStatus implements SourceControl {
 
     private static final Logger LOG = Logger.getLogger(BuildStatus.class);
@@ -105,6 +111,9 @@ public class BuildStatus implements SourceControl {
         return properties.getPropertiesAndReset();
     }
     
+    @Description("Will set this property if a modification has occurred. For use in "
+            + "conditionally controlling the build later.")
+    @Optional
     public void setProperty(String propertyName) {
         properties.assignPropertyName(propertyName);
     }
@@ -114,6 +123,8 @@ public class BuildStatus implements SourceControl {
      *
      * @param logDir Absolute path to the log directory.
      */
+    @Description("Path to CruiseControl log directory for the project to monitor.")
+    @Required
     public void setLogDir(String logDir) {
         this.logDir = logDir;
     }
@@ -276,9 +287,12 @@ public class BuildStatus implements SourceControl {
         return sxb.build(f);
     }
 
+    @Description("Will abort the build attempt if the last build of the monitored "
+            + "project is failing. Defaults to false.")
+    @Optional
+    @Default("false")
     public void setVetoIfFailing(boolean b) {
         vetoIfFailing = b;
     }
-
 }
 

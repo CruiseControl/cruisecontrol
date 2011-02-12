@@ -1,0 +1,44 @@
+<p>Triggers a build if tasks have been added to any folder within a
+CM Synergy project's reconfigure properties since the last build.
+If used to check for modifications to a System Testing or
+Insulated Development project, this will also check for any
+completed tasks included in the latest baseline for
+the projects release value since the last build.</p>
+
+<h3>Properties Passed to the Builders</h3>
+
+<p>In addition to the standard CruiseControl <a href="#buildproperties">
+properties passed to builders</a>, &lt;cmsynergy&gt; sets the
+following properties:</p>
+
+<table class="documentation">
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>cc.ccm.session</td>
+        <td>The CM Synergy session ID used to check for modifications.</td>
+    </tr>
+    <tr>
+        <td>cc.ccm.dateformat</td>
+        <td>The date format used to convert CM Synergy dates into Java dates.</td>
+    </tr>
+    <tr>
+        <td>cc.ccm.project</td>
+        <td>The two part name of the project (as provided in the project attribute).</td>
+    </tr>
+    <tr>
+        <td>cc.ccm.workarea</td>
+        <td>The file system location of the CM Synergy work area for the project
+            (unless the ignoreworkarea attribute was set).</td>
+    </tr>
+    <tr>
+        <td>cc.ccm.haschanged (or the value specified by the property attribute)</td>
+        <td>Set to true if any CM Synergy objects have changed since the last build.</td>
+    </tr>
+    </tbody>
+</table>

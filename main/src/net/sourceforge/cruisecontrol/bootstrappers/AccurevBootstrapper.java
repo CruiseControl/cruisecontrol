@@ -38,7 +38,10 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommand;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.AccurevCommandline;
 import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
@@ -50,6 +53,9 @@ import net.sourceforge.cruisecontrol.sourcecontrols.accurev.Runner;
  * @author <a href="mailto:jason_chown@scee.net">Jason Chown</a>
  * @author <a href="mailto:Nicola_Orru@scee.net">Nicola Orru'</a>
  */
+@Description(
+        "Automatically updates an accurev workspace. The selected workspace must "
+        + "already exist on the local filesystem.")
 public class AccurevBootstrapper implements Bootstrapper {
 
     private static final long serialVersionUID = -8790465364314947316L;
@@ -60,39 +66,34 @@ public class AccurevBootstrapper implements Bootstrapper {
     private String workspace;
     private Runner runner;
 
-    /**
-     * Enables/disables verbose logging
-     *
-     * @param verbose if true, verbose logging is enabled
-     */
+    @Description("Enables detailed logging.")
+    @Optional
+    @Default("false")
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
-    /**
-     * Enables/disables automatic keep
-     *
-     * @param keep if true, "accurev keep -m" is run on the selected workspace, to keep al modified files
-     */
+    @Description(
+            "If true, the plugin runs \"accurev keep -m\" before trying to update "
+            + "the workspace, to keep all modified elements.")
+    @Optional
+    @Default("false")
     public void setKeep(boolean keep) {
         this.keep = keep;
     }
 
-    /**
-     * Enables/disables automatic synctime
-     *
-     * @param synctime if true, "accurev synctime" is run on the selected workspace, synchronizing the
-     *                 server's time with the client's
-     */
+    @Description(
+            "If true, the plugin runs \"accurev synctime\" before trying to update "
+            + "the workspace, to synchronize the local clock with the Accurev server's.")
+    @Optional
+    @Default("false")
     public void setSynctime(boolean synctime) {
         this.synctime = synctime;
     }
 
-    /**
-     * Selects a workspace
-     *
-     * @param workspace the path of the workspace to work in, in the local filesystem
-     */
+    @Description("The local path containing the working copy of the desired workspace.")
+    @Optional
+    @Default("Current working directory")
     public void setWorkspace(String workspace) {
         this.workspace = workspace;
     }

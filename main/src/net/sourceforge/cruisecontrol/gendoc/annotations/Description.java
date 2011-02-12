@@ -55,7 +55,7 @@ public @interface Description {
 
     /**
      * @return The description of this plugin, attribute, or child. This value must be well-formed
-     * XML. Any tags that appear in it must be properly closed, and special characters must be
+     * HTML. Any tags that appear in it must be properly closed, and special characters must be
      * properly escaped.
      */
     String value();

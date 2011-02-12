@@ -43,6 +43,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -99,6 +102,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * can use ScheduleItem.NOT_SET to reset.
      * @param timeString new time integer
      */
+    @Description("Time in the form HHmm. Can't be set if multiple is set.")
+    @Optional
     public void setTime(String timeString) {
         time = Integer.parseInt(timeString);
     }
@@ -107,6 +112,10 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * can use Builder.NOT_SET to reset.
      * @param multiple new multiple
      */
+    @Description("Build index used to run different builders. For example, if this is set to 3, "
+            + "the builder will be run every 3 builds. Default value is 1. Can't be set if time "
+            + "is set.")
+    @Optional
     public void setMultiple(int multiple) {
         multipleSet = multiple != NOT_SET;
         this.multiple = multiple;
@@ -120,6 +129,12 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         return multiple;
     }
 
+    @Description("If true, the builder will provide short progress messages, visible in the JSP "
+            + "reporting application. If parent builders exist (eg: composite), and any parent's "
+            + "showProgress=false, then no progress messages will be shown, regardless of this "
+            + "builder's showProgress setting.")
+    @Optional
+    @Default("true")
     public void setShowProgress(final boolean showProgress) {
         this.showProgress = showProgress;
     }
@@ -127,6 +142,10 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         return showProgress;
     }
 
+    @Description("If true, the builder will write all output to a file that can be read by the "
+            + "Dashboard reporting application while the builder is executing.")
+    @Optional
+    @Default("true")
     public void setLiveOutput(final boolean isLiveOutputEnabled) {
         isLiveOutput = isLiveOutputEnabled;
     }

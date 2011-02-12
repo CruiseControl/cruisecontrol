@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.text.DateFormatSymbols;
 import java.util.Locale;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+
 import org.apache.log4j.Logger;
 
 public class PerDayScheduleItem implements Serializable {
@@ -21,6 +24,10 @@ public class PerDayScheduleItem implements Serializable {
         return day;
     }
 
+    @Description("Valid values are (case-insensitive) the English names for the days of the "
+            + "week (Sunday, Monday, Tuesday, etc). Does not support multiple days except for "
+            + "the default of every day.")
+    @Optional
     public void setDay(String dayString) {
         DateFormatSymbols symbols = new DateFormatSymbols(Locale.ENGLISH);
         String[] weekdays = symbols.getWeekdays();

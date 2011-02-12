@@ -39,6 +39,9 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import net.sourceforge.cruisecontrol.Bootstrapper;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.AbstractAntBuilderDelegate;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
+
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
@@ -51,6 +54,8 @@ import java.util.HashMap;
  * @see net.sourceforge.cruisecontrol.builders.AntBuilder
  * @author <a href="mailto:rjmpsmith@hotmail.com">Robert J. Smith</a>
  */
+@Description("Executes an Ant script which implements a custom bootstrapper.")
+@ExamplesFile
 public class AntBootstrapper extends AbstractAntBuilderDelegate implements Bootstrapper {
 
     private static final Logger LOG = Logger.getLogger(AntBootstrapper.class);

@@ -1,0 +1,32 @@
+<ol>
+    <li>Invoke the ant.bat script distributed with ant, specifying the
+    working directory as <code>D:\workspace\MyProject</code> and the
+    ant build file as <code>MyProject-nightlybuild.xml</code> and the
+    ant target as <code>publish</code>. Pass in the property "custom"
+    with a value of "true".
+    <pre>&lt;publishers&gt;
+    &lt;antpublisher antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
+         antworkingdir="D:\workspace\MyProject"
+         buildfile="MyProject-nightlybuild.xml"
+         uselogger="true"
+         usedebug="false"
+         target="publish"&gt;
+        &lt;property name="custom" value="true"/&gt;
+    &lt;/antpublisher&gt;
+&lt;/publishers&gt;</pre>
+
+    <p>You could then do something like the following in
+    <code>MyProject-nightlybuild.xml</code>:</p>
+    <pre>&lt;project name="MyProject-nightlybuild" default="publish"&gt;
+    &lt;target name="publish"&gt;
+        &lt;echo&gt;custom is set to ${custom}&lt;/echo&gt;
+        &lt;concat&gt;
+            &lt;filelist dir="${logdir}" files="${logfile}"/&gt;
+        &lt;/concat&gt;
+    &lt;/target&gt;
+&lt;/project&gt;</pre>
+    </li>
+</ol>
+
+<p>For <a href="#ant-examples">additional examples</a>, please
+see the <a href="#ant">&lt;ant&gt;</a> builder.</p>

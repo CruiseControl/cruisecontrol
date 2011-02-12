@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc;
 
-import java.util.List;
+import java.util.Collection;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.gendoc.testplugins.GoodRoot;
 
@@ -50,8 +50,8 @@ public class ChildInfoTest extends TestCase {
 
     private final PluginInfo goodRoot;
     private final PluginInfo goodChild;
-    private final List<ChildInfo> rootChildren;
-    private final List<ChildInfo> childChildren;
+    private final Collection<ChildInfo> rootChildren;
+    private final Collection<ChildInfo> childChildren;
     
     public ChildInfoTest() {
         goodRoot = GendocTestUtils.loadPluginInfo("goodroot", GoodRoot.class);
@@ -67,7 +67,7 @@ public class ChildInfoTest extends TestCase {
         assertEquals("goodchild", plugin.getName());
         assertTrue(rootChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertEquals(1, allowedNodes.size());
         assertTrue(allowedNodes.contains(plugin));
         
@@ -86,13 +86,13 @@ public class ChildInfoTest extends TestCase {
         assertEquals("goodchild2", plugin.getName());
         assertTrue(rootChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertEquals(1, allowedNodes.size());
         assertTrue(allowedNodes.contains(plugin));
         
         assertEquals(plugin, child.getAllowedNodeByName("goodchild2"));
         assertEquals(null, child.getDescription());
-        assertEquals(null, child.getTitle());
+        assertEquals("goodchild2", child.getTitle());
         assertEquals(null, child.getCardinalityNote());
         assertEquals(0, child.getMinCardinality());
         assertEquals(-1, child.getMaxCardinality());
@@ -105,13 +105,13 @@ public class ChildInfoTest extends TestCase {
         assertEquals("goodchild3", plugin.getName());
         assertTrue(rootChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertEquals(1, allowedNodes.size());
         assertTrue(allowedNodes.contains(plugin));
         
         assertEquals(plugin, child.getAllowedNodeByName("goodchild3"));
         assertEquals(null, child.getDescription());
-        assertEquals(null, child.getTitle());
+        assertEquals("goodchild3", child.getTitle());
         assertEquals("E", child.getCardinalityNote());
         assertEquals(2, child.getMinCardinality());
         assertEquals(-1, child.getMaxCardinality());
@@ -124,7 +124,7 @@ public class ChildInfoTest extends TestCase {
         assertEquals("recursivechild", plugin.getName());
         assertTrue(rootChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertEquals(1, allowedNodes.size());
         assertTrue(allowedNodes.contains(plugin));
         
@@ -150,7 +150,7 @@ public class ChildInfoTest extends TestCase {
         assertEquals("cvs", plugin2.getName());
         assertTrue(rootChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertTrue(allowedNodes.size() > 2); // There are more SourceControl implementations that we didn't hard-code into this test.
         assertTrue(allowedNodes.contains(plugin1));
         assertTrue(allowedNodes.contains(plugin2));
@@ -171,13 +171,13 @@ public class ChildInfoTest extends TestCase {
         assertEquals("recursivechild", plugin.getName());
         assertTrue(childChildren.contains(child));
         
-        List<PluginInfo> allowedNodes = child.getAllowedNodes();
+        Collection<PluginInfo> allowedNodes = child.getAllowedNodes();
         assertEquals(1, allowedNodes.size());
         assertTrue(allowedNodes.contains(plugin));
         
         assertEquals(plugin, child.getAllowedNodeByName("recursivechild"));
         assertEquals("TEXT", child.getDescription());
-        assertEquals(null, child.getTitle());
+        assertEquals("recursivechild", child.getTitle());
         assertEquals(null, child.getCardinalityNote());
         assertEquals(0, child.getMinCardinality());
         assertEquals(-1, child.getMaxCardinality());

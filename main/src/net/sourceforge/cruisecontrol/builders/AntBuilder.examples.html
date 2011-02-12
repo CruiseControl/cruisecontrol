@@ -1,0 +1,64 @@
+<a name="ant-examples"></a>
+<ol>
+	<li>Invoke the ant.bat script distributed with ant using the <code>antscript</code> attribute,
+	specifying the working directory as <code>D:\workspace\MyProject</code> and the
+	ant build file as <code>MyProject-nightlybuild.xml</code> using the default target.
+
+	<pre>&lt;schedule&gt;
+&lt;ant antscript="C:\Java\apache-ant-1.6.1\bin\ant.bat"
+  antworkingdir="D:\workspace\MyProject"
+  buildfile="MyProject-nightlybuild.xml"
+  uselogger="true"
+  usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
+
+	Or equivalently, using the <code>anthome</code> attribute
+
+	<pre>&lt;schedule&gt;
+&lt;ant anthome="C:\Java\apache-ant-1.6.1"
+  antworkingdir="D:\workspace\MyProject"
+  buildfile="MyProject-nightlybuild.xml"
+  uselogger="true"
+  usedebug="false"/&gt;
+&lt;schedule&gt;</pre>
+
+	</li>
+	<li>Invoke a custom ant script <code>/home/cc/workspace/build.sh</code>,
+	specifying the working directory as <code>/home/cc/workspace</code>
+	and the ant target as <code>smoketest</code>.
+
+	<pre>&lt;schedule&gt;
+&lt;ant antscript="/home/cc/workspace/build.sh"
+  antworkingdir="/home/cc/workspace"
+  target="smoketest"
+  uselogger="true"/&gt;
+&lt;schedule&gt;</pre>
+
+	<p>The custom build script can be any shell script, batch file or
+	program that understands how to invoke ant. Here is an example that
+	would be appropriate under Unix:</p>
+
+	<pre>#!/bin/sh
+PROJECT_HOME=`dirname "$0"`
+ANT_HOME=${PROJECT_HOME}/tools/ant
+chmod 0755 ${ANT_HOME}/bin/ant
+ANT_CMD=${ANT_HOME}/bin/ant
+exec "$ANT_CMD" "$@"</pre>
+
+	<p>Note the double quotes around $@: this ensures that all arguments
+	will be quoted, which is necessary for arguments containing spaces.</p>
+
+	<p>An example of a Windows batch file to invoke ant:</p>
+
+	<pre>@echo off
+setlocal
+set PROJECT_HOME=%~dp0
+call %PROJECT_HOME%..\devtools\env.bat
+call ant.bat %*
+endlocal</pre>
+
+	<p>The %* as a param to ant.bat is important -- it means that all
+	the arguments to build.bat are passed along to ant.bat. If this is
+	skipped then CruiseControl wouldn't work properly.</p>
+	</li>
+</ol>

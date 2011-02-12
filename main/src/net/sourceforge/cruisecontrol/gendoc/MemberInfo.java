@@ -172,25 +172,6 @@ public class MemberInfo implements Serializable {
     }
     
     /**
-     * Writes the contents of the "Required?" column for this member.
-     * @param text Text buffer to write to.
-     */
-    void writeMemberRequired(StringBuilder text) {
-        text
-        .append("<td>")
-        .append((getMinCardinality() > 0) ? "<b>Required</b>" : "Optional");
-        
-        String note = getCardinalityNote();
-        if (note != null) {
-            text
-            .append(". ")
-            .append(note);
-        }
-        
-        text.append("</td>\n");
-    }
-    
-    /**
      * Generates the HTML text to display the cardinality of this member.
      * @param text Text buffer to write to.
      */

@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc;
 
-import java.util.List;
+import java.util.Collection;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.gendoc.testplugins.GoodRoot;
 
@@ -50,8 +50,8 @@ public class AttributeInfoTest extends TestCase {
 
     private final PluginInfo goodRoot;
     private final PluginInfo goodChild;
-    private final List<AttributeInfo> rootAttributes;
-    private final List<AttributeInfo> childAttributes;
+    private final Collection<AttributeInfo> rootAttributes;
+    private final Collection<AttributeInfo> childAttributes;
     
     public AttributeInfoTest() {
         goodRoot = GendocTestUtils.loadPluginInfo("goodroot", GoodRoot.class);
@@ -93,7 +93,7 @@ public class AttributeInfoTest extends TestCase {
         
         assertTrue(rootAttributes.contains(attr));
         assertEquals("3", attr.getName());
-        assertEquals(null, attr.getDefaultValue());
+        assertEquals("100", attr.getDefaultValue());
         assertEquals(null, attr.getDescription());
         assertEquals(null, attr.getCardinalityNote());
         assertEquals("3", attr.getTitle());

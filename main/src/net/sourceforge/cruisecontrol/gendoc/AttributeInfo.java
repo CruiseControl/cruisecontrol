@@ -175,17 +175,67 @@ public class AttributeInfo extends MemberInfo implements Serializable, Comparabl
         .append(getName())
         .append("</td>\n");
         
-        writeMemberRequired(text);
-        writeMemberCardinality(text);
+        writeRequired(text);
         
         text
-        .append("<td>")
-        .append(HtmlUtils.emptyIfNull(getDefaultValue()))
-        .append("</td>\n")
         .append("<td>")
         .append(HtmlUtils.emptyIfNull(getDescription()))
         .append("</td>\n")
         .append("</tr>\n");
+    }
+    
+    /**
+     * Writes the contents of the "Required?" column for this member.
+     * @param text Text buffer to write to.
+     */
+    private void writeRequired(StringBuilder text) {
+        text
+        .append("<td>")
+        .append((getMinCardinality() > 0) ? "<b>Required</b>" : "Optional");
+        
+        String note = getCardinalityNote();
+        if (note != null) {
+            text
+            .append(". ")
+            .append(note);
+            
+            if (!note.trim().endsWith(".")) {
+                text.append('.');
+            }
+        }
+        
+        String defalt = getDefaultValue();
+        if (defalt != null) {
+            if (note == null) {
+                text.append('.');
+            }
+            
+            text
+            .append(" Defaults to \"")
+            .append(defalt)
+            .append("\".");
+        }
+        
+        text.append("</td>\n");
+    }
+    
+    static void writeTableStart(StringBuilder text) {
+        text
+        .append("<table class=\"documentation\">\n")
+        .append("<thead>\n")
+        .append("<tr>\n")
+        .append("<th>Attribute</th>\n")
+        .append("<th>Required?</th>\n")
+        .append("<th>Description</th>\n")
+        .append("</tr>\n")
+        .append("</thead>\n")
+        .append("<tbody>\n");
+    }
+    
+    static void writeTableEnd(StringBuilder text) {
+        text
+        .append("</tbody>\n")
+        .append("</table>\n");
     }
     
     /**

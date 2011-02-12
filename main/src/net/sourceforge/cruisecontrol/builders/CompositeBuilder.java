@@ -8,6 +8,10 @@ import java.util.Map;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -16,6 +20,11 @@ import org.jdom.Attribute;
 import org.jdom.Element;
 import org.jdom.CDATA;
 
+@Description(
+        "<p>The CompositeBuilder executes a list of builders (any builder, except <a "
+        + "href=\"#pause\">&lt;pause&gt;</a>). This is necessary for builds in an "
+        + "empty directory (see keyword CRISP-builds in Pragmatic Project Automation "
+        + "from Mike Clark) </p>")
 public class CompositeBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(CompositeBuilder.class);
@@ -31,6 +40,8 @@ public class CompositeBuilder extends Builder {
 
     private long childStartTime = 0;
 
+    @Description("Adds a builder to this composite builder.")
+    @Cardinality(min = 0, max = -1)
     public void add(Builder builder) {
         builders.add(builder);
     }
@@ -95,7 +106,7 @@ public class CompositeBuilder extends Builder {
      * @param attribNameTarget value of name attribute of 'target' element.
      * @param attribNameTask value of name attribute of 'task' element.
      */
-    @SuppressWarnings(value = "unchecked")    
+    @SuppressWarnings("unchecked")    
     public static void insertBuildLogHeader(final Element buildResult,
                                              final String buildLogMsg, final long childStartTime,
                                              final String attribNameTarget, final String attribNameTask) {
@@ -226,7 +237,36 @@ public class CompositeBuilder extends Builder {
     /**
      * @param timeout The timeout (in seconds) to set.
      */
+    @Description(
+            "Composite Build will be halted if it continues longer than the specified "
+            + "timeout. Value in seconds.")
+    @Optional
     public void setTimeout(long timeout) {
         this.timeoutSeconds = timeout;
+    }
+    
+    /** Method override to allow different @Description annotations. */
+    @Description(
+            "If true or omitted, the composite builder will provide progress messages, "
+            + "as will any child builders that support this feature (assuming the child "
+            + "builder's own showProgress setting is true). If false, no progress "
+            + "messages will be shown by the composite builder or child builders - "
+            + "regardless of child builder showProgress settings. If any parent "
+            + "showProgress is false, then no progress will be shown, regardless of the "
+            + "composite or child builder settings.")
+    @Optional
+    @Default("true")
+    @Override
+    public void setShowProgress(boolean show) {
+        super.setShowProgress(show);
+    }
+
+    /** Method override to allow different @Description annotations. */
+    @Description("Currently, the liveOutput setting has no effect on composite builders.")
+    @Optional
+    @Default("true")
+    @Override
+    public void setLiveOutput(boolean live) {
+        super.setLiveOutput(live);
     }
 }

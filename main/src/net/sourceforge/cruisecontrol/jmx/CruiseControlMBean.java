@@ -89,6 +89,14 @@ public interface CruiseControlMBean {
     PluginInfo getPluginInfo(String projectName);
     
     /**
+     * Gets a list of all PluginInfos defined for a given project.
+     * @param projectName Name of the project, or null to get the list of PluginInfos registered
+     * at the root.
+     * @return The list of all registered PluginInfos for the given context.
+     */
+    List<PluginInfo> getAllPlugins(String projectName);
+    
+    /**
      * Returns a generated HTML page documenting all the plugins currently loaded in the CruiseControl server'
      * @param projectName Project to generate the html file from, if null root registry will be used
      * @return The HTML content.

@@ -300,11 +300,77 @@ public class MyPlugin {
 }
 </pre>
 
-    For more information, see the JavaDoc for these annotations, in the <code><a class="javadoc"
-    href="api/net/sourceforge/cruisecontrol/gendoc/annotations/package-summary.html">net.sourceforge.cruisecontrol.gendoc.annotations</a></code>
-	package. The class responsible for reading these annotations is the <code><a class="javadoc"
-    href="api/net/sourceforge/cruisecontrol/gendoc/PluginInfoParser.html">PluginInfoParser</a></code> class.
+    <p>The following annotations are permitted on different code elements. No annotations are required,
+	as the parser can infer the presence and types of attributes and children directly from the Java
+	source. However, it is recommended that each plugin class and attribute/child method be annotated
+	at least with <code><a class="javadoc"
+	href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Description.html">@Description</a></code>
+	or <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code>.
+	</p>
+	
+    <ul>
+        <li>Plugin Class<ul>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Description.html">@Description</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code></li>
+        </ul></li>
+		<li>Attribute <code>set</code> Method<ul>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Description.html">@Description</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Title.html">@Title</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Cardinality.html">@Cardinality</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Required.html">@Required</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Optional.html">@Optional</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Default.html">@Default</a></code></li>
+        </ul></li>
+		<li>Child <code>add</code> or <code>create</code> Method<ul>
+            <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Description.html">@Description</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Title.html">@Title</a></code></li>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Cardinality.html">@Cardinality</a></code></li>
+        </ul></li>
+		<li>Child <code>create</code> Method<ul>
+			<li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/ManualChildName.html">@ManualChildName</a></code></li>
+        </ul></li>
+    </ul>
 
+    <p>To save you from having to write long strings of HTML inside Java annotations, the <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code>
+    annotation is also provided, which loads documentation from an HTML file bundled in the same JAR as the Java
+    class files. Details can be found in the javadoc for this annotation, but here are documented some accepted
+    "best practices" regarding its use:</p>
+    <ul>
+        <li>Don't use @DescriptionFile if you can put all the documentation in the Java source without
+        inconvenience. Too many extra HTML files clutter the code folders.</li>
+        <li>Whenever possible, use @DescriptionFile without any arguments. To make sure the PluginInfoParser
+        finds the correct file when you do this, place your HTML documentation file as noted below:
+        <ul>
+            <li>If annotating a plugin class, place the HTML file in the same source folder as
+            the class and name it &lt;CLASS&gt;.html, where &lt;CLASS&gt; is the name of the class (without package
+            information).</li>
+            <li>If annotating a plugin method (beginning with <code>add</code>, <code>set</code>, or <code>create</code>),
+            place the HTML file in the same source folder as the class and name it &lt;CLASS&gt;.&lt;METHOD&gt;.html,
+            where &lt;CLASS&gt; is the name of the class (without package information) and &lt;METHOD&gt; is the name
+            of the annotated method.</li>
+        </ul>
+        </li>
+    </ul>
+
+    <p>For more information, see the JavaDoc for these annotations, in the <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/annotations/package-summary.html">net.sourceforge.cruisecontrol.gendoc.annotations</a></code>
+    package. The class responsible for reading these annotations is the <code><a class="javadoc"
+    href="api/net/sourceforge/cruisecontrol/gendoc/PluginInfoParser.html">PluginInfoParser</a></code> class.</p>
+	
+	<p><strong>NOTE.</strong> Since only a few plugins have so far been documented using the annotations
+	described above, the project build scripts are configured to write the generated HTML doc to
+	"/documentation/main/configxml-gendoc.html". The website still links to the old, manually edited doc
+	(configxml.html). You are encouraged to help with the transition by moving content from this old
+	doc into source code annotations. You may use <code>
+	<a href="https://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol/main/src/net/sourceforge/cruisecontrol/config/DefaultPropertiesPlugin.java">
+	DefaultPropertiesPlugin</a></code> and
+	<code><a href="https://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol/main/src/net/sourceforge/cruisecontrol/CruiseControlConfig.java">
+	CruiseControlConfig</a></code> and as models for this.</p>
+    
         <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 
         <p>The following tables outlines the default plugin registry:</p>

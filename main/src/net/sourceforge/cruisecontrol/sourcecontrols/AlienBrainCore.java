@@ -39,6 +39,9 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.ManagedCommandline;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 
 import org.apache.log4j.Logger;
 
@@ -67,11 +70,10 @@ public class AlienBrainCore {
     private String path;
     private String branch;
 
-    /**
-     * Sets the hostname of the server hosting the AlienBrain repository.
-     *
-     *@param server The AlienBrain server's hostname.
-     */
+    @Description(
+            "The name of the machine hosting the AlienBrain repository. If specified, "
+            + "it will override the value in the NXN_AB_SERVER environment variable.")
+    @Optional
     public void setServer(String server) {
         this.server = server;
     }
@@ -80,11 +82,10 @@ public class AlienBrainCore {
         return server;
     }
 
-    /**
-     * Sets the name of the project database.
-     *
-     *@param database The name of the project database.
-     */
+    @Description(
+            "The name of the project in the AlienBrain repository. If specified, it will "
+            + "override the value in the NXN_AB_DATABASE environment variable.")
+    @Optional
     public void setDatabase(String database) {
         this.database = database;
     }
@@ -93,11 +94,11 @@ public class AlienBrainCore {
         return database;
     }
 
-    /**
-     * Sets the name of the AlienBrain user account used to connect.
-     *
-     *@param user The name of the AlienBrin user account.
-     */
+    @Description(
+            "The AlienBrain user account name to use when querying for modifications. "
+            + "If specified, it will override the value in the NXN_AB_USERNAME "
+            + "environment variable.")
+    @Optional
     public void setUser(String user) {
         this.user = user;
     }
@@ -106,11 +107,11 @@ public class AlienBrainCore {
         return user;
     }
 
-    /**
-     * Sets the password of the AlienBrain user account used to connect.
-     *
-     *@param password The password of the AlienBrin user account.
-     */
+    @Description(
+            "The password of the AlienBrain user account to use when querying for "
+            + "modifications. If specified, it will override the value in the NXN_AB_PASSWORD "
+            + "environment variable.")
+    @Optional
     public void setPassword(String password) {
         this.password = password;
     }
@@ -119,12 +120,10 @@ public class AlienBrainCore {
         return password;
     }
 
-    /**
-     * Sets the path to the project within the AlienBrain repository.
-     *
-     * @param path The path within the project database to check for
-     * modifications.  Typically something like alienbrain://path/to/project
-     */
+    @Description(
+            "The path to the item that will be queried for modifications. Typically a path "
+            + "like \"alienbrain://Project/SubProject\".")
+    @Required
     public void setPath(String path) {
         this.path = path;
     }
@@ -133,11 +132,8 @@ public class AlienBrainCore {
         return path;
     }
 
-    /**
-     * Sets the path to the project within the AlienBrain repository.
-     *
-     *@param branch The branch within the AlienBrain project.
-     */
+    @Description("The branch of the project to check for modifications.")
+    @Optional
     public void setBranch(String branch) {
         this.branch = branch;
     }
