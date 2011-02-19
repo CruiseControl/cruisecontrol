@@ -130,18 +130,18 @@ public class PipedExecBuilder extends Builder {
 
             /* Cannot be piped or wait for itself */
             ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
-            ValidationHelper.assertFalse(s.getID().equals(s.getPipeFrom()), 
+            ValidationHelper.assertFalse(s.getID().equals(s.getPipeFrom()),
                     "Script " + s.getID() + " cannot pipe from itself");
-            ValidationHelper.assertFalse(s.getID().equals(s.getWaitFor()), 
+            ValidationHelper.assertFalse(s.getID().equals(s.getWaitFor()),
                     "Script " + s.getID() + " cannot wait for itself");
             /* If the script is piped from for another script, the "another: must exist */
             if (s.getPipeFrom() != null) {
-                ValidationHelper.assertTrue(findToStart(s.getPipeFrom(), scripts) != null, 
+                ValidationHelper.assertTrue(findToStart(s.getPipeFrom(), scripts) != null,
                         "Script " + s.getID() + " is piped from non-existing script " + s.getPipeFrom());
             }
             /* If the script waits for another script, the "another: must exist */
             if (s.getWaitFor() != null) {
-                ValidationHelper.assertTrue(findToStart(s.getWaitFor(), scripts) != null, 
+                ValidationHelper.assertTrue(findToStart(s.getWaitFor(), scripts) != null,
                         "Script " + s.getID() + " waits for non-existing script " + s.getWaitFor());
             }
             /* ID must be unique */
@@ -195,7 +195,7 @@ public class PipedExecBuilder extends Builder {
                     continue;
                 }
 
-                long remainTime = this.timeout != ScriptRunner.NO_TIMEOUT 
+                long remainTime = this.timeout != ScriptRunner.NO_TIMEOUT
                                                ?  this.timeout - (System.currentTimeMillis() - startTime) / 1000
                                                :  Long.MAX_VALUE;
                 /* Initialize the script */
@@ -396,7 +396,7 @@ public class PipedExecBuilder extends Builder {
         if (findToStart(id, tostart) != null) {
             return false;
         }
-        
+
         Script script = findStarted(id, started);
         /* Not among started => finished */
         if (script == null) {
@@ -432,7 +432,7 @@ public class PipedExecBuilder extends Builder {
      * @return 'not-in-loop' set with the ID of current script added when it is not in a loop
      * @throws CruiseControlException if loop is detected.
      */
-    private Set<String> checkLoop(final Script s, Set<String> notInLoop, Set<String> checking) 
+    private Set<String> checkLoop(final Script s, Set<String> notInLoop, Set<String> checking)
             throws CruiseControlException {
         final String pipeFrom = s.getPipeFrom();
         final String waitFor = s.getWaitFor();
@@ -707,7 +707,7 @@ public class PipedExecBuilder extends Builder {
             try {
                 return this.stdoutBuffer.getContent();
             } catch (IOException e) {
-                throw new CruiseControlException("exec ID=" + getID() + ": unable to create STDOUT reader (" 
+                throw new CruiseControlException("exec ID=" + getID() + ": unable to create STDOUT reader ("
                         + getCommand() + ")", e);
             }
         } // getStdoutReader
@@ -725,7 +725,7 @@ public class PipedExecBuilder extends Builder {
         /** Prints string representation of the object */
         @Override
         public String toString() {
-            return getClass().getName() + "[ID " + id + ", piped from " + (pipeFrom != null ? pipeFrom : "-") 
+            return getClass().getName() + "[ID " + id + ", piped from " + (pipeFrom != null ? pipeFrom : "-")
                     + ", wait for " + (waitFor != null ? waitFor : "-") + "]";
         } // toString
 
@@ -736,7 +736,7 @@ public class PipedExecBuilder extends Builder {
          */
         @Override
         protected ScriptRunner createScriptRunner() {
-            final class MyDebugScriptRunner extends ScriptRunner {
+            final class MyScriptRunner extends ScriptRunner {
                 /**
                  * Disable script consumption of STDOUT - although errors cannot be found in it now, it is expected
                  * that errors are printed to STDERR when a sequence of piped commands is started. Also, STDOUT of the
@@ -776,7 +776,7 @@ public class PipedExecBuilder extends Builder {
                     }
                 } // getPumper4Out
             }
-            return new MyDebugScriptRunner();
+            return new MyScriptRunner();
         } // createScriptRunner
 
     } // PipedExecScript

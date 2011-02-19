@@ -13,6 +13,10 @@ build loop
 ======================
 * Fix error in Builder.getBuildOutputConsumer() when live output is enabled and the project name contained a slash.
 
+PipedExecBuilder
+----------------------
+* Fix memory usage and logging volume issues with PipedExecBuilder. (CC-991). Patch by Daniel Tihelka
+
 contrib
 ======================
 
