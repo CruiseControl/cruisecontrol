@@ -39,9 +39,11 @@
 package net.sourceforge.cruisecontrol.util;
 
 import  java.io.BufferedReader;
+import  java.io.FileInputStream;
 import  java.io.IOException;
 import  java.io.InputStream;
 import  java.io.InputStreamReader;
+import  java.net.URL;
 import  java.util.ArrayList;
 import  java.util.LinkedList;
 import  java.util.List;
@@ -72,9 +74,27 @@ public final class StdoutBufferTest extends TestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
+
+        StringBuilder letters = new StringBuilder();
+        try {
+            /* Find the file with letters from which to create the texts among resources and read them  */
+            URL path = this.getClass().getClassLoader().getResource(
+                    "net/sourceforge/cruisecontrol/util/charlist.utf8.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(path.getPath()), "utf-8"));
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                letters.append(line);
+            }
+            reader.close();
+
+        } catch(Exception e) {
+            fail("Cannot read letters resource: " + e.getMessage());
+        }
       
         /* Lines with texts */
-        lines = generateTexts(LETTERS, NUM_LINES, false);
+        lines = generateTexts(letters.toString(), NUM_LINES, false);
         /* Create the lists of readers and feeders */
         readers  = new LinkedList<BufferReader>();
         feeder   = new BufferFeeder("Feeder");
@@ -211,9 +231,6 @@ public final class StdoutBufferTest extends TestCase {
     /** The feeder used in a test */
     private BufferFeeder             feeder;
 
-    /** The string with letters - random selection of the letters creates random text ... */
-    private static final String      LETTERS = " ";      
-  
   
     /* 
      * ----------- INNER CLASSES ----------- 
