@@ -190,12 +190,12 @@
 
     <!-- the setting of the tmpdir would be required under Mac OS Snow Leopard (see CC-976)
     os.name=Mac OS X
-    os.version=10.6.2
+    os.version=10.6.2 (also occurs on 10.5.8 with java 1.5.0_26)
     -->
     <condition property="tmpdir.jvmarg" value="-Djava.io.tmpdir=/tmp" else="">
         <and>
             <os family="mac"/>
-            <matches pattern="10\.6\.*" string="${os.version}"/>
+            <matches pattern="10\.*" string="${os.version}"/>
         </and>
     </condition>
 
@@ -409,6 +409,7 @@
             <sysproperty key="cc.config.forcebuild" value="enabled" />
             <sysproperty key="dashboard.config" value="test/data/dashboard-config.xml" />
             <classpath refid="test.functional.run.path" />
+            <jvmarg line="${tmpdir.jvmarg}"/> <!-- workaround Mac Java Temp dir/Spring bug, see CC-976 -->
         </java>
     </target>
 

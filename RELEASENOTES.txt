@@ -17,7 +17,11 @@ PipedExecBuilder
 ----------------------
 * Fix memory usage and logging volume issues with PipedExecBuilder. (CC-991). Patch by Daniel Tihelka
 
-contrib
+Dashboard
+======================
+* Fix build error in Dashboard on MacOSX due to java.io.tempdir name when converted to URI. (CC-976)
+
+ contrib
 ======================
 
 distributed
