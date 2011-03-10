@@ -210,7 +210,7 @@ public class MemberInfo implements Serializable {
      */
     void setCardinalityNote(String note) {
         // Translate empty notes to nonexistent notes.
-        if (note == null || note.isEmpty()) {
+        if (note == null || (note.length() == 0)) {
             this.cardinalityNote = null;
         } else {
             this.cardinalityNote = note;
