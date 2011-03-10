@@ -720,7 +720,7 @@ public class SysUtilMock {
 
        /** The implementation of {@link StreamConsumer#consumeLine(String)}. It is highly
         *  recommended to call the method, if overriding! */
-       @Override
+       //@Override
        public void consumeLine(final String line) {
            this.lines++;
            if (this.out != null) {
@@ -765,7 +765,7 @@ public class SysUtilMock {
         }
 
         /** The implementation of {@link StreamConsumer#consumeLine(String)} */
-        @Override
+        //@Override
         public void consumeLine(final String line) {
             add(line);
         }
