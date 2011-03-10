@@ -129,10 +129,8 @@
              <include name="javaws/javaws.jar"/>
          </fileset>
 
-         <!-- location in Mac OS, jre1.5 -->
-         <fileset dir="/System/Library/Java/Support/Deploy.bundle">
-             <include name="Contents/Resources/Java/javaws.jar"/>
-         </fileset>
+        <!-- location in Mac OS, jre1.5 -->
+        <pathelement location="/System/Library/Java/Support/Deploy.bundle/Contents/Resources/Java/javaws.jar"/>
     </path>
 
     <!-- Common Core JINI libs -->
