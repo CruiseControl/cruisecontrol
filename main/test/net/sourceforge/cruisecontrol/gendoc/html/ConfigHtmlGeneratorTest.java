@@ -349,7 +349,7 @@ public class ConfigHtmlGeneratorTest extends TestCase {
                             if(s.equalsIgnoreCase("</div> <!-- elementdocumentation -->")) {
                                 break;
                             } else {
-                                if(!s.isEmpty()) {
+                                if(s.length() != 0) {
                                     plugChild.append(s);
                                     plugChild.append("\n");
                                 }
