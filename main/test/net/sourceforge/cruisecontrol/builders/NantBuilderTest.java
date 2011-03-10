@@ -320,7 +320,7 @@ public class NantBuilderTest extends TestCase {
         assertTrue(buildElement.getAttributeValue("error").indexOf("timeout") >= 0);
         assertTrue("Too much time has elapsed (" + elapsedMillis + " millis) for NantBuilder timeout of "
                 + testTimeoutSecs + " secs.",
-                elapsedMillis < ((testTimeoutSecs + 3) * 1000L));
+                elapsedMillis < ((testTimeoutSecs + 5) * 1000L));
 
         // test we don't fail when there is no NAnt log file
         mybuilder.setTimeout(1);
