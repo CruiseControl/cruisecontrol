@@ -101,7 +101,34 @@ CCDIST_JINICORE=$CCDIST/jini-core/
 CCDIST_JINILIBDL=$CCDIST/jini-lib-dl/jsk-dl.jar
 CCDIST_CONF=$CCDIST/conf
 
+# use existing ${CC_PID} if already defined, else define
+if [ ! "${CC_PID}" ] ; then
+  CC_PID=cc.pid
+fi
+
+# check ${CC_PID} is writable
+if [ -f "${CC_PID}" ] ; then
+  if [ ! -w "${CC_PID}" ] ; then
+    echo "CruiseControl pid file not writable"
+    exit 1
+  fi
+  if [ -f "${CC_PID}" ] ; then
+   PID=`head -1 ${CC_PID}`
+    # is ${CC_PID} a number
+    if [ `echo ${PID} | sed 's/^$/_/g' | sed 's/[0-9]//g' | wc -c` -eq 1 ] ; then
+      # is ${CC_PID} a running process and double check that it is cruisecontrol
+      if [ `ps -fp ${PID} | grep -v grep | grep cruisecontrol | wc -l` -eq 1 ] ; then
+        echo "CruiseControl is already running"
+        exit 1
+      else
+        echo "CruiseControl stale pid"
+      fi
+    fi
+  fi
+fi
+
 EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Djava.security.policy=$CCDIST_CONF/insecure.policy -Dcc.library.dir=$LIBDIR -Dcc.dist.dir=$DISTDIR -jar $LAUNCHER -lib $JAVA_HOME/lib/tools.jar -lib $CCDIST_BUILDER:$CCDIST_CORE:$CCDIST_JINICORE:$CCDIST_JINILIBDL:$CCDIST_CONF $@"
 echo $EXEC
 $EXEC &
-echo $! > cc.pid
+PID=$!
+echo ${PID} > ${CC_PID}

@@ -104,7 +104,34 @@ if [ `uname | grep -n CYGWIN` ]; then
   LAUNCHER=`cygpath --windows "$LAUNCHER"`
 fi
 
+# use existing ${CC_PID} if already defined, else define
+if [ ! "${CC_PID}" ] ; then
+  CC_PID=cc.pid
+fi
+
+# check ${CC_PID} is writable
+if [ -f "${CC_PID}" ] ; then
+  if [ ! -w "${CC_PID}" ] ; then
+    echo "CruiseControl pid file not writable"
+    exit 1
+  fi
+  if [ -f "${CC_PID}" ] ; then
+   PID=`head -1 ${CC_PID}`
+    # is ${CC_PID} a number
+    if [ `echo ${PID} | sed 's/^$/_/g' | sed 's/[0-9]//g' | wc -c` -eq 1 ] ; then
+      # is ${CC_PID} a running process and double check that it is cruisecontrol
+      if [ `ps -fp ${PID} | grep -v grep | grep cruisecontrol | wc -l` -eq 1 ] ; then
+        echo "CruiseControl is already running"
+        exit 1
+      else
+        echo "CruiseControl stale pid"
+      fi
+    fi
+  fi
+fi
+
 EXEC="$JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder -Dcc.library.dir=$LIBDIR -Djetty.logs=$JETTY_LOGS -jar $LAUNCHER $@ -jmxport 8000 -webport 8080 -rmiport 1099"
 echo $EXEC
 $JAVA_HOME/bin/java $CC_OPTS -Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder "-Dcc.library.dir=$LIBDIR" "-Djetty.logs=$JETTY_LOGS" -jar "$LAUNCHER" $@ -jmxport 8000 -webport 8080 -rmiport 1099 &
-echo $! > cc.pid
+PID=$!
+echo ${PID} > ${CC_PID}
