@@ -9,6 +9,7 @@ general
 * Functional version of 'gendoc' -> configxml-gendoc.html generated from Java annotations contained in the plugin code. See plugins.html (http://cruisecontrol.sourceforge.net/main/plugins.html) for more details (CC-202). Original patch by Jerome Lacoste, Rewritten annotation based impl by Seth Pollen, et al.
 * Remove duplicates and missing jars from from eclipse .classpath (CC-1023). Patch by John Patrick.
 * Change cruisecontrol.sh to check cc.pid and kill the start if the cc.pid is an active cruisecontrol instance that is already running (CC-1009). Patch by John Patrick.
+* Include main javadocs in website, as they are referenced from project docs, eg: main/plugins.html. Reported by Pavel Krusina.
 
 build loop
 ======================

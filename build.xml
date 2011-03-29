@@ -64,6 +64,10 @@
         <copy todir="target/website">
             <fileset dir="documentation"/>
         </copy>
+        <!-- include main javadocs in website, as they are referenced from project docs, eg: main/plugins.html -->
+        <copy todir="target/website/main/api">
+            <fileset dir="main/target/javadoc"/>
+        </copy>
 
         <replace dir="target/website" token="%%VERSION%%" value="${cc.release.label}">
             <include name="**/*.html"/>
