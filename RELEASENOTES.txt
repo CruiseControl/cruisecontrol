@@ -21,6 +21,7 @@ PipedExecBuilder
 Dashboard
 ======================
 * Fix build error in Dashboard on MacOSX due to java.io.tempdir name when converted to URI. (CC-976)
+* Add missing icon image for "unknown" modification type (CC-799). Reported by John Prause.
 
  contrib
 ======================
