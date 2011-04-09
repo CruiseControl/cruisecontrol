@@ -174,12 +174,14 @@ public abstract class EmailPublisher implements Publisher {
             subjectLine.append(subjectPrefix).append(" ");
         }
         subjectLine.append(logHelper.getProjectName());
-        if (logHelper.isBuildSuccessful()) {
-            final String label = logHelper.getLabel();
-            if (label.trim().length() > 0) {
-                subjectLine.append(" ").append(logHelper.getLabel());
-            }
 
+        // we want the label whether the build passed or failed
+        final String label = logHelper.getLabel();
+        if (label.trim().length() > 0) {
+            subjectLine.append(" ").append(label);
+        }
+
+        if (logHelper.isBuildSuccessful()) {
             // Anytime the build is "fixed" the subjest line
             // should read "fixed". It might confuse recipients...but
             // it shouldn't

@@ -286,7 +286,7 @@ public class EmailPublisherTest extends TestCase {
             "someproject somelabel Build Fixed",
             emailPublisher.createSubject(fixedLogHelper));
 
-        assertEquals("someproject Build Failed",
+        assertEquals("someproject somelabel Build Failed",
                 emailPublisher.createSubject(failureLogHelper));
 
         emailPublisher.setSubjectPrefix("[CC]");
@@ -300,7 +300,7 @@ public class EmailPublisherTest extends TestCase {
             emailPublisher.createSubject(fixedLogHelper));
 
         assertEquals(
-            "[CC] someproject Build Failed",
+            "[CC] someproject somelabel Build Failed",
             emailPublisher.createSubject(failureLogHelper));
 
         //Anytime it is a "fixed" build, the subject should read "fixed".
