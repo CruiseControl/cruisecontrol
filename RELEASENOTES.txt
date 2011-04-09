@@ -16,7 +16,11 @@ build loop
 
 PipedExecBuilder
 ----------------------
-* Fix memory usage and logging volume issues with PipedExecBuilder. (CC-991). Patch by Daniel Tihelka
+* Fix memory usage and logging volume issues with PipedExecBuilder. (CC-991). Patch by Daniel Tihelka.
+
+EmailPublisher
+----------------------
+* Include label in subject of build failure email (CC-1022). Patch by Quinn Styl.
 
 Dashboard
 ======================
