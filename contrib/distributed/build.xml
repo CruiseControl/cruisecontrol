@@ -170,8 +170,8 @@
         <!--</fileset>-->
 
         <!-- provides Administrable interface -->
-        <fileset id="fs.jini.lib-dl.jsk-dl" dir="jini-lib-dl">
-            <include name="jsk-dl.jar" />
+        <fileset id="fs.jini.lib.jsk-lib" dir="jini-lib">
+            <include name="jsk-lib.jar" />
         </fileset>
     </path>
 
@@ -366,10 +366,12 @@
         <copy todir="dist/util/${jini.lib.DirName}">
             <fileset refid="fs.jini.lib.jsk-platform"/>
         </copy>
+
         <!-- provides Administrable interface -->
-        <copy todir="dist/util/${jini.libDownload.DirName}">
-            <fileset refid="fs.jini.lib-dl.jsk-dl"/>
+        <copy todir="dist/util/${jini.lib.DirName}">
+            <fileset refid="fs.jini.lib.jsk-lib"/>
         </copy>
+
         <copy todir="dist/util/lib">
             <fileset dir="${dir.main.lib}">
                 <patternset refid="ps.main.lib-common" />
