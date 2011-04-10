@@ -107,7 +107,7 @@ class LookupServiceUI extends JDialog {
         }
 
         final JScrollPane scrPane = new JScrollPane(pnlView);
-        scrPane.setPreferredSize(new Dimension(525, 54));
+        scrPane.setPreferredSize(new Dimension(625, 54));
 
         pnlAllLUS = new JPanel(new BorderLayout());
         pnlAllLUS.add(scrPane, BorderLayout.CENTER);
