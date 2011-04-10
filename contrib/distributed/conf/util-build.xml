@@ -63,8 +63,8 @@
             <include name="jsk-platform.jar" />
         </fileset>
         <!-- provides Administrable interface -->
-        <fileset id="fs.jini.lib-dl.jsk-dl" dir="jini-lib-dl">
-            <include name="jsk-dl.jar" />
+        <fileset id="fs.jini.lib.jsk-lib" dir="jini-lib">
+            <include name="jsk-lib.jar" />
         </fileset>
     </path>
 
