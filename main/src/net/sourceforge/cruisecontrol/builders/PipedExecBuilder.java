@@ -55,6 +55,7 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
+import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
@@ -104,9 +105,13 @@ public class PipedExecBuilder extends Builder {
 
     /** Build timeout in seconds, set by {@link #setTimeout(long)}. */
     private long timeout = ScriptRunner.NO_TIMEOUT;
+    /** Keep STDOUT of all the scripts gzipped? Set by {@link #setGZipStdout(boolean)} */
+    private boolean gzip;
+    /** Is STDOUT of all the scripts binary? Set by {@link #setBinaryStdout(boolean)} */
+    private boolean binary;
     /** The working directory where the commands are to be executed, set by
      * {@link #setWorkingDir(String)}. */
-    private String workingDir = null;
+    private String workingDir;
     /** The list of scripts to execute during build. Once the script is started, it is moved
      *  to the list of started scripts. */
     private final LinkedList<Script> scripts = new LinkedList<Script>();
@@ -207,6 +212,12 @@ public class PipedExecBuilder extends Builder {
                 }
                 if (s.getTimeout() == ScriptRunner.NO_TIMEOUT || s.getTimeout() > remainTime) {
                     s.setTimeout(remainTime);
+                }
+                if (s.getGZipStdout() == null) {
+                    s.setGZipStdout(gzip);
+                }
+                if (s.getBinaryStdout() == null) {
+                    s.setBinaryStdout(binary);
                 }
                 /* And stuff for #build() method */
                 s.setBuildLogParent(buildLogElement);
@@ -314,6 +325,32 @@ public class PipedExecBuilder extends Builder {
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     } // setWorkingDir
+
+    /**
+     * Should the STDOUT content of the scripts be kept gzipped within the builder? It may save
+     * some memory required by CruiseControl in cases that data piped through scripts are huge, but
+     * compressible. Can be overridden by the configuration of individual scripts, see
+     * {@link Script#setGZipStdout(boolean)}.
+     *
+     * @param gzip <code>true</code> if STDOUT is required to be stored gzipped, <code>false</code>
+     *   if raw STDOUT contents are kept.
+     */
+    public void setGZipStdout(boolean gzip) {
+        this.gzip = gzip;
+    } // setGZipStdout
+
+    /**
+     * Is the STDOUT content of the scripts in binary form? If <code>true</code>, the STDOUT is not
+     * logged even in debug mode. If <code>false</code>, the STDOUT of the scripts will be logged in
+     * debug mode. Can be overridden by the configuration of individual scripts, see
+     * {@link Script#setBinaryStdout(boolean)}.
+     *
+     * @param binary <code>true</code> if STDOUT is in binary form, <code>false</code>
+     *   if STDOUT is text.
+     */
+    public void setBinaryStdout(boolean binary) {
+        this.binary = binary;
+    } // setBinaryStdout
 
     /**
      * Creates object into which <code><exec /></code> tag will be set. Each call returns new
@@ -493,11 +530,15 @@ public class PipedExecBuilder extends Builder {
         private static final long serialVersionUID = 848703660201511902L;
 
         /** The ID of the script set by {@link #setID(String)}. */
-        private String id = null;
+        private String id;
         /** The ID of script to pipe from, set by {@link #setPipeFrom(String)}. */
-        private String pipeFrom = null;
+        private String pipeFrom;
         /** The index of script to wait for, set by {@link #setWaitFor(String)}. */
-        private String waitFor = null;
+        private String waitFor;
+        /** Keep STDOUT gipped? Set by {@link #setGZipStdout(boolean)}. */
+        private Boolean gzip;
+        /** Is STDOUT of the script binary? Set by {@link #setBinaryStdout(boolean)} */
+        private Boolean binary;
 
         /** The buffer holding the STDOUT of the command */
         private transient StdoutBuffer stdoutBuffer;
@@ -506,13 +547,13 @@ public class PipedExecBuilder extends Builder {
         /** The build properties, set by {@link #setBuildProperties(Map)}. */
         private Map<String, String> buildProperties = new HashMap<String, String>();
         /** The callback to provide progress updates, set by {@link #setProgress(Progress)}. */
-        private Progress progressIn = null;
+        private Progress progressIn;
 
         /** The parent element into with the build log (created by
          * {@link #build(Map, Progress, InputStream)} method) is stored. */
-        private Element buildLogParent = null;
+        private Element buildLogParent;
         /** Signalizes wherever the script finished or not */
-        private boolean isDone = false;
+        private boolean isDone;
 
         /**
          * Initialization of attributes before the build is started. It is roughly equal to the
@@ -526,7 +567,7 @@ public class PipedExecBuilder extends Builder {
         public void initialize() {
             /* Prepare to start */
             this.isDone = false;
-            this.stdoutBuffer = new StdoutBuffer(LOG);
+            this.stdoutBuffer = Boolean.TRUE.equals(gzip) ? new GZippedStdoutBuffer(LOG) : new StdoutBuffer(LOG);
         } // initialize
 
         /**
@@ -641,6 +682,48 @@ public class PipedExecBuilder extends Builder {
         } // getWaitFor
 
         /**
+         * Should the STDOUT content of the scripts be kept gzipped within the builder?
+         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
+         *
+         * @param gzip <code>true</code> if STDOUT is required to be stored gzipped,
+         *   <code>false</code> if raw STDOUT contents are kept.
+         */
+        public void setGZipStdout(boolean gzip) {
+            this.gzip = gzip;
+        } // setGZipStdout
+        /**
+         * Should the STDOUT content of the scripts be kept gzipped by the builder? Gets the
+         * value set by {@link #setGZipStdout(boolean)}, or <code>null</code> if not set yet.
+         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
+         *
+         * @return <code>true/false</code> or <code>null</code>.
+         */
+        public Boolean getGZipStdout() {
+            return this.gzip;
+        } // setGZipStdout
+
+        /**
+         * Is the STDOUT content of the script in binary form?
+         * See {@link PipedExecBuilder#setBinaryStdout(boolean)} for more details.
+         *
+         * @param binary <code>true</code> if STDOUT is in binary form, <code>false</code>
+         *   if STDOUT is text.
+         */
+        public void setBinaryStdout(boolean binary) {
+            this.binary = binary;
+        } // setBinaryStdout
+        /**
+         * Is the STDOUT content of the script in binary form? Gets the value set by
+         * {@link #setBinaryStdout(boolean)}, or <code>null</code> if not set yet.
+         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
+         *
+         * @return <code>true/false</code> or <code>null</code>.
+         */
+        public Boolean getBinaryStdout() {
+            return this.binary;
+        } // getBinaryStdout
+
+        /**
          * Sets the XML element into which the build log returned by
          * {@link #build(Map, Progress, InputStream)}, when called in
          * {@link #run()}, is required to be stored. The method is not associated with
@@ -750,7 +833,14 @@ public class PipedExecBuilder extends Builder {
                 /** Returns the consumer printing STDOUT of the script on {@link org.apache.log4j.Level#DEBUG} level. */
                 @Override
                 protected StreamConsumer getDirectOutLogger() {
-                    return StreamLogger.getDebugLogger(ScriptRunner.LOG);
+                    /* Log only non-binary output */
+                    if (Boolean.FALSE.equals(binary)) {
+                        return StreamLogger.getDebugLogger(ScriptRunner.LOG);
+                    }
+                    /* Disable logging otherwise */
+                    return new StreamConsumer() {
+                        public void consumeLine(String arg0) { /* Ignore data */ }
+                    };
                 }
 
                 /**
@@ -767,13 +857,22 @@ public class PipedExecBuilder extends Builder {
                     final Thread stdout = new Thread(outpumper);
                     stdout.start();
 
-                    try {
-                        /* Return the pumper reading the binary data from StdoutBuffer */
-                        return new StreamPumper(Script.this.stdoutBuffer.getContent(), consumer);
-                    } catch (IOException e) {
-                        LOG.error("Error when joining STDOUT with various consumers. Build is likely to fail soon", e);
-                        return new StreamPumper(instream, consumer);
+                    /* If the STDOUT is text, return the pumper reading the texts data buffered
+                     * in StdoutBuffer. Otherwise return the empty pumper, see further ... */
+                    if (Boolean.FALSE.equals(binary)) {
+                        try {
+                            /* Return the pumper reading the binary data from StdoutBuffer */
+                            return new StreamPumper(Script.this.stdoutBuffer.getContent(), consumer);
+                        } catch (IOException e) {
+                            LOG.error("Error when joining STDOUT with various consumers. Build is likely to fail soon",
+                               e);
+                        }
                     }
+                    /* Return empty pumper if no better pumper was returned */
+                    return new StreamPumper(null, null) {
+                                @Override
+                                public void run() { /* Does nothing */ }
+                           };
                 } // getPumper4Out
             }
             return new MyScriptRunner();
