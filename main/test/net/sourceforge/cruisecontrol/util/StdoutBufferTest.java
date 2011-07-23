@@ -57,7 +57,7 @@ import  junit.framework.TestCase;
 /**
  * Class testing the {@link StdoutBuffer} implementation.
  */
-public final class StdoutBufferTest extends TestCase {
+public class StdoutBufferTest extends TestCase {
 
     /** Random number generator (to randomize texts) */
     private static final Random RANDOM_GENER = new Random();
@@ -113,7 +113,47 @@ public final class StdoutBufferTest extends TestCase {
       
         super.tearDown();
     } // tearDown
-    
+
+
+    public void testBufferReaderClose() throws Exception {
+        final StdoutBuffer stdoutBuffer = new StdoutBuffer(null);
+
+        final InputStream is = stdoutBuffer.getContent();
+        assertEquals(0, is.available());
+        // read would block forever.. assertEquals(1, is.read());
+        // read would block forever.. assertEquals(2, is.read(null, 0, 1));
+        is.reset();
+
+        is.close();
+        try {
+            is.available();
+            fail("already closed should fail. class: " + this.getClass().getName());
+        } catch (IOException e) {
+            assertEquals(StdoutBuffer.MSG_READER_ALREADY_CLOSED, e.getMessage());
+        }
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            is.read();
+            fail("already closed should fail.");
+        } catch (IOException e) {
+            assertEquals(StdoutBuffer.MSG_READER_ALREADY_CLOSED, e.getMessage());
+        }
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            is.read(null, 0, 1);
+            fail("already closed should fail.");
+        } catch (IOException e) {
+            assertEquals(StdoutBuffer.MSG_READER_ALREADY_CLOSED, e.getMessage());
+        }
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            is.reset();
+            fail("already closed should fail.");
+        } catch (IOException e) {
+            assertEquals(StdoutBuffer.MSG_READER_ALREADY_CLOSED, e.getMessage());
+        }
+    }
+
     /**
      * Tests one feeder to one reader - start feeder (F), wait for finish (W) and start reader (R)
      * @throws IOException if test fails
@@ -218,6 +258,19 @@ public final class StdoutBufferTest extends TestCase {
         }
     } // testOne2Many_RWRFRWR
 
+    /*
+     * ----------- PROTECTED BLOCK -----------
+     */
+
+    /**
+     * @return Creates the new instance of StdoutBuffer class. All methods MUST use this factory
+     * method!
+     *
+     */
+    protected StdoutBuffer stdoutBufferFactory()
+    {
+      return new StdoutBuffer(null);
+    }
 
     /* 
      * ----------- PRIVATE BLOCK ----------- 
@@ -244,7 +297,7 @@ public final class StdoutBufferTest extends TestCase {
         /** Constructor. Takes input stream from which the output of the command executed is read.
          * @param tName name of feeder. */
         BufferFeeder(String tName) {
-            buffer = new StdoutBuffer(null);
+            buffer = stdoutBufferFactory();
             name   = tName;
         } // constructor
     
@@ -376,7 +429,7 @@ public final class StdoutBufferTest extends TestCase {
       
         /* Fill the buffer by a sequence of random letters */
         for (int i = 0; i < numlines; i++) {
-            StringBuffer line = new StringBuffer();
+            final StringBuilder line = new StringBuilder();
             /* Create the line */
             for (int j = 0; j < RANDOM_GENER.nextInt(200) + 20; j++) {
                 line.append(charsAllowed.charAt(RANDOM_GENER.nextInt(charsAllowed.length())));

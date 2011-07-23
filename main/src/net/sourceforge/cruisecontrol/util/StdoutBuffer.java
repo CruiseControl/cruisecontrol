@@ -59,8 +59,11 @@ import org.apache.log4j.Logger;
  *
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
  */
-public final class StdoutBuffer extends OutputStream {
-  /**
+public class StdoutBuffer extends OutputStream {
+
+    static final String MSG_READER_ALREADY_CLOSED = "Reader already closed";
+
+    /**
    * Constructor.
    *
    * @param logger the instance of Logger through which to log.
@@ -69,7 +72,8 @@ public final class StdoutBuffer extends OutputStream {
       log = logger;
       buffer = new LinkedList<byte[]>();
       chunkSize = 1000; /* 1000 bytes in each buffer item */
-      chunker = new ByteArrayOutputStream(chunkSize);
+      chunkBuffer = new ByteArrayOutputStream(chunkSize);
+      chunkWriter = dataEncoder(chunkBuffer);
   } // StdoutBuffer
 
   /**
@@ -88,22 +92,22 @@ public final class StdoutBuffer extends OutputStream {
   @Override
   public void write(byte[] b, int off, int len) throws IOException {
     /* Cannot add when closed */
-    if (chunker == null) {
+    if (chunkBuffer == null) {
         throw new IOException("Tried to add data when buffer is closed");
     }
 
     /* Chunk the array to write and write it to the buffer */
     while (len > 0) {
-        int numWrite = Math.min(chunkSize - chunker.size(), len);
+        int numWrite = Math.min(chunkSize - chunkBuffer.size(), len);
 
-        /* Write so many bytes to the stream to fill the chunker */
-        chunker.write(b, off, numWrite);
+        /* Write so many bytes to the custom stream to fill the chunker */
+        chunkWriter.write(b, off, numWrite);
         /* Move in the array */
         off += numWrite;
         len -= numWrite;
 
         /* Flush the chunker, if it is full */
-        if (chunker.size() >= chunkSize) {
+        if (chunkBuffer.size() >= chunkSize) {
             flush();
         }
     }
@@ -115,14 +119,14 @@ public final class StdoutBuffer extends OutputStream {
   @Override
   public void write(int b) throws IOException {
     /* Cannot add when closed */
-    if (chunker == null) {
+    if (chunkBuffer == null) {
         throw new IOException("Tried to add data when buffer is closed");
     }
 
-    /* Write the byte to the stream to fill the chunker */
-    chunker.write(b);
+    /* Write the byte to the custom stream to fill the chunker */
+    chunkWriter.write(b);
     /* Flush the chunker, if it is full */
-    if (chunker.size() >= chunkSize) {
+    if (chunkBuffer.size() >= chunkSize) {
         flush();
     }
   } // write
@@ -138,26 +142,27 @@ public final class StdoutBuffer extends OutputStream {
   @Override
   public void close() {
       /* Already closed */
-      if (chunker == null) {
+      if (chunkBuffer == null) {
           return;
       }
       /* Flush the custom stream to the chunker and close the custom stream */
       try {
-          chunker.flush();
-          chunker.close();
+          chunkWriter.flush();
+          chunkWriter.close();
       } catch (IOException exc) {  // not likely to happen ...
           log.error("Error when closing chunk writer, the buffer will probably not be complete ...", exc);
       }
 
       /* Copy the content of chunker to the array of bytes */
       synchronized (buffer) {
-          buffer.add(chunker.toByteArray());
+          buffer.add(chunkBuffer.toByteArray());
           buffer.add(null);
           /* Notify all threads waiting for data */
           buffer.notifyAll();
       }
       /* Release the chunker to allow freeing it - it will not be used anymore ... */
-      chunker = null;
+      chunkBuffer = null;
+      chunkWriter = null;
   } // close
 
   /**
@@ -166,16 +171,16 @@ public final class StdoutBuffer extends OutputStream {
   @Override
   public void flush() {
       /* Cannot flush when closed or chunker is empty */
-      if (chunker == null || chunker.size() == 0) {
+      if (chunkBuffer == null || chunkBuffer.size() == 0) {
           return;
       }
       /* Copy the content of chunker to the array of bytes */
       synchronized (buffer) {
-          buffer.add(chunker.toByteArray());
+          buffer.add(chunkBuffer.toByteArray());
           /* Notify all threads waiting for data */
           buffer.notifyAll();
       }
-      chunker.reset();
+      chunkBuffer.reset();
   } // flush
 
 
@@ -190,7 +195,7 @@ public final class StdoutBuffer extends OutputStream {
    * @throws IOException if the stream cannot be read.
    */
   public InputStream getContent() throws IOException {
-    return new BufferReader(buffer);
+    return dataDecoder(new BufferReader(buffer));
   } // getContent
 
   /**
@@ -201,6 +206,52 @@ public final class StdoutBuffer extends OutputStream {
   public String toString() {
     return getClass().getName() + "[" + buffer.size() * chunkSize + " bytes in buffer (approx.)]";
   } // toString
+
+  /*
+   * ----------- PROTECTED BLOCK -----------
+   */
+
+  /**
+   * Output stream customizer. The data which are required to be written to the {@link #buffer}
+   * are passed through custom stream (or a sequence of streams) returned by this class. The
+   * data written to the returned stream must end up in the <code>stream</code>, from which
+   * they are read and stored in the {@link #buffer}:
+   *
+   * data -> stream[dataEncoder(OutputStream) -> {@link #buffer} ->
+   *      -> stream[{@link #dataDecoder(InputStream)}]  -> data
+   * </p>
+   * This implementation returns back the <code>stream</code> instance.
+   * </p>
+   * It is ensured that this method is called prior to {@link #dataDecoder(InputStream)}.
+   *
+   * @param  stream the stream into which the data are required to be written once
+   *         passed through the custom stream.
+   * @return the custom stream through which to pass the data stored to #buffer.
+   * @see    #dataDecoder(InputStream)
+   */
+  protected OutputStream dataEncoder(OutputStream stream) {
+    return stream;
+  }
+  /**
+   * Input stream customizer. The data which are required to be read from {@link #buffer}
+   * are passed through custom stream (or a sequence of streams) returned by this class.
+   * The data in form {@link #buffer} are read through <code>stream</code> stream, and
+   * passed through dataDecoder(InputStream) stream. When read then, they
+   * must be in the same form as written to the stream returned by {@link #dataEncoder(OutputStream)}:
+   *
+   * data -> stream[{@link #dataEncoder(OutputStream)}] -> {@link #buffer} ->
+   *      -> stream[dataDecoder(InputStream)]  -> data
+   * </p>
+   * This implementation returns back the <code>stream</code>.
+   *
+   * @param  stream the stream into which the data are required to be written once
+   *         passed through the custom stream.
+   * @return the custom stream through which to pass the data stored to #buffer.
+   * @see    #dataEncoder(OutputStream)
+   */
+  protected InputStream dataDecoder(InputStream stream) {
+    return stream;
+  }
 
 
   /*
@@ -218,23 +269,27 @@ public final class StdoutBuffer extends OutputStream {
    * The work with the variable MUST BE hold in critical section. However, items are added to the buffer
    * only - once a chunk of bytes is in the buffer, it is neither changed not deleted.
    */
-  private List<byte[]> buffer;
+  private final List<byte[]> buffer;
   /**
    * The size of buffer item chunk
    */
-  private final int  chunkSize;
+  protected final int  chunkSize;
 
   /**
    * The temporary buffer used for chunking the data. The data are first written to this buffer
    * and when the buffer contains enough data for one chunk to be created, it is flushed to the
    * main buffer.
    */
-  private ByteArrayOutputStream chunker;
+  private ByteArrayOutputStream chunkBuffer;
+  /**
+   * The custom chunker stream returned by {@link #dataEncoder(java.io.OutputStream)}
+   */
+  private OutputStream   chunkWriter;
 
   /**
    * The logger
    */
-  private Logger log;
+  protected Logger log;
 
 
 
@@ -263,8 +318,8 @@ public final class StdoutBuffer extends OutputStream {
        @Override
        public final int available() throws IOException {
           /* Must not be closed */
-          if (bufferInst == null) {
-              throw new IOException("Reader already closed");
+          if (isClosed) {
+              throw new IOException(MSG_READER_ALREADY_CLOSED);
           }
 
           int toread;
@@ -303,7 +358,7 @@ public final class StdoutBuffer extends OutputStream {
         */
        @Override
        public final void close() {
-           bufferInst = null;
+           isClosed = true;
        } // close
 
        /**
@@ -329,8 +384,8 @@ public final class StdoutBuffer extends OutputStream {
        @Override
        public final int read() throws IOException {
            /* Must not be closed */
-           if (bufferInst == null) {
-               throw new IOException("Reader already closed");
+           if (isClosed) {
+               throw new IOException(MSG_READER_ALREADY_CLOSED);
            }
 
            /* ------------
@@ -378,7 +433,7 @@ public final class StdoutBuffer extends OutputStream {
        } // read
 
        /**
-        *  Implementation of {@link InputStream#read(byte [])}
+        *  Implementation of {@link InputStream#read(byte[])}
         *  @throws IOException if the stream cannot be read.
         */
        @Override
@@ -396,8 +451,8 @@ public final class StdoutBuffer extends OutputStream {
            int numRead = 0;
 
            /* Must not be closed */
-           if (bufferInst == null) {
-               throw new IOException("Reader already closed");
+           if (isClosed) {
+               throw new IOException(MSG_READER_ALREADY_CLOSED);
            }
 
            /* Read until the required number of bytes is read. */
@@ -459,8 +514,8 @@ public final class StdoutBuffer extends OutputStream {
        @Override
        public final void reset() throws IOException {
           /* Must not be closed */
-          if (bufferInst == null) {
-            throw new IOException("Reader already closed");
+          if (isClosed) {
+            throw new IOException(MSG_READER_ALREADY_CLOSED);
           }
 
           chunkInd = 0;
@@ -492,7 +547,10 @@ public final class StdoutBuffer extends OutputStream {
        /**
         * The parent instance of the buffer from which the data are read
         */
-       private List<byte[]> bufferInst;
+       private final List<byte[]> bufferInst;
+
+       /** Flag set when {@link #close()} is called. */
+       private boolean isClosed;
 
        /**
         * The index of the chunk to read

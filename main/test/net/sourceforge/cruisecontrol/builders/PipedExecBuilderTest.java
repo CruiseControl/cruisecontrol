@@ -375,6 +375,8 @@ public final class PipedExecBuilderTest extends TestCase {
         cat2.setStdinProvider(cat1);
         cat2.setBuildProperties(new HashMap<String, String>());
         cat2.setBuildLogParent(new Element("build"));
+        cat2.setBinaryStdout(false);
+        cat2.setGZipStdout(false);
         /* Validate and run (not as thread here) */
         cat2.validate();
         cat2.run();
@@ -389,6 +391,8 @@ public final class PipedExecBuilderTest extends TestCase {
         cat3.setStdinProvider(cat2.getStdOutReader());
         cat3.setBuildProperties(new HashMap<String, String>());
         cat3.setBuildLogParent(new Element("build"));
+        cat3.setBinaryStdout(false);
+        cat3.setGZipStdout(false);
         /* Validate and run (not as thread here) */
         cat3.validate();
         cat3.run();
