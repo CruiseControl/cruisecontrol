@@ -85,6 +85,9 @@
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
 
+            <!-- Special environment variables used in test -->
+            <env   key="TESTENV" value="test/env/variable" />
+
             <formatter type="brief" usefile="no"/>
             <formatter type="xml" usefile="yes"/>
 

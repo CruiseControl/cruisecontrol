@@ -16,6 +16,7 @@ build loop
 * Fix error in Builder.getBuildOutputConsumer() when live output is enabled and the project name contained a slash.
 * StreamPumper changed to work with both text and binary data (CC-991). Patch by Daniel Tihelka.
 * Fix FileResolver/ResolverUser to detect and re-read changed property files (CC-1043). Patch by Daniel Tihelka. 
+* Configure environment variables in Builder (currently Ant, Maven2, and Exec) configuration (CC-1026). Patch by Daniel Tihelka.
 
 PipedExecBuilder
 ----------------------

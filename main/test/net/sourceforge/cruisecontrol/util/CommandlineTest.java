@@ -90,6 +90,26 @@ public class CommandlineTest extends TestCase {
             return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
         }
 
+        public Process exec(String commandline) throws IOException {
+            wasCalled = true;
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
+        }
+
+        public Process exec(String[] commandline, String[] o) throws IOException {
+            wasCalled = true;
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
+        }
+
+        public Process exec(String commandline, String[] o) throws IOException {
+            wasCalled = true;
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
+        }
+
+        public Process exec(String commandline, String[] o, File workingDir) throws IOException {
+            wasCalled = true;
+            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
+        }
+
         public boolean wasCalled() {
             return wasCalled;
         }

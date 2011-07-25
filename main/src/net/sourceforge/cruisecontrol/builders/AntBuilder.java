@@ -58,6 +58,7 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.EmptyElementFilter;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
@@ -82,7 +83,7 @@ public class AntBuilder extends Builder {
 
     private static final Logger LOG = Logger.getLogger(AntBuilder.class);
 
-    private String antWorkingDir = null;
+    private String antWorkingDir;
     private String buildFile = "build.xml";
     private String target = "";
     private String tempFileName = "log.xml";
@@ -98,9 +99,9 @@ public class AntBuilder extends Builder {
     private boolean keepGoing = false;
     private String loggerClassName = DEFAULT_LOGGER;
     private boolean isLoggerClassNameSet;
-    private File saveLogDir = null;
+    private File saveLogDir;
     private long timeout = ScriptRunner.NO_TIMEOUT;
-    private boolean wasValidated = false;
+    private boolean wasValidated;
     private String propertyfile;
     private String progressLoggerLib;
 
@@ -175,7 +176,10 @@ public class AntBuilder extends Builder {
         validateBuildFileExists();
 
         final Progress progress = getShowProgress() ? progressIn : null;
-
+        final OSEnvironment antEnv = new OSEnvironment();
+        // Merge the environment with the configuration
+        mergeEnv(antEnv);
+        
         final AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
@@ -199,6 +203,7 @@ public class AntBuilder extends Builder {
         script.setPropertyFile(propertyfile);
         script.setProgressLoggerLib(progressLoggerLib);
         script.setProgress(progress);
+        script.setAntEnv(antEnv);
 
         final File workingDir = antWorkingDir != null ? new File(antWorkingDir) : null;
 

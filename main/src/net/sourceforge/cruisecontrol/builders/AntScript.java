@@ -45,6 +45,7 @@ import java.io.File;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.UtilLocator;
 import org.apache.log4j.Logger;
@@ -101,6 +102,7 @@ public class AntScript implements Script, StreamConsumer {
     private String propertyfile;
     private String progressLoggerLib;
     private Progress progress;
+    private OSEnvironment env;
 
     /**
      * construct the command that we're going to execute.
@@ -213,7 +215,8 @@ public class AntScript implements Script, StreamConsumer {
         }
 
         cmdLine.createArguments("-buildfile", buildFile);
-
+        cmdLine.setEnv(env);
+        
         final StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument(targets.nextToken());
@@ -548,4 +551,14 @@ public class AntScript implements Script, StreamConsumer {
     public void setProgress(final Progress progress) {
         this.progress = progress;
     }
+
+    /**
+     * @param env
+     *            The environment variables of the ant script, or <code>null</code> if to 
+     *            inherit the environment of the current process.
+     */
+    public void setAntEnv(final OSEnvironment env) {
+        this.env = env;
+    } // setAntEnv
+
 }

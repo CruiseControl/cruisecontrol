@@ -18,6 +18,14 @@ public class CruiseRuntime {
         return delegate.exec(commandline);
     }
 
+    public Process exec(String[] commandline, String[] o) throws IOException {
+        return delegate.exec(commandline, o);
+    }
+
+    public Process exec(String commandline, String[] o) throws IOException {
+        return delegate.exec(commandline, o);
+    }
+
     public Process exec(String[] commandline, String[] o, File workingDir) throws IOException {
         return delegate.exec(commandline, o, workingDir);
     }

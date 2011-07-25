@@ -36,12 +36,12 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
 import org.apache.log4j.Logger;
@@ -50,7 +50,7 @@ import org.jdom.Element;
 
 /**
  * Exec script class. Script support to execute a command and logs the results.
- * 
+ *
  * @author <a href="mailto:kevin.lee@buildmeister.com">Kevin Lee</a>
  */
 public class ExecScript implements Script, StreamConsumer {
@@ -59,15 +59,16 @@ public class ExecScript implements Script, StreamConsumer {
     private String execCommand;
     private String execArgs;
     private String errorStr;
+    private OSEnvironment execEnv;
     private Progress progress;
     private int exitCode;
-    private boolean foundError = false;
+    private boolean foundError;
     private Element buildLogElement;
-    private Element currentElement = null;
+    private Element currentElement;
 
     /**
      * construct the command that we're going to execute.
-     * 
+     *
      * @return Commandline holding command to be executed
      * @throws CruiseControlException
      */
@@ -85,6 +86,11 @@ public class ExecScript implements Script, StreamConsumer {
         if (execArgs != null) {
             cmdLine.addArguments(Commandline.translateCommandline(execArgs));
         }
+        // add the environment values if necessary
+        if (execEnv != null) {
+            cmdLine.setEnv(this.execEnv);
+        }
+
 
         // log the command if debug is enabled
         if (LOG.isDebugEnabled()) {
@@ -102,7 +108,7 @@ public class ExecScript implements Script, StreamConsumer {
 
     /**
      * StreamConsumer.consumeLine(String), Called from StreamPumper.
-     * 
+     *
      * @param line
      *            the line of output to parse
      */
@@ -111,13 +117,14 @@ public class ExecScript implements Script, StreamConsumer {
             return;
         }
 
-        Element message = null;
-        String messageLevel = "info";
+        final Element message;
+        final String messageLevel;
         if (errorStr != null && line.contains(errorStr)) {
             foundError = true;
             messageLevel = "error";
             message = messageFromLine(line, messageLevel);
         } else {
+            messageLevel = "info";
             message = messageFromLine(line, messageLevel);
         }
 
@@ -153,11 +160,10 @@ public class ExecScript implements Script, StreamConsumer {
                 if (buildLogElement.getAttribute("error") != null) {
                     // All the messages of the last (failed) goal should be
                     // switched to priority error
-                    List lst = currentElement.getChildren("message");
+                    final List lst = currentElement.getChildren("message");
                     if (lst != null) {
-                        Iterator it = lst.iterator();
-                        while (it.hasNext()) {
-                            Element msg = (Element) it.next();
+                        for (final Object aLst : lst) {
+                            final Element msg = (Element) aLst;
                             msg.setAttribute("priority", "error");
                         }
                     }
@@ -171,7 +177,7 @@ public class ExecScript implements Script, StreamConsumer {
     /**
      * set the "header" for this part of the build log. turns it into an Ant target/task style element for reporting
      * purposes
-     * 
+     *
      * @param buildLogElement
      *            the element of the build log
      * @return updated element
@@ -201,6 +207,15 @@ public class ExecScript implements Script, StreamConsumer {
     public void setExecCommand(String execCommand) {
         this.execCommand = execCommand;
     } // setExecCommand
+
+    /**
+     * @param env
+     *            The environment variables of the script, or <code>null</code> if to
+     *            inherit the environment of the current process
+     */
+    public void setExecEnv(final OSEnvironment env) {
+        this.execEnv = env;
+    } // setExecEnv
 
     /**
      * @return returns the exitcode of the command

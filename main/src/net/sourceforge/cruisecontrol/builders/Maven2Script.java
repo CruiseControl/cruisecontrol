@@ -1,11 +1,11 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
@@ -38,6 +38,7 @@ public final class Maven2Script implements Script, StreamConsumer {
     private final String activateProfiles;
     private List<Property> properties;
     private final Progress progress;
+    private OSEnvironment env;
 
     private int exitCode;
     private Element currentElement;
@@ -131,6 +132,8 @@ public final class Maven2Script implements Script, StreamConsumer {
         for (final Property property : properties) {
             cmdLine.createArgument("-D" + property.getName() + "=" + property.getValue());
         }
+
+        cmdLine.setEnv(env);
 
         //If log is enabled, log the command line
         if (LOG.isDebugEnabled()) {
@@ -231,11 +234,10 @@ public final class Maven2Script implements Script, StreamConsumer {
                 } else if (buildLogElement.getAttribute(ERROR) != null) {
                     // All the messages of the last (failed) goal should be
                     // switched to priority error
-                    List lst = currentElement.getChildren("message");
+                    final List lst = currentElement.getChildren("message");
                     if (lst != null) {
-                        Iterator it = lst.iterator();
-                        while (it.hasNext()) {
-                            Element msg = (Element) it.next();
+                        for (final Object aLst : lst) {
+                            final Element msg = (Element) aLst;
                             msg.setAttribute("priority", ERROR);
                         }
                     }
@@ -294,4 +296,12 @@ public final class Maven2Script implements Script, StreamConsumer {
         this.exitCode = exitCode;
     }
 
+    /**
+     * @param env
+     *            The environment variables of the script, or <code>null</code> if to
+     *            inherit the environment of the current process.
+     */
+    public void setEnv(final OSEnvironment env) {
+        this.env = env;
+    } // setEnv
 }

@@ -123,13 +123,14 @@ public class Commandline implements Cloneable {
 
     private final Vector<Argument> arguments = new Vector<Argument>();
 
-    private String executable = null;
+    private String executable;
+    private String[] execEnv;
 
-    private File workingDir = null;
+    private File workingDir;
     private final CruiseRuntime runtime;
 
-    private boolean closeStdIn = true; // close it by default to prevent deadlocks (see revision 3143) 
-    
+    private boolean closeStdIn = true; // close it by default to prevent deadlocks (see revision 3143)
+
     public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
         super();
         this.runtime = cruiseRuntime;
@@ -307,6 +308,14 @@ public class Commandline implements Cloneable {
     public void createArguments(final String first, final String second) {
         createArgument(first);
         createArgument(second);
+    }
+
+    /**
+     * @param env the environment prepared for the executable, or <code>null</code> if to pass default environment
+     *    to the executable.
+     */
+    public void setEnv(final OSEnvironment env) {
+        this.execEnv = env != null ? env.toArray() : null;
     }
 
     /**
@@ -565,7 +574,7 @@ public class Commandline implements Cloneable {
         directory.validate();
         this.workingDir = directory.toFile();
     }
-    
+
     /**
      * Sets execution directory
      * @param workingDir the working directory.
@@ -595,10 +604,10 @@ public class Commandline implements Cloneable {
 
     /**
      * Should STDIN of the process be closed just after executed? By default it is closed
-     * to prevent deadlocks. Set this to <code>false</code> <b>only</b> when you need to 
-     * read {@link Process#getOutputStream()} of the process returned by {@link #execute()} 
-     * (and close it when you finish the reading!). 
-     * 
+     * to prevent deadlocks. Set this to <code>false</code> <b>only</b> when you need to
+     * read {@link Process#getOutputStream()} of the process returned by {@link #execute()}
+     * (and close it when you finish the reading!).
+     *
      * @param close close the STDIN or not (by default it is <code>True</code> when not set
      *        otherwise)
      * @see   #execute()
@@ -616,22 +625,23 @@ public class Commandline implements Cloneable {
         final Process process;
 
         final String msgCommandInfo = "Executing: [" + getExecutable() + "] with parameters: ["
-                + toString(getCommandline(), false, "], [") + "]";
+                + toString(getCommandline(), false, "], [") + "]" + "and with "
+                + (this.execEnv != null ? "customized" : "default") + " environment variables";
 
         if (workingDir == null) {
             LOG.debug(msgCommandInfo);
             if (safeQuoting) {
-                process = runtime.exec(getCommandline());
+                process = runtime.exec(getCommandline(), this.execEnv);
             } else {
-                process = runtime.exec(toStringNoQuoting());
+                process = runtime.exec(toStringNoQuoting(), this.execEnv);
             }
 
         } else {
             LOG.debug(msgCommandInfo + " in directory " + workingDir.getAbsolutePath());
             if (safeQuoting) {
-                process = runtime.exec(getCommandline(), null, workingDir);
+                process = runtime.exec(getCommandline(), this.execEnv, workingDir);
             } else {
-                process = runtime.exec(toStringNoQuoting(), null, workingDir);
+                process = runtime.exec(toStringNoQuoting(), this.execEnv, workingDir);
             }
         }
 
