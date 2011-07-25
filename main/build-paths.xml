@@ -36,6 +36,7 @@
         <fileset refid="xpp.lib" />
         <fileset refid="xstream.lib" />
         <fileset refid="ant.lib" /> <!-- required by net.sourceforge.cruisecontrol.util.DateUtil, for org.apache.tools.ant.util.DateUtils -->
+        <fileset refid="ant-launcher.lib" /> <!-- required by net.sourceforge.cruisecontrol.builders.AntScript -->
         <fileset dir="lib" includes="*.jar"/>
     </path>
 
@@ -50,7 +51,6 @@
         <fileset refid="commons-codec.lib" />
         <fileset refid="jaxen.lib" />
         <fileset refid="xerces.lib" />
-        <fileset refid="ant-launcher.lib" /> <!-- required by net.sourceforge.cruisecontrol.builders.AntScript -->
     </path>
 
     <path id="test.functional.compile.path">
