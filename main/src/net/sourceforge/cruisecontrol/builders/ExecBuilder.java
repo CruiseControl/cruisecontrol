@@ -44,12 +44,14 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.CDATA;
 import org.jdom.Element;
+
 
 /**
  * Exec builder class.
@@ -71,7 +73,8 @@ public class ExecBuilder extends Builder {
     private String workingDir;
     private String errorStr;
     private long timeout = ScriptRunner.NO_TIMEOUT;
-    private Element buildLogElement = null; // global log to produce
+    private Element buildLogElement; // global log to produce
+
 
     /*
      * validate the attributes for the plugin
@@ -115,9 +118,12 @@ public class ExecBuilder extends Builder {
             final InputStream stdinProvider) {
 
         final Progress progress = getShowProgress() ? progressIn : null;
-
+        final OSEnvironment buildEnv = new OSEnvironment();
         // time the command started
         final long startTime = System.currentTimeMillis();
+
+        // Merge the environment with the configuration
+        mergeEnv(buildEnv);
 
         buildLogElement = new Element("build");
 
@@ -125,9 +131,8 @@ public class ExecBuilder extends Builder {
         final ExecScript script = createExecScript();
         script.setExecCommand(this.command);
         script.setExecArgs(substituteProperties(buildProperties, this.args));
+        script.setExecEnv(buildEnv);
         script.setErrorStr(this.errorStr);
-        // TODO: should properties become environment variables?
-        //script.setBuildProperties(buildProperties); - currently ignored
         script.setProgress(progress);
 
         final String projectName = buildProperties.get(Builder.BUILD_PROP_PROJECTNAME);
@@ -292,13 +297,14 @@ public class ExecBuilder extends Builder {
     } // setWorkingDir
 
     /**
-     * Gets the working directory set by {@link #setWorkingDir(String)}, or 
+     * Gets the working directory set by {@link #setWorkingDir(String)}, or
      * <code>null</code> if not set yet.
      * @return the working directory where the command is to be executed.
      */
     public String getWorkingDir() {
         return this.workingDir;
     } // getworkingDir
+
 
     /**
      * Get whether there was n error written to the build log

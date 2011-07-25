@@ -258,6 +258,17 @@ public class OSEnvironment {
     }
 
     /**
+     * Deletes a variable from this representation of the environment. If the
+     * variable does not exist, it is ignored.
+     *
+     * @param variable
+     *            the variable to delete
+     */
+    public void del(final String variable) {
+        variables.remove(variable);
+    }
+
+    /**
      * Returns all environment variables which were set at the time the class
      * was instantiated, as well as any which have been added programatically.
      *

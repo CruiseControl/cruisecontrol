@@ -43,9 +43,11 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Element;
@@ -60,16 +62,23 @@ public class ExecBuilderTest extends TestCase {
     private static final String MOCK_SUCCESS = "good exec";
     private static final String MOCK_EXIT_FAILURE = "exit failure";
     private static final String MOCK_OUTPUT_FAILURE = "output failure";
+    // name of environment variable used in the test; such env variable must
+    // exist when the test is started (be defined by ant)
+    private static final String TEST_ENVVAR = "TESTENV";
     // private static final String MOCK_TIMEOUT_FAILURE = "timeout failure";
     private File goodTestScript = null;
     private File exitTestScript = null;
     private File outputTestScript = null;
+    private File envTestScript = null;
+    // Current environment
+    private final OSEnvironment env = new OSEnvironment();
+
 
     /*
      * default constructor
      */
     public ExecBuilderTest(String name) {
-        super(name);
+         super(name);
     } // ExecBuilderTest
 
     /*
@@ -133,6 +142,27 @@ public class ExecBuilderTest extends TestCase {
                      + "echo some input and then an " + MOCK_OUTPUT_FAILURE + "\n",
                  false);
          }
+         // prepare "good" mock files for the testing of environment variables
+         // TODO: create only when needed; actually it does not have to be created for every test,
+         //       but it is done so to be compatible with other test scripts
+         if (Util.isWindows()) {
+             envTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+             envTestScript.deleteOnExit();
+             // TODO: vypisovat promennou, ktera je na vstupu zadana jako parametr
+             makeTestFile(
+                 envTestScript,
+                 "@rem This is a good exec.bat printing environment values\n"
+                     + "@set",
+                 true);
+         } else {
+             envTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.sh");
+             envTestScript.deleteOnExit();
+             makeTestFile(
+                 envTestScript,
+                 "#!/bin/sh\n"
+                     + "env",
+                 false);
+         }
     } // setUp
 
     /*
@@ -184,9 +214,82 @@ public class ExecBuilderTest extends TestCase {
     } // testBuild_OutputFailure
 
     /*
+     * test environment variables in the build - define new variable
+     */
+    public void testBuild_NewEnvVar() {
+        String envnew = "TESTENV_NEW";
+        String envval = "The value of the new environment variable";
+        Element logout;
+
+        // The variable must NOT exist in the current environment
+        assertNull(env.getVariable(envnew));
+
+        ExecBuilder eb = new ExecBuilder();
+        setEnv(eb, envnew, envval);
+        // Script must not fail and its STDOUT must contain the new variable
+        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        assertEquals(String.format("%s=%s", envnew, envval),
+                findMessage(logout, String.format("^%s.*", envnew)));
+    } // testBuild_NewEnvVar
+
+    /*
+     * test environment variables in the build - delete the variable
+     */
+    public void testBuild_DelEnvVar() {
+        Element logout;
+
+        // The variable must exist in the current environment
+        assertNotNull(env.getVariable(TEST_ENVVAR));
+
+        ExecBuilder eb = new ExecBuilder();
+        setEnv(eb, TEST_ENVVAR, null);
+        // Script must not fail and its STDOUT must not contain the new variable
+        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        assertEquals(null, findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
+    } // testBuild_NewEnvVar
+
+    /*
+     * test environment variables in the build - sets the empty value to the variable
+     */
+    public void testBuild_EmptyEnvVal() {
+        Element logout;
+
+        // The variable must exist in the current environment
+        assertNotNull(env.getVariable(TEST_ENVVAR));
+
+        ExecBuilder eb = new ExecBuilder();
+        setEnv(eb, TEST_ENVVAR, "");
+        // Script must not fail and its STDOUT must contain the variable without value
+        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        assertEquals(String.format("%s=", TEST_ENVVAR),
+                findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
+    } // testBuild_NewEnvVar
+
+    /*
+     * test environment variables in the build - adds some value to the existing value
+     * of the environment variable
+     */
+    public void testBuild_AddEnvVal() {
+        Element logout;
+        String envval = "/dummy/beg/path" + File.pathSeparator + "${" + TEST_ENVVAR + "}" + 
+                File.pathSeparator +"/dummy/end/path";
+
+        // The variable must exist in the current environment
+        assertNotNull(env.getVariable(TEST_ENVVAR));
+        String path = env.getVariable(TEST_ENVVAR);
+
+        ExecBuilder eb = new ExecBuilder();
+        setEnv(eb, TEST_ENVVAR, envval);
+        // Script must not fail and its STDOUT must contain the variable
+        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        assertEquals(String.format("%s=%s", TEST_ENVVAR, envval.replace("${" + TEST_ENVVAR + "}", path)),
+                findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
+    } // testBuild_NewEnvVar
+
+    /*
      * execute the build and check results
      */
-    void internalTestBuild(String statusType, ExecBuilder eb, String script) {
+    private Element internalTestBuild(String statusType, ExecBuilder eb, String script) {
         Element logElement = null;
         try {
             eb.setCommand(script);
@@ -230,7 +333,46 @@ public class ExecBuilderTest extends TestCase {
         //    Element msg = (Element) msgIterator.next();
         //    System.out.println("message priority = " + msg.getAttribute("priority").getValue());
         //}
+
+        return logElement;
      } // internalTestBuild
+
+      /**
+       * Sets the environment variable for the given exec builder
+       * @param eb the builder to set the environment variable for
+       * @param name the name of the environment variable
+       * @param value the new value of the environment variable, or null if to delete the
+       *    variable
+       */
+      private void setEnv(final ExecBuilder eb, final String name, String value) {
+          final Builder.EnvConf env = eb.createEnv();
+          /* Set the env variable, or mark it for delete */
+          env.setName(name);
+          if (value != null) {
+              env.setValue(value);
+          }
+          else {
+              env.markToDelete();
+          }
+      }
+     /**
+      * Checks if the STDOUT of a script (collected to build log XML element) contains the
+      * line matching the given pattern, and returns the line when found.
+      * @param logOut the XML element
+      * get by {@link ExecBuilder#build(java.util.Map, net.sourceforge.cruisecontrol.Progress)}.
+      * @param pattern the pattern to match the STDOUT against
+      * @return the line matching the pattern, or <code>null</code> if no line matched.
+      */
+     private String findMessage(final Element logOut, final String pattern) {
+         for (final Object elem : logOut.getChild("target").getChild("task").getChildren("message")) {
+             if (elem instanceof Element) {
+                 if (((Element)elem).getText().matches(pattern)) {
+                     return ((Element)elem).getText();
+                 }
+             }
+         }
+         return null;
+     }
 
       /*
        * Make a test file with specified content. Assumes the file does not exist.
@@ -263,10 +405,10 @@ public class ExecBuilderTest extends TestCase {
         final Map<String, String> buildProperties = new HashMap<String, String>();
         buildProperties.put("label", "foo");
         builder.build(buildProperties, null);
-        
+
         assertEquals(script.getExecArgs(), "foo");
     }
-    
+
     private class TestExecBuilder extends ExecBuilder {
 
         private final MockExecScript script;
@@ -285,9 +427,9 @@ public class ExecBuilderTest extends TestCase {
                                     final String projectName, final InputStream stdinProvider) {
             return true;
         }
-        
+
     }
-    
+
     private class MockExecScript extends ExecScript {
 
         private String args;
@@ -302,5 +444,5 @@ public class ExecBuilderTest extends TestCase {
         }
 
     }
-      
+
 } // ExecBuilderTest

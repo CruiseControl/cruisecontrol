@@ -11,9 +11,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.ValidationHelper;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
-
+import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.Attribute;
@@ -229,9 +229,14 @@ public class Maven2Builder extends Builder {
 
         for (final String goals : goalSets) {
 
+            final OSEnvironment env = new OSEnvironment();
+            // Merge the environment with the configuration
+            mergeEnv(env);
+
             final Maven2Script script = new Maven2Script(this, buildLogElement, goals, progress);
             script.setBuildProperties(buildProperties);
             script.setProperties(properties);
+            script.setEnv(env);
 
             final BuildOutputLogger buildOutputConsumer
                     = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), workingDir, null);

@@ -41,12 +41,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -60,6 +64,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private boolean showProgress = true;
     private boolean isLiveOutput = true;
     private BuildOutputLogger buildOutputLogger;
+    private LinkedList<EnvConf> env = new LinkedList<EnvConf>();
 
     /** Build property name of property that is pass to all builders. */
     public static final String BUILD_PROP_PROJECTNAME = "projectname";
@@ -203,12 +208,12 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * @param now the current date
      * @return true if this this the correct day to be running this builder 
      */
-    public boolean isValidDay(Date now) {
+    public boolean isValidDay(final Date now) {
         if (getDay() < 0) {
             return true;
         }
 
-        Calendar cal = Calendar.getInstance();
+        final Calendar cal = Calendar.getInstance();
         cal.setTime(now);
         return cal.get(Calendar.DAY_OF_WEEK) == getDay();
     }
@@ -217,10 +222,10 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      *  used to sort builders.  we're only going to care about sorting builders based on build number,
      *  so we'll sort based on the multiple attribute.
      */
-    public int compareTo(Object o) {
-        Builder builder = (Builder) o;
-        Integer integer = new Integer(multiple);
-        Integer integer2 = new Integer(builder.getMultiple());
+    public int compareTo(final Object o) {
+        final Builder builder = (Builder) o;
+        final Integer integer = multiple;
+        final Integer integer2 = builder.getMultiple();
         return integer2.compareTo(integer); //descending order
     }
 
@@ -228,4 +233,111 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         return time != NOT_SET;
     }
 
+    /**
+     * @return new {@link EnvConf} object to configure.
+     */
+    public EnvConf createEnv() {
+        env.add(new EnvConf());
+        return env.getLast();
+    } // createEnv
+
+    /**
+     * Merges the environment settings configures through {@link EnvConf} classes with the
+     * given environment values. 
+     * 
+     * Call this method in {@link #build(Map, Progress)} implementation, if the builder 
+     * supports the environment configuration.
+     * 
+     * @param env the environment holder
+     */
+    protected void mergeEnv(final OSEnvironment env) {
+        for (final EnvConf e : this.env) {
+            e.merge(env);
+        }
+    } // merge
+
+    
+    /**
+     * Class for the environment variables configuration. They are configured from XML 
+     * configuration in form:
+     * <pre>
+     *   <a_builder ...>
+     *      <env name="ENV1" value="">
+     *      <env name="ENV2" del="true">
+     *   </a_builder>
+     * </pre>
+     * 
+     * The configured class merges the environment changes with the actual environment 
+     * configuration using method {@link #merge(OSEnvironment)}.
+     */
+    public static final class EnvConf {
+
+        private String name;
+        private String value;
+        // pattern used to find the ${*} strings to replace by ENV values
+        private final Pattern prop = Pattern.compile("\\$\\{([^}]+)\\}");
+
+
+        /** Hidden constructor */
+        private EnvConf() {
+            name = "";
+            value = null;
+        }
+
+        /**
+         * Sets the name of the environment variable. Avoid explicit calls of the method
+         * as it is supposed to be set when configuring the builder from CC XML configuration
+         * only.
+         * @param name the name of the variable
+         */
+        public void setName(final String name) {
+            this.name = name;
+        } // setName
+
+        /**
+         * Sets the the environment variable to the new value. Avoid explicit calls of the 
+         * method as it is supposed to be set when configuring the builder from CC XML 
+         * configuration only.
+         * @param val the new value to set
+         */
+        public void setValue(final String val) {
+            this.value = val;
+        } // setValue
+        /**
+         * Mark the environment variable to delete. Avoid explicit calls of the method
+         * as it is supposed to be set when configuring the builder from CC XML configuration
+         * only.
+         */
+        public void markToDelete() {
+            this.value = null;
+        } // markToDelete
+
+        /**
+         * Merges the current configuration to the given environment variables.
+         *
+         * Although properties defined in CC project should already be resolved when passed
+         * to {@link #setValue(String)}, it tries to replace remaining ${NAME} strings in
+         * the variable value by the value of NAME environment variable (if defined).
+         *
+         * @param env the environment holder
+         */
+        void merge(final OSEnvironment env) {
+            if (this.value == null) {
+                env.del(this.name);
+            } else {
+                String  v = this.value;
+                Matcher m = prop.matcher(v);
+                // resolve the ${*} properties remaining in the config using the environment
+                // variables.
+                while (m.find()) {
+                     v = m.replaceFirst(Matcher.quoteReplacement(env.getVariable(m.group(1), m.group(0))));
+                     m = prop.matcher(v);
+                }
+                // Set the new value
+                env.add(name, v);
+            }
+        }
+
+    } // EnvConf
+    
 }

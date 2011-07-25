@@ -5957,7 +5957,56 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             </tbody>
         </table>
 
-	<h3><a name="buildproperties">Properties Passed to Builders</a></h3>
+        <h3><a name="builderenvconfig">Builders environment configuration</a></h3>
+
+        <p>For some of the builders (currently those are <a href="#ant">&lt;ant&gt;</a>,
+        <a href="#maven2">&lt;maven2&gt;</a> and
+        <a href="#exec">&lt;exec&gt;</a>), the environment variables can be configured using
+        <code>&lt;env&gt;</code> elements, nested as the children of a particular builder 
+        configuration.</p>
+
+        <p>The <code>&lt;env&gt;</code> elements have the following attributes:</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>name</td>
+                <td>Yes</td>
+                <td>The name of environment variable to define, modify or delete.</td>
+            </tr>
+            <tr>
+                <td>value</td>
+                <td rowspan="3">One of those</td>
+                <td>New value set to the environment variable before it is passed to the builder.</td>
+            </tr>
+            <tr>
+                <td>del</td>
+                <td>If defined and contains 1 or <code>true</code>, the environment variable
+                    is not passed to the builder.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>The <code>name</code> and <code>value</code> attributes can contain CruiseControl
+        <a href="#property">&lt;property&gt;</a> references. For those property references 
+        in the <code>value</code> attribute, for which CruiseControl properties are not defined,
+        the environment variables having the property name are used.
+        For example, the definition:</p>
+        <pre>&lt;env name="PATH" value="${cruisedir}/tools:${PATH}" /&gt;</pre>
+        <p>will result in a modified <code>PATH</code> environment variable being passed to the builder,
+        with <code>${cruisedir}</code> replaced by the value of the <code>cruisedir</code> property
+        defined in the CruiseControl project configuration, and <code>${PATH}</code> replaced by 
+        the current value of the system's <code>PATH</code> environment variable (if not defined
+        as the CruiseControl property).</p>
+
+        <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
 
         <p>When CruiseControl runs your build script (e.g. Ant, Maven), it passes
         some information in the form of system properties to the script. These
@@ -6268,6 +6317,12 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>Used to define additional <a href="http://ant.apache.org/manual/listeners.html">listeners</a> for the ant build. The element
                 has one required attribute: "classname".<br/>
                 <strong>Example:</strong> <code>&lt;listener classname="org.apache.tools.ant.listener.Log4jListener"/&gt;</code></td>
+            </tr>
+            <tr>
+                <td><a name="builderenvconfig">&lt;env&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Used to modify environment variables passed to the ant build.<br/>
+                <strong>Example:</strong> <code>&lt;env name="PATH" value="${PATH}:${cruisedir}/tools"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -7215,6 +7270,26 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>No</td>
                 <td>Build will be halted if the script or command continues longer
                 than the specified timeout. Value in seconds.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="exec-elements">Child Elements</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a name="builderenvconfig">&lt;env&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Used to modify environment variables passed to the ant build.<br/>
+                <strong>Example:</strong> <code>&lt;env name="PATH" value="${PATH}:${cruisedir}/tools"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
