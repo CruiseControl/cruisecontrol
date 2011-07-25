@@ -52,6 +52,7 @@ import net.jini.core.entry.Entry;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.ResolverHolder;
 import net.sourceforge.cruisecontrol.builders.DistributedMasterBuilder;
 import net.sourceforge.cruisecontrol.distributed.BuildAgentService;
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;
@@ -280,7 +281,7 @@ public final class InteractiveBuildUtility {
 
         System.out.println("Beginning build...");
         System.out.println();
-        ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper();
+        ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper(new ResolverHolder.DummeResolvers());
         PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
 
         final DistributedMasterBuilder distributedBuildMaster;

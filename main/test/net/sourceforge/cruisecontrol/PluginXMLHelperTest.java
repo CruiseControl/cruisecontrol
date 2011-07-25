@@ -58,12 +58,12 @@ public class PluginXMLHelperTest extends TestCase {
 
     protected void setUp() throws CruiseControlException {
         registry = PluginRegistry.loadDefaultPluginRegistry();
-        projectXmlHelper = new ProjectXMLHelper(new HashMap<String, String>(), registry);
+        projectXmlHelper = new ProjectXMLHelper(new HashMap<String, String>(), registry, null);
         helper = new PluginXMLHelper(projectXmlHelper);
         
         // Using Turkish because of how I (as in setInterval) is mapped to lower case (CC-871)
         originalLocale = Locale.getDefault();
-        Locale turkishLocale = new Locale("tr", "TU");
+        final Locale turkishLocale = new Locale("tr", "TU");
         Locale.setDefault(turkishLocale);
     }
 

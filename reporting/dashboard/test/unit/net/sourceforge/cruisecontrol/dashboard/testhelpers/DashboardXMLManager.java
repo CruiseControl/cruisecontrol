@@ -37,11 +37,14 @@
 package net.sourceforge.cruisecontrol.dashboard.testhelpers;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectInterface;
+import net.sourceforge.cruisecontrol.ResolverHolder;
+import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -53,7 +56,7 @@ import org.jdom.Element;
  * @author jerome@coffeebreaks.org
  * @version $Id: XMLConfigManager.java 3052 2007-04-22 06:56:35Z jfredrick $
  */
-public class DashboardXMLManager {
+public class DashboardXMLManager implements ResolverHolder {
 
     private static final Logger LOG = Logger.getLogger(DashboardXMLManager.class);
 
@@ -68,10 +71,10 @@ public class DashboardXMLManager {
         loadConfig(configFile);
     }
 
-    private void loadConfig(File file) throws CruiseControlException {
-        Element element = Util.loadRootElement(file);
+    private void loadConfig(final File file) throws CruiseControlException {
+        final Element element = Util.loadRootElement(file);
         resolver.resetResolvedFiles();
-        config = new DashboardConfig(element, resolver);
+        config = new DashboardConfig(element, this);
     }
 
     public File getConfigFile() {
@@ -87,23 +90,38 @@ public class DashboardXMLManager {
         return config.getProject(projectName);
     }
 
-    class Resolver implements XmlResolver {
-        private Set resolvedFiles = new HashSet();
+    /** Th implementation of {@link ResolverHolder#getFileResolver} */
+    public FileResolver getFileResolver() {
+        return resolver;
+    }
 
-        public Element getElement(String path) throws CruiseControlException {
-            File file = new File(configFile.getParentFile(), path);
+    /** Th implementation of {@link ResolverHolder#getXmlResolver} */
+    public XmlResolver getXmlResolver() {
+        return resolver;
+    }
+
+    
+    class Resolver implements XmlResolver, FileResolver {
+        private Set<File> resolvedFiles = new HashSet<File>();
+
+        public Element getElement(final String path) throws CruiseControlException {
+            final File file = new File(configFile.getParentFile(), path);
             resolvedFiles.add(file);
             return Util.loadRootElement(file);
         }
 
-        public Set getResolvedFiles() {
+        /** The implementation of @{FileResolver#getInputStream(String)}. Throws exception
+         *  at this time! */
+        public InputStream getInputStream(final String path) throws CruiseControlException {
+            throw new CruiseControlException("Method not implemented");
+        }
+
+        public Set<File> getResolvedFiles() {
             return resolvedFiles;
         }
 
         public void resetResolvedFiles() {
             resolvedFiles.clear();
         }
-
     }
-
 }

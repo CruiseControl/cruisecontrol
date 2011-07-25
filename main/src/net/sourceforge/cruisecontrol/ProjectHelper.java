@@ -36,18 +36,14 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import net.sourceforge.cruisecontrol.config.FileResolver;
-
 import org.jdom.Element;
 
 /**
  * Manages the config.
  * @author <a href="mailto:jerome@coffeebreaks.org">Jerome Lacoste</a>
  */
-public interface ProjectHelper {
+public interface ProjectHelper extends ResolverHolder {
     Object configurePlugin(Element pluginElement, boolean skipChildElements)
             throws CruiseControlException;
 
-    /** @return an instance of FileResolver class available for the project. */
-    FileResolver getFileResolver();
 }

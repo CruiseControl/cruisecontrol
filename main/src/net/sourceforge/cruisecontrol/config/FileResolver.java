@@ -38,7 +38,13 @@ package net.sourceforge.cruisecontrol.config;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+
+import org.apache.log4j.Logger;
 
 /**
  * The interface defining methods responsible for the general resolving of files used
@@ -64,4 +70,27 @@ public interface FileResolver {
      */
     InputStream getInputStream(String path) throws CruiseControlException;
 
+    
+    /**
+     * Dummy FileResolver implementation for case when "real" FileResolver is not available.
+     * The implementation is straight wrapper for 
+     * <code>return new BufferedInputStream(new FileInputStream(path))</code>, nothing more.
+     */
+    public static final class DummyResolver implements FileResolver {
+        private static final Logger LOG = Logger.getLogger(DummyResolver.class);
+
+        /** The implementation of {@link FileResolver#getInputStream(String)} returning raw
+         *  stream to read data from */
+        public InputStream getInputStream(final String path) throws CruiseControlException {
+            LOG.warn("Using dummy resolver for file '" + path + "'. Changes in the file will not be reflected" 
+                + "in the project!");
+            final File file = new File(path);
+            try {
+                return new BufferedInputStream(new FileInputStream(file));
+            } catch (FileNotFoundException e) {
+                throw new CruiseControlException("exception when opening file " + file.getAbsolutePath(), e);
+            }
+        }
+    }
+    
 }

@@ -91,6 +91,34 @@ public class XMLConfigManagerTest extends TestCase {
         assertFalse(configManager.reloadIfNecessary());
     }
 
+    /**
+     * Tests the automatic reaload of project (as detected by {@link XMLConfigManager#reloadIfNecessary()}
+     * when a properties file is changed. In general, change of any file registered through {@link FileResolver}
+     * shoild lead to propject reload; however, we use {@link DefaultPropertiesPlugin} as the example class
+     * implementing {@link net.sourceforge.cruisecontrol.ResolverUser} which provides access
+     * to {@link FileResolver} framework.
+     * @throws CruiseControlException if the test fails.
+     */
+    public void testShouldDetectChangesToPropertyFiles() throws CruiseControlException {
+        // properties file
+        File propertyFile = new File(configurationFile.getParentFile(), "foo.props");
+        filesToDelete.add(propertyFile);
+        IO.write(propertyFile, "prop.item1 = val1");
+        // project config
+        File includedFile = new File(configurationFile.getParentFile(), "foo.xml");
+        filesToDelete.add(includedFile);
+        IO.write(includedFile, "<cruisecontrol><property file='" + propertyFile.getName() + "'/></cruisecontrol>");
+
+        XMLConfigManager configManager = new XMLConfigManager(configurationFile);
+        assertFalse(configManager.reloadIfNecessary());
+
+        // Change the properties file
+        IO.write(propertyFile, "prop.item1 = value1");
+
+        assertTrue(configManager.reloadIfNecessary());
+        assertFalse(configManager.reloadIfNecessary());
+    }
+
     public void testResolverShouldReturnCorrectElement() throws Exception {
         XMLConfigManager configManager = new XMLConfigManager(configurationFile);
         File file = File.createTempFile("XmlConfigManagerTest", ".xml", configurationFile.getParentFile());
@@ -101,8 +129,8 @@ public class XMLConfigManagerTest extends TestCase {
         assertEquals("foo", element.getName());
     }
 
-    private void writeConfigurationFile(String contents) throws CruiseControlException {
-        StringBuffer configuration = new StringBuffer();
+    private void writeConfigurationFile(final String contents) throws CruiseControlException {
+        final StringBuilder configuration = new StringBuilder();
         configuration.append(contents);
         IO.write(configurationFile, configuration.toString());
     }

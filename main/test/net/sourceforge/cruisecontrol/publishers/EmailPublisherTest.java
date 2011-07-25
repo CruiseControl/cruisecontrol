@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.net.InetAddress;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
@@ -53,6 +52,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
+import net.sourceforge.cruisecontrol.ResolverHolder;
 import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Alert;
 import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Always;
 import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Ignore;
@@ -118,7 +118,7 @@ public class EmailPublisherTest extends TestCase {
         SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
 
         Element emailPublisherElement = builder.build(new StringReader(xml)).getRootElement();
-        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper());
+        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper(new ResolverHolder.DummeResolvers()));
 
         EmailPublisher ePublisher =
             (MockEmailPublisher) xmlHelper.configure(
@@ -133,8 +133,8 @@ public class EmailPublisherTest extends TestCase {
         return ePublisher;
     }
 
-    protected String generateXML(boolean includeAlerts) {
-        StringBuffer xml = new StringBuffer();
+    protected String generateXML(final boolean includeAlerts) {
+        final StringBuilder xml = new StringBuilder();
         xml.append("<email defaultsuffix='@host.com'>");
         xml.append("<always address='always1'/>");
         xml.append("<always address='always1@host.com'/>");
@@ -387,11 +387,8 @@ public class EmailPublisherTest extends TestCase {
      */
     public void testCreateModsElement() throws Exception {
         final Set<Modification> modSet = successLogHelper.getModifications();
-        Modification mod;
-        final Iterator modIter = modSet.iterator();
 
-        while (modIter.hasNext()) {
-            mod = (Modification) modIter.next();
+        for (final Modification mod : modSet) {
             assertNotNull("getFileName should not return null", mod.getFileName());
             assertNotNull("getFullPath should not return null", mod.getFullPath());
 
