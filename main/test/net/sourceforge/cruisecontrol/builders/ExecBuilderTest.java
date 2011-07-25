@@ -352,7 +352,7 @@ public class ExecBuilderTest extends TestCase {
               env.setValue(value);
           }
           else {
-              env.markToDelete();
+              env.setDelete(true);
           }
       }
      /**

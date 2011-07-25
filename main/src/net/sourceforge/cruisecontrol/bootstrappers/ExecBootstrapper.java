@@ -39,7 +39,10 @@ package net.sourceforge.cruisecontrol.bootstrappers;
 import java.util.HashMap;
 
 import net.sourceforge.cruisecontrol.Bootstrapper;
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.builders.ExecBuilder;
 
@@ -129,4 +132,16 @@ public class ExecBootstrapper implements Bootstrapper {
     public void setWorkingDir(String dir) {
         delegate.setWorkingDir(dir);
     }
+
+    /**
+     * {@inheritDoc}
+     * @see net.sourceforge.cruisecontrol.Builder#createEnv()
+     */
+    @Description("Used to define environment variables for the builder. The element has two "
+            + "required attributes: \"name\" and either \"value\" or \"delete\".")
+    @Cardinality(min = 0, max = -1)
+    public Builder.EnvConf createEnv() {
+        return delegate.createEnv();
+    }
+
 }
