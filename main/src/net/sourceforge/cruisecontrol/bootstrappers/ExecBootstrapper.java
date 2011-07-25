@@ -134,7 +134,6 @@ public class ExecBootstrapper implements Bootstrapper {
     }
 
     /**
-     * {@inheritDoc}
      * @see net.sourceforge.cruisecontrol.Builder#createEnv()
      */
     @Description("Used to define environment variables for the builder. The element has two "
