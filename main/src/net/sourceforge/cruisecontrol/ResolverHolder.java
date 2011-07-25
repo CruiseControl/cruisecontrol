@@ -58,11 +58,11 @@ public interface ResolverHolder {
      *  {@link net.sourceforge.cruisecontrol.config.FileResolver.DummyResolver} and
      *  {@link net.sourceforge.cruisecontrol.config.XmlResolver.DummyResolver} instances. */
     public class DummeResolvers implements ResolverHolder {
-        @Override
+
         public FileResolver getFileResolver() {
             return R1;
         }
-        @Override
+
         public XmlResolver getXmlResolver() {
             return R2;
         }
