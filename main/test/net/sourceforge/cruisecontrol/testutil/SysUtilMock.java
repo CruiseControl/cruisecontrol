@@ -37,6 +37,7 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,12 +46,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.JarURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /* Non system classes, needs to be added to SysUtilMock#java */
@@ -103,8 +99,8 @@ public class SysUtilMock {
      * new file) or ">> filename" (to append to the existing file). The filename can be
      * text <i>NULL</i> to simulate printing to <code>/dev/null</code>.
      *
-     * Use {@link SysUtilMock#cat}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#cat}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#cat[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#cat[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] cat  = {"java", javaArgs + " -C cat " };
@@ -128,8 +124,8 @@ public class SysUtilMock {
      * The input filtered through the pattern is written to STDOUT, the redirection is not
      * supported (pipe it with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#grep}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#grep}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#grep[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#grep[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] grep = {"java", javaArgs + " -C grep "};
@@ -148,8 +144,8 @@ public class SysUtilMock {
      * The sorted (and unique, is set) input is written to STDOUT, the redirection is not
      * supported (pipe it with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#sort}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#sort}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#sort[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#sort[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] sort = {"java", javaArgs + " -C sort "};
@@ -167,8 +163,8 @@ public class SysUtilMock {
      * The unique items from the input is written to STDOUT, the redirection is not supported
      * (pipe it with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#uniq}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#uniq}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#uniq[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#uniq[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] uniq = {"java", javaArgs + " -C uniq "};
@@ -186,8 +182,8 @@ public class SysUtilMock {
      * The shuffled input is written to STDOUT, the redirection is not supported (pipe it
      * with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#shuf}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#shuf}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#shuf[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#shuf[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] shuf = {"java", javaArgs + " -C shuf "};
@@ -209,8 +205,8 @@ public class SysUtilMock {
      * The prefixed input is written to STDOUT, the redirection is not supported (pipe it
      * with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#add}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#add}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#add[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#add[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] add  = {"java", javaArgs + " -C add "};
@@ -229,8 +225,8 @@ public class SysUtilMock {
      * The modified input is written to STDOUT, the redirection is not supported (pipe it
      * with {@link #cat} if required).
      *
-     * Use {@link SysUtilMock#del}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#del}[1] + <code>"required options list"</code> as argument
+     * Use SysUtilMock#del[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#del[1] + <code>"required options list"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] del  = {"java", javaArgs + " -C del "};
@@ -239,8 +235,8 @@ public class SysUtilMock {
      * Special command representing not existing command (the attempt to invoke it fails
      * on system level by <i>command not found</i> error).
      *
-     * Use {@link SysUtilMock#BAD}[0] as argument for {@link Script#setCommand(String)},
-     * and {@link SysUtilMock#BAD}[1] + <code>"whatever"</code> as argument
+     * Use SysUtilMock#BAD[0] as argument for {@link Script#setCommand(String)},
+     * and SysUtilMock#BAD[1] + <code>"whatever"</code> as argument
      * for {@link Script#setArgs(String)}.
      */
     public static final String[] BAD  = {"BAD",  ""};
@@ -259,10 +255,9 @@ public class SysUtilMock {
     public static void main(String[] args) {
 
         try {
-            String prefix;
-            String command;
 
             /* Get the prefix as the very first action */
+            final String prefix;
             if ((prefix = MainArgs.parseArgument(args, "P", null, null)) != null) {
                 args = removeArgs(args, MainArgs.findIndex(args, "P"), 2);
                 System.setErr(new PrefixedStream(prefix, System.err));
@@ -278,6 +273,7 @@ public class SysUtilMock {
             System.err.println();
 
             /* Get the command */
+            final String command;
             if ((command = MainArgs.parseArgument(args, "C", null, null)) == null) {
                 throw new IllegalArgumentException("Command (-C option) not set");
             }
@@ -338,21 +334,19 @@ public class SysUtilMock {
      * The implementation of {@link #cat} command.
      * @param  args the arguments passed to the {@link #cat} command. Options not
      *         expected cause error.
-     * @throws IOException
+     * @throws IOException If an io error occurs
      */
-    private static final void cat(String[] args) throws IOException {
-        List<InputStream> inputs = new ArrayList<InputStream>();
-        StreamFlusher output = null;
-        int hold;
+    private static void cat(String[] args) throws IOException {
 
         /* Is -D set? */
-        hold = MainArgs.parseInt(args, "D", -1, -1);
+        final int hold = MainArgs.parseInt(args, "D", -1, -1);
         if (hold > -1) {
             args = removeArgs(args, MainArgs.findIndex(args, "D"), 2);
         }
 
         /* Create the array of inputs - process argument-by-argument */
-        for (String src : args) {
+        final List<InputStream> inputs = new ArrayList<InputStream>();
+        for (final String src : args) {
 
              /* Redirection found, leave */
              if (src.startsWith(">")) {
@@ -381,9 +375,10 @@ public class SysUtilMock {
 
         /* Create the output. If all attributes were not processed, the output is redirected
          * to a file */
+        StreamFlusher output = null;
         if (args.length > inputs.size()) {
-            String ofname = null;
-            boolean append = false;
+            final String ofname;
+            final boolean append;
 
             /* Just one remaining: ">file" */
             if (args.length == inputs.size() +1) {
@@ -424,12 +419,9 @@ public class SysUtilMock {
     /**
      * The implementation of {@link #grep} command.
      * @param args the arguments passed to the command. Options not expected cause error.
-     * @throws IOException
+     * @throws IOException if an IO error occurs.
      */
-    private static final void grep(String[] args) throws IOException {
-        InputStream  input;
-        StreamFlusher output;
-        AbstractConsumer filter;
+    private static void grep(String[] args) throws IOException {
         final int invert = MainArgs.findIndex(args, "v");
 
         /* Is -v set? */
@@ -449,23 +441,23 @@ public class SysUtilMock {
         final Pattern regexp = Pattern.compile(args[0]);
         /* Read the data from STDIO, if no file was set (in argument 1)
          * Store data to STDOUT (implements filter prior to storig the data) */
-        input = args.length == 1 ? System.in : new FileInputStream(args[1]);
-        output = new StreamFlusher(System.out, 0);
-        filter = new AbstractConsumer(output) {
-                         /** The implementation of {@link StreamConsumer#consumeLine(String)}
-                          *  filtering the lines */
-                         @Override
-                         public void consumeLine(String line) {
-                             boolean f = regexp.matcher(line).find();
+        final InputStream input = args.length == 1 ? System.in : new FileInputStream(args[1]);
+        final StreamFlusher output = new StreamFlusher(System.out, 0);
+        final AbstractConsumer filter = new AbstractConsumer(output) {
+            /** The implementation of {@link net.sourceforge.cruisecontrol.util.StreamConsumer#consumeLine(String)}
+             *  filtering the lines */
+            @Override
+            public void consumeLine(final String line) {
+                final boolean f = regexp.matcher(line).find();
 
-                             if (f && invert == MainArgs.NOT_FOUND) {
-                                 super.consumeLine(line);
-                             }
-                             if (! f && invert != MainArgs.NOT_FOUND) {
-                                 super.consumeLine(line);
-                             }
-                         }
-                     };
+                if (f && invert == MainArgs.NOT_FOUND) {
+                    super.consumeLine(line);
+                }
+                if (!f && invert != MainArgs.NOT_FOUND) {
+                    super.consumeLine(line);
+                }
+            }
+        };
         /* Filer the input and write it to output */
         new StreamPumper(input, filter).run();
         input.close();
@@ -478,13 +470,10 @@ public class SysUtilMock {
     /**
      * The implementation of {@link #sort} command.
      * @param args the arguments passed to the command. Options not expected cause error.
-     * @throws IOException
+     * @throws IOException if an IO error occurs.
      */
-    private static final void sort(String[] args) throws IOException {
-        InputStream  input;
-        StreamFlusher output;
-        ArrayStoreConsumer lines;
-        int uniq;
+    private static void sort(String[] args) throws IOException {
+        final int uniq;
 
         /* Is -u set? */
         if((uniq = MainArgs.findIndex(args, "u")) != MainArgs.NOT_FOUND) {
@@ -496,9 +485,10 @@ public class SysUtilMock {
 
         /* Read the data from STDIO, if no file was set
          * Store data to STDOUT */
-        input = args.length == 0 ? System.in : new FileInputStream(args[0]);
-        output = new StreamFlusher(System.out, 0);
-        lines = new ArrayStoreConsumer();
+        final InputStream input = args.length == 0 ? System.in : new FileInputStream(args[0]);
+        final StreamFlusher output = new StreamFlusher(System.out, 0);
+
+        ArrayStoreConsumer lines = new ArrayStoreConsumer();
 
         new StreamPumper(input, lines).run();
         System.err.println(lines.size() + "  lines read");
@@ -513,7 +503,7 @@ public class SysUtilMock {
         }
 
         /* Write unique (and sorted) lines to the output */
-        for (String s : lines) {
+        for (final String s : lines) {
             output.consumeLine(s);
         }
         input.close();
@@ -526,26 +516,23 @@ public class SysUtilMock {
     /**
      * The implementation of {@link #uniq} command.
      * @param args the arguments passed to the command. Options not expected cause error.
-     * @throws IOException
+     * @throws IOException if an IO error occurs.
      */
-    private static final void uniq(String[] args) throws IOException {
-        InputStream  input;
-        StreamFlusher output;
-        ArrayStoreConsumer lines;
+    private static void uniq(final String[] args) throws IOException {
 
         System.err.println("Making lines in the input unique");
 
         /* Read the data from STDIO, if no file was set
          * Store data to STDOUT */
-        input = args.length == 0 ? System.in : new FileInputStream(args[0]);
-        output = new StreamFlusher(System.out, 0);
-        lines = new ArrayStoreConsumer();
+        final InputStream input = args.length == 0 ? System.in : new FileInputStream(args[0]);
+        final StreamFlusher output = new StreamFlusher(System.out, 0);
+        final ArrayStoreConsumer lines = new ArrayStoreConsumer();
 
         new StreamPumper(input, lines).run();
         System.err.println(lines.size() + "  lines read");
 
         /* Write unique (and sorted) lines to the output */
-        for (String s : new TreeSet<String>(lines)) {
+        for (final String s : new TreeSet<String>(lines)) {
             output.consumeLine(s);
         }
         input.close();
@@ -557,26 +544,23 @@ public class SysUtilMock {
     /**
      * The implementation of {@link #shuf} command.
      * @param args the arguments passed to the command. Options not expected cause error.
-     * @throws IOException
+     * @throws IOException if an IO error occurs.
      */
-    private static final void shuf(String[] args) throws IOException {
-        InputStream  input;
-        StreamFlusher output;
-        ArrayStoreConsumer lines;
+    private static void shuf(final String[] args) throws IOException {
 
         System.err.println("Shuffling lines in the input");
 
         /* Read the data from STDIO, if no file was set
          * Store data to STDOUT */
-        input = args.length == 0 ? System.in : new FileInputStream(args[0]);
-        output = new StreamFlusher(System.out, 0);
-        lines = new ArrayStoreConsumer();
+        final InputStream input = args.length == 0 ? System.in : new FileInputStream(args[0]);
+        final StreamFlusher output = new StreamFlusher(System.out, 0);
+        final ArrayStoreConsumer lines = new ArrayStoreConsumer();
 
         new StreamPumper(input, lines).run();
         /* Shuffle the lines */
         Collections.shuffle(lines);
         /* Write to the output */
-        for (String s : lines) {
+        for (final String s : lines) {
             output.consumeLine(s);
         }
         input.close();
@@ -590,39 +574,37 @@ public class SysUtilMock {
      * @param args the arguments passed to the command. Options not expected cause error.
      * @param add <code>true</code> if to all {@link #add}, <code>false</code> if to call
      *        {@link #del}
-     * @throws IOException
+     * @throws IOException if an IO error occurs.
      */
-    private static final void modify(String[] args, final boolean add) throws IOException {
-        InputStream  input;
-        StreamFlusher output;
+    private static void modify(final String[] args, final boolean add) throws IOException {
 
         System.err.println("Modifying input by " + (add ? "adding some items"
                 : "removing items added before"));
 
         /* Read the data from STDIO, if no file was set
          * Store data to STDOUT */
-        input = args.length == 0 ? System.in : new FileInputStream(args[0]);
-        output = new StreamFlusher(System.out, 0) {
-                     /** The implementation of {@link StreamConsumer#consumeLine(String)}
-                      *  filtering the lines */
-                     @Override
-                     public void consumeLine(String line) {
-                         /* Add:
-                          * - the index of the line,
-                          * - the number of items in the line
-                          * - the length of the line */
-                         if (add) {
-                             line = getNumLines() + "  " + line.split("\\s+").length + "  " +
-                                    line.length() + "  " + line;
-                         }
-                         /* Remove the 3 items added */
-                         else {
-                             line = line.replaceAll("^\\s*\\d+\\s+\\d+\\s+\\d+\\s+", "");
-                         }
-                         /* Pass it to the parent */
-                         super.consumeLine(line);
-                     }
-                 };
+        final InputStream input = args.length == 0 ? System.in : new FileInputStream(args[0]);
+        final StreamFlusher output = new StreamFlusher(System.out, 0) {
+            /** The implementation of {@link net.sourceforge.cruisecontrol.util.StreamConsumer#consumeLine(String)}
+             *  filtering the lines */
+            @Override
+            public void consumeLine(String line) {
+                /* Add:
+                 * - the index of the line,
+                 * - the number of items in the line
+                 * - the length of the line */
+                if (add) {
+                    line = getNumLines() + "  " + line.split("\\s+").length + "  " +
+                            line.length() + "  " + line;
+                }
+                /* Remove the 3 items added */
+                else {
+                    line = line.replaceAll("^\\s*\\d+\\s+\\d+\\s+\\d+\\s+", "");
+                }
+                /* Pass it to the parent */
+                super.consumeLine(line);
+            }
+        };
         /* Filter the input and write it to the output */
         new StreamPumper(input, output).run();
         input.close();
@@ -640,17 +622,15 @@ public class SysUtilMock {
      * @param  num the number of arguments to remove
      * @return the copy of array without the indexes specified
      */
-    private static final String[] removeArgs(final String[] args, final int from, final int num) {
-        List<String> arglist = new ArrayList<String>(args.length);
+    private static String[] removeArgs(final String[] args, final int from, final int num) {
+        final List<String> arglist = new ArrayList<String>(args.length);
 
         /* Add the first part up to from */
-        for (int i = 0; i < from; i++) {
-            arglist.add(args[i]);
-        }
+        arglist.addAll(Arrays.asList(args).subList(0, from));
+
         /* and the second part */
-        for (int i = from + num; i < args.length; i++) {
-            arglist.add(args[i]);
-        }
+        arglist.addAll(Arrays.asList(args).subList(from + num, args.length));
+
         /* Get the reduced array */
         return arglist.toArray(new String[arglist.size()]);
     }
@@ -663,20 +643,18 @@ public class SysUtilMock {
      * @param clazz the classes for which to find the classpath direcory
      * @return the string to be set as "classpath"
      */
-    private static final String getClassPath(final Class<?>[] clazz) {
-        HashSet<String> cpset = new HashSet<String>();
-        StringBuffer cpopt = new StringBuffer();
+    private static String getClassPath(final Class<?>[] clazz) {
+        final HashSet<String> cpset = new HashSet<String>();
+        final StringBuilder cpopt = new StringBuilder();
 
         /* Environment variable */
         if (System.getenv("CLASSPATH") != null) {
-            for (String s : System.getenv("CLASSPATH").split(":")) {
-                cpset.add(s);
-            }
+            Collections.addAll(cpset, System.getenv("CLASSPATH").split(File.pathSeparator));
         }
         /* Individual classes */
-        for (Class<?> c : clazz) {
+        for (final Class<?> c : clazz) {
             try {
-                String classFile = c.getCanonicalName().replace('.', '/') + ".class";
+                final String classFile = c.getCanonicalName().replace('.', '/') + ".class";
                 URL    classPath = c.getClassLoader().getResource(classFile);
                 /* The URL points to JAR file */
                 if ("jar".equals(classPath.getProtocol())) {
@@ -692,8 +670,9 @@ public class SysUtilMock {
         }
 
         /* Format to the classpath option */
-        for(String s : cpset) {
-            cpopt.append(cpopt.lastIndexOf(":") < cpopt.length() -1 ? ":" : ""); // endswith(":")
+        for(final String s : cpset) {
+            cpopt.append(cpopt.lastIndexOf(File.pathSeparator) < cpopt.length() -1 ? 
+               File.pathSeparator : ""); // endswith(":")
             cpopt.append(s);
         }
         /* Get the result */

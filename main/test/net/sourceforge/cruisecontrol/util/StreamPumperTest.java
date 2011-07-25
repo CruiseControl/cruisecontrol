@@ -45,6 +45,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
+
 /**
  *
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
@@ -97,6 +99,132 @@ public class StreamPumperTest extends TestCase {
             System.setOut(oldOut);
             newPrintStreamOut.close();
         }
+    }
+
+    // text data, both binary and text consumer
+    public void testTxtIn_BinTxtOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        TestConsumer txtConsumer = new TestConsumer();
+        ByteArrayOutputStream binConsumer = new ByteArrayOutputStream();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), false, txtConsumer, binConsumer);
+        pumper.run();
+
+        //Check the text consumer to see if it got both lines.
+        assertTrue(txtConsumer.wasLineConsumed(line1));
+        assertTrue(txtConsumer.wasLineConsumed(line2));
+        //Check the binary consumer to see the whole content
+        Assert.assertArrayEquals(data, binConsumer.toByteArray());
+    }
+
+    // text data, both binary and text consumer, but with some invalid stream characters
+    public void testTxtIn_BinTxtOut_InvalidStreamChars() {
+        String line1 = "pre:-line1\u001b";
+        String line2 = "li\u0008ne2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        TestConsumer txtConsumer = new TestConsumer();
+        ByteArrayOutputStream binConsumer = new ByteArrayOutputStream();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), false, txtConsumer, binConsumer);
+        pumper.run();
+
+        //Check the text consumer to see if it got both lines.
+        assertTrue(txtConsumer.wasLineConsumed("pre:-line1"));
+        assertTrue(txtConsumer.wasLineConsumed("line2"));
+        //Check the binary consumer to see the whole content
+        Assert.assertArrayEquals(data, binConsumer.toByteArray());
+    }
+
+    // text data, binary consumer only
+    public void testTxtIn_BinOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        ByteArrayOutputStream binConsumer = new ByteArrayOutputStream();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), false, null, binConsumer);
+        pumper.run();
+
+        //Check the binary consumer to see the whole content
+        Assert.assertArrayEquals(data, binConsumer.toByteArray());
+    }
+
+    // text data, text consumer only
+    public void testTxtIn_TxtOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        TestConsumer txtConsumer = new TestConsumer();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), false, txtConsumer, null);
+        pumper.run();
+
+        //Check the text consumer to see if it got both lines.
+        assertTrue(txtConsumer.wasLineConsumed(line1));
+        assertTrue(txtConsumer.wasLineConsumed(line2));
+    }
+
+    // text data, no consumer (must neither fail nor stay blocked)
+    public void testBinIn_NoOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), false, null, null);
+        pumper.run();
+    }
+
+    // binary data, both binary and text consumer
+    public void testBinIn_BinTxtOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        TestConsumer txtConsumer = new TestConsumer();
+        ByteArrayOutputStream binConsumer = new ByteArrayOutputStream();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), true, txtConsumer, binConsumer);
+        pumper.run();
+
+        //Check the binary consumer to see the whole content
+        Assert.assertArrayEquals(data, binConsumer.toByteArray());
+        //Check the text consumer to see if it got the number of Bytes summary.
+        assertTrue(txtConsumer.wasLineConsumed(getBinDataMessage(data)));
+    }
+
+    // binary data, binary consumer only
+    public void testBinIn_BinOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        ByteArrayOutputStream binConsumer = new ByteArrayOutputStream();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), true, null, binConsumer);
+        pumper.run();
+
+        //Check the binary consumer to see the whole content
+        Assert.assertArrayEquals(data, binConsumer.toByteArray());
+    }
+
+    // binary data, text consumer only
+    public void testBinIn_TxtOut() {
+        String line1 = "line1";
+        String line2 = "line2";
+        byte[] data  = (line1 + "\n" + line2).getBytes();
+
+        TestConsumer txtConsumer = new TestConsumer();
+        StreamPumper pumper = new StreamPumper(new ByteArrayInputStream(data), true, txtConsumer, null);
+        pumper.run();
+
+        //Check the text consumer to see if it got both lines.
+        assertTrue(txtConsumer.wasLineConsumed(getBinDataMessage(data)));
+    }
+
+
+    // Gets the output in text consumer expected for binary data
+    private String getBinDataMessage(byte[] bytes) {
+       return "Read " + bytes.length + " Bytes";
     }
 }
 

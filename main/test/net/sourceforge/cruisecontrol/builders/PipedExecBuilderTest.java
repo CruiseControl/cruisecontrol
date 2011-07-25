@@ -68,7 +68,6 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.SysUtilMock;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.StdoutBufferTest;
-import net.sourceforge.cruisecontrol.util.Util;
 
 
 /**
@@ -120,8 +119,8 @@ public final class PipedExecBuilderTest extends TestCase {
         OutputStream out;
 
         /* Reduce the numbed of lines in the debug mode ... */
-        if (debugMode && numlines > 20) {
-            numlines = 20;
+        if (debugMode && numlines > 5) {
+            numlines = 5;
         }
 
         /* Prepare the input and output files (make output unique). Trim the lines */
@@ -363,15 +362,15 @@ public final class PipedExecBuilderTest extends TestCase {
         File tmpFile = getFile();
 
         /* Create the content */
-        createFiles(inpFile, tmpFile, 800);
+        createFiles(inpFile, tmpFile, 200);
 
         /* First cat - simulated by stream reader */
         InputStream cat1 = new BufferedInputStream(new FileInputStream(inpFile));
 
         /* Second cat - real command without arguments */
         PipedExecBuilder.Script cat2 = (PipedExecBuilder.Script) builder.createExec();
+        setExec(cat2, "02", "cat", null);
         cat2.initialize();
-        cat2.setCommand("cat");
         cat2.setStdinProvider(cat1);
         cat2.setBuildProperties(new HashMap<String, String>());
         cat2.setBuildLogParent(new Element("build"));
@@ -386,8 +385,8 @@ public final class PipedExecBuilderTest extends TestCase {
 
         /* Third cat - real command without arguments */
         PipedExecBuilder.Script cat3 = (PipedExecBuilder.Script) builder.createExec();
+        setExec(cat3, "03", "cat", null);
         cat3.initialize();
-        cat3.setCommand("cat");
         cat3.setStdinProvider(cat2.getStdOutReader());
         cat3.setBuildProperties(new HashMap<String, String>());
         cat3.setBuildLogParent(new Element("build"));
@@ -418,12 +417,6 @@ public final class PipedExecBuilderTest extends TestCase {
      */
     public void testBuild_correct() throws IOException, CruiseControlException {
 
-        // @todo Fix on windows.
-        if (Util.isWindows()) {
-            System.out.println("skipping test: " + getName() + "; Need to fix on Windows.");
-            return;
-        }
-
         PipedExecBuilder builder   = new PipedExecBuilder();
         Element buildLog;
 
@@ -433,8 +426,8 @@ public final class PipedExecBuilderTest extends TestCase {
         File res1File = getFile();
         File res2File = getFile();
         /* Prepare content */
-        createFiles(inp1File, res1File, 200);
-        createFiles(inp2File, res2File, 500);
+        createFiles(inp1File, res1File, 50);
+        createFiles(inp2File, res2File, 110);
 
         /* Temporary and output files */
         File tmp1File = getFile();
@@ -530,7 +523,7 @@ public final class PipedExecBuilderTest extends TestCase {
         File inp1File = getFile();
         File res1File = getFile();
         /* Prepare content */
-        createFiles(inp1File, res1File, 200);
+        createFiles(inp1File, res1File, 50);
 
 
         /* Set commands */
@@ -575,7 +568,7 @@ public final class PipedExecBuilderTest extends TestCase {
         File inp1File = getFile();
         File res1File = getFile();
         /* Prepare content */
-        createFiles(inp1File, res1File, 200);
+        createFiles(inp1File, res1File, 50);
 
         /* Fill it by commands to run. */
         builder.setShowProgress(false);
@@ -611,12 +604,6 @@ public final class PipedExecBuilderTest extends TestCase {
      */
     public void testBuild_timeout() throws CruiseControlException, IOException {
 
-        // @todo Fix on windows.
-        if (Util.isWindows()) {
-            System.out.println("skipping test: " + getName() + "; Need to fix on Windows.");
-            return;
-        }
-
         PipedExecBuilder builder = new PipedExecBuilder();
         Element buildLog;
         Attribute error;
@@ -627,7 +614,7 @@ public final class PipedExecBuilderTest extends TestCase {
         File inp1File = getFile();
         File res1File = getFile();
         /* Prepare content */
-        createFiles(inp1File, res1File, 200);
+        createFiles(inp1File, res1File, 50);
 
         /* Fill it by commands to run. */
         builder.setTimeout(10);
@@ -666,12 +653,6 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException if the builder fails!
      */
     public void testBuild_stdinClose() throws CruiseControlException, IOException {
-
-        // @todo Fix on windows.
-        if (Util.isWindows()) {
-            System.out.println("skipping test: " + getName() + "; Need to fix on Windows.");
-            return;
-        }
 
         PipedExecBuilder builder = new PipedExecBuilder();
         Element buildLog;
@@ -871,6 +852,7 @@ public final class PipedExecBuilderTest extends TestCase {
 
     /**
      * If {@link #debugMode} in on, prints the build log XML element to STDOUT.
+     * @param buildLog the element to print.
      */
     private static void printXML(final Element buildLog)
     {

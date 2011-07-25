@@ -14,11 +14,12 @@ general
 build loop
 ======================
 * Fix error in Builder.getBuildOutputConsumer() when live output is enabled and the project name contained a slash.
+* StreamPumper changed to work with both text and binary data (CC-991). Patch by Daniel Tihelka.
 
 PipedExecBuilder
 ----------------------
-* Fix memory usage and logging volume issues with PipedExecBuilder. (CC-991). Patch by Daniel Tihelka.
-* Add support for gzipstdout and binarystdout to PipedExecBuilder. (CC-991). Patch by Daniel Tihelka.
+* Fix memory usage and logging volume issues with PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
+* Add support for gzipstdout and binarystdout to PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
 
 EmailPublisher
 ----------------------

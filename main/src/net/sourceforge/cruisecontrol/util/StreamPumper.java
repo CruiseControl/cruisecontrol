@@ -90,15 +90,18 @@
 package net.sourceforge.cruisecontrol.util;
 
 import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 import org.apache.log4j.Logger;
 
 /**
- * Class to pump the error stream during Process's runtime. Copied from
- * the Ant built-in task.
+ * Class to pump the error stream during Process's runtime. Originally copied from
+ * the Ant built-in task, but changed to work with both text and binary data.
  *
  * @since  June 11, 2001
  * @author <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>
@@ -106,42 +109,137 @@ import org.apache.log4j.Logger;
  */
 public class StreamPumper implements Runnable {
 
-    private final BufferedReader in;
-    private final StreamConsumer consumer;
+    private final InputStream in;
+    private final boolean isBinary;
+    private final OutputStream binConsumer;
+    private final StreamConsumer txtConsumer;
 
     private static final int SIZE = 1024;
     private static final Logger LOG = Logger.getLogger(StreamPumper.class);
 
+    /**
+     * Constructor. Assigns the stream to read <b>text data</b> from with the consumer being
+     * fed with the texts.
+     *
+     * @param in the stream to read texts from
+     * @param consumer the consumer to feed texts into
+     */
     public StreamPumper(final InputStream in, final StreamConsumer consumer) {
-        this.in = new BufferedReader(new InputStreamReader(in), SIZE);
-        this.consumer = consumer;
+        this.in = in;
+        this.isBinary = false;
+        this.txtConsumer = consumer;
+        this.binConsumer = null;
     }
 
+    /**
+     * Constructor. Assigns the stream to read <b>text or binary data</b> from with the
+     * consumers being fed with data. If the data are marked as binary, summary message only
+     * is written into {@link StreamConsumer}.
+     *
+     * @param in the stream to read data from
+     * @param isBinary the consumer to feed texts into
+     * @param txtConsumer the consumer to feed texts into
+     * @param binConsumer the consumer to feed data into
+     */
+    public StreamPumper(final InputStream in, boolean isBinary, final StreamConsumer txtConsumer,
+           final OutputStream binConsumer) {
+        this.in = in;
+        this.isBinary = isBinary;
+        this.txtConsumer = txtConsumer;
+        this.binConsumer = binConsumer;
+    }
+
+    /**
+     * Reads data from the input stream and writes them to the consumers assigned.
+     */
     public void run() {
+        int bytesread = 0;
+
         try {
-            String s = in.readLine();
-            while (s != null) {
-                // Remove VT100 terminal escape sequences
-                s = s.replaceAll("\\e(\\[[^a-zA-Z]*[a-zA-Z]|[^\\[])", "");
-                // Remove other control characters apart from tab, newline and carriage return
-                s = s.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]", "");
-                consumeLine(s);
-                s = in.readLine();
+            // No stream, do not read (close outputs in finally {})
+            if (this.in == null) {
+                return;
             }
-        } catch (IOException e) {
-            // do nothing
+
+            // If only text stream consumer is set, pass the input stream directly through
+            // Reader which will convert it to the strings ...
+            if (this.binConsumer == null && !this.isBinary) {
+                final BufferedReader reader = new BufferedReader(new InputStreamReader(this.in));
+                String s;
+
+                while ((s = reader.readLine()) != null) {
+                    consumeLine(s, this.txtConsumer);
+                }
+
+            // Well, we have binary reader defined as well ...
+            // So, chunks of binary data must be read from the input stream and directly passed to the
+            // binary output. Moreover, they must be passed to the text output (for non-binary only data)
+            // which is done through pipe: byte[] -> PipeOutputStream -> PipeInputStream -> BufferedReader
+            } else {
+
+                // For non-binary data create the binary->text conversion pipe
+                // Use the StreamPumper class
+                final OutputStream tostrOutput;
+                final Thread tostrReader;
+                if (!this.isBinary) {
+                    tostrOutput = new PipedOutputStream();
+                    tostrReader = new Thread(new StreamPumper(new PipedInputStream((PipedOutputStream) tostrOutput),
+                            this.txtConsumer));
+                    tostrReader.start();
+                } else {
+                    tostrOutput = null;
+                    tostrReader = new Thread();
+                }
+
+                // Read binary data
+                final byte[] binBuff = new byte[SIZE];
+                int numread;
+
+                try {
+                    while ((numread = this.in.read(binBuff)) >= 0) {
+                        bytesread += numread;
+                        // Pass them to the binary consumer and to binary->text conversion pipe
+                        consumeBytes(binBuff, numread, this.binConsumer);
+                        consumeBytes(binBuff, numread, tostrOutput);
+                    }
+
+                } finally {
+                    // Must close, otherwise the binary->text conversion thread will never end
+                    IO.close(tostrOutput);
+                }
+                tostrReader.join();
+
+                // Print summary in binary mode
+                if (this.isBinary) {
+                    consumeLine("Read " + bytesread + " Bytes", this.txtConsumer);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("Problem consuming input stream [" + this.in + "], " + bytesread + " Bytes passed", e);
         } finally {
-            IO.close(in);
+            IO.close(this.in);
+            IO.close(this.binConsumer);
         }
     }
 
-    private void consumeLine(final String line) {
+    private void consumeLine(String line, final StreamConsumer consumer) {
         if (consumer != null) {
             try {
+                // Remove VT100 terminal escape sequences
+                line = line.replaceAll("\\e(\\[[^a-zA-Z]*[a-zA-Z]|[^\\[])", "");
+                // Remove other control characters apart from tab, newline and carriage return
+                line = line.replaceAll("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f]", "");
                 consumer.consumeLine(line);
+
             } catch (RuntimeException e) {
                 LOG.error("Problem consuming line [" + line + "]", e);
             }
+        }
+    }
+
+    private void consumeBytes(final byte[] bytes, int len, final OutputStream consumer) throws IOException {
+        if (consumer != null) {
+            consumer.write(bytes, 0, len);
         }
     }
 }
