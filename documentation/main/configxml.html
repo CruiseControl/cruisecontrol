@@ -5965,7 +5965,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <code>&lt;env&gt;</code> elements, nested as the children of a particular builder 
         configuration.</p>
 
-        <p>The <code>&lt;env&gt;</code> elements have the following attributes:</p>
+        <p>The <code>&lt;env&gt;</code> element has the following attributes:</p>
 
         <table class="documentation">
             <thead>
@@ -5984,7 +5984,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>value</td>
                 <td rowspan="3">One of 'value' or 'delete'</td>
-                <td>New value set to the environment variable before it is passed to the builder.</td>
+                <td>New value set to the environment variable to before it is passed to the builder.</td>
             </tr>
             <tr>
                 <td>delete</td>
@@ -6004,7 +6004,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         with <code>${cruisedir}</code> replaced by the value of the <code>cruisedir</code> property
         defined in the CruiseControl project configuration, and <code>${PATH}</code> replaced by 
         the current value of the system's <code>PATH</code> environment variable (if not defined
-        as the CruiseControl property).</p>
+        as a CruiseControl property).</p>
 
         <h3><a name="buildproperties">Properties Passed to Builders</a></h3>
 
