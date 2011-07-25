@@ -171,7 +171,8 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
      * @deprecated use {@link #register(PluginPlugin)}
      */
     public void register(final Element pluginElement) throws CruiseControlException {
-      final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper().configurePlugin(pluginElement, false);
+      final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper(
+            new ResolverHolder.DummeResolvers()).configurePlugin(pluginElement, false);
       register(plugin);
     }
 

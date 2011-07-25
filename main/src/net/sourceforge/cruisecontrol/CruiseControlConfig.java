@@ -49,7 +49,6 @@ import java.util.TreeMap;
 
 import net.sourceforge.cruisecontrol.config.DashboardConfigurationPlugin;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
-import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.IncludeProjectsPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
@@ -95,8 +94,7 @@ public class CruiseControlConfig {
     // for test purposes only
     private final Map<String, PluginRegistry> projectPluginRegistries = new TreeMap<String, PluginRegistry>();
 
-    private final XmlResolver xmlResolver;
-    private final FileResolver fileResolver;
+    private final ResolverHolder resolvers;
 
     private SystemPlugin system;
 
@@ -116,24 +114,23 @@ public class CruiseControlConfig {
     private final Set<String> customPropertiesPlugins = new HashSet<String>();
 
     public CruiseControlConfig(final Element ccElement) throws CruiseControlException {
-        this(ccElement, null, null, null);
+        this(ccElement, new ResolverHolder.DummeResolvers(), null);
     }
 
     public CruiseControlConfig(final Element ccElement, final CruiseControlController controller)
             throws CruiseControlException {
 
-        this(ccElement, null, null, controller);
+        this(ccElement, new ResolverHolder.DummeResolvers(), controller);
     }
 
-    public CruiseControlConfig(final Element ccElement, final XmlResolver xmlResolver, final FileResolver fileResolver)
+    public CruiseControlConfig(final Element ccElement, final ResolverHolder resolvers)
             throws CruiseControlException {
-        this(ccElement, xmlResolver, fileResolver, null);
+        this(ccElement, resolvers, null);
     }
 
-    public CruiseControlConfig(final Element ccElement, final XmlResolver xmlResolver, final FileResolver fileResolver,
+    public CruiseControlConfig(final Element ccElement, final ResolverHolder resolvers,
             final CruiseControlController controller) throws CruiseControlException {
-        this.xmlResolver = xmlResolver;
-        this.fileResolver = fileResolver;
+        this.resolvers = resolvers;
         this.controller = controller;
         parse(ccElement);
     }
@@ -176,7 +173,7 @@ public class CruiseControlConfig {
             if (isProject(nodeName)) {
                 handleProject(childElement);
             } else if ("system".equals(nodeName)) {
-                add((SystemPlugin) new ProjectXMLHelper().configurePlugin(childElement, false));
+                add((SystemPlugin) new ProjectXMLHelper(resolvers).configurePlugin(childElement, false));
             } else if (!KNOWN_ROOT_CHILD_NAMES.contains(nodeName) && !customPropertiesPlugins.contains(nodeName)) {
                 throw new CruiseControlException("cannot handle child of <" + nodeName + ">");
             }
@@ -187,8 +184,7 @@ public class CruiseControlConfig {
             throws CruiseControlException {
 
         this.controller = parent.controller;
-        xmlResolver = parent.xmlResolver;
-        fileResolver = parent.fileResolver;
+        resolvers = parent.resolvers;
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap<String, String>(parent.rootProperties);
         templatePluginProperties = new HashMap<String, List>(parent.templatePluginProperties);
@@ -196,27 +192,31 @@ public class CruiseControlConfig {
         parse(includedElement);
     }
 
-    private void handleIncludedProjects(Element includeElement) {
-        String path = includeElement.getAttributeValue("file");
+    private void handleIncludedProjects(final Element includeElement) {
+        final String path = includeElement.getAttributeValue("file");
         if (path == null) {
             LOG.warn("include.projects element missing file attribute. Skipping.");
         }
-        if (xmlResolver == null) {
+        if (resolvers == null || resolvers.getXmlResolver() == null) {
             LOG.debug("xmlResolver not available; skipping include.projects element. ok if validating config.");
             return;
         }
+        if (resolvers.getXmlResolver() instanceof XmlResolver.DummyResolver) {
+            LOG.debug("dummy xmlResolver available only; changes in project config will not be reflected.");
+        }
         try {
-            IncludeProjectsPlugin includeProjects = (IncludeProjectsPlugin) new ProjectXMLHelper(rootProperties, this
-                    .getRootPlugins()).configurePlugin(includeElement, FAIL_UPON_MISSING_PROPERTY);
+            final IncludeProjectsPlugin includeProjects
+                    = (IncludeProjectsPlugin) new ProjectXMLHelper(rootProperties, this
+                    .getRootPlugins(), resolvers).configurePlugin(includeElement, FAIL_UPON_MISSING_PROPERTY);
             add(includeProjects);
         } catch (CruiseControlException e) {
             LOG.error("Exception including file " + path, e);
         }
     }
 
-    private void handleDashboard(Element dashboardElement) throws CruiseControlException {
-        DashboardConfigurationPlugin dashboard =
-                (DashboardConfigurationPlugin) new ProjectXMLHelper(rootProperties, getRootPlugins())
+    private void handleDashboard(final Element dashboardElement) throws CruiseControlException {
+        final DashboardConfigurationPlugin dashboard =
+                (DashboardConfigurationPlugin) new ProjectXMLHelper(rootProperties, getRootPlugins(), resolvers)
                         .configurePlugin(dashboardElement, FAIL_UPON_MISSING_PROPERTY);
         dashboard.setController(controller);
         dashboard.validate();
@@ -287,12 +287,12 @@ public class CruiseControlConfig {
     }
 
     private void handleRootProperty(final Element childElement) throws CruiseControlException {
-        ProjectXMLHelper.registerProperty(rootProperties, childElement,
+        ProjectXMLHelper.registerProperty(rootProperties, childElement, resolvers,
                 FAIL_UPON_MISSING_PROPERTY);
     }
 
     private void handleCustomRootProperty(final Element childElement) throws CruiseControlException {
-        ProjectXMLHelper.registerCustomProperty(rootProperties, childElement, fileResolver,
+        ProjectXMLHelper.registerCustomProperty(rootProperties, childElement, resolvers,
                 FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
     }
 
@@ -305,7 +305,7 @@ public class CruiseControlConfig {
         final String file = project.getFile();
         final String path = Util.parsePropertiesInString(rootProperties, file, FAIL_UPON_MISSING_PROPERTY);
         LOG.debug("getting included projects from " + path);
-        final Element includedElement = xmlResolver.getElement(path);
+        final Element includedElement = resolvers.getXmlResolver().getElement(path);
         final CruiseControlConfig includedConfig = new CruiseControlConfig(includedElement, this);
         final Set<String> includedProjectNames = includedConfig.getProjectNames();
         for (final String name : includedProjectNames) {
@@ -398,7 +398,7 @@ public class CruiseControlConfig {
             for (final Object projectTemplateProperty : projectTemplateProperties) {
                 final Element element = (Element) projectTemplateProperty;
                 ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element,
-                        FAIL_UPON_MISSING_PROPERTY);
+                        resolvers, FAIL_UPON_MISSING_PROPERTY);
             }
         }
 
@@ -406,7 +406,7 @@ public class CruiseControlConfig {
         for (final Object o : projectElement.getChildren("property")) {
             final Element propertyElement = (Element) o;
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
-                    FAIL_UPON_MISSING_PROPERTY);
+                    resolvers, FAIL_UPON_MISSING_PROPERTY);
         }
 
         // add the resolved rootProperties to the project's properties
@@ -426,7 +426,7 @@ public class CruiseControlConfig {
         for (final Object o : projectElement.getChildren("plugin")) {
             final Element element = (Element) o;
             //final PluginPlugin plugin = (PluginPlugin)
-            new ProjectXMLHelper().configurePlugin(element, false);
+            new ProjectXMLHelper(resolvers).configurePlugin(element, false);
             // projectPlugins.register(plugin);
             projectPlugins.register(element);
             // add(plugin);
@@ -436,7 +436,7 @@ public class CruiseControlConfig {
         projectElement.removeChildren("plugin");
 
         LOG.debug("**************** configuring project " + projectName + " *******************");
-        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, fileResolver, controller);
+        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, resolvers, controller);
 
         final ProjectInterface project;
         try {

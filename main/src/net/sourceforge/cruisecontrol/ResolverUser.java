@@ -37,10 +37,11 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.config.FileResolver;
+import net.sourceforge.cruisecontrol.config.XmlResolver;
 
 /**
- * Plugins which require {@link FileResolver} should implement this interface.
- * It is ensured that the resolver is pushed to the plugin through this interface
+ * Plugins which require {@link FileResolver} or {@link XmlResolver} should implement this 
+ * interface. It is ensured that the resolver is pushed to the plugin through this interface
  * just after the instance of plugin is created.
  */
 public interface ResolverUser {
@@ -53,6 +54,11 @@ public interface ResolverUser {
      */
     void setFileResolver(FileResolver resolver);
 
-
-    // TODO: extend to the use of XmlResolver as well?
+    /**
+     * The method is called to push the instance of {@link XmlResolver} into
+     * the implementing class.
+     *
+     * @param resolver the instance to push.
+     */
+    void setXmlResolver(XmlResolver resolver);
 }

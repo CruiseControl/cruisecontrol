@@ -50,6 +50,7 @@ import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.ProjectInterface;
+import net.sourceforge.cruisecontrol.ResolverHolder;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
@@ -63,7 +64,7 @@ import com.twmacinta.util.MD5OutputStream;
  * @author jerome@coffeebreaks.org
  * @version $Id$
  */
-public class XMLConfigManager {
+public class XMLConfigManager implements ResolverHolder {
 
     private static final Logger LOG = Logger.getLogger(XMLConfigManager.class);
     private final File configFile;
@@ -87,7 +88,7 @@ public class XMLConfigManager {
         LOG.info("reading settings from config file [" + file.getAbsolutePath() + "]");
         Element element = Util.loadRootElement(file);
         resolver.resetResolvedFiles();
-        config = new CruiseControlConfig(element, resolver, resolver, controller);
+        config = new CruiseControlConfig(element, this, controller);
     }
 
     public File getConfigFile() {
@@ -114,6 +115,16 @@ public class XMLConfigManager {
         return fileChanged;
     }
 
+    /** The implementation of {@link ResolverHolder#getFileResolver} */
+    public FileResolver getFileResolver() {
+        return resolver;
+    }
+
+    /** The implementation of {@link ResolverHolder#getXmlResolver} */
+    public XmlResolver getXmlResolver() {
+        return resolver;
+    }
+
     private String calculateMD5(final File file)  {
         LOG.debug("Calculating MD5 [" + configFile.getAbsolutePath() + "]");
         String md5 = calculatePartialMD5(file);
@@ -125,23 +136,27 @@ public class XMLConfigManager {
     }
 
     private String calculatePartialMD5(final File file) {
-        String md5 = "";
+        final MD5OutputStream stream = new MD5OutputStream(new ByteArrayOutputStream());
+        // Load as XML
         try {
             final Element element = Util.loadRootElement(file);
-            final MD5OutputStream stream = new MD5OutputStream(new ByteArrayOutputStream());
-            try {
-                final XMLOutputter outputter = new XMLOutputter();
-                outputter.output(element, stream);
-                md5 = stream.getMD5().asHex();
-            } finally {
-                stream.close();
-            }
-        } catch (IOException e) {
-            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
-        } catch (CruiseControlException e) {
-            LOG.error("exception calculating MD5 of config file " + file.getAbsolutePath(), e);
+            final XMLOutputter outputter = new XMLOutputter();
+            outputter.output(element, stream);
+            return stream.getMD5().asHex();
+        } catch (Exception e) {
+            LOG.debug("exception calculating MD5 of file " + file.getAbsolutePath(), e);
+            LOG.debug("trying to read is as ordinary text file");
         }
-        return md5;
+        // Load as normal file
+        try {
+            final String content = Util.readFileToString(file);
+            stream.write(content.getBytes());
+            return stream.getMD5().asHex();
+        } catch (IOException e) {
+            LOG.error("exception calculating MD5 of file " + file.getAbsolutePath(), e);
+        }
+
+        return "";
     }
 
     class Resolver implements XmlResolver, FileResolver {
@@ -172,5 +187,4 @@ public class XMLConfigManager {
         }
 
     }
-
 }

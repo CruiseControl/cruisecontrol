@@ -55,7 +55,7 @@ import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.ProjectHelper;
 import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.ProjectXMLHelper;
-import net.sourceforge.cruisecontrol.config.XmlResolver;
+import net.sourceforge.cruisecontrol.ResolverHolder;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.Util;
 
@@ -97,15 +97,15 @@ public class DashboardConfig {
     // for test purposes only
     private Map projectPluginRegistries = new TreeMap();
 
-    private XmlResolver xmlResolver;
+    private final ResolverHolder resolvers;
 
-    public DashboardConfig(Element ccElement) throws CruiseControlException {
-        this(ccElement, (XmlResolver) null);
+    public DashboardConfig(final Element ccElement) throws CruiseControlException {
+        this(ccElement, new ResolverHolder.DummeResolvers());
     }
 
-    public DashboardConfig(Element ccElement, XmlResolver xmlResolver)
+    public DashboardConfig(final Element ccElement, final ResolverHolder resolvers)
             throws CruiseControlException {
-        this.xmlResolver = xmlResolver;
+        this.resolvers = resolvers;
         parse(ccElement);
     }
 
@@ -134,9 +134,9 @@ public class DashboardConfig {
         }
     }
 
-    private DashboardConfig(Element includedElement, DashboardConfig parent)
+    private DashboardConfig(final Element includedElement, final DashboardConfig parent)
             throws CruiseControlException {
-        xmlResolver = parent.xmlResolver;
+        resolvers = parent.resolvers;
         rootPlugins = PluginRegistry.createRegistry(parent.rootPlugins);
         rootProperties = new HashMap(parent.rootProperties);
         templatePluginProperties = new HashMap(parent.templatePluginProperties);
@@ -144,14 +144,13 @@ public class DashboardConfig {
         parse(includedElement);
     }
 
-    private void handleIncludedProjects(Element includeElement) {
+    private void handleIncludedProjects(final Element includeElement) {
         String path = includeElement.getAttributeValue("file");
         if (path == null) {
             LOG.warn("include.projects element missing file attribute. Skipping.");
         }
-        if (xmlResolver == null) {
-            LOG
-                    .debug("xmlResolver not available; skipping include.projects element. ok if validating config.");
+        if (resolvers == null || resolvers.getXmlResolver() == null) {
+            LOG.debug("xmlResolver not available; skipping include.projects element. ok if validating config.");
             return;
         }
         try {
@@ -159,11 +158,11 @@ public class DashboardConfig {
                     Util.parsePropertiesInString(rootProperties, path,
                             FAIL_UPON_MISSING_PROPERTY);
             LOG.debug("getting included projects from " + path);
-            Element includedElement = xmlResolver.getElement(path);
-            DashboardConfig includedConfig = new DashboardConfig(includedElement, this);
-            Set includedProjectNames = includedConfig.getProjectNames();
-            for (Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
-                String name = (String) iter.next();
+            final Element includedElement = resolvers.getXmlResolver().getElement(path);
+            final DashboardConfig includedConfig = new DashboardConfig(includedElement, this);
+            final Set includedProjectNames = includedConfig.getProjectNames();
+            for (final Iterator iter = includedProjectNames.iterator(); iter.hasNext();) {
+                final String name = (String) iter.next();
                 if (projects.containsKey(name)) {
                     String message =
                             "Project " + name + " included from " + path
@@ -226,13 +225,13 @@ public class DashboardConfig {
         pluginElement.removeChildren("property");
     }
 
-    private void handleRootProperty(Element childElement) throws CruiseControlException {
-        ProjectXMLHelper.registerProperty(rootProperties, childElement, FAIL_UPON_MISSING_PROPERTY);
+    private void handleRootProperty(final Element childElement) throws CruiseControlException {
+        ProjectXMLHelper.registerProperty(rootProperties, childElement, resolvers, FAIL_UPON_MISSING_PROPERTY);
     }
 
-    private void handleProject(Element projectElement) throws CruiseControlException {
+    private void handleProject(final Element projectElement) throws CruiseControlException {
 
-        String projectName = getProjectName(projectElement);
+        final String projectName = getProjectName(projectElement);
 
         if (projects.containsKey(projectName)) {
             final String duplicateEntriesMessage =
@@ -246,36 +245,36 @@ public class DashboardConfig {
         // it is possible that the rootProperties contain references to child
         // properties
         // in particular the project.name one
-        MapWithParent nonFullyResolvedProjectProperties = new MapWithParent(rootProperties);
+        final MapWithParent nonFullyResolvedProjectProperties = new MapWithParent(rootProperties);
         // Register the project's name as a built-in property
         LOG.debug("Setting property \"project.name\" to \"" + projectName + "\".");
         nonFullyResolvedProjectProperties.put("project.name", projectName);
 
         // handle project templates properties
-        List projectTemplateProperties =
+        final List projectTemplateProperties =
                 (List) templatePluginProperties.get(projectElement.getName());
         if (projectTemplateProperties != null) {
             for (int i = 0; i < projectTemplateProperties.size(); i++) {
-                Element element = (Element) projectTemplateProperties.get(i);
+                final Element element = (Element) projectTemplateProperties.get(i);
                 ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element,
-                        FAIL_UPON_MISSING_PROPERTY);
+                        resolvers, FAIL_UPON_MISSING_PROPERTY);
             }
         }
 
         // Register any project specific properties
-        for (Iterator projProps = projectElement.getChildren("property").iterator(); projProps
+        for (final Iterator projProps = projectElement.getChildren("property").iterator(); projProps
                 .hasNext();) {
             final Element propertyElement = (Element) projProps.next();
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
-                    FAIL_UPON_MISSING_PROPERTY);
+                    resolvers, FAIL_UPON_MISSING_PROPERTY);
         }
 
         // add the resolved rootProperties to the project's properties
-        Map thisProperties = nonFullyResolvedProjectProperties.thisMap;
-        for (Iterator iterator = rootProperties.keySet().iterator(); iterator.hasNext();) {
-            String key = (String) iterator.next();
+        final Map thisProperties = nonFullyResolvedProjectProperties.thisMap;
+        for (final Iterator iterator = rootProperties.keySet().iterator(); iterator.hasNext();) {
+            final String key = (String) iterator.next();
             if (!thisProperties.containsKey(key)) {
-                String value = (String) rootProperties.get(key);
+                final String value = (String) rootProperties.get(key);
                 thisProperties.put(key, Util.parsePropertiesInString(thisProperties,
                         value, false));
             }
@@ -286,8 +285,8 @@ public class DashboardConfig {
                 FAIL_UPON_MISSING_PROPERTY);
 
         // Register any custom plugins
-        PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
-        for (Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter
+        final PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
+        for (final Iterator pluginIter = projectElement.getChildren("plugin").iterator(); pluginIter
                 .hasNext();) {
             projectPlugins.register((Element) pluginIter.next());
         }
@@ -296,8 +295,8 @@ public class DashboardConfig {
         projectElement.removeChildren("plugin");
 
         LOG.debug("**************** configuring project " + projectName + " *******************");
-        ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins);
-        ProjectInterface project;
+        final ProjectHelper projectHelper = new ProjectXMLHelper(thisProperties, projectPlugins, resolvers);
+        final ProjectInterface project;
 
         try {
             project = (ProjectInterface) projectHelper.configurePlugin(projectElement, false);
@@ -307,11 +306,12 @@ public class DashboardConfig {
 
         // TODO: get rid of this ProjectConfig special case
         if (project instanceof ProjectConfig) {
-            ProjectConfig projectConfig = (ProjectConfig) project;
+            final ProjectConfig projectConfig = (ProjectConfig) project;
 
             if (projectConfig.getLabelIncrementer() == null) {
+                final Class labelIncrClass = projectPlugins.getPluginClass(LABEL_INCREMENTER);
+
                 LabelIncrementer labelIncrementer;
-                Class labelIncrClass = projectPlugins.getPluginClass(LABEL_INCREMENTER);
                 try {
                     labelIncrementer = (LabelIncrementer) labelIncrClass.newInstance();
                 } catch (Exception e) {

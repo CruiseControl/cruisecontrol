@@ -77,6 +77,14 @@ public class DefaultPropertiesPlugin implements PropertiesPlugin, ResolverUser {
 
     fileResolver = resolver;
   }
+  /**
+   * The implementation of {@link ResolverUser#setXmlResolver(XmlResolver)}. It does nothing,
+   * actually, since XML resolver is not needed here.
+   */
+  @SkipDoc
+  public void setXmlResolver(final XmlResolver resolver) {
+    // not needed
+  }
 
   @Description("The name of the property to set.")
   @Optional("Exactly one of name, environment, or file is required.")
