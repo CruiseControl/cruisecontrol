@@ -24,7 +24,10 @@
 
     <target name="--compile" if="should.compile">
         <javac srcdir="${src}" destdir="${classes}" classpathref="compile.path" debug="${javac.debug}"
-               source="${javac.source}" target="${javac.target}">
+               source="${javac.source}" target="${javac.target}"
+               includeAntRuntime="false"
+                >
+               <!-- exclude Ant runtime to avoid: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds -->
             <compilerarg value="-Xlint:unchecked"/>
         </javac>
     </target>
