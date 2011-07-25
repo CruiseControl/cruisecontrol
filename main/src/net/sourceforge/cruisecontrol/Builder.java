@@ -46,9 +46,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
@@ -64,7 +66,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     private boolean showProgress = true;
     private boolean isLiveOutput = true;
     private BuildOutputLogger buildOutputLogger;
-    private LinkedList<EnvConf> env = new LinkedList<EnvConf>();
+    private final LinkedList<EnvConf> env = new LinkedList<EnvConf>();
 
     /** Build property name of property that is pass to all builders. */
     public static final String BUILD_PROP_PROJECTNAME = "projectname";
@@ -236,6 +238,9 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     /**
      * @return new {@link EnvConf} object to configure.
      */
+    @Description("Used to define environment variables for the builder. The element has two "
+            + "required attributes: \"name\" and either \"value\" or \"delete\".")
+    @Cardinality(min = 0, max = -1)
     public EnvConf createEnv() {
         env.add(new EnvConf());
         return env.getLast();
@@ -262,14 +267,15 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * configuration in form:
      * <pre>
      *   <a_builder ...>
-     *      <env name="ENV1" value="">
-     *      <env name="ENV2" del="true">
+     *      <env name="ENV1" value="" />
+     *      <env name="ENV2" delete="true" />
      *   </a_builder>
      * </pre>
      * 
      * The configured class merges the environment changes with the actual environment 
      * configuration using method {@link #merge(OSEnvironment)}.
      */
+    @Description("Provides environment variable configuration.")
     public static final class EnvConf {
 
         private String name;
@@ -290,6 +296,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
          * only.
          * @param name the name of the variable
          */
+        @Description("The name of the environment variable.")
+        @Required
         public void setName(final String name) {
             this.name = name;
         } // setName
@@ -300,6 +308,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
          * configuration only.
          * @param val the new value to set
          */
+        @Description("The (new) value of the environment variable.")
+        @Required("Either a 'value' or 'delete' attribute must be set.")
         public void setValue(final String val) {
             this.value = val;
         } // setValue
@@ -307,10 +317,14 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
          * Mark the environment variable to delete. Avoid explicit calls of the method
          * as it is supposed to be set when configuring the builder from CC XML configuration
          * only.
+         * @param thisParameterIsIgnored typically should be "true".
          */
-        public void markToDelete() {
+        @Description("Marks the environment variable for removal.")
+        @Required("Either a 'value' or 'delete' attribute must be set.")
+        @SuppressWarnings({"UnusedParameters" })
+        public void setDelete(final boolean thisParameterIsIgnored) {
             this.value = null;
-        } // markToDelete
+        } // setDelete
 
         /**
          * Merges the current configuration to the given environment variables.

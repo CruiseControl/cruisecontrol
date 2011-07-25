@@ -43,7 +43,7 @@
 </head>
 <body>
 <div class="header">
-    <a name="top"/>
+    <a name="top"></a>
     <div class="hostedby">
         Hosted By:<br/>
         <a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=23523&amp;type=1" width="88" height="31" alt="SourceForge"/></a>
@@ -5030,7 +5030,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>starteamurl</td>
                 <td>Yes</td>
-                <td/>
+                <td></td>
             </tr>
             <tr>
                 <td>username</td>
@@ -5983,11 +5983,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             </tr>
             <tr>
                 <td>value</td>
-                <td rowspan="3">One of those</td>
+                <td rowspan="3">One of 'value' or 'delete'</td>
                 <td>New value set to the environment variable before it is passed to the builder.</td>
             </tr>
             <tr>
-                <td>del</td>
+                <td>delete</td>
                 <td>If defined and contains 1 or <code>true</code>, the environment variable
                     is not passed to the builder.</td>
             </tr>
@@ -6319,9 +6319,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <strong>Example:</strong> <code>&lt;listener classname="org.apache.tools.ant.listener.Log4jListener"/&gt;</code></td>
             </tr>
             <tr>
-                <td><a name="builderenvconfig">&lt;env&gt;</a></td>
+                <td><a href="#builderenvconfig">&lt;env&gt;</a></td>
                 <td>0 .. *</td>
-                <td>Used to modify environment variables passed to the ant build.<br/>
+                <td>Used to modify environment variables passed to the builder.<br/>
                 <strong>Example:</strong> <code>&lt;env name="PATH" value="${PATH}:${cruisedir}/tools"/&gt;</code></td>
             </tr>
             </tbody>
@@ -6599,6 +6599,12 @@ endlocal</pre>
                 be passed on the maven2 command-line as "-Dname=value" to each session
                 invocation (see <a href="#maven2-session-note">Sessions </a> note above).<br/>
                 <strong>Example:</strong> <code>&lt;property name="foo" value="bar"/&gt;</code></td>
+            </tr>
+            <tr>
+                <td><a href="#builderenvconfig">&lt;env&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Used to modify environment variables passed to the builder.<br/>
+                <strong>Example:</strong> <code>&lt;env name="PATH" value="${PATH}:${cruisedir}/tools"/&gt;</code></td>
             </tr>
             </tbody>
         </table>
@@ -7286,9 +7292,9 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </thead>
             <tbody>
             <tr>
-                <td><a name="builderenvconfig">&lt;env&gt;</a></td>
+                <td><a href="#builderenvconfig">&lt;env&gt;</a></td>
                 <td>0 .. *</td>
-                <td>Used to modify environment variables passed to the ant build.<br/>
+                <td>Used to modify environment variables passed to the builder.<br/>
                 <strong>Example:</strong> <code>&lt;env name="PATH" value="${PATH}:${cruisedir}/tools"/&gt;</code></td>
             </tr>
             </tbody>

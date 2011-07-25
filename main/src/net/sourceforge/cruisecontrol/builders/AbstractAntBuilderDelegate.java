@@ -1,5 +1,6 @@
 package net.sourceforge.cruisecontrol.builders;
 
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
@@ -247,6 +248,16 @@ public class AbstractAntBuilderDelegate {
     @Cardinality(min = 0, max = -1)
     public Property createProperty() {
         return delegate.createProperty();
+    }
+
+    /**
+     * @see AntBuilder#createEnv()
+     */
+    @Description("Used to define environment variables for the builder. The element has two "
+            + "required attributes: \"name\" and either \"value\" or \"delete\".")
+    @Cardinality(min = 0, max = -1)
+    public Builder.EnvConf createEnv() {
+        return delegate.createEnv();
     }
 
     /**
