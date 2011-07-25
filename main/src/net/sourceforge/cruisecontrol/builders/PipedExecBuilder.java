@@ -59,6 +59,7 @@ import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -236,6 +237,22 @@ public class PipedExecBuilder extends Builder {
                 iter.remove();
                 iter = tostart.listIterator();
                 started.add(s);
+
+                // !!!!!! 
+                // WINDOWS SPECIFIC HACK:
+                // Under Windows (tested on Windows XP with SP3, but suppose that it affects all
+                // lower versions as well) we have found problems when several commands are started
+                // simultaneously - although the process terminates successfully (finish reports 0
+                // status), the reading from STDOUT/STDERR of a process blocks forever ... It is later
+                // caught by timeout killer, but the whole pipe does not finish correctly.
+                // If this does not occur on Windows Vista (and higher], check just for Windows XP
+                // and lower can be added.
+                // Preventing very fast concurrent process spawning seems to fix it (tests are OK). But
+                // if you still find such problem, use threads.join(). It will lead to horrible 
+                // performance of the pipe under the affected windows versions, but it should be safe.
+                if (Util.isWindows()) {
+                    threads.join(1000);
+                }
             }
 
             /* All scripts which could be started up to now were started ...
@@ -843,43 +860,17 @@ public class PipedExecBuilder extends Builder {
                     };
                 }
 
-                /**
-                 * Assign STDOUT of the process directly to the StdoutBuffer (as byte stream). Bypasses problems with
-                 * text encoding, when the output of the process is not utf8. Reading it through StreamPumper would
-                 * pass it through String, which changes the STDOUT before piped to STDIN of the associated script.
-                 * Returns StreamPumper reading the binary data cached in the StdoutBuffer.
-                 */
+                /** Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in addition to the 
+                 *  (text) consumer given. */
                 @Override
                 protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
-                    /* Read STDOUt of the process directly */
-                    final InputStream instream = p.getInputStream();
-                    final StdioPumper outpumper = new StdioPumper(instream, Script.this.stdoutBuffer);
-                    final Thread stdout = new Thread(outpumper);
-                    stdout.start();
-
-                    /* If the STDOUT is text, return the pumper reading the texts data buffered
-                     * in StdoutBuffer. Otherwise return the empty pumper, see further ... */
-                    if (Boolean.FALSE.equals(binary)) {
-                        try {
-                            /* Return the pumper reading the binary data from StdoutBuffer */
-                            return new StreamPumper(Script.this.stdoutBuffer.getContent(), consumer);
-                        } catch (IOException e) {
-                            LOG.error("Error when joining STDOUT with various consumers. Build is likely to fail soon",
-                               e);
-                        }
-                    }
-                    /* Return empty pumper if no better pumper was returned */
-                    return new StreamPumper(null, null) {
-                                @Override
-                                public void run() { /* Does nothing */ }
-                           };
-                } // getPumper4Out
+                    return new StreamPumper(p.getInputStream(), binary, consumer, Script.this.stdoutBuffer);
+                } // getPumperOut
             }
             return new MyScriptRunner();
         } // createScriptRunner
 
     } // PipedExecScript
-
 
     /**
      * Simple class with pool of started threads. It implements {@link #join()} method waiting

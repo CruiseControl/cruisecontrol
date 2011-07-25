@@ -40,7 +40,6 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
@@ -88,60 +87,6 @@ public class ScriptRunner  {
         }
     }
 
-    /**
-     * Thread which "pumps" output of one script into the input of the current script.
-     * It is similar to StreamPumper, but stream pumper pumps into {@link StreamConsumer} 
-     * only, while {@link Process} requires {@link OutputStream}. 
-     *  
-     * In any case it closes the STDIN of the process 
-     */
-    static class StdioPumper implements Runnable {
-        private InputStream inp;
-        private OutputStream out;
-
-        StdioPumper(final InputStream i, final OutputStream o) {
-            this.inp = i;
-            this.out = o;
-        }
-
-        public void run() {  
-                 
-             try {  
-                /* No stream, not read (close it in finally) */
-                 if (this.inp == null) {
-                     return;
-                 }
-
-                 /* Buffer */
-                 byte[] buff = new byte[1024];
-                 int    numread;
-                 /* Until EOF is reached */
-                 while ((numread = this.inp.read(buff)) >= 0) {
-                     this.out.write(buff, 0, numread);
-                 }
-                 
-             } catch (IOException e) {
-                 /* Suppose not likely to happen ... However, how to pass it into error output? */
-                 LOG.fatal("Passing data to stdin of script failed!?", e);
-             } finally {
-                 /* Close the stream to the script - it signalizes to script that all data are read
-                  * and it can process them (if not already processing ...) */
-                 try {  
-                     if (out != null) {
-                         this.out.close();
-                     }
-                 } catch (IOException e) {
-                     /* Suppose not likely to happen ... However, how to pass it into error output? */
-                     LOG.fatal("Closing stdin if script failed!?", e);
-                 }
-                 /* Clear the variables for GC be able to release them */
-                 this.inp = null;
-                 this.out = null;
-             }
-        }
-    }
-
-    
     
     /**
      * build and return the results via xml. debug status can be determined from
@@ -251,7 +196,7 @@ public class ScriptRunner  {
 
         final StreamPumper errorPumper = getErrPumper(p, consumerForError);
         final StreamPumper outPumper = getOutPumper(p, consumerForOut);
-        final StdioPumper inPumper = new StdioPumper(scriptInputProvider, p.getOutputStream());
+        final StreamPumper inPumper = getInPumper(p, scriptInputProvider);
 
         final Thread stdin = new Thread(inPumper);
         stdin.start();
@@ -326,6 +271,21 @@ public class ScriptRunner  {
     StreamPumper getErrPumper(final Process p, final StreamConsumer consumer) {
         return new StreamPumper(p.getErrorStream(), consumer);
     } // getErrPumper
+
+    /**
+     * Returns the instance of StreamPumper which writes data to STDIN of the process. This default
+     * implementation returns new instance of StreamPumper class filling <code>p.getOutputStream()</code>
+     * from <code>source</code> stream.
+     *
+     * @param  p the process to write STDIN to. Note that the p.getOutputStream() is called here!
+     * @param  source the stream from which to read data fill to the process
+     * @return the instance of stream pumper.
+     * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
+     *         is called.
+     */
+    StreamPumper getInPumper(final Process p, final InputStream source) {
+        return new StreamPumper(source, true, null, p.getOutputStream());
+    } // getInPumper
 
     /**
      * Returns the consumer through which everything printed to STDOUT of the script is stored 
