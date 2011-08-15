@@ -52,7 +52,7 @@ import java.io.File;
  * @see <a href="http://www.selenic.com/mercurial">Mercurial web site</a>
  */
 public class MercurialBootstrapper implements Bootstrapper {
-    private static final Logger LOG = Logger.getLogger(SVNBootstrapper.class);
+    private static final Logger LOG = Logger.getLogger(MercurialBootstrapper.class);
 
     /** Configuration parameters */
     private String localWorkingCopy;
