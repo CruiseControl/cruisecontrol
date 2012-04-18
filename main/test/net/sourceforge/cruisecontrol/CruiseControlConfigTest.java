@@ -95,7 +95,7 @@ public class CruiseControlConfigTest extends TestCase {
         filesToDelete.add(new File(TestUtil.getTargetDir(), "${missing}"));
         filesToDelete.add(new File(TestUtil.getTargetDir(), "mylogs"));
         filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
-        
+
         config = new CruiseControlConfig(ccElement);
     }
 
@@ -119,6 +119,27 @@ public class CruiseControlConfigTest extends TestCase {
         Element dummy = new Element("foo");
         dummy.setAttribute("name", "dummy");
         root.addContent(dummy);
+
+        config = new CruiseControlConfig(root);
+        assertEquals(1, config.getProjectNames().size());
+        assertNotNull(config.getProject("dummy"));
+    }
+
+    public void testUseDefaultProjects() throws CruiseControlException {
+        Element root = new Element("cruisecontrol");
+
+        Element plugin = new Element("plugin");
+        plugin.setAttribute("name", "foo");
+        plugin.setAttribute("from", "project"); // pluin from in-build CC project class
+        root.addContent(0, plugin);
+
+        Element dummy = new Element("foo");
+        dummy.setAttribute("name", "dummy");
+        root.addContent(dummy);
+
+        Element content = new Element("schedule");
+        content.addContent(new Element("ant"));
+        dummy.addContent(content);
 
         config = new CruiseControlConfig(root);
         assertEquals(1, config.getProjectNames().size());

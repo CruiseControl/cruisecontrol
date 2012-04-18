@@ -18,6 +18,10 @@ build loop
 * Fix FileResolver/ResolverUser to detect and re-read changed property files (CC-1043). Patch by Daniel Tihelka. 
 * Configure environment variables in Builder (currently Ant, Maven2, and Exec) configuration (CC-1026). Patch by Daniel Tihelka.
 
+Plugin
+----------------------
+* Adds from="" attribute simplifying the pre-configuration of plugins interrited from the default CC tags
+
 PipedExecBuilder
 ----------------------
 * Fix memory usage and logging volume issues with PipedExecBuilder (CC-991). Patch by Daniel Tihelka.

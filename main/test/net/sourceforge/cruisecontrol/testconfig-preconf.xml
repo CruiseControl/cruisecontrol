@@ -51,10 +51,19 @@
   <plugin name="antpublisher">
     <property name="project.name" value="${project.name}"/>
   </plugin>
-  
+
+  <!-- plugin "from" attribute test -->
+  <plugin name="ant_publisher_2" from="antpublisher" >
+    <property name="project.name" value="${project.name}"></property>
+  </plugin>
+  <plugin name="publishers_new" from="publishers" >
+    <ant_publisher_2/>
+  </plugin>
+
+
   <plugin name="foo"
           classname='net.sourceforge.cruisecontrol.CruiseControlConfigPreConfTest$Foo'/>
-          
+
   <plugin name="foo">
     <property name="bar" value="baz" />
   </plugin>
@@ -75,6 +84,13 @@
     <schedule>
       <foo/>
     </schedule>
+  </project>
+
+  <project name="project8">
+    <schedule>
+      <foo/>
+    </schedule>
+    <publishers_new/>
   </project>
 
 </cruisecontrol>

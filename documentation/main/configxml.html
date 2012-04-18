@@ -5962,7 +5962,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <p>For some of the builders (currently those are <a href="#ant">&lt;ant&gt;</a>,
         <a href="#maven2">&lt;maven2&gt;</a> and
         <a href="#exec">&lt;exec&gt;</a>), the environment variables can be configured using
-        <code>&lt;env&gt;</code> elements, nested as the children of a particular builder 
+        <code>&lt;env&gt;</code> elements, nested as the children of a particular builder
         configuration.</p>
 
         <p>The <code>&lt;env&gt;</code> element has the following attributes:</p>
@@ -5995,14 +5995,14 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         </table>
 
         <p>The <code>name</code> and <code>value</code> attributes can contain CruiseControl
-        <a href="#property">&lt;property&gt;</a> references. For those property references 
+        <a href="#property">&lt;property&gt;</a> references. For those property references
         in the <code>value</code> attribute, for which CruiseControl properties are not defined,
         the environment variables having the property name are used.
         For example, the definition:</p>
         <pre>&lt;env name="PATH" value="${cruisedir}/tools:${PATH}" /&gt;</pre>
         <p>will result in a modified <code>PATH</code> environment variable being passed to the builder,
         with <code>${cruisedir}</code> replaced by the value of the <code>cruisedir</code> property
-        defined in the CruiseControl project configuration, and <code>${PATH}</code> replaced by 
+        defined in the CruiseControl project configuration, and <code>${PATH}</code> replaced by
         the current value of the system's <code>PATH</code> environment variable (if not defined
         as a CruiseControl property).</p>
 
@@ -10671,8 +10671,15 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             </tr>
             <tr>
                 <td>classname</td>
-                <td>Yes</td>
-                <td>The class that implements the plugin.</td>
+                <td>One of <code>from</code> or <code>classname</code> must be specified.</td>
+                <td>The class that implements the plugin (usually for 3rd party plugins).</td>
+            </tr>
+            <tr>
+                <td>from</td>
+                <td>One of <code>from</code> or <code>classname</code> must be specified.</td>
+                <td>One of of CruiseControl embedded configuration elements. This attribute
+                    is aimed to simplify definition of plugins derived from the CruiseControl
+                    in-build plugins, listed in <a href="#hierarchical">plugin indexes</a></td>
             </tr>
             </tbody>
         </table>

@@ -81,7 +81,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(7, config.getProjectNames().size());
+        assertEquals(8, config.getProjectNames().size());
     }
 
     public void testProjectPreConfiguration() throws Exception {
