@@ -10,6 +10,7 @@ general
 * Remove duplicates and missing jars from from eclipse .classpath (CC-1023). Patch by John Patrick.
 * Change cruisecontrol.sh to check cc.pid and kill the start if the cc.pid is an active cruisecontrol instance that is already running (CC-1009). Patch by John Patrick.
 * Update MX4J to version 3.0.2.
+* Add ability to connect remote debugger - see: .ant-scripts/build-properties.xml -> remoteDebugJVMArgs
 
 build loop
 ======================

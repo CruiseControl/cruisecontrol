@@ -8,4 +8,8 @@
     <property name="ant.scripts" location="${project.root}/.ant-scripts"/>
 
     <property file="${ant.scripts}/build.properties"/>
+
+    <property name="remoteDebugJVMArgs" value=""/>
+    <!-- To enable remote debugging of build, replace the value above with the one below. -->
+    <!--property name="remoteDebugJVMArgs" value="-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"/-->
 </project>

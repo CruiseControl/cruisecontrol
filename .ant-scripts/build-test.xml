@@ -82,6 +82,8 @@
                 >
             <classpath refid="test.unit.run.path"/>
 
+            <jvmarg line="${remoteDebugJVMArgs}" />  <!-- use 'line' here because it handles an empty value. -->
+
             <jvmarg value="-Demma.coverage.out.file=${emma.stats}" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
 

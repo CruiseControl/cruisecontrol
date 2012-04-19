@@ -40,6 +40,8 @@
     <property name="project.root" location="${basedir}/../.." />
     <property name="ant.scripts" location="${project.root}/.ant-scripts" />
 
+    <import file="${project.root}/.ant-scripts/build-properties.xml"/>
+
     <import file="${ant.scripts}/build-dependencies.xml"/>
 
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -155,6 +157,8 @@
             <formatter type="brief" usefile="false" />
             <formatter type="xml" />
 
+            <jvmarg line="${remoteDebugJVMArgs}" />  <!-- use 'line' here because it handles an empty value. -->
+
             <jvmarg value="-Demma.coverage.out.file=${emma.dir}/coverage.emma" />
             <jvmarg value="-Demma.coverage.out.merge=true" />
 
@@ -176,6 +180,9 @@
             <mkdir dir="${reports.dir}" />
             <junit printsummary="yes" fork="true" failureproperty="functional.test.failed" dir=".">
                 <classpath refid="test.functional.run.path" />
+
+                <jvmarg line="${remoteDebugJVMArgs}" />  <!-- use 'line' here because it handles an empty value. -->
+
                 <formatter type="brief" usefile="false" />
                 <formatter type="xml" />
                 <batchtest todir="${reports.dir}">
