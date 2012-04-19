@@ -281,6 +281,14 @@ public class ExecBuilder extends Builder {
     } // setArgs
 
     /**
+     * Gets the arguments for the command to execute
+     * @return the arguments for the command
+     */
+    public String getArgs() {
+        return this.args;
+    } // getArgs
+
+    /**
      * Sets the error string to search for in the command output
      * @param errStr the error string to search for in the command output
      */

@@ -261,7 +261,6 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         }
     } // merge
 
-    
     /**
      * Class for the environment variables configuration. They are configured from XML 
      * configuration in form:
@@ -301,6 +300,12 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         public void setName(final String name) {
             this.name = name;
         } // setName
+        /**
+         * @return the name of the environment variable set by {@link #setName(String)}.
+         */
+        public String getName() {
+            return this.name;
+        } // setName
 
         /**
          * Sets the the environment variable to the new value. Avoid explicit calls of the 
@@ -314,6 +319,13 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
             this.value = val;
         } // setValue
         /**
+         * @return the value of the environment variable set by {@link #setValue(String)},
+         *         or <code>null</code> if no environment variable was defined yet.
+         */
+        public String getValue() {
+            return this.name;
+        } // setName
+        /**
          * Mark the environment variable to delete. Avoid explicit calls of the method
          * as it is supposed to be set when configuring the builder from CC XML configuration
          * only.
@@ -325,6 +337,13 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         public void setDelete(final boolean thisParameterIsIgnored) {
             this.value = null;
         } // setDelete
+        /**
+         * @return the <code>true</code> if the given environment variable (named as get by
+         *         {@link #getValue()} is supposed to be removed from the environment.
+         */
+        public boolean toDelete() {
+            return this.value == null;
+        } // setName
 
         /**
          * Merges the current configuration to the given environment variables.
