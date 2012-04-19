@@ -71,10 +71,12 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
         task.run();
         assertEquals(task.getSent(), task.getReponse());
         assertTrue(task.getReponse().contains(status));
+        assertFalse(task.getReponse().contains(status2));
 
         task2.run();
         assertEquals(task2.getSent(), task2.getReponse());
         assertTrue(task2.getReponse().contains(status2));
+        assertFalse(task2.getReponse().contains(status));
     }
 
     static class CruiseControlControllerStub extends CruiseControlController {
