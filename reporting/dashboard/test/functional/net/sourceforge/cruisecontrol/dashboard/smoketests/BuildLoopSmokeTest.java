@@ -55,19 +55,26 @@ import org.apache.commons.httpclient.HttpClient;
 public class BuildLoopSmokeTest extends BaseFunctionalTest {
 
     public void testDashboardShouldReceiveSameBuildInformationBuildLoopSent() throws Exception {
+        final String status = "now building since 20031212152235";
         BuildLoopInformationBuilder builder =
-                new BuildLoopInformationBuilder(new CruiseControlControllerStub("project1",
-                        "now building since 20031212152235"));
+                new BuildLoopInformationBuilder(new CruiseControlControllerStub("project1", status));
+
+        final String status2 = "waiting";
         BuildLoopInformationBuilder builder2 =
-                new BuildLoopInformationBuilder(new CruiseControlControllerStub("project1", "waiting"));
+                new BuildLoopInformationBuilder(new CruiseControlControllerStub("project1", status2));
+
         String url = "http://localhost:9090/dashboard/buildloop/listener";
+
         BuildLoopStatusReportTask task = new BuildLoopStatusReportTask(builder, url, new HttpClient(), 20000);
-        BuildLoopStatusReportTask task2 =
-                new BuildLoopStatusReportTask(builder2, url, new HttpClient(), 20000);
+        BuildLoopStatusReportTask task2 = new BuildLoopStatusReportTask(builder2, url, new HttpClient(), 20000);
+
         task.run();
         assertEquals(task.getSent(), task.getReponse());
+        assertTrue(task.getReponse().contains(status));
+
         task2.run();
         assertEquals(task2.getSent(), task2.getReponse());
+        assertTrue(task2.getReponse().contains(status2));
     }
 
     static class CruiseControlControllerStub extends CruiseControlController {
