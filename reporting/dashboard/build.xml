@@ -209,11 +209,13 @@
     <macrodef name="start.jetty.server">
         <sequential>
             <echo message="stopping any running jetty server"/>
-            <waitfor maxwait="10" maxwaitunit="second" checkevery="500">
+            <waitfor maxwait="10" maxwaitunit="second" checkevery="500" timeoutproperty="jetty.server.stop.timeout">
                 <not>
                     <http url="http://localhost:9090/dashboard/jetty/stop" />
                 </not>
             </waitfor>
+            <fail if="jetty.server.stop.timeout" message="Unable to stop jetty server." />
+
             <echo message="starting jetty server"/>
             <parallel>
                 <daemons>
