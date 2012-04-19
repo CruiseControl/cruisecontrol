@@ -41,10 +41,13 @@ import java.util.List;
 
 import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
 import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.ProjectInterface;
 import net.sourceforge.cruisecontrol.dashboard.jwebunittests.BaseFunctionalTest;
+import net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer;
 import net.sourceforge.cruisecontrol.report.BuildLoopStatusReportTask;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -79,10 +82,12 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
 
         public List<ProjectInterface> getProjects() {
             ProjectConfig p1 = new ProjectConfig() {
+                @Override
                 public String getBuildStartTime() {
                     return "20031212152235";
                 }
 
+                @Override
                 public List<Modification> getModifications() {
                     final ArrayList<Modification> list = new ArrayList<Modification>();
                     final Modification m1 = new Modification();
@@ -93,14 +98,28 @@ public class BuildLoopSmokeTest extends BaseFunctionalTest {
                     return list;
                 }
 
+                @Override
                 public String getName() {
                     return projectName;
                 }
 
+                @Override
                 public String getStatus() {
                     return status;
                 }
+
+                @Override
+                public LabelIncrementer getLabelIncrementer() {
+                    return new EmptyLabelIncrementer();
+                }
             };
+
+            p1.setName(projectName);
+            try {
+                p1.configureProject();
+            } catch (CruiseControlException e) {
+                throw new RuntimeException(e);
+            }
 
             final List<ProjectInterface> lstProjs = new ArrayList<ProjectInterface>();
             lstProjs.add(p1);
