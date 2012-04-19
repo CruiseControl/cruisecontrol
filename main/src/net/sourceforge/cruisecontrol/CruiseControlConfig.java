@@ -421,6 +421,18 @@ public class CruiseControlConfig {
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
                     resolvers, FAIL_UPON_MISSING_PROPERTY);
         }
+        // And custom properties plugins
+        for (final Object o : projectElement.getChildren()) {
+            final Element childElement = (Element) o;
+            final String nodeName = childElement.getName();
+            if (KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
+                continue;
+            }
+            if (isCustomPropertiesPlugin(nodeName)) {
+                ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties, childElement, 
+                    resolvers, FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
+            }
+        }
 
         // add the resolved rootProperties to the project's properties
         final Map<String, String> thisProperties = nonFullyResolvedProjectProperties.thisMap;

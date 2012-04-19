@@ -49,6 +49,7 @@ import javax.management.MBeanServer;
 
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
+import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
@@ -154,6 +155,11 @@ public class ProjectConfig implements ProjectInterface {
     @Optional
     public void setForceBuildNewProject(boolean forceBuildNewProject) {
         this.forceBuildNewProject = forceBuildNewProject;
+    }
+
+    @Description("Registers a general plug-in inherrited from PropertiesPlugin interface.")
+    public void add(PropertiesPlugin plugin) {
+        // Must be empty, plugin is registered somewhere else
     }
 
     /**
