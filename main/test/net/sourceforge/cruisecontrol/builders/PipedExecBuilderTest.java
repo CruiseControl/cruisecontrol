@@ -780,6 +780,12 @@ public final class PipedExecBuilderTest extends TestCase {
         if (pipeFrom != null) {
             ((PipedExecBuilder.Script) exec).setPipeFrom(pipeFrom);
         }
+
+        // in debug mode, print more details
+        if (debugMode) {
+            System.out.println("Exec: " + ((PipedExecBuilder.Script) exec).getCommand() + " "
+                            + ((PipedExecBuilder.Script) exec).getArgs());
+        }
     }
 
     /**
