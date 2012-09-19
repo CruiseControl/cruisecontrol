@@ -505,6 +505,22 @@ public class SVN implements SourceControl {
             }
             properties.put("svnrevision", "" + maxRevision);
         }
+        else {
+            String endRevision;
+            Commandline infoCommand;
+            try {
+                infoCommand = buildInfoCommand(null);
+            } catch (CruiseControlException e) {
+                LOG.error("Error building svn info command", e);
+                return;
+            }
+            try {
+                endRevision = execInfoCommand(infoCommand);
+                properties.put("svnrevision", "" + endRevision);
+            } catch (CruiseControlException e) {
+                LOG.error("Error executing svn info command " + infoCommand, e);
+            }
+        }
     }
 
     public static DateFormat getOutDateFormatter() {
