@@ -504,8 +504,7 @@ public class SVN implements SourceControl {
                 }
             }
             properties.put("svnrevision", "" + maxRevision);
-        }
-        else {
+        } else {
             String endRevision;
             Commandline infoCommand;
             try {
