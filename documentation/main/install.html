@@ -82,13 +82,31 @@
 
         <h2><a name="startupcruisecontrol">3. Startup CruiseControl</a></h2>
 
-        <p>CruiseControl can be started using two approaches:</p>
+        <p>CruiseControl can be started using three approaches:</p>
 
         <ul>
             <li>
             <strong>Scripts.</strong> bin/cruisecontrol.bat or bin/cruisecontrol.sh.<br/>
                This is the preferred approach, since the scripts will take care
                of providing you with the correct classpath and such.
+            </li>
+            <li>
+            <strong><tt>systemd</tt></strong> service configuration<br/>
+               This is the preferred approach on Linux systems where 
+               <a href="http://en.wikipedia.org/wiki/Systemd"><tt>systemd</tt> init
+               system</a> is used. In this case use:
+                 <ul>
+                 <li>etc/conf.d/cruisecontrol file with user-tunable cruisecontrol
+                 configuration details. This file belongs to /etc/conf.d/</li>
+                 <li>etc/systemd/system/cruisecontrol.service file with cruisecontrol 
+                 service configuration. This file belongs (preferebly) to /lib/systemd/system/
+                 or to /etc/systemd/system/</li>
+                 <li>bin/cruisecontrol.systemd.sh file with simple script "fixing" few
+                 issues not handled by <tt>systemd</tt> itself (we hope to get rid off this
+                 script in future). The file belongs to /usr/bin/</li>
+                 </ul>
+                 <i>Note that the <tt>systemd</tt>-native configuration is experimental now!</i>
+                 Any comments and/or patches are welcome.
             </li>
             <li>
                 <strong>Executable jar.</strong>   Type the following command:
