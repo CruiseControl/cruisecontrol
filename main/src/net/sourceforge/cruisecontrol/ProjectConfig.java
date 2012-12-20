@@ -94,13 +94,13 @@ public class ProjectConfig implements ProjectInterface {
 
     /**
      * Called after the configuration is read to make sure that all the mandatory parameters were specified..
-     * 
+     *
      * @throws CruiseControlException
      *             if there was a configuration error.
      */
     public void validate() throws CruiseControlException {
         ValidationHelper.assertTrue(schedule != null, "project requires a schedule");
-        
+
         if (labelIncrementer == null) {
             labelIncrementer = new DefaultLabelIncrementer();
         }
@@ -382,7 +382,7 @@ public class ProjectConfig implements ProjectInterface {
     /**
      * Reads project configuration from a previously serialized Project or creates a new instance. The name of the
      * serialized project file is derived from the name of the project.
-     * 
+     *
      * @param projectName
      *            name of the serialized project
      * @return Deserialized Project or a new Project if there are any problems reading the serialized Project; should

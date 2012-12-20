@@ -92,7 +92,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     public void validate() throws CruiseControlException {
         boolean timeSet = time != NOT_SET;
-        
+
         if (timeSet) {
           ValidationHelper.assertFalse(time < 0, "negative values for time are not allowed");
         }
@@ -208,7 +208,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     /**
      * Is this the correct day to be running this builder?
      * @param now the current date
-     * @return true if this this the correct day to be running this builder 
+     * @return true if this this the correct day to be running this builder
      */
     public boolean isValidDay(final Date now) {
         if (getDay() < 0) {
@@ -248,11 +248,11 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
 
     /**
      * Merges the environment settings configures through {@link EnvConf} classes with the
-     * given environment values. 
-     * 
-     * Call this method in {@link #build(Map, Progress)} implementation, if the builder 
+     * given environment values.
+     *
+     * Call this method in {@link #build(Map, Progress)} implementation, if the builder
      * supports the environment configuration.
-     * 
+     *
      * @param env the environment holder
      */
     protected void mergeEnv(final OSEnvironment env) {
@@ -262,7 +262,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
     } // merge
 
     /**
-     * Class for the environment variables configuration. They are configured from XML 
+     * Class for the environment variables configuration. They are configured from XML
      * configuration in form:
      * <pre>
      *   <a_builder ...>
@@ -270,8 +270,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      *      <env name="ENV2" delete="true" />
      *   </a_builder>
      * </pre>
-     * 
-     * The configured class merges the environment changes with the actual environment 
+     *
+     * The configured class merges the environment changes with the actual environment
      * configuration using method {@link #merge(OSEnvironment)}.
      */
     @Description("Provides environment variable configuration.")
@@ -308,8 +308,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         } // setName
 
         /**
-         * Sets the the environment variable to the new value. Avoid explicit calls of the 
-         * method as it is supposed to be set when configuring the builder from CC XML 
+         * Sets the the environment variable to the new value. Avoid explicit calls of the
+         * method as it is supposed to be set when configuring the builder from CC XML
          * configuration only.
          * @param val the new value to set
          */
@@ -372,5 +372,5 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         }
 
     } // EnvConf
-    
+
 }

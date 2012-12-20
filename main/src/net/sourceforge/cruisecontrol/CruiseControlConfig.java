@@ -144,7 +144,7 @@ public class CruiseControlConfig {
         for (final Object o : ccElement.getChildren("plugin")) {
             handleRootPlugin((Element) o);
         }
-        
+
         // handle custom properties after plugin registration and before projects
         for (final Object o : ccElement.getChildren()) {
             final Element childElement = (Element) o;
@@ -165,7 +165,7 @@ public class CruiseControlConfig {
         for (final Object o : ccElement.getChildren("dashboard")) {
             handleDashboard((Element) o);
         }
-        
+
         // other childNodes must be projects or the <system> node
         for (final Object o : ccElement.getChildren()) {
             final Element childElement = (Element) o;
@@ -227,14 +227,14 @@ public class CruiseControlConfig {
         if (customPropertiesPlugins.contains(nodeName)) {
             return true;
         }
-        
+
         boolean isPropetiesPlugin = rootPlugins.isPluginRegistered(nodeName)
                 && PropertiesPlugin.class.isAssignableFrom(rootPlugins.getPluginClass(nodeName));
-        
+
         if (isPropetiesPlugin) {
             customPropertiesPlugins.add(nodeName);
         }
-        
+
         return isPropetiesPlugin;
     }
 
@@ -251,7 +251,7 @@ public class CruiseControlConfig {
             pluginClassName = rootPlugins.getPluginClassname(pluginFrom);
             // No standard plugin
             if (pluginClassName == null) {
-                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom 
+                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom
                        + "'> does not contain in-built element name");
                 return false;
             }
@@ -363,7 +363,7 @@ public class CruiseControlConfig {
         // FIXME this is empty today for the documentation to be generated properly
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
-        
+
     /**
      * @param plugin only for gendoc
      * @deprecated exists only for gendoc, should not be called.
@@ -373,7 +373,7 @@ public class CruiseControlConfig {
         // FIXME currently only declared for documentation generation purposes
         throw new IllegalStateException("GenDoc-only method should not be invoked.");
     }
-    
+
     /**
      * @param dashboard only for gendoc
      * @deprecated exists only for gendoc, should not be called.
@@ -429,7 +429,7 @@ public class CruiseControlConfig {
                 continue;
             }
             if (isCustomPropertiesPlugin(nodeName)) {
-                ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties, childElement, 
+                ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties, childElement,
                     resolvers, FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
             }
         }
