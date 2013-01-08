@@ -144,7 +144,7 @@ public class XMLConfigManager implements ResolverHolder {
             outputter.output(element, stream);
             return stream.getMD5().asHex();
         } catch (Exception e) {
-            LOG.debug("exception calculating MD5 of file " + file.getAbsolutePath(), e);
+            LOG.debug("exception calculating MD5 of XML file " + file.getAbsolutePath(), e);
             LOG.debug("trying to read is as ordinary text file");
         }
         // Load as normal file
