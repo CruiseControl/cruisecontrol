@@ -62,6 +62,7 @@ public final class Util {
     public static Element loadRootElement(File configFile) throws CruiseControlException {
         try {
             SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            builder.setFeature("http://apache.org/xml/features/xinclude", true);
             return builder.build(configFile).getRootElement();
         } catch (Exception e) {
             throw new CruiseControlException(

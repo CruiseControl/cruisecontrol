@@ -256,8 +256,10 @@ public class PluginXMLHelper {
                 LOG.fatal("Error configuring plugin.", e);
             }
         } else {
-            throw new CruiseControlException("Attribute: '" + propName
-                    + "' is not supported for class: '" + object.getClass().getName() + "'.");
+            LOG.warn("Ignoring attribute: '" + propName
+                  + "' for class: '" + object.getClass().getName() + "'.");
+//            throw new CruiseControlException("Attribute: '" + propName
+//                    + "' is not supported for class: '" + object.getClass().getName() + "'.");
         }
     }
 

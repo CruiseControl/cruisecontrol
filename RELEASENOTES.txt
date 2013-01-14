@@ -12,6 +12,7 @@ general
 * Update MX4J to version 3.0.2.
 * Add ability to connect remote debugger - see: .ant-scripts/build-properties.xml -> remoteDebugJVMArgs
 * Add new systemd service configuration - see: documentation/main/install.html
+* Add support for inclusion of XML files using <xi:include href="something.xml" xpointer='element()'/>
 
 build loop
 ======================

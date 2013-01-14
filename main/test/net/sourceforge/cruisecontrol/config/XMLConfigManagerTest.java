@@ -41,6 +41,7 @@ import java.io.File;
 import org.jdom.Element;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
@@ -127,6 +128,26 @@ public class XMLConfigManagerTest extends TestCase {
         XmlResolver resolver = configManager.new Resolver();
         Element element = resolver.getElement(file.getName());
         assertEquals("foo", element.getName());
+    }
+
+    // Tests the inclusion of XML using <xi:include >
+    public void testReadXincludeConfig() throws Exception {
+        File schedFile = new File(configurationFile.getParentFile(), "foo.xml");
+        filesToDelete.add(schedFile);
+        IO.write(schedFile, "<?xml version=\"1.0\"?><!DOCTYPE data [" +
+                "<!ELEMENT data (schedule)><!ATTLIST schedule id ID #REQUIRED>]>" +
+                "<data><property name=\"foo\" value=\"bar\" id=\"includ\"/>" + 
+                "<schedule interval=\"30\" id=\"includ\"><ant/></schedule></data>");
+
+        IO.write(configurationFile, "<cruisecontrol><project name=\"SCHED_XINCLUDED\">"+
+                "<xi:include xmlns:xi='http://www.w3.org/2001/XInclude' href='" + schedFile.getPath() + 
+                "' xpointer='element(includ)'/></project></cruisecontrol>");
+
+        // Project must be OK
+        XMLConfigManager configManager = new XMLConfigManager(configurationFile);
+        CruiseControlConfig conf = configManager.getCruiseControlConfig();
+
+        assertNotNull(conf.getProject("SCHED_XINCLUDED"));
     }
 
     private void writeConfigurationFile(final String contents) throws CruiseControlException {
