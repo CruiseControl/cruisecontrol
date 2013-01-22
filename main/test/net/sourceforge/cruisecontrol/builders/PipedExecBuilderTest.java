@@ -282,7 +282,7 @@ public final class PipedExecBuilderTest extends TestCase {
      *            +-<------<------<------<------+
      * </pre>
      */
-    public void testValidate_pipeLoop() {
+    public void testValidate_pipeLoop() throws CruiseControlException {
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat", "ZERO");
@@ -307,6 +307,11 @@ public final class PipedExecBuilderTest extends TestCase {
             assertRegex("exception message when pipe loop is detected",
                     "Loop detected, ID \\d\\d is within loop", e.getMessage());
         }
+
+        /* Disable ID 11 to break the loop */
+        disable(builder.createExec(), "11");
+        /* And validate again. Now it must pass */
+        builder.validate();
     }
 
     /**
@@ -345,6 +350,30 @@ public final class PipedExecBuilderTest extends TestCase {
         }
     }
 
+    /**
+     * Checks the validation when an already existing script is re-piped
+     * <pre>
+     *  orig:   01 --> 02 --> 03 -->
+     *  repipe: 01 --> 10 --> 11 --> 02 --> 03 -->
+     * </pre>
+     * @throws CruiseControlException 
+     */
+    public void testValidate_repipe() throws CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+
+        setExec(builder.createExec(), "01", "cat",      "/dev/zero");
+        setExec(builder.createExec(), "02", "cat",      null,        "01"); 
+        setExec(builder.createExec(), "03", "cat",      null,        "02");
+
+        /* add for new pipe */
+        setExec(builder.createExec(), "10", "cat",      null,        "01");
+        setExec(builder.createExec(), "11", "cat",      null,        "10");
+        /* repipe now - define only ID (again) and pipe */
+        repipe (builder.createExec(), "02",                          "11");
+
+        /* Must be validated correctly */
+        builder.validate();
+    }
 
     /**
      * Checks the correct function of the commands piping.
@@ -679,6 +708,63 @@ public final class PipedExecBuilderTest extends TestCase {
         assertNull("error attribute was found in build log!", buildLog.getAttribute("error"));
     }
 
+    /**
+     * Tests the repining the validation when an already existing script is re-piped
+     * <pre>
+     *                           +-> 06(file)
+     *  orig:   01 --> 02 --> 03 +-> 04 --> 05(file)
+     *  
+     *  repipe: 01 --> 10 --> 11 --> 12 --> 13 +-> 04 --> 05(file)
+     *                                         +-> SO(file)
+     * </pre>
+     * @throws IOException 
+     * @throws CruiseControlException 
+     */
+    public void testBuild_repipe() throws IOException, CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+
+        /* Input file (in UTF8 encoding), and output files */
+        File inpFile = getFile();
+        File ou1File = getFile();
+        File ou2File = getFile();
+        File ou3File = getFile();
+        File tmpFile = getFile();
+
+        /* Create the content */
+        createFiles(inpFile, tmpFile, 200);
+
+        /* Set 2 minutes long timeout. */
+        builder.setTimeout(120);
+        builder.setShowProgress(false);
+
+        /* Read text from file in utf8 and try to pass it through various encodings */
+        setExec(builder.createExec(), "01", "cat",  inpFile.getAbsolutePath());
+        setExec(builder.createExec(), "02", "add",  null,                          "01");
+        setExec(builder.createExec(), "03", "del",  null,                          "02");
+        setExec(builder.createExec(), "04", "cat",  null,                          "03");
+        setExec(builder.createExec(), "05", "cat",  ">"+ou1File.getAbsolutePath(), "04");
+        setExec(builder.createExec(), "06", "cat",  ">"+ou3File.getAbsolutePath(), "03");
+
+        /* Now define the repipe */
+        setExec(builder.createExec(), "10", "shuf", null,                          "01");
+        setExec(builder.createExec(), "11", "cat",  null,                          "10");
+        setExec(builder.createExec(), "12", "cat",  null,                          "11");
+        setExec(builder.createExec(), "13", "sort", "-u",                          "12");
+        setExec(builder.createExec(), "S1", "sort", "-u",                          "01");
+        setExec(builder.createExec(), "S2", "cat",  ">"+ou2File.getAbsolutePath(), "S1");
+        /* repipe here */
+        repipe (builder.createExec(), "04",                                        "13");
+        /* and disable the old path */
+        disable(builder.createExec(), "02");
+
+        /* Validate it and run it */
+        builder.validate();
+        builder.build(new HashMap<String, String>(), null);
+
+        /* Check to the sorted variant (the first pile does not sort at all) */
+        assertFiles(tmpFile, ou1File);
+        assertFiles(tmpFile, ou2File);
+    }
 
     /**
      * Method filling the {@link PipedExecBuilder.Script} class no piped from another scripts,
@@ -785,6 +871,32 @@ public final class PipedExecBuilderTest extends TestCase {
         if (debugMode) {
             System.out.println("Exec: " + ((PipedExecBuilder.Script) exec).getCommand() + " "
                             + ((PipedExecBuilder.Script) exec).getArgs());
+        }
+    }
+
+    /**
+     * Method filling the "repipe" attributes of the {@link PipedExecBuilder.Script} class.
+     *
+     * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
+     * @param ID {@link Script#setID(String)}, may be <code>null</code>
+     * @param repipe {@link Script#setRepipe(String)}, may be <code>null</code>
+     */
+    private static void repipe(Object exec, String ID, String repipe) {
+        if (ID != null) {
+            ((PipedExecBuilder.Script) exec).setID(ID);
+            ((PipedExecBuilder.Script) exec).setRepipe(repipe);
+        }
+    }
+    /**
+     * Method filling the "disable" attributes of the {@link PipedExecBuilder.Script} class.
+     *
+     * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
+     * @param ID {@link Script#setID(String)}, may be <code>null</code>
+     */
+    private static void disable(Object exec, String ID) {
+        if (ID != null) {
+            ((PipedExecBuilder.Script) exec).setID(ID);
+            ((PipedExecBuilder.Script) exec).setDisable(true);
         }
     }
 

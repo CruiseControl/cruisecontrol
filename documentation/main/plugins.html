@@ -256,7 +256,7 @@
         include all the applicable documentation annotations in their code to ensure that their
         plugins will be properly documented and will work correctly with any third-party tools
         that use these annotations.</p>
-        
+
         <p>When CruiseControl parses a plugin class to generate documentation and other metadata,
         it looks at the class's methods to determine the plugin's allowable attributes and children.
         Methods beginning with "set" are interpreted as attributes, and methods beginning with "add" or
@@ -280,7 +280,7 @@ public class MyPlugin {
     @DefaultValue("defaultValue")
     @Required
     public void setMyField(String myField) { ... }
-    
+
     /**
      * A @SkipDoc annotation instructs gendoc to ignore a method it would otherwise
      * try to interpret.
@@ -308,7 +308,7 @@ public class MyPlugin {
 	or <code><a class="javadoc"
     href="api/net/sourceforge/cruisecontrol/gendoc/annotations/DescriptionFile.html">@DescriptionFile</a></code>.
 	</p>
-	
+
     <ul>
         <li>Plugin Class<ul>
             <li><code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/gendoc/annotations/Description.html">@Description</a></code></li>
@@ -360,7 +360,7 @@ public class MyPlugin {
     href="api/net/sourceforge/cruisecontrol/gendoc/annotations/package-summary.html">net.sourceforge.cruisecontrol.gendoc.annotations</a></code>
     package. The class responsible for reading these annotations is the <code><a class="javadoc"
     href="api/net/sourceforge/cruisecontrol/gendoc/PluginInfoParser.html">PluginInfoParser</a></code> class.</p>
-	
+
 	<p><strong>NOTE.</strong> Since only a few plugins have so far been documented using the annotations
 	described above, the project build scripts are configured to write the generated HTML doc to
 	"/documentation/main/configxml-gendoc.html". The website still links to the old, manually edited doc
@@ -370,7 +370,7 @@ public class MyPlugin {
 	DefaultPropertiesPlugin</a></code> and
 	<code><a href="https://cruisecontrol.svn.sourceforge.net/svnroot/cruisecontrol/trunk/cruisecontrol/main/src/net/sourceforge/cruisecontrol/CruiseControlConfig.java">
 	CruiseControlConfig</a></code> and as models for this.</p>
-    
+
         <h2><a name="defaultregistry"/>Default Plugin Registry</h2>
 
         <p>The following tables outlines the default plugin registry:</p>
@@ -639,6 +639,10 @@ public class MyPlugin {
             <tr>
                 <td><a href="configxml.html#pause">pause</a></td>
                 <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PauseBuilder.html">net.sourceforge.cruisecontrol.PauseBuilder</a></td>
+            </tr>
+            <tr>
+                <td><a href="configxml.html#pipedexec">pipedexec</a></td>
+                <td><a class="javadoc" href="api/net/sourceforge/cruisecontrol/builders/PipedExecBuilder.html">net.sourceforge.cruisecontrol.builders.PipedExecBuilder</a></td>
             </tr>
             <tr>
                 <td><a href="configxml.html#phing">phing</a></td>

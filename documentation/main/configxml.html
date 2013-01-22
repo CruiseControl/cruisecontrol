@@ -7481,6 +7481,31 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                                     will suppress the printing of STDOUT content in the XML report
                                     under debug log level (since it may corrupt the XML format).</td>
                             </tr>
+                            <tr>
+                                <td>repipe</td>
+                                <td>No (if set, excludes all other attributes except <code>id</code>)
+                                </td>
+                                <td>The ID of script to repipe the given (already configured ) script
+                                    from. The use-case of this attribute is to allow the re-definition
+                                    of an existing <code>pipedexec</code> builder, defined through
+                                    <a href="plugins.html#preconfiguration">plugin preconfigurations</a>.
+                                    More details and examples about this possibility ca be found on
+                                    <a class="external"
+                                       href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">
+                                       the wiki</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>disable</td>
+                                <td>No (defaults to <code>false</code>; if <code>true</code>, it
+                                    excludes all other attributes except <code>id</code>)</td>
+                                <td>Disables the given exec as well as all execs <i>piped from</i> the
+                                    disabled exec. Except <code>id</code>, which is required, all other
+                                    attributes are ignored.
+                                    The purpose of this attribute is the same as the purpose of
+                                    <code>repipe</code>.It allows to remove the scripts not required
+                                    in the reconfigured <code>pipedexec</code> node.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </td>

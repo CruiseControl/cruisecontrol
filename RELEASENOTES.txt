@@ -29,6 +29,7 @@ PipedExecBuilder
 ----------------------
 * Fix memory usage and logging volume issues with PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
 * Add support for gzipstdout and binarystdout to PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
+* Add repipe="" and disable="" attributes to allow change plugin-preconfigured pipes
 
 EmailPublisher
 ----------------------
