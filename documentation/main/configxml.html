@@ -2950,7 +2950,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>no (defaults to false)</td>
                 <td>Flag to indicate of the tf get command should be performed using the /force
 				    switch.  By default, TFS will only download files that the server thinks have
-				    changed since the last time you told it you were modifying or geting files
+				    changed since the last time you told it you were modifying or getting files
 				    into your local TFS workspace.  It will also not overwrite locally writable
 				    files.  Setting the force option will make TFS always download the files and
 				    overwrite any that happen to be locally writable - however this has the expense
@@ -3019,7 +3019,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Path to the directory containing ss.exe.  By default, ss.exe
                 is assumed to be in the path.<br/>
-                Note: should not contain whitespace.</td>
+                Note: should not contain white space.</td>
             </tr>
             <tr>
                 <td>serverpath</td>
@@ -4085,7 +4085,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
             <tr>
                 <td>recurseLocalWorkingCopy</td>
                 <td>No</td>
-                <td>Sets the behavior when a local working coppy is set which is not under control of CVS itself
+                <td>Sets the behavior when a local working copy is set which is not under control of CVS itself
 		  (that is, does not have a CVS subdirectory). If set to true all subdirectories are searched recursively.
 		  All subdirectories which are under control of CVS are searched for modifications in the usual manner.
                     Defaults to false.</td>
@@ -5595,7 +5595,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
       &lt;veto&gt;</pre>
         </div>
 
-        <p>This plugin is designed to help enforce build order between dependent projects. It will check to see if a project is up to date and vetos the build attempt if it is not. Veto is configured by defining a nested set of sourcecontrols and a buildstatus element. If project bar depends on project foo then bar may have a &lt;veto&gt; with triggers that are the same as the modificationset for foo and a &lt;buildstatus&gt; that points to the logs for foo. If there is a change that would cause foo to build but bar is first in the build queue, then the &lt;veto&gt; in bar will detect that foo is out of date and abort the build attempt by throwing an exception.</p>
+        <p>This plugin is designed to help enforce build order between dependent projects. It will check to see if a project is up to date and vetoes the build attempt if it is not. Veto is configured by defining a nested set of sourcecontrols and a buildstatus element. If project bar depends on project foo then bar may have a &lt;veto&gt; with triggers that are the same as the modificationset for foo and a &lt;buildstatus&gt; that points to the logs for foo. If there is a change that would cause foo to build but bar is first in the build queue, then the &lt;veto&gt; in bar will detect that foo is out of date and abort the build attempt by throwing an exception.</p>
 
 	<p>Unlike most source controls, Veto never returns any modifications. Its only job is to abort builds when another project is out of date with respect to some set of modifications.</p>
 
@@ -5628,7 +5628,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
 
         <h3>Example</h3>
 
-        <p>In this if there are changes in the cvs repository for foo since the last time project foo built successfully then the veto will throw an exception and abort the build attempt. If there are no changes in the repository for foo or project foo is up to date then &lt;veto&gt; will do nothing and the build attempt will continue as normal (building if there are modifications detected in the reposiotry for bar).</p>
+        <p>In this if there are changes in the cvs repository for foo since the last time project foo built successfully then the veto will throw an exception and abort the build attempt. If there are no changes in the repository for foo or project foo is up to date then &lt;veto&gt; will do nothing and the build attempt will continue as normal (building if there are modifications detected in the repository for bar).</p>
 
         <pre>&lt;modificationset&gt;
     &lt;veto&gt;
@@ -5699,7 +5699,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>No</td>
                 <td>Path to the directory containing ss.exe.  By default,
                 ss.exe is assumed to be in the path.<br/>
-                Note: should not contain whitespace.</td>
+                Note: should not contain white space.</td>
             </tr>
             <tr>
                 <td>serverpath</td>
@@ -5945,7 +5945,7 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td><a name="buildershowProgress">showProgress</a></td>
                 <td>No (defaults to true)</td>
                 <td>If true, the builder will provide short progress messages, visible in the JSP reporting application.
-                    If parent builders exist (eg: composite), and any parent's showProgress=false,
+                    If parent builders exist (eg. composite), and any parent's showProgress=false,
                     then no progress messages will be shown, regardless of this builder's showProgress setting.</td>
             </tr>
             <tr>
@@ -5960,8 +5960,8 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
         <h3><a name="builderenvconfig">Builder Environment Configuration</a></h3>
 
         <p>For some of the builders (currently those are <a href="#ant">&lt;ant&gt;</a>,
-        <a href="#maven2">&lt;maven2&gt;</a> and
-        <a href="#exec">&lt;exec&gt;</a>), the environment variables can be configured using
+        <a href="#maven2">&lt;maven2&gt;</a>, <a href="#exec">&lt;exec&gt;</a> and
+        <a href="#pipedexec">&lt;pipedexec&gt;</a>), the environment variables can be configured using
         <code>&lt;env&gt;</code> elements, nested as the children of a particular builder
         configuration.</p>
 
@@ -6047,13 +6047,13 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>cclastgoodbuildtimestamp</td>
                 <td>Timestamp that indicates when the last successful build was
                 run, using the format <code>yyyyMMddHHmmss</code>. Only available
-		if the project has previously built successfullly.</td>
+		if the project has previously built successfully.</td>
             </tr>
             <tr>
                 <td>cclastbuildtimestamp</td>
                 <td>Timestamp that indicates when the last build was run, using
                 the format <code>yyyyMMddHHmmss</code>. Only available if the
-		project has built prevviously.</td>
+		project has built previously.</td>
             </tr>
             <tr>
                 <td>lastbuildsuccessful</td>
@@ -7229,7 +7229,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
            failure if the command cannot be run or returns an error. There is also
            a capability to search for a user defined string in the command output, for example,
            "build failed" and if so return an error. Arguments will have any <a href="#buildproperties">
-           properties passed to builders</a> substitued at runtime.</p>
+           properties passed to builders</a> substituted at runtime.</p>
 
         <p>See below for <a href="#exec-examples">examples</a> of the
         <code>&lt;exec&gt;</code> element.</p>
@@ -7476,7 +7476,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                                 <td>No (defaults to false)</td>
                                 <td>Stream of Bytes is passed between commands piped together, not
                                     matter it contains text of binary data. Setting the
-                                    attribute to <code>true</code> will explicitely inform CC that
+                                    attribute to <code>true</code> will explicitly inform CC that
                                     binary data are get on STDOUT of the command. For example, it
                                     will suppress the printing of STDOUT content in the XML report
                                     under debug log level (since it may corrupt the XML format).</td>
@@ -7489,7 +7489,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                                     from. The use-case of this attribute is to allow the re-definition
                                     of an existing <code>pipedexec</code> builder, defined through
                                     <a href="plugins.html#preconfiguration">plugin preconfigurations</a>.
-                                    More details and examples about this possibility ca be found on
+                                    More details and examples about this possibility can be found on
                                     <a class="external"
                                        href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">
                                        the wiki</a>
@@ -7509,6 +7509,13 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                         </tbody>
                     </table>
                 </td>
+            </tr>
+            <tr>
+                <td><a href="#builderenvconfig">&lt;env&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Used to modify environment variables passed to all the scripts. Can be overridden (or adjusted)
+                    by environment configuration in individual scripts.
+                <br/>
             </tr>
             </tbody>
         </table>
@@ -7713,7 +7720,7 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
             <tr>
                 <td>trimWhitespace</td>
                 <td>No</td>
-                <td>if true, trim whitespace from start and end of log lines.
+                <td>if true, trim white space from start and end of log lines.
                     Primarily intended only to force historic "trim" behavior.
                     Defaults to false.
                 </td>
@@ -8906,8 +8913,8 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
         </div>
 
         <p>Creates a Tracker artifact in a SourceForge Enterprise Edition project. Artifact fields are defined
-        as subelements, where the always mandatory fields title, description and status are required children. Other
-        fields with arbitrary names and values are defined as "field" subelements. All fields may include either
+        as sub-elements, where the always mandatory fields title, description and status are required children. Other
+        fields with arbitrary names and values are defined as "field" sub-elements. All fields may include either
         hardcoded values, or use an xpath expression to define the value at runtime.</p>
 
         <p>NOTE: To use this publisher, you must supply the jars included in the SourceForge SOAP SDK.

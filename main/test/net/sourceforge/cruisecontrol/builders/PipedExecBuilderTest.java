@@ -58,12 +58,14 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.apache.tools.ant.filters.StringInputStream;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.SysUtilMock;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
@@ -766,6 +768,54 @@ public final class PipedExecBuilderTest extends TestCase {
         assertFiles(tmpFile, ou2File);
     }
 
+    
+    /**
+     * Test environment variables in the build - sets some value PipedExecBuilder and check
+     * if it is propagated to the individual builders
+     * 
+     * @throws CruiseControlException 
+     * @throws IOException 
+     */
+    public void testBuild_SetEnvVal() throws IOException, CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+        PipedExecBuilder.Script script;
+        Builder.EnvConf env;
+        String envvar = "TESTENV";
+        String envval = "dummy_value";
+        
+        File envExec = ExecBuilderTest.createEnvTestScript();
+        File outFile = getFile();
+
+        builder.setTimeout(10);
+        builder.setShowProgress(false);
+
+        // set env
+        env = builder.createEnv();
+        env.setName(envvar);
+        env.setValue(envval);
+        // print env and store it to the file
+        // Must be configured in a "more difficult" way, since SysUtilMock which does not 
+        // contain 'env' command
+        script = (PipedExecBuilder.Script) builder.createExec();
+        script.setID("env");
+        script.setCommand(envExec.getAbsolutePath());
+        //
+        setExec(builder.createExec(), "get", "grep", "^"+envvar+".*",               "env");
+        setExec(builder.createExec(), "out", "cat",  ">"+outFile.getAbsolutePath(), "get");
+        
+        // Validate it and run it
+        builder.validate();
+        builder.build(new HashMap<String, String>(), null);
+        
+        // Test the filtered output. We expects the ENV variable in form TESTENV=dummy_value
+        // which seems to be the same on both Linux and Windows. If is is not valid, i.e. the
+        // system the test is running on prints the ENV variables formated in a different way,
+        // the test must checks the result in a more clever way. For example, SysUtilMock
+        // class can be extended by command printing ENV variables
+        assertStreams(new StringInputStream(envvar+"="+envval), new FileInputStream(outFile));
+    } // testBuild_NewEnvVar
+    
+    
     /**
      * Method filling the {@link PipedExecBuilder.Script} class no piped from another scripts,
      * without working dir and not waiting for another script - {@link PipedExecBuilder.Script#setPipeFrom(String)},

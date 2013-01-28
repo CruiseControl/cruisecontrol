@@ -55,6 +55,7 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
 import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
@@ -613,6 +614,13 @@ public class PipedExecBuilder extends Builder {
         return piped;
     } // findPipedSeq
 
+    /** Wrapper for {@link #mergeEnv(OSEnvironment)}, just calling the wrapped method. It
+     * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class, 
+     * since it contains the method with the same name */
+    private void mergeEnv_wrap(final OSEnvironment env) {
+        mergeEnv(env);
+    }
+    
     /* ----------- NESTED CLASSES ----------- */
 
     /**
@@ -1005,6 +1013,16 @@ public class PipedExecBuilder extends Builder {
             return new MyScriptRunner();
         } // createScriptRunner
 
+        /**
+         * Override of {@link #mergeEnv(OSEnvironment)}, merging ENV set to {@link PipedExecBuilder}
+         * first and then ENV set to the script itself.
+         */
+        @Override
+        protected void mergeEnv(final OSEnvironment env) {
+            mergeEnv_wrap(env);
+            super.mergeEnv(env);
+        }
+        
     } // PipedExecScript
 
     /**
