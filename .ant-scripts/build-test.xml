@@ -38,9 +38,7 @@
             <formatter type="xml" usefile="yes"/>
 
             <batchtest fork="yes" todir="target/test/functional/results">
-<!--
                 <fileset dir="${test.classes}" includes="**/BuildLoopMonitorTest.class"/>
--->
             </batchtest>
         </junit>
     </target>
@@ -96,16 +94,7 @@
             <formatter type="xml" usefile="yes"/>
 
             <batchtest fork="yes" todir="${junit.results}">
-                <!--
                 <fileset dir="${test.classes}" includes="**/${tests}.class" excludes="**/ThreadQueueTest*"/>
-                -->
-                <fileset dir="${test.classes}" includes="**/${tests}.class">
-                     <exclude name="**/ThreadQueueTest*"/>
-                     <exclude name="**/DashboardControllerTest*"/>
-                     <exclude name="**/SVNTest*"/>
-                     <exclude name="**/BuildInformationHelperTest*"/>
-                     <exclude name="**/HTMLEmailPublisherTest*"/>
-                </fileset>
             </batchtest>
         </junit>
     </target>
