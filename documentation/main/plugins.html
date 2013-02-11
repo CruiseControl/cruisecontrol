@@ -81,6 +81,7 @@
             <li>
                 <ul>
                     <li><a href="#preconfiguration">Preconfiguration</a></li>
+                    <li><a href="#inheritance">Inheritance</a></li>
                 </ul>
             </li>
             <li><a href="#xmldocumentation">Plugin XML Documentation</a></li>
@@ -247,6 +248,163 @@
 
         <p>More information and examples can be found on <a class="external"
         href="http://confluence.public.thoughtworks.org/display/CC/ConfigFiles">the wiki</a>.
+        </p>
+
+        <h3><a name="inheritance"/>Plugin Inheritance</h3>
+
+        <p>Plugin pre-configuration is very powerful scheme for the significant simplification of
+           project configuration, especially when more projects share same part of configuration
+        </p>
+
+        <p>The only disadvantage of the "raw" preconfiguration is, that although several plugins
+           differing by their name but based on the same class (either using
+           <code>classname="..."</code> or <code>from="..."</code> <code><a href="configxml.html#plugin">plugin</a></code>
+           attributes) can be defined, all the plugin "instances" are mutually independent. It
+           means that if a plugin with only "slightly different" configuration needs to be created,
+           which leads to the repetition being harder to maintain. And it is the case where plugins
+           "inheritance" can be very useful.
+        </p>
+
+        <p>For example, have an <code><a href="configxml.html#email">email</a></code> with quiet
+           complex address mapping and other configuration, but without a <code>&lt;always/&gt;,
+           &lt;ignore/&gt;</code> and other attributes, since they are project-specific:</p>
+<pre>
+&lt;plugin name="email" returnaddress="..." mailhost="..." subjectprefix="..."&gt;
+  &lt;map     alias="..." address="..."/&gt;
+  &lt;map     alias="..." address="..."/&gt;
+  ...
+  &lt;propertiesmapper file=""/&gt;
+  ...
+&lt;/plugin&gt;
+
+&lt;project name="proj1"&gt;
+  ...
+  &lt;publishers&gt;
+    &lt;email&gt; &lt;always address="maintainer1"/&gt;&lt;always address="leader1"/&gt; ...
+            &lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;...
+    &lt;/email&gt;
+  &lt;/publishers&gt;
+&lt;/project&gt;
+&lt;project name="proj2"&gt;
+  ...
+  &lt;publishers&gt;
+    &lt;email&gt; &lt;always address="maintainer2"/&gt;&lt;always address="leader2"/&gt; ...
+            &lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;...
+    &lt;/email&gt;
+  &lt;/publishers&gt;
+&lt;/project&gt;
+...
+</pre>
+        <p>This will work pretty well, the problem starts with many projects where several share equal
+           <code>&lt;email/&gt;</code> setting (e.g. a subset of projects the same people are working
+           on) - the project-specific settings will be copied again and again. However, with the
+           inheritance we can define a per-group configuration:</p>
+<pre>
+&lt;plugin name="email" returnaddress="..." mailhost="..." subjectprefix="..."&gt;
+  &lt;!-- the same as in the previous example --&gt;
+&lt;/plugin&gt;
+
+&lt;plugin name="email_g1" from="email" inherits="email"&gt;
+  &lt;always address="maintainer1"/&gt;&lt;always address="leader1"/&gt; ...
+  &lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;...
+&lt;/plugin&gt;
+&lt;plugin name="email_g2" from="email" inherits="email"&gt;
+  &lt;always address="maintainer2"/&gt;&lt;always address="leader2"/&gt; ...
+  &lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;&lt;ignore user="..."/&gt;...
+&lt;/plugin&gt;
+
+&lt;project name="proj1"&gt;
+  ...
+  &lt;publishers&gt; &lt;email_g1/&gt;
+  &lt;/publishers&gt;
+&lt;/project&gt;
+&lt;project name="proj1.1"&gt;
+  ...
+  &lt;publishers&gt; &lt;email_g1/&gt;
+  &lt;/publishers&gt;
+&lt;/project&gt;
+&lt;project name="proj2"&gt;
+  ...
+  &lt;publishers&gt; &lt;email_g2/&gt;
+  &lt;/publishers&gt;
+&lt;/project&gt;
+...
+</pre>
+        <p>It is clear that without <code>inherits=""</code> attribute, the base email
+           setting and addresses mapping would <i>not</i> be defined in any of the
+           <code>email_g*</code> plugins.
+        </p>
+
+
+        <p><a name="inheritance_rules"/> The inheritance is carried out entirely on XML level (in
+           <code><a class="javadoc" href="api/net/sourceforge/cruisecontrol/PluginRegistry.html">PluginRegistry</a></code>),
+           while the following rules are applied:</p><ul>
+           <li> all parent's attributes <i>not defined</i> in the child are copied to the
+                child,</li>
+           <li> all nested parent's XML elements are copied <i>to the beginning</i> of the
+                child node, i.e. before the first nested child's element.</li>
+           </ul>
+
+        <p>Now to make something bit more tricky. What if we need one single project to
+           run for various configurations? It would be really nice to have the project defined
+           only once, and only feed it by various configurations. Well, with the use of
+           <i>inheritance</i> we can do the following:
+        </p>
+<pre>
+&lt;plugin name="build1" from="ant"  target="..."&gt;
+  &lt;property name="foo1" value="bar1.1"&gt;
+  &lt;property name="foo2" value="bar1.2"&gt;
+  &lt;property name="foo3" value="bar1.3"&gt;
+  &lt;env      name="env1" value="val1.1"&gt;
+&lt;/plugin&gt;
+&lt;plugin name="build2" from="ant"  target="..."&gt;
+  &lt;property name="foo1" value="bar2.1"&gt;
+  &lt;env      name="env1" value="val2.1"&gt;
+&lt;/plugin&gt;
+&lt;plugin name="build3" from="ant" inherits="conf2" target="..."&gt;
+  &lt;jvmarg   arg="..."&gt;
+  &lt;property name="foo2" value="bar3.1"&gt;
+  &lt;property name="foo3" value="bar3.3"&gt;
+  &lt;env      name="env1" value="val3.1"&gt;
+&lt;/plugin&gt;
+
+&lt;plugin name="project"&gt;
+  ...
+
+  &lt;schedule&gt;
+    &lt;ant/&gt;
+  &lt;/schedule&gt;
+&lt;/plugin&gt;
+
+&lt;project name="p1"&gt;
+  &lt;plugin name="ant" inherits="build1"/&gt;
+&lt;/project&gt;
+&lt;project name="p2"&gt;
+  &lt;plugin name="ant" inherits="build2"/&gt;
+&lt;/project&gt;
+&lt;project name="p3"&gt;
+  &lt;plugin name="ant" inherits="build3"/&gt;
+&lt;/project&gt;
+</pre>
+        <p>It pre-configures three <code><a href="configxml.html#ant">ant</a></code> builders named
+           <code>build1, build2</code> and <code>build2</code>, where the first two are
+           independent on each other, but the third contains all the definitions from the
+           second, plus adds some new stuff. Finally, we define a project using a
+           "generic" <code>&lt;ant/&gt;</code> builder.<br/>
+           However, the line <code>&lt;plugin name="ant" inherits="..."/&gt;</code>
+           defines project-local plugin of <code>&lt;ant/&gt;</code> builder, inherited
+           from the required pre-configured ant builder. This local <code>&lt;ant/&gt;</code>
+           is then used in the <code><a href="configxml.html#ant">schedule</a></code>, as required by
+           the project definition.
+        </p>
+
+        <p><b>BE CAREFUL:</b><br/>it is not precisely defined what will happen when overriding
+           an already defined child element (since the inheritance is
+           <a href="#inheritance_rules">carried out on XML level</a>) - The resulting
+           behavior is entirely module-dependent and may sometimes lead to some kind of
+           "already defined" error (i.e. it is up to the particular plugin implementation to handle the
+           repeated options correctly). It is highly recommended to study and test the particular
+           modules before using complex inheritance schemes.
         </p>
 
         <h2><a name="xmldocumentation"/>Plugin XML Documentation</h2>
