@@ -23,12 +23,14 @@ build loop
 
 Plugin
 ----------------------
-* Adds from="" attribute simplifying the pre-configuration of plugins interrited from the default CC tags
+* Adds from="" attribute simplifying the pre-configuration of plugins for the default CC tags
+* Adds inherits="" attribute allowing to create simple hierarchical structure of plugins configuration
 
 PipedExecBuilder
 ----------------------
 * Fix memory usage and logging volume issues with PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
 * Add support for gzipstdout and binarystdout to PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
+* Add repipe="" and disable="" attributes to allow change plugin-preconfigured pipes
 
 EmailPublisher
 ----------------------

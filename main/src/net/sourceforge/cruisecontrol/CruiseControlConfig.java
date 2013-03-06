@@ -244,21 +244,23 @@ public class CruiseControlConfig {
     }
 
     private boolean isProjectTemplate(Element pluginElement) {
+        rootPlugins.from2classname(pluginElement);
+
         String pluginName = pluginElement.getAttributeValue("name");
-        String pluginFrom = pluginElement.getAttributeValue("from");
         String pluginClassName = pluginElement.getAttributeValue("classname");
-        if (pluginClassName == null && pluginFrom != null) {
-            pluginClassName = rootPlugins.getPluginClassname(pluginFrom);
-            // No standard plugin
-            if (pluginClassName == null) {
-                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom
-                       + "'> does not contain in-built element name");
-                return false;
-            }
-            // Create "standard" plugin element
-            pluginElement.setAttribute("classname", pluginClassName);
-            pluginElement.removeAttribute("from");
-        }
+//      String pluginFrom = pluginElement.getAttributeValue("from");
+//        if (pluginClassName == null && pluginFrom != null) {
+//            pluginClassName = rootPlugins.getPluginClassname(pluginFrom);
+//            // No standard plugin
+//            if (pluginClassName == null) {
+//                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom
+//                       + "'> does not contain in-built element name");
+//                return false;
+//            }
+//            // Create "standard" plugin element
+//            pluginElement.setAttribute("classname", pluginClassName);
+//            pluginElement.removeAttribute("from");
+//        }
         if (pluginClassName == null) {
             pluginClassName = rootPlugins.getPluginClassname(pluginName);
         }
@@ -450,6 +452,8 @@ public class CruiseControlConfig {
         final PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
         for (final Object o : projectElement.getChildren("plugin")) {
             final Element element = (Element) o;
+            projectPlugins.from2classname(element);
+
             //final PluginPlugin plugin = (PluginPlugin)
             new ProjectXMLHelper(resolvers).configurePlugin(element, false);
             // projectPlugins.register(plugin);

@@ -48,6 +48,9 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener;
 import net.sourceforge.cruisecontrol.publishers.AntPublisher;
+import net.sourceforge.cruisecontrol.publishers.OnFailurePublisher;
+import net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
@@ -81,7 +84,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(8, config.getProjectNames().size());
+        assertEquals(11, config.getProjectNames().size());
     }
 
     public void testProjectPreConfiguration() throws Exception {
@@ -103,7 +106,10 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     }
 
     private String getClassInList(List list) {
-        return list.get(0).getClass().getName();
+        return getClassInList(list, 0);
+    }
+    private String getClassInList(List list, int index) {
+        return list.get(index).getClass().getName();
     }
 
     public void testPreConfiguredPluginInPreconfiguredProject() throws Exception {
@@ -131,20 +137,102 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals("baz", foo.property.getValue());
     }
 
+    
+    public void testPluginInherritnance_leve1() {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project9");
+        List builders = projConfig.getSchedule().getBuilders();
+        List publishers = projConfig.getPublishers();
+        
+        assertEquals(2, publishers.size());
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
+        
+        System.out.println(getClassInList(builders));
+        Foo foo = (Foo) builders.get(0);
+        assertNotNull("createProperty wasn't called", foo.property);
+        assertEquals("bar", foo.property.getName());
+        assertEquals("baz", foo.property.getValue());
+        assertEquals("v1",  foo.att1);
+        assertEquals("",    foo.att2);
+        assertEquals("val1",foo.getEnv("ENV1"));
+        assertEquals("val2",foo.getEnv("ENV2"));
+    }
+
+    public void testPluginInherritnance_leve2() {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project10");
+        List builders = projConfig.getSchedule().getBuilders();
+        List publishers = projConfig.getPublishers();
+        
+        assertEquals(3, publishers.size());
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
+        assertEquals(OnSuccessPublisher.class.getName(), getClassInList(publishers, 2));
+        
+        System.out.println(getClassInList(builders));
+        Foo foo = (Foo) builders.get(0);
+        assertNotNull("createProperty wasn't called", foo.property);
+        assertEquals("foo", foo.property.getName());
+        assertEquals("bar", foo.property.getValue());
+        assertEquals("v1",  foo.att1);
+        assertEquals("",    foo.att2);
+        assertEquals("val1",foo.getEnv("ENV1"));
+        assertEquals("val2",foo.getEnv("ENV2"));
+        assertEquals("val3",foo.getEnv("ENV3"));
+        assertEquals("embedded",foo.getEnv("EMB"));
+    }
+    
+    public void testPluginInherritnance_leve3() {
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("project11");
+        List builders = projConfig.getSchedule().getBuilders();
+        List publishers = projConfig.getPublishers();
+        
+        assertEquals(3, publishers.size());
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
+        assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
+        assertEquals(OnSuccessPublisher.class.getName(), getClassInList(publishers, 2));
+        
+        System.out.println(getClassInList(builders));
+        Foo foo = (Foo) builders.get(0);
+        assertNotNull("createProperty wasn't called", foo.property);
+        assertEquals("foo", foo.property.getName());
+        assertEquals("bar", foo.property.getValue());
+        assertEquals("v1.3",foo.att1);
+        assertEquals("v2.3",foo.att2);
+        assertEquals("val1",foo.getEnv("ENV1"));
+        assertEquals("val2",foo.getEnv("ENV2"));
+        assertEquals("val3.override",foo.getEnv("ENV3"));
+        assertEquals("N/A", foo.getEnv("EMB"));
+    }
+    
+    
     public static class Foo extends Builder {
         private Property property;
+        private String att1 = "";
+        private String att2 = "";
 
         public Property createProperty() {
             property = new Property();
             return property;
         }
 
+        public void setAtt1(String val) {
+            att1 = val;
+        }
+        public void setAtt2(String val) {
+            att2 = val;
+        }
+        
         public Element build(Map properties, Progress progress) throws CruiseControlException {
             return null;
         }
         public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
             return null;
         }
+        
+        public String getEnv(final String name) {
+            OSEnvironment env = new OSEnvironment(); 
+            mergeEnv(env);
+            return env.getVariable(name, "N/A"); 
+        }
     }
-
 }

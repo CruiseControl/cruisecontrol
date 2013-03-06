@@ -93,4 +93,58 @@
     <publishers_new/>
   </project>
 
+
+  <!-- Various plugin inheritance testing -->
+
+  <plugin name="publishers" > <!-- BE CAREFULL - it affects ALL of the <publisher/> uses -->
+  </plugin>
+  <plugin name="publishers_inh1" from="publishers" inherits="publishers" >
+    <ant_publisher_2/>
+    <antpublisher/>
+  </plugin>
+  <plugin name="foo_inh1" from="foo" inherits="foo"  att1='v1'>
+    <env name="ENV1" value="val1" />
+    <env name="ENV2" value="val2" />
+  </plugin>
+
+  <project name="project9">
+    <schedule>
+      <foo_inh1/>
+    </schedule>
+    <publishers_inh1/>
+  </project>
+
+
+  <plugin name="publishers_inh2" from="publishers" inherits="publishers_inh1" >
+    <onsuccess>
+      <antpublisher/>
+    </onsuccess>
+  </plugin>
+  <plugin name="foo_inh2" from="foo" inherits="foo_inh1" >
+    <env name="ENV3" value="val3" />
+    <property name="foo" value="bar" />
+  </plugin>
+
+  <project name="project10">
+    <schedule>
+      <foo_inh2>
+        <env name="EMB" value="embedded" />
+      </foo_inh2>
+    </schedule>
+    <publishers_inh2/>
+  </project>
+
+  <project name="project11">
+
+    <plugin name="publishers" from="publishers" inherits="publishers_inh2" />
+    <plugin name="foo" from="foo" inherits="foo_inh2" att1='v1.3' att2='v2.3'>
+      <env name="ENV3" value="val3.override" />
+    </plugin>
+
+    <schedule>
+      <foo/>
+    </schedule>
+    <publishers/>
+  </project>
+
 </cruisecontrol>

@@ -155,6 +155,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
           throw new CruiseControlException("Unknown plugin '"
                   + pluginName + "'; maybe you forgot to specify a classname?");
         }
+        register(pluginName, getPluginClassname(pluginName));
       }
 
       if (LOG.isDebugEnabled()) {
@@ -170,12 +171,64 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
      * @throws CruiseControlException if operation fails
      * @deprecated use {@link #register(PluginPlugin)}
      */
-    public void register(final Element pluginElement) throws CruiseControlException {
+    public void register(Element pluginElement) throws CruiseControlException {
+      // wants to inherit the plugin
+      final Attribute parentPlugin = pluginElement.getAttribute("inherits");
+      if (parentPlugin != null) {
+          /* Check the name of plugin to inherit from */
+          if (getPluginClassname(parentPlugin.getValue()) == null) {
+              throw new CruiseControlException("Unknown plugin '"
+                      + parentPlugin.getValue() + "' to inherit from.");
+          }
+          
+          Attribute pluginName = pluginElement.getAttribute("name").detach();
+          Attribute pluginClass = pluginElement.getAttribute("classname");
+          
+          if (pluginClass == null) {
+              throw new CruiseControlException("Unknown plugin '"
+                      + pluginName.getValue() + "'; maybe you forgot to specify a classname?");
+          }
+          
+          pluginElement = overridePluginConfig(parentPlugin.getValue(), pluginClass.getValue(), pluginElement);
+          pluginElement.setAttribute(pluginName);
+          pluginElement.removeAttribute(parentPlugin.getName());
+      }
+      
       final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper(
             new ResolverHolder.DummeResolvers()).configurePlugin(pluginElement, false);
       register(plugin);
     }
 
+    
+    /**
+     * For plugins defining <code>from="type"</code> element, it finds the class for the
+     * given type, sets it to the <code>classname=""</code> attribute and removes the 
+     * <code>from</code> attribute.
+     * 
+     * @param pluginElement the XML element with plugin configuration.
+     */
+    public void from2classname(Element pluginElement) {
+        if (!"plugin".equals(pluginElement.getName())) {
+            LOG.warn("Node <" + pluginElement.getName() + "> is not plugin");
+            return;
+        }
+        
+        String pluginName = pluginElement.getAttributeValue("name");
+        String pluginFrom = pluginElement.getAttributeValue("from");
+        String pluginClassName = pluginElement.getAttributeValue("classname");
+        if (pluginClassName == null && pluginFrom != null) {
+            pluginClassName = getPluginClassname(pluginFrom);
+            // No standard plugin
+            if (pluginClassName == null) {
+                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom 
+                       + "'> does not contain in-built element name");
+                return;
+            }
+            // Create "standard" plugin element
+            pluginElement.setAttribute("classname", pluginClassName);
+            pluginElement.removeAttribute("from");
+        }
+    }
 
   /**
      * Registers the given plugin in the root registry, so it will be
@@ -367,7 +420,8 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
      * This method is used recursively to fill up the specified pluginConfig Element.
      *
      * Properties are taken from parent plugins if they have not been defined in the child.
-     * Nested elements of the parent are always added to the child's config.
+     * Nested elements of the parent are always added to the beginning of child's config (in order to
+     * the later child's config values being able to overwrite the parent's values).
      *
      * Note: as we have no way to enforce the cardinality of the nested elements, the parent/default nested
      * elements are always added to the config of the child. The validity of the resulting config then
@@ -401,8 +455,10 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
                 }
                 // combine child elements
                 final List<Element> children = (List<Element>) pluginElement.getChildren();
+                int index = 0;
                 for (final Element child : children) {
-                    pluginConfig.addContent((Element) child.clone());
+                    pluginConfig.addContent(index, (Element) child.clone());
+                    index++;
                 }
             }
         }

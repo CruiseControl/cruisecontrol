@@ -163,13 +163,13 @@ public class XMLConfigManager implements ResolverHolder {
         private final Set<File> resolvedFiles = new HashSet<File>();
 
         public Element getElement(final String path) throws CruiseControlException {
-            final File file = new File(configFile.getParentFile(), path);
+            final File file = getPath(path);
             resolvedFiles.add(file);
             return Util.loadRootElement(file);
         }
 
         public InputStream getInputStream(final String path) throws CruiseControlException {
-            final File file = new File(configFile.getParentFile(), path);
+            final File file = getPath(path);
             resolvedFiles.add(file);
             try {
                 return new BufferedInputStream(new FileInputStream(file));
@@ -186,5 +186,22 @@ public class XMLConfigManager implements ResolverHolder {
             resolvedFiles.clear();
         }
 
+        private File getPath(final String path) throws CruiseControlException {
+            try {
+              final File file = new File(path);
+              // Accessible from the current working dir (i.e. the path is either absolute
+              // in relative to the working dir
+              if (file.exists()) {
+                return file;
+                }
+              // Not found ...
+              LOG.debug("file " + file.getCanonicalPath() + " is not accessible; expecting it relative to "
+                + configFile.getParentFile().getCanonicalPath());
+              return new File(configFile.getParentFile(), path);
+
+            } catch (IOException e) {
+                throw new CruiseControlException("Invalid file path " + path, e);
+            }
+        }
     }
 }

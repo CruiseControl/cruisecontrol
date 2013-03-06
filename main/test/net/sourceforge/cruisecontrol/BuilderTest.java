@@ -43,8 +43,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sourceforge.cruisecontrol.builders.ExecBuilderTest;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 
 import org.jdom.Element;
@@ -169,6 +171,96 @@ public class BuilderTest extends TestCase {
         assertEquals(1, builder.getMultiple());
         builder.setTime("0100");
         assertEquals(-1, builder.getMultiple());
+    }
+
+    // Tests the creation of new ENV variable
+    public void testEnvMerge_new() {
+        Builder.EnvConf env;
+        OSEnvironment osenv = new OSEnvironment();
+        String envvars[][] = {{"TESTENV1", "val1"}, {"TESTENV2", "val2"}};
+        
+        // set env
+        for (String [] e : envvars) {
+            env = builder.createEnv();
+            env.setName(e[0]);
+            env.setValue(e[1]);
+        }
+        // merge and test
+        builder.mergeEnv(osenv);
+
+        for (String [] e : envvars) {
+            assertEquals(e[1], osenv.getVariable(e[0]));
+        }
+    }
+
+    // Tests the delete of already existing ENV variable
+    public void testEnvMerge_del() {
+        Builder.EnvConf env;
+        OSEnvironment osenv = new OSEnvironment();
+        String envvars[][] = {{"TESTENV1", "val1"}, {"TESTENV2", "val2"}};
+        
+        // set env
+        for (String [] e : envvars) {
+            env = builder.createEnv();
+            env.setName(e[0]);
+            env.setDelete(true);
+            // Add to OS ENV
+            osenv.add(e[0], e[1]);
+            assertEquals(e[1], osenv.getVariable(e[0]));
+        }
+        
+        // merge and test
+        builder.mergeEnv(osenv);
+        for (String [] e : envvars) {
+            assertNull(osenv.getVariable(e[0]));
+        }
+    }
+    
+    // Tests addition to an already existing value, e.g. VAL=newval:${VAL}
+    public void testEnvMerge_add1() {
+        Builder.EnvConf env;
+        OSEnvironment osenv = new OSEnvironment();
+        String envvars[][] = {{"TESTENV1", "val1"}, {"TESTENV2", "val2"}};
+        
+        // set env
+        for (String [] e : envvars) {
+            env = builder.createEnv();
+            env.setName(e[0]);
+            env.setValue(e[1]+":${"+e[0]+"}");
+            // Add to OS ENV
+            osenv.add(e[0], e[1]);
+            assertEquals(e[1], osenv.getVariable(e[0]));
+        }
+
+        // merge and test
+        builder.mergeEnv(osenv);
+
+        for (String [] e : envvars) {
+            assertEquals(e[1]+":"+e[1], osenv.getVariable(e[0]));
+        }
+    }
+
+    // Tests addition to an NOT existing value, e.g. VAL=newval:${VAL} with VAL not
+    // being defined before
+    public void testEnvMerge_add2() {
+        Builder.EnvConf env;
+        OSEnvironment osenv = new OSEnvironment();
+        String envvars[][] = {{"TESTENV1", "val1"}, {"TESTENV2", "val2"}};
+        
+        // set env
+        for (String [] e : envvars) {
+            e[1] += ":${"+e[0]+"}";
+            env = builder.createEnv();
+            env.setName(e[0]);
+            env.setValue(e[1]);
+        }
+
+        // merge and test
+        builder.mergeEnv(osenv);
+
+        for (String [] e : envvars) {
+            assertEquals(e[1], osenv.getVariable(e[0]));
+        }
     }
 
     class TestBuilder extends Builder {

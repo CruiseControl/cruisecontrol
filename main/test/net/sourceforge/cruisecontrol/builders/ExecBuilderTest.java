@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -145,25 +146,10 @@ public class ExecBuilderTest extends TestCase {
          // prepare "good" mock files for the testing of environment variables
          // TODO: create only when needed; actually it does not have to be created for every test,
          //       but it is done so to be compatible with other test scripts
-         if (Util.isWindows()) {
-             envTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.bat");
-             envTestScript.deleteOnExit();
-             // TODO: vypisovat promennou, ktera je na vstupu zadana jako parametr
-             makeTestFile(
-                 envTestScript,
-                 "@rem This is a good exec.bat printing environment values\n"
-                     + "@set",
-                 true);
-         } else {
-             envTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.sh");
-             envTestScript.deleteOnExit();
-             makeTestFile(
-                 envTestScript,
-                 "#!/bin/sh\n"
-                     + "env",
-                 false);
-         }
+         envTestScript = createEnvTestScript();
     } // setUp
+
+    
 
     /*
      * test validation of required attributes
@@ -377,7 +363,7 @@ public class ExecBuilderTest extends TestCase {
       /*
        * Make a test file with specified content. Assumes the file does not exist.
        */
-      private void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
+      private static void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
           IO.write(testFile, content);
           if (!onWindows) {
               Commandline cmdline = new Commandline();
@@ -395,6 +381,36 @@ public class ExecBuilderTest extends TestCase {
           }
       } // makeTestFile
 
+      /**
+       * Make a test script printing all ENV variables to its STDOUT, when started.
+       * @return the path to the script file
+       * @throws IOException if the file creation fail 
+       * @throws CruiseControlException if the file creation fail
+       */
+      public static File createEnvTestScript() throws IOException, CruiseControlException {
+          final File scriptfile;
+          
+          if (Util.isWindows()) {
+              scriptfile = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+              scriptfile.deleteOnExit();
+              // TODO: vypisovat promennou, ktera je na vstupu zadana jako parametr
+              makeTestFile(
+                      scriptfile,
+                  "@rem This is a good exec.bat printing environment values\n"
+                      + "@set",
+                  true);
+          } else {
+              scriptfile = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.sh");
+              scriptfile.deleteOnExit();
+              makeTestFile(
+                      scriptfile,
+                  "#!/bin/sh\n"
+                      + "env",
+                  false);
+          }
+          return scriptfile;
+      }
+      
     public void testArgumentsShouldHavePropertySubstituion() throws CruiseControlException {
         final MockExecScript script = new MockExecScript();
         final ExecBuilder builder = new TestExecBuilder(script);

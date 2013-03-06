@@ -58,12 +58,14 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 
+import org.apache.tools.ant.filters.StringInputStream;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.SysUtilMock;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
@@ -282,7 +284,7 @@ public final class PipedExecBuilderTest extends TestCase {
      *            +-<------<------<------<------+
      * </pre>
      */
-    public void testValidate_pipeLoop() {
+    public void testValidate_pipeLoop() throws CruiseControlException {
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat", "ZERO");
@@ -307,6 +309,11 @@ public final class PipedExecBuilderTest extends TestCase {
             assertRegex("exception message when pipe loop is detected",
                     "Loop detected, ID \\d\\d is within loop", e.getMessage());
         }
+
+        /* Disable ID 11 to break the loop */
+        disable(builder.createExec(), "11");
+        /* And validate again. Now it must pass */
+        builder.validate();
     }
 
     /**
@@ -345,6 +352,30 @@ public final class PipedExecBuilderTest extends TestCase {
         }
     }
 
+    /**
+     * Checks the validation when an already existing script is re-piped
+     * <pre>
+     *  orig:   01 --> 02 --> 03 -->
+     *  repipe: 01 --> 10 --> 11 --> 02 --> 03 -->
+     * </pre>
+     * @throws CruiseControlException 
+     */
+    public void testValidate_repipe() throws CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+
+        setExec(builder.createExec(), "01", "cat",      "/dev/zero");
+        setExec(builder.createExec(), "02", "cat",      null,        "01"); 
+        setExec(builder.createExec(), "03", "cat",      null,        "02");
+
+        /* add for new pipe */
+        setExec(builder.createExec(), "10", "cat",      null,        "01");
+        setExec(builder.createExec(), "11", "cat",      null,        "10");
+        /* repipe now - define only ID (again) and pipe */
+        repipe (builder.createExec(), "02",                          "11");
+
+        /* Must be validated correctly */
+        builder.validate();
+    }
 
     /**
      * Checks the correct function of the commands piping.
@@ -679,7 +710,112 @@ public final class PipedExecBuilderTest extends TestCase {
         assertNull("error attribute was found in build log!", buildLog.getAttribute("error"));
     }
 
+    /**
+     * Tests the repining the validation when an already existing script is re-piped
+     * <pre>
+     *                           +-> 06(file)
+     *  orig:   01 --> 02 --> 03 +-> 04 --> 05(file)
+     *  
+     *  repipe: 01 --> 10 --> 11 --> 12 --> 13 +-> 04 --> 05(file)
+     *                                         +-> SO(file)
+     * </pre>
+     * @throws IOException 
+     * @throws CruiseControlException 
+     */
+    public void testBuild_repipe() throws IOException, CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
 
+        /* Input file (in UTF8 encoding), and output files */
+        File inpFile = getFile();
+        File ou1File = getFile();
+        File ou2File = getFile();
+        File ou3File = getFile();
+        File tmpFile = getFile();
+
+        /* Create the content */
+        createFiles(inpFile, tmpFile, 200);
+
+        /* Set 2 minutes long timeout. */
+        builder.setTimeout(120);
+        builder.setShowProgress(false);
+
+        /* Read text from file in utf8 and try to pass it through various encodings */
+        setExec(builder.createExec(), "01", "cat",  inpFile.getAbsolutePath());
+        setExec(builder.createExec(), "02", "add",  null,                          "01");
+        setExec(builder.createExec(), "03", "del",  null,                          "02");
+        setExec(builder.createExec(), "04", "cat",  null,                          "03");
+        setExec(builder.createExec(), "05", "cat",  ">"+ou1File.getAbsolutePath(), "04");
+        setExec(builder.createExec(), "06", "cat",  ">"+ou3File.getAbsolutePath(), "03");
+
+        /* Now define the repipe */
+        setExec(builder.createExec(), "10", "shuf", null,                          "01");
+        setExec(builder.createExec(), "11", "cat",  null,                          "10");
+        setExec(builder.createExec(), "12", "cat",  null,                          "11");
+        setExec(builder.createExec(), "13", "sort", "-u",                          "12");
+        setExec(builder.createExec(), "S1", "sort", "-u",                          "01");
+        setExec(builder.createExec(), "S2", "cat",  ">"+ou2File.getAbsolutePath(), "S1");
+        /* repipe here */
+        repipe (builder.createExec(), "04",                                        "13");
+        /* and disable the old path */
+        disable(builder.createExec(), "02");
+
+        /* Validate it and run it */
+        builder.validate();
+        builder.build(new HashMap<String, String>(), null);
+
+        /* Check to the sorted variant (the first pile does not sort at all) */
+        assertFiles(tmpFile, ou1File);
+        assertFiles(tmpFile, ou2File);
+    }
+
+    
+    /**
+     * Test environment variables in the build - sets some value PipedExecBuilder and check
+     * if it is propagated to the individual builders
+     * 
+     * @throws CruiseControlException 
+     * @throws IOException 
+     */
+    public void testBuild_SetEnvVal() throws IOException, CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+        PipedExecBuilder.Script script;
+        Builder.EnvConf env;
+        String envvar = "TESTENV";
+        String envval = "dummy_value";
+        
+        File envExec = ExecBuilderTest.createEnvTestScript();
+        File outFile = getFile();
+
+        builder.setTimeout(10);
+        builder.setShowProgress(false);
+
+        // set env
+        env = builder.createEnv();
+        env.setName(envvar);
+        env.setValue(envval);
+        // print env and store it to the file
+        // Must be configured in a "more difficult" way, since SysUtilMock which does not 
+        // contain 'env' command
+        script = (PipedExecBuilder.Script) builder.createExec();
+        script.setID("env");
+        script.setCommand(envExec.getAbsolutePath());
+        //
+        setExec(builder.createExec(), "get", "grep", "^"+envvar+".*",               "env");
+        setExec(builder.createExec(), "out", "cat",  ">"+outFile.getAbsolutePath(), "get");
+        
+        // Validate it and run it
+        builder.validate();
+        builder.build(new HashMap<String, String>(), null);
+        
+        // Test the filtered output. We expects the ENV variable in form TESTENV=dummy_value
+        // which seems to be the same on both Linux and Windows. If is is not valid, i.e. the
+        // system the test is running on prints the ENV variables formated in a different way,
+        // the test must checks the result in a more clever way. For example, SysUtilMock
+        // class can be extended by command printing ENV variables
+        assertStreams(new StringInputStream(envvar+"="+envval), new FileInputStream(outFile));
+    } // testBuild_NewEnvVar
+    
+    
     /**
      * Method filling the {@link PipedExecBuilder.Script} class no piped from another scripts,
      * without working dir and not waiting for another script - {@link PipedExecBuilder.Script#setPipeFrom(String)},
@@ -785,6 +921,32 @@ public final class PipedExecBuilderTest extends TestCase {
         if (debugMode) {
             System.out.println("Exec: " + ((PipedExecBuilder.Script) exec).getCommand() + " "
                             + ((PipedExecBuilder.Script) exec).getArgs());
+        }
+    }
+
+    /**
+     * Method filling the "repipe" attributes of the {@link PipedExecBuilder.Script} class.
+     *
+     * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
+     * @param ID {@link Script#setID(String)}, may be <code>null</code>
+     * @param repipe {@link Script#setRepipe(String)}, may be <code>null</code>
+     */
+    private static void repipe(Object exec, String ID, String repipe) {
+        if (ID != null) {
+            ((PipedExecBuilder.Script) exec).setID(ID);
+            ((PipedExecBuilder.Script) exec).setRepipe(repipe);
+        }
+    }
+    /**
+     * Method filling the "disable" attributes of the {@link PipedExecBuilder.Script} class.
+     *
+     * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
+     * @param ID {@link Script#setID(String)}, may be <code>null</code>
+     */
+    private static void disable(Object exec, String ID) {
+        if (ID != null) {
+            ((PipedExecBuilder.Script) exec).setID(ID);
+            ((PipedExecBuilder.Script) exec).setDisable(true);
         }
     }
 

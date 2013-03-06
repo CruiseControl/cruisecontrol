@@ -358,16 +358,16 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
             if (this.value == null) {
                 env.del(this.name);
             } else {
-                String  v = this.value;
-                Matcher m = prop.matcher(v);
+                StringBuffer sb = new StringBuffer();
+                Matcher m = prop.matcher(this.value);
                 // resolve the ${*} properties remaining in the config using the environment
                 // variables.
                 while (m.find()) {
-                     v = m.replaceFirst(Matcher.quoteReplacement(env.getVariable(m.group(1), m.group(0))));
-                     m = prop.matcher(v);
+                     m.appendReplacement(sb, Matcher.quoteReplacement(env.getVariable(m.group(1), m.group(0))));
                 }
+                m.appendTail(sb);
                 // Set the new value
-                env.add(name, v);
+                env.add(name, sb.toString());
             }
         }
 

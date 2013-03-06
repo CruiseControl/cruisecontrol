@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,6 +55,7 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
 import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
@@ -124,13 +126,69 @@ public class PipedExecBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
+        Set<Script> removeIDs = new HashSet<Script>(scripts.size()); /* Scripts to be removed */
         Set<String> uniqueIDs = new HashSet<String>(scripts.size()); /* To check unique IDs */
         Set<String> notInLoop = new HashSet<String>(scripts.size()); /* Loops detection */
 
         /*
-         * Check the scripts for basic setting
+         * Resolve repiped scripts
          */
         for (Script s : scripts) {
+             if (s.getRepipe() == null) {
+                 continue;
+             }
+             /* Repipe required, cehck setting */
+             ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
+//           ValidationHelper.assertNotSet(s.getExec(), "exec", s.getClass());
+//           ValidationHelper.assertNotSet(s.getArgs(), "args", s.getClass());
+             /* Repipe */
+             for (Script c : scripts) {
+                  if (c != s && s.getID().equals(c.getID())) { // ID is defined, just checked
+                      c.setPipeFrom(s.getRepipe());
+                  }
+             }
+             /* Remove the "repipe" script from the sequence */
+             removeIDs.add(s);
+        }
+        /*
+         * Remove disabled scripts
+         */
+        for (Script s : scripts) {
+            if (Boolean.FALSE.equals(s.getDisable())) {
+                continue;
+            }
+            /* Disabled - check setting */
+            ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
+//           ValidationHelper.assertNotSet(s.getExec(), "exec", s.getClass());
+//           ValidationHelper.assertNotSet(s.getArgs(), "args", s.getClass());
+            /* Remove the command from the sequence */
+            for (Script c : scripts) {
+                 if (s.getID().equals(c.getID())) { // ID is defined, just checked
+                     removeIDs.add(c);
+                     removeIDs.addAll(findPipedSeq(c.getID(), scripts));
+                 }
+            }
+            /* Remove the disabled */
+            removeIDs.add(s);
+        }
+        scripts.removeAll(removeIDs);
+        removeIDs.clear();
+
+        /*
+         * Check the (remaining) scripts for basic setting
+         */
+        for (Script s : scripts) {
+            /* Pass config variables to the exec script, if it does not have set them. Must be done
+               before s.validate(), since it sets the variables to a default value */
+            if (s.getWorkingDir() == null) {
+                s.setWorkingDir(workingDir);
+            }
+            if (s.getGZipStdout() == null) {
+                s.setGZipStdout(gzip);
+            }
+            if (s.getBinaryStdout() == null) {
+                s.setBinaryStdout(binary);
+            }
             /* Let it validate itself */
             s.validate();
 
@@ -206,20 +264,20 @@ public class PipedExecBuilder extends Builder {
                                                :  Long.MAX_VALUE;
                 /* Initialize the script */
                 s.initialize();
-                /* Set working dir to the script, if it does not have set one, and set timeout
-                 * if it has timeout larger than the remaining time */
-                if (s.getWorkingDir() == null) {
-                    s.setWorkingDir(workingDir);
-                }
+//                 /* Set working dir to the script, if it does not have set one, and set timeout
+//                  * if it has timeout larger than the remaining time */
+//                 if (s.getWorkingDir() == null) {
+//                     s.setWorkingDir(workingDir);
+//                 }
                 if (s.getTimeout() == ScriptRunner.NO_TIMEOUT || s.getTimeout() > remainTime) {
                     s.setTimeout(remainTime);
                 }
-                if (s.getGZipStdout() == null) {
-                    s.setGZipStdout(gzip);
-                }
-                if (s.getBinaryStdout() == null) {
-                    s.setBinaryStdout(binary);
-                }
+//                 if (s.getGZipStdout() == null) {
+//                     s.setGZipStdout(gzip);
+//                 }
+//                 if (s.getBinaryStdout() == null) {
+//                     s.setBinaryStdout(binary);
+//                 }
                 /* And stuff for #build() method */
                 s.setBuildLogParent(buildLogElement);
                 s.setBuildProperties(buildProperties);
@@ -238,7 +296,7 @@ public class PipedExecBuilder extends Builder {
                 iter = tostart.listIterator();
                 started.add(s);
 
-                // !!!!!! 
+                // !!!!!!
                 // WINDOWS SPECIFIC HACK:
                 // Under Windows (tested on Windows XP with SP3, but suppose that it affects all
                 // lower versions as well) we have found problems when several commands are started
@@ -248,7 +306,7 @@ public class PipedExecBuilder extends Builder {
                 // If this does not occur on Windows Vista (and higher], check just for Windows XP
                 // and lower can be added.
                 // Preventing very fast concurrent process spawning seems to fix it (tests are OK). But
-                // if you still find such problem, use threads.join(). It will lead to horrible 
+                // if you still find such problem, use threads.join(). It will lead to horrible
                 // performance of the pipe under the affected windows versions, but it should be safe.
                 if (Util.isWindows()) {
                     threads.join(1000);
@@ -266,7 +324,7 @@ public class PipedExecBuilder extends Builder {
 
                 /* Remove the script from 'started' map when finished and not required by any
                  * other script not started yet */
-                if (s.isDone() && !isPipedFrom(s.getID(), tostart)) {
+                if (s.isDone() && null == findPipedFrom(s.getID(), tostart)) {
                     s.clean();
                     iter.remove();
                 }
@@ -405,18 +463,17 @@ public class PipedExecBuilder extends Builder {
      *
      * @param id the ID of the script to look for.
      * @param scripts the list of scripts to be looked it.
-     * @return <code>true</code> if no script in the list is required to be piped from the
-     *         given ID.
+     * @return the instance of {@link Script} or <code>null</code> if not found.
      */
-    private static boolean isPipedFrom(String id, List<Script> scripts) {
-        for (Script s : scripts) {
-            if (id != null && id.equals(s.getPipeFrom())) {
-                return true;
-            }
-        }
-        /* No such found */
-        return false;
-    } // isPipedFrom
+    private static Script findPipedFrom(String id, List<Script> scripts) {
+         for (Script s : scripts) {
+             if (id != null && id.equals(s.getPipeFrom())) {
+                return s;
+             }
+         }
+         /* No such found */
+        return null;
+    } // findPipedFrom
     /**
      * Finds script with the given ID among those started (script is 'started' either if it is
      * running, or it is finished but piped to other script not started yet).
@@ -529,7 +586,41 @@ public class PipedExecBuilder extends Builder {
         return notInLoop;
     } // checkLoop
 
+    /**
+     * Finds all scripts piped from the given script
+     *
+     * @param id the ID of the script to look for.
+     * @param scripts the list of scripts to be looked it.
+     * @return collection of scripts piped to the given script
+     */
+    private static Collection<Script> findPipedSeq(String id, List<Script> scripts) {
+        Collection<Script> piped = new HashSet<Script>(10);
+        Script             found;
 
+        /* Copy the collection, since data will be removed from it */
+        scripts = new ArrayList<Script>(scripts);
+
+        while ((found = findPipedFrom(id, scripts)) != null) {
+                /* If already in sequence, ignore */
+                if (piped.contains(found)) {
+                    continue;
+                }
+                scripts.remove(found);
+                /* Add the piped and find those piped to it */
+                piped.add(found);
+                piped.addAll(findPipedSeq(found.getID(), scripts));
+        }
+        /* Get the sequence */
+        return piped;
+    } // findPipedSeq
+
+    /** Wrapper for {@link #mergeEnv(OSEnvironment)}, just calling the wrapped method. It
+     * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class, 
+     * since it contains the method with the same name */
+    private void mergeEnv_wrap(final OSEnvironment env) {
+        mergeEnv(env);
+    }
+    
     /* ----------- NESTED CLASSES ----------- */
 
     /**
@@ -556,6 +647,10 @@ public class PipedExecBuilder extends Builder {
         private Boolean gzip;
         /** Is STDOUT of the script binary? Set by {@link #setBinaryStdout(boolean)} */
         private Boolean binary;
+        /** The value set by {@link #setRepipe(String)} */
+        private String repipe = null;
+        /** The value set by {@link #setDisable(boolean)} */
+        private boolean disable = false;
 
         /** The buffer holding the STDOUT of the command */
         private transient StdoutBuffer stdoutBuffer;
@@ -741,6 +836,54 @@ public class PipedExecBuilder extends Builder {
         } // getBinaryStdout
 
         /**
+         * Sets the ID of the script ton which an existing (and pre-configured) script is "repiped".
+         * The directive is helpful when the {@link PipedExecBuilder} is preconfigured as plugin (with
+         * exec-childs sequence defined) and it needs to be redefined.
+         *
+         * In case of repiping, neither {@link #setPipeFrom(String)} nor any other options (except
+         * {@link #setID(String)} must be filled!
+         *
+         * @param repipe <code>true</code> if to re-pipe the exec to another source.
+         */
+        public void setRepipe(String repipe) {
+            this.repipe = repipe;
+        } // setBinaryStdout
+        /**
+         * Gets the value set through {@link #setRepipe(String)}, or <code>null</code> if repipe
+         * was not set in case of "full" script configuration.
+         *
+         * @return <code>true/false</code> or <code>null</code>.
+         */
+        public String getRepipe() {
+            return this.repipe;
+        } // getBinaryStdout
+
+        /**
+         * Set <code>true</code> if to disable the given script and ALL SCRIPTS PIPED FROM IT. The
+         * directive is helpful when the {@link PipedExecBuilder} is pre-configured as plugin (with
+         * exec-childs sequence defined) and it needs to be redefined in such a way that some
+         * scripts from the original sequence will not be used anymore.
+         *
+         * In case of disabling, neither {@link #setPipeFrom(String)} nor any other options (except
+         * {@link #setID(String)} must be filled!
+         *
+         * @param disable <code>true</code> if to disable the execution of the script as well as the
+         *        execution of all scripts piped from the script.
+         */
+        public void setDisable(boolean disable) {
+            this.disable = disable;
+        } // setBinaryStdout
+        /**
+         * Gets the value set through {@link #setDisable(boolean)}, or <code>false</code> in case
+         * "full" script configuration.
+         *
+         * @return <code>true/false</code>.
+         */
+        public boolean getDisable() {
+            return this.disable;
+        } // getBinaryStdout
+
+        /**
          * Sets the XML element into which the build log returned by
          * {@link #build(Map, Progress, InputStream)}, when called in
          * {@link #run()}, is required to be stored. The method is not associated with
@@ -860,7 +1003,7 @@ public class PipedExecBuilder extends Builder {
                     };
                 }
 
-                /** Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in addition to the 
+                /** Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in addition to the
                  *  (text) consumer given. */
                 @Override
                 protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
@@ -870,6 +1013,16 @@ public class PipedExecBuilder extends Builder {
             return new MyScriptRunner();
         } // createScriptRunner
 
+        /**
+         * Override of {@link #mergeEnv(OSEnvironment)}, merging ENV set to {@link PipedExecBuilder}
+         * first and then ENV set to the script itself.
+         */
+        @Override
+        protected void mergeEnv(final OSEnvironment env) {
+            mergeEnv_wrap(env);
+            super.mergeEnv(env);
+        }
+        
     } // PipedExecScript
 
     /**
