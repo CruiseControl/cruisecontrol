@@ -103,6 +103,7 @@
 <a href="#clearcasebaselinepublisher">&lt;clearcasebaselinepublisher&gt;</a>
 <a href="#clearcasebootstrapper">&lt;clearcasebootstrapper&gt;</a>
 <a href="#clearcaseviewstrapper">&lt;clearcaseviewstrapper&gt;</a>
+<a href="#cmake">&lt;cmake&gt;</a>
 <a href="#cmsynergy">&lt;cmsynergy&gt;</a>
 <a href="#cmsynergybaselinepublisher">&lt;cmsynergybaselinepublisher&gt;</a>
 <a href="#cmsynergybaselinebootstrapper">&lt;cmsynergybaselinebootstrapper&gt;</a>
@@ -331,6 +332,7 @@
          <a href="#pipedexec">&lt;pipedexec/&gt;</a>
          <a href="#composite">&lt;composite/&gt;</a>
          <a href="#xcode">&lt;xcode/&gt;</a>
+         <a href="#cmake">&lt;cmake/&gt;</a>
       &lt;/schedule&gt;
       <a href="#log">&lt;log&gt;</a>
          <a href="#merge">&lt;merge/&gt;</a>
@@ -5908,6 +5910,11 @@ tf workfold /server:http://tfsserver:8080 /login:user@DOMAIN,password /workspace
                 <td>0 .. *</td>
                 <td>Builds the project using Apple's Xcode IDE.</td>
             </tr>
+                <tr>
+                <td><a href="#cmake">&lt;cmake&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using CMake cross-platform build system</td>
+            </tr>
             </tbody>
         </table>
 
@@ -6724,6 +6731,11 @@ endlocal</pre>
                 <td><a href="#xcode">&lt;xcode&gt;</a></td>
                 <td>0 .. *</td>
                 <td>Builds the project using Apple's Xcode IDE.</td>
+            </tr>
+                <tr>
+                <td><a href="#cmake">&lt;cmake&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Builds the project using CMake cross-platform build system</td>
             </tr>
             </tbody>
         </table>
@@ -7682,6 +7694,178 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
 
         <div class="elementdocumentation">
         <a class="toplink" href="#top">top</a>
+        <h2><a name="cmake">&lt;cmake&gt;</a></h2>
+
+        <div class="hierarchy">
+            <pre>
+<a href="#cruisecontrol">&lt;cruisecontrol&gt;</a>
+  <a href="#project">&lt;project&gt;</a>
+    <a href="#schedule">&lt;schedule&gt;</a>
+      &lt;cmake&gt;</pre>
+        </div>
+
+        <p>Builds the project using CMake cross-platform build system (http://www.cmake.org/),
+           followed by a set of command-line commands execution.</p>
+
+        <h3><a name="cmake-attributes">Attributes</a></h3>
+
+       <p>See also the <a href="#builderattributes">common
+       attributes</a> for builders.</p>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Attribute</th>
+                <th>Required</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>srcroot</td>
+                <td>Yes</td>
+                <td>The directory where the project's top-level <tt>CMakeLists.txt</tt> file
+                    is located</td>
+            </tr>
+            <tr>
+                <td>builddir</td>
+                <td>Yes</td>
+                <td>The build directory into which <tt>cmake</tt> creates <tt>Makefile</tt>,
+                    and into which the project is built then.</td>
+            </tr>
+            <tr>
+                <td>cleanbuild</td>
+                <td>No (defaults to <code>false</code>)</td>
+                <td>If <code>true</code>, the content of <i>builddir</i> directory is cleaned
+                    before the build is started. Otherwise, the content is left unchanged and
+                    it is the responsibility of CMake decide what needs to be rebuilt.</td>
+            </tr>
+            <tr>
+                <td>timeout</td>
+                <td>No</td>
+                <td>Build will be halted if the build continues longer than the specified
+                    timeout. Value in seconds.</td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+
+        <h3><a name="cmake-elements">Child Elements</a></h3>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><a name="cmake-option">&lt;option&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Sets a single command line option to the <tt>cmake</tt> binary</td>
+            </tr>
+            <tr>
+                <td>&lt;build&gt;</td>
+                <td>0 .. *</td>
+                <td>Configures the command executed after the <i>CMake</i> is configured and
+                    <tt>Makefile</tt> is created. The element has the same attributes as
+                    <a href="#exec">&lt;exec&gt;</a> builder, since it is fact wraps it.</td>
+            </tr>
+            <tr>
+                <td><a href="#builderenvconfig">&lt;env&gt;</a></td>
+                <td>0 .. *</td>
+                <td>Used to modify environment variables passed to the <tt>cmake</tt>
+                    command and commands set through <i>build</i> element.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3><a name="cmake-examples">Example</a></h3>
+        <pre>
+&lt;cmake timeout="240"  builddir="${temp.dir}" cleanbuild="true"&gt;
+   &lt;option value="-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"/&gt;
+   &lt;option value="-DCMAKE_INSTALL_PREFIX=${libs.dir}"/&gt;
+   &lt;option value="-DCMAKE_BUILD_TYPE=Release"/&gt;
+   &lt;option value="-DCMAKE_CXX_FLAGS_RELEASE:STRING='-O3 -DNDEBUG'" /&gt;
+   &lt;build command="make"/&gt;
+   &lt;build command="make" args="install"/&gt;
+&lt;/cmake&gt;
+        </pre>
+        
+        This example configuration is equivalent to the invocation of:
+        <pre>
+~$ rm -rf ${temp.dir}
+~$ cmake -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DCMAKE_INSTALL_PREFIX=${libs.dir} -DCMAKE_BUILD_TYPE=Release
+-DCMAKE_CXX_FLAGS_RELEASE:STRING='-O3 -DNDEBUG' ${temp.dir}
+~$ make
+~$ make install
+        </pre>
+        
+        <h3><a name="cmake-options">&lt;cmakeoptions&gt;</a> - out-of <a href="#cmake">&lt;cmake&gt;</a>
+           options configuration</h3>
+        
+        <p>The set of options passed to <i>CMake</i> may be quite complex, for which 
+           <a href="plugins.html#preconfiguration">plugin preconfigurations</a> is very
+           useful. However, there may be several variants of the same build configuration
+           differing in just few options (e.g. make one build with
+           <code>-DCMAKE_BUILD_TYPE</code> set to <i>Release</i> followed by the second
+           build being set to <i>Debug</i>).</p>
+           
+        <p>For such cases, the options can be defined out-of the &lt;cmake&gt; element
+           configuration, into which they are then included.</p>
+        
+        <h4><a name="cmakeoptions-elements">Child Elements</a></h4>
+
+        <table class="documentation">
+            <thead>
+            <tr>
+                <th>Element</th>
+                <th>Cardinality</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>&lt;option&gt;</td>
+                <td>0 .. *</td>
+                <td>The same as <a href="#cmake-option">&lt;option&gt;</a> in base
+                    &lt;cmake&gt; element</td>
+            </tr>
+            </tbody>
+        </table>
+        
+        <h4><a name="cmake-examples">Outside options example</a></h4>
+        <pre>
+&lt;plugin name="cmake_DBG_opts" from="cmakeoptions"&gt;
+   &lt;option value="-DCMAKE_BUILD_TYPE=Debug"/&gt;
+   &lt;option value="-DCMAKE_INSTALL_PREFIX=${libs.dir.debug}"/&gt;
+&lt;/plugin&gt;
+&lt;plugin name="cmake_RLS_opts" from="cmakeoptions"&gt;
+   &lt;option value="-DCMAKE_BUILD_TYPE=Release"/&gt;
+   &lt;option value="-DCMAKE_INSTALL_PREFIX=${libs.dir.release}"/&gt;
+&lt;/plugin&gt;
+
+&lt;plugin name="cmake" builddir="${temp.dir}" &gt;
+   &lt;option value="-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"/&gt;
+   &lt;option value="..."/&gt;
+   &lt;build command="make"/&gt;
+   &lt;build command="make" args="install"/&gt;
+&lt;/plugin&gt;
+
+&lt;schedule&gt;
+  &lt;composite&gt;
+    &lt;cmake&gt; &lt;cmake_DBG_opts/&gt;
+    &lt;/cmake&gt;
+    &lt;cmake&gt; &lt;cmake_RLS_opts/&gt;
+    &lt;/cmake&gt;
+  &lt;/composite&gt;
+&lt;/schedule&gt;
+        </pre>
+        
+        <div class="elementdocumentation">
+        <a class="toplink" href="#top">top</a>
         <h2><a name="log">&lt;log&gt;</a></h2>
 
         <div class="hierarchy">
@@ -7758,8 +7942,6 @@ saveLogDir="/usr/local/dev/projects/cc/logs"</td>
                 <td>0 .. 1</td>
                 <td>Deletes old artifact directories.</td>
 	    </tr>
-
-
             </tbody>
         </table>
         </div>
