@@ -295,16 +295,16 @@ public class CMakeBuilder extends Builder {
    * Adds pre-configured set of options which are merged with the current set of options set through {@link
    * #createOption()}.
    *
-   * @param  optsobj the instance of {@link Options} class
+   * @param  optsobj the instance of {@link CMakeBuilderOptions} class
    * @throws CruiseControlException 
    */
   public void   add(Object optsobj) throws CruiseControlException {
     /* Check the object type. No other are supported */
-    if (!(optsobj instanceof Options)) {
+    if (!(optsobj instanceof CMakeBuilderOptions)) {
         throw new CruiseControlException("Invalid instance of options: " + optsobj.getClass().getCanonicalName());
     }
     /* Add the options to the list */
-    for (Option o : ((Options) optsobj).getOptions()) {
+    for (Option o : ((CMakeBuilderOptions) optsobj).getOptions()) {
         options.add(o);   
     }
   }
@@ -361,68 +361,6 @@ public class CMakeBuilder extends Builder {
 
   /* ----------- NESTED CLASSES ----------- */
 
-  /**
-   * Class holding a set of pre-configured options for <code>cmake</code> builder. The set of 
-   * options can be pre-configured as
-   * as:
-   * <pre>
-   *    <plugin name="XXX" class=zcu.kky.Options>
-   *      <option value="..." />
-   *      <option value="..." />
-   *      ...
-   *    </plugin>
-   *    <plugin name="YYY" class=zcu.kky.Options>
-   *      ...
-   *    </plugin>
-   *    <plugin name="ZZZ" class=zcu.kky.Options>
-   *      ...
-   *    </plugin>
-   * </pre>
-   * 
-   * and used to configure CMake as:
-   * 
-   * <pre>
-   *    <cmake ...>
-   *      <XXX/>
-   *      <YYY/>
-   *      <option value="..." />
-   *    </cmake>
-   *    <cmake ...>
-   *      <XXX/>
-   *      <ZZZ/>
-   *    </cmake>
-   * </pre>
-   */
-  public static final class Options   {
-      /** Constructor */
-      public Options() {
-        options = new LinkedList<Option>();
-      }
-      
-      /**
-       * Creates object into which <code><option /></code> tag will be set. Each call returns new object which is
-       * expected to be set by CC. The attribute is not required.
-       *
-       * @return new object to configure according to the tag values.
-       * @see    CMakeBuilder#createOption()
-       */
-      public Object    createOption() {
-        options.add(new Option());
-        return options.getLast();
-      }
-      /**
-       * Gets the options set through {@link #createOption()}.
-       * @return iterator through the sequence of options
-       */
-      Iterable<Option> getOptions() {
-          return options;
-      }
-      
-      /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
-      private LinkedList<Option> options;
-  }
-
-  
   /**
    * Class for the CMake <tt>option[=value]</tt> options configuration:
    * <pre>
