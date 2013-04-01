@@ -34,23 +34,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- *
- * Configuration example for this plugin:
- * <pre>
- *     <cruisecontrol>
- *     <!-- name and class of plugin, default timeout to 10 minutes -->
- *     <plugin name="cmake" classname="zcu.kky.CMakeBuilder" timeout="600"/>
- *     <schedule>
- *        <cmake srcroot="path/to/source/root/directory" builddir="path/to/build/directory"/>
- *                <!-- for other options see the documentation (or source code) -->
- *               <define name="ENABLE_KDE3"      value="false"   type="boolean" />
- *               <define name="CMAKE_BUILD_TYPE" value="Release" />
- *               <define name="CMAKE_CXX_FLAGS"  value="-O3 -DNDEBUG -msse2 -march=pentium3" />
- *         </cmake>
- *     </schedule>
- *   <cruisecontrol>
- * </pre>
- *
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
@@ -88,26 +71,26 @@ import  org.jdom.Element;
  *        <exec command="rm" args="-f /path/to/build/dir"/>
  *        <exec command="mkdir" args="/path/to/build/dir"/>
  *        <exec command="cmake"
- *              args="-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON -D.... -D INSTALL_PREFIX=/usr/local/bin 
- *                    -U USER_UNDEF, -U ... -G 'Unix Makefiles' /path/to/source/root" 
+ *              args="-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON -D.... -D INSTALL_PREFIX=/usr/local/bin
+ *                    -U USER_UNDEF, -U ... -G 'Unix Makefiles' /path/to/source/root"
  *              workingdir="/path/to/build/dir"/>
- *        <exec command="make" 
+ *        <exec command="make"
  *              workingdir="/path/to/build/dir"/>
- *        <exec command="make" args="install" 
+ *        <exec command="make" args="install"
  *              workingdir="/path/to/build/dir"/>
  *      </pre>
  *      will look with CMake builder as follows:
  *      <pre>
  *        <cmake srcroot="/path/to/source/root"
  *               builddir="/path/to/build/dir"  cleanbuild="true">
- *               
+ *
  *              <option value="-D CMAKE_VERBOSE_MAKEFILE:BOOL=ON"/>
  *              ...
  *              <option value="-D INSTALL_PREFIX=/usr/local/bin"/>
  *              <option value="-U USER_UNDEF"/>
  *              ...
  *              <option value="-G 'Unix Makefiles'"/>
- *            
+ *
  *              <build  exec="make" />
  *              <build  exec="make" args="install"/>
  *        </cmake>
@@ -122,7 +105,7 @@ import  org.jdom.Element;
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
  */
 public class CMakeBuilder extends Builder {
-    
+
   /**
    * Validate the attributes for the plugin.
    */
@@ -138,7 +121,7 @@ public class CMakeBuilder extends Builder {
     ValidationHelper.assertExists(srcRoot, "srcroot", this.getClass());
     ValidationHelper.assertExists(new File(srcRoot, "CMakeLists.txt"), "srcroot", this.getClass());
     /* There must not be a file with the name set in buildDir */
-    ValidationHelper.assertFalse(buildDir.isFile(), "There is file '" + buildDir 
+    ValidationHelper.assertFalse(buildDir.isFile(), "There is file '" + buildDir
             + "existing, but it is required to be build directory");
 
     /* Validate all the cmake defines */
@@ -149,7 +132,7 @@ public class CMakeBuilder extends Builder {
     /* Build the commands to execute. The first is "raw" cmake */
     final ExecBuilder builder = new ExecBuilderCMake();
     final StringBuilder args = new StringBuilder();
-    
+
     /* Options for CMake */
     for (Option option : options) {
          args.append(option.toString() + " ");
@@ -172,7 +155,7 @@ public class CMakeBuilder extends Builder {
          c.setMultiple(getMultiple());
          c.setShowProgress(getShowProgress());
          // TODO setDate(), setTime()??
-         
+
          /* Validate */
          c.validate();
     }
@@ -182,7 +165,7 @@ public class CMakeBuilder extends Builder {
    * Executes the commands and return the results as XML
    */
   @Override
-  public Element build(final Map<String, String> buildProperties, final Progress progressIn) 
+  public Element build(final Map<String, String> buildProperties, final Progress progressIn)
           throws CruiseControlException {
     long startTime = System.currentTimeMillis();
     Element buildLogElement = new Element("build");
@@ -208,7 +191,7 @@ public class CMakeBuilder extends Builder {
         if (c.getTimeout() == ScriptRunner.NO_TIMEOUT || c.getTimeout() > remainTime) {
             c.setTimeout(remainTime);
         }
-        
+
         /* start the command and store its output into the overall logElement */
         cmmndLogElement = c.build(buildProperties, progressIn);
         buildLogElement.addContent(cmmndLogElement);
@@ -262,7 +245,7 @@ public class CMakeBuilder extends Builder {
   /**
    * Should the build be started from the clean location? If set to <code>true</code>, the content
    * of directory set in {@link #setBuildDir(String)} is cleaned before CMake commands are called.
-   * 
+   *
    * @param value <code>true</code> if CMake should start in clean directory, <code>false</code> if
    *        it can contain files being there before.
    */
@@ -296,7 +279,7 @@ public class CMakeBuilder extends Builder {
    * #createOption()}.
    *
    * @param  optsobj the instance of {@link CMakeBuilderOptions} class
-   * @throws CruiseControlException 
+   * @throws CruiseControlException
    */
   public void   add(Object optsobj) throws CruiseControlException {
     /* Check the object type. No other are supported */
@@ -305,7 +288,7 @@ public class CMakeBuilder extends Builder {
     }
     /* Add the options to the list */
     for (Option o : ((CMakeBuilderOptions) optsobj).getOptions()) {
-        options.add(o);   
+        options.add(o);
     }
   }
 
@@ -313,9 +296,9 @@ public class CMakeBuilder extends Builder {
    * Creates object representing the command run after the CMake is configured; such commands are for example
    * <tt>make, make install</tt> and so on. Since the object is {@link ExecBuilder}, any command can be defined and
    * all its attributes can be set.
-   * 
-   * Attributes not set for the command are inherited from CMake configuration. 
-   * 
+   *
+   * Attributes not set for the command are inherited from CMake configuration.
+   *
    * @return the instance of {@link ExecBuilder} representing the command to execute
    */
   @Default(value = "")
@@ -323,7 +306,7 @@ public class CMakeBuilder extends Builder {
       commands.add(new ExecBuilderCMake());
       return commands.getLast();
   }
-  
+
   /**
    * Private wrapper for {@link #mergeEnv(OSEnvironment)} method` just calls the wrapped method. It is required
    * in order to pass env variables to the individual builders.
@@ -332,8 +315,8 @@ public class CMakeBuilder extends Builder {
       mergeEnv(env);
   }
 
-  
-  
+
+
   /* ----------- ATTRIBS BLOCK ----------- */
 
   /** Serialization UID. */
@@ -366,7 +349,7 @@ public class CMakeBuilder extends Builder {
    * <pre>
    *     <option value="OPTION_NAME[=OPTION_VALUE]"/>
    * </pre>
-   * 
+   *
    * Not that '-' must be the part of option name!
    */
   public static final class Option extends StringWriter {
@@ -378,11 +361,11 @@ public class CMakeBuilder extends Builder {
        write(option);
      }
   }
-  
+
   /**
-   * Wrapper of {@link ExecBuilder}, calling {@link CMakeBuilder#mergeEnv(OSEnvironment)} 
+   * Wrapper of {@link ExecBuilder}, calling {@link CMakeBuilder#mergeEnv(OSEnvironment)}
    */
-  private class ExecBuilderCMake extends ExecBuilder {
+  private final class ExecBuilderCMake extends ExecBuilder {
       /** Overrides {@link #mergeEnv(OSEnvironment)} method to call parent's
        *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then */
       @Override
@@ -393,5 +376,5 @@ public class CMakeBuilder extends Builder {
       /** Serialization UID */
       private static final long serialVersionUID = -9071669502459334465L;
   }
-  
+
 }
