@@ -37,6 +37,7 @@
 package net.sourceforge.cruisecontrol;
 
 import net.sourceforge.cruisecontrol.buildloggers.MergeLogger;
+import net.sourceforge.cruisecontrol.builders.CMakeBuilderOptions;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapper;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
 import net.sourceforge.cruisecontrol.config.ConfigurationPlugin;
@@ -84,6 +85,7 @@ public final class PluginType implements Serializable {
     public static final PluginType SOURCE_CONTROL = new PluginType("sourcecontrol", "modificationset");
     public static final PluginType SYSTEM = new PluginType("system", "cruisecontrol");
     public static final PluginType THREADS = new PluginType("threads", "configuration");
+    public static final PluginType CMAKEOPTIONS = new PluginType("cmakeoptions", "cmake");
 
     private static final Map<Class< ? >, PluginType> PLUGIN_TYPES = new HashMap<Class< ? >, PluginType>() {
         {
@@ -113,6 +115,7 @@ public final class PluginType implements Serializable {
             put(SystemPlugin.class, SYSTEM);
             put(ThreadsPlugin.class, THREADS);
             put(DashboardConfigurationPlugin.class, DASHBOARD_CONFIGURATION);
+            put(CMakeBuilderOptions.class, CMAKEOPTIONS);
         }
     };
 
