@@ -130,7 +130,7 @@ public class CMakeBuilder extends Builder {
     }
 
     /* Build the commands to execute. The first is "raw" cmake */
-    final ExecBuilder builder = new ExecBuilderCMake();
+    final ExecBuilder builder = createBuilder();
     final StringBuilder args = new StringBuilder();
 
     /* Options for CMake */
@@ -303,7 +303,7 @@ public class CMakeBuilder extends Builder {
    */
   @Default(value = "")
   public Object createBuild() {
-      commands.add(new ExecBuilderCMake());
+      commands.add(createBuilder());
       return commands.getLast();
   }
 
@@ -313,6 +313,11 @@ public class CMakeBuilder extends Builder {
    */
   private void mergeEnv_wrap(@SuppressWarnings("javadoc") final OSEnvironment env) {
       mergeEnv(env);
+  }
+
+  /** Creates new instance of ExecBuilder, in this case it is its ExecBuilderCMake override */
+  protected ExecBuilder createBuilder() {
+    return new ExecBuilderCMake();
   }
 
 
@@ -365,7 +370,7 @@ public class CMakeBuilder extends Builder {
   /**
    * Wrapper of {@link ExecBuilder}, calling {@link CMakeBuilder#mergeEnv(OSEnvironment)}
    */
-  private final class ExecBuilderCMake extends ExecBuilder {
+  protected class ExecBuilderCMake extends ExecBuilder {
       /** Overrides {@link #mergeEnv(OSEnvironment)} method to call parent's
        *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then */
       @Override
