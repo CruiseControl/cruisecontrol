@@ -60,12 +60,18 @@ public class BuildLoopInformationBuilderTest extends TestCase {
     private BuildLoopInformationBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new BuildLoopInformationBuilder(new CruiseControlController());
-        buildLoopInformation = builder.buildBuildLoopInformation();
         oldProperties = new String[properties.length];
         for (int i = 0; i < properties.length; i++) {
             oldProperties[i] = System.getProperty(properties[i]);
         }
+
+        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT, "1234");
+        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT, "5678");
+        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME, "Chris");
+        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD, "123asd");
+
+        builder = new BuildLoopInformationBuilder(new CruiseControlController());
+        buildLoopInformation = builder.buildBuildLoopInformation();
     }
 
     protected void tearDown() throws Exception {
