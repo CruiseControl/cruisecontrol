@@ -130,19 +130,15 @@ public class CMakeBuilder extends Builder {
     }
 
     /* Build the commands to execute. The first is "raw" cmake */
-    final ExecBuilder builder = createBuilder();
-    final StringBuilder args = new StringBuilder();
-
-    /* Options for CMake */
-    for (Option option : options) {
-         args.append(option.toString() + " ");
-    }
-    /* srcRoot - path to CMakeLists.txt */
-    args.append(srcRoot.getAbsolutePath());
+    final ExecBuilderCMake builder = createBuilder();
 
     builder.setCommand("cmake");
-    builder.setArgs(args.toString());
-
+    /* Options for CMake */
+    for (Option option : options) {
+         builder.addOption(option);
+    }
+    /* srcRoot - path to CMakeLists.txt */
+    builder.addPath(srcRoot);
     /* CMake is the very first */
     commands.addFirst(builder);
 
@@ -232,6 +228,12 @@ public class CMakeBuilder extends Builder {
       this.srcRoot = new File(path);
   }
   /**
+   * @return path set through {@link #setSrcRoot(String)} or <code>NULL</code> if the path has not been set.
+   */
+  public File getSrcRoot() {
+      return this.srcRoot;
+  }
+  /**
    * Sets the build directory into which <tt>cmake</tt> creates <tt>Makefile</tt>, and into which the
    * project is built. The attribute is required.
    *
@@ -240,6 +242,12 @@ public class CMakeBuilder extends Builder {
   @Required
   public void setBuildDir(String path) {
       this.buildDir = new File(path);
+  }
+  /**
+   * @return path set through {@link #setBuildDir(String)} or <code>NULL</code> if the path has not been set.
+   */
+  public File getBuildDir() {
+      return this.buildDir;
   }
 
   /**
@@ -290,6 +298,10 @@ public class CMakeBuilder extends Builder {
     for (Option o : ((CMakeBuilderOptions) optsobj).getOptions()) {
         options.add(o);
     }
+    /* Add the envs to the list */
+    for (EnvConf o : ((CMakeBuilderOptions) optsobj).getEnvs()) {
+        createEnv().copy(o);
+    }
   }
 
   /**
@@ -316,7 +328,7 @@ public class CMakeBuilder extends Builder {
   }
 
   /** Creates new instance of ExecBuilder, in this case it is its ExecBuilderCMake override */
-  protected ExecBuilder createBuilder() {
+  protected ExecBuilderCMake createBuilder() {
     return new ExecBuilderCMake();
   }
 
@@ -329,22 +341,22 @@ public class CMakeBuilder extends Builder {
 
 
   /** The value set in {@link #setBuildDir(String)}. */
-  private File                   buildDir;
+  private File buildDir;
   /** The value set in {@link #setSrcRoot(String)}. */
-  private File                   srcRoot;
+  private File srcRoot;
   /** The value set in {@link #setCleanBuild(boolean)}. */
-  private boolean                cleanBuild = false;
+  private boolean cleanBuild = false;
 
   /** The maximum time of build run [in sec.]. */
-  private long                    timeout;
+  private long timeout;
 
   /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
-  private LinkedList<Option>      options   = new LinkedList<Option>();
+  private LinkedList<Option>  options   = new LinkedList<Option>();
   /** The list of commands as they are executed one after another. */
-  private LinkedList<ExecBuilder> commands  = new LinkedList<ExecBuilder>();
+  private LinkedList<ExecBuilderCMake> commands  = new LinkedList<ExecBuilderCMake>();
 
   /** Logger. */
-  private static final Logger     LOG       = Logger.getLogger(CMakeBuilder.class);
+  private static final Logger LOG = Logger.getLogger(CMakeBuilder.class);
 
 
   /* ----------- NESTED CLASSES ----------- */
@@ -363,14 +375,35 @@ public class CMakeBuilder extends Builder {
       * @param option string with the define option name.
       */
      public void setValue(String option) {
-       write(option);
+       getBuffer().setLength(0);
+       append(option);
      }
   }
 
   /**
-   * Wrapper of {@link ExecBuilder}, calling {@link CMakeBuilder#mergeEnv(OSEnvironment)}
+   * Wrapper of {@link ExecBuilder}. TODO: DOPSAT
+   *
+   * For version 2.8 and lower it has format:
+   *  <pre> cmake [options] <path-to-source>
+   *        cmake [options] <path-to-existing-build>
+   *  </pre>
+   *
+   *
+   * Also, it calls {@link CMakeBuilder#mergeEnv(OSEnvironment)}
    */
   protected class ExecBuilderCMake extends ExecBuilder {
+  
+      /** Method adding single option to the list of arguments for CMake */
+      public void addOption(Option opt) {
+        addArg(opt.toString());
+      }
+      
+      /** Method the last path argument for CMake, it is either <code>path-to-source</code> or
+       *  <code>path-to-existing-build</code> */
+      public void addPath(File path) {
+        addArg(path.getAbsolutePath());
+      }
+      
       /** Overrides {@link #mergeEnv(OSEnvironment)} method to call parent's
        *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then */
       @Override
@@ -378,6 +411,13 @@ public class CMakeBuilder extends Builder {
           mergeEnv_wrap(env);
           super.mergeEnv(env);
       }
+      
+      /** Adds single string option */
+      protected void addArg(final String arg) {
+        final String args = super.getArgs();
+        super.setArgs((args != null && args.length() > 0 ? args + " " : "") + arg);
+      }
+      
       /** Serialization UID */
       private static final long serialVersionUID = -9071669502459334465L;
   }

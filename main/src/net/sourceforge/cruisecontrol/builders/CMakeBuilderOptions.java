@@ -1,6 +1,8 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.util.LinkedList;
+
+import net.sourceforge.cruisecontrol.Builder.EnvConf;
 import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
 
 /**
@@ -36,10 +38,6 @@ import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
  * </pre>
  */
 public final class CMakeBuilderOptions   {
-    /** Constructor */
-    public CMakeBuilderOptions() {
-        options = new LinkedList<Option>();
-    }
       
     /**
      * Creates object into which <code><option /></code> tag will be set. Each call returns new object which is
@@ -48,10 +46,20 @@ public final class CMakeBuilderOptions   {
      * @return new object to configure according to the tag values.
      * @see    CMakeBuilder#createOption()
      */
-    public Object    createOption() {
+    public Object  createOption() {
         options.add(new Option());
         return options.getLast();
     }
+    
+    /**
+     * @return new {@link EnvConf} object to configure.
+     */
+    public EnvConf createEnv() {
+        envs.add(new EnvConf());
+        return envs.getLast();
+    } // createEnv
+    
+    
     /**
      * Gets the options set through {@link #createOption()}.
      * @return iterator through the sequence of options
@@ -59,8 +67,17 @@ public final class CMakeBuilderOptions   {
     Iterable<Option> getOptions() {
         return options;
     }
+
+    /**
+     * Gets the env variable set through {@link #createEnv()}.
+     * @return iterator through the sequence of env values
+     */
+    Iterable<EnvConf> getEnvs() {
+        return envs;
+    }
       
     /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
-    private LinkedList<Option> options;
+    private final LinkedList<Option> options = new LinkedList<Option>();
+    private final LinkedList<EnvConf> envs = new LinkedList<EnvConf>();
   }
   
