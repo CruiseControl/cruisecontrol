@@ -283,8 +283,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
         private final Pattern prop = Pattern.compile("\\$\\{([^}]+)\\}");
 
 
-        /** Hidden constructor */
-        private EnvConf() {
+        /** Constructor */
+        public EnvConf() {
             name = "";
             value = null;
         }
@@ -323,7 +323,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
          *         or <code>null</code> if no environment variable was defined yet.
          */
         public String getValue() {
-            return this.name;
+            return this.value;
         } // setName
         /**
          * Mark the environment variable to delete. Avoid explicit calls of the method
@@ -369,6 +369,12 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
                 // Set the new value
                 env.add(name, sb.toString());
             }
+        }
+        
+        /** Copy the content of EnvConf to this class */
+        public void copy(final EnvConf env) {
+          this.name = env.name;
+          this.value = env.value; // NULL is toDelete() was set
         }
 
     } // EnvConf

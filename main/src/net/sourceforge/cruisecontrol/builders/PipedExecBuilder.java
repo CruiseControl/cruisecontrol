@@ -149,6 +149,8 @@ public class PipedExecBuilder extends Builder {
              }
              /* Remove the "repipe" script from the sequence */
              removeIDs.add(s);
+// TODO: REMOVE:
+LOG.info("  --> repiping  " + s.getID() + " to " + s.getRepipe());
         }
         /*
          * Remove disabled scripts
@@ -170,6 +172,8 @@ public class PipedExecBuilder extends Builder {
             }
             /* Remove the disabled */
             removeIDs.add(s);
+// TODO: REMOVE:
+LOG.info("  --> disabling " + s.getID());
         }
         scripts.removeAll(removeIDs);
         removeIDs.clear();
@@ -211,6 +215,8 @@ public class PipedExecBuilder extends Builder {
             /* ID must be unique */
             ValidationHelper.assertFalse(uniqueIDs.contains(s.getID()), "ID " + s.getID() + " is not unique");
             uniqueIDs.add(s.getID());
+// TODO: REMOVE:
+LOG.info("  --> will run  " + s.getID());
         }
 
         /*
