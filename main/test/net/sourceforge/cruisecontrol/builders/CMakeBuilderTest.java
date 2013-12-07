@@ -218,6 +218,7 @@ public final class CMakeBuilderTest extends TestCase
      * Tests correct build.
      * @throws CruiseControlException if failed
      */
+    @Ignore("Needs CMake package installed")
     public void testBuild_buildSuccess() throws CruiseControlException
     {
         CMakeBuilder builder;
@@ -242,6 +243,7 @@ public final class CMakeBuilderTest extends TestCase
      * Tests is values in CMake defines are correctly quoted when contain white characters.
      * @throws CruiseControlException if failed
      */
+    @Ignore("Needs CMake package installed")
     public void testBuild_defineQuoting() throws CruiseControlException
     {
         CMakeBuilder builder;
@@ -269,6 +271,7 @@ public final class CMakeBuilderTest extends TestCase
      * Tests a build failure - enable invalid code in the build .cpp file
      * @throws CruiseControlException if failed
      */
+    @Ignore("Needs CMake package installed")
     public void testBuild_invalidMake() throws CruiseControlException
     {
         CMakeBuilder builder;
