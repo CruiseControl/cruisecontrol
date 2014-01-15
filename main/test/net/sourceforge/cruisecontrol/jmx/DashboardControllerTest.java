@@ -47,6 +47,7 @@ public class DashboardControllerTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        BuildLoopMonitorRepository.cancelPosting();
         dashboardController = new DashboardController(new CruiseControlController());
     }
 
