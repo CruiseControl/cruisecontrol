@@ -54,7 +54,8 @@ public class CruiseControlControllerJMXAdaptorGendocTest extends TestCase {
 
     public void testGetPluginCSS() {
         String css = adaptor.getPluginCSS().trim();
-        assertTrue("CSS not loaded", css.length() > 1000);
+        assertTrue("CSS not loaded (if this fails in your IDE you simply need to run a command line build first in order to generate gendoc.css)",
+                css.length() > 1000);
     }
     
     public void testGetPluginInfo() {
