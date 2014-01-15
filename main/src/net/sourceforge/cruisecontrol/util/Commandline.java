@@ -625,7 +625,7 @@ public class Commandline implements Cloneable {
         final Process process;
 
         final String msgCommandInfo = "Executing: [" + getExecutable() + "] with parameters: ["
-                + toString(getCommandline(), false, "], [") + "]" + "and with "
+                + toString(getCommandline(), false, "], [") + "] and with "
                 + (this.execEnv != null ? "customized" : "default") + " environment variables";
 
         if (workingDir == null) {
