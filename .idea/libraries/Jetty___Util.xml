@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Jetty - Util">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/binaryrelease/lib/jetty-util-6.1.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

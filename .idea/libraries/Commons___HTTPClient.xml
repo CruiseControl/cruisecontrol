@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Commons - HTTPClient">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/commons-httpclient-3.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

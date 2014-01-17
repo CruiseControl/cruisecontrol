@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="JUG">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/jug-lgpl-2.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

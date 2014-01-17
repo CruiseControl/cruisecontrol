@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Maven - Embedder">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/maven-embedder-2.0.4-dep.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

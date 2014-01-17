@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SourceForge Enterprise Edition">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/inmemorysfee-1.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

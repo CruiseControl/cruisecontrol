@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/.idea/out/main/classes" />
+    <output-test url="file://$MODULE_DIR$/.idea/out/main/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/main">
+      <sourceFolder url="file://$MODULE_DIR$/main/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/main/functionaltest" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/main" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/main/xsl" type="java-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/main/lib" />
+      <excludeFolder url="file://$MODULE_DIR$/main/lib-buildtools" />
+      <excludeFolder url="file://$MODULE_DIR$/main/loggers" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="ant-scripts" />
+    <orderEntry type="module" module-name="loggers" />
+    <orderEntry type="library" name="Activation" level="project" />
+    <orderEntry type="library" name="Ant" level="project" />
+    <orderEntry type="library" name="Ant - Launcher" level="project" />
+    <orderEntry type="library" name="Aspirin" level="project" />
+    <orderEntry type="library" name="Comm" level="project" />
+    <orderEntry type="library" name="Commons - Codec" level="project" />
+    <orderEntry type="library" name="Commons - HTTPClient" level="project" />
+    <orderEntry type="library" name="Commons - Logging" level="project" />
+    <orderEntry type="library" name="Commons - Net" level="project" />
+    <orderEntry type="library" name="Commons - Pool" level="project" />
+    <orderEntry type="library" name="Commons - Validator" level="project" />
+    <orderEntry type="library" name="DNSJava" level="project" />
+    <orderEntry type="library" name="Fast MD5" level="project" />
+    <orderEntry type="library" name="Ivy" level="project" />
+    <orderEntry type="library" name="Jakarta ORO" level="project" />
+    <orderEntry type="library" name="JavaMail" level="project" />
+    <orderEntry type="library" name="Jaxen" level="project" />
+    <orderEntry type="library" name="JDOM" level="project" />
+    <orderEntry type="library" name="Jetty" level="project" />
+    <orderEntry type="library" name="Jetty - Util" level="project" />
+    <orderEntry type="library" name="JUG" level="project" />
+    <orderEntry type="library" name="JUnit" level="project" />
+    <orderEntry type="library" name="Log4j" level="project" />
+    <orderEntry type="library" name="Maven - Embedder" level="project" />
+    <orderEntry type="library" name="MX4j" level="project" />
+    <orderEntry type="library" name="MX4j - Tools" level="project" />
+    <orderEntry type="library" name="SourceForge Enterprise Edition" level="project" />
+    <orderEntry type="library" name="Smack" level="project" />
+    <orderEntry type="library" name="Twitter4j" level="project" />
+    <orderEntry type="library" name="Velocity" level="project" />
+    <orderEntry type="library" name="X10" level="project" />
+    <orderEntry type="library" name="Xerces" level="project" />
+    <orderEntry type="library" name="XML RPC" level="project" />
+    <orderEntry type="library" name="XPP" level="project" />
+    <orderEntry type="library" name="XStream" level="project" />
+    <orderEntry type="inheritedJdk" />
+  </component>
+</module>
+

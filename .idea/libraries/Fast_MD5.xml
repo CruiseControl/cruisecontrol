@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Fast MD5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/fast-md5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="X10">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/x10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

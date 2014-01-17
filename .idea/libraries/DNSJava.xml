@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="DNSJava">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/dnsjava/v2.0.8/dnsjava-2.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
