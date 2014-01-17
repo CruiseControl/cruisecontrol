@@ -155,6 +155,8 @@
             <zipfileset dir="lib/aspirin/v0.8.3" includes="aspirin.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset dir="lib/commons-pool/v1.5.4" includes="commons-pool-1.5.4.jar" prefix="${cc.bin.zip.prefix}/lib"/>
             <zipfileset dir="lib/dnsjava/v2.0.8" includes="dnsjava-2.0.8.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset dir="lib/xpp3/v1.1.4c" includes="xpp3-1.1.4c.jar" prefix="${cc.bin.zip.prefix}/lib"/>
+            <zipfileset dir="lib/xstream/v1.4.6" includes="xstream-1.4.6.jar" prefix="${cc.bin.zip.prefix}/lib"/>
         </zip>
     </target>
 
