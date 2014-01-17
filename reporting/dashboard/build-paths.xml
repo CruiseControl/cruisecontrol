@@ -43,6 +43,7 @@
         <fileset refid="velocity-dep.lib" />
         <fileset refid="velocity-tools-view.lib" />
         <fileset refid="xerces.lib" />
+        <fileset refid="xpp.lib" />
         <fileset refid="xstream.lib" />
     </path>
 
@@ -107,6 +108,7 @@
             <fileset refid="velocity-dep.lib" />
             <fileset refid="velocity-tools-view.lib" />
             <fileset refid="xerces.lib" />
+            <fileset refid="xpp.lib" />
             <fileset refid="xstream.lib" />
         </path>
     </path>
