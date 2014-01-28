@@ -72,24 +72,12 @@ import org.junit.Test;
 
 // TODO: Split this up into separate tests
 public class SVNTest {
-    private static final File buildTargetDirectory = TestUtil.getTargetDir();
-    private static final FilenameFilter dotSVNFilter = new FilenameFilter() {
-        public boolean accept(final File currentDirectory, final String name) {
-            if (".svn".equals(name)) {
-                return true;
-            }
-
-            return false;
-        }
-    };
-
     private SVN svn;
     private TimeZone originalTimeZone;
 
     @Before
     public void setUp() {
         svn = new SVN();
-        svn.setLocalWorkingCopy(findLocalWorkingCopy());
         originalTimeZone = TimeZone.getDefault();
     }
 
@@ -491,21 +479,5 @@ public class SVNTest {
         expectedCmd = new String[] { "svn", "info", "--xml", "foo" };
         actualCmd = svn.buildInfoCommand("foo").getCommandline();
         assertThat(actualCmd, equalTo(expectedCmd));
-    }
-
-    private static String findLocalWorkingCopy() {
-        File temp = buildTargetDirectory;
-        for (; temp.isDirectory(); temp = temp.getParentFile()) {
-            if (temp == null || temp.getParentFile() == null) {
-                throw new AssertionError("Could not find a valid Subversion local working copy in any parent of the " +
-                        "build target directory " + buildTargetDirectory.getAbsolutePath());
-            }
-
-            if (temp.list(dotSVNFilter).length == 1) {
-                return temp.getAbsolutePath();
-            }
-        }
-
-        return "THIS WILL NEVER BE REACHED";
     }
 }
