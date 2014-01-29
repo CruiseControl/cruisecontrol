@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/.idea/out/ant-scripts/classes" />
+    <output-test url="file://$MODULE_DIR$/.idea/out/ant-scripts/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/.ant-scripts">
+      <sourceFolder url="file://$MODULE_DIR$/.ant-scripts" type="java-resource" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="inheritedJdk" />
+  </component>
+</module>
+

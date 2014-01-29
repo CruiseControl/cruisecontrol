@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Jakarta ORO">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/jakarta-oro-2.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

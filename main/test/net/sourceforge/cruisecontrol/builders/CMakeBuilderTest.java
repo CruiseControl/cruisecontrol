@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.jdom.Element;
+import org.junit.Ignore;
 
 import junit.framework.TestCase;
 

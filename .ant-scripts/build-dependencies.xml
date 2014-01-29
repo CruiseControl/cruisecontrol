@@ -112,7 +112,7 @@
     <fileset id="xerces.lib" file="${project.root}/reporting/dashboard/lib/xercesImpl-2.8.1.jar"/>
     <fileset id="xml-apis.lib" file="${project.root}/reporting/dashboard/lib/xml-apis-1.3.03.jar"/>
     <fileset id="xmlrpc.lib" file="${project.root}/main/lib/xmlrpc-2.0.1.jar"/>
-    <fileset id="xpp.lib" file="${project.root}/main/lib/xpp3_min-1.1.3.4.O.jar"/>
-    <fileset id="xstream.lib" file="${project.root}/main/lib/xstream-1.2.2.jar"/>
+    <fileset id="xpp.lib" file="${project.root}/lib/xpp3/v1.1.4c/xpp3-1.1.4c.jar"/>
+    <fileset id="xstream.lib" file="${project.root}/lib/xstream/v1.4.6/xstream-1.4.6.jar"/>
     <fileset id="xwork.lib" file="${project.root}/reporting/jsp/lib/xwork.jar"/>
 </project>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Aspirin">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/aspirin/v0.8.3/aspirin.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/aspirin/v0.8.3/aspirin-src.zip!/" />
+    </SOURCES>
+  </library>
+</component>

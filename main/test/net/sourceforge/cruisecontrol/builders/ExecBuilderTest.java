@@ -225,7 +225,8 @@ public class ExecBuilderTest extends TestCase {
         Element logout;
 
         // The variable must exist in the current environment
-        assertNotNull(env.getVariable(TEST_ENVVAR));
+        assertNotNull("Value of " + TEST_ENVVAR + " environment variable is not set (if this test fails in your IDE you need to configure your test runner to set this env var with a dummy value)",
+                env.getVariable(TEST_ENVVAR));
 
         ExecBuilder eb = new ExecBuilder();
         setEnv(eb, TEST_ENVVAR, null);

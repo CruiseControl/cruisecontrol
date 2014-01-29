@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Velocity">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/main/lib/velocity-1.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/main/lib/velocity-dep-1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
