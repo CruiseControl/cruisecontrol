@@ -39,6 +39,8 @@ package net.sourceforge.cruisecontrol.labelincrementers;
 import net.sourceforge.cruisecontrol.LabelIncrementer;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * This class provides a label incrementation for creating consistent, formatted upper
@@ -66,8 +68,14 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     private String defaultSuffix = "INT";
     private String separator = "_";
 
+    private Set<String> customSuffixes = new HashSet<String>(5);
+
     public FormattedLabelIncrementer() {
         setSeparator(separator);
+
+        customSuffixes.add(defaultSuffix);
+        customSuffixes.add("BLD");
+        customSuffixes.add("REL");
     }
 
     /**
@@ -76,6 +84,13 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
      */
     public void setSeparator(String newSeparator) {
         separator = newSeparator;
+    }
+    /**
+     * set the separtor to be use between parts of the build label, default is "_"
+     * @param newSeparator the character string to use as a separator
+     */
+    public void setSuffix(String newSuffix) {
+        customSuffixes.add(newSuffix);
     }
 
     /**
@@ -208,10 +223,12 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
             }
 
             // check for consistent suffix
-            if (suffix.equals("BLD") || suffix.equals("INT") || suffix.equals("REL")) {
+            if (customSuffixes.contains(suffix)) { //.equals("BLD") || suffix.equals("INT") || suffix.equals("REL")) {
                 Integer.parseInt(buildnum);
                 return true;
-            } else { return false; }
+            } else { 
+                return false; 
+            }
         } catch (NumberFormatException e) {
             return false;
         } catch (StringIndexOutOfBoundsException e) {
