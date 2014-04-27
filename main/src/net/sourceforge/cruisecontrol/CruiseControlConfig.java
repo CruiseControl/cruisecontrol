@@ -449,16 +449,27 @@ public class CruiseControlConfig {
         ProjectXMLHelper.parsePropertiesInElement(projectElement, thisProperties, FAIL_UPON_MISSING_PROPERTY);
 
         // Register any custom plugins
+        final ProjectXMLHelper helper = new ProjectXMLHelper(resolvers);
         final PluginRegistry projectPlugins = PluginRegistry.createRegistry(rootPlugins);
+        // First register plugins embedded in the project template, if there are such
+        final Element pparentPlugin = rootPlugins.getPluginConfig(projectElement.getName());
+        if (pparentPlugin != null) {
+            for (final Object o : pparentPlugin.getChildren("plugin")) {
+                final Element element = (Element) o;
+                projectPlugins.from2classname(element);
+
+                final PluginPlugin plugin = (PluginPlugin) helper.configurePlugin(element, false);
+                projectPlugins.register(plugin);
+            }
+        }
+
+        // Register project plugins
         for (final Object o : projectElement.getChildren("plugin")) {
             final Element element = (Element) o;
             projectPlugins.from2classname(element);
 
-            //final PluginPlugin plugin = (PluginPlugin)
-            new ProjectXMLHelper(resolvers).configurePlugin(element, false);
-            // projectPlugins.register(plugin);
-            projectPlugins.register(element);
-            // add(plugin);
+            final PluginPlugin plugin = (PluginPlugin) helper.configurePlugin(element, false);
+            projectPlugins.register(plugin);
         }
 
         projectElement.removeChildren("property");

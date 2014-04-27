@@ -77,7 +77,6 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
 
     /** Root plugin name. */
     public static final String ROOT_PLUGIN = "cruisecontrol";
-    
     private static final Logger LOG = Logger.getLogger(PluginRegistry.class);
 
     /**
@@ -146,7 +145,21 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
     public void register(final PluginPlugin plugin) throws CruiseControlException {
       final String pluginName = plugin.getName();
       final String pluginClassName = plugin.getClassname();
-      final Element transformedElement = plugin.getTransformedElement();
+      Element transformedElement = plugin.getTransformedElement();
+
+      // Resolve inheritance
+      final Attribute parentPlugin = transformedElement.getAttribute("inherits");
+      if (parentPlugin != null) {
+          // find the plugin to inherrit from
+          final Element parentConfig = this.getPluginConfig(parentPlugin.getValue());
+          if (parentConfig == null) {
+              throw new CruiseControlException("Unknown plugin '"
+                      + parentPlugin.getValue() + "' to inherit from.");
+          }
+          transformedElement = overridePluginConfig(parentPlugin.getValue(), pluginClassName, transformedElement);
+          transformedElement.removeAttribute("inherits");
+      }
+
       if (pluginClassName != null) {
         register(pluginName, pluginClassName);
       } else {
@@ -180,31 +193,30 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
               throw new CruiseControlException("Unknown plugin '"
                       + parentPlugin.getValue() + "' to inherit from.");
           }
-          
+
           Attribute pluginName = pluginElement.getAttribute("name").detach();
           Attribute pluginClass = pluginElement.getAttribute("classname");
-          
+
           if (pluginClass == null) {
               throw new CruiseControlException("Unknown plugin '"
                       + pluginName.getValue() + "'; maybe you forgot to specify a classname?");
           }
-          
+
           pluginElement = overridePluginConfig(parentPlugin.getValue(), pluginClass.getValue(), pluginElement);
           pluginElement.setAttribute(pluginName);
           pluginElement.removeAttribute(parentPlugin.getName());
       }
-      
+
       final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper(
             new ResolverHolder.DummeResolvers()).configurePlugin(pluginElement, false);
       register(plugin);
     }
 
-    
     /**
      * For plugins defining <code>from="type"</code> element, it finds the class for the
-     * given type, sets it to the <code>classname=""</code> attribute and removes the 
+     * given type, sets it to the <code>classname=""</code> attribute and removes the
      * <code>from</code> attribute.
-     * 
+     *
      * @param pluginElement the XML element with plugin configuration.
      */
     public void from2classname(Element pluginElement) {
@@ -212,7 +224,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
             LOG.warn("Node <" + pluginElement.getName() + "> is not plugin");
             return;
         }
-        
+
         String pluginName = pluginElement.getAttributeValue("name");
         String pluginFrom = pluginElement.getAttributeValue("from");
         String pluginClassName = pluginElement.getAttributeValue("classname");
@@ -220,7 +232,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
             pluginClassName = getPluginClassname(pluginFrom);
             // No standard plugin
             if (pluginClassName == null) {
-                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom 
+                LOG.warn("<plugin name = '" + pluginName + "' from = '" + pluginFrom
                        + "'> does not contain in-built element name");
                 return;
             }
@@ -230,7 +242,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
         }
     }
 
-  /**
+   /**
      * Registers the given plugin in the root registry, so it will be
      * available to all projects.
      * @param pluginElement the plugin to register
@@ -467,7 +479,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
         }
         return pluginConfig;
     }
-    
+
     /**
      * Gets an iterator for iterating over all the plugin class names in this registry and
      * its parents.
@@ -477,7 +489,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
     public Iterator<String> iterator() {
         return new PluginIterator();
     }
-    
+
     /**
      * Iterator for compositing this registry's class names with its parent's class names.
      * @author pollens
@@ -486,10 +498,10 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
 
         /** Iterator over this registry's class names. */
         private final Iterator<String> myClassNames;
-        
+
         /** Iterator over parent registry's classes. */
         private final Iterator<String> parentClassNames;
-        
+
         /**
          * Instantiates a PluginIterator for iterating over the classes in this PluginRegistry.
          */
@@ -501,12 +513,12 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
                 parentClassNames = null;
             }
         }
-        
+
         public boolean hasNext() {
             return myClassNames.hasNext()
                     || (parentClassNames != null && parentClassNames.hasNext());
         }
-        
+
         public String next() {
             // First, use up this registry's classes.
             if (myClassNames.hasNext()) {
@@ -523,6 +535,6 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
         public void remove() {
             throw new UnsupportedOperationException("Removal not supported by this iterator.");
         }
-        
+
     }
 }

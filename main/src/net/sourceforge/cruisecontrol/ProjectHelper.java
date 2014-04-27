@@ -46,4 +46,5 @@ public interface ProjectHelper extends ResolverHolder {
     Object configurePlugin(Element pluginElement, boolean skipChildElements)
             throws CruiseControlException;
 
+    Element resolveProperties(Element objectElement);
 }

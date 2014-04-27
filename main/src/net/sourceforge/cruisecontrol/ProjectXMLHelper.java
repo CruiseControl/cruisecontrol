@@ -43,6 +43,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
+
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
@@ -113,6 +114,26 @@ public class ProjectXMLHelper implements ProjectHelper {
     }
 
     /**
+     * Tries to find ${XXX} propertis on the element's attributes and if fund such, tries to
+     * replace it using the values defined for the project
+     *
+     * @param objectElement
+     * @return
+     */
+    public Element resolveProperties(final Element objectElement) {
+        for (Object o : objectElement.getAttributes()) {
+            Attribute a = (Attribute) o;
+            try {
+                final String v = Util.parsePropertiesInString(projectProperties, a.getValue(), false);
+                objectElement.setAttribute(a.getName(), v);
+            } catch (CruiseControlException e) {
+                LOG.error("exception substituting properties: " + a.getName() + " = " + a.getValue(), e);
+            }
+        }
+        return objectElement;
+    }
+
+    /**
      * Get a [partially] configured plugin instance given its plugin name.
      * @param pluginHelper xml helper
      * @param pluginName the plugin name
@@ -132,6 +153,15 @@ public class ProjectXMLHelper implements ProjectHelper {
         Object configuredPlugin = null;
         final Element pluginElement = projectPlugins.getPluginConfig(pluginName);
         if (pluginElement != null) {
+            // Check if all plugins embedded in this plugin are resolved
+            for (final Object o : pluginElement.getChildren("plugin")) {
+                final Element element = (Element) o;
+                final String name = element.getAttributeValue("name");
+                if (!projectPlugins.isPluginRegistered(name)) {
+                    throw new CruiseControlException("Unknown plugin for: <" + name + ">");
+                }
+            }
+            pluginElement.removeChildren("plugin");
             // FIXME
             // the only reason we have to do this here
             // is because the plugins registered in the ROOT registry have not had their properties parsed.

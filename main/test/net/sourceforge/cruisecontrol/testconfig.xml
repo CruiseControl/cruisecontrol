@@ -147,4 +147,44 @@
     </log>
   </project>
 
+
+  <!-- tests various ways of overriding -->
+  <plugin name='execa' from='exec' command='cA' workingdir='dA'/>
+  <plugin name='execb' from='exec' command='cB' workingdir='dB'/>
+  <plugin name='execc' from='exec' command='cC' workingdir='dC'/>
+  <plugin name='execd' from='exec' command='cD' workingdir='dD'/>
+  <plugin name='exece' from='exec' command='cE' workingdir='dE'/>
+
+  <plugin name='inherit' from='project'>
+    <plugin name='exec1' from='exec' inherits='execa' command='cX' />
+    <plugin name='exec2' from='exec' inherits='execb' />
+    <plugin name='exec3' from='exec' command='cZ' />
+
+    <schedule>
+      <exec1/>
+      <exec2/>
+      <exec3/>
+      <exec4/>
+      <exec5/>
+    </schedule>
+  </plugin>
+
+  <inherit name='inherit1'>
+    <!-- At least exec4 and exec5 must be defined -->
+    <plugin name='exec4' from='exec' command='c+' />
+    <plugin name='exec5' from='exec' inherits='exece' command='c*' />
+  </inherit>
+
+  <inherit name='inherit2'>
+    <plugin name='exec4' from='exec' command='c+' />
+    <plugin name='exec5' from='exec' inherits='exece' command='c*' />
+    <plugin name='exec3' from='exec' inherits='exec1' />
+  </inherit>
+
+  <inherit name='inherit3'>
+    <plugin name='exec5' from='exec' inherits='exece' command='c*' />
+    <plugin name='exec4' from='exec' command='c+' />
+    <plugin name='exec1' from='exec' command='foo' />
+  </inherit>
+
 </cruisecontrol>

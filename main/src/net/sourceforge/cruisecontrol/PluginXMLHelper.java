@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol;
 import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
+import org.jdom.Text;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -134,6 +135,9 @@ public class PluginXMLHelper {
         if (pluginInstance instanceof PluginPlugin) {
             ((PluginPlugin) pluginInstance).configure(objectElement);
         } else {
+            // Having all properties defined for the object, try to resolve all the unresolved
+            // properties
+            projectHelper.resolveProperties(objectElement);
             configureObject(objectElement, pluginInstance, skipChildElements);
         }
         return pluginInstance;
@@ -170,54 +174,76 @@ public class PluginXMLHelper {
         final Method[] methods = object.getClass().getMethods();
         for (final Method method : methods) {
             final String name = method.getName();
-            if (name.startsWith("set")) {
+            final Class[] params = method.getParameterTypes();
+            if (name.startsWith("set") && params.length == 1) {
                 setters.put(name.substring("set".length()).toLowerCase(Locale.US), method);
-            } else if (name.startsWith("create")) {
+            } else if (name.startsWith("create") && params.length == 0) {
                 creators.put(name.substring("create".length()).toLowerCase(Locale.US), method);
-            } else if (name.equals("add") && method.getParameterTypes().length == 1) {
+            } else if (name.equals("add") && params.length == 1) {
                 adders.add(method);
+            } else if (name.equals("xmltext") && params.length == 1 && Text.class.isAssignableFrom(params[0])) {
+                setters.put("XMLTEXT", method);
             }
         }
 
         setFromAttributes(objectElement, setters, object);
 
         if (!skipChildElements) {
-            for (final Object o : objectElement.getChildren()) {
-                final Element childElement = (Element) o;
-                if (creators.containsKey(childElement.getName().toLowerCase(Locale.US))) {
-                    LOG.debug("treating child with creator " + childElement.getName());
-                    try {
-                        final Method method = creators.get(childElement.getName().toLowerCase(Locale.US));
-                        final Object childObject = method.invoke(object, (Object[]) null);
-                        configureObject(childElement, childObject, false);
-                    } catch (Exception e) {
-                        throw new CruiseControlException(e.getMessage());
-                    }
-                } else {
-                    // instanciate object from element via registry
-                    final Object childObject = projectHelper.configurePlugin(childElement, false);
+//            for (final Object o : objectElement.getChildren()) {
+            for (final Object o : objectElement.getContent()) {
+                if (o instanceof Element) {
+                    final Element childElement = (Element) o;    
+                    if (creators.containsKey(childElement.getName().toLowerCase(Locale.US))) {
+                        LOG.debug("treating child with creator " + childElement.getName());
+                        try {
+                            final Method method = creators.get(childElement.getName().toLowerCase(Locale.US));
+                            final Object childObject = method.invoke(object, (Object[]) null);
+                            configureObject(childElement, childObject, false);
+                        } catch (Exception e) {
+                            throw new CruiseControlException(e.getMessage());
+                        }
+                    } else {
+                        // instanciate object from element via registry
+                        final Object childObject = projectHelper.configurePlugin(childElement, false);
 
-                    Method adder = null;
-                    // iterate over adders to find one that will take the object
-                    for (final Method method : adders) {
-                        final Class< ? > type = method.getParameterTypes()[0];
-                        if (type.isAssignableFrom(childObject.getClass())) {
-                            adder = method;
-                            break;
+                        Method adder = null;
+                        // iterate over adders to find one that will take the object
+                        for (final Method method : adders) {
+                            final Class< ? > type = method.getParameterTypes()[0];
+                            if (type.isAssignableFrom(childObject.getClass())) {
+                                adder = method;
+                                break;
+                            }
+                        }
+
+                        if (adder != null) {
+                            try {
+                                LOG.debug("treating child with adder " + childElement.getName() + " adding "
+                                    + childObject);
+                                adder.invoke(object, childObject);
+                            } catch (Exception e) {
+                                LOG.fatal("Error configuring plugin.", e);
+                            }
+                        } else {
+                                throw new CruiseControlException("Nested element: '" + childElement.getName()
+                                    + "' is not supported for the <" + objectElement.getName() + "> tag.");
                         }
                     }
-
-                    if (adder != null) {
+                    continue;
+                }
+                if (o instanceof Text) {
+                    final Method setter = setters.get("XMLTEXT");
+                    if (setter != null) {
+                        LOG.debug("Setting text content of XML node" + objectElement.getName());
                         try {
-                            LOG.debug("treating child with adder " + childElement.getName() + " adding " + childObject);
-                            adder.invoke(object, childObject);
+                            setter.invoke(object, o);
                         } catch (Exception e) {
                             LOG.fatal("Error configuring plugin.", e);
                         }
-                    } else {
-                        throw new CruiseControlException("Nested element: '" + childElement.getName()
-                                + "' is not supported for the <" + objectElement.getName() + "> tag.");
+//                    } else {
+//                        LOG.warn("Couldn't set content of XML node - method not defined");
                     }
+                    continue;
                 }
             }
         }

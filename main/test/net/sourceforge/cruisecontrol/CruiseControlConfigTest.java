@@ -47,6 +47,7 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.builders.ExecBuilder;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
@@ -195,7 +196,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(15, config.getProjectNames().size());
+        assertEquals(18, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
@@ -333,6 +334,77 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("notshadowing", nested.getString());
         assertEquals(null, nested.getOtherString());
         assertEquals("otherother", ((ListenerTestOtherNestedPlugin) nested).getOtherOtherString());
+    }
+
+    public void testPluginConfigurationInherit() throws Exception {
+        ExecBuilder builder = new ExecBuilder();
+        // Get the working directory when not explicitly set
+        builder.setCommand("foo");
+        builder.validate();
+        final String wdir = builder.getWorkingDir();
+
+        // project override1
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("inherit1");
+        List builders = projConfig.getSchedule().getBuilders();
+        assertEquals(5, builders.size());
+
+        builder = (ExecBuilder)builders.get(0);
+        assertEquals("cX", builder.getCommand());
+        assertEquals("dA", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(1);
+        assertEquals("cB", builder.getCommand());
+        assertEquals("dB", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(2);
+        assertEquals("cZ", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(3);
+        assertEquals("c+", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(4);
+        assertEquals("c*", builder.getCommand());
+        assertEquals("dE", builder.getWorkingDir());
+
+        // project override2
+        projConfig = (ProjectConfig) config.getProject("inherit2");
+        builders = projConfig.getSchedule().getBuilders();
+        assertEquals(5, builders.size());
+
+        builder = (ExecBuilder)builders.get(0);
+        assertEquals("cX", builder.getCommand());
+        assertEquals("dA", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(1);
+        assertEquals("cB", builder.getCommand());
+        assertEquals("dB", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(2);
+        assertEquals("cX", builder.getCommand());
+        assertEquals("dA", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(3);
+        assertEquals("c+", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(4);
+        assertEquals("c*", builder.getCommand());
+        assertEquals("dE", builder.getWorkingDir());
+
+        // project override1
+        projConfig = (ProjectConfig) config.getProject("inherit3");
+        builders = projConfig.getSchedule().getBuilders();
+        assertEquals(5, builders.size());
+
+        builder = (ExecBuilder)builders.get(0);
+        assertEquals("foo", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(1);
+        assertEquals("cB", builder.getCommand());
+        assertEquals("dB", builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(2);
+        assertEquals("cZ", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(3);
+        assertEquals("c+", builder.getCommand());
+        assertEquals(wdir, builder.getWorkingDir());
+        builder = (ExecBuilder)builders.get(4);
+        assertEquals("c*", builder.getCommand());
+        assertEquals("dE", builder.getWorkingDir());
     }
 
     // TODO DateFormat management was moved to Project.init()
