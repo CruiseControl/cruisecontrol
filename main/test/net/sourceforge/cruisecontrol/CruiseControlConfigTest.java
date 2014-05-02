@@ -47,6 +47,7 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.BuildQueueTest.TestListener;
 import net.sourceforge.cruisecontrol.builders.ExecBuilder;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
@@ -258,6 +259,21 @@ public class CruiseControlConfigTest extends TestCase {
         String targetProject = "propsinpropsdef";
         String expectedPropertyValue = new OSEnvironment().getVariableIgnoreCase("PATH");
         assertPropertyValue(targetProject, expectedPropertyValue);
+    }
+
+    // test that we are capable of resolving properties redefined in various ways
+    public void testPropertiesRedefine() throws Exception {
+        final ProjectConfig projConfig = (ProjectConfig) config.getProject("inherit1");
+        final List listeners = projConfig.getListeners();
+
+        final ListenerTestPlugin listener0 = (ListenerTestPlugin) listeners.get(0);
+        assertEquals("newval", listener0.getString());
+
+        final ListenerTestPlugin listener1 = (ListenerTestPlugin) listeners.get(1);
+        assertEquals("filled", listener1.getString());
+
+        final ListenerTestPlugin listener2 = (ListenerTestPlugin) listeners.get(2);
+        assertEquals("filled_locval", listener2.getString());
     }
 
     // TODO backport
