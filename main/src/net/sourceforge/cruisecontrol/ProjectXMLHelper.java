@@ -121,7 +121,7 @@ public class ProjectXMLHelper implements ProjectHelper {
      * @return
      */
     public Element resolveProperties(final Element objectElement) {
-        for (Object o : objectElement.getAttributes()) {
+        for (Object o : objectElement.getAttributes().toArray()) {
             Attribute a = (Attribute) o;
             try {
                 final String v = Util.parsePropertiesInString(projectProperties, a.getValue(), false);
