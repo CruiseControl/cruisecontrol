@@ -407,16 +407,6 @@ public class CruiseControlConfig {
         LOG.debug("Setting property \"project.name\" to \"" + projectName + "\".");
         nonFullyResolvedProjectProperties.put("project.name", projectName);
 
-        // handle project templates properties
-        final List projectTemplateProperties = templatePluginProperties.get(projectElement.getName());
-        if (projectTemplateProperties != null) {
-            for (final Object projectTemplateProperty : projectTemplateProperties) {
-                final Element element = (Element) projectTemplateProperty;
-                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element,
-                        resolvers, FAIL_UPON_MISSING_PROPERTY);
-            }
-        }
-
         // Register any project specific properties
         for (final Object o : projectElement.getChildren("property")) {
             final Element propertyElement = (Element) o;
@@ -433,6 +423,16 @@ public class CruiseControlConfig {
             if (isCustomPropertiesPlugin(nodeName)) {
                 ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties, childElement,
                     resolvers, FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
+            }
+        }
+
+        // handle project templates properties
+        final List projectTemplateProperties = templatePluginProperties.get(projectElement.getName());
+        if (projectTemplateProperties != null) {
+            for (final Object projectTemplateProperty : projectTemplateProperties) {
+                final Element element = (Element) projectTemplateProperty;
+                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, (Element) element.clone(),
+                        resolvers, FAIL_UPON_MISSING_PROPERTY);
             }
         }
 

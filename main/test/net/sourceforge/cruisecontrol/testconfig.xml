@@ -169,17 +169,20 @@
       <exec4/>
       <exec5/>
     </schedule>
-    
-    <property name="prop1" value="${global}"/>
-    <property name="prop2" value="${to.fill}"/>
-    <property name="prop3" value="${glob.templ}"/>
+
+    <property name="prop1" value="${global}"/>  <!-- filled by global property, cannot be overriden -->
+    <property name="prop3" value="${glob.templ}"/> <!-- filled by global property, but with missing item -->
+    <property name="prop2" value="${local}"/> <!-- filled by project-specific property -->
 
     <plugin name='testlistener' classname='net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin' />
     <listeners>
       <testlistener string='${prop1}'/> <!-- Uses property with value resolved later -->
       <testlistener string='${prop2}'/>
       <testlistener string='${prop3}'/>
+      <testlistener string='${fitem}'/> <!-- In test.properties file -->
     </listeners>
+
+    <property file="${test.properties.dir}/${prop2}.properties" />
   </plugin>
 
   <inherit name='inherit1'>
@@ -187,9 +190,8 @@
     <plugin name='exec4' from='exec' command='c+' />
     <plugin name='exec5' from='exec' inherits='exece' command='c*' />
 
-    <property name="prop1"   value="newval"/>
-    <property name="local"   value="locval"/>
-    <property name="to.fill" value="filled"/>
+    <property name="prop1"   value="override"/> <!-- has no effect, already filled in template -->
+    <property name="local"   value="test"/>
   </inherit>
 
   <inherit name='inherit2'>
@@ -197,13 +199,20 @@
     <plugin name='exec5' from='exec' inherits='exece' command='c*' />
     <plugin name='exec3' from='exec' inherits='exec1' />
 
-    <property name="glob.templ" value="newlob"/>
+    <property file="${test.properties.dir}/test.properties" />
+    <property name="fitem" value="${tempdir}" />
+
+    <!-- Just to prevent "${prop2}.properties file not found" when read in plugin definition -->  
+    <property name="local"   value="empty"/>
   </inherit>
 
   <inherit name='inherit3'>
     <plugin name='exec5' from='exec' inherits='exece' command='c*' />
     <plugin name='exec4' from='exec' command='c+' />
     <plugin name='exec1' from='exec' command='foo' />
+
+    <!-- Just to prevent "${prop2}.properties file not found" when read in plugin definition -->  
+    <property name="local"   value="empty"/>
   </inherit>
 
 </cruisecontrol>

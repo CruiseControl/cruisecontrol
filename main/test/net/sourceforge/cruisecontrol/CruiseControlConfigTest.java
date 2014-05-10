@@ -263,17 +263,37 @@ public class CruiseControlConfigTest extends TestCase {
 
     // test that we are capable of resolving properties redefined in various ways
     public void testPropertiesRedefine() throws Exception {
-        final ProjectConfig projConfig = (ProjectConfig) config.getProject("inherit1");
-        final List listeners = projConfig.getListeners();
+        ListenerTestPlugin listener;
+        ProjectConfig projConfig = (ProjectConfig) config.getProject("inherit1");
+        List<Listener> listeners = projConfig.getListeners();
 
-        final ListenerTestPlugin listener0 = (ListenerTestPlugin) listeners.get(0);
-        assertEquals("newval", listener0.getString());
+        listener = (ListenerTestPlugin) listeners.get(0);
+        assertEquals("works!", listener.getString());
 
-        final ListenerTestPlugin listener1 = (ListenerTestPlugin) listeners.get(1);
-        assertEquals("filled", listener1.getString());
+        listener = (ListenerTestPlugin) listeners.get(1);
+        assertEquals("test", listener.getString());
 
-        final ListenerTestPlugin listener2 = (ListenerTestPlugin) listeners.get(2);
-        assertEquals("filled_locval", listener2.getString());
+        listener = (ListenerTestPlugin) listeners.get(2);
+        assertEquals("filled_test", listener.getString());
+
+        listener = (ListenerTestPlugin) listeners.get(3);
+        assertEquals("value", listener.getString());
+
+
+        projConfig = (ProjectConfig) config.getProject("inherit2");
+        listeners = projConfig.getListeners();
+
+        listener = (ListenerTestPlugin) listeners.get(0);
+        assertEquals("works!", listener.getString());
+
+        listener = (ListenerTestPlugin) listeners.get(1);
+        assertEquals("empty", listener.getString());
+
+        listener = (ListenerTestPlugin) listeners.get(2);
+        assertEquals("filled_empty", listener.getString());
+
+        listener = (ListenerTestPlugin) listeners.get(3);
+        assertEquals("temp", listener.getString());
     }
 
     // TODO backport
