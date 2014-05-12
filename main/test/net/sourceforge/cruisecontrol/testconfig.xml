@@ -3,6 +3,10 @@
   <property name='global' value='works!'/>
   <property name='project.global' value='project=${project.name}'/>
 
+  <!-- Check for infinite recursion  properties catch -->
+  <property name='recursive1' value='${recursive2}'/>
+  <property name='recursive2' value='${recursive1}'/>
+
   <plugin name='testnested'
           classname='net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin'
           string='default' otherstring='otherdefault'/>
@@ -10,7 +14,7 @@
   <plugin name='mock.project'
           classname='net.sourceforge.cruisecontrol.MockProjectInterface'>
   </plugin>
-  
+
   <plugin name='project'>
     <property name='x' value='y'/>
     <schedule interval='20' >
@@ -106,7 +110,7 @@
     <property name='simple' value='success!'/>
     <foo name="${simple}" />
   </mock.project>
-  
+
   <mock.project name='simple.global'>
     <foo name="${global}" />  
   </mock.project>
@@ -214,5 +218,39 @@
     <!-- Just to prevent "${prop2}.properties file not found" when read in plugin definition -->  
     <property name="local"   value="empty"/>
   </inherit>
+
+
+  <plugin name='mock.custom.prop'
+          classname='net.sourceforge.cruisecontrol.MockCustomProperties'>
+  </plugin>
+
+  <plugin name='mock.project.props1'
+          classname='net.sourceforge.cruisecontrol.MockProjectInterface'>
+    <property file='${test.properties.dir}/test.properties' />
+    <mock.custom.prop text="${mock.prop}"/>    <!-- mock.prop must be defined in a project -->
+    <foo name="${mockkey_${mock.prop}}" />
+  </plugin>
+  <plugin name='mock.project.props2'
+          classname='net.sourceforge.cruisecontrol.MockProjectInterface'>
+    <mock.custom.prop text="${project.name}"/> <!-- defined automatically -->
+    <foo name="${mockkey_${project.name}}" />
+  </plugin>
+
+  <mock.project.props1 name='customprops1' >
+    <property file='${test.properties.dir}/test.properties' />
+    <property name="mock.prop" value="${fitem}"/>
+  </mock.project.props1>
+
+  <mock.project.props2 name='customprops2' >
+  </mock.project.props2>
+
+  <mock.project.props1 name='customprops3' >
+    <property name="mock.prop" value="${tempdir}"/> <!-- will be resolved from file -->
+  </mock.project.props1>
+
+  <mock.project name='customprops4' >
+    <mock.custom.prop text="justval"/>
+    <foo name="${mockkey_justval}" />
+  </mock.project>
 
 </cruisecontrol>

@@ -292,13 +292,27 @@ public class CruiseControlConfig {
 
     private void handleNodeProperties(final Element pluginElement, final String pluginName) {
         final List<Object> properties = new ArrayList<Object>();
-        for (final Object o : pluginElement.getChildren("property")) {
-            properties.add(o);
+        final Set<String> propnodes = new HashSet<String>();
+
+        for (final Object o : pluginElement.getChildren()) {
+            final Element childElement = (Element) o;
+            final String childName = childElement.getName();
+            try {
+                if ("property".equals(childName) || isCustomPropertiesPlugin(childName)) {
+                    properties.add(o);
+                    propnodes.add(childName);
+                }
+            } catch (CruiseControlException e) {
+                LOG.error("Unable to register property " + childElement.getName(), e);
+            }
         }
         if (properties.size() > 0) {
             templatePluginProperties.put(pluginName, properties);
         }
-        pluginElement.removeChildren("property");
+        // Remove the nodes from the element
+        for (String name : propnodes) {
+            pluginElement.removeChildren(name);
+        }
     }
 
     private void handleRootProperty(final Element childElement) throws CruiseControlException {
@@ -414,7 +428,7 @@ public class CruiseControlConfig {
                     resolvers, FAIL_UPON_MISSING_PROPERTY);
         }
         // And custom properties plugins
-        for (final Object o : projectElement.getChildren()) {
+        for (final Object o : projectElement.getChildren().toArray()) {
             final Element childElement = (Element) o;
             final String nodeName = childElement.getName();
             if (KNOWN_ROOT_CHILD_NAMES.contains(nodeName)) {
@@ -423,6 +437,7 @@ public class CruiseControlConfig {
             if (isCustomPropertiesPlugin(nodeName)) {
                 ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties, childElement,
                     resolvers, FAIL_UPON_MISSING_PROPERTY, PluginRegistry.createRegistry(rootPlugins));
+                projectElement.removeContent(childElement);
             }
         }
 
@@ -431,8 +446,14 @@ public class CruiseControlConfig {
         if (projectTemplateProperties != null) {
             for (final Object projectTemplateProperty : projectTemplateProperties) {
                 final Element element = (Element) projectTemplateProperty;
-                ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, (Element) element.clone(),
-                        resolvers, FAIL_UPON_MISSING_PROPERTY);
+                if (isCustomPropertiesPlugin(element.getName())) {
+                    ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties,
+                            (Element) element.clone(), resolvers, FAIL_UPON_MISSING_PROPERTY,
+                            PluginRegistry.createRegistry(rootPlugins));
+                } else {
+                    ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, (Element) element.clone(),
+                            resolvers, FAIL_UPON_MISSING_PROPERTY);
+                }
             }
         }
 

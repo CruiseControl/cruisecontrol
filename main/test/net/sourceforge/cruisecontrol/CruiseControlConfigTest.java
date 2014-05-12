@@ -197,7 +197,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(18, config.getProjectNames().size());
+        assertEquals(22, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
@@ -279,7 +279,6 @@ public class CruiseControlConfigTest extends TestCase {
         listener = (ListenerTestPlugin) listeners.get(3);
         assertEquals("value", listener.getString());
 
-
         projConfig = (ProjectConfig) config.getProject("inherit2");
         listeners = projConfig.getListeners();
 
@@ -296,6 +295,27 @@ public class CruiseControlConfigTest extends TestCase {
         assertEquals("temp", listener.getString());
     }
 
+    // test that we are capable of resolving properties redefined in various ways
+    public void testCustomProperties() throws Exception {
+        MockProjectInterface projConfig;
+        MockProjectInterface.Foo foo;
+
+        projConfig = (MockProjectInterface) config.getProject("customprops1");
+        foo = projConfig.getFoo();
+        assertEquals("mockval_value", foo.getName());
+
+        projConfig = (MockProjectInterface) config.getProject("customprops2");
+        foo = projConfig.getFoo();
+        assertEquals("mockval_customprops2", foo.getName());
+
+        projConfig = (MockProjectInterface) config.getProject("customprops3");
+        foo = projConfig.getFoo();
+        assertEquals("mockval_temp", foo.getName());
+
+        projConfig = (MockProjectInterface) config.getProject("customprops4");
+        foo = projConfig.getFoo();
+        assertEquals("mockval_justval", foo.getName());
+    }
     // TODO backport
     /*
     public void testMissingProperty() {
