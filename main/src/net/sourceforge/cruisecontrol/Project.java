@@ -36,6 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -58,6 +59,8 @@ import net.sourceforge.cruisecontrol.jmx.ProjectController;
 import net.sourceforge.cruisecontrol.listeners.ProjectStateChangedEvent;
 import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -67,7 +70,7 @@ import org.jdom.Element;
  * be built.  Project is associated with bootstrappers that run before builds
  * and a Schedule that determines when builds occur.
  */
-public class Project implements Serializable, Runnable {
+public class Project implements Serializable, Runnable, ProjectQuery {
     private static final long serialVersionUID = 2656877748476842326L;
     private static final Logger LOG = Logger.getLogger(Project.class);
 
@@ -965,4 +968,75 @@ public class Project implements Serializable, Runnable {
     public String[] getLogLabelLines(final String logLabel, final int firstLine) {
         return projectConfig.getLogLabelLines(logLabel, firstLine);
     }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return projectConfig.getProperties();
+    }
+
+    @Override
+    public List<Modification> modificationsSinceLastBuild() {
+        final ModificationSet modificationSet = projectConfig.getModificationSet();
+
+        info("Getting changes since last successful build");
+        modificationSet.retrieveModificationsAsElement(lastSuccessfulBuild, progress);
+        return modificationSet.getCurrentModifications();
+    }
+
+    @Override
+    public List<Modification> modificationsSince(final Date since) {
+        final List<Modification> modifications = new ArrayList<Modification>();
+        final String logDirectory = getLog().getLogDir();
+        final List<String> logs = getLog().getLogLabels();
+
+        // The log directory was not set, print warning and return empty list
+        if (logDirectory == null) {
+            LOG.warn("Unable to get modificatiosn since " + since + " as the project[" + getName()
+                    + "] has no <log /> configured");
+            return modifications;
+        }
+
+        // Read all the build-successful log files since the given time
+        try {
+            for (final String logName : logs) {
+                // Skip those not successful and those too old
+                if (!Log.wasSuccessfulBuild(logName) || Log.parseDateFromLogFileName(logName).before(since)) {
+                    continue;
+                }
+                // Read the XML
+                final Element logData = Util.loadRootElement(new File(logDirectory, logName));
+                final XMLLogHelper logElem = new XMLLogHelper(logData);
+                modifications.addAll(logElem.getModifications());
+            }
+        } catch (Exception e) {
+            LOG.error("Error checking for modifications", e);
+        }
+
+        return modifications;
+    }
+
+    @Override
+    public Date successLastBuild() {
+        return buildCounter == 0 ? new Date(0) : lastSuccessfulBuild;
+    }
+
+    @Override
+    public String successLastLabel() {
+        return buildCounter == 0 ? "" : label;
+    }
+
+    @Override
+    public String successLastLog() {
+        final List<String> labels = getLogLabels();
+        final String latest = successLastLabel();
+
+        for (String l : labels) {
+             if (latest.equals(Log.parseLabelFromLogFileName(l))) {
+                 return l;
+             }
+        }
+        // Not build yet
+        return "";
+    }
+
 }

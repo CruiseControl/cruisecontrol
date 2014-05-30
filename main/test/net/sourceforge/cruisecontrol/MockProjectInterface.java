@@ -3,8 +3,16 @@
  */
 package net.sourceforge.cruisecontrol;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import javax.management.JMException;
 import javax.management.MBeanServer;
+
+import net.sourceforge.cruisecontrol.util.DateUtil;
 
 public class MockProjectInterface implements ProjectInterface {
 
@@ -64,5 +72,32 @@ public class MockProjectInterface implements ProjectInterface {
             return name;
         }
     }
-    
+
+    public Map<String, String> getProperties() {
+        return Collections.EMPTY_MAP;
+    }
+
+    public List<Modification> modificationsSinceLastBuild() {
+        return Collections.EMPTY_LIST;
+    }
+
+    public Date successLastBuild() {
+        return DateUtil.getMidnight();
+    }
+
+    public String getLogDir() {
+        return null;
+    }
+
+    public List<Modification> modificationsSince(Date since) {
+        return Collections.EMPTY_LIST;
+    }
+
+    public String successLastLabel() {
+        return "";
+    }
+
+    public String successLastLog() {
+        return "";
+    }
 }

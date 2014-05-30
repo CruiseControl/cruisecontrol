@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
-public interface ProjectInterface extends Serializable {
+public interface ProjectInterface extends Serializable, ProjectQuery {
 
     String getName();
 

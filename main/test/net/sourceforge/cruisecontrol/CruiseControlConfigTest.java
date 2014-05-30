@@ -39,8 +39,12 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.JMException;
@@ -184,6 +188,33 @@ public class CruiseControlConfigTest extends TestCase {
         public void validate() throws CruiseControlException {
         }
 
+        public Map<String, String> getProperties() {
+            return null;
+        }
+
+        public List<Modification> modificationsSinceLastBuild() {
+            return null;
+        }
+
+        public Date successLastBuild() {
+            return null;
+        }
+
+        public List<Modification> modificationsSince(Date since) {
+            return null;
+        }
+
+        public String getLogDir() {
+            return null;
+        }
+
+        public String successLastLabel() {
+            return null;
+        }
+
+        public String successLastLog() {
+            return null;
+        }
     }
 
     public void testProjectNamesShouldMatchOrderInFile() {
@@ -278,6 +309,7 @@ public class CruiseControlConfigTest extends TestCase {
 
         listener = (ListenerTestPlugin) listeners.get(3);
         assertEquals("value", listener.getString());
+
 
         projConfig = (ProjectConfig) config.getProject("inherit2");
         listeners = projConfig.getListeners();

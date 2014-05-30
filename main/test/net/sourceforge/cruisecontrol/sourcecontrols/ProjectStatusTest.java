@@ -1,0 +1,1 @@
+/home/dtihelka/Pokusy/CruiseControl/main/test/net/sourceforge/cruisecontrol/sourcecontrols/ProjectStatusTest.java

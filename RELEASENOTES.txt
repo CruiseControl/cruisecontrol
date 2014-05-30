@@ -36,6 +36,11 @@ EmailPublisher
 ----------------------
 * Include label in subject of build failure email (CC-1022). Patch by Quinn Styl.
 
+ProjectStatus
+----------------------
+* New SourceControl module designed as the combination of <buildstatus/> (i.e. triggers when the depending project is built with success) and <veto /> (cancels the build when the depending project has modifications not built yet)
+
+
 Dashboard
 ======================
 * Fix build error in Dashboard on MacOSX due to java.io.tempdir name when converted to URI. (CC-976)

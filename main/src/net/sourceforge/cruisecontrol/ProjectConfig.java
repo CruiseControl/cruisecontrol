@@ -42,7 +42,9 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -523,5 +525,33 @@ public class ProjectConfig implements ProjectInterface {
 
     public String[] getLogLabelLines(final String logLabel, final int firstLine) {
         return log.getLogLabelLines(logLabel, firstLine);
+    }
+
+    public Map<String, String> getProperties() {
+        return project.getProperties();
+    }
+
+    public List<Modification> modificationsSinceLastBuild() {
+        return project.modificationsSinceLastBuild();
+    }
+
+    public List<Modification> modificationsSince(Date since) {
+        return project.modificationsSince(since);
+    }
+
+    public Date successLastBuild() {
+        return project.successLastBuild();
+    }
+
+    public String getLogDir() {
+        return log.getLogDir();
+    }
+
+    public String successLastLabel() {
+        return project.successLastLabel();
+    }
+
+    public String successLastLog() {
+        return project.successLastLog();
     }
 }

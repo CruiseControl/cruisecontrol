@@ -42,6 +42,7 @@ import net.sourceforge.cruisecontrol.util.IO;
 import org.jdom.Document;
 import org.jdom.Element;
 
+import java.io.IOException;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -53,11 +54,41 @@ import java.util.Vector;
 public final class TestUtil {
     public static class FilesToDelete {
         private final List<File> files = new Vector<File>();
-    
+
         public void add(File file) {
-            files.add(file);
+             files.add(file);
         }
-    
+
+        public File add(String file) throws IOException {
+            return add(file, null);
+        }
+
+        /**
+         * Creates an empty file in the default temporary-file directory, using the name
+         * of the object's class as the prefix. Automatically adds the name into the list of files
+         * hold by the class.
+         * @param obj the calling class (used to get its name as temporary file pattern)
+         * @return a new temp file
+         * @throws IOException when the file cannot be created
+         */
+        public File add(Object obj) throws IOException {
+            return add(obj.getClass().getName(), null);
+        }
+        /**
+         * Creates an empty file in the default temporary-file directory, using the given prefix
+         * and suffix to generate its name. Automatically adds the name into the list of files
+         * hold by the class.
+         * @param prefix the prefix string passed to {@link File.createTempFile(String, String)}
+         * @param suffix the suffix string passed to {@link File.createTempFile(String, String)}
+         * @return a new file
+         * @throws IOException when the file cannot be created
+         */
+        public File add(String prefix, String suffix) throws IOException {
+            final File file = File.createTempFile(prefix, suffix);
+            add(file);
+            return file;
+        }
+
         public void delete() {
             for (File file : files) {
                 IO.delete(file);

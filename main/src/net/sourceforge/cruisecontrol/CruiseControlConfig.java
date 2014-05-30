@@ -74,6 +74,7 @@ public class CruiseControlConfig {
 
     public static final boolean FAIL_UPON_MISSING_PROPERTY = false;
 
+    private static final Map<String, ProjectQuery> PROJECTS_REGISTRY = new HashMap<String, ProjectQuery>();
     private static final Set<String> KNOWN_ROOT_CHILD_NAMES = new HashSet<String>();
     static {
         KNOWN_ROOT_CHILD_NAMES.add("include.projects");
@@ -97,6 +98,22 @@ public class CruiseControlConfig {
     private final ResolverHolder resolvers;
 
     private SystemPlugin system;
+
+    /**
+     * Returns the interface through which the state of a project of the given name can be queries.
+     * @param name the name of project to be found
+     * @return the instance of ProjectChecker for the given name
+     * @throws CruiseControlException if no such project is registered
+     * @note the method must be static in order to be accessible from objects not holding reference to the
+     * {@link CruiseControlConfig}. It is partially duplication of {@link #getProject(String)} method.
+     */
+    public static ProjectQuery findProject(final String name) throws CruiseControlException {
+        if (PROJECTS_REGISTRY.containsKey(name)) {
+            return PROJECTS_REGISTRY.get(name);
+        }
+        // No such project
+        throw new CruiseControlException("No project named '" + name + "'");
+    }
 
     public int getMaxNbThreads() {
         if (system != null) {
@@ -342,7 +359,9 @@ public class CruiseControlConfig {
                 final String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
                 LOG.error(message);
             }
-            projects.put(name, includedConfig.getProject(name));
+            final ProjectInterface projobj = includedConfig.getProject(name); 
+            projects.put(name, projobj);
+            PROJECTS_REGISTRY.put(name, projobj);
         }
     }
 
@@ -513,6 +532,7 @@ public class CruiseControlConfig {
         LOG.debug("**************** end configuring project " + projectName + " *******************");
 
         this.projects.put(projectName, project);
+        this.PROJECTS_REGISTRY.put(projectName, project);
         this.projectPluginRegistries.put(projectName, projectPlugins);
     }
 
