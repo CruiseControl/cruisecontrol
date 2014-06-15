@@ -26,6 +26,11 @@ Plugin
 * Adds from="" attribute simplifying the pre-configuration of plugins for the default CC tags
 * Adds inherits="" attribute allowing to create simple hierarchical structure of plugins configuration
 
+WriterBuilder
+----------------------
+* New builder which can write mesages to a file added. Written by Tomas Ausberger + Daniel Tihelka
+  It is similar to ent's echo task, but it can be used in projects which do not rely on ant
+
 PipedExecBuilder
 ----------------------
 * Fix memory usage and logging volume issues with PipedExecBuilder (CC-991). Patch by Daniel Tihelka.
