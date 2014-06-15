@@ -5,12 +5,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -180,14 +180,52 @@ public final class IO {
             if (f.getParentFile() != null) {
                 f.getParentFile().mkdirs();
             }
-            final FileWriter fw = new FileWriter(f);
-            try {
-                fw.write(contents);
-            } finally {
-                close(fw);
-            }
+            write(new FileOutputStream(f), contents);
+
         } catch (IOException ioe) {
             throw new CruiseControlException("Error writing file: " + f.getAbsolutePath(), ioe);
+        }
+    }
+    /**
+     * Write the content to the file in the given encoding.
+     * @param f to create
+     * @param content to write to the file
+     * @param charset the encoding in which to write the content
+     * @throws CruiseControlException if something breaks
+     */
+    public static void write(final File f, final String content, final String charset)
+            throws CruiseControlException {
+        try {
+            write(f, "");
+            write(new PrintWriter(f, charset), content);
+        } catch (IOException exc) {
+            throw new CruiseControlException("Error writing file: " + f.getAbsolutePath()
+                    + " in encoding " + charset, exc);
+        }
+    }
+
+    /**
+     * Write the content to the stream.
+     * @param output the stream to write
+     * @param content to write to the file
+     * @throws CruiseControlException if something breaks
+     */
+    public static void write(final OutputStream output, final String content) throws CruiseControlException {
+        write(new PrintWriter(output), content);
+    }
+
+    /**
+     * Write the content to the writer.
+     * @param output the writer to write to
+     * @param content to write to the writer
+     * @throws CruiseControlException if something breaks
+     */
+    public static void write(final Writer output, final String content) throws CruiseControlException {
+        PrintWriter p = new PrintWriter(output);
+        try {
+            p.write(content);
+        } finally {
+            close(p);
         }
     }
 
