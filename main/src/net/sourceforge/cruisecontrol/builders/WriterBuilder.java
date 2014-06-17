@@ -271,7 +271,7 @@ public class WriterBuilder extends Builder {
 
     /** @return value set by {@link #setWorkingDir(String)} */
     public String getWorkingDir() {
-        return workingDir.getAbsolutePath();
+        return workingDir != null ? workingDir.getAbsolutePath() : null;
     }
 
     /**
