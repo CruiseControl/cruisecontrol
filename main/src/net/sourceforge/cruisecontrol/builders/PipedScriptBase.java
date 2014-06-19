@@ -48,35 +48,35 @@ public abstract class PipedScriptBase implements PipedScript {
     private transient Progress progress = null;
     /** The parent element into with the build log (created by {@link #build()} method) is stored. */
     private transient Element buildLogParent;
-    
-   
+
+
     /**
      * Execute the script and return the results as XML. The script may optionally be fed up
      * by data read from input, and its STDOUT may optionally be stored in for later use.
-     * 
+     *
      * Use the variables/methods of the object to get the required data. The method is called
      * from {@link #run()}.
-     *   
+     *
      * @return the XML element with the script run information.
      * @throws CruiseControlException when the build fails
      */
-    protected abstract Element build() throws CruiseControlException;    
+    protected abstract Element build() throws CruiseControlException;
 
     /**
      * @return the instance of Logger
      */
     protected abstract Logger log(); 
-    
+
     /** The implementation of {@link PipedScript#validate()}, it checks if all the required
      *  items are set. 
      *  Do not forget to call this method in the overridden classes!
-     *  
+     *
      *  @throws CruiseControlException if the validation fails */
     @Override
     public void validate() throws CruiseControlException {
         ValidationHelper.assertIsSet(id, "ID", getClass());
     }
-    
+
     /** The implementation of {@link PipedScript#initialize()}. Do not forget to call this method
      *  in the overridden classes!
      */
@@ -98,8 +98,11 @@ public abstract class PipedScriptBase implements PipedScript {
         // No done from now on
         this.isDone = false;
     }
-    
-    // TODO: co vola v jakem poradi
+
+    /**
+     * Main build caller. It calls {@link #build()} implementation and then cleares
+     * both pipe streams and sets {@link #isDone} to return <code>true</code>
+     */
     @Override
     public final void run() {
         try {
@@ -114,8 +117,7 @@ public abstract class PipedScriptBase implements PipedScript {
             }
             log().info("Script ID '" + this.getID() + "' finished");
 
-        } catch (CruiseControlException e) {
-            // TODO Auto-generated catch block
+        } catch (Throwable e) {
             log().error("Script ID '" + this.getID() + "' failed", e);
         } finally {
             /* Close the buffer to signalize that all has been written, and clear STDIN
@@ -126,7 +128,7 @@ public abstract class PipedScriptBase implements PipedScript {
             this.isDone = true;
         }
     }
-    
+
 //    /** The implementation of {@link PipedScript#clean()}, it cleans all large-memory consuming
 //     *  objects hold. Do not forget to call this method in the overridden classes!
 //     */
@@ -252,7 +254,7 @@ public abstract class PipedScriptBase implements PipedScript {
     public Boolean getGZipStdout() {
         return this.gzip;
     }
-    
+
     @Override
     public void setBinaryOutput(boolean binary) {
         this.binary = Boolean.valueOf(binary);
@@ -260,5 +262,5 @@ public abstract class PipedScriptBase implements PipedScript {
     @Override
     public Boolean getBinaryOutput() {
         return this.binary;
-    }    
+    }
 }

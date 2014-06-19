@@ -227,7 +227,7 @@ public class WriterBuilder extends Builder {
         this.trim = strip;
     }
 
-    @Description("When set to <i>overwrite</i>, the messages arewritten to the file even when it "
+    @Description("When set to <i>overwrite</i>, the messages are written to the file even when it "
             + "does not exist, when set to <i>create</i>, new file is created but the build fails"
             + "when the file already exists, when set to <i>append</i>, the content is appended to"
             + "the existing file or new file is created if it doeas not exist")
