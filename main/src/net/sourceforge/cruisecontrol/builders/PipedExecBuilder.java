@@ -37,11 +37,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,11 +50,8 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
-import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.StdoutBuffer;
-import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
@@ -65,7 +59,6 @@ import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -117,7 +110,7 @@ public class PipedExecBuilder extends Builder {
     private String workingDir;
     /** The list of scripts to execute during build. Once the script is started, it is moved
      *  to the list of started scripts. */
-    private final LinkedList<Script> scripts = new LinkedList<Script>();
+    private final LinkedList<PipedScript> scripts = new LinkedList<PipedScript>();
 
     /**
      * Validate the attributes for the plugin.
@@ -126,45 +119,40 @@ public class PipedExecBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        Set<Script> removeIDs = new HashSet<Script>(scripts.size()); /* Scripts to be removed */
+        Set<PipedScript> removeIDs = new HashSet<PipedScript>(scripts.size()); /* Scripts to be removed */
         Set<String> uniqueIDs = new HashSet<String>(scripts.size()); /* To check unique IDs */
         Set<String> notInLoop = new HashSet<String>(scripts.size()); /* Loops detection */
 
         /*
          * Resolve repiped scripts
          */
-        for (Script s : scripts) {
+        for (PipedScript s : scripts) {
              if (s.getRepipe() == null) {
                  continue;
              }
-             /* Repipe required, cehck setting */
+
+             /* Repipe required, check setting */
              ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
-//           ValidationHelper.assertNotSet(s.getExec(), "exec", s.getClass());
-//           ValidationHelper.assertNotSet(s.getArgs(), "args", s.getClass());
              /* Repipe */
-             for (Script c : scripts) {
+             for (PipedScript c : scripts) {
                   if (c != s && s.getID().equals(c.getID())) { // ID is defined, just checked
                       c.setPipeFrom(s.getRepipe());
                   }
              }
              /* Remove the "repipe" script from the sequence */
              removeIDs.add(s);
-// TODO: REMOVE:
-LOG.info("  --> repiping  " + s.getID() + " to " + s.getRepipe());
         }
         /*
          * Remove disabled scripts
          */
-        for (Script s : scripts) {
-            if (Boolean.FALSE.equals(s.getDisable())) {
+        for (PipedScript s : scripts) {
+            if (!s.getDisable()) {
                 continue;
             }
             /* Disabled - check setting */
             ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
-//           ValidationHelper.assertNotSet(s.getExec(), "exec", s.getClass());
-//           ValidationHelper.assertNotSet(s.getArgs(), "args", s.getClass());
             /* Remove the command from the sequence */
-            for (Script c : scripts) {
+            for (PipedScript c : scripts) {
                  if (s.getID().equals(c.getID())) { // ID is defined, just checked
                      removeIDs.add(c);
                      removeIDs.addAll(findPipedSeq(c.getID(), scripts));
@@ -172,8 +160,6 @@ LOG.info("  --> repiping  " + s.getID() + " to " + s.getRepipe());
             }
             /* Remove the disabled */
             removeIDs.add(s);
-// TODO: REMOVE:
-LOG.info("  --> disabling " + s.getID());
         }
         scripts.removeAll(removeIDs);
         removeIDs.clear();
@@ -181,7 +167,7 @@ LOG.info("  --> disabling " + s.getID());
         /*
          * Check the (remaining) scripts for basic setting
          */
-        for (Script s : scripts) {
+        for (PipedScript s : scripts) {
             /* Pass config variables to the exec script, if it does not have set them. Must be done
                before s.validate(), since it sets the variables to a default value */
             if (s.getWorkingDir() == null) {
@@ -190,8 +176,8 @@ LOG.info("  --> disabling " + s.getID());
             if (s.getGZipStdout() == null) {
                 s.setGZipStdout(gzip);
             }
-            if (s.getBinaryStdout() == null) {
-                s.setBinaryStdout(binary);
+            if (s.getBinaryOutput() == null) {
+                s.setBinaryOutput(binary);
             }
             /* Let it validate itself */
             s.validate();
@@ -215,14 +201,12 @@ LOG.info("  --> disabling " + s.getID());
             /* ID must be unique */
             ValidationHelper.assertFalse(uniqueIDs.contains(s.getID()), "ID " + s.getID() + " is not unique");
             uniqueIDs.add(s.getID());
-// TODO: REMOVE:
-LOG.info("  --> will run  " + s.getID());
         }
 
         /*
          * Loops detection
          */
-        for (Script s : scripts) {
+        for (PipedScript s : scripts) {
             notInLoop = checkLoop(s, notInLoop, new HashSet<String>());
         }
     }
@@ -236,8 +220,8 @@ LOG.info("  --> will run  " + s.getID());
 
         final ThreadPool threads = new ThreadPool();
         final long startTime = System.currentTimeMillis();
-        final LinkedList<Script> tostart = new LinkedList<Script>(scripts);
-        final LinkedList<Script> started = new LinkedList<Script>();
+        final LinkedList<PipedScript> tostart = new LinkedList<PipedScript>(scripts);
+        final LinkedList<PipedScript> started = new LinkedList<PipedScript>();
 
 
         final Element buildLogElement = new Element("build");
@@ -245,11 +229,11 @@ LOG.info("  --> will run  " + s.getID());
         /* Go through the list of scripts until all were started and finished (tostart contains
          * those not started yet, started those running or not finished yet) */
         while (tostart.size() > 0 || started.size() > 0) {
-            ListIterator<Script> iter = tostart.listIterator();
+            ListIterator<PipedScript> iter = tostart.listIterator();
 
             /* Go through all scripts to start and look for those which can be started now */
             while (iter.hasNext()) {
-                Script s = iter.next();
+                PipedScript s = iter.next();
                 boolean canStart;
 
                 /* Script can start if:
@@ -268,31 +252,20 @@ LOG.info("  --> will run  " + s.getID());
                 long remainTime = this.timeout != ScriptRunner.NO_TIMEOUT
                                                ?  this.timeout - (System.currentTimeMillis() - startTime) / 1000
                                                :  Long.MAX_VALUE;
-                /* Initialize the script */
-                s.initialize();
-//                 /* Set working dir to the script, if it does not have set one, and set timeout
-//                  * if it has timeout larger than the remaining time */
-//                 if (s.getWorkingDir() == null) {
-//                     s.setWorkingDir(workingDir);
-//                 }
                 if (s.getTimeout() == ScriptRunner.NO_TIMEOUT || s.getTimeout() > remainTime) {
                     s.setTimeout(remainTime);
                 }
-//                 if (s.getGZipStdout() == null) {
-//                     s.setGZipStdout(gzip);
-//                 }
-//                 if (s.getBinaryStdout() == null) {
-//                     s.setBinaryStdout(binary);
-//                 }
                 /* And stuff for #build() method */
                 s.setBuildLogParent(buildLogElement);
                 s.setBuildProperties(buildProperties);
                 s.setProgress(progressIn);
                 /* Pipe to the required script */
                 if (s.getPipeFrom() != null) {
-                    s.setStdinProvider(findStarted(s.getPipeFrom(), started).getStdOutReader());
+                    s.setInputProvider(findStarted(s.getPipeFrom(), started).getOutputReader());
                 }
 
+                /* Initialize the script */
+                s.initialize();
                 /* Now start the script and set its thread to the pool */
                 threads.startThread(s, s.getID());
 
@@ -326,12 +299,12 @@ LOG.info("  --> will run  " + s.getID());
             /* And check if some scripts were finished */
             iter = started.listIterator();
             while (iter.hasNext()) {
-                Script s = iter.next();
+                PipedScript s = iter.next();
 
                 /* Remove the script from 'started' map when finished and not required by any
                  * other script not started yet */
                 if (s.isDone() && null == findPipedFrom(s.getID(), tostart)) {
-                    s.clean();
+                    s.initialize(); // re-init is supposed to clear the inner variables to save memory 
                     iter.remove();
                 }
             }
@@ -348,9 +321,8 @@ LOG.info("  --> will run  " + s.getID());
 
         /* Wait for all scripts to finish (they may be killed by their own timeouts) */
         threads.join();
-        /* And clear them to save memory */
-        for (Script s : scripts) {
-             s.clean();
+        for (PipedScript s : scripts) {
+             s.initialize(); // re-init is supposed to clear the inner variables to save memory
         }
 
         /* Set the time it took to exec command */
@@ -439,7 +411,6 @@ LOG.info("  --> will run  " + s.getID());
      * specified, nothing will be executed.
      *
      * @return new {@link Script} object to configure.
-     *
      */
     @Cardinality(min = 0, max = -1)
     public Object createExec() {
@@ -448,14 +419,31 @@ LOG.info("  --> will run  " + s.getID());
     } // createExec
 
     /**
+     * Adds object into the builder. It is similar to {@link #createExec()}, but allows to add any
+     * 3rd party plugin implementing the {@link PipedScript} interface.
+     *
+     * @param execobj the implementation of {@link PipedScript} interface.
+     * @throws CruiseControlException when object is not {@link PipedScript}
+     */
+    public void add(Object execobj) throws CruiseControlException {
+        /* Check the object type. No other are supported */
+        if (!(execobj instanceof PipedScript)) {
+            throw new CruiseControlException("Invalid instance of script: " + execobj.getClass().getCanonicalName());
+        }
+        /* Add the object to the array */
+        scripts.add((PipedScript) execobj);
+    } // add
+
+
+    /**
      * Finds script with the given ID in the array of scripts not started yet.
      *
      * @param id the ID of the script to look for.
      * @param tostart the list of scripts to be started.
      * @return the instance of {@link Script} or <code>null</code> if not found.
      */
-    private static Script findToStart(String id, List<Script> tostart) {
-        for (Script s : tostart) {
+    private static PipedScript findToStart(String id, List<PipedScript> tostart) {
+        for (PipedScript s : tostart) {
             if (id != null && id.equals(s.getID())) {
                 return s;
             }
@@ -471,8 +459,8 @@ LOG.info("  --> will run  " + s.getID());
      * @param scripts the list of scripts to be looked it.
      * @return the instance of {@link Script} or <code>null</code> if not found.
      */
-    private static Script findPipedFrom(String id, List<Script> scripts) {
-         for (Script s : scripts) {
+    private static PipedScript findPipedFrom(String id, List<PipedScript> scripts) {
+         for (PipedScript s : scripts) {
              if (id != null && id.equals(s.getPipeFrom())) {
                 return s;
              }
@@ -488,8 +476,8 @@ LOG.info("  --> will run  " + s.getID());
      * @param started the list of scripts which were started.
      * @return the instance of {@link Script} or <code>null</code> if not found.
      */
-    private static Script findStarted(String id, List<Script> started) {
-        for (Script s : started) {
+    private static PipedScript findStarted(String id, List<PipedScript> started) {
+        for (PipedScript s : started) {
             if (s.getID().equals(id)) {
                 return s;
             }
@@ -508,13 +496,13 @@ LOG.info("  --> will run  " + s.getID());
      * @return <code>true</code> if the script is done, <code>false</code> if it has not been
      *         started yet, still running.
      */
-    private static boolean isDone(String id, List<Script> tostart, List<Script> started) {
+    private static boolean isDone(String id, List<PipedScript> tostart, List<PipedScript> started) {
         /* Not started yet */
         if (findToStart(id, tostart) != null) {
             return false;
         }
 
-        Script script = findStarted(id, started);
+        PipedScript script = findStarted(id, started);
         /* Not among started => finished */
         if (script == null) {
             return true;
@@ -549,7 +537,7 @@ LOG.info("  --> will run  " + s.getID());
      * @return 'not-in-loop' set with the ID of current script added when it is not in a loop
      * @throws CruiseControlException if loop is detected.
      */
-    private Set<String> checkLoop(final Script s, Set<String> notInLoop, Set<String> checking)
+    private Set<String> checkLoop(final PipedScript s, Set<String> notInLoop, Set<String> checking)
             throws CruiseControlException {
         final String pipeFrom = s.getPipeFrom();
         final String waitFor = s.getWaitFor();
@@ -599,12 +587,12 @@ LOG.info("  --> will run  " + s.getID());
      * @param scripts the list of scripts to be looked it.
      * @return collection of scripts piped to the given script
      */
-    private static Collection<Script> findPipedSeq(String id, List<Script> scripts) {
-        Collection<Script> piped = new HashSet<Script>(10);
-        Script             found;
+    private static Collection<PipedScript> findPipedSeq(String id, List<PipedScript> scripts) {
+        Collection<PipedScript> piped = new HashSet<PipedScript>(10);
+        PipedScript found;
 
         /* Copy the collection, since data will be removed from it */
-        scripts = new ArrayList<Script>(scripts);
+        scripts = new ArrayList<PipedScript>(scripts);
 
         while ((found = findPipedFrom(id, scripts)) != null) {
                 /* If already in sequence, ignore */
@@ -624,7 +612,7 @@ LOG.info("  --> will run  " + s.getID());
      * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class, 
      * since it contains the method with the same name */
     private void mergeEnv_wrap(final OSEnvironment env) {
-        mergeEnv(env);
+        super.mergeEnv(env);
     }
     
     /* ----------- NESTED CLASSES ----------- */
@@ -638,397 +626,147 @@ LOG.info("  --> will run  " + s.getID());
      * The class is the implementation of {@link Runnable} interface, as several scripts piped
      * one with another are started simultaneously.
      */
-    public class Script extends ExecBuilder implements Runnable {
-
-        /** Serialization UID */
-        private static final long serialVersionUID = 848703660201511902L;
-
-        /** The ID of the script set by {@link #setID(String)}. */
-        private String id;
-        /** The ID of script to pipe from, set by {@link #setPipeFrom(String)}. */
-        private String pipeFrom;
-        /** The index of script to wait for, set by {@link #setWaitFor(String)}. */
-        private String waitFor;
-        /** Keep STDOUT gipped? Set by {@link #setGZipStdout(boolean)}. */
-        private Boolean gzip;
-        /** Is STDOUT of the script binary? Set by {@link #setBinaryStdout(boolean)} */
-        private Boolean binary;
-        /** The value set by {@link #setRepipe(String)} */
-        private String repipe = null;
-        /** The value set by {@link #setDisable(boolean)} */
-        private boolean disable = false;
-
-        /** The buffer holding the STDOUT of the command */
-        private transient StdoutBuffer stdoutBuffer;
-        /** The stream to read STDIN of the command, set by {@link #setStdinProvider(InputStream)}. */
-        private transient InputStream stdinProvider;
-        /** The build properties, set by {@link #setBuildProperties(Map)}. */
-        private Map<String, String> buildProperties = new HashMap<String, String>();
-        /** The callback to provide progress updates, set by {@link #setProgress(Progress)}. */
-        private Progress progressIn;
-
-        /** The parent element into with the build log (created by
-         * {@link #build(Map, Progress, InputStream)} method) is stored. */
-        private Element buildLogParent;
-        /** Signalizes wherever the script finished or not */
-        private boolean isDone;
+    public final class Script extends PipedScriptBase implements PipedScript {
 
         /**
-         * Initialization of attributes before the build is started. It is roughly equal to the
-         * constructor of the class, although in CruiseControl are some <code>set*</code> methods
-         * called before the initialization ...
-         *
-         * <b>The method DOES NOT have to be called before the configuration options of the class are
-         * filled by CruiseControl from the XML project file, but it MUST be called before the other
-         * methods of this class are called!</b>
+         * Override of {@link ScriptRunner} piping STDIN and STDOUT from/to other scripts
+         * @author dtihelka
          */
-        public void initialize() {
-            /* Prepare to start */
-            this.isDone = false;
-            this.stdoutBuffer = Boolean.TRUE.equals(gzip) ? new GZippedStdoutBuffer(LOG) : new StdoutBuffer(LOG);
-        } // initialize
+        private final class PipedScriptRunner extends ScriptRunner {
+            /**
+             * Disable script consumption of STDOUT - although errors cannot be found in it now,
+             * it is expected that errors are printed to STDERR when a sequence of piped
+             * commands is started. Also, STDOUT of the script may contain binary data - it is
+             * generally bad idea pass through text-expected classes.
+             */
+            @Override
+            protected boolean letConsumeOut() {
+                return false;
+            }
 
-        /**
-         * Clears those attributes which may consume significant amount of memory (they are initialized again
-         * by {@link #initialize()} and <code>set*()</code> methods).
-         *
-         * Call the method when build is finished and its STDOUT will not longer be required.
-         */
-        public void clean() {
-            this.stdoutBuffer = null;
-            this.buildLogParent = null;
-        } // clean
-
-        /**
-         * The implementation of {@link Runnable#run()}. It calls
-         * {@link #build(Map, Progress, InputStream)} with the attributes set by
-         * setter methods.
-         *
-         * Be sure that all the required attributes are set before the build is started. The call
-         * of this method corresponds to the call of {@link ExecBuilder#build(Map, Progress)}.
-         *
-         * @see ExecBuilder#build(Map, Progress)
-         */
-        public void run() {
-            try {
-                Element buildLog;
-
-                /* Start and store the build log element created */
-                LOG.info("Script ID '" + this.getID() + "' started");
-                buildLog = build(this.buildProperties, this.progressIn, this.stdinProvider);
-                /* Add the element into the parent */
-                synchronized (buildLogParent) {
-                    this.buildLogParent.addContent(buildLog.detach());
+            /**
+             * Returns the consumer printing STDOUT of the script on
+             * {@link org.apache.log4j.Level#DEBUG} level.
+             */
+            @Override
+            protected StreamConsumer getDirectOutLogger() {
+                /* Log only non-binary output */
+                if (Boolean.FALSE.equals(getBinaryOutput())) {
+                    return StreamLogger.getDebugLogger(ScriptRunner.LOG);
                 }
-                LOG.info("Script ID '" + this.getID() + "' finished");
-
-            } finally {
-                /* Close the buffer to signalize that all has been written, and clear STDIN
-                 * provider to signalize to GC that it is not longer needed */
-                this.stdoutBuffer.close();
-                this.stdinProvider = null;
-                this.isDone = true;
+                /* Disable logging otherwise */
+                return new StreamConsumer() {
+                    @Override
+                    public void consumeLine(final String arg0) { /* Ignore data */ }
+                };
             }
-        } // run
 
-        /**
-         * Sets the ID of the script from <code>id=""</code> attribute in XML configuration
-         * (referenced by <code>pipefrom=""</code> and <code>waitfor=""</code>). Required.
-         * Each script must have <b>unique</b> ID assigned.
-         *
-         * @param value ID of the script.
-         */
-        @Required
-        public void setID(String value) {
-            this.id = value;
-        } // setID
+            /**
+             * Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in
+             * addition to the (text) consumer given.
+             */
+            @Override
+            protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
+                return new StreamPumper(p.getInputStream(), getBinaryOutput().booleanValue(), consumer,
+                        getOutputBuffer());
+            } // getPumperOut
+        }
 
-        /**
-         * Gets the ID of the script set by {@link #setID(String)}, or <code>null</code> if not
-         * set yet.
-         *
-         * @return the ID of the script.
-         */
-        public String getID() {
-            return this.id;
-        } // getID
-
-        /**
-         * Sets the ID of the script from <code>pipefrom=""</code> attribute in XML
-         * configuration. The STDIN of the current script is read from STDOUT of the script with
-         * ID set. The attribute is optional if it is not required to read input from another
-         * script.
-         *
-         * @param value ID of the script to read input from.
-         */
-        public void setPipeFrom(String value) {
-            this.pipeFrom = value;
-        } // setPipeFrom
-
-        /**
-         * Gets the ID of the script set by {@link #setPipeFrom(String)}, or <code>null</code>
-         * if not set yet.
-         *
-         * @return the ID of the script to read input from.
-         */
-        public String getPipeFrom() {
-            return this.pipeFrom;
-        } // getPipeFrom
-
-        /**
-         * Sets the ID of the script from <code>waitfor=""</code> attribute in XML configuration.
-         * The execution of the current script will be delayed until the script with given ID is
-         * completed - it is aimed to prevent consecutive run of commands which consume large
-         * amount of memory, or to wait for file(s) generated by another script (not the data
-         * passed through STDIO). The attribute is optional if the script is not required to
-         * wait for another script.
-         *
-         * @param value ID of the script to wait for.
-         */
-        public void setWaitFor(String value) {
-            this.waitFor = value;
-        } // setWaitFor
-
-        /**
-         * Gets the ID of the script set by {@link #setWaitFor(String)}, or <code>null</code>
-         * if not set yet.
-         *
-         * @return the ID of the script to wait for.
-         */
-        public String getWaitFor() {
-            return this.waitFor;
-        } // getWaitFor
-
-        /**
-         * Should the STDOUT content of the scripts be kept gzipped within the builder?
-         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
-         *
-         * @param gzip <code>true</code> if STDOUT is required to be stored gzipped,
-         *   <code>false</code> if raw STDOUT contents are kept.
-         */
-        public void setGZipStdout(boolean gzip) {
-            this.gzip = gzip;
-        } // setGZipStdout
-        /**
-         * Should the STDOUT content of the scripts be kept gzipped by the builder? Gets the
-         * value set by {@link #setGZipStdout(boolean)}, or <code>null</code> if not set yet.
-         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
-         *
-         * @return <code>true/false</code> or <code>null</code>.
-         */
-        public Boolean getGZipStdout() {
-            return this.gzip;
-        } // setGZipStdout
-
-        /**
-         * Is the STDOUT content of the script in binary form?
-         * See {@link PipedExecBuilder#setBinaryStdout(boolean)} for more details.
-         *
-         * @param binary <code>true</code> if STDOUT is in binary form, <code>false</code>
-         *   if STDOUT is text.
-         */
-        public void setBinaryStdout(boolean binary) {
-            this.binary = binary;
-        } // setBinaryStdout
-        /**
-         * Is the STDOUT content of the script in binary form? Gets the value set by
-         * {@link #setBinaryStdout(boolean)}, or <code>null</code> if not set yet.
-         * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
-         *
-         * @return <code>true/false</code> or <code>null</code>.
-         */
-        public Boolean getBinaryStdout() {
-            return this.binary;
-        } // getBinaryStdout
-
-        /**
-         * Sets the ID of the script ton which an existing (and pre-configured) script is "repiped".
-         * The directive is helpful when the {@link PipedExecBuilder} is preconfigured as plugin (with
-         * exec-childs sequence defined) and it needs to be redefined.
-         *
-         * In case of repiping, neither {@link #setPipeFrom(String)} nor any other options (except
-         * {@link #setID(String)} must be filled!
-         *
-         * @param repipe <code>true</code> if to re-pipe the exec to another source.
-         */
-        public void setRepipe(String repipe) {
-            this.repipe = repipe;
-        } // setBinaryStdout
-        /**
-         * Gets the value set through {@link #setRepipe(String)}, or <code>null</code> if repipe
-         * was not set in case of "full" script configuration.
-         *
-         * @return <code>true/false</code> or <code>null</code>.
-         */
-        public String getRepipe() {
-            return this.repipe;
-        } // getBinaryStdout
-
-        /**
-         * Set <code>true</code> if to disable the given script and ALL SCRIPTS PIPED FROM IT. The
-         * directive is helpful when the {@link PipedExecBuilder} is pre-configured as plugin (with
-         * exec-childs sequence defined) and it needs to be redefined in such a way that some
-         * scripts from the original sequence will not be used anymore.
-         *
-         * In case of disabling, neither {@link #setPipeFrom(String)} nor any other options (except
-         * {@link #setID(String)} must be filled!
-         *
-         * @param disable <code>true</code> if to disable the execution of the script as well as the
-         *        execution of all scripts piped from the script.
-         */
-        public void setDisable(boolean disable) {
-            this.disable = disable;
-        } // setBinaryStdout
-        /**
-         * Gets the value set through {@link #setDisable(boolean)}, or <code>false</code> in case
-         * "full" script configuration.
-         *
-         * @return <code>true/false</code>.
-         */
-        public boolean getDisable() {
-            return this.disable;
-        } // getBinaryStdout
-
-        /**
-         * Sets the XML element into which the build log returned by
-         * {@link #build(Map, Progress, InputStream)}, when called in
-         * {@link #run()}, is required to be stored. The method is not associated with
-         * an XML attribute.
-         *
-         * Note that buildLogParent object can be accessed simultaneously from different
-         * scripts; therefore, the instance is used as mutex in the
-         * <code>synchronized(buildLogParent){}</code> section
-         *
-         * @param buildLogParent the required parent of build log element.
-         * @see ExecBuilder#build(Map, Progress) for the detailed description of the build log.
-         */
-        void setBuildLogParent(Element buildLogParent) {
-            this.buildLogParent = buildLogParent;
-        } // setBuildLogParent
-
-        /**
-         * Sets the map of build properties passed to the
-         * {@link #build(Map, Progress, InputStream)} when called in
-         * {@link #run()}. The method is not associated with an XML attribute.
-         *
-         * @param buildProperties build properties, may be <code>null</code>.
-         * @see ExecBuilder#build(Map, Progress) for the detailed description of
-         *      the attribute
-         */
-        void setBuildProperties(final Map<String, String> buildProperties) {
-            this.buildProperties = buildProperties; /* Shallow copy should be OK */
-        } // setBuildProperties
-
-        /**
-         * Sets the callback to provide progress updates, passed to the
-         * {@link #build(Map, Progress, InputStream)} when called in
-         * {@link #run()}. The method is not associated with an XML attribute.
-         *
-         * @param progress callback to provide progress updates, may be <code>null</code>.
-         * @see ExecBuilder#build(Map, Progress) for the detailed description of
-         *      the attribute
-         */
-        void setProgress(final Progress progress) {
-            this.progressIn = progress;
-        } // setProgress
-
-        /**
-         * Sets the stream to read STDIN from, passed to the
-         * {@link #build(Map, Progress, InputStream)} when called in
-         * {@link #run()}. The method is not associated with an XML attribute.
-         *
-         * @param stdinProvider the stream to read STDIN from, set to <code>null</code> if
-         *        the script is not expected to read data from STDIN.
-         */
-        void setStdinProvider(final InputStream stdinProvider) {
-            this.stdinProvider = stdinProvider;
-        } // setStdinProvider
-
-        /**
-         * Returns the stream from which the data print to STDOUT of the script can be read.
-         * The STDOUT of the script is buffered, so the method can be called multiple times,
-         * each time new stream reading data from the beginning is returned.
-         *
-         * @return the stream from which to read STDOUT.
-         * @throws CruiseControlException when the stream cannot be returned.
-         */
-        InputStream getStdOutReader() throws CruiseControlException {
-            try {
-                return this.stdoutBuffer.getContent();
-            } catch (IOException e) {
-                throw new CruiseControlException("exec ID=" + getID() + ": unable to create STDOUT reader ("
-                        + getCommand() + ")", e);
+        /** The override of {@link ExecBuilder} class customising {@link ExecBuilder#createScriptRunner()}
+         *  and {@link Builder#mergeEnv(OSEnvironment)} methods; see their description for further
+         *  details. */
+        private final ExecBuilder builder = new ExecBuilder() {
+            /** Returns script runner which does not allow to consume STDOUT, and it logs STDOUT in
+             *  debug mode only (the output is passed to the piped script, and it may be huge, or it may
+             *  contain binary data ...) */
+            @Override
+            protected ScriptRunner createScriptRunner() {
+                return new PipedScriptRunner();
+            } // createScriptRunner
+            /** Override of {@link #mergeEnv(OSEnvironment)}, merging ENV set to {@link PipedExecBuilder}
+             *  first and then ENV set to the script itself. */
+            @Override
+            protected void mergeEnv(final OSEnvironment env) {
+                mergeEnv_wrap(env);
+                super.mergeEnv(env);
             }
-        } // getStdoutReader
+            /** Serialization UID */
+            private static final long serialVersionUID = 2452456256173465623L;
+        };
 
-        /**
-         * @return <code>true</code> when the script finished its work and <code>false</code>
-         *          when it is running or not started yet.
-         */
-        boolean isDone() {
-            /* Does not have to be synchronized, true cannot be returned when the build() is
-             * still running ... */
-            return this.isDone;
-        } // isDone
+        @Override
+        public void validate() throws CruiseControlException {
+            super.validate();
+            builder.validate();
+        }
+
+        @Override
+        protected Element build() throws CruiseControlException {
+            return builder.build(getBuildProperties(), getProgress(), getInputProvider());
+        }
+
+        @Override
+        protected Logger log() {
+            return ExecBuilder.LOG;
+        }
+
+        /** Just caller of {@link ExecBuilder#setTimeout(long)} */
+        @Override
+        public void setTimeout(long time) {
+            builder.setTimeout(time);
+        }
+        /** Just caller of {@link ExecBuilder#getTimeout()} */
+        @Override
+        public long getTimeout() {
+            return builder.getTimeout();
+        }
+
+        /** Just caller of {@link ExecBuilder#setWorkingDir(String)} */
+        @Override
+        public void setWorkingDir(String workingDir) {
+            builder.setWorkingDir(workingDir);
+        }
+        /** Just caller of {@link ExecBuilder#getWorkingDir()} */
+        @Override
+        public String getWorkingDir() {
+            return builder.getWorkingDir();
+        }
+
+        /** Raw caller of {@link ExecBuilder#setCommand(String)} for the script configuration
+         *  purposes */
+        @SuppressWarnings("javadoc")
+        public void setCommand(String cmd) {
+            this.builder.setCommand(cmd);
+        }
+        /** Raw caller of {@link ExecBuilder#setArgs(String)} for the script configuration
+         *  purposes */
+        @SuppressWarnings("javadoc")
+        public void setArgs(String args) {
+            this.builder.setArgs(args);
+        }
+        /** Raw caller of {@link ExecBuilder#setErrorStr(String)} for the script configuration
+         *  purposes. */
+        @SuppressWarnings("javadoc")
+        public void setErrorStr(String errStr) {
+            this.builder.setErrorStr(errStr);
+        } // setErrorStr
+
+        /** Raw caller of {@link ExecBuilder#createEnv()} for the script configuration
+         *  purposes. */
+        @SuppressWarnings("javadoc")
+        public EnvConf createEnv() {
+            return builder.createEnv();
+        } // createEnv
 
         /** Prints string representation of the object */
         @Override
         public String toString() {
-            return getClass().getName() + "[ID " + id + ", piped from " + (pipeFrom != null ? pipeFrom : "-")
-                    + ", wait for " + (waitFor != null ? waitFor : "-") + "]";
-        } // toString
-
-        /**
-         * Returns script runner which does not allow to consume STDOUT, and it logs STDOUT in
-         * debug mode only (the output i passed to the piped script, and it may be huge, or it may
-         * contain binary data ...)
-         */
-        @Override
-        protected ScriptRunner createScriptRunner() {
-            final class MyScriptRunner extends ScriptRunner {
-                /**
-                 * Disable script consumption of STDOUT - although errors cannot be found in it now, it is expected
-                 * that errors are printed to STDERR when a sequence of piped commands is started. Also, STDOUT of the
-                 * script may contain binary data - it is generally bad idea pass through text-expected classes.
-                 */
-                @Override
-                protected boolean letConsumeOut() {
-                    return false;
-                }
-
-                /** Returns the consumer printing STDOUT of the script on {@link org.apache.log4j.Level#DEBUG} level. */
-                @Override
-                protected StreamConsumer getDirectOutLogger() {
-                    /* Log only non-binary output */
-                    if (Boolean.FALSE.equals(binary)) {
-                        return StreamLogger.getDebugLogger(ScriptRunner.LOG);
-                    }
-                    /* Disable logging otherwise */
-                    return new StreamConsumer() {
-                        public void consumeLine(String arg0) { /* Ignore data */ }
-                    };
-                }
-
-                /** Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in addition to the
-                 *  (text) consumer given. */
-                @Override
-                protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
-                    return new StreamPumper(p.getInputStream(), binary, consumer, Script.this.stdoutBuffer);
-                } // getPumperOut
-            }
-            return new MyScriptRunner();
-        } // createScriptRunner
-
-        /**
-         * Override of {@link #mergeEnv(OSEnvironment)}, merging ENV set to {@link PipedExecBuilder}
-         * first and then ENV set to the script itself.
-         */
-        @Override
-        protected void mergeEnv(final OSEnvironment env) {
-            mergeEnv_wrap(env);
-            super.mergeEnv(env);
+            return getClass().getName() + "[ID " + getID() + ", piped from "
+                    + (getPipeFrom() != null ? getPipeFrom() : "-") + ", wait for "
+                    + (getWaitFor() != null ? getWaitFor() : "-") + " Command: "
+                    + builder.getCommand() + ' ' + builder.getArgs() + "]";
         }
-        
+
     } // PipedExecScript
 
     /**

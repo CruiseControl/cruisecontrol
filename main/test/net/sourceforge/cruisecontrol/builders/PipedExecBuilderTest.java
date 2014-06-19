@@ -40,13 +40,11 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -54,9 +52,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Pattern;
-
-import junit.framework.TestCase;
 
 import org.apache.tools.ant.filters.StringInputStream;
 import org.jdom.Attribute;
@@ -68,6 +63,7 @@ import org.jdom.output.XMLOutputter;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.SysUtilMock;
+import net.sourceforge.cruisecontrol.testutil.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.StdoutBufferTest;
 
@@ -89,23 +85,6 @@ public final class PipedExecBuilderTest extends TestCase {
      *  method ... */
     private FilesToDelete files;
 
-
-    /**
-     * Generates temporary file and stores it into {@link #files} array. The file is deleted
-     * by {@link #tearDown()} method.
-     * The method must be called after {@link #files} attribute is initialized!
-     * @return a new temp file
-     * @throws IOException when the file cannot be created
-     */
-    private File getFile() throws IOException {
-        File file;
-
-        file = File.createTempFile(this.getClass().getName(), ".txt");
-        file.deleteOnExit();
-
-        files.add(file);
-        return file;
-    }
 
     /**
      * Generates text file filled by the given number of lines with random content and store it into
@@ -284,7 +263,7 @@ public final class PipedExecBuilderTest extends TestCase {
      *            +-<------<------<------<------+
      * </pre>
      */
-    public void testValidate_pipeLoop() throws CruiseControlException {
+    public void testValidate_pipeLoop() {
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         setExec(builder.createExec(), "01", "cat", "ZERO");
@@ -313,7 +292,11 @@ public final class PipedExecBuilderTest extends TestCase {
         /* Disable ID 11 to break the loop */
         disable(builder.createExec(), "11");
         /* And validate again. Now it must pass */
-        builder.validate();
+        try {
+            builder.validate();
+        } catch (CruiseControlException e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
@@ -389,8 +372,8 @@ public final class PipedExecBuilderTest extends TestCase {
      */
     public void testScript_pipe() throws IOException, CruiseControlException {
         PipedExecBuilder builder = new PipedExecBuilder();
-        File inpFile = getFile();
-        File tmpFile = getFile();
+        File inpFile = files.add(this);
+        File tmpFile = files.add(this);
 
         /* Create the content */
         createFiles(inpFile, tmpFile, 200);
@@ -402,33 +385,33 @@ public final class PipedExecBuilderTest extends TestCase {
         PipedExecBuilder.Script cat2 = (PipedExecBuilder.Script) builder.createExec();
         setExec(cat2, "02", "cat", null);
         cat2.initialize();
-        cat2.setStdinProvider(cat1);
+        cat2.setInputProvider(cat1);
         cat2.setBuildProperties(new HashMap<String, String>());
         cat2.setBuildLogParent(new Element("build"));
-        cat2.setBinaryStdout(false);
+        cat2.setBinaryOutput(false);
         cat2.setGZipStdout(false);
         /* Validate and run (not as thread here) */
         cat2.validate();
         cat2.run();
 
         /* Test the output - it must be the same as the input */
-        assertStreams(new FileInputStream(inpFile), cat2.getStdOutReader());
+        assertStreams(new FileInputStream(inpFile), cat2.getOutputReader());
 
         /* Third cat - real command without arguments */
         PipedExecBuilder.Script cat3 = (PipedExecBuilder.Script) builder.createExec();
         setExec(cat3, "03", "cat", null);
         cat3.initialize();
-        cat3.setStdinProvider(cat2.getStdOutReader());
+        cat3.setInputProvider(cat2.getOutputReader());
         cat3.setBuildProperties(new HashMap<String, String>());
         cat3.setBuildLogParent(new Element("build"));
-        cat3.setBinaryStdout(false);
+        cat3.setBinaryOutput(false);
         cat3.setGZipStdout(false);
         /* Validate and run (not as thread here) */
         cat3.validate();
         cat3.run();
 
         /* Test the output - it must be the same as the input */
-        assertStreams(new FileInputStream(inpFile), cat3.getStdOutReader());
+        assertStreams(new FileInputStream(inpFile), cat3.getOutputReader());
     }
 
     /**
@@ -452,21 +435,21 @@ public final class PipedExecBuilderTest extends TestCase {
         Element buildLog;
 
         /* Input and result files */
-        File inp1File = getFile();
-        File inp2File = getFile();
-        File res1File = getFile();
-        File res2File = getFile();
+        File inp1File = files.add(this);
+        File inp2File = files.add(this);
+        File res1File = files.add(this);
+        File res2File = files.add(this);
         /* Prepare content */
         createFiles(inp1File, res1File, 50);
         createFiles(inp2File, res2File, 110);
 
         /* Temporary and output files */
-        File tmp1File = getFile();
-        File tmp2File = getFile();
-        File out1File = getFile();
-        File out2File = getFile();
-        File out3File = getFile();
-        File out4File = getFile();
+        File tmp1File = files.add(this);
+        File tmp2File = files.add(this);
+        File out1File = files.add(this);
+        File out2File = files.add(this);
+        File out3File = files.add(this);
+        File out4File = files.add(this);
 
 
         /* Fill it by commands to run*/
@@ -549,10 +532,10 @@ public final class PipedExecBuilderTest extends TestCase {
 
         /* Output and "somewhere-in-the middle" temporary file, input and corresponding result
          * files */
-        File out1File = getFile();
-        File tmp1File = getFile();
-        File inp1File = getFile();
-        File res1File = getFile();
+        File out1File = files.add(this);
+        File tmp1File = files.add(this);
+        File inp1File = files.add(this);
+        File res1File = files.add(this);
         /* Prepare content */
         createFiles(inp1File, res1File, 50);
 
@@ -595,9 +578,9 @@ public final class PipedExecBuilderTest extends TestCase {
         Attribute error;
 
         /* Output file, input and corresponding result files */
-        File out1File = getFile();
-        File inp1File = getFile();
-        File res1File = getFile();
+        File out1File = files.add(this);
+        File inp1File = files.add(this);
+        File res1File = files.add(this);
         /* Prepare content */
         createFiles(inp1File, res1File, 50);
 
@@ -640,10 +623,10 @@ public final class PipedExecBuilderTest extends TestCase {
         Attribute error;
 
         /* Output files, input and corresponding result files */
-        File out1File = getFile();
-        File out2File = getFile();
-        File inp1File = getFile();
-        File res1File = getFile();
+        File out1File = files.add(this);
+        File out2File = files.add(this);
+        File inp1File = files.add(this);
+        File res1File = files.add(this);
         /* Prepare content */
         createFiles(inp1File, res1File, 50);
 
@@ -697,7 +680,7 @@ public final class PipedExecBuilderTest extends TestCase {
          * without error, as the stdin MUST BE closed when determined that nothing can be
          * read from */
         setExec(builder.createExec(), "01", "cat",     null);
-        setExec(builder.createExec(), "02", "cat", ">"+getFile().getAbsolutePath(), "01");
+        setExec(builder.createExec(), "02", "cat", ">"+files.add(this).getAbsolutePath(), "01");
 
         /* Validate it and run it */
         builder.validate();
@@ -726,11 +709,11 @@ public final class PipedExecBuilderTest extends TestCase {
         PipedExecBuilder builder  = new PipedExecBuilder();
 
         /* Input file (in UTF8 encoding), and output files */
-        File inpFile = getFile();
-        File ou1File = getFile();
-        File ou2File = getFile();
-        File ou3File = getFile();
-        File tmpFile = getFile();
+        File inpFile = files.add(this);
+        File ou1File = files.add(this);
+        File ou2File = files.add(this);
+        File ou3File = files.add(this);
+        File tmpFile = files.add(this);
 
         /* Create the content */
         createFiles(inpFile, tmpFile, 200);
@@ -784,7 +767,7 @@ public final class PipedExecBuilderTest extends TestCase {
         String envval = "dummy_value";
         
         File envExec = ExecBuilderTest.createEnvTestScript();
-        File outFile = getFile();
+        File outFile = files.add(this);
 
         builder.setTimeout(10);
         builder.setShowProgress(false);
@@ -878,7 +861,7 @@ public final class PipedExecBuilderTest extends TestCase {
             String pipeFrom, String waitFor, String workingDir) {
 
         if (id != null) {
-            ((PipedExecBuilder.Script) exec).setID(id);
+            ((PipedScript) exec).setID(id);
         }
         if (command != null) {
             /* Find the command among the public attributes of SysUtilMock class */
@@ -908,19 +891,18 @@ public final class PipedExecBuilderTest extends TestCase {
             ((PipedExecBuilder.Script) exec).setArgs(args);
         }
         if (workingDir != null) {
-            ((PipedExecBuilder.Script) exec).setWorkingDir(workingDir);
+            ((PipedScript) exec).setWorkingDir(workingDir);
         }
         if (waitFor != null) {
-            ((PipedExecBuilder.Script) exec).setWaitFor(waitFor);
+            ((PipedScript) exec).setWaitFor(waitFor);
         }
         if (pipeFrom != null) {
-            ((PipedExecBuilder.Script) exec).setPipeFrom(pipeFrom);
+            ((PipedScript) exec).setPipeFrom(pipeFrom);
         }
 
         // in debug mode, print more details
         if (debugMode) {
-            System.out.println("Exec: " + ((PipedExecBuilder.Script) exec).getCommand() + " "
-                            + ((PipedExecBuilder.Script) exec).getArgs());
+            System.out.println("Exec: " + exec);
         }
     }
 
@@ -928,94 +910,26 @@ public final class PipedExecBuilderTest extends TestCase {
      * Method filling the "repipe" attributes of the {@link PipedExecBuilder.Script} class.
      *
      * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
-     * @param ID {@link Script#setID(String)}, may be <code>null</code>
-     * @param repipe {@link Script#setRepipe(String)}, may be <code>null</code>
+     * @param ID {@link PipedScript#setID(String)}, may be <code>null</code>
+     * @param repipe {@link PipedScript#setRepipe(String)}, may be <code>null</code>
      */
     private static void repipe(Object exec, String ID, String repipe) {
         if (ID != null) {
-            ((PipedExecBuilder.Script) exec).setID(ID);
-            ((PipedExecBuilder.Script) exec).setRepipe(repipe);
+            ((PipedScript) exec).setID(ID);
+            ((PipedScript) exec).setRepipe(repipe);
         }
     }
     /**
      * Method filling the "disable" attributes of the {@link PipedExecBuilder.Script} class.
      *
      * @param exec the instance to fill, <b>must not</b> be <code>null</code>.
-     * @param ID {@link Script#setID(String)}, may be <code>null</code>
+     * @param ID {@link PipedScript#setID(String)}, may be <code>null</code>
      */
     private static void disable(Object exec, String ID) {
         if (ID != null) {
-            ((PipedExecBuilder.Script) exec).setID(ID);
-            ((PipedExecBuilder.Script) exec).setDisable(true);
+            ((PipedScript) exec).setID(ID);
+            ((PipedScript) exec).setDisable(true);
         }
-    }
-
-    /**
-     * Method reading two files, comparing one against the another.
-     *
-     * @param  refrFile reference file.
-     * @param  testFile tested file.
-     * @throws IOException if files cannot be handled.
-     */
-    private static void assertFiles(File refrFile, File testFile)
-        throws IOException {
-
-        /* Both files must exist */
-        assertTrue("Reference file " + refrFile, refrFile.exists());
-        assertTrue("Tested file " + testFile, refrFile.exists());
-        /* Test streams */
-        assertStreams(new FileInputStream(refrFile), new FileInputStream(testFile));
-  }
-
-    /**
-     * Method reading two streams, comparing one against the another. As text files are expected
-     * under the streams, {@link BufferedReader} class is used to read from the streams and the
-     * lines are compared, actually.
-     *
-     * @param  refrStream reference stream.
-     * @param  testStream tested stream.
-     * @throws IOException if streams cannot be handled.
-     */
-    private static void assertStreams(InputStream refrStream, InputStream testStream)
-        throws IOException {
-
-        /* Create readers */
-        final BufferedReader refrReader = new BufferedReader(new InputStreamReader(refrStream));
-        final BufferedReader testReader = new BufferedReader(new InputStreamReader(testStream));
-        int numLinesRead  = 0;
-        /* Read and compare line by line */
-        while (true) {
-            String refrLine = refrReader.readLine();
-            String testLine = testReader.readLine();
-
-            /* Leave if one of them is Null */
-            if (refrLine == null && testLine == null) {
-                break;
-            }
-            /* Compare lines */
-            assertEquals("Line " + ++numLinesRead, refrLine, testLine);
-        }
-        /* Close them */
-        refrReader.close();
-        testReader.close();
-  }
-
-    /**
-     * Method comparing actual string with the required string represented as regular
-     * expression. It is almost equal to {@link #assertEquals(String, String, String)} with the
-     * difference that required string can be set as regular expression.
-     *
-     * @param message what is printed in case of failure
-     * @param expected the expected format of the message (as regular expression)
-     * @param actual actual message to check.
-     */
-    private static void assertRegex(String message, String expected, String actual)
-    {
-        if (Pattern.matches(expected, actual)) {
-            return;
-        }
-        /* Not passed - how to print expected/actual message? */
-        assertEquals(message, "regex[" + expected + "]", actual);
     }
 
     /**
