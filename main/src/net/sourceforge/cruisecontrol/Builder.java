@@ -169,14 +169,13 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
             if (logFilename != null) {
                 outputFile = new File(workingDir, logFilename);
             } else {
+                final String outputSuff = ".tmp";
+                final String outputPref = "ccLiveOutput-" + getFileSystemSafeProjectName(projectName)
+                                + "-" + getClass().getSimpleName() + "-";
                 try {
-                    outputFile = File.createTempFile(
-                            "ccLiveOutput-" + getFileSystemSafeProjectName(projectName)
-                                    + "-" + getClass().getSimpleName() + "-",
-                            ".tmp",
-                            workingDir);
+                    outputFile = File.createTempFile(outputPref, outputSuff, workingDir);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(new File(workingDir, outputPref + "XXXX" + outputSuff).getName(), e);
                 }
             }
             outputFile.deleteOnExit();
