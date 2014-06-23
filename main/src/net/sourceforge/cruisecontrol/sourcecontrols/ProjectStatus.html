@@ -1,1 +1,72 @@
-/home/dtihelka/Pokusy/CruiseControl/main/src/net/sourceforge/cruisecontrol/sourcecontrols/ProjectStatus.html
+<p>Used to trigger a build when another CruiseControl project has a
+successful build. If configured, it will also check if the another
+project is up to date and vetos the build attempt if it is not.</p>
+<p>The module works as the combination of 
+<a href="#buildstatus">&lt;buildstatus&gt;</a> and 
+<a href="#veto">&lt;veto&gt;</a> modules with significantly easier 
+configuration.</p>
+
+<p>When the build is triggered, this will report the list of
+modifications of the monitored project, having <i>username</i> set
+to "cc-" + the name of the monitored project. Moreover, the list is
+prepended with additional modification "buildstatus" element
+summarizing the modification request: the <i>username</i> set (again)
+to "cc-" + the name of the monitored project, <i>revision</i> set to
+the label of its newest build and <i>modifiedTime</i> set to the date
+of its newest build. You may need make an alias for this 
+<i>username</i> if you are using an <a href="#email">&lt;email&gt;</a>
+publisher.</p>
+
+
+<h3>How the veto of build works</h3>
+
+<p>If project <i>bar</i> (embedding &lt;projectstatus&gt; element in 
+<a href="#modificationset">&lt;modificationset&gt;</a>) depends on
+project <i>foo</i> then the build of <i>bar</i> is triggered only
+after the previous successful build of <i>foo</i>. However, if
+there is a change in the
+<a href="#modificationset">&lt;modificationset&gt;</a> of
+<i>foo</i> that would cause another build of <i>foo</i> (i.e. making
+it out-of-date), the build of <i>bar</i> is canceled as long as the
+<i>foo</i> is built correctly and no other modification is queued in
+the <i>foo</i>.</p>
+
+
+<h3>Properties passed to the Builders</h3>
+
+<p>In addition to the standard CruiseControl <a href="#buildproperties">
+properties passed to builders</a>, &lt;projectstatus&gt; sets the
+following properties:</p>
+
+<table class="documentation">
+    <thead>
+    <tr>
+        <th>Property Name</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>most.recent.logdir</td>
+        <td>The location when log files of the monitored project are
+        stored</td>
+    </tr>
+    <tr>
+        <td>most.recent.logfile</td>
+        <td>The name of the newest (successful) logfile of the monitored
+        project</td>
+    </tr>
+    <tr>
+        <td>most.recent.logtime</td>
+        <td>The timestamp of the newest build included in the
+        "buildstatus" modification element, under <i>modifiedTime</i>,
+        using the format <code>yyyyMMddHHmmss</code></td>
+    </tr>
+    <tr>
+        <td>most.recent.loglabel</td>
+        <td>The label of the newest build (included in the
+        "buildstatus" modification element, under <i>revision</i> 
+        tag.</td>
+    </tr>
+    </tbody>
+</table>
