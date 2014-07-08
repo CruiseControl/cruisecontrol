@@ -50,6 +50,9 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
@@ -413,7 +416,8 @@ public class PipedExecBuilder extends Builder {
      * @return new {@link Script} object to configure.
      */
     @Cardinality(min = 0, max = -1)
-    public Object createExec() {
+    @ManualChildName("ExecBuilder")
+    public PipedScript createExec() {
         scripts.add(new Script());
         return scripts.getLast();
     } // createExec
@@ -423,15 +427,10 @@ public class PipedExecBuilder extends Builder {
      * 3rd party plugin implementing the {@link PipedScript} interface.
      *
      * @param execobj the implementation of {@link PipedScript} interface.
-     * @throws CruiseControlException when object is not {@link PipedScript}
      */
-    public void add(Object execobj) throws CruiseControlException {
-        /* Check the object type. No other are supported */
-        if (!(execobj instanceof PipedScript)) {
-            throw new CruiseControlException("Invalid instance of script: " + execobj.getClass().getCanonicalName());
-        }
-        /* Add the object to the array */
-        scripts.add((PipedScript) execobj);
+    @SkipDoc // TODO: should be documented???
+    public void add(PipedScript execobj) {
+        scripts.add(execobj);
     } // add
 
 
@@ -626,6 +625,8 @@ public class PipedExecBuilder extends Builder {
      * The class is the implementation of {@link Runnable} interface, as several scripts piped
      * one with another are started simultaneously.
      */
+    @Description("Standard exec builder extended with attributes required for a builder to be piped "
+            + "into the pipedexec builder. ")
     public final class Script extends PipedScriptBase implements PipedScript {
 
         /**

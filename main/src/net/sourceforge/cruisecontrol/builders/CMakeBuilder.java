@@ -46,7 +46,9 @@ import  net.sourceforge.cruisecontrol.Builder;
 import  net.sourceforge.cruisecontrol.CruiseControlException;
 import  net.sourceforge.cruisecontrol.Progress;
 import  net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import  net.sourceforge.cruisecontrol.gendoc.annotations.Required;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import  net.sourceforge.cruisecontrol.util.DateUtil;
 import  net.sourceforge.cruisecontrol.util.IO;
 import  net.sourceforge.cruisecontrol.util.OSEnvironment;
@@ -278,7 +280,7 @@ public class CMakeBuilder extends Builder {
    *
    * @return new object to configure according to the tag values.
    */
-  public Object createOption() {
+  public Option createOption() {
     options.add(new Option());
     return options.getLast();
   }
@@ -287,19 +289,14 @@ public class CMakeBuilder extends Builder {
    * #createOption()}.
    *
    * @param  optsobj the instance of {@link CMakeBuilderOptions} class
-   * @throws CruiseControlException
    */
-  public void   add(Object optsobj) throws CruiseControlException {
-    /* Check the object type. No other are supported */
-    if (!(optsobj instanceof CMakeBuilderOptions)) {
-        throw new CruiseControlException("Invalid instance of options: " + optsobj.getClass().getCanonicalName());
-    }
+  public void   add(CMakeBuilderOptions optsobj) {
     /* Add the options to the list */
-    for (Option o : ((CMakeBuilderOptions) optsobj).getOptions()) {
+    for (Option o : optsobj.getOptions()) {
         options.add(o);
     }
     /* Add the envs to the list */
-    for (EnvConf o : ((CMakeBuilderOptions) optsobj).getEnvs()) {
+    for (EnvConf o : optsobj.getEnvs()) {
         createEnv().copy(o);
     }
   }
@@ -313,8 +310,8 @@ public class CMakeBuilder extends Builder {
    *
    * @return the instance of {@link ExecBuilder} representing the command to execute
    */
-  @Default(value = "")
-  public Object createBuild() {
+  @ManualChildName("ExecBuilder")
+  public ExecBuilderCMake createBuild() {
       commands.add(createBuilder());
       return commands.getLast();
   }
@@ -394,12 +391,14 @@ public class CMakeBuilder extends Builder {
   protected class ExecBuilderCMake extends ExecBuilder {
   
       /** Method adding single option to the list of arguments for CMake */
+      @SkipDoc
       public void addOption(Option opt) {
         addArg(opt.toString());
       }
       
       /** Method the last path argument for CMake, it is either <code>path-to-source</code> or
        *  <code>path-to-existing-build</code> */
+      @SkipDoc
       public void addPath(File path) {
         addArg(path.getAbsolutePath());
       }

@@ -46,7 +46,7 @@ public final class CMakeBuilderOptions   {
      * @return new object to configure according to the tag values.
      * @see    CMakeBuilder#createOption()
      */
-    public Object  createOption() {
+    public Option  createOption() {
         options.add(new Option());
         return options.getLast();
     }

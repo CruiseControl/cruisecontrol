@@ -58,9 +58,7 @@ public class PluginInfoParserTest extends TestCase {
             new PluginInfoParser(registry, PluginRegistry.ROOT_PLUGIN).getAllPlugins();
         
         // Now register a new plugin.
-        PluginPlugin config = new PluginPlugin();
-        config.setName("mysc");
-        config.setClassname(DummySourceControl.class.getName());
+        PluginPlugin config = GendocTestUtils.createPlugin("mysc", DummySourceControl.class.getName());
         registry.register(config);
         
         // Get a new list, which should contain the new plugin.
@@ -76,9 +74,7 @@ public class PluginInfoParserTest extends TestCase {
         PluginRegistry registry = PluginRegistry.createRegistry();
         
         // Register a nonexistent plugin.
-        PluginPlugin config = new PluginPlugin();
-        config.setName("unicorn");
-        config.setClassname("once.upon.a.time.Unicorn");
+        PluginPlugin config = GendocTestUtils.createPlugin("unicorn", "once.upon.a.time.Unicorn");
         registry.register(config);
         
         // Try to parse the plugins.

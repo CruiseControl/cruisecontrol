@@ -7,6 +7,7 @@ import org.jdom.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 
 /**
  * The interface which commands run within {@link PipedExecBuilder} must implement.
@@ -139,6 +140,7 @@ interface PipedScript extends Runnable {
      * @param buildLogParent the required parent of build log element.
      * @see Builder#build(Map, Progress) for the detailed description of the build log.
      */
+    @SkipDoc
     void setBuildLogParent(Element buildLogParent);
 
     /**
@@ -148,6 +150,7 @@ interface PipedScript extends Runnable {
      * @param buildProperties build properties, may be <code>null</code>.
      * @see Builder#build(Map, Progress) for the detailed description of the attribute
      */
+    @SkipDoc
     void setBuildProperties(final Map<String, String> buildProperties);
 
     /**
@@ -157,6 +160,7 @@ interface PipedScript extends Runnable {
      * @param progress callback to provide progress updates, may be <code>null</code>.
      * @see Builder#build(Map, Progress) for the detailed description of the attribute
      */
+    @SkipDoc
     void setProgress(final Progress progress);
 
     /**
@@ -165,6 +169,7 @@ interface PipedScript extends Runnable {
      * @param input the stream to read input from, set to <code>null</code> if
      *        the script is not expected to have data in its input.
      */
+    @SkipDoc
     void setInputProvider(final InputStream input);
 
     /**

@@ -36,6 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.gendoc;
 
+import org.jdom.Element;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
@@ -54,11 +56,9 @@ public class GendocTestUtils {
      * @return The loaded PluginInfo, or null if an error occurred.
      */
     public static PluginInfo loadPluginInfo(String name, Class<?> clazz){
-        PluginRegistry registry = PluginRegistry.createRegistry();
-        
-        PluginPlugin config = new PluginPlugin();
-        config.setName(name);
-        config.setClassname(clazz.getName());
+        final PluginRegistry registry = PluginRegistry.createRegistry();
+        final PluginPlugin config = createPlugin(name, clazz.getName());
+
         try {
             registry.register(config);
         } catch (CruiseControlException e) {
@@ -67,6 +67,25 @@ public class GendocTestUtils {
         
         return new PluginInfoParser(registry, name).getRootPlugin();
     }
-    
+
+    /**
+     * Safe way of creating {@link PluginPlugin} class
+     *
+     * @param name value get by {@link PluginPlugin#getName()}
+     * @param clazz value get by {@link PluginPlugin#getClass()}
+     * @return properly configured plugin class
+     */
+    public static PluginPlugin createPlugin(String name, String clazz) {
+        final Element elem = new Element("plugin");
+        final PluginPlugin plugin = new PluginPlugin();
+
+        // Create "xml element"
+        elem.setAttribute("name", name);
+        elem.setAttribute("classname", clazz);
+        // Configure the plugin. In this way it avoids NullPointerException when
+        // PluginPlugin#getTransformedElement() is called
+        plugin.configure(elem);
+        return plugin;
+    }
 }
 

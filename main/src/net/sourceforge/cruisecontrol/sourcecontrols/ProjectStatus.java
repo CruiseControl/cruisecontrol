@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
  * @author dtihelka
  */
 @DescriptionFile
-public class ProjectStatus extends FakeUserSourceControl
-{
+public class ProjectStatus extends FakeUserSourceControl {
+
   private static final long serialVersionUID = 5158569043922879751L;
   private static final Logger LOG = Logger.getLogger(ProjectStatus.class);
   
@@ -82,8 +82,7 @@ public class ProjectStatus extends FakeUserSourceControl
           + "project is triggered. However, the veto of the build can still besignalized, if configured so.")
   @Optional
   @Default("true")
-  public void setTriggerOnSuccess(boolean val)
-  {
+  public void setTriggerOnSuccess(boolean val) {
     triggerOnSuccess = val;
   }
   
@@ -99,8 +98,7 @@ public class ProjectStatus extends FakeUserSourceControl
   }
   
   @Override
-  public List<Modification> getModifications(Date lastBuild, Date now)
-  {
+  public List<Modification> getModifications(Date lastBuild, Date now) {
       final List<Modification> modifications = new ArrayList<Modification>();
       final List<Modification> projModifs = project.modificationsSinceLastBuild();
       final Date lastSuccess = project.successLastBuild();
@@ -118,7 +116,7 @@ public class ProjectStatus extends FakeUserSourceControl
       /* If the last successful build of the monitored project is more recent than the last build of the
        * current project, and the build is required to be triggered, fill the list of modifications in
        * the monitored project occurred since the last build of this project. */
-      if (lastSuccess.after(lastBuild) && triggerOnSuccess){
+      if (lastSuccess.after(lastBuild) && triggerOnSuccess) {
           final Modification summary = new Modification("buildstatus");
           final Date modifiedTime = project.successLastBuild();
           final String revision = project.successLastLabel();
@@ -128,7 +126,7 @@ public class ProjectStatus extends FakeUserSourceControl
           modifications.addAll(projModifs);
       
           Date lastModif = new Date();
-          for (Modification mod : projModifs){
+          for (Modification mod : projModifs) {
               if (lastModif.before(mod.getModifiedTime())) {
                   lastModif = mod.getModifiedTime();
               }

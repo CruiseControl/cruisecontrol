@@ -392,14 +392,14 @@ public final class CMakeBuilderTest extends TestCase
 
             /* Child configuration elements */
             for (String o : options) {
-                 Option O = (Option) builder.createOption();
+                 Option O = builder.createOption();
                  /* Set filled items */
                  if (!"".equals(o))
                      O.setValue(o);
             }
             /* Child build elements */
             for (String[] b : builds) {
-                 ExecBuilder B = (ExecBuilder) builder.createBuild();
+                 ExecBuilder B = builder.createBuild();
                  /* Set filled items */
                  B.setCommand(b[0]);
                  B.setArgs(b[1]);
