@@ -98,6 +98,7 @@
     <target name="dev" depends="logger.jar,-dev" description="--> Compiles all source code, runs all tests"/>
 
     <target name="package" depends="-package" description="--> Compiles, tests, and creates package for release"/>
+    <target name="package-test" depends="-package-test" description="--> Compiles, tests, and creates package with test utils"/>
 
     <!--
       ~  OVERRIDES:
@@ -120,6 +121,13 @@
                 <attribute name="Main-Class" value="net.sourceforge.cruisecontrol.launch.Launcher" />
             </manifest>
             <fileset dir="${classes}" includes="**/launch/**" />
+        </jar>
+    </target>
+
+    <!-- Creates .jar from tests classes (useful for 3rd party plugins development) -->
+    <target name="--tests-jar">
+        <jar jarfile="${dist}/${ant.project.name}-tests.jar">
+            <fileset dir="${test.classes}" />
         </jar>
     </target>
 
