@@ -65,6 +65,7 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
@@ -127,7 +128,7 @@ public class WriterBuilder extends Builder {
 
             // Pass content to the consumer
             for (Content message : this.messages) {
-                new StreamPumper(message.getContent(), getStreamConsumer(out, encoding)).run();
+                new StreamPumper(message.getContent(properties), getStreamConsumer(out, encoding)).run();
             }
 
         } catch (Exception exc) {
@@ -339,8 +340,10 @@ public class WriterBuilder extends Builder {
      */
     public static interface Content {
         
-        /** @return the text content as InputStream */
-        public InputStream getContent();    
+        /** Returns the content of a message to write embedded in the {@link InputStream}
+         *  @param properties the additional build-time properties passed to {@link Builder#build(Map, Progress)}
+         *  @return the text content as InputStream */
+        public InputStream getContent(final Map<String, String> properties);
         /** Validation 
          *  @throws CruiseControlException if not valid*/
         public void validate() throws CruiseControlException;
@@ -353,10 +356,16 @@ public class WriterBuilder extends Builder {
     public final class Msg extends StringWriter implements Content {
         
         @Override
-        public InputStream getContent() {
+        public InputStream getContent(final Map<String, String> properties) {
             String str = this.toString();
             if (trim) {
                 str = str.trim();
+            }
+            // Resolve the properties
+            try {
+                str = Util.parsePropertiesInString(properties, str, false);
+            } catch (CruiseControlException e) {
+                LOG.warn("Unable to resolve property in " + str + "message", e);
             }
             // Create single-zero item array [0] if the string is empty. It ensures that StreamPumper
             // will pass empty string to StreamConsumer#consumeLine(String); see
@@ -406,7 +415,7 @@ public class WriterBuilder extends Builder {
         }
 
         @Override
-        public InputStream getContent() {
+        public InputStream getContent(final Map<String, String> properties) {
             try {
                 return new StreamWithEncoding(new FileInputStream(file), encoding);
             } catch (Exception exc) {
@@ -446,7 +455,7 @@ public class WriterBuilder extends Builder {
                 reader = null;
                 reader = new BufferedReader(new InputStreamReader(input, encoding));
             } catch (UnsupportedEncodingException e) {
-                // Just decorate the exception, but it should not be thrown since encoding hav=s been checked
+                // Just decorate the exception, but it should not be thrown since encoding has been checked
                 // in  the validate() method
                 throw new CruiseControlException(e); 
             }
