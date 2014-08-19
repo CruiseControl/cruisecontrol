@@ -121,6 +121,9 @@ public class ProjectStatus extends FakeUserSourceControl {
           final Date modifiedTime = project.successLastBuild();
           final String revision = project.successLastLabel();
       
+          summary.comment = "Summary since the last successfull build of " + project.getName();
+          summary.modifiedTime = modifiedTime;
+          summary.revision = revision;
           modifications.add(summary);
           modifications.addAll(project.modificationsSince(lastBuild));
           modifications.addAll(projModifs);
