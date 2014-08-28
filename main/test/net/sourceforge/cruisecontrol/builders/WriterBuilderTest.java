@@ -419,28 +419,30 @@ public class WriterBuilderTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Test for invalid path to input file.
-	 * @throws CruiseControlException
-	 * @throws IOException
-	 */
-	public final void testInputNotExist() throws CruiseControlException, IOException {
-        final WriterBuilder writerObj = new WriterBuilder();
-
-        writerObj.setFile("xxx.out");
-        //Set invalid input file path
-        WriterBuilder.File file = newFile(writerObj);
-        file.setFile("invalidFilePath");
-
-		try {
-			writerObj.validate();
-        	fail();
-		} catch(Exception e) {
-			assertTrue(e.getMessage().startsWith("File specified"));
-			assertTrue(e.getMessage().contains("for attribute [file] on plugin"));
-			assertTrue(e.getMessage().endsWith("doesn't exist."));
-		}
-	}
+// test removed, since the input file may consist of properties defined by builders (e.g. ${svnrevision}
+// in which case the validator would fail anyway, although the file is created later during the build. 
+//	/**
+//	 * Test for invalid path to input file.
+//	 * @throws CruiseControlException
+//	 * @throws IOException
+//	 */
+//	public final void testInputNotExist() throws CruiseControlException, IOException {
+//        final WriterBuilder writerObj = new WriterBuilder();
+//
+//        writerObj.setFile("xxx.out");
+//        //Set invalid input file path
+//        WriterBuilder.File file = newFile(writerObj);
+//        file.setFile("invalidFilePath");
+//
+//		try {
+//			writerObj.validate();
+//        	fail();
+//		} catch(Exception e) {
+//			assertTrue(e.getMessage().startsWith("File specified"));
+//			assertTrue(e.getMessage().contains("for attribute [file] on plugin"));
+//			assertTrue(e.getMessage().endsWith("doesn't exist."));
+//		}
+//	}
 
     /**
      * Test encoding (latin2, cp1250, Czech language).

@@ -109,21 +109,26 @@ public class WriterBuilder extends Builder {
         final long startTime = System.currentTimeMillis();
         final Element status = new Element("writer");
         OutputStream out = null;
+        java.io.File f;
+
+        // Resolve properties in the settings. Fail. if they cannot be resolved
+        final String fname = Util.parsePropertiesInString(properties, this.file.getAbsolutePath(), true);
+        f = new java.io.File(fname);
 
         try {
             // The output file must not exist
-            if (!this.overwrite && (this.file).exists()) {
-                throw new IOException("File " + this.file + " exists but overwrite=false");
+            if (!this.overwrite && f.exists()) {
+                throw new IOException("File " + f + " exists but overwrite=false");
             }
             // gzip compression is set on
             if (this.gzip) {
-                if (!this.file.getName().endsWith(".gzip")) {
-                    this.file = new java.io.File(this.file.getAbsolutePath() + ".gzip");
+                if (!f.getName().endsWith(".gzip")) {
+                    f = new java.io.File(f.getAbsolutePath() + ".gzip");
                 }
-                out = new GZIPOutputStream(new FileOutputStream(this.file, this.append));
+                out = new GZIPOutputStream(new FileOutputStream(f, this.append));
             // not-compressed file is required
             } else {
-                out = new FileOutputStream(this.file, this.append);
+                out = new FileOutputStream(f, this.append);
             }
 
             // Pass content to the consumer
@@ -395,7 +400,7 @@ public class WriterBuilder extends Builder {
     public final class File implements Content {
         
         /** The value set by {@link #setFile(String)} */
-        private java.io.File file;
+        private String file;
         /** The value set by {@link #setEncoding(String)} */
         private String encoding = "UTF-8";
 
@@ -403,7 +408,7 @@ public class WriterBuilder extends Builder {
                 + "it behaves exactly as the <tt>file=''</tt> attribute of the parent builder's node")
         @Required
         public void setFile(String file) {
-            this.file = new java.io.File(file);
+            this.file = file;
         }
 
         @Description("The encoding of the file to be read. The string must be recognised byJava "
@@ -416,12 +421,19 @@ public class WriterBuilder extends Builder {
 
         @Override
         public InputStream getContent(final Map<String, String> properties) {
+            java.io.File f = null;
             try {
-                return new StreamWithEncoding(new FileInputStream(file), encoding);
+                // Join with working dir and resolve properties in the path
+                f = joinPath(new java.io.File(this.file));
+                f = new java.io.File(Util.parsePropertiesInString(properties, f.getAbsolutePath(), true));
+                // Get the stream reader
+                return new StreamWithEncoding(new FileInputStream(f), encoding);
+            } catch (CruiseControlException e) {
+                LOG.warn("Unable to resolve property in " + f.getAbsolutePath() + "message", e);
             } catch (Exception exc) {
                 LOG.error("Unable to read data from " + file + " (in " + encoding + ")", exc);
-                return new ByteArrayInputStream(new byte[0]);
             }
+            return new ByteArrayInputStream(new byte[0]);
         }
 
         @Override
@@ -429,13 +441,11 @@ public class WriterBuilder extends Builder {
             // Validate
             ValidationHelper.assertEncoding(this.encoding, getClass());
             ValidationHelper.assertIsSet(this.file, "file", getClass());
-
-            // Join with working dir
-            this.file = joinPath(this.file);
-            // Check if exists, ...
-            ValidationHelper.assertExists(this.file, "file", getClass());
-            ValidationHelper.assertIsReadable(this.file, "file", getClass());
-            ValidationHelper.assertIsNotDirectory(this.file, "file", getClass());
+//
+//            // Check if exists, ...
+//            ValidationHelper.assertExists(this.file, "file", getClass());
+//            ValidationHelper.assertIsReadable(this.file, "file", getClass());
+//            ValidationHelper.assertIsNotDirectory(this.file, "file", getClass());
         }
     }
 
