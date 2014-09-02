@@ -174,7 +174,7 @@
       <exec5/>
     </schedule>
 
-    <property name="prop1" value="${global}"/>  <!-- filled by global property, cannot be overriden -->
+    <property name="prop1" value="${global}"/>  <!-- filled by global property, but can be redefined -->
     <property name="prop3" value="${glob.templ}"/> <!-- filled by global property, but with missing item -->
     <property name="prop2" value="${local}"/> <!-- filled by project-specific property -->
 
@@ -194,7 +194,7 @@
     <plugin name='exec4' from='exec' command='c+' />
     <plugin name='exec5' from='exec' inherits='exece' command='c*' />
 
-    <property name="prop1"   value="override"/> <!-- has no effect, already filled in template -->
+    <property name="prop1"   value="override"/> <!-- must overwrite the value already filled in template -->
     <property name="local"   value="test"/>
   </inherit>
 
@@ -252,5 +252,21 @@
     <mock.custom.prop text="justval"/>
     <foo name="${mockkey_justval}" />
   </mock.project>
+
+
+  <plugin name='mock.project.props3'
+          classname='net.sourceforge.cruisecontrol.MockProjectInterface'>
+    <property name="glob.templ" value="${local}_filled"/>
+    <foo name="${glob.templ}" />
+  </plugin>
+
+  <mock.project.props3 name='customprops5' >
+    <property name="local"   value="local-in-customprops5"/>
+  </mock.project.props3>
+
+  <mock.project.props3 name='customprops6' >
+    <property name="local"   value="local-in-customprops6"/>
+    <property name="glob.templ" value="${local}_filled_${global}"/>
+  </mock.project.props3>
 
 </cruisecontrol>

@@ -423,6 +423,7 @@ public class CruiseControlConfig {
     private void handleProject(final Element projectElement) throws CruiseControlException {
 
         final String projectName = getProjectName(projectElement);
+        final Set<String> projectProps = new HashSet();
 
         if (projects.containsKey(projectName)) {
             final String duplicateEntriesMessage = "Duplicate entries in config file for project name " + projectName;
@@ -443,8 +444,12 @@ public class CruiseControlConfig {
         // Register any project specific properties
         for (final Object o : projectElement.getChildren("property")) {
             final Element propertyElement = (Element) o;
+            final String propertyName = propertyElement.getAttributeValue("name");
             ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, propertyElement,
                     resolvers, FAIL_UPON_MISSING_PROPERTY);
+            if (propertyName != null) {
+                projectProps.add(propertyElement.getAttributeValue("name"));
+            }
         }
         // And custom properties plugins
         for (final Object o : projectElement.getChildren().toArray()) {
@@ -465,6 +470,15 @@ public class CruiseControlConfig {
         if (projectTemplateProperties != null) {
             for (final Object projectTemplateProperty : projectTemplateProperties) {
                 final Element element = (Element) projectTemplateProperty;
+                final String propertyName = element.getAttributeValue("name");
+
+                // Here it ignores properties defined in <plugin /> with the same name as those
+                // defined in <project />. In this way, the project-defined properties override
+                // the plugin-defined ones.
+                if (propertyName != null && projectProps.contains(element.getAttributeValue("name"))) {
+                    continue;
+                }
+
                 if (isCustomPropertiesPlugin(element.getName())) {
                     ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties,
                             (Element) element.clone(), resolvers, FAIL_UPON_MISSING_PROPERTY,

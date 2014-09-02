@@ -228,7 +228,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(22, config.getProjectNames().size());
+        assertEquals(24, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
@@ -299,7 +299,7 @@ public class CruiseControlConfigTest extends TestCase {
         List<Listener> listeners = projConfig.getListeners();
 
         listener = (ListenerTestPlugin) listeners.get(0);
-        assertEquals("works!", listener.getString());
+        assertEquals("override", listener.getString());
 
         listener = (ListenerTestPlugin) listeners.get(1);
         assertEquals("test", listener.getString());
@@ -347,6 +347,14 @@ public class CruiseControlConfigTest extends TestCase {
         projConfig = (MockProjectInterface) config.getProject("customprops4");
         foo = projConfig.getFoo();
         assertEquals("mockval_justval", foo.getName());
+
+        projConfig = (MockProjectInterface) config.getProject("customprops5");
+        foo = projConfig.getFoo();
+        assertEquals("local-in-customprops5_filled", foo.getName());
+
+        projConfig = (MockProjectInterface) config.getProject("customprops6");
+        foo = projConfig.getFoo();
+        assertEquals("local-in-customprops6_filled_works!", foo.getName());
     }
     // TODO backport
     /*
