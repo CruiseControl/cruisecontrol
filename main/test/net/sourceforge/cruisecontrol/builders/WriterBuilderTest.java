@@ -312,31 +312,65 @@ public class WriterBuilderTest extends TestCase {
         assertStreams(buff.getData(), new FileInputStream(outFile));
 	}
 
-	/**
-	 * Test for trim.
-	 * @throws CruiseControlException
-	 * @throws IOException
-	 */
-	public final void testTrim() throws CruiseControlException, IOException {
-	    final File outFile = filesToDelete.add(this);
-	    final WriterBuilder writerObj = new WriterBuilder();
-	    final DataBuffer buff = new DataBuffer();
 
-        IO.delete(outFile);
-
-        //Removing white chars from start and end
-        writerObj.setFile(outFile.getAbsolutePath());
+    /**
+     * Tests for trim in message
+     * @throws CruiseControlException
+     * @throws IOException
+     */
+    public final void testTrim() throws CruiseControlException, IOException {
+        final File outFile = filesToDelete.add(this);
+        final WriterBuilder writerObj = new WriterBuilder();
+        final DataBuffer buff = new DataBuffer();
+        final String text = "<msg> " + buff.add("This is the text-holding") + " \n"
+                          + "        " + buff.add("element used to check")    + "\n" 
+                          + "        " + buff.add("if trim works correctly")  + "  \n"
+                          + "  "       + buff.add("") + "\n"
+                          + "  "       + buff.add("and the last line now") + "\n"
+                          +              buff.add("") + " </msg>";
+        // set trim on
         writerObj.setTrim(true);
-        newMssg(writerObj).append(buff.add("   first text  ", true));
-        newMssg(writerObj).append(buff.add("text", true));
-        newMssg(writerObj).append(buff.add("  ", true));
+        writerObj.setFile(outFile.getAbsolutePath());
+        writerObj.setWorkingDir(outFile.getParent());
 
+        // Create the XML text element
+        final Element elem = Util.loadRootElement(new ByteArrayInputStream(text.getBytes()));
+        final WriterBuilder.Msg msg = newMssg(writerObj);
+        // Fill it with the text
+        msg.xmltext((org.jdom.Text) elem.getContent(0));
+
+        // build
         writerObj.validate();
         writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile)));
+    }
 
-        assertTrue(outFile.exists());
-        assertStreams(buff.getData(), new FileInputStream(outFile));
-	}
+//	/**
+//	 * Test for trim in file.
+//	 * @throws CruiseControlException
+//	 * @throws IOException
+//	 */
+//	public final void testTrim() throws CruiseControlException, IOException {
+//	    final File outFile = filesToDelete.add(this);
+//	    final WriterBuilder writerObj = new WriterBuilder();
+//	    final DataBuffer buff = new DataBuffer();
+//
+//        IO.delete(outFile);
+//
+//        //Removing white chars from start and end
+//        writerObj.setFile(outFile.getAbsolutePath());
+//        writerObj.setTrim(true);
+//        newMssg(writerObj).append(buff.add("   first text  ", true));
+//        newMssg(writerObj).append(buff.add("text", true));
+//        newMssg(writerObj).append(buff.add("  ", true));
+//
+//        writerObj.validate();
+//        writerObj.build(buildMap, buildProgress);
+//
+//        assertTrue(outFile.exists());
+//        assertStreams(buff.getData(), new FileInputStream(outFile));
+//	}
 
 	/**
 	 * Test for not supported encoding.
@@ -527,7 +561,6 @@ public class WriterBuilderTest extends TestCase {
         // Assert. The output file is in Latin2 encoding
         assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile), "latin2"));
     }
-
 	
 	/**
 	 * Adds {@link WriterBuilder.File} object to the builder object and returns it

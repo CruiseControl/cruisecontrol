@@ -363,9 +363,6 @@ public class WriterBuilder extends Builder {
         @Override
         public InputStream getContent(final Map<String, String> properties) {
             String str = this.toString();
-            if (trim) {
-                str = str.trim();
-            }
             // Resolve the properties
             try {
                 str = Util.parsePropertiesInString(properties, str, false);
@@ -390,7 +387,15 @@ public class WriterBuilder extends Builder {
         /** Set the text content from a XML node.
          *  @param t inner text element of XML <msg></msg> element. */
         public void xmltext(final Text t) {
-            this.append(t.getText());
+            /* if trim is required, split the text and trim each line */
+            if (trim) {
+                final String[] lines = t.getText().split(System.lineSeparator());
+                for  (String s : lines) {
+                    this.append(s.trim() + System.lineSeparator());
+                }
+            } else {
+                this.append(t.getText());
+            }
         }
     }
 
