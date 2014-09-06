@@ -423,7 +423,7 @@ public class CruiseControlConfig {
     private void handleProject(final Element projectElement) throws CruiseControlException {
 
         final String projectName = getProjectName(projectElement);
-        final Set<String> projectProps = new HashSet();
+        final Set<String> projectProps = new HashSet<String>();
 
         if (projects.containsKey(projectName)) {
             final String duplicateEntriesMessage = "Duplicate entries in config file for project name " + projectName;
