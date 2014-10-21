@@ -66,4 +66,16 @@ public class LaunchException extends Exception {
     public LaunchException(String message) {
         super(message);
     }
+    /**
+     * Constructs an exception with the given descriptive message.
+     *
+     * @param message
+     *            A description of or information about the exception. Should
+     *            not be <code>null</code>.
+     * @param cause
+     *            The cause passed to parent ()
+     */
+    public LaunchException(String message, Exception cause) {
+        super(message, cause);
+    }
 }

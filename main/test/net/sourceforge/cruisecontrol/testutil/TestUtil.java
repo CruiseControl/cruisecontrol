@@ -39,6 +39,7 @@ package net.sourceforge.cruisecontrol.testutil;
 
 import junit.framework.Assert;
 import net.sourceforge.cruisecontrol.util.IO;
+
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -48,15 +49,22 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 
 public final class TestUtil {
     public static class FilesToDelete {
         private final List<File> files = new Vector<File>();
 
-        public void add(File file) {
+        public File add(File file) {
              files.add(file);
+             return file;
         }
 
         public File add(String file) throws IOException {
@@ -85,8 +93,7 @@ public final class TestUtil {
          */
         public File add(String prefix, String suffix) throws IOException {
             final File file = File.createTempFile(prefix, suffix);
-            add(file);
-            return file;
+            return add(file);
         }
 
         public void delete() {
@@ -96,6 +103,33 @@ public final class TestUtil {
             files.clear();
         }
     }
+
+    /**
+     * Records and restores properties get by System.get ...
+     */
+    public static class PropertiesRestorer {
+
+        private Properties recordedProps;
+
+        /**
+         * Stores all properties as they are defined in the time of the call of the method.
+         * It is recommended to call this method in @link {@link TestCase#setUp()} or in the constructor
+         * of a particular test
+         */
+        public void record() {
+            // TODO: if shallow copy of keys and values is not enough, make deep copy
+            recordedProps = (Properties) System.getProperties().clone();
+        }
+
+        /**
+         * Resets properties into the state as they were recorded in @link {@link #record()}.
+         * It is recommended to call this method in @link {@link TestCase#tearDown()}.
+         */
+        public void restore() {
+            System.setProperties(recordedProps);
+        }
+    }
+
 
     private static File targetDir;
     public static File getTargetDir() {

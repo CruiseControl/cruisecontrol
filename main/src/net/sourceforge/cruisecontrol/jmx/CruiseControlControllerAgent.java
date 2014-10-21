@@ -280,8 +280,8 @@ public class CruiseControlControllerAgent {
         return connectorServerPort != MainArgs.NOT_FOUND;
     }
 
-    /** CC Command line arguement name. */
-    public static final String ARG_JMX_AGENTUTIL = "agentutil";
+//    /** CC Command line arguement name. */
+//    public static final String ARG_JMX_AGENTUTIL = "agentutil";
 
     public static enum LOAD_JMX_AGENTUTIL {
         /** default, if no command line arg present. Not an error if load fails. */

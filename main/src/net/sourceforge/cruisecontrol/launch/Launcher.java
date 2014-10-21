@@ -75,12 +75,6 @@ public class Launcher {
     /** The property containing the CruiseControl home directory */
     public static final String CCHOME_PROPERTY = "cc.home";
 
-    /** The property containing the CruiseControl dist directory */
-    public static final String CCDISTDIR_PROPERTY = "cc.dist.dir";
-
-    /** The property containing the CruiseControl library directory */
-    public static final String CCLIBDIR_PROPERTY = "cc.library.dir";
-
     /** The directory name of the per-user CC directory */
     public static final String CC_PRIVATEDIR = ".cruisecontrol";
 
@@ -91,16 +85,9 @@ public class Launcher {
     public static final String USER_LIBDIR = CC_PRIVATEDIR + File.separator
             + CC_PRIVATELIB;
 
-    /** system property with user home directory */
-    public static final String USER_HOMEDIR = "user.home";
-
     /** The startup class that is to be run */
     public static final String MAIN_CLASS = "net.sourceforge.cruisecontrol.Main";
 
-    /** CC Command line arguement name. */
-    public static final String ARG_LOG4J_CONFIG = "log4jconfig";
-    static final String ERR_MSG_LOG4J_CONFIG = "The -" + ARG_LOG4J_CONFIG + " argument must "
-                        + "be followed by a log4j configuration URL (for example: \"file:/c:/mylog4j.xml\")";
     /** Log4j system property name. */
     public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
 
@@ -134,76 +121,49 @@ public class Launcher {
      */
     void run(final String[] args) throws LaunchException, MalformedURLException {
 
-        final File sourceJar = Locator.getClassSource(this.getClass());
+        // First of all read the configuration
+        final Configuration config = Configuration.getInstance(args);
+
+        final File sourceJar = getClassSource();
         final File distJarDir = sourceJar.getParentFile();
+        final File ccHome = config.getOptionDir(Configuration.KEY_HOME_DIR);
 
-        final File ccHome = getCCHomeDir(distJarDir);
-
-        // Process the command line arguments. We will handle the classpath
-        // related switches ourself. All other arguments will be repackaged
-        // and passed on the the Main class for processing.
-        final List<String> libPaths = new ArrayList<String>();
-        final List<String> argList = new ArrayList<String>();
-        boolean noUserLib = false;
-
-        for (int i = 0; i < args.length; ++i) {
-            if (args[i].equals("-lib")) {
-                if (i == args.length - 1) {
-                    throw new LaunchException("The -lib argument must "
-                        + "be followed by a library location");
-                }
-                libPaths.add(args[++i]);
-            } else if (args[i].equals("--nouserlib") || args[i].equals("-nouserlib")) {
-                noUserLib = true;
-            } else if (args[i].equals("-" + ARG_LOG4J_CONFIG)) {
-                if (i == args.length - 1) {
-                    throw new LaunchException(ERR_MSG_LOG4J_CONFIG);
-                }
-                System.setProperty(PROP_LOG4J_CONFIGURATION, args[++i]);
-            } else {
-                argList.add(args[i]);
-            }
-        }
+        // Make notice to log4j where is configuration file is
+        final URL log4jcofig = config.getOptionUrl(Configuration.KEY_LOG4J_CONFIG);
+        System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
 
         // Process the lib dir entries found on the command line
         final List<URL> libPathURLs = new ArrayList<URL>();
-        for (final String libPath : libPaths) {
+        for (final String libPath : config.getOptionStrArray(Configuration.KEY_USER_LIB_DIRS)) {
             addPath(libPath, true, libPathURLs);
         }
         final URL[] libJars = libPathURLs.toArray(new URL[libPathURLs.size()]);
 
-        // Determine the CruiseControl directory for the distribution jars.
-        // Use the system property if it was provided, otherwise make a guess
-        // based upon the location of the launcher jar.
-        File ccDistDir = null;
-        final String ccDistDirProperty = System.getProperty(CCDISTDIR_PROPERTY);
-        if (ccDistDirProperty != null) {
-            ccDistDir = new File(ccDistDirProperty);
-        }
-        if ((ccDistDir == null) || !ccDistDir.exists()) {
+        // Determine the CruiseControl directory for the distribution jars if it was provided, 
+        // Otherwise make a guess based upon the location of the launcher jar.
+        File ccDistDir;
+        try {
+            ccDistDir = config.getOptionDir(Configuration.KEY_DIST_DIR);
+        } catch (IllegalArgumentException e) {
             ccDistDir = distJarDir;
-            System.setProperty(CCDISTDIR_PROPERTY, ccDistDir.getAbsolutePath());
         }
         final URL[] distJars = Locator.getLocationURLs(ccDistDir);
 
-        // Determine CruiseControl library directory for third party jars.
-        // Use the system property if it was provided, otherwise make a guess
-        // based upon the CruiseControl home dir we found earlier.
-        File ccLibDir = null;
-        final String ccLibDirProperty = System.getProperty(CCLIBDIR_PROPERTY);
-        if (ccLibDirProperty != null) {
-            ccLibDir = new File(ccLibDirProperty);
-        }
-        if ((ccLibDir == null) || !ccLibDir.exists()) {
+        // Determine CruiseControl library directory for third party jars, if it was provided. 
+        // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
+        File ccLibDir;
+        try {
+             ccLibDir = config.getOptionDir(Configuration.KEY_LIBRARY_DIR);
+        } catch (IllegalArgumentException e) {
             ccLibDir = new File(ccHome, "lib");
-            System.setProperty(CCLIBDIR_PROPERTY, ccLibDir.getAbsolutePath());
         }
         final URL[] supportJars = Locator.getLocationURLs(ccLibDir);
         final URL[] antJars = Locator.getLocationURLs(new File(ccLibDir, "ant"));
 
         // Locate any jars in the per-user lib directory
-        final File userLibDir = new File(System.getProperty(USER_HOMEDIR),
-                USER_LIBDIR);
+        final File userLibDir = new File(ccHome, USER_LIBDIR);
+
+        final boolean noUserLib = config.getOptionBool(Configuration.KEY_NO_USER_LIB);
         final URL[] userJars = noUserLib ? EMPTY_URL_ARRAY : Locator.getLocationURLs(userLibDir);
 
         // Locate the Java tools jar
@@ -256,7 +216,7 @@ public class Launcher {
         try {
             final Class mainClass = loader.loadClass(MAIN_CLASS);
             final CruiseControlMain main = (CruiseControlMain) mainClass.newInstance();
-            final boolean normalExit = main.start(argList.toArray(new String[argList.size()]));
+            final boolean normalExit = main.start(config);
             if (!normalExit) {
                 exitWithErrorCode();
             }
@@ -265,16 +225,17 @@ public class Launcher {
         }
     }
 
-    /**
-     * System property name, when if true, bypasses the system.exit call when printing
-     * the usage message. Intended for unit tests only.
-     */
-    public static final String SYSPROP_CCMAIN_SKIP_USAGE_EXIT = "cc.main.skip.usage.exit";
+    /** @return the path to Jar (or directory) where Launcher.class file is located */
+    File getClassSource() {
+        return Locator.getClassSource(Launcher.class);
+    }
 
-    private void exitWithErrorCode() {
-        if (!Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE_EXIT)) {
-            System.exit(1);
-        }
+
+    /**
+     * When called, invokes System.exit(1). The method is protected to be overridden in tests.
+     */
+    protected void exitWithErrorCode() {
+       System.exit(1);
     }
 
     /** Exception message if CC Home directory couldn't be determined. */
@@ -288,33 +249,31 @@ public class Launcher {
      * @return CruiseControl home directory
      * @throws LaunchException if CruiseControl home is not set or could not be located.
      */
-    File getCCHomeDir(File distJarDir) throws LaunchException {
-        // If the CruiseControl home dir was provided as a system property,
-        // create a reference to it
-        final File ccHome;
-        final String ccHomeProperty = System.getProperty(CCHOME_PROPERTY);
-        if (ccHomeProperty != null && (new File(ccHomeProperty)).exists()) {
-            ccHome = new File(ccHomeProperty);
+    File getCCHomeDir(Configuration conf, File distJarDir) throws LaunchException {
+        File ccHome;
+        // Check, if the directory was defined in a configuration
+        try {
+            ccHome = conf.getOptionDir(Configuration.KEY_HOME_DIR);
+            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
+            return ccHome;
 
-        // If the location was not specifed, or it does not exist, try to guess
+        } catch (IllegalArgumentException e) {
+            // Was not defined correctly or not found ...
+        }
+
+        // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the launcher Jar.
-        } else if (distJarDir.getParentFile() != null) {
+        conf.getLogger().warn("Trying to guess '" + Configuration.KEY_HOME_DIR + "' from '"
+                + distJarDir.getAbsolutePath());
+
+        if (distJarDir.getParentFile() != null) {
             ccHome = distJarDir.getParentFile();
             System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
-            System.out.println("WARNING: " + CCHOME_PROPERTY + " reset to "
-                    + System.getProperty(CCHOME_PROPERTY));
-        } else {
-            ccHome = null;
+            return ccHome;
         }
 
         // If none of the above worked, give up now.
-        if (ccHome == null || !ccHome.exists()) {
-            throw new LaunchException(MSG_BAD_CCHOME);
-        }
-        if (ccHomeProperty == null) {            
-            System.setProperty(CCHOME_PROPERTY, ccHome.toString());
-        }
-        return ccHome;
+        throw new LaunchException(MSG_BAD_CCHOME);
     }
 
     private void copyJarUrls(URL[] sourceArray, URL[] destinationArray, int destinationStartIndex) {

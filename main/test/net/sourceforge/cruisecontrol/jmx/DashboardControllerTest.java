@@ -38,6 +38,7 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import net.sourceforge.cruisecontrol.CruiseControlController;
 import net.sourceforge.cruisecontrol.Main;
+import net.sourceforge.cruisecontrol.launch.Configuration;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import junit.framework.TestCase;
@@ -52,7 +53,7 @@ public class DashboardControllerTest extends TestCase {
     }
 
     public void testShouldBeAbleToDisablePosting() throws Exception {
-        new Main().startPostingToDashboard(new String[0]);
+        new Main().startPostingToDashboard(Configuration.getInstance(new String[0]));
         assertNotNull(BuildLoopMonitorRepository.getBuildLoopMonitor());
         dashboardController.stopPostingToDashboard();
         assertNull(BuildLoopMonitorRepository.getBuildLoopMonitor());
@@ -65,7 +66,7 @@ public class DashboardControllerTest extends TestCase {
     }
 
     public void testShouldBeAbleToResetPostingIfThereIsExistingPosting() throws Exception {
-        new Main().startPostingToDashboard(new String[0]);
+        new Main().startPostingToDashboard(Configuration.getInstance(new String[0]));
         BuildLoopMonitor existingPosting = BuildLoopMonitorRepository.getBuildLoopMonitor();
         assertNotNull(existingPosting);
 

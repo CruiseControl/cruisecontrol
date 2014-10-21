@@ -59,10 +59,8 @@ package net.sourceforge.cruisecontrol.launch;
 public interface CruiseControlMain {
     /**
      * Start CruiseControl
-     *
-     * @param args
-     *            Command line arguments to be handled directly by CruiseControl
-     *            (passed through the launcher without processing)
+     * @param config the instance of the configuration holder
+     * @return
      */
-    public boolean start(String[] args);
+    public boolean start(Configuration config);
 }
