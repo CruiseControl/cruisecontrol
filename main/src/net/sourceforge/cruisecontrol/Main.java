@@ -45,6 +45,8 @@ import java.util.Properties;
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.launch.Configuration;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
+import net.sourceforge.cruisecontrol.launch.LaunchException;
+import net.sourceforge.cruisecontrol.launch.LogInterface;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.report.BuildLoopPostingConfiguration;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
@@ -86,7 +88,11 @@ public final class Main implements CruiseControlMain {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
             // Set the logger. Now it is fully configured
-            Configuration.setRealLog(LOG);
+            try {
+                Configuration.setRealLog(new Log4jLog());
+            } catch (LaunchException e) {
+                LOG.error("Unable to set real logger to config class; all previous messages are probably lost", e);
+            }
 
             checkDeprecatedArguments(config, LOG);
             controller = createController(config, versionProperties);
@@ -473,5 +479,27 @@ public final class Main implements CruiseControlMain {
 
     public static boolean parseHttpPostingEnabled(Configuration conf) {
         return conf.getOptionBool(Configuration.KEY_POST_ENABLED);
+    }
+
+    /** Implementation of the {@link LogInterface} passing data to Log4j logger instance */
+    private static class Log4jLog implements LogInterface {
+
+        @Override
+        public void error(Object message) {
+            LOG.error(message); // use the context of Main
+        }
+        @Override
+        public void warn(Object message) {
+            LOG.warn(message);
+        }
+        @Override
+        public void info(Object message) {
+            LOG.info(message);
+        }
+        @Override
+        /** Does nothing, throws LaunchException when called */
+        public void flush(LogInterface log) throws LaunchException {
+            throw new LaunchException("Cannot flush log4j to nother log, probably trying to set log4j when one already set");
+        }
     }
 }

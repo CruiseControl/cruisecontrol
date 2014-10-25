@@ -36,10 +36,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.launch;
 
-import org.apache.log4j.Logger;
-
 /** Interface defining a general logging capability for the Launcher */
-interface LogInterface {
+public interface LogInterface {
    
     /** Passes error message to a log 
      *  @param message */ 
@@ -54,5 +52,5 @@ interface LogInterface {
     /** Flushes the content of the log to log4j logger 
      *  @param log 
      *  @throws LaunchException */
-    void flush(Logger log) throws LaunchException;
+    void flush(LogInterface log) throws LaunchException;
 }

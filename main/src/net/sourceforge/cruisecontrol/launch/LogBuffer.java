@@ -39,13 +39,11 @@ package net.sourceforge.cruisecontrol.launch;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-import org.apache.log4j.Logger;
-
 /**
  * Implementation of the {@link LogInterface} storing data in memory and printing them to
  * <code>STDERR</code> as well 
  */
-public class LogBuffer implements LogInterface {
+class LogBuffer implements LogInterface {
     /** Supported message types */
     private enum MessageType {
         info,
@@ -89,7 +87,7 @@ public class LogBuffer implements LogInterface {
     }
 
     @Override
-    public void flush(Logger log) {
+    public void flush(LogInterface log) {
       for (Message m : messages) {
         switch (m.type) {
           case error: log.error(m.message);

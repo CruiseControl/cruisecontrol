@@ -206,7 +206,7 @@ public class Launcher {
         baseClassPath.append(ccHome.getAbsolutePath()).append(File.separatorChar);
 
         System.setProperty("java.class.path", baseClassPath.toString());
-        System.out.println("Classpath: " + baseClassPath.toString());
+        config.getLogger().info("Classpath: " + baseClassPath.toString());
 
         // Create a new class loader which has access to our jars
         final URLClassLoader loader = new URLClassLoader(jars);

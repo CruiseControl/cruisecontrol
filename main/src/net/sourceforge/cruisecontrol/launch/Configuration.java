@@ -36,11 +36,9 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.launch;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Util;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -51,8 +49,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-public class Configuration { // TODO: jako Properties nebo neco takovyho???
+
+public class Configuration {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
     public static final String KEY_LIBRARY_DIR = "library_dir";
@@ -166,7 +167,7 @@ public class Configuration { // TODO: jako Properties nebo neco takovyho???
      * If not, initialize it by calling {@link #getInstance(String[])}.
      * 
      * @return the instance of {@link Configuration} initialized by {@link #getInstance(String[])}.
-     * @throw IllegalStateException when not initialized 
+     * @throws IllegalStateException when not initialized
      */
     public static Configuration getInstance() {
       if (config == null) {
@@ -190,15 +191,18 @@ public class Configuration { // TODO: jako Properties nebo neco takovyho???
     /** It sets correct instance of "real logger" to log data through. All the data logged into the temporary
      *  logger will be pushed to the logger just being set. Once the real logger is set, it cannot be changed.
      *   
-     *  @param loger the real logger to log into
+     *  @param logger the real logger to log into
+     * @throws LaunchException 
      */
-    public static void setRealLog(Logger logger) {
-      try {
-          log.flush(logger);
-          log = new Log4jLog(logger);
-      } catch (LaunchException e) {
-          logger.error("Unable to set new log4j logger!", e);
-      }
+    public static void setRealLog(LogInterface logger) throws LaunchException {
+       // Ignore, if the instance is the same
+       if (logger.equals(log)) {
+           log.warn("Trying to set the same logger, ignoring");
+           return;
+       }
+       // Set
+       log.flush(logger);
+       log = logger;
     }
     
     /**
@@ -446,23 +450,26 @@ public class Configuration { // TODO: jako Properties nebo neco takovyho???
             return;
         }
 
-        // Read the config
+        // Read the config. Use standard Java's XML tools to avoid the dependency ion an external
+        // XML handling package (although net.sourceforge.cruisecontrol.util.Util class contains
+        // more advanced CML parsers. Could be nice to join them ...)
         try {
-            xmlConfig = Util.loadRootElement(path);
-        } catch (CruiseControlException e) {
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            xmlConfig = builder.parse(path).getDocumentElement();
+        } catch (Exception e) {
             throw new LaunchException("Failed to read XML file:" + path.getAbsolutePath(), e);
         }
         // The root element is <cruisecontrol>, find <launcher>...</launcher> section in it
         // and parse recursively
-        if ("cruisecontrol".equals(xmlConfig.getName())) {
-            final Element launch = xmlConfig.getChild("launcher");
+        if ("cruisecontrol".equals(xmlConfig.getNodeName())) {
+            final Element launch = getChild(xmlConfig, "launcher");
             // Not found!
             if (launch == null) {
                 throw new LaunchException("No launcher configuration found in the XML config");
             }
             
             // Remove the option from the <launch> element since the config is this file
-            launch.removeChild(KEY_CONFIG_FILE); // Remove it in case that it will be set
+            removeChild(launch, KEY_CONFIG_FILE); // Remove it in case that it will be set
             // Set the path to the file and continue with parsing the launcher element
             setOption(opts, set, KEY_CONFIG_FILE, path.getAbsolutePath());
             xmlConfig = launch;
@@ -478,16 +485,44 @@ public class Configuration { // TODO: jako Properties nebo neco takovyho???
         }
 
         // Parse options from <launcher>...</launcher> element
-        for (final Object child : xmlConfig.getChildren()) {
-            if (!(child instanceof Element)) {
+        for (final Node child : getChildNodes(xmlConfig)) {
+            if (child.getNodeType() != Node.ELEMENT_NODE) {
                 continue;
             }
             final Element elem = (Element) child;
-            final String key = elem.getName();
-            final String val = elem.getTextTrim();
+            final String key = elem.getNodeName();
+            final String val = elem.getTextContent().trim();
                  
             setOption(opts, set, key, val);
         }
+    }
+
+    /* Methods for XML manipulation. They have their equivalents in org.jdom.Element object,
+     * but since "external" org.jdompackage is not used by the launcher (to avoid the need to
+     * define path to external jars, we have to re-implement them here. */
+    private static Element getChild(final Element xmlNode, final String name) {
+        for (final Node child : getChildNodes(xmlNode)) {
+            if (name.equals(child.getNodeName()) && child.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) child;
+            }
+        }
+        return null;
+    }
+    private static void removeChild(final Element xmlNode, final String name) {
+        for (final Node child : getChildNodes(xmlNode)) {
+            if (name.equals(child.getNodeName()) && child.getNodeType() == Node.ELEMENT_NODE) {
+                xmlNode.removeChild(child);
+            }
+        }
+    }
+    private static Node[] getChildNodes(final Element xmlNode) {
+       NodeList list = xmlNode.getChildNodes();
+       Node[] nodes = new Node[list.getLength()];
+
+       for (int i = 0; i < nodes.length; i++) {
+           nodes[i] = list.item(i);
+       }
+       return nodes;
     }
 
     /**
