@@ -104,7 +104,7 @@ public class Launcher {
             launcher.run(args);
         } catch (LaunchException e) {
             System.err.println(e.getMessage());
-       } catch (Throwable t) {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
     }
@@ -126,8 +126,7 @@ public class Launcher {
 
         final File sourceJar = getClassSource();
         final File distJarDir = sourceJar.getParentFile();
-        final File ccHome = config.getOptionDir(Configuration.KEY_HOME_DIR);
-
+        //
         // Make notice to log4j where is configuration file is
         final URL log4jcofig = config.getOptionUrl(Configuration.KEY_LOG4J_CONFIG);
         System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
@@ -146,8 +145,22 @@ public class Launcher {
             ccDistDir = config.getOptionDir(Configuration.KEY_DIST_DIR);
         } catch (IllegalArgumentException e) {
             ccDistDir = distJarDir;
+            config.getLogger().warn("Option '" + Configuration.KEY_DIST_DIR + "' not set, using " 
+                    + ccDistDir.getAbsolutePath());
         }
-        final URL[] distJars = Locator.getLocationURLs(ccDistDir);
+
+        File ccHome = new File("");
+        try {
+            ccHome = getCCHomeDir(config, ccDistDir);
+        } catch (LaunchException e) {
+            ccHome = ccDistDir.getParentFile();
+            config.getLogger().warn("Option '" + Configuration.KEY_HOME_DIR + "' not set, using " 
+                    + ccHome.getAbsolutePath());
+        } finally {
+            // The property is required by other modules. It would be better to use Configuration
+            // directly ... 
+            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath()); 
+        }
 
         // Determine CruiseControl library directory for third party jars, if it was provided. 
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
@@ -157,6 +170,7 @@ public class Launcher {
         } catch (IllegalArgumentException e) {
             ccLibDir = new File(ccHome, "lib");
         }
+        final URL[] distJars = Locator.getLocationURLs(ccDistDir);
         final URL[] supportJars = Locator.getLocationURLs(ccLibDir);
         final URL[] antJars = Locator.getLocationURLs(new File(ccLibDir, "ant"));
 
@@ -250,13 +264,9 @@ public class Launcher {
      * @throws LaunchException if CruiseControl home is not set or could not be located.
      */
     File getCCHomeDir(Configuration conf, File distJarDir) throws LaunchException {
-        File ccHome;
         // Check, if the directory was defined in a configuration
         try {
-            ccHome = conf.getOptionDir(Configuration.KEY_HOME_DIR);
-            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
-            return ccHome;
-
+            return conf.getOptionDir(Configuration.KEY_HOME_DIR);
         } catch (IllegalArgumentException e) {
             // Was not defined correctly or not found ...
         }
@@ -267,9 +277,7 @@ public class Launcher {
                 + distJarDir.getAbsolutePath());
 
         if (distJarDir.getParentFile() != null) {
-            ccHome = distJarDir.getParentFile();
-            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
-            return ccHome;
+            return distJarDir.getParentFile();
         }
 
         // If none of the above worked, give up now.

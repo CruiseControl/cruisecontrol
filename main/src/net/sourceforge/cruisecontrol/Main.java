@@ -499,7 +499,8 @@ public final class Main implements CruiseControlMain {
         @Override
         /** Does nothing, throws LaunchException when called */
         public void flush(LogInterface log) throws LaunchException {
-            throw new LaunchException("Cannot flush log4j to nother log, probably trying to set log4j when one already set");
+            throw new LaunchException("Cannot flush log4j to nother log, probably trying to set "
+                    + "log4j when one already set");
         }
     }
 }
