@@ -48,14 +48,16 @@ Description=CruiseControl - continuous integration tool
 After=local-fs.target
 
 [Service]
-EnvironmentFile=/etc/conf.d/cruisecontrol
-ExecStart=/bin/sh /usr/bin/cruisecontrol.systemd.sh
+Environment="CRUISE_DIST_PATH=/usr/share/cruisecontrol/dist"
+Environment="CRUISE_LAUNCHXML=/usr/share/cruisecontrol/cruisecontrol.launch.xml"
+Environment="CRUISE_JAVA_OPTS=-Djavax.management.builder.initial=mx4j.server.MX4JMBeanServerBuilder"
+
+ExecStart=/usr/bin/java -server -Xincgc $CRUISE_JAVA_OPTS -jar ${CRUISE_DIST_PATH}/cruisecontrol-launcher.jar -configfile ${CRUISE_LAUNCHXML}
 Restart=on-failure
 
-# Run it as the given user with the given niceness
-#User=$CRUISE_USER
+# Run it as the given user in its home directory
 User=cruise
-
+WorkingDirectory=%h
 StandardError=syslog
 
 [Install]
