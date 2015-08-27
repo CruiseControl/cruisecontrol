@@ -43,6 +43,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -814,6 +815,10 @@ public class Project implements Serializable, Runnable, ProjectQuery {
      * CruiseControl build log.
      * @param message the application message to log
      */
+    private void warn(final String message) {
+        LOG.warn("Project " + name + ":  " + message);
+    }
+
     private void info(final String message) {
         LOG.info("Project " + name + ":  " + message);
     }
@@ -978,6 +983,12 @@ public class Project implements Serializable, Runnable, ProjectQuery {
     public List<Modification> modificationsSinceLastBuild() {
         final ModificationSet modificationSet = projectConfig.getModificationSet();
 
+        // modificationSet can be null when no modification set is set
+        if (modificationSet == null) {
+            warn("No modification set got from " + projectConfig.getName() + ", pretending 'not-modified status'");
+            return Collections.emptyList();
+        }
+        
         info("Getting changes since last successful build");
         modificationSet.retrieveModificationsAsElement(lastSuccessfulBuild, progress);
         return modificationSet.getCurrentModifications();
