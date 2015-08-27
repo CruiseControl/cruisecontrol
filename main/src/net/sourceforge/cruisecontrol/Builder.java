@@ -175,7 +175,8 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
                 try {
                     outputFile = File.createTempFile(outputPref, outputSuff, workingDir);
                 } catch (IOException e) {
-                    throw new RuntimeException(new File(workingDir, outputPref + "XXXX" + outputSuff).getName(), e);
+                    throw new RuntimeException("Unable to create temporary file in workingdir="
+                            + workingDir == null ? "<null>" : workingDir.getAbsolutePath(), e);
                 }
             }
             outputFile.deleteOnExit();
