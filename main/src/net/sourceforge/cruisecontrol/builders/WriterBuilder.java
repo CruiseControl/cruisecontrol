@@ -483,8 +483,11 @@ public class WriterBuilder extends Builder {
             }
             // read to the buffer
             if (read >= line.length) {
-                final String str = reader.readLine();
-                line = str != null ? str.getBytes() : new byte[0];
+                final char[] str = new char[1024];
+                final int ret = reader.read(str);
+
+                // Must add line separator ('\n' or '\n\r') since BufferedReader.readLine() removes it
+                line = ret > 0 ? new String(str, 0, ret).getBytes() : new byte[0];
                 read = 0;
             }
             if (read >= line.length) {

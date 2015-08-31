@@ -517,9 +517,10 @@ public class WriterBuilderTest extends TestCase {
         final WriterBuilder writerObj = new WriterBuilder();
         final DataBuffer buff = new DataBuffer();
 
-        // <msg>...</msg>
+        //<writer file="..." />
         writerObj.setFile(outFile.getAbsolutePath());
         writerObj.setEncoding("iso8859-5");
+        // <msg>...</msg>
         newMssg(writerObj).append(buff.add("Здесь фабула объять не может всех эмоций - шепелявый "
                 + "скороход в юбке тащит горячий мёд.", true));
         // <file/>
@@ -534,6 +535,33 @@ public class WriterBuilderTest extends TestCase {
         writerObj.build(buildMap, buildProgress);
         // Assert. The output file is in Latin2 encoding
         assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile), "iso8859-5"));
+    }
+
+    /**
+     * Test firl with multiple lines
+     * @throws CruiseControlException
+     * @throws IOException
+     */
+    public final void testFileMultiline() throws CruiseControlException, IOException {
+        final File inpFile = filesToDelete.add(this);
+        final File outFile = filesToDelete.add(this);
+        final WriterBuilder writerObj = new WriterBuilder();
+        final DataBuffer buff = new DataBuffer();
+
+        //<writer file="..." />
+        writerObj.setFile(outFile.getAbsolutePath());
+        // <file/>
+        final WriterBuilder.File f = newFile(writerObj);
+        f.setFile(inpFile.getAbsolutePath());
+        // Write message to the file
+        buff.add("1st line" + System.lineSeparator() +System.lineSeparator() +System.lineSeparator()
+                + "2nd line" + System.lineSeparator()
+                + "3rd line" + System.lineSeparator(), inpFile);
+
+        writerObj.validate();
+        writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile)));
     }
 
     /**
@@ -558,6 +586,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.setWorkingDir(outFile.getParent());
         writerObj.validate();
         writerObj.build(buildMap, buildProgress);
+
         // Assert. The output file is in Latin2 encoding
         assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile), "latin2"));
     }
