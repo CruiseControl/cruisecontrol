@@ -114,7 +114,7 @@ public class ExecBuilder extends Builder {
      *        of the script.
      * @return the result of the command.
      */
-    Element build(final Map<String, String> buildProperties, final Progress progressIn,
+    public Element build(final Map<String, String> buildProperties, final Progress progressIn,
             final InputStream stdinProvider) {
 
         final Progress progress = getShowProgress() ? progressIn : null;
@@ -219,11 +219,11 @@ public class ExecBuilder extends Builder {
         return value;
     }
 
-    ExecScript createExecScript() {
+    protected ExecScript createExecScript() {
         return new ExecScript();
     }
 
-    ScriptRunner createScriptRunner() {
+    protected ScriptRunner createScriptRunner() {
         return new ScriptRunner();
     }
 

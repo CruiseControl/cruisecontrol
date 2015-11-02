@@ -64,7 +64,7 @@ public final class CMakeBuilderOptions   {
      * Gets the options set through {@link #createOption()}.
      * @return iterator through the sequence of options
      */
-    Iterable<Option> getOptions() {
+    public Iterable<Option> getOptions() {
         return options;
     }
 
@@ -72,7 +72,7 @@ public final class CMakeBuilderOptions   {
      * Gets the env variable set through {@link #createEnv()}.
      * @return iterator through the sequence of env values
      */
-    Iterable<EnvConf> getEnvs() {
+    public Iterable<EnvConf> getEnvs() {
         return envs;
     }
       

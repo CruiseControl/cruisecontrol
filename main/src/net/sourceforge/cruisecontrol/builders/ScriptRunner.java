@@ -253,7 +253,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
+    protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
         return new StreamPumper(p.getInputStream(), consumer);
     } // getOutPumper
 
@@ -268,7 +268,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    StreamPumper getErrPumper(final Process p, final StreamConsumer consumer) {
+    protected StreamPumper getErrPumper(final Process p, final StreamConsumer consumer) {
         return new StreamPumper(p.getErrorStream(), consumer);
     } // getErrPumper
 
@@ -283,7 +283,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    StreamPumper getInPumper(final Process p, final InputStream source) {
+    protected StreamPumper getInPumper(final Process p, final InputStream source) {
         return new StreamPumper(source, true, null, p.getOutputStream());
     } // getInPumper
 
@@ -296,7 +296,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    StreamConsumer getDirectOutLogger() {
+    protected StreamConsumer getDirectOutLogger() {
         return StreamLogger.getInfoLogger(LOG);
     } // getDirectOutLogger
     /**
@@ -308,7 +308,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    StreamConsumer getDirectErrLogger() {
+    protected StreamConsumer getDirectErrLogger() {
         return StreamLogger.getWarnLogger(LOG);
     } // getDirectErrLogger
 
@@ -321,7 +321,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    boolean letConsumeOut() {
+    protected boolean letConsumeOut() {
         return true;
     } // letConsumeOut
     /**
@@ -333,7 +333,7 @@ public class ScriptRunner  {
      * @see    #runScript(File, Script, long, InputStream, BuildOutputLogger) where the method 
      *         is called.
      */
-    boolean letConsumeErr() {
+    protected boolean letConsumeErr() {
         return true;
     } // letConsumeErr
     

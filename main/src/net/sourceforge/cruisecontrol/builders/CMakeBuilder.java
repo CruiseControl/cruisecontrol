@@ -46,9 +46,9 @@ import  net.sourceforge.cruisecontrol.Builder;
 import  net.sourceforge.cruisecontrol.CruiseControlException;
 import  net.sourceforge.cruisecontrol.Progress;
 import  net.sourceforge.cruisecontrol.gendoc.annotations.Default;
-import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import  net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import  net.sourceforge.cruisecontrol.gendoc.annotations.Required;
-import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+import  net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import  net.sourceforge.cruisecontrol.util.DateUtil;
 import  net.sourceforge.cruisecontrol.util.IO;
 import  net.sourceforge.cruisecontrol.util.OSEnvironment;
@@ -115,19 +115,22 @@ public class CMakeBuilder extends Builder {
   public void validate() throws CruiseControlException {
     super.validate();
 
+    final File builddir = getBuildDir();
+    final File srcroot = getSrcRoot();
+
     /* A top-level CMake file and build directory arguments are required to be defined */
-    ValidationHelper.assertIsSet(buildDir, "builddir", this.getClass());
-    ValidationHelper.assertIsSet(srcRoot, "srcroot", this.getClass());
+    ValidationHelper.assertIsSet(builddir, "builddir", this.getClass());
+    ValidationHelper.assertIsSet(srcroot, "srcroot", this.getClass());
 
     /* Check the existence of source directory and CMakeLists.txt file in it. */
-    ValidationHelper.assertExists(srcRoot, "srcroot", this.getClass());
-    ValidationHelper.assertExists(new File(srcRoot, "CMakeLists.txt"), "srcroot", this.getClass());
+    ValidationHelper.assertExists(srcroot, "srcroot", this.getClass());
+    ValidationHelper.assertExists(new File(srcroot, "CMakeLists.txt"), "srcroot", this.getClass());
     /* There must not be a file with the name set in buildDir */
-    ValidationHelper.assertFalse(buildDir.isFile(), "There is file '" + buildDir
+    ValidationHelper.assertFalse(builddir.isFile(), "There is file '" + builddir
             + "existing, but it is required to be build directory");
 
     /* Validate all the cmake defines */
-    for (Option option : options) {
+    for (final Option option : getOptions()) {
          ValidationHelper.assertNotEmpty(option.toString(), "option", option.getClass());
     }
 
@@ -136,18 +139,18 @@ public class CMakeBuilder extends Builder {
 
     builder.setCommand("cmake");
     /* Options for CMake */
-    for (Option option : options) {
+    for (final Option option : getOptions()) {
          builder.addOption(option);
     }
     /* srcRoot - path to CMakeLists.txt */
-    builder.addPath(srcRoot);
+    builder.addPath(srcroot);
     /* CMake is the very first */
     commands.addFirst(builder);
 
     /* Set inherited properties and validate individual commands */
-    for (ExecBuilder c : commands) {
+    for (final ExecBuilder c : getBuilders()) {
          if (c.getWorkingDir() == null) {
-             c.setWorkingDir(buildDir.getAbsolutePath());
+             c.setWorkingDir(builddir.getAbsolutePath());
          }
          c.setLiveOutput(isLiveOutput());
          c.setMultiple(getMultiple());
@@ -169,19 +172,21 @@ public class CMakeBuilder extends Builder {
     Element buildLogElement = new Element("build");
     Element cmmndLogElement;
     Attribute cmndErrAttrib;
+    File builddir = getBuildDir();
 
     /* If clean directory is required, clean it */
-    if (cleanBuild) {
-        IO.delete(buildDir);
+    if (getCleanBuild()) {
+        IO.delete(builddir);
     }
     /* Creates the build directory, if it does not exist. */
-    if (!buildDir.exists()) {
-        buildDir.mkdirs();
+    if (!builddir.exists()) {
+        builddir.mkdirs();
     }
 
     /* Call all the commands one after another */
-    for (ExecBuilder c : commands) {
-        long remainTime = timeout != ScriptRunner.NO_TIMEOUT
+    for (final ExecBuilder c : getBuilders()) {
+        final long timeout = getTimeout();
+        final long remainTime = timeout != ScriptRunner.NO_TIMEOUT
                                   ?  timeout - (System.currentTimeMillis() - startTime) / 1000
                                   :  Long.MAX_VALUE;
 
@@ -263,6 +268,12 @@ public class CMakeBuilder extends Builder {
   public void setCleanBuild(boolean value) {
       this.cleanBuild = value;
   }
+  /**
+   * @return the value set through {@link #setCleanBuild(boolean)}
+   */
+  public boolean getCleanBuild() {
+    return this.cleanBuild;
+  }
 
   /**
    * Sets the maximum time of the build run [in seconds] from <code>timeout=""</code> attribute. The
@@ -271,7 +282,13 @@ public class CMakeBuilder extends Builder {
    * @param timeout time after which the build is terminated.
    */
   public void setTimeout(long timeout) {
-    this.timeout = timeout;
+    this.timeOut = timeout;
+  }
+  /**
+   * @return the value set through {@link #setTimeout(long)}
+   */
+  public long getTimeout() {
+    return this.timeOut;
   }
 
   /**
@@ -280,9 +297,25 @@ public class CMakeBuilder extends Builder {
    *
    * @return new object to configure according to the tag values.
    */
-  public Option createOption() {
+  public Object createOption() {
     options.add(new Option());
     return options.getLast();
+  }
+  /**
+   * Adds pre-configured object
+   * @param obj the pre-configured object (currently only instance of {@link CMakeBuilderOptions} class)
+   * @throws CruiseControlException
+   */
+  @SkipDoc
+  public void   add(Object obj) throws CruiseControlException {
+    /* Check the instance */
+    if (obj instanceof CMakeBuilderOptions) {
+      /* Add the maps to the list */
+      add((CMakeBuilderOptions) obj);
+      return;
+    }
+    /* Invalid object */
+    throw new CruiseControlException("Invalid configuration object: " + obj);
   }
   /**
    * Adds pre-configured set of options which are merged with the current set of options set through {@link
@@ -290,7 +323,7 @@ public class CMakeBuilder extends Builder {
    *
    * @param  optsobj the instance of {@link CMakeBuilderOptions} class
    */
-  public void   add(CMakeBuilderOptions optsobj) {
+  protected void add(CMakeBuilderOptions optsobj) {
     /* Add the options to the list */
     for (Option o : optsobj.getOptions()) {
         options.add(o);
@@ -329,6 +362,14 @@ public class CMakeBuilder extends Builder {
     return new ExecBuilderCMake();
   }
 
+  /** Returns iterable through builders created by {@link #createBuild()}  */
+  protected Iterable<ExecBuilderCMake> getBuilders() {
+    return commands;
+  }
+  /** Returns iterable through options created by {@link #createOption()}  */
+  protected Iterable<Option> getOptions() {
+    return options;
+  }
 
 
   /* ----------- ATTRIBS BLOCK ----------- */
@@ -345,7 +386,7 @@ public class CMakeBuilder extends Builder {
   private boolean cleanBuild = false;
 
   /** The maximum time of build run [in sec.]. */
-  private long timeout;
+  private long timeOut = 0;
 
   /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
   private LinkedList<Option>  options   = new LinkedList<Option>();
@@ -366,7 +407,7 @@ public class CMakeBuilder extends Builder {
    *
    * Not that '-' must be the part of option name!
    */
-  public static final class Option extends StringWriter {
+  public static class Option extends StringWriter {
      /**
       * Sets the name of the option.
       * @param option string with the define option name.
