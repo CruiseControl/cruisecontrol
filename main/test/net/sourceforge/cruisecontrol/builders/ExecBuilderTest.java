@@ -155,7 +155,7 @@ public class ExecBuilderTest extends TestCase {
      * test validation of required attributes
      */
     public void testValidate() {
-        ExecBuilder ebt = new ExecBuilder();
+        ExecBuilder ebt = createExecBuilder();
 
         // test missing "command" attribute
         try {
@@ -179,7 +179,7 @@ public class ExecBuilderTest extends TestCase {
      * test a succesful build
      */
     public void testBuild_BuildSuccess() {
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         internalTestBuild(MOCK_SUCCESS, eb, goodTestScript.toString());
     } // testBuild_BuildSuccess
 
@@ -187,7 +187,7 @@ public class ExecBuilderTest extends TestCase {
      * test a buid failure - exit
      */
     public void testBuild_BuildFailure() {
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         internalTestBuild(MOCK_EXIT_FAILURE, eb, exitTestScript.toString());
     } // testBuild_BuildFailure
 
@@ -195,7 +195,7 @@ public class ExecBuilderTest extends TestCase {
      * test a build failure - error in output
      */
     public void testBuild_OutputFailure() {
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         internalTestBuild(MOCK_OUTPUT_FAILURE, eb, outputTestScript.toString());
     } // testBuild_OutputFailure
 
@@ -210,7 +210,7 @@ public class ExecBuilderTest extends TestCase {
         // The variable must NOT exist in the current environment
         assertNull(env.getVariable(envnew));
 
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         setEnv(eb, envnew, envval);
         // Script must not fail and its STDOUT must contain the new variable
         logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
@@ -228,7 +228,7 @@ public class ExecBuilderTest extends TestCase {
         assertNotNull("Value of " + TEST_ENVVAR + " environment variable is not set (if this test fails in your IDE you need to configure your test runner to set this env var with a dummy value)",
                 env.getVariable(TEST_ENVVAR));
 
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         setEnv(eb, TEST_ENVVAR, null);
         // Script must not fail and its STDOUT must not contain the new variable
         logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
@@ -244,7 +244,7 @@ public class ExecBuilderTest extends TestCase {
         // The variable must exist in the current environment
         assertNotNull(env.getVariable(TEST_ENVVAR));
 
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         setEnv(eb, TEST_ENVVAR, "");
         // Script must not fail and its STDOUT must contain the variable without value
         logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
@@ -265,13 +265,18 @@ public class ExecBuilderTest extends TestCase {
         assertNotNull(env.getVariable(TEST_ENVVAR));
         String path = env.getVariable(TEST_ENVVAR);
 
-        ExecBuilder eb = new ExecBuilder();
+        ExecBuilder eb = createExecBuilder();
         setEnv(eb, TEST_ENVVAR, envval);
         // Script must not fail and its STDOUT must contain the variable
         logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
         assertEquals(String.format("%s=%s", TEST_ENVVAR, envval.replace("${" + TEST_ENVVAR + "}", path)),
                 findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
     } // testBuild_NewEnvVar
+
+    /** @return the instance of {@link CMakeBuilder} */
+    protected ExecBuilder createExecBuilder() {
+        return new ExecBuilder();
+    }
 
     /*
      * execute the build and check results
@@ -293,11 +298,11 @@ public class ExecBuilderTest extends TestCase {
         // check whether there was a build error
         //System.out.println("error output = " + eb.getBuildError());
         if (statusType.equals(MOCK_SUCCESS)) {
-            assertEquals(statusType, "none", eb.getBuildError());
+            assertEquals(statusType, "none", getBuildError(logElement));
         } else if (statusType.equals(MOCK_EXIT_FAILURE)) {
-            assertEquals(statusType, "return code is 1", eb.getBuildError());
+            assertEquals(statusType, "return code is 1", getBuildError(logElement));
         } else if (statusType.equals(MOCK_OUTPUT_FAILURE)) {
-            assertEquals(statusType, "error string found", eb.getBuildError());
+            assertEquals(statusType, "error string found", getBuildError(logElement));
         }
 
         // check the format of the produced log
@@ -411,7 +416,23 @@ public class ExecBuilderTest extends TestCase {
           }
           return scriptfile;
       }
-      
+
+      /**
+       * Get whether there was an error written to the build log returned by
+       * {@link ExecBuilder#build(Map, Progress)} or {@link ExecBuilder#build(Map, Progress, InputStream)}
+       * methods.
+       *
+       * @param buildLogElement the build log to check for error
+       * @return the error string otherwise null
+       */
+      public static String getBuildError(Element buildLogElement) {
+          if (buildLogElement.getAttribute("error") != null) {
+              return buildLogElement.getAttribute("error").getValue();
+          } else {
+              return "none";
+          }
+      } // getBuildError
+
     public void testArgumentsShouldHavePropertySubstituion() throws CruiseControlException {
         final MockExecScript script = new MockExecScript();
         final ExecBuilder builder = new TestExecBuilder(script);

@@ -61,7 +61,7 @@ import net.sourceforge.cruisecontrol.util.IO;
 /**
  * Test case for {@link CMakeBuilder}.
  */
-public final class CMakeBuilderTest extends TestCase
+public class CMakeBuilderTest extends TestCase
 {
 
     /** The name of the binary built */
@@ -292,7 +292,10 @@ public final class CMakeBuilderTest extends TestCase
         assertFalse(new File(config.builddir, binname).exists());
     }
 
-
+    /** @return the instance of {@link CMakeBuilder} */
+    protected CMakeBuilder createCMakeBuilder() {
+        return new CMakeBuilder();
+    }
 
     /**
      * Tests the binary built - it execs the binary and checks if it ends with retcode 0. The
@@ -380,7 +383,7 @@ public final class CMakeBuilderTest extends TestCase
          *  the object from <cmake /> XML config element). */
         CMakeBuilder builderFactory()
         {
-            CMakeBuilder builder = new CMakeBuilder();
+            CMakeBuilder builder = createCMakeBuilder();
 
             /* Set individual attributes */
             if (srcroot != null)
