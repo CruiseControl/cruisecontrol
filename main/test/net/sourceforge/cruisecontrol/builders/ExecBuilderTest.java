@@ -163,7 +163,7 @@ public class ExecBuilderTest extends TestCase {
             fail("ExecBuilder should throw an exception when the required attributes are not set.");
         } catch (CruiseControlException e) {
             assertEquals("exception message when required attributes not set",
-                    "'command' is required for ExecBuilder", e.getMessage());
+                    "'command' is required for "+ebt.getClass().getSimpleName(), e.getMessage());
         }
 
         // test no error with all required attributes
