@@ -383,53 +383,20 @@ public class StdoutBuffer extends OutputStream {
         */
        @Override
        public final int read() throws IOException {
-           /* Must not be closed */
-           if (isClosed) {
-               throw new IOException(MSG_READER_ALREADY_CLOSED);
-           }
+           byte[] data = new byte[1];
+           int numRead = read(data, 0, 1);
+           int out     = data[0];
 
-           /* ------------
-            * Get the current buffer  */
-           byte[] currChunk;
-           int    currByte;
-
-           /* Must be in synchronized section due to wait() method */
-           synchronized (bufferInst) {
-               /* Bad state!!?? */
-               if (bufferInst.size() <  chunkInd) {
-                   throw new IOException("Reader outran the buffer?");
-               }
-
-               /* If nothing to read, wait until notified */
-               if (bufferInst.size() == chunkInd) {
-                   try {
-                       bufferInst.wait();
-                   } catch (InterruptedException tExc) {
-                       log.error("Unexpected interruption when waiting for data", tExc);
-                       return -1;
-                   }
-               }
-
-               /* Get the current chunk. It cannot change once it is in the buffer */
-               currChunk = bufferInst.get(chunkInd);
-           } // synchronized
-
-           /* ------------
-            * If the current chunk is empty, EOF was reached */
-           if (currChunk == null) {
+           /* Return -1 when at the end of stream */
+           if (numRead < 0) {
                return -1;
            }
-
-           /* Read the byte from the buffer */
-           currByte = currChunk[chunkPos++];
-           /* Was the whole buffer read? Set the new if so */
-           if (chunkPos >= currChunk.length) {
-               chunkPos = 0;
-               chunkInd++;
+           /* Convert byte to 0-255 range */
+           if (out < 0) {
+               out = (256 + out);
            }
-
-           /* Return the byte read, converted to the <0, 255> range */
-           return currByte >= 0 ? currByte : (256 + currByte);
+           /* Return -1 when at the end of stream, or the value just read instead */
+           return out;
        } // read
 
        /**
