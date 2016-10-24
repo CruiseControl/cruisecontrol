@@ -712,7 +712,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.build(buildMap, buildProgress);
         // Assert. The output file is in Latin2 encoding
         assertReaders(new StringReader(out), new InputStreamReader(new FileInputStream(outFile), "cp1250"));
-  }
+    }
 
 	/**
 	 * Adds {@link WriterBuilder.File} object to the builder object and returns it
@@ -805,7 +805,6 @@ public class WriterBuilderTest extends TestCase {
      */
 	public static class TestHelper implements ProjectHelper {
 
-	    @Override
         public Object configurePlugin(final Element pluginElement,
 				final boolean skipChildElements) throws CruiseControlException {
 
@@ -813,17 +812,14 @@ public class WriterBuilderTest extends TestCase {
 		    return new WriterBuilder();
 		}
 
-        @Override
         public FileResolver getFileResolver() {
 			return null;
 		}
 
-		@Override
         public XmlResolver getXmlResolver() {
 			return null;
 		}
 
-        @Override
         public Element resolveProperties(Element objectElement) {
             return null;
         }

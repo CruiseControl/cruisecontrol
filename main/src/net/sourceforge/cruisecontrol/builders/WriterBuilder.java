@@ -42,12 +42,14 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -344,7 +346,6 @@ public class WriterBuilder extends Builder {
                         createEncoder(encoding, replaceChar)));
             // Get consumer passing data to the output stream
             return new StreamConsumer() {
-                @Override
                 public void consumeLine(String line) {
                     try {
                         if (line == null) {
@@ -451,7 +452,6 @@ public class WriterBuilder extends Builder {
     @SuppressWarnings("javadoc")
     public final class Msg extends StringWriter implements Content {
 
-        @Override
         public Reader getContent(final Map<String, String> properties) {
             String str = this.toString();
             // Resolve the properties
@@ -466,7 +466,6 @@ public class WriterBuilder extends Builder {
             return new StringReader(str);
         }
 
-        @Override
         public void validate() throws CruiseControlException {
             // Nothing to validate in fact ...
         }
@@ -515,7 +514,6 @@ public class WriterBuilder extends Builder {
             this.encoding = encoding;
         }
 
-        @Override
         public Reader getContent(final Map<String, String> properties) {
             java.io.File f = null;
             try {
@@ -532,7 +530,6 @@ public class WriterBuilder extends Builder {
             return new StringReader("");
         }
 
-        @Override
         public void validate() throws CruiseControlException {
             // Validate
             ValidationHelper.assertEncoding(this.encoding, getClass());
@@ -543,5 +540,61 @@ public class WriterBuilder extends Builder {
 //            ValidationHelper.assertIsReadable(this.file, "file", getClass());
 //            ValidationHelper.assertIsNotDirectory(this.file, "file", getClass());
         }
+    }
+
+    /**
+     * {@link Reader} to {@link InputStream} converter. The class is required since only {@link Reader}
+     * allows to define encoding of the input, but we need to have an instance of {@link InputStream}
+     */
+    public static final class StreamWithEncoding extends InputStream {
+
+        /** Constructor
+         *  @param input the source to read data from
+         *  @param encoding the encoding of the file
+         *  @throws CruiseControlException
+         */
+        public StreamWithEncoding(final InputStream input, final String encoding) throws CruiseControlException {
+            try {
+                reader = null;
+                reader = new BufferedReader(new InputStreamReader(input, encoding));
+            } catch (UnsupportedEncodingException e) {
+                // Just decorate the exception, but it should not be thrown since encoding has been checked
+                // in  the validate() method
+                throw new CruiseControlException(e);
+            }
+        }
+
+        @Override
+        public int read() throws IOException {
+            if (reader == null) {
+                return -1;
+            }
+            // read to the buffer
+            if (read >= line.length) {
+                final char[] str = new char[1024];
+                final int ret = reader.read(str);
+
+                // Must add line separator ('\n' or '\n\r') since BufferedReader.readLine() removes it
+                line = ret > 0 ? new String(str, 0, ret).getBytes() : new byte[0];
+                read = 0;
+            }
+            if (read >= line.length) {
+                return -1;
+            }
+
+            return line[read++];
+        }
+        @Override
+        public void close() throws IOException {
+            reader.close();
+            reader = null;
+        }
+
+        /** Buffer for data exchange */
+        private byte[] line = new byte[0];
+        /** The number of Bytes read from {@link #line} */
+        private int read = line.length;
+        /** The reader used to read (and encode) data from the input stream */
+        private BufferedReader reader;
     }
 }
