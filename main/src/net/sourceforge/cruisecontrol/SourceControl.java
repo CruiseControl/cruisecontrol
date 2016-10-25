@@ -68,12 +68,14 @@ import java.util.Map;
 public interface SourceControl extends Serializable {
 
     /**
-     *  Get a List of Modifications detailing all the changes between now and
-     *  the last build
+     * Get a List of Modifications detailing all the changes between now and
+     * the last build. The method can throw VetoException in cases when there
+     * are modifications detected, but the build is supposed to be cancelled from
+     * any reason.
      *
-     *@param  lastBuild date of last build
-     *@param  now current date
-     *@return List of Modification objects
+     * @param  lastBuild date of last build
+     * @param  now current date
+     * @return List of Modification objects
      */
     public List<Modification> getModifications(Date lastBuild, Date now);
 
@@ -88,4 +90,15 @@ public interface SourceControl extends Serializable {
      * @return a Map of name, value pairs
      */
     public Map<String, String> getProperties();
+
+
+    /** Exception thrown to signalize the cancel of the build */
+    public class VetoException extends RuntimeException {
+
+        @SuppressWarnings("javadoc")
+        public VetoException(String message) {
+            super(message);
+        }
+    }
+
 }

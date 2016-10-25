@@ -31,13 +31,13 @@ public class Veto implements SourceControl {
 
         final List<Modification> buildStatusMods = buildStatus.getModifications(lastBuild, now);
         if (buildStatusMods.isEmpty()) {
-            throw new OutOfDateException("trigger changes with no buildstatus changes");
+            throw new VetoException("trigger changes with no buildstatus changes");
         }
 
         final Modification latestBuildStatusMod = getLatestModification(buildStatusMods);
 
         if (!getNewerModifications(triggerMods, latestBuildStatusMod).isEmpty()) {
-            throw new OutOfDateException("buildstatus out of date compared to trigger changes");
+            throw new VetoException("buildstatus out of date compared to trigger changes");
         }
 
         return Collections.emptyList();
@@ -101,13 +101,6 @@ public class Veto implements SourceControl {
 
     protected BuildStatus getBuildStatus() {
         return new BuildStatus();
-    }
-
-    private class OutOfDateException extends RuntimeException {
-
-        public OutOfDateException(final String string) {
-            super(string);
-        }
     }
 
 }

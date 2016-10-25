@@ -269,6 +269,8 @@ public class Project implements Serializable, Runnable, ProjectQuery {
             // @todo Add Progress param to Publisher API?
             publish(buildLog);
             buildLog.reset();
+        } catch (SourceControl.VetoException exc) { // cancel the build gracefully when veto required
+            info("build cancelled: " + exc.getMessage());
         } finally {
             resetBuildForcedOnlyIfBuildWasForced(buildWasForced);
             setState(ProjectState.IDLE);

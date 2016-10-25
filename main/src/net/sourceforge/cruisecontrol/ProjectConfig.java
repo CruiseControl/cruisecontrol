@@ -49,6 +49,7 @@ import java.util.Map;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
+import net.sourceforge.cruisecontrol.SourceControl.VetoException;
 import net.sourceforge.cruisecontrol.config.DefaultPropertiesPlugin;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
@@ -532,6 +533,12 @@ public class ProjectConfig implements ProjectInterface {
     }
 
     public List<Modification> modificationsSinceLastBuild() {
+        // I think it is OK to throw VetoException here, since the exception is expected to cancel a
+        // build. Since the project we want the status for is not configured properly, it is more safe
+        // to cancel its build with clean reason that to pretend that there are no modifications.
+        if (project == null) {
+            throw new VetoException(name + " not configured?!");
+        }
         return project.modificationsSinceLastBuild();
     }
 
