@@ -124,13 +124,6 @@
         </jar>
     </target>
 
-    <!-- Creates .jar from tests classes (useful for 3rd party plugins development) -->
-    <target name="--tests-jar">
-        <jar jarfile="${dist}/${ant.project.name}-tests.jar">
-            <fileset dir="${test.classes}" />
-        </jar>
-    </target>
-
     <!--
       ~  DEPRECATED:
       ~      The Ant targets below are deprecated and will be removed in a future release.
