@@ -38,19 +38,23 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
+
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.Text;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -64,28 +68,26 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Text;
-
 /**
- * Builder allowing to write text messages into a file. 
+ * Builder allowing to write text messages into a file.
  * @author Tomas Ausberger, Daniel Tihelka
  */
 @DescriptionFile
 @ExamplesFile
 public class WriterBuilder extends Builder {
 
+    /** UTF8 encoding definition */
+    public static final String UTF8 = "UTF-8";
+
     /** Value set through {@link #setFile(String)} */
     private java.io.File file = null;
     /** Value set through {@link #setWorkingDir(String)} */
     private java.io.File workingDir = null;
     /** Value set through {@link #setEncoding(String)} */
-    private String encoding = "UTF-8";
+    private String encoding = UTF8;
     /** Value set through {@link #setGzip(boolean)} */
     private boolean gzip = false;
     /** Value set through {@link #setTrim(boolean)} */
@@ -96,7 +98,7 @@ public class WriterBuilder extends Builder {
     private boolean append = false;
 
     /** The list of sub-node-related actions */
-    private LinkedList<Content> messages = new LinkedList<Content>();
+    private final LinkedList<Content> messages = new LinkedList<Content>();
 
     /** Serialization UID */
     private static final long serialVersionUID = -8630377927448150601L;
@@ -131,9 +133,15 @@ public class WriterBuilder extends Builder {
                 out = new FileOutputStream(f, this.append);
             }
 
+            final StreamConsumer consumer = getStreamConsumer(out, encoding);
             // Pass content to the consumer
-            for (Content message : this.messages) {
-                new StreamPumper(message.getContent(properties), getStreamConsumer(out, encoding)).run();
+            for (Content content : this.messages) {
+                BufferedReader input = new BufferedReader(content.getContent(properties));
+                String line;
+                while ((line = input.readLine()) != null) {
+                    consumer.consumeLine(line);
+                }
+                IO.close(input);
             }
 
         } catch (Exception exc) {
@@ -201,7 +209,7 @@ public class WriterBuilder extends Builder {
     @Description("The encoding of the output file. The string must be recognised byJava text "
             + "encoders")
     @Optional
-    @Default("UTF-8")
+    @Default(WriterBuilder.UTF8)
     @SuppressWarnings("javadoc")
     public void setEncoding(String encoding) {
         this.encoding = encoding;
@@ -301,7 +309,7 @@ public class WriterBuilder extends Builder {
     /**
      * Creates instance of {@link StreamConsumer} passing data into the given {@link OutputStream}
      * instance.
-     *  
+     *
      * @param out stream to write messages into
      * @param encoding the encoding in which the output is written
      * @return {@link StreamConsumer} instance passing data to the given stream
@@ -309,7 +317,7 @@ public class WriterBuilder extends Builder {
     protected StreamConsumer getStreamConsumer(final OutputStream out, final String encoding) {
         try {
             final PrintStream output = new PrintStream(out, true, encoding);
-            // Get consumer passing data to the output stream 
+            // Get consumer passing data to the output stream
             return new StreamConsumer() {
                 @Override
                 public void consumeLine(String line) {
@@ -327,29 +335,29 @@ public class WriterBuilder extends Builder {
     /**
      * Joins the given path with the path set through {@link #setWorkingDir(String)}, if it is not
      * absolute already; if no path was set through the method, returns the original path.
-     * 
+     *
      * @param path the path to append to
      * @return new absolute path (or the original path transformed to absolute path)
      */
     protected java.io.File joinPath(java.io.File path) {
-        // If working dir was not set or the file is absolute already, 
+        // If working dir was not set or the file is absolute already,
         if (this.workingDir == null || path.isAbsolute()) {
             return path;
         }
         // Join
-        return new java.io.File(this.workingDir, path.getPath()).getAbsoluteFile(); 
+        return new java.io.File(this.workingDir, path.getPath()).getAbsoluteFile();
     }
 
     /**
      * Interface allowing to work with <msg></msg> and <file/> sub-nodes in the same way.
      */
     public static interface Content {
-        
-        /** Returns the content of a message to write embedded in the {@link InputStream}
+
+        /** Returns the content of a message to write embedded in the {@link Reader}
          *  @param properties the additional build-time properties passed to {@link Builder#build(Map, Progress)}
-         *  @return the text content as InputStream */
-        public InputStream getContent(final Map<String, String> properties);
-        /** Validation 
+         *  @return the text content as Reader */
+        public Reader getContent(final Map<String, String> properties);
+        /** Validation
          *  @throws CruiseControlException if not valid*/
         public void validate() throws CruiseControlException;
     }
@@ -359,9 +367,9 @@ public class WriterBuilder extends Builder {
             + "the white spaces from the beginning and the end of each line are removed")
     @SuppressWarnings("javadoc")
     public final class Msg extends StringWriter implements Content {
-        
+
         @Override
-        public InputStream getContent(final Map<String, String> properties) {
+        public Reader getContent(final Map<String, String> properties) {
             String str = this.toString();
             // Resolve the properties
             try {
@@ -369,14 +377,10 @@ public class WriterBuilder extends Builder {
             } catch (CruiseControlException e) {
                 LOG.warn("Unable to resolve property in " + str + "message", e);
             }
-            // Create single-zero item array [0] if the string is empty. It ensures that StreamPumper
-            // will pass empty string to StreamConsumer#consumeLine(String); see
-            // StreamPumper#consumeLine(String, final StreamConsumer)
-            byte[] data = str.getBytes();
-            if (data.length == 0) {
-                data = new byte[] {0};
+            if (str == null || str.length() == 0) {
+                str = "\n";
             }
-            return new ByteArrayInputStream(data);
+            return new StringReader(str);
         }
 
         @Override
@@ -403,11 +407,11 @@ public class WriterBuilder extends Builder {
             + "file is copied among messages into the position when the attribute is configured")
     @SuppressWarnings("javadoc")
     public final class File implements Content {
-        
+
         /** The value set by {@link #setFile(String)} */
         private String file;
         /** The value set by {@link #setEncoding(String)} */
-        private String encoding = "UTF-8";
+        private String encoding = UTF8;
 
         @Description("The path to file to be copied among the messages. If the path is not absolute,"
                 + "it behaves exactly as the <tt>file=''</tt> attribute of the parent builder's node")
@@ -419,26 +423,26 @@ public class WriterBuilder extends Builder {
         @Description("The encoding of the file to be read. The string must be recognised byJava "
                 + "text encoders")
         @Optional
-        @Default("UTF-8")
+        @Default(WriterBuilder.UTF8)
         public void setEncoding(String encoding) {
             this.encoding = encoding;
         }
 
         @Override
-        public InputStream getContent(final Map<String, String> properties) {
+        public Reader getContent(final Map<String, String> properties) {
             java.io.File f = null;
             try {
                 // Join with working dir and resolve properties in the path
                 f = joinPath(new java.io.File(this.file));
                 f = new java.io.File(Util.parsePropertiesInString(properties, f.getAbsolutePath(), true));
                 // Get the stream reader
-                return new StreamWithEncoding(new FileInputStream(f), encoding);
+                return new InputStreamReader(new FileInputStream(f), encoding);
             } catch (CruiseControlException e) {
                 LOG.warn("Unable to resolve property in " + f.getAbsolutePath() + "message", e);
             } catch (Exception exc) {
                 LOG.error("Unable to read data from " + file + " (in " + encoding + ")", exc);
             }
-            return new ByteArrayInputStream(new byte[0]);
+            return new StringReader("");
         }
 
         @Override
@@ -452,60 +456,5 @@ public class WriterBuilder extends Builder {
 //            ValidationHelper.assertIsReadable(this.file, "file", getClass());
 //            ValidationHelper.assertIsNotDirectory(this.file, "file", getClass());
         }
-    }
-
-    /**
-     * {@link Reader} to {@link InputStream} converter. The class is required since only {@link Reader}
-     * allows to define encoding of the input, but we need to have an instance of {@link InputStream} 
-     */
-    public static final class StreamWithEncoding extends InputStream {
-
-        /** Constructor
-         *  @param input the source to read data from
-         *  @param encoding the encoding of the file
-         *  @throws CruiseControlException 
-         */
-        public StreamWithEncoding(final InputStream input, final String encoding) throws CruiseControlException {
-            try {
-                reader = null;
-                reader = new BufferedReader(new InputStreamReader(input, encoding));
-            } catch (UnsupportedEncodingException e) {
-                // Just decorate the exception, but it should not be thrown since encoding has been checked
-                // in  the validate() method
-                throw new CruiseControlException(e); 
-            }
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (reader == null) {
-                return -1;
-            }
-            // read to the buffer
-            if (read >= line.length) {
-                final char[] str = new char[1024];
-                final int ret = reader.read(str);
-
-                // Must add line separator ('\n' or '\n\r') since BufferedReader.readLine() removes it
-                line = ret > 0 ? new String(str, 0, ret).getBytes() : new byte[0];
-                read = 0;
-            }
-            if (read >= line.length) {
-                return -1;
-            }
-            return line[read++];
-        }
-        @Override
-        public void close() throws IOException {
-            reader.close();
-            reader = null;
-        }
-
-        /** Buffer for data exchange */
-        private byte[] line = new byte[0];
-        /** The number of Bytes read from {@link #line} */
-        private int read = line.length;
-        /** The reader used to read (and encode) data from the input stream */
-        private BufferedReader reader;
     }
 }
