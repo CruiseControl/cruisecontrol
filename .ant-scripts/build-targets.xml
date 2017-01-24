@@ -70,4 +70,10 @@
             </manifest>
         </jar>
     </target>
+    <target name="--tests-jar">
+        <jar jarfile="${dist}/${ant.project.name}-tests.jar">
+            <fileset dir="${test.classes}" />
+        </jar>
+    </target>
+
 </project>
