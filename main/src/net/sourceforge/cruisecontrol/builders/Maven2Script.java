@@ -18,7 +18,7 @@ import net.sourceforge.cruisecontrol.util.StreamConsumer;
 /**
  * Maven2 script class based on the Maven builder class from
  * <a href="mailto:epugh@opensourceconnections.com">Eric Pugh</a>.
- * <br />
+ * <br>
  * Contains all the details related to running a Maven based build.
  * @author Steria Benelux Sa/Nv - Provided without any warranty
  */

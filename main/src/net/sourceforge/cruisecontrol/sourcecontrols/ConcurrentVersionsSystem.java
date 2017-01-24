@@ -70,10 +70,10 @@ import org.apache.log4j.Logger;
 /**
  * This class implements the SourceControlElement methods for a CVS repository. The call to CVS is assumed to work
  * without any setup. This implies that if the authentication type is pserver the call to cvs login should be done prior
- * to calling this class. <p/> There are also differing CVS client/server implementations (e.g. the <i>official</i> CVS
- * and the CVSNT fork). <p/> Note that the LOG formats of the official CVS have changed starting from version 1.12.9.
+ * to calling this class. <p> There are also differing CVS client/server implementations (e.g. the <i>official</i> CVS
+ * and the CVSNT fork). <p> Note that the LOG formats of the official CVS have changed starting from version 1.12.9.
  * This class currently knows of 2 different outputs referred to as the 'old' and the 'new' output formats.
- * 
+ *
  * @author <a href="mailto:pj@thoughtworks.com">Paul Julius</a>
  * @author Robert Watkins
  * @author Frederic Lavigne
@@ -194,9 +194,9 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * The version of the cvs server
      */
     private Version cvsServerVersion;
-    
+
    /**
-     * If set to true, the mailAliases from CVSROOT/users are not fetched.  
+     * If set to true, the mailAliases from CVSROOT/users are not fetched.
      */
     private boolean skipEmailsFetching = false;
 
@@ -259,7 +259,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
     /**
      * Sets the CVSROOT for all calls to CVS.
-     * 
+     *
      * @param cvsroot
      *            CVSROOT to use.
      */
@@ -269,7 +269,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
     /**
      * Sets the local working copy to use when making calls to CVS.
-     * 
+     *
      * @param local
      *            String indicating the relative or absolute path to the local working copy of the module of which to
      *            find the LOG history.
@@ -292,7 +292,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
     /**
      * Set the cvs tag. Note this should work with names, numbers, and anything else you can put on LOG -rTAG
-     * 
+     *
      * @param tag
      *            the cvs tag
      */
@@ -302,7 +302,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
 
     /**
      * Set the cvs module name. Note that this is only used when localworkingcopy is not set.
-     * 
+     *
      * @param module
      *            the cvs module
      */
@@ -335,7 +335,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     public void setCompression(String level) {
         compression = level;
     }
-    
+
     /**
      * @param skipEmailsFetching If set to true, the CVSROOT/users won't be fetched.
      */
@@ -397,11 +397,11 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     /**
      * This method retrieves the cvs server version from the specified output. The line it parses will have the
      * following format:
-     * 
+     *
      * <pre>
      *    Server: Concurrent Versions System (CVS) 1.11.16 (client/server)
      * </pre>
-     * 
+     *
      * @param in reader
      * @return the version of null if the version couldn't be extracted
      * @throws IOException if something breaks
@@ -532,7 +532,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
                 return pathname.isDirectory();
             }
         });
-        
+
         if (subDirectories == null) {
             return modifications;
         }
@@ -555,7 +555,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
                 throw new RuntimeException(e);
             }
         }
-        
+
         return modifications;
     }
 
@@ -567,7 +567,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     /**
      * Get CVS's idea of user/address mapping. Only runs once per class instance. Won't run if the mailAlias was already
      * set.
-     * 
+     *
      * @return a Hashtable containing the mapping defined in CVSROOT/users. If CVSROOT/users doesn't exist, an empty
      *         Hashtable is returned.
      */
@@ -640,7 +640,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     /**
      * @param lastBuildTime last build date
      * @param checkTime current time
-     * @return CommandLine for "cvs -d CVSROOT -q LOG -N -dlastbuildtime<checktime "
+     * @return CommandLine for {@code "cvs -d CVSROOT -q LOG -N -dlastbuildtime<checktime "}
      * @throws CruiseControlException if something breaks
      */
     public Commandline buildHistoryCommand(final Date lastBuildTime, final Date checkTime)
@@ -699,7 +699,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
     /**
      * Parses the input stream, which should be from the cvs LOG command. This method will format the data found in the
      * input stream into a List of Modification instances.
-     * 
+     *
      * @param input
      *            InputStream to get LOG data from.
      * @return List of Modification elements, maybe empty never null.
@@ -770,7 +770,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * Parses a single file entry from the reader. This entry may contain zero or more revisions. This method may
      * consume the next CVS_FILE_DELIMITER line from the reader, but no further. <p/> When the LOG is related to a non
      * branch tag, only the last modification for each file will be listed.
-     * 
+     *
      * @param reader
      *            Reader to parse data from.
      * @param rcsLine line to parse
@@ -823,7 +823,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
             // New format sometimes has a +0000 in it. This skips it if we don't see
             // the start of the author: section
             final String isThisTimeOffset = tokens.nextToken();
-            if (!isThisTimeOffset.equals("author:")) {            
+            if (!isThisTimeOffset.equals("author:")) {
                 tokens.nextToken();
             }
             // The next token should be the author keyword, then the author name.
@@ -944,7 +944,7 @@ public class ConcurrentVersionsSystem implements SourceControl, Cloneable {
      * This method will consume lines from the reader up to the line that begins with the String specified but not past
      * a line that begins with the notPast String. If the line that begins with the beginsWith String is found then it
      * will be returned. Otherwise null is returned.
-     * 
+     *
      * @param reader
      *            Reader to read lines from.
      * @param beginsWith

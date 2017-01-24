@@ -138,13 +138,13 @@ public class Accurev implements SourceControl, AccurevInputParser {
 
     /**
      * Parse the output from Accurev. These are lines of the form: <code>
-     * transaction &lt;id>; &lt;verb&gt;; YYYY/MM/DD hh:mm:ss ; user: &lt;user&gt;
+     * transaction &lt;id&gt;; &lt;verb&gt;; YYYY/MM/DD hh:mm:ss ; user: &lt;user&gt;
      * # &lt;comment&gt;
      * \.\PathTo\FileChanged.cpp &lt;version&gt;
      * </code>
-     * <p/>
-     * Where <verb>can be promote, chstream or purge. There can be multiple lines of comments and
-     * files.
+     * <p>
+     * Where {@literal <verb>} can be promote, chstream or purge. There can be multiple lines of
+     * comments and files.
      *
      * @param input the output of the "accurev hist" command run
      * @return true at the end

@@ -70,6 +70,7 @@ import  org.jdom.Element;
  * <ul>
  * <li> more user-friendly format than when using raw {@link ExecBuilder}:
  *      <pre>
+ *      {@code
  *        <exec command="rm" args="-f /path/to/build/dir"/>
  *        <exec command="mkdir" args="/path/to/build/dir"/>
  *        <exec command="cmake"
@@ -96,8 +97,9 @@ import  org.jdom.Element;
  *              <build  exec="make" />
  *              <build  exec="make" args="install"/>
  *        </cmake>
+ *      }
  *      </pre>
- * <li> CMake can be pre-configured using <tt><plugin /></tt> framework
+ * <li> CMake can be pre-configured using {@code <plugin />} framework
  * <li> the build directory is automatically created if not existing.
  * <li> each build can start in empty build directory, see {@link #setCleanBuild(boolean)}.
  * <li> the output of <tt>make test</tt> can be integrated to the output of CC as it is in case of
@@ -292,8 +294,8 @@ public class CMakeBuilder extends Builder {
   }
 
   /**
-   * Creates object into which <code><option /></code> tag will be set. Each call returns new object which is
-   * expected to be set by CC. The attribute is not required.
+   * Creates object into which <code>{@code <option />}</code> tag will be set. Each call returns new
+   * object which is expected to be set by CC. The attribute is not required.
    *
    * @return new object to configure according to the tag values.
    */
@@ -402,7 +404,9 @@ public class CMakeBuilder extends Builder {
   /**
    * Class for the CMake <tt>option[=value]</tt> options configuration:
    * <pre>
+   * {@code
    *     <option value="OPTION_NAME[=OPTION_VALUE]"/>
+   * }
    * </pre>
    *
    * Not that '-' must be the part of option name!
@@ -419,31 +423,32 @@ public class CMakeBuilder extends Builder {
   }
 
   /**
-   * Wrapper of {@link ExecBuilder}. TODO: DOPSAT
-   *
+   * Wrapper of {@link ExecBuilder}.
    * For version 2.8 and lower it has format:
-   *  <pre> cmake [options] <path-to-source>
-   *        cmake [options] <path-to-existing-build>
+   *  <pre>
+   *  {@code
+   *       cmake [options] <path-to-source>
+   *       cmake [options] <path-to-existing-build>
+   *  }
    *  </pre>
-   *
    *
    * Also, it calls {@link CMakeBuilder#mergeEnv(OSEnvironment)}
    */
   protected class ExecBuilderCMake extends ExecBuilder {
-  
+
       /** Method adding single option to the list of arguments for CMake */
       @SkipDoc
       public void addOption(Option opt) {
         addArg(opt.toString());
       }
-      
+
       /** Method the last path argument for CMake, it is either <code>path-to-source</code> or
        *  <code>path-to-existing-build</code> */
       @SkipDoc
       public void addPath(File path) {
         addArg(path.getAbsolutePath());
       }
-      
+
       /** Overrides {@link #mergeEnv(OSEnvironment)} method to call parent's
        *  {@link CMakeBuilder#mergeEnv(OSEnvironment)} first, and its own implementation then */
       @Override
@@ -451,13 +456,13 @@ public class CMakeBuilder extends Builder {
           mergeEnv_wrap(env);
           super.mergeEnv(env);
       }
-      
+
       /** Adds single string option */
       protected void addArg(final String arg) {
         final String args = super.getArgs();
         super.setArgs((args != null && args.length() > 0 ? args + " " : "") + arg);
       }
-      
+
       /** Serialization UID */
       private static final long serialVersionUID = -9071669502459334465L;
   }

@@ -45,7 +45,7 @@ import org.jdom.Element;
 
 /**
  *  A generic RSS Feed Item (includes the contents of an RSS feed between the
- *  &lt:item&gt; and &lt;/item&gt; tags).
+ *  &lt;item&gt; and &lt;/item&gt; tags).
  *
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.
  * Licensed under the CruiseControl BSD license

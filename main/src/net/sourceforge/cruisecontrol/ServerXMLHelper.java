@@ -46,7 +46,7 @@ import java.io.File;
 
 /**
  * @author Jared Richardson jared.richardson@sas.com
- *         <p/>
+ *         <p>
  *         this routine encapsulates the config file for the application.
  *         it fetches a value from the config file and handles errors.
  */

@@ -305,10 +305,10 @@ public class OSEnvironment {
     }
 
     /**
-     * Returns a <code>String<code> representation of the
+     * Returns a <code>String</code> representation of the
      * environment.
      *
-     * @return A <code>String<code> representation of the environment
+     * @return A <code>String</code> representation of the environment
      */
     public String toString() {
         return variables.toString();

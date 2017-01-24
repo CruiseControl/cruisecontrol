@@ -265,10 +265,12 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      * Class for the environment variables configuration. They are configured from XML
      * configuration in form:
      * <pre>
+     * {@code
      *   <a_builder ...>
      *      <env name="ENV1" value="" />
      *      <env name="ENV2" delete="true" />
      *   </a_builder>
+     * }
      * </pre>
      *
      * The configured class merges the environment changes with the actual environment
@@ -370,7 +372,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
                 env.add(name, sb.toString());
             }
         }
-        
+
         /** Copy the content of EnvConf to this class */
         public void copy(final EnvConf env) {
           this.name = env.name;

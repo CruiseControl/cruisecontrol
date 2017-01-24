@@ -87,7 +87,7 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
     }
     /**
      * set the separtor to be use between parts of the build label, default is "_"
-     * @param newSeparator the character string to use as a separator
+     * @param newSuffix the character string to use as a separator
      */
     public void setSuffix(String newSuffix) {
         customSuffixes.add(newSuffix);
@@ -226,8 +226,8 @@ public class FormattedLabelIncrementer implements LabelIncrementer {
             if (customSuffixes.contains(suffix)) { //.equals("BLD") || suffix.equals("INT") || suffix.equals("REL")) {
                 Integer.parseInt(buildnum);
                 return true;
-            } else { 
-                return false; 
+            } else {
+                return false;
             }
         } catch (NumberFormatException e) {
             return false;

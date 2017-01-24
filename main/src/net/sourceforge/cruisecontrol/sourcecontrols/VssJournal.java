@@ -317,7 +317,7 @@ public class VssJournal implements SourceControl {
      * Date: 6/29/:1 Time: 3:40p Note the ":" instead of a "0"
      *
      * May give additional DateFormats through the vssjournaldateformat tag. E.g.
-     * <code><vssjournaldateformat format="yy-MM-dd hh:mm"/></code>
+     * {@code <vssjournaldateformat format="yy-MM-dd hh:mm"/>}
      *
      * @return Date
      * @param nameAndDateLine will look like User: Etucker Date: 6/26/01 Time: 11:53a Sometimes also this User: Aaggarwa

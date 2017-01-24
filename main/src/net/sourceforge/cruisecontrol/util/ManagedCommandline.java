@@ -100,7 +100,7 @@ import org.apache.log4j.Logger;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
- * Extends <cod>EnvCommandline</code> by adding stdout and stderr
+ * Extends <code>EnvCommandline</code> by adding stdout and stderr
  * stream handling as well as some assertions to check for proper
  * execution of the command.
  *

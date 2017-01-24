@@ -224,10 +224,10 @@ public class P4ChangelistLabelIncrementer implements LabelIncrementer {
 
     /**
      * Perform a recursive delete of the clientspec view.  This
-     * will force a clean & sync.  Note that this can potentially
+     * will force a clean {@literal &} sync.  Note that this can potentially
      * be very destructive, so use with the utmost caution.
      *
-     * @param b if true, force clean & sync
+     * @param b if true, force clean {@literal &} sync
      */
     public void setDelete(boolean b) {
         this.delete = b;

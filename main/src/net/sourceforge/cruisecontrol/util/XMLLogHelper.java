@@ -56,6 +56,7 @@ import org.jdom.Element;
  *  The CruiseControl log is expected to be in the following format: <p>
  *
  *  <pre>
+ *  {@code
  *      <cruisecontrol>
  *          <info>
  *              <property name="label" value=""/>
@@ -72,6 +73,7 @@ import org.jdom.Element;
  *          <modifications>
  *          </modifications>
  *      </cruisecontrol>
+ *  }
  *  </pre>
  *
  *  Note: buildtarget is only present when a target is forced via the JMX interface.
@@ -119,7 +121,7 @@ public class XMLLogHelper {
     /** @return true if the build was necessary */
     public boolean isBuildNecessary() {
         // @todo This method is dubious at best and needs to be reviewed. JTF & PJ
-        
+
         if (log.getChild("build") != null && log.getChild("build").getAttributeValue("error") != null) {
 
             return !log.getChild("build").getAttributeValue("error").equals("No Build Necessary");

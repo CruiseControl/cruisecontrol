@@ -62,8 +62,8 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  *
  * It is possible to add the trigger modifications to the list of
  * returned modifications if the "includeTriggerChanges"
- * attribute is set to true in the <compound...> tag corresponding to
- * this class.
+ * attribute is set to true in the {@code <compound...>} tag corresponding
+ * to this class.
  *
  * The following is an example of how to use this source control in
  * the config.xml file:
@@ -93,7 +93,7 @@ public class Compound implements SourceControl {
     public void setProperty(String propertyName) {
         properties.assignPropertyName(propertyName);
     }
-    
+
     public Map<String, String> getProperties() {
         return properties.getPropertiesAndReset();
     }
@@ -129,7 +129,7 @@ public class Compound implements SourceControl {
             // TODO: do we really only want this when includeTriggerChanges is set?
             properties.putAll(triggers.getProperties());
         }
-        
+
         if (!targetMods.isEmpty()) {
             properties.modificationFound();
         }

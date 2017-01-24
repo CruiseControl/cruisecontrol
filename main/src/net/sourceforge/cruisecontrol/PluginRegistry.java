@@ -269,7 +269,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
      * for the plugin class. Note that plugin
      * names are always treated as case insensitive, so Ant, ant, and AnT are
      * all treated as the same plugin.
-     * Note: a parent name->class mapping can be overridden by children registries.
+     * Note: a parent name-to-class mapping can be overridden by children registries.
      */
     public String getPluginClassname(String pluginName) {
         pluginName = pluginName.toLowerCase();

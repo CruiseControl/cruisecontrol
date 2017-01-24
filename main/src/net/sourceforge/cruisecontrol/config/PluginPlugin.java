@@ -42,9 +42,9 @@ import org.jdom.Element;
 /**
  * <p>A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within the
  * configuration file.</p>
- * <p>Plugins can also be <a href=\"plugins.html#preconfiguration\">pre-configured</a> at registration time.
+ * <p>Plugins can also be <a href="plugins.html#preconfiguration">pre-configured</a> at registration time.
  * This can greatly reduce the configuration file size.</p>
- * <p>The <a href=\"plugins.html\">plugins</a> page contains a discussion of the plugin architecture
+ * <p>The <a href="plugins.html">plugins</a> page contains a discussion of the plugin architecture
  * used with CruiseControl.</p>
  */
 public class PluginPlugin {

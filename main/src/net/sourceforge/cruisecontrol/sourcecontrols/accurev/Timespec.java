@@ -48,17 +48,17 @@ package net.sourceforge.cruisecontrol.sourcecontrols.accurev;
 
 /**
  * Contains the abstract definition of the time-spec parameter fragment
- * <p/>
+ * <p>
  * According to the 'accurev help' reference, time-spec can be:
- * <p/>
+ * </p>
+ * <p>
  * <ul>
  * <li>time in YYYY/MM/DD HH:MM:SS format</li>
  * <li>time keyword: now</li>
  * <li>transaction number</li>
  * <li>transaction keyword: highest</li>
  * </ul>
- * <p/>
- * <p/>
+ * <p>
  * See the corresponding specific subclasses for them:
  * </p>
  *

@@ -52,7 +52,7 @@ import org.jdom.Element;
 
 /**
  * Rake builder class based on the Ant and Exec builder classes.
- * <br />
+ * <br>
  * Attempts to mimic the behavior of Ant builds using Ruby Rake.
  *
  *
@@ -88,7 +88,7 @@ public class RakeBuilder extends Builder {
      */
     public Element build(final Map<String, String> buildProperties, final Progress progressIn)
             throws CruiseControlException {
-        
+
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -126,7 +126,7 @@ public class RakeBuilder extends Builder {
     public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
                                    final Progress progress)
             throws CruiseControlException {
-        
+
         final String origTarget = target;
         try {
             target = buildTarget;
@@ -149,22 +149,22 @@ public class RakeBuilder extends Builder {
      * Set the ruby executable. This parameter is either set in config.xml
      * or its is assumed to be "ruby".
      * Typical values are: "ruby", "ruby19", "jruby"
-     * 
+     *
      * @param executable
      *          the ruby executable name/path.
      */
     public void setRuby(final String executable) {
         this.rubyExecutable = executable;
     }
-    
+
     /**
      * Set the rake executable. This parameter is either set in config.xml
      * or its is assumed to be "rake".
      * Typical values are: "rake", "rake19", "jrake"
-     * 
+     *
      * @param executable
      *          the executable name/path.
-     * 
+     *
      */
     public void setRake(final String executable) {
         this.rakeExecutable = executable;

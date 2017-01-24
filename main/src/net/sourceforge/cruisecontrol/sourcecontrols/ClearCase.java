@@ -162,14 +162,14 @@ public class ClearCase implements SourceControl {
 
     /**
      * Set when checking the entire view path.
-     * <p/>
+     * <p>
      * When checking the entire view path this option invokes 'lshistory -all'
      * instead of 'lshistory -recursive', which is much faster.
-     * <p/>
+     * <p>
      * This option is mutually exclusive with the recursive property.
-     * <p/>
+     * <p>
      * Note that 'all' does not use your view's config-spec rules. It behaves
-     * like having a single line config-spec that selects just ELEMENT * /<branch>/LATEST
+     * like having a single line config-spec that selects just ELEMENT * /{@code <branch>}/LATEST
      * (i.e. 'lshistory -all' results that contain @@ are discarded). This differs from
      * 'recurse', which only shows items selected by your current view.
      * @param all true when checking the entire view path

@@ -26,7 +26,7 @@ interface PipedScript extends Runnable {
      * before {@link #run()} is called. However, it can be called repeatedly for the object.
      */
     void initialize();
-    
+
     /**
      * The {@link Runnable#run()} method. It is ensured that the method will only be called after
      * {@link #initialize()} method. It can be called repeatedly for the object (every time preceded
@@ -34,7 +34,7 @@ interface PipedScript extends Runnable {
      */
     @Override
     void run();
-    
+
     /**
      * Sets the ID of the script from <code>id=""</code> attribute in XML configuration
      * (referenced by <code>pipefrom=""</code> and <code>waitfor=""</code>). Required.
@@ -134,31 +134,31 @@ interface PipedScript extends Runnable {
 
     /**
      * Sets the XML element into which the build log returned by
-     * {@link Builder#build(Map, Progress)}, when called in {@link #run()}, is required to be
-     * stored.
+     * {@link net.sourceforge.cruisecontrol.Builder#build(Map, Progress)}, when called in {@link #run()},
+     * is required to be stored.
      *
      * @param buildLogParent the required parent of build log element.
-     * @see Builder#build(Map, Progress) for the detailed description of the build log.
+     * @see net.sourceforge.cruisecontrol.Builder#build(Map, Progress)
      */
     @SkipDoc
     void setBuildLogParent(Element buildLogParent);
 
     /**
      * Sets the map of build properties passed to the
-     * {@link Builder#build(Map, Progress)} when called in {@link #run()}. 
+     * {@link net.sourceforge.cruisecontrol.Builder#build(Map, Progress)} when called in {@link #run()}.
      *
      * @param buildProperties build properties, may be <code>null</code>.
-     * @see Builder#build(Map, Progress) for the detailed description of the attribute
+     * @see net.sourceforge.cruisecontrol.Builder#build(Map, Progress)
      */
     @SkipDoc
     void setBuildProperties(final Map<String, String> buildProperties);
 
     /**
      * Sets the callback to provide progress updates, passed to the
-     * {@link Builder#build(Map, Progress)} when called in {@link #run()}.
+     * {@link net.sourceforge.cruisecontrol.Builder#build(Map, Progress)} when called in {@link #run()}.
      *
      * @param progress callback to provide progress updates, may be <code>null</code>.
-     * @see Builder#build(Map, Progress) for the detailed description of the attribute
+     * @see net.sourceforge.cruisecontrol.Builder#build(Map, Progress)
      */
     @SkipDoc
     void setProgress(final Progress progress);
@@ -186,11 +186,11 @@ interface PipedScript extends Runnable {
      *          when it is running or has not been started yet.
      */
     boolean isDone();
-    
+
     /**
      * Sets the directory in which the script will be running (all non-absolute the paths in the
      * script's configuration are tried relative to this directory.
-     *  
+     *
      * @param workingDir the path to the directory (if not absolute, first is tried relative to the
      *      current CC working directory is tried, than relative to CC's home directory.
      */
@@ -230,8 +230,8 @@ interface PipedScript extends Runnable {
     /**
      * Sets the amount of time [in secs] which may by consumed by during the running of the script.
      * The the timeout is passed, the script may be killed by CC.
-     * 
-     * @param time the timeout value 
+     *
+     * @param time the timeout value
      */
     void setTimeout(long time);
     /**

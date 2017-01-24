@@ -43,8 +43,8 @@ import org.jdom.Element;
 
 /**
  * This class provides a default label incrementation.
- * This class expects the label format to be "x<sep>y",
- * where x is any String and y is an integer and <sep> a separator.
+ * This class expects the label format to be {@code "x<sep>y"},
+ * where x is any String and y is an integer and {@code <sep>} a separator.
  * The default separator is "." and can be modified using {@link #setSeparator}.
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>

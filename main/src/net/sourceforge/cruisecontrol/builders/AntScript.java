@@ -216,7 +216,7 @@ public class AntScript implements Script, StreamConsumer {
 
         cmdLine.createArguments("-buildfile", buildFile);
         cmdLine.setEnv(env);
-        
+
         final StringTokenizer targets = new StringTokenizer(target);
         while (targets.hasMoreTokens()) {
             cmdLine.createArgument(targets.nextToken());
@@ -266,10 +266,10 @@ public class AntScript implements Script, StreamConsumer {
         }
         return ret;
     }
-    
+
     /**
      * The Saxon jars cause the Ant junitreport task to fail.
-     * 
+     *
      * @param classpathItems a List containing items in a classpath
      * @param isWindows true if running on Windows
      * @return a String containing all the jars in the classpath minus the Saxon jars
@@ -289,11 +289,11 @@ public class AntScript implements Script, StreamConsumer {
         }
         return path.toString();
     }
-    
+
     String removeSaxonJars(final String path, final boolean isWindows) {
         return removeSaxonJars(getClasspathItems(path, isWindows), isWindows);
     }
-    
+
     private String getSeparator(boolean isWindows) {
         return isWindows ? ";" : ":";
     }
@@ -316,7 +316,7 @@ public class AntScript implements Script, StreamConsumer {
                         + " Ant Progress.");
             }
         }
-        LOG.debug("Using loggerClassName: " + loggerClassName);        
+        LOG.debug("Using loggerClassName: " + loggerClassName);
     }
 
     private static final String MSG_RESOLUTION_PROGRESS_LOGGER_LIB
@@ -337,7 +337,7 @@ public class AntScript implements Script, StreamConsumer {
      * ({@link #LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})
      * containing the AntProgressLogger/Listener classes.
      * @throws ProgressLibLocatorException if the search class ({@link AntScript}) file can't be found,
-     * likely related to running under Java Webstart >= 6, or simply if the jar can't be found
+     * likely related to running under Java Webstart {@literal >=} 6, or simply if the jar can't be found
      */
     public static String findDefaultProgressLoggerLib() throws ProgressLibLocatorException {
         // find path (including filename) to progressLoggerLib jar
@@ -384,7 +384,7 @@ public class AntScript implements Script, StreamConsumer {
             super(msg);
         }
     }
-    
+
     /**
      * Analyze the output of ant command, used to detect progress messages.
      */
@@ -554,7 +554,7 @@ public class AntScript implements Script, StreamConsumer {
 
     /**
      * @param env
-     *            The environment variables of the ant script, or <code>null</code> if to 
+     *            The environment variables of the ant script, or <code>null</code> if to
      *            inherit the environment of the current process.
      */
     public void setAntEnv(final OSEnvironment env) {

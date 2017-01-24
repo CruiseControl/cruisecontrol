@@ -50,9 +50,9 @@ import org.apache.log4j.Logger;
  * build Projects.  Passes {@link ProjectInterface} objects to a thread
  * queue.  The number of worker threads is defined in config.xml
  *
- * @author Peter Mei <pmei@users.sourceforge.net>
+ * @author Peter Mei {@literal <pmei@users.sourceforge.net>}
  * @author jfredrick
- * @author Jared Richardson <jared.richardson@sas.com>
+ * @author Jared Richardson {@literal <jared.richardson@sas.com>}
  */
 public class BuildQueue implements Runnable {
     private static final Logger LOG = Logger.getLogger(BuildQueue.class);

@@ -6,10 +6,11 @@ import net.sourceforge.cruisecontrol.Builder.EnvConf;
 import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
 
 /**
- * Class holding a set of pre-configured options for <code>cmake</code> builder. The set of 
+ * Class holding a set of pre-configured options for <code>cmake</code> builder. The set of
  * options can be pre-configured as
  * as:
  * <pre>
+ * {@code
  *    <plugin name="XXX" class=zcu.kky.Options>
  *      <option value="..." />
  *      <option value="..." />
@@ -21,11 +22,13 @@ import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
  *    <plugin name="ZZZ" class=zcu.kky.Options>
  *      ...
  *    </plugin>
+ * }
  * </pre>
- * 
+ *
  * and used to configure CMake as:
- * 
+ *
  * <pre>
+ * {@code
  *    <cmake ...>
  *      <XXX/>
  *      <YYY/>
@@ -35,13 +38,14 @@ import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
  *      <XXX/>
  *      <ZZZ/>
  *    </cmake>
+ * }
  * </pre>
  */
 public final class CMakeBuilderOptions   {
-      
+
     /**
-     * Creates object into which <code><option /></code> tag will be set. Each call returns new object which is
-     * expected to be set by CC. The attribute is not required.
+     * Creates object into which <code>{@code <option />}</code> tag will be set. Each call
+     * returns new object which is expected to be set by CC. The attribute is not required.
      *
      * @return new object to configure according to the tag values.
      * @see    CMakeBuilder#createOption()
@@ -50,7 +54,7 @@ public final class CMakeBuilderOptions   {
         options.add(new Option());
         return options.getLast();
     }
-    
+
     /**
      * @return new {@link EnvConf} object to configure.
      */
@@ -58,8 +62,8 @@ public final class CMakeBuilderOptions   {
         envs.add(new EnvConf());
         return envs.getLast();
     } // createEnv
-    
-    
+
+
     /**
      * Gets the options set through {@link #createOption()}.
      * @return iterator through the sequence of options
@@ -75,9 +79,9 @@ public final class CMakeBuilderOptions   {
     public Iterable<EnvConf> getEnvs() {
         return envs;
     }
-      
+
     /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
     private final LinkedList<Option> options = new LinkedList<Option>();
     private final LinkedList<EnvConf> envs = new LinkedList<EnvConf>();
   }
-  
+

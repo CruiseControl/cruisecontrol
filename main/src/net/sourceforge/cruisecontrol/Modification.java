@@ -55,11 +55,14 @@ import java.util.Iterator;
 /**
  * data structure for holding data about a single modification
  * to a source control tool.
- *
+ * <pre>
+ * {@code
  * <modification type="" date="" user="" email="">
  *     <comment></comment>
  *     <file >
  * </modification>
+ * }
+ * </pre>
  *
  * @author <a href="mailto:alden@thoughtworks.com">alden almagro</a>
  */
@@ -96,7 +99,7 @@ public class Modification implements Comparable<Modification>, Serializable {
             this.folderName = folderName;
             this.action = action;
         }
-        
+
         public ModifiedFile(final Element modification) {
             fileName = modification.getChildText(TAGNAME_FILENAME);
             folderName = modification.getChildText(TAGNAME_FOLDERNAME);

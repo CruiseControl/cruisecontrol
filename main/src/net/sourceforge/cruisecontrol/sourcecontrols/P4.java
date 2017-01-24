@@ -70,8 +70,8 @@ import org.jdom.Element;
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The call to CVS is assumed to work without any
  * setup. This implies that if the authentication type is pserver the call to cvs login should be done prior to calling
- * this class. <p/> P4Element depends on the optional P4 package delivered with Ant v1.3. But since it probably doesn't
- * make much sense using the P4Element without other P4 support it shouldn't be a problem. <p/> P4Element sets the
+ * this class. <p> P4Element depends on the optional P4 package delivered with Ant v1.3. But since it probably doesn't
+ * make much sense using the P4Element without other P4 support it shouldn't be a problem. <p> P4Element sets the
  * property ${p4element.change} with the latest changelist number or the changelist with the latest date. This should
  * then be passed into p4sync or other p4 commands.
  *
@@ -553,7 +553,7 @@ public class P4 implements SourceControl {
      * @return a string
      * @throws IOException if something breaks.
      */
-    private String readToNotPast(final BufferedReader reader, final String beginsWith, final String notPast) 
+    private String readToNotPast(final BufferedReader reader, final String beginsWith, final String notPast)
             throws IOException {
 
         String nextLine = reader.readLine();

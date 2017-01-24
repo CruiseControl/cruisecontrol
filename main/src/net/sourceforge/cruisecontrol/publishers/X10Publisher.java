@@ -60,13 +60,13 @@ import java.io.IOException;
  * via the X10 Activehome computer interface, model CM11A. This allows you to
  * control an electronic device when the build breaks. For example, use a
  * flashing red light to indicate a broken build.
- * <p/>
+ * <p>
  * NOTE: THIS PUBLISHER HAS ONLY BEEN TESTED WITH WINDOWS
- * <p/>
+ * <p>
  * Quick Start:
  * <ol>
  * <li>Buy the home automation kit found at
- * <a html="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a></li>
+ * <a href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a></li>
  * <li>Plug the computer interface to your serial port, e.g. COM1, and your powerline</li>
  * <li>Set the lamp module's house and device code, e.g. A3, and plug it into your powerline</li>
  * <li>Plug in an electronic device to the lamp module, e.g. a flashing red light like
@@ -76,45 +76,45 @@ import java.io.IOException;
  * <li>Add the x10 publisher to CruiseControl's config.xml, e.g.
  * <code>&lt;x10 houseCode="A" deviceCode="3" port="COM1"/&gt;</code></li>
  * </ol>
- * <p/>
+ * <p>
  * For more information about the controller, see
- * <a html="http://www.smarthome.com/1140.html">http://www.smarthome.com/1140.html</a>
+ * <a href="http://www.smarthome.com/1140.html">http://www.smarthome.com/1140.html</a>
  * or
- * <a html="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a>
+ * <a href="http://www.x10.com/automation/x10_ck11a_1.htm">http://www.x10.com/automation/x10_ck11a_1.htm</a>
  * The controller connects to the computer via a serial port, e.g. COM1, and
  * allows the computer to send (and receive) X10 signals on the power line. For
  * more information on X10 in general, see
  * <a href="http://www.x10.com/support/basicx10.htm">http://www.x10.com/support/basicx10.htm</a>.
- * <p/>
+ * <p>
  * This module uses a pure Java implementation of the CM11A communication
  * protocol as implemented by Jesse Peterson,
  * <a href="http://www.jpeterson.com/">http://www.jpeterson.com/</a>. To read
  * more about his library, see
  * <a href="http://www.jpeterson.com/rnd/x101.0.1/Readme.html">http://www.jpeterson.com/rnd/x101.0.1/Readme.html</a>.
- * <p/>
+ * <p>
  * The jpeterson library requires that the Java Communications API be installed.
  * For more information on the COMM API, see
  * <a href="http://java.sun.com/products/javacomm/index.jsp">http://java.sun.com/products/javacomm/index.jsp</a>.
  * For convenience, the Java COMM API is included with the CruiseControl
  * distribution. On windows, copy the win32com.dll from CruiseControl's lib directory to
  * your <code>JAVA_HOME/bin</code> directory.
- * <p/>
+ * <p>
  * NOTE: If you receive the following error:
  * <PRE><CODE>Error loading win32com: java.lang.UnsatisfiedLinkError: no win32com in java.library.path</CODE></PRE>
  * it probably means that the Windows DLL named win32com.dll needs to be copied
  * from CruiseControl's lib directory into your JDK (or JRE) bin directory, i.e.
  * the same directory that java.exe is found.
- * <p/>
+ * <p>
  * The standard behavior for this publisher is to send the device the "on"
  * signal when the build breaks and then the "off" signal when the build is
  * successful. If you want the opposite, i.e. on when successful and off when
  * broken, set the onWhenBroken attribute to false.
- * <p/>
- * <p/>
+ * <p>
+ * <p>
  * Publisher Attributes:
  * <ul>
- * <li>houseCode - required - the house code for the device to control, A -> P case insensitive</li>
- * <li>deviceCode - required - the device code the device to control, 1 -> 16</li>
+ * <li>houseCode - required - the house code for the device to control, A -&gt; P case insensitive</li>
+ * <li>deviceCode - required - the device code the device to control, 1 -&gt; 16</li>
  * <li>port - optional - serial port to which the CM11A computer interface controller is
  * connected, defaults to COM2</li>
  * <li>onWhenBroken - optional - set to false if the device should turn on when the build is successful and off

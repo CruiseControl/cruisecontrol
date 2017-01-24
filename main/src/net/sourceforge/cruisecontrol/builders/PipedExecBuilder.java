@@ -79,6 +79,7 @@ import org.jdom.Element;
  *
  * Configuration example for this plugin:
  * <pre>
+ * {@code
  *         <cruisecontrol>
  *         <schedule>
  *          <pipedexec workingdir="${workingdir.default}" timeout="3000"/>
@@ -90,6 +91,7 @@ import org.jdom.Element;
  *           </piped_exec>
  *           </schedule>
  *     <cruisecontrol>
+ * }
  * </pre>
  *
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
@@ -307,7 +309,7 @@ public class PipedExecBuilder extends Builder {
                 /* Remove the script from 'started' map when finished and not required by any
                  * other script not started yet */
                 if (s.isDone() && null == findPipedFrom(s.getID(), tostart)) {
-                    s.initialize(); // re-init is supposed to clear the inner variables to save memory 
+                    s.initialize(); // re-init is supposed to clear the inner variables to save memory
                     iter.remove();
                 }
             }
@@ -409,7 +411,7 @@ public class PipedExecBuilder extends Builder {
     } // setBinaryStdout
 
     /**
-     * Creates object into which <code><exec /></code> tag will be set. Each call returns new
+     * Creates object into which <code>{@code <exec />}</code> tag will be set. Each call returns new
      * object which is expected to be set by CC. The attribute is not required; if not
      * specified, nothing will be executed.
      *
@@ -608,12 +610,12 @@ public class PipedExecBuilder extends Builder {
     } // findPipedSeq
 
     /** Wrapper for {@link #mergeEnv(OSEnvironment)}, just calling the wrapped method. It
-     * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class, 
+     * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class,
      * since it contains the method with the same name */
     private void mergeEnv_wrap(final OSEnvironment env) {
         super.mergeEnv(env);
     }
-    
+
     /* ----------- NESTED CLASSES ----------- */
 
     /**

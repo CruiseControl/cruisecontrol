@@ -101,11 +101,13 @@ public class CruiseControlConfig {
 
     /**
      * Returns the interface through which the state of a project of the given name can be queries.
+     * <p>
+     * Note: the method must be static in order to be accessible from objects not holding reference to the
+     * {@link CruiseControlConfig}. It is partially duplication of {@link #getProject(String)} method.
+     * </p>
      * @param name the name of project to be found
      * @return the instance of ProjectChecker for the given name
      * @throws CruiseControlException if no such project is registered
-     * @note the method must be static in order to be accessible from objects not holding reference to the
-     * {@link CruiseControlConfig}. It is partially duplication of {@link #getProject(String)} method.
      */
     public static ProjectQuery findProject(final String name) throws CruiseControlException {
         if (PROJECTS_REGISTRY.containsKey(name)) {
@@ -359,7 +361,7 @@ public class CruiseControlConfig {
                 final String message = "Project " + name + " included from " + path + " is a duplicate name. Omitting.";
                 LOG.error(message);
             }
-            final ProjectInterface projobj = includedConfig.getProject(name); 
+            final ProjectInterface projobj = includedConfig.getProject(name);
             projects.put(name, projobj);
             PROJECTS_REGISTRY.put(name, projobj);
         }

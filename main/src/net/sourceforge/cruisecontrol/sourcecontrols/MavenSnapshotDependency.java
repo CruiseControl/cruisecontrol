@@ -75,7 +75,7 @@ import org.jdom.input.SAXBuilder;
  * - fixed a bug in replaceVariables method
  * </pre>
  *
- *  <at> author Tim Shadel
+ * @author Tim Shadel
  */
 public class MavenSnapshotDependency implements SourceControl {
 

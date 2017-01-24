@@ -21,7 +21,7 @@ import org.jdom.Attribute;
 /**
  * Maven2 builder class based on the Maven builder class from
  * <a href="mailto:fvancea@maxiq.com">Florin Vancea</a>.
- * <br />
+ * <br>
  * Attempts to mimic the behavior of Ant builds, at least as far as CC is
  * concerned. Basically it's a (heavily) edited version of AntBuilder. No style
  * at all, but serves its purpose. :)
@@ -216,11 +216,11 @@ public class Maven2Builder extends Builder {
         return buildLogElement;
     }
 
-    private void build(final Map<String, String> buildProperties, final File workingDir, 
-                       final List<String> goalSets, final Element buildLogElement, final Progress progress) 
+    private void build(final Map<String, String> buildProperties, final File workingDir,
+                       final List<String> goalSets, final Element buildLogElement, final Progress progress)
             throws CruiseControlException {
         Attribute saveErrorAttribute = buildLogElement.getAttribute("error");
-        
+
         if (saveErrorAttribute != null) {
             synchronized (buildLogElement) {
                 buildLogElement.removeAttribute(saveErrorAttribute);
@@ -263,7 +263,7 @@ public class Maven2Builder extends Builder {
             }
 
         }
-        
+
         if (saveErrorAttribute != null) {
             synchronized (buildLogElement) {
                 buildLogElement.setAttribute(saveErrorAttribute);

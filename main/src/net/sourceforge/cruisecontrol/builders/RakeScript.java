@@ -63,11 +63,11 @@ public class RakeScript implements Script, StreamConsumer {
     private Element buildLogElement;
     private String rubyExecutable;
     private String rakeExecutable;
-    
+
     public RakeScript() {
         setExecutables("ruby", "rake");
     }
-    
+
     public RakeScript(String rubyExecutable, String rakeExecutable) {
         super();
         setExecutables(rubyExecutable, rakeExecutable);
@@ -75,16 +75,14 @@ public class RakeScript implements Script, StreamConsumer {
 
     /**
      * construct the command that we're going to execute.
-     * Takes the form "<rubyExecutable> -S <rakeExecutable> rakeArguments"
-     *
-     * 
+     * Takes the form {@code "<rubyExecutable> -S <rakeExecutable> rakeArguments"}
      *
      * @return Commandline holding command to be executed
      * @throws CruiseControlException on unquotable attributes
      */
     public Commandline buildCommandline() throws CruiseControlException {
         final Commandline cmdLine = new Commandline();
-        
+
         if (isWindows) {
             cmdLine.setExecutable("cmd");
             cmdLine.createArgument().setValue("/c");
@@ -92,7 +90,7 @@ public class RakeScript implements Script, StreamConsumer {
         } else {
             cmdLine.setExecutable(rubyExecutable);
         }
-         
+
         cmdLine.createArgument().setValue("-S");
         cmdLine.createArgument().setValue(rakeExecutable);
 
@@ -108,7 +106,7 @@ public class RakeScript implements Script, StreamConsumer {
 
         return cmdLine;
     }
-     /**
+    /**
      * set the "header" for this part of the build log.
      * @param buildLogElement the element of the build log
      */
@@ -122,7 +120,7 @@ public class RakeScript implements Script, StreamConsumer {
     public void setWindows(final boolean isWindows) {
         this.isWindows = isWindows;
     }
-    
+
     /**
      * @param rubyExecutable the ruby executable
      * @param rakeExecutable the rake executable

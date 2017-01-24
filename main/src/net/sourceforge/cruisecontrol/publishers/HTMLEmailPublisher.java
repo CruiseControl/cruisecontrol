@@ -220,7 +220,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
         }
         return null;
     }
-    
+
     /**
      * @return the root directory of the running cruisecontrol installation.
      * Uses Ant's Locator.
@@ -370,9 +370,9 @@ public class HTMLEmailPublisher extends EmailPublisher {
      * for in the directory specified by xslDir. By default these are the
      * standard CruseControl xsl files: <br>
      * <ul>
-     *   header.xsl
-     *   maven.xsl
-     *   etc ...
+     * <li> header.xsl
+     * <li> maven.xsl
+     * <li> etc ...
      * </ul>
      * I expect this to be used by a derived class to allow someone to
      * change the order of xsl files or to add/remove one to/from the list

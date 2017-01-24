@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 /**
  * An abstract base class for any publisher which wishes to conditionally
- * execute a set of contained <coe>Publisher</code>s.
+ * execute a set of contained <code>Publisher</code>s.
  */
 public abstract class ConditionalPublisher implements Publisher {
 

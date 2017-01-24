@@ -68,7 +68,7 @@ import net.sourceforge.cruisecontrol.launch.util.Locator;
  * This code is based heavily on (some parts taken directly from) the Apache
  * Ant project.
  *
- * @author <a href="mailto:rjmpsmith@gmail.com>Robert J. Smith</a>
+ * @author <a href="mailto:rjmpsmith@gmail.com">Robert J. Smith</a>
  */
 public class Launcher {
 
@@ -138,14 +138,14 @@ public class Launcher {
         }
         final URL[] libJars = libPathURLs.toArray(new URL[libPathURLs.size()]);
 
-        // Determine the CruiseControl directory for the distribution jars if it was provided, 
+        // Determine the CruiseControl directory for the distribution jars if it was provided,
         // Otherwise make a guess based upon the location of the launcher jar.
         File ccDistDir;
         try {
             ccDistDir = config.getOptionDir(Configuration.KEY_DIST_DIR);
         } catch (IllegalArgumentException e) {
             ccDistDir = distJarDir;
-            config.getLogger().warn("Option '" + Configuration.KEY_DIST_DIR + "' not set, using " 
+            config.getLogger().warn("Option '" + Configuration.KEY_DIST_DIR + "' not set, using "
                     + ccDistDir.getAbsolutePath());
         }
 
@@ -154,15 +154,15 @@ public class Launcher {
             ccHome = getCCHomeDir(config, ccDistDir);
         } catch (LaunchException e) {
             ccHome = ccDistDir.getParentFile();
-            config.getLogger().warn("Option '" + Configuration.KEY_HOME_DIR + "' not set, using " 
+            config.getLogger().warn("Option '" + Configuration.KEY_HOME_DIR + "' not set, using "
                     + ccHome.getAbsolutePath());
         } finally {
             // The property is required by other modules. It would be better to use Configuration
-            // directly ... 
-            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath()); 
+            // directly ...
+            System.setProperty(CCHOME_PROPERTY, ccHome.getAbsolutePath());
         }
 
-        // Determine CruiseControl library directory for third party jars, if it was provided. 
+        // Determine CruiseControl library directory for third party jars, if it was provided.
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
         File ccLibDir;
         try {

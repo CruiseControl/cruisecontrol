@@ -191,7 +191,7 @@ public class WriterBuilder extends Builder {
     }
 
     /**
-     * Creates new object to be filled from <msg>...</msg> element.
+     * Creates new object to be filled from {@code <msg>...</msg>} element.
      * @return instance of {@link Msg}
      */
     public Object createMsg() {
@@ -199,7 +199,7 @@ public class WriterBuilder extends Builder {
     }
 
     /**
-     * Creates new object to be filled from <file/> element.
+     * Creates new object to be filled from {@code <file/>} element.
      * @return instance of {@link File}
      */
     public Object createFile() {
@@ -349,7 +349,7 @@ public class WriterBuilder extends Builder {
     }
 
     /**
-     * Interface allowing to work with <msg></msg> and <file/> sub-nodes in the same way.
+     * Interface allowing to work with {@code <msg></msg>} and {@code <file/>} sub-nodes in the same way.
      */
     public static interface Content {
 
@@ -389,7 +389,7 @@ public class WriterBuilder extends Builder {
         }
 
         /** Set the text content from a XML node.
-         *  @param t inner text element of XML <msg></msg> element. */
+         *  @param t inner text element of XML {@code <msg></msg>} element. */
         public void xmltext(final Text t) {
             /* if trim is required, split the text and trim each line */
             if (trim) {
