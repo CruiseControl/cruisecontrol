@@ -68,7 +68,7 @@ import org.junit.Ignore;
 
 /**
  * JUnit tests for {@link WriterBuilder}.
- * @author Tomas Ausberger, Daniel Tihelka 
+ * @author Tomas Ausberger, Daniel Tihelka
  *
  */
 public class WriterBuilderTest extends TestCase {
@@ -82,8 +82,8 @@ public class WriterBuilderTest extends TestCase {
     private final Map<String,String> buildMap = Collections.<String, String> emptyMap();
     /** Map passed to {@link WriterBuilder#build(java.util.Map, net.sourceforge.cruisecontrol.Progress) } */
     private final Progress buildProgress = null;
-    
-    
+
+
     /**
      * Delete all used files.
      * @throws Exception
@@ -140,7 +140,7 @@ public class WriterBuilderTest extends TestCase {
         }
     }
 
-	
+
 	/**
 	 * Test using of GZIP.
 	 * @throws CruiseControlException
@@ -271,7 +271,7 @@ public class WriterBuilderTest extends TestCase {
         	writerObj.validate();
 			fail();
 		} catch (Exception e) {
-			assertTrue(e.getMessage().equals("Trying to overwrite file without permition."));
+			assertTrue(e.getMessage().equals("Trying to overwrite file without permission."));
 		}
 
         // Build step. The file was not existing during the validation, but has been created
@@ -280,11 +280,11 @@ public class WriterBuilderTest extends TestCase {
         writerObj.validate();
         //Create file with inner text - again
         IO.write(outFile, "InnerText");
-        
+
         // Trigger the build as well
         final Element out = writerObj.build(buildMap, buildProgress);
         assertNotNull(out.getAttribute("error"));
-        
+
 	}
 
 	/**
@@ -323,7 +323,7 @@ public class WriterBuilderTest extends TestCase {
         final WriterBuilder writerObj = new WriterBuilder();
         final DataBuffer buff = new DataBuffer();
         final String text = "<msg> " + buff.add("This is the text-holding") + " \n"
-                          + "        " + buff.add("element used to check")    + "\n" 
+                          + "        " + buff.add("element used to check")    + "\n"
                           + "        " + buff.add("if trim works correctly")  + "  \n"
                           + "  "       + buff.add("") + "\n"
                           + "  "       + buff.add("and the last line now") + "\n"
@@ -454,7 +454,7 @@ public class WriterBuilderTest extends TestCase {
 	}
 
 // test removed, since the input file may consist of properties defined by builders (e.g. ${svnrevision}
-// in which case the validator would fail anyway, although the file is created later during the build. 
+// in which case the validator would fail anyway, although the file is created later during the build.
 //	/**
 //	 * Test for invalid path to input file.
 //	 * @throws CruiseControlException
@@ -498,7 +498,7 @@ public class WriterBuilderTest extends TestCase {
         f.setFile(inpFile.getAbsolutePath());
         f.setEncoding("cp1250");
         // Write message to the file
-        IO.write(inpFile, buff.add("Příliš žluťoučký kůň úpěl ďábelské ódy"), "cp1250"); 
+        IO.write(inpFile, buff.add("Příliš žluťoučký kůň úpěl ďábelské ódy"), "cp1250");
 
         writerObj.validate();
         writerObj.build(buildMap, buildProgress);
@@ -529,7 +529,7 @@ public class WriterBuilderTest extends TestCase {
         f.setEncoding("cp1251");
         // Write message to the file
         IO.write(inpFile, buff.add("Художник-эксперт с компьютером всего лишь яйца в объёмный низкий "
-                + "ящик чохом фасовал."), "cp1251"); 
+                + "ящик чохом фасовал."), "cp1251");
 
         writerObj.validate();
         writerObj.build(buildMap, buildProgress);
@@ -577,7 +577,7 @@ public class WriterBuilderTest extends TestCase {
 
         // Must be both in the same directory
         assertEquals(outFile.getParent(), inpFile.getParent());
-        
+
         // <msg>...</msg>
         writerObj.setFile(outFile.getAbsolutePath());
         newMssg(writerObj).append(buff.add("text1"));
@@ -590,7 +590,7 @@ public class WriterBuilderTest extends TestCase {
         // Assert. The output file is in Latin2 encoding
         assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile), "latin2"));
     }
-	
+
 	/**
 	 * Adds {@link WriterBuilder.File} object to the builder object and returns it
      * @param builder the instance to add file to
@@ -616,10 +616,10 @@ public class WriterBuilderTest extends TestCase {
         /** Constructor */
         public DataBuffer() {
         }
-        
+
         /**
          * Adds the given string into the buffer and returns the input string back.
-         * @param s 
+         * @param s
          * @return string
          */
         public String add(final String s) {
@@ -629,7 +629,7 @@ public class WriterBuilderTest extends TestCase {
 
         /**
          * Adds the given string into the buffer and returns the input string back.
-         * @param s 
+         * @param s
          * @param eatwhites
          * @return outputString
          */
@@ -699,7 +699,7 @@ public class WriterBuilderTest extends TestCase {
 	    @Override
 		public Object configurePlugin(final Element pluginElement,
 				final boolean skipChildElements) throws CruiseControlException {
-			
+
 		    assertEquals("writer", pluginElement.getName());
 		    return new WriterBuilder();
 		}

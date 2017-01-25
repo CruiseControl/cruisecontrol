@@ -181,7 +181,7 @@ public class WriterBuilder extends Builder {
             try {
                 ValidationHelper.assertNotExists(this.file, "file", getClass());
             } catch (CruiseControlException e) {
-                ValidationHelper.fail("Trying to overwrite file without permition.");
+                ValidationHelper.fail("Trying to overwrite file without permission.");
             }
         }
 
@@ -206,7 +206,7 @@ public class WriterBuilder extends Builder {
         return addContent(new File());
     }
 
-    @Description("The encoding of the output file. The string must be recognised byJava text "
+    @Description("The encoding of the output file. The string must be recognised by Java text "
             + "encoders")
     @Optional
     @Default(WriterBuilder.UTF8)
@@ -224,7 +224,7 @@ public class WriterBuilder extends Builder {
     }
 
     @Description("The path to file to write the messages into. When the path is not absolute, "
-            + "the path set by <tt>workingdir=''</tt> attribute is prepended, or actual working"
+            + "the path set by <tt>workingdir=''</tt> attribute is prepended, or actual working "
             + "directory is used when <tt>workingdir=''</tt> is not set.")
     @Required
     @SuppressWarnings("javadoc")
@@ -232,7 +232,7 @@ public class WriterBuilder extends Builder {
         this.file = new java.io.File(file);
     }
 
-    @Description("When set, all white characters are stipped from the beginning and the end"
+    @Description("When set, all white characters are stripped from the beginning and the end "
             + "of each line")
     @Optional
     @Default("false")
@@ -242,9 +242,9 @@ public class WriterBuilder extends Builder {
     }
 
     @Description("When set to <i>overwrite</i>, the messages are written to the file even when it "
-            + "does not exist, when set to <i>create</i>, new file is created but the build fails"
-            + "when the file already exists, when set to <i>append</i>, the content is appended to"
-            + "the existing file or new file is created if it doeas not exist")
+            + "does not exist, when set to <i>create</i>, new file is created but the build fails "
+            + "when the file already exists, when set to <i>append</i>, the content is appended to "
+            + "the existing file or new file is created if it does not exist")
     @Optional
     @Default("overwrite")
     @SuppressWarnings("javadoc")
@@ -327,7 +327,7 @@ public class WriterBuilder extends Builder {
 
         // Encoding was checked in validate(), so this exception should not occure
         } catch (UnsupportedEncodingException exc) {
-            LOG.error("Inknown encoding: " + encoding, exc);
+            LOG.error("Unknown encoding: " + encoding, exc);
             return null;
         }
     }
@@ -362,8 +362,8 @@ public class WriterBuilder extends Builder {
         public void validate() throws CruiseControlException;
     }
 
-    @Description("Element holding text to be written to the output file. The text is stored 'as-is'"
-            + "stored withing the element, except when <tt>trim='true'</tt> is set in which case"
+    @Description("Element holding text to be written to the output file. The text is stored 'as-is' "
+            + "stored withing the element, except when <tt>trim='true'</tt> is set in which case "
             + "the white spaces from the beginning and the end of each line are removed")
     @SuppressWarnings("javadoc")
     public final class Msg extends StringWriter implements Content {
@@ -403,7 +403,7 @@ public class WriterBuilder extends Builder {
         }
     }
 
-    @Description("Element used to configure file to be copied to the output file. The content of the"
+    @Description("Element used to configure file to be copied to the output file. The content of the "
             + "file is copied among messages into the position when the attribute is configured")
     @SuppressWarnings("javadoc")
     public final class File implements Content {
@@ -413,14 +413,14 @@ public class WriterBuilder extends Builder {
         /** The value set by {@link #setEncoding(String)} */
         private String encoding = UTF8;
 
-        @Description("The path to file to be copied among the messages. If the path is not absolute,"
+        @Description("The path to file to be copied among the messages. If the path is not absolute, "
                 + "it behaves exactly as the <tt>file=''</tt> attribute of the parent builder's node")
         @Required
         public void setFile(String file) {
             this.file = file;
         }
 
-        @Description("The encoding of the file to be read. The string must be recognised byJava "
+        @Description("The encoding of the file to be read. The string must be recognised by Java "
                 + "text encoders")
         @Optional
         @Default(WriterBuilder.UTF8)
