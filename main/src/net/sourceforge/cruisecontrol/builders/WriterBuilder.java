@@ -38,16 +38,22 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnmappableCharacterException;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
@@ -96,6 +102,8 @@ public class WriterBuilder extends Builder {
     private boolean overwrite = true;
     /** Value set according to the action passed to {@link #setAction(String)} */
     private boolean append = false;
+    /** Value set through {@link #setReplaceChar(String)} */
+    private String replaceChar = null;
 
     /** The list of sub-node-related actions */
     private final LinkedList<Content> messages = new LinkedList<Content>();
@@ -143,6 +151,8 @@ public class WriterBuilder extends Builder {
                 }
                 IO.close(input);
             }
+            // Close the output
+            consumer.consumeLine(null);
 
         } catch (Exception exc) {
             status.setAttribute("error", "build failed with exception: " + exc.getMessage());
@@ -175,6 +185,10 @@ public class WriterBuilder extends Builder {
         // Set the file
         this.file = joinPath(this.file);
         ValidationHelper.assertIsNotDirectory(this.file, "file", getClass());
+        // check, replacement char, if set. Empty string is valid replacement!
+        if (this.replaceChar != null) {
+            ValidationHelper.assertTrue(this.replaceChar.length() <= 1, "invalid replace char [" + replaceChar + "]");
+        }
 
         if (!this.overwrite) {
             // When overwrite is disabled, the file must not exist
@@ -296,6 +310,14 @@ public class WriterBuilder extends Builder {
         LOG.warn("timeout=" + val + " ignored");
     }
 
+    @Description("Sets the character to be used when the text cannot be encoded to the required coding. "
+           + "Use empty string to ignore the non-mappable characters.")
+    @Optional("<i>Unless set, build fails on non-mappable characters.</i>")
+    @SuppressWarnings("javadoc")
+    public void setReplaceChar(String chr) {
+        replaceChar = chr;
+    }
+
     /**
      * Adds the instance of {@link Content} to the end of list of contents.
      * @param obj the instance to add
@@ -308,7 +330,8 @@ public class WriterBuilder extends Builder {
 
     /**
      * Creates instance of {@link StreamConsumer} passing data into the given {@link OutputStream}
-     * instance.
+     * instance. Note that <code>null</code> line must be passed to the consume to close the underlying
+     * output!
      *
      * @param out stream to write messages into
      * @param encoding the encoding in which the output is written
@@ -316,17 +339,31 @@ public class WriterBuilder extends Builder {
      */
     protected StreamConsumer getStreamConsumer(final OutputStream out, final String encoding) {
         try {
-            final PrintStream output = new PrintStream(out, true, encoding);
+            final BufferedWriter output = new BufferedWriter(new OutputStreamWriter(out,
+                        createEncoder(encoding, replaceChar)));
             // Get consumer passing data to the output stream
             return new StreamConsumer() {
                 @Override
                 public void consumeLine(String line) {
-                    output.println(line);
+                    try {
+                        if (line == null) {
+                            output.close();
+                        } else {
+                            output.write(line);
+                            output.newLine();
+                        }
+                    } catch (UnmappableCharacterException exc) {
+                        // THIS IS A BIT TRICKY: Must wrap it into RuntimeException, since the
+                        // StreamConsumer#consumeLine() does not allow any exception to be thrown.
+                        throw new RuntimeException("Unmappable characters found when encoding to " + encoding, exc);
+                    } catch (IOException exc) {
+                        // THIS IS A BIT TRICKY: dtto
+                        throw new RuntimeException("Unable to write line \"" + line + "\"", exc);
+                    }
                 }
             };
-
         // Encoding was checked in validate(), so this exception should not occure
-        } catch (UnsupportedEncodingException exc) {
+        } catch (IllegalCharsetNameException exc) {
             LOG.error("Unknown encoding: " + encoding, exc);
             return null;
         }
@@ -347,6 +384,51 @@ public class WriterBuilder extends Builder {
         // Join
         return new java.io.File(this.workingDir, path.getPath()).getAbsoluteFile();
     }
+
+    /**
+     * Creates action for the given replacement character
+     */
+    protected static CodingErrorAction createAction(String replaceChar) {
+        if (replaceChar == null) {
+            return CodingErrorAction.REPORT;
+        }
+        if ("".equals(replaceChar)) {
+            return CodingErrorAction.IGNORE;
+        } else {
+             return CodingErrorAction.REPLACE;
+        }
+    }
+    /**
+     * Creates decoder for the given encoding
+     */
+    protected static CharsetDecoder createDecoder(String encoding, String replaceChar) {
+        final CharsetDecoder decoder = Charset.forName(encoding).newDecoder();
+        final CodingErrorAction act = createAction(replaceChar);
+        // Configure it
+        if (act == CodingErrorAction.REPLACE) {
+            decoder.replaceWith(replaceChar); // replacement set and valid
+        }
+        decoder.onMalformedInput(act);
+        decoder.onUnmappableCharacter(act);
+        // Get it
+        return decoder;
+    }
+    /**
+     * Creates encoder for the given encoding
+     */
+    protected static CharsetEncoder createEncoder(String encoding, String replaceChar) {
+        final CharsetEncoder encoder = Charset.forName(encoding).newEncoder();
+        final CodingErrorAction act = createAction(replaceChar);
+        // Configure it
+        if (act == CodingErrorAction.REPLACE) {
+            encoder.replaceWith(replaceChar.getBytes()); // replacement set and valid
+        }
+        encoder.onMalformedInput(act);
+        encoder.onUnmappableCharacter(act);
+        // Get it
+        return encoder;
+    }
+
 
     /**
      * Interface allowing to work with {@code <msg></msg>} and {@code <file/>} sub-nodes in the same way.
@@ -436,7 +518,7 @@ public class WriterBuilder extends Builder {
                 f = joinPath(new java.io.File(this.file));
                 f = new java.io.File(Util.parsePropertiesInString(properties, f.getAbsolutePath(), true));
                 // Get the stream reader
-                return new InputStreamReader(new FileInputStream(f), encoding);
+                return new InputStreamReader(new FileInputStream(f), createDecoder(encoding, replaceChar));
             } catch (CruiseControlException e) {
                 LOG.warn("Unable to resolve property in " + f.getAbsolutePath() + "message", e);
             } catch (Exception exc) {

@@ -47,6 +47,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -64,6 +65,7 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.jdom.Element;
+import org.jdom.Attribute;
 import org.junit.Ignore;
 
 /**
@@ -590,6 +592,126 @@ public class WriterBuilderTest extends TestCase {
         // Assert. The output file is in Latin2 encoding
         assertReaders(buff.getChars(), new InputStreamReader(new FileInputStream(outFile), "latin2"));
     }
+
+    /**
+     * Tests the validation of {@link WriterBuilder#etReplaceChar(String)} when empty string
+     * is set. This is valid since it means "ignore unknown characters".
+     * @throws CruiseControlException
+     */
+    public final void testEmptyReplaceChar() throws CruiseControlException {
+        final WriterBuilder writerObj = new WriterBuilder();
+        writerObj.setReplaceChar(""); // empty string = ignore unconvertable character
+        writerObj.setFile("/dev/null");
+        writerObj.validate();
+    }
+    /**
+     * Tests the validation of {@link WriterBuilder#etReplaceChar(String)} when correct
+     * replacement char is set.
+     * @throws CruiseControlException
+     */
+    public final void testSingleReplaceChar() throws CruiseControlException {
+        final WriterBuilder writerObj = new WriterBuilder();
+        writerObj.setReplaceChar("?");
+        writerObj.setFile("/dev/null");
+        writerObj.validate();
+    }
+    /**
+     * Tests the validation of {@link WriterBuilder#etReplaceChar(String)} when incorrect
+     * replacement string is set (not a character).
+     */
+    public final void testWrongReplaceChar() {
+        final WriterBuilder writerObj = new WriterBuilder();
+        writerObj.setReplaceChar("??");
+        writerObj.setFile("/dev/null");
+        try {
+            writerObj.validate();
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().equals("invalid replace char [??]"));
+        }
+    }
+
+    /**
+     * Tests the (expected) failure of conversion when there are unconvertable characters
+     * @throws CruiseControlException
+     * @throws IOException
+     */
+    public final void testConvertFail() throws CruiseControlException, IOException {
+        final File outFile = filesToDelete.add(this);
+        final WriterBuilder writerObj = new WriterBuilder();
+        final String msg = "[…] [„] [“] [æ] [e] [f]";
+
+
+        // <msg>...</msg> - but with characters which cannot be converted to latin2
+        newMssg(writerObj).append(msg);
+        writerObj.setFile(outFile.getAbsolutePath());
+
+        writerObj.setEncoding("latin2");
+        writerObj.validate();
+
+        final Element buildLog = writerObj.build(buildMap, buildProgress);
+        final Attribute error = buildLog.getAttribute("error");
+
+        assertNotNull("error attribute was not found in build log!", error);
+        assertEquals("build failed with exception: Unmappable characters found when encoding to latin2", error.getValue());
+    }
+    /**
+     * Tests the removal of unconvertable characters
+     * @throws CruiseControlException
+     * @throws IOException
+     */
+    public final void testConvertIgnore() throws CruiseControlException, IOException {
+        final File outFile = filesToDelete.add(this);
+        final WriterBuilder writerObj = new WriterBuilder();
+        final String msg = "Unsupported: [æ], [¥], [£], [Ŏ], [Ĭ]";
+        final String out = msg.replaceAll("\\[.\\]", "[]");
+
+        // <msg>...</msg> - but with characters which cannot be converted to latin2 or cp1250
+        newMssg(writerObj).append(msg);
+        writerObj.setFile(outFile.getAbsolutePath());
+        writerObj.setReplaceChar("");
+
+        writerObj.setEncoding("latin2");
+        writerObj.validate();
+        writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(new StringReader(out), new InputStreamReader(new FileInputStream(outFile), "latin2"));
+
+        writerObj.setEncoding("cp1250");
+        writerObj.validate();
+        writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(new StringReader(out), new InputStreamReader(new FileInputStream(outFile), "cp1250"));
+    }
+    /**
+     * Tests the replacement of unconvertable characters
+     * @throws CruiseControlException
+     * @throws IOException
+     */
+    public final void testConvertRepalce() throws CruiseControlException, IOException {
+        final File outFile = filesToDelete.add(this);
+        final WriterBuilder writerObj = new WriterBuilder();
+        final String repl = "*";
+        final String msg = "Unsupported: [æ], [¥], [£], [Ŏ], [Ĭ]";
+        final String out = msg.replaceAll("\\[.\\]", "[" + repl + "]");
+
+        // <msg>...</msg> - but with characters which cannot be converted to latin2 or cp1250
+        newMssg(writerObj).append(msg);
+        writerObj.setFile(outFile.getAbsolutePath());
+        writerObj.setReplaceChar(repl);
+
+        writerObj.setEncoding("latin2");
+        writerObj.validate();
+        writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(new StringReader(out), new InputStreamReader(new FileInputStream(outFile), "latin2"));
+
+        writerObj.setEncoding("cp1250");
+        writerObj.validate();
+        writerObj.build(buildMap, buildProgress);
+        // Assert. The output file is in Latin2 encoding
+        assertReaders(new StringReader(out), new InputStreamReader(new FileInputStream(outFile), "cp1250"));
+  }
 
 	/**
 	 * Adds {@link WriterBuilder.File} object to the builder object and returns it
