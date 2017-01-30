@@ -1,0 +1,8 @@
+main/dist/
+main/loggers/target/
+main/target/
+reporting/dashboard/dist/
+reporting/jsp/dist/
+target/
+.idea/out
+.idea/workspace.xml
