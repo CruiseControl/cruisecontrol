@@ -12,7 +12,7 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 /**
  * The interface which commands run within {@link PipedExecBuilder} must implement.
  */
-interface PipedScript extends Runnable {
+public interface PipedScript extends Runnable {
 
     /**
      * Validates the object (checks if all the attributes are set and correct)
