@@ -61,14 +61,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.Modification;
-
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.jdom.JDOMException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.Modification;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 // TODO: Split this up into separate tests
 public class SVNTest {
@@ -89,7 +89,7 @@ public class SVNTest {
     @Before
     public void setUp() {
         svn = new SVN();
-        svn.setLocalWorkingCopy(findLocalWorkingCopy());
+        svn.setLocalWorkingCopy("./");//findLocalWorkingCopy());
         originalTimeZone = TimeZone.getDefault();
     }
 
@@ -477,7 +477,7 @@ public class SVNTest {
                 + "<commit revision=\"12345\">\n" + "<author>joebloggs</author>\n"
                 + "<date>2007-07-11T08:31:58.089161Z</date>\n" + "</commit>\n" + "</entry>\n" + "</info>";
         String currentRevision = SVN.SVNInfoXMLParser.parse(new StringReader(svnInfo));
-        
+
         assertThat(currentRevision, equalTo("12345"));
     }
 
