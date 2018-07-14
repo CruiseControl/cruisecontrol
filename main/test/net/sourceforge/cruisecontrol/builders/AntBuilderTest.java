@@ -42,6 +42,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.jdom.Element;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.BuilderTest;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -49,8 +51,6 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-
-import org.jdom.Element;
 
 public class AntBuilderTest extends TestCase {
     private final FilesToDelete filesToDelete = new FilesToDelete();
@@ -96,12 +96,14 @@ public class AntBuilderTest extends TestCase {
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\comm.jar;"
       + "C:\\Java\\cruisecontrol-2.2\\main\\bin\\\\..\\lib\\x10.jar;.";
 
+    @Override
     protected void setUp() throws Exception {
         builder = new AntBuilder();
         builder.setTarget("target");
         builder.setBuildFile("buildfile");
 
         AntBuilder unixBuilder = new AntBuilder() {
+            @Override
             protected String getSystemClassPath() {
                 return UNIX_PATH;
             }
@@ -110,6 +112,7 @@ public class AntBuilderTest extends TestCase {
         unixBuilder.setBuildFile("buildfile");
 
         AntBuilder windowsBuilder = new AntBuilder() {
+            @Override
             protected String getSystemClassPath() {
                 return WINDOWS_PATH;
             }
@@ -121,6 +124,7 @@ public class AntBuilderTest extends TestCase {
         filesToDelete.add(new File(AntOutputLogger.DEFAULT_OUTFILE_NAME));
     }
 
+    @Override
     public void tearDown() {
         filesToDelete.delete();
         builder = null;
@@ -181,7 +185,7 @@ public class AntBuilderTest extends TestCase {
 
     public void testValidateAntHomeExistButNoAntScript() {
         builder = new AntBuilder();
-        builder.setAntHome("/");
+        builder.setAntHome("/tmp");
         try {
             builder.validate();
             fail("validate should throw exceptions when the specified anthome doesn't contain the antscript");
@@ -547,7 +551,7 @@ public class AntBuilderTest extends TestCase {
     }
 
     // @todo Remove when deprecated methods get/setShowAntOutput are removed.
-    @SuppressWarnings("deprecation")    
+    @SuppressWarnings("deprecation")
     public void testSetShowAntOutputLinkedToSetLiveOutput() {
         assertTrue(builder.isLiveOutput());
         assertTrue(builder.getShowAntOutput());
