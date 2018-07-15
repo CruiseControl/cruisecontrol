@@ -7,14 +7,14 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * The implementation of {@link PipedScript} handling all the boring cases.
@@ -65,10 +65,10 @@ public abstract class PipedScriptBase implements PipedScript {
     /**
      * @return the instance of Logger
      */
-    protected abstract Logger log(); 
+    protected abstract Logger log();
 
     /** The implementation of {@link PipedScript#validate()}, it checks if all the required
-     *  items are set. 
+     *  items are set.
      *  Do not forget to call this method in the overridden classes!
      *
      *  @throws CruiseControlException if the validation fails */
@@ -111,6 +111,10 @@ public abstract class PipedScriptBase implements PipedScript {
             /* Start and store the build log element created */
             log().info("Script ID '" + this.getID() + "' started");
             buildLog = build();
+            /* Add ID to the buid output, if not already there */
+            if (buildLog.getAttribute("ID") == null) {
+                buildLog.setAttribute("ID", this.getID());
+            }
             /* Add the element into the parent */
             synchronized (buildLogParent) {
                 this.buildLogParent.addContent(buildLog.detach());
@@ -217,8 +221,8 @@ public abstract class PipedScriptBase implements PipedScript {
         return this.inputProvider; // null can be returned
     }
     /**
-     * @return the stream to which the output of the script is supposed to be written. 
-     * @throws NullPointerException when {@link #initialize()} has not been called. 
+     * @return the stream to which the output of the script is supposed to be written.
+     * @throws NullPointerException when {@link #initialize()} has not been called.
      */
     protected OutputStream getOutputBuffer() {
         if (this.outputBuffer == null || this.isDone) {
