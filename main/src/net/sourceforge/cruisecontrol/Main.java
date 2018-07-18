@@ -117,7 +117,7 @@ public final class Main implements CruiseControlMain {
 
     private void startJmxAgent(Configuration conf) {
         agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(conf),
-                parseRmiPort(conf), parseUser(conf), parsePassword(conf), parseXslPath(conf), 
+                parseRmiPort(conf), parseUser(conf), parsePassword(conf), parseXslPath(conf),
                 parseEnableJMXAgentUtility(conf));
         agent.start();
     }
@@ -133,7 +133,7 @@ public final class Main implements CruiseControlMain {
             LOG.error("error setting config file on controller", e);
             throw e;
         }
-        int maxNbThreads = ccController.getConfigManager().getCruiseControlConfig().getMaxNbThreads(); 
+        int maxNbThreads = ccController.getConfigManager().getCruiseControlConfig().getMaxNbThreads();
         ThreadQueueProperties.setMaxThreadCount(maxNbThreads);
         return ccController;
     }
@@ -152,7 +152,7 @@ public final class Main implements CruiseControlMain {
         int rmiPort = parseRmiPort(conf);
         int webPort = parseWebPort(conf);
         setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort, webPort);
-        
+
         File ccHome;
         try {
             ccHome = conf.getOptionFile(Configuration.KEY_HOME_DIR);
@@ -161,12 +161,12 @@ public final class Main implements CruiseControlMain {
         }
 
         System.setProperty("jetty.home", ccHome.getAbsolutePath());
-        
+
         File jettyXml = new File(parseJettyXml(conf, ccHome.getAbsolutePath()));
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, webPort);
         embeddedJettyServer.start();
     }
-    
+
     public static void setUpSystemPropertiesForDashboard(String configFileName, int jmxPort, int rmiPort, int webPort) {
         if (configFileName != null) {
             File configFile = new File(configFileName);
@@ -383,12 +383,15 @@ public final class Main implements CruiseControlMain {
         return conf.getOptionInt(Configuration.KEY_RMI_PORT);
     }
 
+    /**
+     * @return absolute path for {@link Configuration.KEY_XLS_PATH} config item
+     */
     static String parseXslPath(Configuration conf) {
         return conf.getOptionDir(Configuration.KEY_XLS_PATH).getAbsolutePath();
     }
 
     static CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL parseEnableJMXAgentUtility(Configuration conf) {
-        final String argval = conf.getOptionStr(Configuration.KEY_JMX_AGENT_UTIL); 
+        final String argval = conf.getOptionStr(Configuration.KEY_JMX_AGENT_UTIL);
         if (argval.isEmpty()) {
             /** default, if no command line arg present. Not an error if load fails. */
             return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE;

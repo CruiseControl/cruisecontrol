@@ -60,7 +60,7 @@ import org.jdom.Element;
 
 public class MainTest extends TestCase {
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
-    private final FilesToDelete testFiles = new FilesToDelete(); 
+    private final FilesToDelete testFiles = new FilesToDelete();
 
 //    public static void setSkipUsage() {
 //        System.setProperty(Main.SYSPROP_CCMAIN_SKIP_USAGE, "true");
@@ -155,8 +155,8 @@ public class MainTest extends TestCase {
         makeDir("etc/", fullPath);
         makeFile(new File(fullPath.toString(), "jetty.xml"), fullPath);
 
-        assertEquals("ccHome/etc/jetty.xml", Main.parseJettyXml(new TestConfiguration(missingParam), "ccHome"));
-        assertEquals("etc/jetty.xml", Main.parseJettyXml(new TestConfiguration(missingValue), ""));
+        assertEquals(new File("ccHome/etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingParam), "ccHome"));
+        assertEquals(new File("etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingValue), ""));
     }
 
     public void testParseDashboardUrl() throws Exception {
@@ -308,14 +308,14 @@ public class MainTest extends TestCase {
     }
 
     public void testParseXslPath() throws Exception {
-        final String tempDirName = System.getProperty("java.io.tmpdir");
-        String[] correctArgs = new String[] {"-xslpath", tempDirName};
-        String[] missingParam = new String[] {};
-        String[] missingValue = new String[] {"-xslpath"};
+        final File tempDirName = new File(System.getProperty("java.io.tmpdir"));
+        final String[] correctArgs = new String[] {"-xslpath", tempDirName.getPath()};
+        final String[] missingParam = new String[] {};
+        final String[] missingValue = new String[] {"-xslpath"};
         final String invalidXsl = "does_Not_Exist";
-        String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
+        final String[] invalidArgs = new String[] {"-xslpath", invalidXsl};
 
-        assertEquals(tempDirName, Main.parseXslPath(new TestConfiguration(correctArgs)));
+        assertEquals(tempDirName.getAbsolutePath(), Main.parseXslPath(new TestConfiguration(correctArgs)));
         assertEquals(new File(".").getAbsolutePath(), Main.parseXslPath(new TestConfiguration(missingParam))); // use default value
         assertEquals(new File(".").getAbsolutePath(), Main.parseXslPath(new TestConfiguration(missingValue)));
 
