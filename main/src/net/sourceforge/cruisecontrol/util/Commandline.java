@@ -127,15 +127,11 @@ public class Commandline implements Cloneable {
 
     private String executable;
     private String[] execEnv;
-
     private File workingDir;
-    private final CruiseRuntime runtime;
-
     private boolean closeStdIn = true; // close it by default to prevent deadlocks (see revision 3143)
 
-    public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
+    public Commandline(String toProcess) {
         super();
-        this.runtime = cruiseRuntime;
         if (toProcess != null) {
             String[] tmp = new String[0];
             try {
@@ -152,8 +148,12 @@ public class Commandline implements Cloneable {
         }
     }
 
-    public Commandline(String toProcess) {
-        this(toProcess, new CruiseRuntime());
+    /*
+     Deprecated, since CruiseRuntime is not required to be set
+     */
+    @Deprecated
+    public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
+        this(toProcess);
     }
 
     public Commandline() {
