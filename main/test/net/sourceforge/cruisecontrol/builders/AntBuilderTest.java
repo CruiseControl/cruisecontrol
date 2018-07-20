@@ -183,9 +183,12 @@ public class AntBuilderTest extends TestCase {
         }
     }
 
-    public void testValidateAntHomeExistButNoAntScript() {
+    public void testValidateAntHomeExistButNoAntScript() throws IOException {
+        // dir which must exist but must not contain ant script
+        final File tmpdir = filesToDelete.adddir("antBuilderTest_", "_noAntFileDir");
+
         builder = new AntBuilder();
-        builder.setAntHome("/tmp");
+        builder.setAntHome(tmpdir.getAbsolutePath());
         try {
             builder.validate();
             fail("validate should throw exceptions when the specified anthome doesn't contain the antscript");

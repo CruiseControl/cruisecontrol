@@ -37,26 +37,21 @@
 
 package net.sourceforge.cruisecontrol.testutil;
 
-import junit.framework.Assert;
-import net.sourceforge.cruisecontrol.util.IO;
-
-import org.jdom.Document;
-import org.jdom.Element;
-
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.Vector;
+
+import org.jdom.Document;
+import org.jdom.Element;
+
+import junit.framework.Assert;
+import net.sourceforge.cruisecontrol.util.IO;
 
 public final class TestUtil {
     public static class FilesToDelete {
@@ -93,6 +88,18 @@ public final class TestUtil {
          */
         public File add(String prefix, String suffix) throws IOException {
             final File file = File.createTempFile(prefix, suffix);
+            return add(file);
+        }
+
+        /** The same as {@link #add(String, String)} but creates directory instead of a file */
+        public File adddir(String prefix, String suffix) throws IOException {
+            final File file = add(prefix, suffix);
+            // Delete the file
+            IO.delete(file);
+
+            if (! file.mkdirs()) {
+                throw new IOException("Unable to create directory ["+file+"]");
+            }
             return add(file);
         }
 
@@ -286,5 +293,5 @@ public final class TestUtil {
         prop.setAttribute("value", value);
         e.addContent(prop);
     }
-    
+
 }
