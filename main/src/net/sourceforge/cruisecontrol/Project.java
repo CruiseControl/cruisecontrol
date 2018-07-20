@@ -52,6 +52,9 @@ import java.util.Map;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+
 import net.sourceforge.cruisecontrol.events.BuildProgressEvent;
 import net.sourceforge.cruisecontrol.events.BuildProgressListener;
 import net.sourceforge.cruisecontrol.events.BuildResultEvent;
@@ -62,9 +65,6 @@ import net.sourceforge.cruisecontrol.util.CVSDateUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom.Element;
 
 /**
  * Represents a single logical project consisting of source code that needs to
@@ -123,6 +123,7 @@ public class Project implements Serializable, Runnable, ProjectQuery {
         waitMutex = new Object();
         progressListeners = new ArrayList<BuildProgressListener>();
         resultListeners = new ArrayList<BuildResultListener>();
+        queue = new BuildQueue();
 
         progress = new ProgressImpl(this);
     }
@@ -863,6 +864,7 @@ public class Project implements Serializable, Runnable, ProjectQuery {
         }
     }
 
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Project ");
         sb.append(getName());
@@ -931,6 +933,7 @@ public class Project implements Serializable, Runnable, ProjectQuery {
         }
     }
 
+    @Override
     public boolean equals(final Object arg0) {
         if (arg0 == null) {
             return false;
@@ -944,6 +947,7 @@ public class Project implements Serializable, Runnable, ProjectQuery {
         return false;
     }
 
+    @Override
     public int hashCode() {
         return name.hashCode();
     }
@@ -988,7 +992,7 @@ public class Project implements Serializable, Runnable, ProjectQuery {
             warn("No modification set got from " + projectConfig.getName() + ", pretending 'not-modified status'");
             return Collections.emptyList();
         }
-        
+
         info("Getting changes since last successful build");
         modificationSet.retrieveModificationsAsElement(lastSuccessfulBuild, progress);
         return modificationSet.getCurrentModifications();
