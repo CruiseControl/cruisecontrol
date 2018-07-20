@@ -38,6 +38,13 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -46,13 +53,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.jdom.Element;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
-
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.builders.CMakeBuilder.Option;
-import net.sourceforge.cruisecontrol.builders.ExecBuilder;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -61,23 +68,23 @@ import net.sourceforge.cruisecontrol.util.IO;
 /**
  * Test case for {@link CMakeBuilder}.
  */
-public class CMakeBuilderTest extends TestCase
+public class CMakeBuilderTest
 {
 
     /** The name of the binary built */
     private static final  String binname   = "cmakebuilder_testapp";
     /** The list of files created during the test */
     private final  FilesToDelete files2del = new FilesToDelete();
-    
-    
+
+
     /**
      * Setup test environment.
      */
-    @Override
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
     	File cmakelist;
     	File main_c;
-    	
+
         /* Create the content of 'main.c' */
         main_c = File.createTempFile("main_CMakeBuilderTest", ".c");
         main_c.deleteOnExit();
@@ -102,7 +109,7 @@ public class CMakeBuilderTest extends TestCase
                           + "\n"
                           + "# Minimum required CMake version\n"
                           + "cmake_minimum_required(VERSION 2.6)\n"
-                          + "\n"        
+                          + "\n"
                           + "# Optional binary name set by -DBINARY_NAME=name\n"
                           + "# If not set, binary is named according to the project name\n"
                           + "if    (NOT DEFINED BINARY_NAME)\n"
@@ -125,14 +132,14 @@ public class CMakeBuilderTest extends TestCase
                           + "# Where to install the application: CMAKE_INSTALL_PREFIX/bin/\n"
                           + "install(TARGETS ${BINARY_NAME} DESTINATION bin/)\n");
 
-    
+
         /* Create new config mock object with all the required attributes correctly set */
         config = new ConfigMock();
         config.srcroot = cmakelist.getParent();
         config.builddir = new File(config.srcroot, "build").getAbsolutePath();
         config.addOption("-D BINARY_NAME=" + binname);
         config.addOption("-D CMAKE_VERBOSE_MAKEFILE=ON");
-    
+
         /* Set the files to delete */
         files2del.add(cmakelist);
         files2del.add(main_c);
@@ -141,8 +148,8 @@ public class CMakeBuilderTest extends TestCase
     /**
      * Clears test environment.
      */
-    @Override
-    protected void tearDown()
+    @After
+    public void tearDown()
     {
         files2del.delete();
     }
@@ -150,6 +157,7 @@ public class CMakeBuilderTest extends TestCase
     /**
      * Tests a validate failure - cases when srcroot attribute is not set
      */
+    @Test
     public void testValidate_noSrcRoot()
     {
         CMakeBuilder builder;
@@ -173,6 +181,7 @@ public class CMakeBuilderTest extends TestCase
     /**
      * Tests a validate failure - cases when srcroot attribute is not set
      */
+    @Test
     public void testValidate_invalidSrcRoot()
     {
         CMakeBuilder builder;
@@ -196,6 +205,7 @@ public class CMakeBuilderTest extends TestCase
     /**
      * Tests a validate failure - cases when builddir attribute is not set
      */
+    @Test
     public void testValidate_noBuildDir()
     {
         CMakeBuilder builder;
@@ -220,6 +230,7 @@ public class CMakeBuilderTest extends TestCase
      * @throws CruiseControlException if failed
      */
     @Ignore("Needs CMake package installed")
+    @Test
     public void testBuild_buildSuccess() throws CruiseControlException
     {
         CMakeBuilder builder;
@@ -245,6 +256,7 @@ public class CMakeBuilderTest extends TestCase
      * @throws CruiseControlException if failed
      */
     @Ignore("Needs CMake package installed")
+    @Test
     public void testBuild_defineQuoting() throws CruiseControlException
     {
         CMakeBuilder builder;
@@ -273,6 +285,7 @@ public class CMakeBuilderTest extends TestCase
      * @throws CruiseControlException if failed
      */
     @Ignore("Needs CMake package installed")
+    @Test
     public void testBuild_invalidMake() throws CruiseControlException
     {
         CMakeBuilder builder;
