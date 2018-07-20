@@ -47,6 +47,9 @@ import java.util.TreeSet;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
@@ -59,10 +62,8 @@ import net.sourceforge.cruisecontrol.publishers.EmailPublisher.Ignore;
 import net.sourceforge.cruisecontrol.publishers.email.DropLetterEmailAddressMapper;
 import net.sourceforge.cruisecontrol.publishers.email.PropertiesMapper;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
 
 public class EmailPublisherTest extends TestCase {
 
@@ -73,6 +74,7 @@ public class EmailPublisherTest extends TestCase {
     private EmailPublisher emailPublisher;
     private EmailPublisher noAlertsEmailPublisher;
     private File tmpFile;
+    private final PropertiesRestorer props = new PropertiesRestorer();
 
     protected XMLLogHelper createLogHelper(boolean success, boolean lastBuildSuccess) {
         Element cruisecontrolElement = TestUtil.createElement(success, lastBuildSuccess,
@@ -81,7 +83,11 @@ public class EmailPublisherTest extends TestCase {
         return new XMLLogHelper(cruisecontrolElement);
     }
 
+    @Override
     public void setUp() throws Exception {
+        // Make a snapshot of the properties
+        props.record();
+
         PropertiesMapper propertiesMapper = new PropertiesMapper();
         // create a temp file to test propertiesmapper
         Properties props = new Properties();
@@ -107,6 +113,11 @@ public class EmailPublisherTest extends TestCase {
         failureLogHelper = createLogHelper(false, false);
         fixedLogHelper = createLogHelper(true, false);
         firstFailureLogHelper = createLogHelper(false, true);
+    }
+    @Override
+    public void tearDown() throws Exception {
+        // Restore the properties to the snapshot stored
+        props.restore();
     }
 
 
