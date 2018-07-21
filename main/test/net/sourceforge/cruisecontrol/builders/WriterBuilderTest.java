@@ -53,6 +53,10 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.jdom.Attribute;
+import org.jdom.Element;
+import org.junit.Ignore;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginXMLHelper;
 import net.sourceforge.cruisecontrol.Progress;
@@ -63,10 +67,6 @@ import net.sourceforge.cruisecontrol.testutil.TestCase;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-
-import org.jdom.Element;
-import org.jdom.Attribute;
-import org.junit.Ignore;
 
 /**
  * JUnit tests for {@link WriterBuilder}.
@@ -324,12 +324,13 @@ public class WriterBuilderTest extends TestCase {
         final File outFile = filesToDelete.add(this);
         final WriterBuilder writerObj = new WriterBuilder();
         final DataBuffer buff = new DataBuffer();
-        final String text = "<msg> " + buff.add("This is the text-holding") + " \n"
-                          + "        " + buff.add("element used to check")    + "\n"
+        final String text = "<msg> "   + buff.add("This is the text-holding") + " \n"
+                          + "        " + buff.add("element used to check")    + "\r\n"
                           + "        " + buff.add("if trim works correctly")  + "  \n"
-                          + "  "       + buff.add("") + "\n"
+                          + "  "       + buff.add("") + "\r"
                           + "  "       + buff.add("and the last line now") + "\n"
                           +              buff.add("") + " </msg>";
+
         // set trim on
         writerObj.setTrim(true);
         writerObj.setFile(outFile.getAbsolutePath());
@@ -494,7 +495,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.setFile(outFile.getAbsolutePath());
         writerObj.setEncoding("latin2");
         // <msg>...</msg>
-        newMssg(writerObj).append(buff.add("Zvlášť zákeřný učeň s ďolíčky běží podél zóny úlů.", true));
+        newMssg(writerObj).append(buff.add("Zvlášť zákeřný učeň s ďolíčky běží podél zóny úlů."));
         // <file/>
         final WriterBuilder.File f = newFile(writerObj);
         f.setFile(inpFile.getAbsolutePath());
@@ -524,7 +525,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.setEncoding("iso8859-5");
         // <msg>...</msg>
         newMssg(writerObj).append(buff.add("Здесь фабула объять не может всех эмоций - шепелявый "
-                + "скороход в юбке тащит горячий мёд.", true));
+                + "скороход в юбке тащит горячий мёд."));
         // <file/>
         final WriterBuilder.File f = newFile(writerObj);
         f.setFile(inpFile.getAbsolutePath());
@@ -750,20 +751,6 @@ public class WriterBuilderTest extends TestCase {
         }
 
         /**
-         * Adds the given string into the buffer and returns the input string back.
-         * @param s
-         * @param eatwhites
-         * @return outputString
-         */
-        public String add(String s, final boolean eatwhites) {
-        	if (eatwhites) {
-        		s = s.trim();
-        	}
-            buff.append(s + System.lineSeparator());
-            return s;
-        }
-
-        /**
          * Adds the given string into the buffer, stores in to the given file and returns back
          * the <b>absolute path to file</b> into which the text has been stored.
          * @param s the string to be added to the buffer and stored to the file
@@ -818,25 +805,21 @@ public class WriterBuilderTest extends TestCase {
      */
 	public static class TestHelper implements ProjectHelper {
 
-	    @Override
-		public Object configurePlugin(final Element pluginElement,
+	    public Object configurePlugin(final Element pluginElement,
 				final boolean skipChildElements) throws CruiseControlException {
 
 		    assertEquals("writer", pluginElement.getName());
 		    return new WriterBuilder();
 		}
 
-        @Override
-		public FileResolver getFileResolver() {
+        public FileResolver getFileResolver() {
 			return null;
 		}
 
-        @Override
 		public XmlResolver getXmlResolver() {
 			return null;
 		}
 
-        @Override
         public Element resolveProperties(Element objectElement) {
             return null;
         }

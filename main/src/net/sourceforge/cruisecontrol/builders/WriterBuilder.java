@@ -48,14 +48,15 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.CodingErrorAction;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
@@ -475,10 +476,14 @@ public class WriterBuilder extends Builder {
         public void xmltext(final Text t) {
             /* if trim is required, split the text and trim each line */
             if (trim) {
-                final String[] lines = t.getText().split(System.lineSeparator());
-                for  (String s : lines) {
-                    this.append(s.trim() + System.lineSeparator());
+                final Scanner sc = new Scanner(t.getText());
+                final String newline = System.lineSeparator();
+
+                while (sc.hasNextLine()) {
+                    this.append(sc.nextLine().trim() + newline);
                 }
+                sc.close();
+
             } else {
                 this.append(t.getText());
             }
