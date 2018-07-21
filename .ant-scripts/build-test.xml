@@ -60,7 +60,7 @@
 
     <target name="--test-unit-compile" if="should.test.unit">
         <javac srcdir="${test}" destdir="${test.classes}" classpathref="test.unit.compile.path" debug="on"
-               includeAntRuntime="false"
+               encoding="utf-8" includeAntRuntime="false"
                source="${javac.source}" target="${javac.target}"/>
     </target>
 
