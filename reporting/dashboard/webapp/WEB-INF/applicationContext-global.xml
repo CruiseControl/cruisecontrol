@@ -51,7 +51,6 @@
         <constructor-arg ref="${buildloop.query.service.impl}"/>
     </bean>
 
-    <bean id="cruiseRuntime" class="net.sourceforge.cruisecontrol.util.CruiseRuntime"/>
     <bean id="oSEnvironment" class="net.sourceforge.cruisecontrol.util.OSEnvironment"/>
 
     <bean id="jmxConnectorFactory" class="net.sourceforge.cruisecontrol.dashboard.service.JMXConnectorFactory"/>
