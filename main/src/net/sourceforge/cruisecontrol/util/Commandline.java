@@ -148,14 +148,6 @@ public class Commandline implements Cloneable {
         }
     }
 
-    /*
-     Deprecated, since CruiseRuntime is not required to be set
-     */
-    @Deprecated
-    public Commandline(String toProcess, CruiseRuntime cruiseRuntime) {
-        this(toProcess);
-    }
-
     public Commandline() {
         this(null);
     }
@@ -633,7 +625,7 @@ public class Commandline implements Cloneable {
         if (this.execEnv != null) {
             pbenv.clear();
             for (final String s : this.execEnv) {
-                final String[] env = s.split("\\s*=\\s*",2);
+                final String[] env = s.split("\\s*=\\s*", 2);
                 pbenv.put(env[0], env[1]);
             }
         }

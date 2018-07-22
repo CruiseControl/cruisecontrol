@@ -2,9 +2,6 @@ package net.sourceforge.cruisecontrol.util;
 
 import junit.framework.TestCase;
 
-import java.io.IOException;
-import java.io.File;
-
 /**
  * @author Dan Rollo
  * Date: Jan 2, 2007
@@ -44,7 +41,7 @@ public class CommandlineTest extends TestCase {
         final String expectedWithQuotes = DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE
                 + " " + DBL_QUOTE + ARG_SPACES_NOQUOTES + DBL_QUOTE
                 + " " + ARG_NOSPACES
-                + " " + DBL_QUOTE + ARG_SPACES + DBL_QUOTE; 
+                + " " + DBL_QUOTE + ARG_SPACES + DBL_QUOTE;
         assertEquals(expectedWithQuotes, cl.toString());
 
         assertEquals(expectedWithQuotes.replaceAll(DBL_QUOTE, ""), cl.toStringNoQuoting());
@@ -59,59 +56,5 @@ public class CommandlineTest extends TestCase {
         cl2.addArguments(new String[] { argWithMismatchedDblQuote });
         assertEquals("Did behavior of mismatched quotes change? Previously it would truncate args.",
                 DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " ", cl2.toString());
-    }
-
-    public void testOutputStreamShouldBeClosed() throws IOException {
-        MockRuntime mockRuntime = new MockRuntime();
-        Commandline command = new Commandline("doesnt matter", mockRuntime);
-        Process p = command.execute();
-        assertTrue(p.getOutputStream() instanceof ProcessesTest.CloseAwareOutputStream);
-        ProcessesTest.CloseAwareOutputStream outStream = (ProcessesTest.CloseAwareOutputStream) p.getOutputStream();
-        assertTrue("Process output stream should have been closed.", outStream.isClosed());
-    }
-
-    public void testShouldInvokeProvidedRuntime() throws IOException {
-        MockRuntime mockRuntime = new MockRuntime();
-        Commandline command = new Commandline("doesnt matter", mockRuntime);
-        command.execute();
-        assertTrue(mockRuntime.wasCalled());
-    }
-
-    class MockRuntime extends CruiseRuntime {
-        private boolean wasCalled;
-
-        public Process exec(String[] commandline) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public Process exec(String[] commandline, String[] o, File workingDir) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public Process exec(String commandline) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public Process exec(String[] commandline, String[] o) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public Process exec(String commandline, String[] o) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public Process exec(String commandline, String[] o, File workingDir) throws IOException {
-            wasCalled = true;
-            return new MockProcess(new ProcessesTest.CloseAwareOutputStream());
-        }
-
-        public boolean wasCalled() {
-            return wasCalled;
-        }
     }
 }
