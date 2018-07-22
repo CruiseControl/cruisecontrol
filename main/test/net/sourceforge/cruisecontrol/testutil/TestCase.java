@@ -51,11 +51,21 @@ import java.util.regex.Pattern;
 /**
  * The extension of junit.framework.TestCase providing some more useful assert and
  * tool methods.
- * 
+ *
  * @author dtihelka
  *
  */
 public class TestCase  extends junit.framework.TestCase {
+
+    /** Constructor */
+    public TestCase() {
+        super();
+    }
+    /** Name setting constructor
+     * @param name the name passed to parent */
+    public TestCase(String name) {
+        super(name);
+    }
 
     /**
      * Method reading two files, comparing one against the another.
@@ -119,7 +129,7 @@ public class TestCase  extends junit.framework.TestCase {
         refrReader.close();
         testReader.close();
     }
-    
+
     /**
      * Method comparing actual string with the required string represented as regular
      * expression. It is almost equal to {@link #assertEquals(String, String, String)} with the
@@ -137,5 +147,5 @@ public class TestCase  extends junit.framework.TestCase {
         /* Not passed - how to print expected/actual message? */
         assertEquals(message, "regex[" + expected + "]", actual);
     }
-    
+
 }

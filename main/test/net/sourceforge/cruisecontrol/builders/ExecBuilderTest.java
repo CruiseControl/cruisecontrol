@@ -37,21 +37,19 @@
 package net.sourceforge.cruisecontrol.builders;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.util.Commandline;
+import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.testutil.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
-
-import org.jdom2.Element;
 
 /**
  * Exec builder test class.
@@ -63,99 +61,144 @@ public class ExecBuilderTest extends TestCase {
     private static final String MOCK_SUCCESS = "good exec";
     private static final String MOCK_EXIT_FAILURE = "exit failure";
     private static final String MOCK_OUTPUT_FAILURE = "output failure";
+    private static final String MOCK_TIMEOUT= "timeout";
     // name of environment variable used in the test; such env variable must
     // exist when the test is started (be defined by ant)
     private static final String TEST_ENVVAR = "TESTENV";
-    // private static final String MOCK_TIMEOUT_FAILURE = "timeout failure";
-    private File goodTestScript = null;
-    private File exitTestScript = null;
-    private File outputTestScript = null;
-    private File envTestScript = null;
+
     // Current environment
     private final OSEnvironment env = new OSEnvironment();
+    // The list of files created during the test - they are deleted by {@link #tearDown()} method
+    private final FilesToDelete files = new FilesToDelete();
 
-
-    /*
-     * default constructor
-     */
+    /** Constructor */
     public ExecBuilderTest(String name) {
-         super(name);
-    } // ExecBuilderTest
+        super(name);
+    }
+
+    /**
+     * Creates {@link ExecBuilder} configured to run platform-independent test script. The script just
+     * prints the given message to the STDOUT.
+     *
+     * @param scriptFile the path to file to fill with the script
+     * @param message the message to print
+     * @return {@link ExecBuilder} instance filler to run the script
+     * @throws CruiseControlException if the script cannot be created
+     */
+    public static ExecBuilder createEchoExec(File scriptFile, String message) throws CruiseControlException {
+        if (Util.isWindows()) {
+            IO.write(scriptFile, "@rem This is a good exec.bat\n" +
+                                 "@echo " + message + "\n");
+        } else {
+            IO.write(scriptFile, "#!/bin/sh\n" +
+                                 "exec echo '" + message + "'\n");
+        }
+        return createExecBuilder(scriptFile);
+    }
+    /**
+     * Creates {@link ExecBuilder} configured to run platform-independent test script. The script does
+     * nothing but exits with retcode 1
+     *
+     * @param scriptFile the path to file to fill with the script
+     * @return {@link ExecBuilder} instance filler to run the script
+     * @throws CruiseControlException if the script cannot be created
+     *
+     */
+    public static ExecBuilder createExitExec(File scriptFile) throws CruiseControlException {
+        if (Util.isWindows()) {
+            IO.write(scriptFile, "@rem This is a bad exec.bat\n" +
+                                 "@exit 1\n");
+        } else {
+            IO.write(scriptFile, "#!/bin/sh\n" +
+                                 "exit 1\n");
+        }
+        return createExecBuilder(scriptFile);
+    }
+    /**
+     * Creates {@link ExecBuilder} configured to run platform-independent test script. The script prints to
+     * STDOUT all the environment variables passed when executed.
+     *
+     * @param scriptFile the path to file to fill with the script
+     * @return {@link ExecBuilder} instance filler to run the script
+     * @throws CruiseControlException if the script cannot be created
+     * @see #createExecBuilder(File)
+     */
+    public static ExecBuilder createEnvExec(File scriptFile) throws CruiseControlException {
+        if (Util.isWindows()) {
+            IO.write(scriptFile, "@rem This is a good exec.bat printing environment values\n" +
+                                 "@set");
+        } else {
+            IO.write(scriptFile, "#!/bin/sh\n" +
+                                 "exec env");
+        }
+        return createExecBuilder(scriptFile);
+    }
+    /**
+     * Creates {@link ExecBuilder} configured to run platform-independent test script. The script waits
+     * for the given time before it ends.
+     *
+     * @param scriptFile the path to file to fill with the script
+     * @param runlen how long the script should run (time in seconds)
+     * @return {@link ExecBuilder} instance filler to run the script
+     * @throws CruiseControlException if the script cannot be created
+     * @see #createExecBuilder(File)
+     */
+    public static ExecBuilder createSleepExec(File scriptFile, int runlen) throws CruiseControlException {
+        if (Util.isWindows()) {
+            //IO.write(scriptFile, "@rem This is a bat file doing something for " + runlen + " seconds\n" +
+            //                     "@ping -w 1 -n "+ runlen + " 127.0.0.1"); // Silly but reliable until IPv4 disappears
+
+            // Here we must invoke the command directly. Using a .bat file causes that when the process (the
+            // .bat script) is killed (by Process.destroy()), the command it invoked continues running and the
+            // whole process ends when the inner command terminates. Thus, the "kill" does not work as expected ...
+            ExecBuilder eb = createExecBuilder(scriptFile);
+            eb.setCommand("ping");
+            eb.setArgs("-w 1 -n "+ runlen + " 127.0.0.1");
+            return eb;
+            //
+        } else {
+            IO.write(scriptFile, "#!/bin/sh\n" +
+                                 "exec sleep " + runlen);
+        }
+        return createExecBuilder(scriptFile);
+    }
+
+    /**
+     * Creates {@link ExecBuilder} filled with command executing the given script file. The method
+     * fills {@link ExecBuilder#setCommand(String)} and {@link ExecBuilder#setArgs(String)}.
+     *
+     * @param scriptFile the path to script file to run
+     * @return the builder ready to execute the given command
+     */
+    private static ExecBuilder createExecBuilder(File scriptFile) {
+        final ExecBuilder eb = new ExecBuilder();
+
+        if (Util.isWindows()) {
+            eb.setCommand(scriptFile.getAbsolutePath());
+        } else {
+            File shell = new File("/bin/sh");
+
+            assertTrue(shell.exists());
+            eb.setCommand(shell.getAbsolutePath()); // Doesn't need to have script with exec flag
+            eb.setArgs(scriptFile.getAbsolutePath());
+        }
+        return eb;
+    }
 
     /*
-     * setup test environment
+     * teardown test environment
      */
-    protected void setUp() throws Exception {
-         // prepare "good" mock files
-         if (Util.isWindows()) {
-             goodTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_goodexec.bat");
-             goodTestScript.deleteOnExit();
-             makeTestFile(
-                 goodTestScript,
-                 "@rem This is a good exec.bat\n"
-                     + "@echo output from good exec\n",
-                 true);
-         } else {
-             goodTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_goodexec.sh");
-             goodTestScript.deleteOnExit();
-             makeTestFile(
-                 goodTestScript,
-                 "#!/bin/sh\n"
-                     + "\n"
-                     + "echo good exec\n",
-                 false);
-         }
-         // prepare "bad" mock files - with exit value > 0
-         if (Util.isWindows()) {
-             exitTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_exitexec.bat");
-             exitTestScript.deleteOnExit();
-             makeTestFile(
-                 exitTestScript,
-                 "@rem This is a bad exec.bat\n"
-                     + "exit 1\n",
-                 true);
-         } else {
-             exitTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_exitexec.sh");
-             exitTestScript.deleteOnExit();
-             makeTestFile(
-                 exitTestScript,
-                 "#!/bin/sh\n"
-                     + "\n"
-                     + "exit 1\n",
-                 false);
-         }
-         // prepare "bad" mock files - containing error string
-         if (Util.isWindows()) {
-             outputTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_outputexec.bat");
-             outputTestScript.deleteOnExit();
-             makeTestFile(
-                 outputTestScript,
-                 "@rem This is a bad exec.bat\n"
-                     + "@echo some input and then an " + MOCK_OUTPUT_FAILURE + "\n",
-                 true);
-         } else {
-             outputTestScript = File.createTempFile("ExecBuilderTest.internalTestBuild", "_outputexec.sh");
-             outputTestScript.deleteOnExit();
-             makeTestFile(
-                 outputTestScript,
-                 "#!/bin/sh\n"
-                     + "\n"
-                     + "echo some input and then an " + MOCK_OUTPUT_FAILURE + "\n",
-                 false);
-         }
-         // prepare "good" mock files for the testing of environment variables
-         // TODO: create only when needed; actually it does not have to be created for every test,
-         //       but it is done so to be compatible with other test scripts
-         envTestScript = createEnvTestScript();
-    } // setUp
-
-    
+    @Override
+    protected void tearDown() throws Exception {
+        files.delete();
+        super.tearDown();
+    }
 
     /*
      * test validation of required attributes
      */
     public void testValidate() {
-        ExecBuilder ebt = createExecBuilder();
+        final ExecBuilder ebt = new ExecBuilder();
 
         // test missing "command" attribute
         try {
@@ -178,42 +221,66 @@ public class ExecBuilderTest extends TestCase {
     /*
      * test a succesful build
      */
-    public void testBuild_BuildSuccess() {
-        ExecBuilder eb = createExecBuilder();
-        internalTestBuild(MOCK_SUCCESS, eb, goodTestScript.toString());
+    public void testBuild_BuildSuccess() throws Exception {
+        final File goodTestScript = files.add("ExecBuilderTest.internalTestBuild", "_goodexec.bat");
+        final ExecBuilder eb = createEchoExec(goodTestScript, "output from good exec");
+
+        internalTestBuild(MOCK_SUCCESS, eb);
     } // testBuild_BuildSuccess
 
     /*
      * test a buid failure - exit
      */
-    public void testBuild_BuildFailure() {
-        ExecBuilder eb = createExecBuilder();
-        internalTestBuild(MOCK_EXIT_FAILURE, eb, exitTestScript.toString());
+    public void testBuild_BuildFailure() throws Exception {
+        final File exitTestScript = files.add("ExecBuilderTest.internalTestBuild", "_exitexec.bat");
+        final ExecBuilder eb = createExitExec(exitTestScript);
+
+        internalTestBuild(MOCK_EXIT_FAILURE, eb);
     } // testBuild_BuildFailure
 
     /*
      * test a build failure - error in output
      */
-    public void testBuild_OutputFailure() {
-        ExecBuilder eb = createExecBuilder();
-        internalTestBuild(MOCK_OUTPUT_FAILURE, eb, outputTestScript.toString());
+    public void testBuild_OutputFailure() throws Exception {
+        final File outputTestScript = files.add("ExecBuilderTest.internalTestBuild", "_goodexec.bat");
+        final ExecBuilder eb = createEchoExec(outputTestScript, "some input and then an " + MOCK_OUTPUT_FAILURE + "\n");
+
+        internalTestBuild(MOCK_OUTPUT_FAILURE, eb);
     } // testBuild_OutputFailure
+
+    /*
+     * test a script run timeout exhaust
+     */
+    public void testBuild_Timeout() throws Exception {
+        final File sleepTestScript = files.add("ExecBuilderTest.internalTestBuild", "_sleep.bat");
+        final ExecBuilder eb = createSleepExec(sleepTestScript, 12);
+
+        eb.setTimeout(2); // DO NOT run longer than two seconds
+        final Element out = internalTestBuild(MOCK_TIMEOUT, eb);
+
+        // Output time must not be longer than timeout with 1 sec tolerance, just for sure. Still,
+        // it is much less than the 12 sec run time ...
+        assertNotNull(out.getAttribute("time"));
+        assertRegex("Running time too long", "0 minute\\(s\\) [23] second\\(s\\)", out.getAttributeValue("time"));
+    } // testBuild_Timeout
 
     /*
      * test environment variables in the build - define new variable
      */
-    public void testBuild_NewEnvVar() {
-        String envnew = "TESTENV_NEW";
-        String envval = "The value of the new environment variable";
-        Element logout;
+    public void testBuild_NewEnvVar() throws Exception {
+        final String envnew = "TESTENV_NEW";
+        final String envval = "The value of the new environment variable";
 
         // The variable must NOT exist in the current environment
         assertNull(env.getVariable(envnew));
 
-        ExecBuilder eb = createExecBuilder();
+        // Create the env test script
+        final File envTestScript = files.add("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+        final ExecBuilder eb = createEnvExec(envTestScript);
+
         setEnv(eb, envnew, envval);
         // Script must not fail and its STDOUT must contain the new variable
-        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        final Element logout = internalTestBuild(MOCK_SUCCESS, eb);
         assertEquals(String.format("%s=%s", envnew, envval),
                 findMessage(logout, String.format("^%s.*", envnew)));
     } // testBuild_NewEnvVar
@@ -221,33 +288,35 @@ public class ExecBuilderTest extends TestCase {
     /*
      * test environment variables in the build - delete the variable
      */
-    public void testBuild_DelEnvVar() {
-        Element logout;
-
+    public void testBuild_DelEnvVar() throws Exception {
         // The variable must exist in the current environment
         assertNotNull("Value of " + TEST_ENVVAR + " environment variable is not set (if this test fails in your IDE you need to configure your test runner to set this env var with a dummy value)",
                 env.getVariable(TEST_ENVVAR));
 
-        ExecBuilder eb = createExecBuilder();
+        // Create the env test script
+        final File envTestScript = files.add("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+        final ExecBuilder eb = createEnvExec(envTestScript);
+
         setEnv(eb, TEST_ENVVAR, null);
         // Script must not fail and its STDOUT must not contain the new variable
-        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        final Element logout = internalTestBuild(MOCK_SUCCESS, eb);
         assertEquals(null, findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
     } // testBuild_NewEnvVar
 
     /*
      * test environment variables in the build - sets the empty value to the variable
      */
-    public void testBuild_EmptyEnvVal() {
-        Element logout;
-
+    public void testBuild_EmptyEnvVal() throws Exception {
         // The variable must exist in the current environment
         assertNotNull(env.getVariable(TEST_ENVVAR));
 
-        ExecBuilder eb = createExecBuilder();
+        // Create the env test script
+        final File envTestScript = files.add("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+        final ExecBuilder eb = createEnvExec(envTestScript);
+
         setEnv(eb, TEST_ENVVAR, "");
         // Script must not fail and its STDOUT must contain the variable without value
-        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        final Element logout = internalTestBuild(MOCK_SUCCESS, eb);
         assertEquals(String.format("%s=", TEST_ENVVAR),
                 findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
     } // testBuild_NewEnvVar
@@ -256,35 +325,32 @@ public class ExecBuilderTest extends TestCase {
      * test environment variables in the build - adds some value to the existing value
      * of the environment variable
      */
-    public void testBuild_AddEnvVal() {
-        Element logout;
-        String envval = "/dummy/beg/path" + File.pathSeparator + "${" + TEST_ENVVAR + "}" + 
+    public void testBuild_AddEnvVal() throws Exception {
+        final String envval = "/dummy/beg/path" + File.pathSeparator + "${" + TEST_ENVVAR + "}" +
                 File.pathSeparator +"/dummy/end/path";
 
         // The variable must exist in the current environment
         assertNotNull(env.getVariable(TEST_ENVVAR));
-        String path = env.getVariable(TEST_ENVVAR);
+        final String path = env.getVariable(TEST_ENVVAR);
 
-        ExecBuilder eb = createExecBuilder();
+        // Create the env test script
+        final File envTestScript = files.add("ExecBuilderTest.internalTestBuild", "_envexec.bat");
+        final ExecBuilder eb = createEnvExec(envTestScript);
+
         setEnv(eb, TEST_ENVVAR, envval);
         // Script must not fail and its STDOUT must contain the variable
-        logout = internalTestBuild(MOCK_SUCCESS, eb, envTestScript.toString());
+        final Element logout = internalTestBuild(MOCK_SUCCESS, eb);
         assertEquals(String.format("%s=%s", TEST_ENVVAR, envval.replace("${" + TEST_ENVVAR + "}", path)),
                 findMessage(logout, String.format("^%s.*", TEST_ENVVAR)));
     } // testBuild_NewEnvVar
 
-    /** @return the instance of {@link CMakeBuilder} */
-    protected ExecBuilder createExecBuilder() {
-        return new ExecBuilder();
-    }
 
     /*
      * execute the build and check results
      */
-    private Element internalTestBuild(String statusType, ExecBuilder eb, String script) {
+    private Element internalTestBuild(String statusType, ExecBuilder eb) {
         Element logElement = null;
         try {
-            eb.setCommand(script);
             if (statusType.equals(MOCK_OUTPUT_FAILURE)) {
                 eb.setErrorStr(MOCK_OUTPUT_FAILURE);
             }
@@ -303,6 +369,8 @@ public class ExecBuilderTest extends TestCase {
             assertEquals(statusType, "return code is 1", getBuildError(logElement));
         } else if (statusType.equals(MOCK_OUTPUT_FAILURE)) {
             assertEquals(statusType, "error string found", getBuildError(logElement));
+        } else if (statusType.equals(MOCK_TIMEOUT)) {
+            assertEquals(statusType, "build timeout", getBuildError(logElement));
         }
 
         // check the format of the produced log
@@ -316,7 +384,7 @@ public class ExecBuilderTest extends TestCase {
 
         List taskTags = te.getChildren("task");
         Element tk = (Element) taskTags.get(0);
-        assertEquals(statusType, script, tk.getAttribute("name").getValue());
+        assertEquals(statusType, eb.getCommand(), tk.getAttribute("name").getValue());
         //System.out.println("task name = " + tk.getAttribute("name").getValue());
 
         //TODO: check for contents of messages
@@ -365,57 +433,6 @@ public class ExecBuilderTest extends TestCase {
          }
          return null;
      }
-
-      /*
-       * Make a test file with specified content. Assumes the file does not exist.
-       */
-      private static void makeTestFile(File testFile, String content, boolean onWindows) throws CruiseControlException {
-          IO.write(testFile, content);
-          if (!onWindows) {
-              Commandline cmdline = new Commandline();
-              cmdline.setExecutable("chmod");
-              cmdline.createArgument("755");
-              cmdline.createArgument(testFile.getAbsolutePath());
-              try {
-                  Process p = cmdline.execute();
-                  p.waitFor();
-                  assertEquals(0, p.exitValue());
-              } catch (Exception e) {
-                  e.printStackTrace();
-                  fail("exception changing permissions on test file " + testFile.getAbsolutePath());
-              }
-          }
-      } // makeTestFile
-
-      /**
-       * Make a test script printing all ENV variables to its STDOUT, when started.
-       * @return the path to the script file
-       * @throws IOException if the file creation fail 
-       * @throws CruiseControlException if the file creation fail
-       */
-      public static File createEnvTestScript() throws IOException, CruiseControlException {
-          final File scriptfile;
-          
-          if (Util.isWindows()) {
-              scriptfile = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.bat");
-              scriptfile.deleteOnExit();
-              // TODO: vypisovat promennou, ktera je na vstupu zadana jako parametr
-              makeTestFile(
-                      scriptfile,
-                  "@rem This is a good exec.bat printing environment values\n"
-                      + "@set",
-                  true);
-          } else {
-              scriptfile = File.createTempFile("ExecBuilderTest.internalTestBuild", "_envexec.sh");
-              scriptfile.deleteOnExit();
-              makeTestFile(
-                      scriptfile,
-                  "#!/bin/sh\n"
-                      + "env",
-                  false);
-          }
-          return scriptfile;
-      }
 
       /**
        * Get whether there was an error written to the build log returned by
@@ -476,6 +493,7 @@ public class ExecBuilderTest extends TestCase {
             return args;
         }
 
+        @Override
         public void setExecArgs(String execArgs) {
             args = execArgs;
             super.setExecArgs(execArgs);
