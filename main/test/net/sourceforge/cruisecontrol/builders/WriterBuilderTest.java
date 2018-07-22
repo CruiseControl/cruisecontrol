@@ -167,7 +167,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.validate();
 		writerObj.build(buildMap, buildProgress);
 
-		final File gzipFile = new File(outFile.getAbsolutePath() + ".gzip"); // just add extension to the name
+		final File gzipFile = new File(outFile.getAbsolutePath() + ".gz"); // just add extension to the name
 		assertTrue(gzipFile.exists());
 		assertStreams(buff.getData(), new GZIPInputStream(new FileInputStream(gzipFile)));
 	}
@@ -179,7 +179,7 @@ public class WriterBuilderTest extends TestCase {
 	 * @throws IOException
 	 */
 	public final void testMsgAddGzipAppend() throws CruiseControlException, IOException {
-	    final File outFile = filesToDelete.add("test.out", ".gzip");
+	    final File outFile = filesToDelete.add("test.out", ".gz");
 	    final File inpFile = filesToDelete.add(this);
 	    final WriterBuilder writerObj = new WriterBuilder();
 	    final DataBuffer buff = new DataBuffer();
@@ -805,21 +805,25 @@ public class WriterBuilderTest extends TestCase {
      */
 	public static class TestHelper implements ProjectHelper {
 
-	    public Object configurePlugin(final Element pluginElement,
+	    @Override
+        public Object configurePlugin(final Element pluginElement,
 				final boolean skipChildElements) throws CruiseControlException {
 
 		    assertEquals("writer", pluginElement.getName());
 		    return new WriterBuilder();
 		}
 
+        @Override
         public FileResolver getFileResolver() {
 			return null;
 		}
 
-		public XmlResolver getXmlResolver() {
+		@Override
+        public XmlResolver getXmlResolver() {
 			return null;
 		}
 
+        @Override
         public Element resolveProperties(Element objectElement) {
             return null;
         }

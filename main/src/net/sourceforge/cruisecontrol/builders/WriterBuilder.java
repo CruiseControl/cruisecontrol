@@ -133,8 +133,8 @@ public class WriterBuilder extends Builder {
             }
             // gzip compression is set on
             if (this.gzip) {
-                if (!f.getName().endsWith(".gzip")) {
-                    f = new java.io.File(f.getAbsolutePath() + ".gzip");
+                if (!f.getName().endsWith(".gz")) {
+                    f = new java.io.File(f.getAbsolutePath() + ".gz");
                 }
                 out = new GZIPOutputStream(new FileOutputStream(f, this.append));
             // not-compressed file is required
