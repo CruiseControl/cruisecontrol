@@ -55,7 +55,39 @@ import net.sourceforge.cruisecontrol.util.IO;
 
 public final class TestUtil {
     public static class FilesToDelete {
+        private final static File tmpdir;
+
+        /** Static initializer; fills #tmpdir */
+        static {
+            File t;
+
+            try {
+                t = new FilesToDelete().add(FilesToDelete.class).getParentFile();
+            } catch (IOException e) {
+                // If fails, get the root directory. Most likely the directory will not be writable and the tests
+                // will start to fail. But I think it is better than to pretend that everything is OK ...
+                t = new File("/");
+                // Leave a message
+                System.err.println("------------");
+                System.err.println("Unable to get the temporary dir, setting it to: [" + t.getAbsolutePath() + "]");
+                System.err.println("Reported error:");
+                e.printStackTrace(System.err);
+                System.err.println("------------");
+            }
+            // Set the dir
+            tmpdir = t;
+        }
+
+
         private final List<File> files = new Vector<File>();
+
+        /**
+         * Returns the path to the (temporary) directory in which the files are created
+         * @return the path to tmpdir
+         */
+        public static File tmpdir() {
+            return tmpdir;
+        }
 
         public File add(File file) {
              files.add(file);
@@ -108,6 +140,12 @@ public final class TestUtil {
                 IO.delete(file);
             }
             files.clear();
+        }
+
+        /** "Destructor" */
+        @Override
+        protected void finalize() {
+            delete();
         }
     }
 

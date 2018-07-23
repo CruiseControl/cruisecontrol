@@ -40,16 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
-import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
-import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
-import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
-import net.sourceforge.cruisecontrol.launch.Configuration;
-import net.sourceforge.cruisecontrol.launch.ConfigurationTest;
-import net.sourceforge.cruisecontrol.launch.LaunchException;
-
 import org.apache.log4j.Appender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
@@ -57,6 +47,16 @@ import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
 import org.jdom.Element;
+
+import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
+import net.sourceforge.cruisecontrol.launch.Configuration;
+import net.sourceforge.cruisecontrol.launch.ConfigurationTest;
+import net.sourceforge.cruisecontrol.launch.LaunchException;
+import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
+import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.util.Util;
 
 public class MainTest extends TestCase {
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
@@ -66,6 +66,7 @@ public class MainTest extends TestCase {
 //        System.setProperty(Main.SYSPROP_CCMAIN_SKIP_USAGE, "true");
 //    }
 
+    @Override
     public void tearDown() {
         testFiles.delete();
         // Remove all properties
@@ -263,17 +264,15 @@ public class MainTest extends TestCase {
     }
 
     public void testShouldSetWebPortAsSystemProperty() throws Exception {
-        final File temporaryConfigFile = File.createTempFile("temp-config", ".xml");
-        temporaryConfigFile.deleteOnExit();
+        final File temporaryConfigFile = testFiles.add("temp-config", ".xml");
 
         Main.setUpSystemPropertiesForDashboard(temporaryConfigFile.getAbsolutePath(), 123, 456, 789);
-
         assertEquals("789", System.getProperty("cc.webport"));
     }
 
     public void testParseWebappPath() throws Exception {
-        final String tempDirName = System.getProperty("java.io.tmpdir");
-        final File webappDir = new File(tempDirName, "testwebapp");
+        final String tempDirName = testFiles.tmpdir().getAbsolutePath();
+        final File webappDir = testFiles.add(new File(tempDirName, "testwebapp"));
 
         String[] correctArgs = new String[] {"-webapppath", webappDir.getAbsolutePath()};
         String[] missingParam = new String[] {};
@@ -308,7 +307,7 @@ public class MainTest extends TestCase {
     }
 
     public void testParseXslPath() throws Exception {
-        final File tempDirName = new File(System.getProperty("java.io.tmpdir"));
+        final File tempDirName = testFiles.tmpdir().getAbsoluteFile();
         final String[] correctArgs = new String[] {"-xslpath", tempDirName.getPath()};
         final String[] missingParam = new String[] {};
         final String[] missingValue = new String[] {"-xslpath"};
@@ -466,54 +465,67 @@ public class MainTest extends TestCase {
     public static class StringBufferAppender implements Appender {
         private final StringBuffer myBuffer = new StringBuffer();
 
+        @Override
         public void addFilter(Filter filter) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Filter getFilter() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void clearFilters() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void close() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void doAppend(LoggingEvent event) {
             myBuffer.append(event.getMessage()).append("\n");
         }
 
+        @Override
         public String getName() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void setErrorHandler(ErrorHandler errorHandler) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public ErrorHandler getErrorHandler() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void setLayout(Layout layout) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public Layout getLayout() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public void setName(String s) {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public boolean requiresLayout() {
             throw new UnsupportedOperationException();
         }
 
+        @Override
         public String toString() {
             return myBuffer.toString();
         }

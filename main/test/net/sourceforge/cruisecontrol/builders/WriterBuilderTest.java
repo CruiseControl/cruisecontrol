@@ -167,7 +167,7 @@ public class WriterBuilderTest extends TestCase {
         writerObj.validate();
 		writerObj.build(buildMap, buildProgress);
 
-		final File gzipFile = new File(outFile.getAbsolutePath() + ".gz"); // just add extension to the name
+		final File gzipFile = filesToDelete.add(new File(outFile.getAbsolutePath() + ".gz")); // just add extension to the name
 		assertTrue(gzipFile.exists());
 		assertStreams(buff.getData(), new GZIPInputStream(new FileInputStream(gzipFile)));
 	}
