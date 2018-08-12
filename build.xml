@@ -177,7 +177,10 @@
         <echo message="Converting to org.jdom2. Remove once converted within the zip" />
         <apply executable="sed" parallel="true">
             <arg value="-i"/>
+            <arg value="-r"/>
+            <arg value="-e"/>
             <arg value="s/org[.]jdom[.]/org.jdom2./"/>
+            <arg value="-e"/>
             <arg value='s/SAXBuilder[(]"[^"]+"[)]/SAXBuilder()/'/>
             <srcfile/>
             <fileset dir="target" includes="**/*.java"/>
