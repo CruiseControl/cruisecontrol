@@ -40,7 +40,7 @@ import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * @author Richard Lewis-Shell

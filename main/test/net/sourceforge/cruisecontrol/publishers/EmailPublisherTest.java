@@ -47,8 +47,8 @@ import java.util.TreeSet;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -126,7 +126,7 @@ public class EmailPublisherTest extends TestCase {
                                   String xml)
                                   throws Exception {
 
-        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        SAXBuilder builder = new SAXBuilder();
 
         Element emailPublisherElement = builder.build(new StringReader(xml)).getRootElement();
         PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper(new ResolverHolder.DummeResolvers()));

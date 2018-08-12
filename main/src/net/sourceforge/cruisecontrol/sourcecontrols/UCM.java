@@ -58,7 +58,7 @@ import net.sourceforge.cruisecontrol.util.CommandlineUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * This class implements the SourceControlElement methods for ClearCase UCM.

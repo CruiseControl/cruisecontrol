@@ -5,7 +5,7 @@ import static junit.framework.Assert.assertEquals;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.junit.Test;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 
 public class TwitterPublisherTest {

@@ -45,10 +45,11 @@ import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -552,7 +553,7 @@ public class SVN implements SourceControl {
         static Modification[] parse(Reader reader, String externalPath)
                 throws ParseException, JDOMException, IOException {
 
-            SAXBuilder builder = new SAXBuilder(false);
+            SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
             Document document = builder.build(reader);
             return parseDOMTree(document, externalPath);
         }
@@ -666,7 +667,7 @@ public class SVN implements SourceControl {
     static final class SVNInfoXMLParser {
         private SVNInfoXMLParser() { }
         public static String parse(final Reader reader) throws JDOMException, IOException {
-            final SAXBuilder builder = new SAXBuilder(false);
+            final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
             final Document document = builder.build(reader);
             return document.getRootElement().getChild("entry").getAttribute("revision").getValue();
         }

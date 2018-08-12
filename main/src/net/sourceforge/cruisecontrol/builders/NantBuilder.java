@@ -44,11 +44,11 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.Element;
-import org.jdom.filter.ContentFilter;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Attribute;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
+import org.jdom2.filter.ContentFilter;
+import org.jdom2.input.SAXBuilder;
 import org.xml.sax.XMLFilter;
 
 public class NantBuilder extends Builder {
@@ -258,7 +258,7 @@ public class NantBuilder extends Builder {
             throw new CruiseControlException("NAnt logfile " + file.getAbsolutePath() + " does not exist.");
         }
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder = new SAXBuilder();
 
             // get rid of empty <task>- and <message>-elements created by Ant's
             // XmlLogger

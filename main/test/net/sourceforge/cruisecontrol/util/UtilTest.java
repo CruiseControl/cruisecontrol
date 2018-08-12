@@ -46,11 +46,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-import org.jdom.xpath.XPath;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+import org.jdom2.xpath.XPath;
 import org.xml.sax.SAXException;
 
 public class UtilTest extends TestCase {

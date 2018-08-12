@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import java.io.File;
 import java.io.IOException;

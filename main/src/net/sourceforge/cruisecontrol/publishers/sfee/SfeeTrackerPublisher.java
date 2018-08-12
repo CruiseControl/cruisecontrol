@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XPathAwareChild;
 import net.sourceforge.cruisecontrol.util.NamedXPathAwareChild;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

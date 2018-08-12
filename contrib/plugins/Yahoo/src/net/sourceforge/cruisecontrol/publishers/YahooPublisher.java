@@ -44,7 +44,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import ymsg.network.Session;
 import ymsg.network.StatusConstants;

@@ -41,13 +41,15 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlConfigIncludeTest;
 import net.sourceforge.cruisecontrol.Progress;
 
-import org.jdom.CDATA;
-import org.jdom.Element;
+import org.jdom2.CDATA;
+import org.jdom2.Content;
+import org.jdom2.Element;
 
 /**
  * CompositeBuilder test class.
@@ -92,6 +94,7 @@ public class CompositeBuilderTest extends TestCase {
 
             private int validateCallCount;
 
+            @Override
             public void validate() {
                 assertFalse("builder.validate() has been called multiple times", validateCallCount > 0);
                 validateCallCount++;
@@ -150,16 +153,16 @@ public class CompositeBuilderTest extends TestCase {
 
         assertEquals(buildElementName, buildResult.getName());
 
-        final List<Element> content = (List<Element>) buildResult.getContent();
+        final List<Content> content = buildResult.getContent();
         int idx = 0;
-        final Element elmTarget = content.get(idx++);
+        final Element elmTarget = (Element) content.get(idx++);
         assertEquals("[Element: <target/>]", elmTarget.toString());
         assertEquals(attribName, elmTarget.getAttribute("name").getValue());
         assertNotNull(elmTarget.getAttribute("time").getValue());
         final Element elmTask = (Element) elmTarget.getContent(0);
         assertEquals(attribSubName, elmTask.getAttribute("name").getValue());
 
-        final Element elmMessage = content.get(idx);
+        final Element elmMessage = (Element) content.get(idx);
         assertEquals("[Element: <message/>]", elmMessage.toString());
         final CDATA elmCData = (CDATA) elmMessage.getContent(0);
         assertEquals(buildLogMsg + " build attributes: ", elmCData.getValue());
@@ -210,7 +213,7 @@ public class CompositeBuilderTest extends TestCase {
 
         assertTrue(mock1.getName() + " didn't build", mock1.isBuildCalled());
         assertEquals(mock1.getName() + " missing target", mockTarget, mock1.getTarget());
-        
+
         assertTrue(mock2.getName() + " didn't build", mock2.isBuildCalled());
         assertEquals(mock2.getName() + " missing target", mockTarget, mock2.getTarget());
     }
@@ -357,11 +360,12 @@ public class CompositeBuilderTest extends TestCase {
         final int timeoutSecs = 1;
         builder.setTimeout(timeoutSecs);
         final MockBuilder mock1 = new MockBuilder("builder1-timeout") {
+            @Override
             public Element build(final Map<String, String> properties, final Progress progress) {
                 final Element result = super.build(properties, progress);
 
                 // wait for longer than timeout
-                try {                               // + 1 works on linux, not on winz 
+                try {                               // + 1 works on linux, not on winz
                     Thread.sleep((timeoutSecs * 1000L) + 500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();

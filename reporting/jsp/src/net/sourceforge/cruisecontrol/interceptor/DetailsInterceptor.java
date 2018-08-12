@@ -48,7 +48,7 @@ import net.sourceforge.cruisecontrol.Configuration;
 import net.sourceforge.cruisecontrol.PluginConfiguration;
 import net.sourceforge.cruisecontrol.PluginDetail;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import com.opensymphony.xwork.Action;
 import com.opensymphony.xwork.ActionContext;

@@ -2,7 +2,7 @@ package net.sourceforge.cruisecontrol.sourcecontrols;
 
 import junit.framework.TestCase;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.publishers.CMSynergyTaskPublisherTest;
 

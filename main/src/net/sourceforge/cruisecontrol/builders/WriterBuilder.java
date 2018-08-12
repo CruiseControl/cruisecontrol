@@ -60,8 +60,8 @@ import java.util.Scanner;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.Text;
+import org.jdom2.Element;
+import org.jdom2.Text;
 
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;

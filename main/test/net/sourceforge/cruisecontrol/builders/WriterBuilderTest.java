@@ -53,8 +53,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 import org.junit.Ignore;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
@@ -340,7 +340,7 @@ public class WriterBuilderTest extends TestCase {
         final Element elem = Util.loadRootElement(new ByteArrayInputStream(text.getBytes()));
         final WriterBuilder.Msg msg = newMssg(writerObj);
         // Fill it with the text
-        msg.xmltext((org.jdom.Text) elem.getContent(0));
+        msg.xmltext((org.jdom2.Text) elem.getContent(0));
 
         // build
         writerObj.validate();

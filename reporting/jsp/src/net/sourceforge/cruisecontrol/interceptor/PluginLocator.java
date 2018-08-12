@@ -50,7 +50,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.PluginDetail;
 import net.sourceforge.cruisecontrol.PluginType;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 /**
  * Understands how to find plugins.

@@ -44,7 +44,7 @@ import com.vasoftware.sf.soap42.webservices.frs.IFrsAppSoap;
 import com.vasoftware.sf.soap42.webservices.sfmain.ISourceForgeSoap;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import javax.activation.DataHandler;
 import java.io.File;

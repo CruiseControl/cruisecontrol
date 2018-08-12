@@ -48,8 +48,8 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 import net.sourceforge.cruisecontrol.config.PluginPlugin;
 
 

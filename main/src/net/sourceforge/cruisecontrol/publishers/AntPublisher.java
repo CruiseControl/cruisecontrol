@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
@@ -66,7 +66,7 @@ public class AntPublisher extends AbstractAntBuilderDelegate implements Publishe
     private static final Logger LOG = Logger.getLogger(AntPublisher.class);
 
     /**
-     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
+     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom2.Element)
      */
     public void publish(final Element log) throws CruiseControlException {
 

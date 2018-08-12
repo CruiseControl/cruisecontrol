@@ -43,8 +43,8 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 
 public class ModificationTest extends TestCase {
 

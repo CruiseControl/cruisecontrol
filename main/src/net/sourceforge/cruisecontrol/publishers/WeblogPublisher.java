@@ -63,7 +63,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcClient;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * <p>

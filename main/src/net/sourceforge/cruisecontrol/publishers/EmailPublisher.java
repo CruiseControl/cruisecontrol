@@ -75,7 +75,7 @@ import org.apache.log4j.Logger;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
 import org.apache.commons.validator.EmailValidator;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.masukomi.aspirin.core.MailQue;
 
 /**

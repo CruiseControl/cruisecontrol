@@ -37,9 +37,9 @@
 package net.sourceforge.cruisecontrol;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.Text;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Text;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -53,7 +53,7 @@ import net.sourceforge.cruisecontrol.config.PluginPlugin;
 /**
  * Helps mapping the XML to object by instantiating and initializing beans.
  *
- * The {@link #configureObject(org.jdom.Element, Object, boolean)} defines the operations
+ * The {@link #configureObject(org.jdom2.Element, Object, boolean)} defines the operations
  * to be performed.
  */
 public class PluginXMLHelper {
@@ -74,13 +74,13 @@ public class PluginXMLHelper {
      * Given a JDOM Element and a class, this method will instantiate an object
      * of type pluginClass, and configure the element.
      *
-     * <p>{@link #configure(org.jdom.Element, Object, boolean)} to use when one already has an instance.
+     * <p>{@link #configure(org.jdom2.Element, Object, boolean)} to use when one already has an instance.
      *
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param pluginClass the class to instantiate
      * @param skipChildElements <code>false</code> to recurse the configuration, <code>true</code> otherwise
      * @return fully configured Object
-     * @see #configure(org.jdom.Element, Object, boolean)
+     * @see #configure(org.jdom2.Element, Object, boolean)
      * @throws CruiseControlException
      *   if the plugin class cannot be instantiated,
      *   if the configuration fails
@@ -116,7 +116,7 @@ public class PluginXMLHelper {
     }
 
     /**
-     * Same as {@link #configure(org.jdom.Element, Class, boolean)}, except that
+     * Same as {@link #configure(org.jdom2.Element, Class, boolean)}, except that
      * the client already has a pluginInstance.
      * @param objectElement the JDOM Element defining the plugin configuration
      * @param pluginInstance a live plugin instance
@@ -152,7 +152,7 @@ public class PluginXMLHelper {
      * (i.e. known by the instance class). The returned instance must be assignable to the Yyy type</li>
      * <li>calls <code>public void add(Xxx)</code> methods that corresponds to child elements which are
      * plugins themselves, e.g. which will require asking the ProjectXMLHelper to
-     * {@link ProjectXMLHelper#configurePlugin(org.jdom.Element, boolean) configure the plugin}</li>
+     * {@link ProjectXMLHelper#configurePlugin(org.jdom2.Element, boolean) configure the plugin}</li>
      * </ul>
      *
      * @param objectElement the JDOM Element defining the plugin configuration

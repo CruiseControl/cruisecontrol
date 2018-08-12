@@ -44,10 +44,11 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -193,7 +194,7 @@ public class Darcs implements SourceControl {
 
         static List<Modification> parse(final Reader reader) throws ParseException, JDOMException, IOException {
 
-            final SAXBuilder builder = new SAXBuilder(false);
+            final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
             final Document document = builder.build(reader);
             return parseDOMTree(document);
         }

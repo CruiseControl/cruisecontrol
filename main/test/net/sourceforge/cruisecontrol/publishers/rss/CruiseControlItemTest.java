@@ -43,7 +43,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /*
  * Copyright (c) 2005 Hewlett-Packard Development Company, L.P.

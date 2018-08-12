@@ -44,7 +44,7 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.builders.MockBuilder;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class ScheduleTest extends TestCase {
     private Schedule schedule;

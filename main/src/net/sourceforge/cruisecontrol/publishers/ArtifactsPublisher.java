@@ -50,7 +50,7 @@ import org.apache.tools.ant.taskdefs.Copy;
 import org.apache.tools.ant.taskdefs.Move;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.util.FileUtils;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;

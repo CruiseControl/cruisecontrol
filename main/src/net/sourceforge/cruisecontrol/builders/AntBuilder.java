@@ -63,8 +63,8 @@ import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -167,7 +167,7 @@ public class AntBuilder extends Builder {
      */
     public Element build(final Map<String, String> buildProperties, final Progress progressIn)
             throws CruiseControlException {
-        
+
         if (!wasValidated) {
             throw new IllegalStateException("This builder was never validated."
                  + " The build method should not be getting called.");
@@ -179,7 +179,7 @@ public class AntBuilder extends Builder {
         final OSEnvironment antEnv = new OSEnvironment();
         // Merge the environment with the configuration
         mergeEnv(antEnv);
-        
+
         final AntScript script = new AntScript();
         script.setBuildProperties(buildProperties);
         script.setProperties(properties);
@@ -210,7 +210,7 @@ public class AntBuilder extends Builder {
         final BuildOutputLogger buildOutputConsumer;
         if (isLiveOutput()) {
             // TODO: I think there's a bug here when workingDir == null
-            buildOutputConsumer = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME), 
+            buildOutputConsumer = getBuildOutputConsumer(buildProperties.get(Builder.BUILD_PROP_PROJECTNAME),
                     workingDir, AntOutputLogger.DEFAULT_OUTFILE_NAME);
 
         } else {
@@ -251,7 +251,7 @@ public class AntBuilder extends Builder {
     public Element buildWithTarget(final Map<String, String> properties, final String buildTarget,
                                    final Progress progress)
             throws CruiseControlException {
-        
+
         final String origTarget = target;
         try {
             target = buildTarget;
@@ -412,6 +412,7 @@ public class AntBuilder extends Builder {
      * @param showAntOutput if true, add AntOutputLogger as a listener.
      * @deprecated Use {@link #setLiveOutput(boolean)} instead.
      */
+    @Deprecated
     @SkipDoc
     public void setShowAntOutput(final boolean showAntOutput) {
         setLiveOutput(showAntOutput);
@@ -421,6 +422,7 @@ public class AntBuilder extends Builder {
      * @return true if Ant will use the custom AntOutputLogger as a listener in order to show live output.
      * @deprecated Use {@link #isLiveOutput()} instead.
      */
+    @Deprecated
     boolean getShowAntOutput() {
         return isLiveOutput();
     }
@@ -495,7 +497,7 @@ public class AntBuilder extends Builder {
         }
 
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder = new SAXBuilder();
 
             // old Ant-versions contain a bug in the XmlLogger that outputs
             // an invalid PI containing the target "xml:stylesheet"
@@ -593,7 +595,7 @@ public class AntBuilder extends Builder {
             return arg;
         }
     }
-    
+
     @Description("Provides additional library directories for an ANT build.")
     public class Lib implements Serializable {
         private static final long serialVersionUID = 1804469347425625224L;
@@ -610,7 +612,7 @@ public class AntBuilder extends Builder {
             return searchPath;
         }
     }
-    
+
     @Description("Provides additional listeners for an ANT build.")
     public class Listener implements Serializable {
         private static final long serialVersionUID = 4813682685614734386L;
@@ -635,7 +637,7 @@ public class AntBuilder extends Builder {
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
-    
+
     @Description(
             "Load all properties from file with -D properties (like child <code><a href=\""
             + "#antbuilderchildprop\">&lt;property&gt;</a></code> elements) taking "
@@ -656,7 +658,7 @@ public class AntBuilder extends Builder {
     public void setProgressLoggerLib(String progressLoggerLib) {
         this.progressLoggerLib = progressLoggerLib;
     }
-    
+
     /**
      * @return The path (including filename) to the jar file
      * ({@link AntScript#LIBNAME_PROGRESS_LOGGER cruisecontrol-antprogresslogger.jar})

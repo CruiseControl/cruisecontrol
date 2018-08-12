@@ -9,7 +9,7 @@ import net.sourceforge.cruisecontrol.labelincrementers.EmptyLabelIncrementer;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueue;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class ForcingBuildShouldNotLockProjectInQueuedStateTest extends TestCase {
 

@@ -52,8 +52,8 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
 public final class Util {
 
@@ -62,7 +62,7 @@ public final class Util {
 
     public static Element loadRootElement(File configFile) throws CruiseControlException {
         try {
-            SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder = new SAXBuilder();
             builder.setFeature("http://apache.org/xml/features/xinclude", true);
             return builder.build(configFile).getRootElement();
         } catch (Exception e) {

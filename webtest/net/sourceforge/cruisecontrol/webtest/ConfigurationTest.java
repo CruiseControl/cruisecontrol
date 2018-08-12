@@ -52,7 +52,7 @@ import net.sourceforge.cruisecontrol.GenericPluginDetail;
 import net.sourceforge.cruisecontrol.PluginConfiguration;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 public class ConfigurationTest extends TestCase {
     private final String contents;

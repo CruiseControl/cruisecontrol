@@ -41,9 +41,9 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.util.PruneElementFilter;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.apache.log4j.Logger;
 import org.apache.oro.io.GlobFilenameFilter;
 import org.apache.oro.text.MalformedCachePatternException;
@@ -165,8 +165,7 @@ public class MergeLogger implements BuildLogger {
      */
     Element getElement(File xmlFile) {
         try {
-            SAXBuilder builder =
-                new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+            SAXBuilder builder = new SAXBuilder();
             if (removeProperties) {
                 builder.setXMLFilter(new PruneElementFilter("properties"));
             }

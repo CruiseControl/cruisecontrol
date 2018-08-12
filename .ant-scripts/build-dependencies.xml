@@ -59,7 +59,7 @@
     <fileset id="jakarta-regexp.lib" file="${project.root}/reporting/dashboard/lib/buildtime/jakarta-regexp-1.4.jar"/>
     <fileset id="jaxen.lib" file="${project.root}/main/lib/jaxen-1.1-beta-8.jar"/>
     <fileset id="jcommon.lib" file="${project.root}/reporting/jsp/lib/jcommon-0.8.0.jar"/>
-    <fileset id="jdom.lib" file="${project.root}/main/lib/jdom.jar"/>
+    <fileset id="jdom.lib" file="${project.root}/main/lib/jdom-2.0.6.jar"/>
     <fileset id="jetty.lib" file="${project.root}/binaryrelease/lib/jetty-6.1.11.jar"/>
     <fileset id="jetty-util.lib" file="${project.root}/binaryrelease/lib/jetty-util-6.1.11.jar"/>
     <fileset id="jfreechart.lib" file="${project.root}/reporting/jsp/lib/jfreechart-0.9.8.jar"/>
@@ -109,7 +109,6 @@
     <fileset id="vizant.lib" file="${project.root}/main/lib/ant/vizant.jar"/>
     <fileset id="webwork.lib" file="${project.root}/reporting/jsp/lib/webwork-2.1.7.jar"/>
     <fileset id="x10.lib" file="${project.root}/main/lib/x10.jar"/>
-    <fileset id="xerces.lib" file="${project.root}/reporting/dashboard/lib/xercesImpl-2.8.1.jar"/>
     <fileset id="xml-apis.lib" file="${project.root}/reporting/dashboard/lib/xml-apis-1.3.03.jar"/>
     <fileset id="xmlrpc.lib" file="${project.root}/main/lib/xmlrpc-2.0.1.jar"/>
     <fileset id="xpp.lib" file="${project.root}/lib/xpp3/v1.1.4c/xpp3-1.1.4c.jar"/>

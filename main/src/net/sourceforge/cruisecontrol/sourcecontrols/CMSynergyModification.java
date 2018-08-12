@@ -42,9 +42,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.jdom.CDATA;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.util.DateUtil;
@@ -187,7 +187,7 @@ public class CMSynergyModification extends Modification {
             CDATA cd;
             try {
                 cd = new CDATA(comment);
-            } catch (org.jdom.IllegalDataException e) {
+            } catch (org.jdom2.IllegalDataException e) {
                 LOG.error(e);
                 cd = new CDATA("Unable to parse comment. It contains illegal data.");
             }
@@ -418,7 +418,7 @@ public class CMSynergyModification extends Modification {
             CDATA cd;
             try {
                 cd = new CDATA(comment);
-            } catch (org.jdom.IllegalDataException e) {
+            } catch (org.jdom2.IllegalDataException e) {
                 LOG.error(e);
                 cd = new CDATA("Unable to parse comment.  It contains illegal data.");
             }

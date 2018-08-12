@@ -49,7 +49,7 @@ import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import junit.framework.TestCase;
 

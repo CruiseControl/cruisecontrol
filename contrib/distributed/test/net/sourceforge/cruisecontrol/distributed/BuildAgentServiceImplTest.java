@@ -14,8 +14,8 @@ import java.io.IOException;
 
 import java.rmi.RemoteException;
 
-import org.jdom.CDATA;
-import org.jdom.Element;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.distributed.core.PropertiesHelper;

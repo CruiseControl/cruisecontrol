@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.publishers.email.EmailMapping;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class MockPublisher implements Publisher {
 

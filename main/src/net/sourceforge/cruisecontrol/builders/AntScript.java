@@ -48,6 +48,7 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 import net.sourceforge.cruisecontrol.util.UtilLocator;
+
 import org.apache.log4j.Logger;
 
 /**

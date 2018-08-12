@@ -10,7 +10,7 @@ import net.sourceforge.cruisecontrol.LabelIncrementer;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class PropertyFileLabelIncrementer implements LabelIncrementer {
     private static final Logger LOG = Logger.getLogger(PropertyFileLabelIncrementer.class);

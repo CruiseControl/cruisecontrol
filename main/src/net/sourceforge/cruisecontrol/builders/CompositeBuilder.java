@@ -16,9 +16,9 @@ import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.CDATA;
+import org.jdom2.Attribute;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
 
 @Description(
         "<p>The CompositeBuilder executes a list of builders (any builder, except <a "
@@ -106,14 +106,14 @@ public class CompositeBuilder extends Builder {
      * @param attribNameTarget value of name attribute of 'target' element.
      * @param attribNameTask value of name attribute of 'task' element.
      */
-    @SuppressWarnings("unchecked")    
+    @SuppressWarnings("unchecked")
     public static void insertBuildLogHeader(final Element buildResult,
                                              final String buildLogMsg, final long childStartTime,
                                              final String attribNameTarget, final String attribNameTask) {
 
         // add info from attributes of "build" tag from child build
         String buildMsgWithAttibs = buildLogMsg + " build attributes: ";
-        final Iterator<Attribute> attributes = (Iterator<Attribute>) buildResult.getAttributes().iterator();
+        final Iterator<Attribute> attributes = buildResult.getAttributes().iterator();
         while (attributes.hasNext()) {
             final Attribute attribute = attributes.next();
             buildMsgWithAttibs += attribute.getName() + "=" + attribute.getValue() + "; ";
@@ -146,7 +146,7 @@ public class CompositeBuilder extends Builder {
 
     } // insertBuildLogHeader
 
-    
+
     private static boolean isBuildSuccessful(final Element buildResult) {
         return (buildResult.getAttribute("error") == null);
     }
@@ -244,7 +244,7 @@ public class CompositeBuilder extends Builder {
     public void setTimeout(long timeout) {
         this.timeoutSeconds = timeout;
     }
-    
+
     /** Method override to allow different @Description annotations. */
     @Description(
             "If true or omitted, the composite builder will provide progress messages, "

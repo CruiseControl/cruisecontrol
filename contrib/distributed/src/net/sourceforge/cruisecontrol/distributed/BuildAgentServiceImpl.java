@@ -72,7 +72,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.Level;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import javax.jnlp.ServiceManager;
 import javax.jnlp.BasicService;

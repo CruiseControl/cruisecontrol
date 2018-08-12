@@ -55,8 +55,8 @@ import  net.sourceforge.cruisecontrol.util.OSEnvironment;
 import  net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import  org.apache.log4j.Logger;
-import  org.jdom.Attribute;
-import  org.jdom.Element;
+import  org.jdom2.Attribute;
+import  org.jdom2.Element;
 
 
 /**
@@ -391,9 +391,9 @@ public class CMakeBuilder extends Builder {
   private long timeOut = 0;
 
   /** The list of <tt>-D</tt> defines passed to <tt>cmake</tt> command. */
-  private LinkedList<Option>  options   = new LinkedList<Option>();
+  private final LinkedList<Option>  options   = new LinkedList<Option>();
   /** The list of commands as they are executed one after another. */
-  private LinkedList<ExecBuilderCMake> commands  = new LinkedList<ExecBuilderCMake>();
+  private final LinkedList<ExecBuilderCMake> commands  = new LinkedList<ExecBuilderCMake>();
 
   /** Logger. */
   private static final Logger LOG = Logger.getLogger(CMakeBuilder.class);

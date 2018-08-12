@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Manages the config.

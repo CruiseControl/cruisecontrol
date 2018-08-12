@@ -47,8 +47,6 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.MockProcess;
 
-// import org.jdom.Element;
-
 public class RakeBuilderTest extends TestCase {
 
     static class InputBasedMockCommandLineBuilder {

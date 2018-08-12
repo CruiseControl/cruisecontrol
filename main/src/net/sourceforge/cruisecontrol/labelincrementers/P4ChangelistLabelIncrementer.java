@@ -59,7 +59,7 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Delete;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.PatternSet.NameEntry;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * This class uses the most current changelist of the user in Perforce as the

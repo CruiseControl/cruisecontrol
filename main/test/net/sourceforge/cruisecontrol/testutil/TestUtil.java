@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
 
 import junit.framework.Assert;
 import net.sourceforge.cruisecontrol.util.IO;

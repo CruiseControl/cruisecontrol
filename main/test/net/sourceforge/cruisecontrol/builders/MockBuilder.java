@@ -40,7 +40,7 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.util.Map;
 

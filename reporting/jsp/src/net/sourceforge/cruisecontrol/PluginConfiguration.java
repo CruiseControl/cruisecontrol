@@ -47,8 +47,8 @@ import javax.management.MBeanException;
 import javax.management.ReflectionException;
 
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-import org.jdom.JDOMException;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 
 /**
  * Understands how to map parameter values to plugin attributes.
@@ -108,11 +108,11 @@ public class PluginConfiguration {
         return newDetails;
     }
 
-    @SuppressWarnings("unchecked") // we know Element.getAttributes() returns List<org.jdom.Attribute>
+    @SuppressWarnings("unchecked") // we know Element.getAttributes() returns List<org.jdom2.Attribute>
     private String findAttributeValue(final Element configuration, final String attributeName) {
-        final List<org.jdom.Attribute> lstAttributes = configuration.getAttributes();
+        final List<org.jdom2.Attribute> lstAttributes = configuration.getAttributes();
 
-        for (final org.jdom.Attribute attribute : lstAttributes) {
+        for (final org.jdom2.Attribute attribute : lstAttributes) {
             final String nextAttributeName = attribute.getName();
             if (attributeName.equalsIgnoreCase(nextAttributeName)) {
                 return configuration.getAttributeValue(nextAttributeName);

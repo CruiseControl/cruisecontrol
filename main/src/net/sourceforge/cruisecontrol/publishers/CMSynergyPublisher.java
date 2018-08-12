@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;

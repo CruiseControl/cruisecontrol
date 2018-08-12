@@ -46,7 +46,7 @@ import org.apache.oro.text.regex.PatternCompiler;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.sourcecontrols.CMSynergy;
@@ -143,7 +143,7 @@ public class CMSynergyBaselinePublisher extends CMSynergyPublisher {
     }
 
     /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
+     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom2.Element)
      */
     public void publish(final Element log) throws CruiseControlException {
 

@@ -54,10 +54,10 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.IO;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.Namespace;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.Namespace;
+import org.jdom2.input.SAXBuilder;
 
 /**
  * Checks binary dependencies listed in a Maven project rather than in a
@@ -242,7 +242,7 @@ public class MavenSnapshotDependency implements SourceControl {
 
         final List<String> filenames = new ArrayList<String>();
         Element mavenElement;
-        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        SAXBuilder builder = new SAXBuilder();
         try {
             mavenElement = builder.build(mavenFile).getRootElement();
         } catch (JDOMException e) {

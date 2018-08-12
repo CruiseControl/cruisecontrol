@@ -41,7 +41,7 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.util.List;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.junit.Test;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;

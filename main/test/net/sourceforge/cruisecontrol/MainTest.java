@@ -46,7 +46,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;

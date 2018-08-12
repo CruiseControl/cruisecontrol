@@ -10,7 +10,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.BuildOutputLogger;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

@@ -54,8 +54,8 @@ import net.sourceforge.cruisecontrol.ResolverHolder;
 import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 
 import com.twmacinta.util.MD5OutputStream;
 

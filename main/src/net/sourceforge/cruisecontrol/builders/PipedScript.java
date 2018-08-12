@@ -3,7 +3,7 @@ package net.sourceforge.cruisecontrol.builders;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;

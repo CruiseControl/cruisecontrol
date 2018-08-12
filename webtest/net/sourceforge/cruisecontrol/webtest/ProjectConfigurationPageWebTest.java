@@ -47,7 +47,7 @@ import javax.management.ReflectionException;
 import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.cruisecontrol.Configuration;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 public class ProjectConfigurationPageWebTest extends WebTestCase {
     private static final String CONFIG_URL = "/cruisecontrol/config.jspa?project=connectfour";

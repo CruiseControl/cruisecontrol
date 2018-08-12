@@ -45,7 +45,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;

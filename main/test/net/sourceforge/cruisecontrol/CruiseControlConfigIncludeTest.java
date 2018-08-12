@@ -9,7 +9,7 @@ import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.util.Util;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class CruiseControlConfigIncludeTest extends TestCase implements ResolverHolder {
 

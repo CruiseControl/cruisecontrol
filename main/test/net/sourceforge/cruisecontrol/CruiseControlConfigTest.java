@@ -61,7 +61,7 @@ import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class CruiseControlConfigTest extends TestCase {
 

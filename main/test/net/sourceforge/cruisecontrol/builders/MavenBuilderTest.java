@@ -42,7 +42,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.util.List;

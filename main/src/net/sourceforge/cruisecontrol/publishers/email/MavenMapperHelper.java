@@ -43,11 +43,12 @@ import java.util.Properties;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
+import org.jdom2.xpath.XPath;
 
 /**
  * Open the Maven POM file, retrieve the information about the developers
@@ -57,7 +58,7 @@ import org.jdom.xpath.XPath;
  */
 public class MavenMapperHelper {
     private final String projectFile;
-    private Properties props;
+    private final Properties props;
     private List developerNodes;
     private String [] mandatoryElements;
     private static final String [] MANDATORY_ELEMENTS_DEFAULT = {"id", "email"};
@@ -81,7 +82,7 @@ public class MavenMapperHelper {
 
     private void setDeveloperNodes() throws CruiseControlException {
         Document doc;
-        SAXBuilder builder = new SAXBuilder(false);
+        SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
         try {
             doc = builder.build(new FileInputStream(this.projectFile));
             this.developerNodes = XPath.selectNodes(doc, X_PATH_EXPRESSION);

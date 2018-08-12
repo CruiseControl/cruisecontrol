@@ -45,8 +45,8 @@ import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
 
 import org.apache.log4j.Logger;
-import org.jdom.CDATA;
-import org.jdom.Element;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
 
 /**
  * Exec script class. Script support to execute a command and logs the results.

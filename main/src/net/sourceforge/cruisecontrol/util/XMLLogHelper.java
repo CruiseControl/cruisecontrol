@@ -44,7 +44,7 @@ import java.util.Set;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  *  Wrapper for the cruisecontrol build log.  This class serves two purposes:<br>

@@ -48,7 +48,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggerRepository;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class Maven2ScriptTest extends TestCase {
 

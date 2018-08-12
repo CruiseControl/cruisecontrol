@@ -41,7 +41,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  *  A generic RSS Feed Item (includes the contents of an RSS feed between the

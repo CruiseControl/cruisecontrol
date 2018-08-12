@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.publishers;
 
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class CompoundPublisherTest extends ConditionalPublisherTestBase {
 

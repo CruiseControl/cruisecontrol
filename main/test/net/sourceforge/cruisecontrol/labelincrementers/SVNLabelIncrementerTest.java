@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * @author Ketan Padegaonkar &lt; KetanPadegaonkar gmail &gt;

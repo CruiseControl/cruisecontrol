@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * @version $Id$

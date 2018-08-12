@@ -44,6 +44,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.jdom2.CDATA;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.logmanipulators.DeleteManipulator;
 import net.sourceforge.cruisecontrol.logmanipulators.GZIPManipulator;
@@ -51,22 +58,17 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 
-import org.jdom.CDATA;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
-
 
 public class LogTest extends TestCase {
     private final FilesToDelete filesToDelete = new FilesToDelete();
     private static final String LOG_DIR = "LogTest";
 
+    @Override
     protected void setUp() {
         filesToDelete.add(new File(TestUtil.getTargetDir(), LOG_DIR));
     }
 
+    @Override
     protected void tearDown() {
         filesToDelete.delete();
     }
@@ -135,7 +137,7 @@ public class LogTest extends TestCase {
 
         final String[] encodings = { "UTF-8", "ISO-8859-1", null };
 
-        final SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        final SAXBuilder builder = new SAXBuilder();
         final XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
         for (final String encoding : encodings) {
             final Log log = new Log();
@@ -221,12 +223,12 @@ public class LogTest extends TestCase {
         final File logFile = new File(LOG_DIR, expectFilename);
         assertTrue(logFile.isFile());
 
-        Element elem = new SAXBuilder("org.apache.xerces.parsers.SAXParser").build(logFile).getRootElement();
+        Element elem = new SAXBuilder().build(logFile).getRootElement();
         elem = elem.getChild("build");
         elem = elem.getChild("message");
-        final CDATA cdata = (CDATA) elem.getContent(0);
+        final String cdata = elem.getText();
 
-        assertEquals(expectedLogText, cdata.getText());
+        assertEquals(expectedLogText, cdata);
     }
 
     public void testManipulateLog() throws Exception {
@@ -342,7 +344,7 @@ public class LogTest extends TestCase {
         assertEquals("There must be one log file", 1, labels.size());
         final String label = labels.get(0);
         final String[] logContents = log.getLogLabelLines(label, -1);
-        assertEquals(16, logContents.length);
+        assertEquals(15, logContents.length); // 15 lines in the log XML file (the last is XML closing element)
     }
 
     public void testGetLogLabelLinesFirstLineEnd() throws Exception {
@@ -351,9 +353,9 @@ public class LogTest extends TestCase {
         final List<String> labels = log.getLogLabels();
         assertEquals("There must be one log file", 1, labels.size());
         final String label = labels.get(0);
-        assertEquals(1, log.getLogLabelLines(label, 15).length);
+        assertEquals(1, log.getLogLabelLines(label, 14).length); // last line (XML closing element)
+        assertEquals(0, log.getLogLabelLines(label, 15).length);
         assertEquals(0, log.getLogLabelLines(label, 16).length);
-        assertEquals(0, log.getLogLabelLines(label, 17).length);
         assertEquals(0, log.getLogLabelLines(label, 100).length);
     }
 
@@ -365,10 +367,10 @@ public class LogTest extends TestCase {
         final String label = labels.get(0);
         final String[] logContents = log.getLogLabelLines(label, 0);
         assertNotNull("logContents should not be null", logContents);
+        assertEquals(15, logContents.length);
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", logContents[0]);
         assertEquals("<cruisecontrol>", logContents[1]);
-        assertEquals("</cruisecontrol>", logContents[14]);
-        assertEquals("", logContents[15]);
+        assertEquals("</cruisecontrol>", logContents[14]); // last line (XML closing element)
     }
 
 
@@ -397,6 +399,7 @@ public class LogTest extends TestCase {
         log.callManipulators();
         final File[] logfiles = new File(log.getLogDir()).listFiles(new FilenameFilter() {
 
+            @Override
             public boolean accept(final File file, final String fileName) {
                 return fileName.startsWith("log20")
                         && (fileName.endsWith(".xml") || fileName
@@ -450,7 +453,7 @@ public class LogTest extends TestCase {
 
     // Get a minimal info element for the buildLog
     private Element getBuildLogInfo() throws JDOMException, IOException {
-        SAXBuilder builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        SAXBuilder builder = new SAXBuilder();
         String infoXML = "<info><property name=\"label\" value=\"\"/>"
                 + "<property name=\"lastbuildtime\" value=\"\"/>"
                 + "<property name=\"lastgoodbuildtime\" value=\"\"/>"
@@ -459,6 +462,6 @@ public class LogTest extends TestCase {
                 + "<property name=\"buildtarget\" value=\"\"/>"
                 + "</info>";
         Element info = builder.build(new StringReader(infoXML)).getRootElement();
-        return (Element) info.clone();
+        return info.clone();
     }
 }

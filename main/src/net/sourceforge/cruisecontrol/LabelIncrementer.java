@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol;
 
 import java.io.Serializable;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * This interface defines the method required to increment

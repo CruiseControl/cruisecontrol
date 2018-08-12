@@ -49,7 +49,7 @@ import net.sourceforge.cruisecontrol.publishers.SCPPublisher;
 import net.sourceforge.cruisecontrol.sourcecontrols.ConcurrentVersionsSystem;
 import net.sourceforge.cruisecontrol.sourcecontrols.SVN;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class PluginRegistryTest extends TestCase {
 

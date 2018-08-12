@@ -40,9 +40,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
 
 import junit.framework.TestCase;
 
@@ -55,7 +55,7 @@ public class PruneElementFilterTest extends TestCase {
     private SAXBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        builder = new SAXBuilder();
         builder.setXMLFilter(new PruneElementFilter("properties"));
     }
 

@@ -36,7 +36,7 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.util.Date;
 import java.util.Map;

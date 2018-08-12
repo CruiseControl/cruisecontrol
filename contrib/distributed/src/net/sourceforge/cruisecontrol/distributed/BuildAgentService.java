@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Date;
 
 import net.sourceforge.cruisecontrol.distributed.core.LiveOutputReaderRemote;
-import org.jdom.Element;
+import org.jdom2.Element;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.distributed.core.ProgressRemote;
 import net.sourceforge.cruisecontrol.distributed.core.RemoteResult;

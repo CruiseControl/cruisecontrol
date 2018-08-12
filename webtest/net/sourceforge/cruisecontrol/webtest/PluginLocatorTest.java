@@ -43,7 +43,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.ReflectionException;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import junit.framework.TestCase;
 import junit.framework.Assert;

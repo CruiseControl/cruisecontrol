@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol.labelincrementers;
 
 import net.sourceforge.cruisecontrol.LabelIncrementer;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class EmptyLabelIncrementer implements LabelIncrementer {
 

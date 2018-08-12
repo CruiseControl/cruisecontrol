@@ -47,7 +47,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Publishes the XML log file and the published artifacts via FTP to

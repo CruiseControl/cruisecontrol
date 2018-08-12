@@ -48,7 +48,7 @@ import net.sourceforge.cruisecontrol.publishers.origo.OrigoApiClient;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.apache.xmlrpc.XmlRpcException;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class OrigoPublisherTest extends TestCase {
 

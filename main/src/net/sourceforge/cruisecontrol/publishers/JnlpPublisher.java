@@ -17,7 +17,7 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.util.FileUtils;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.FileOutputStream;

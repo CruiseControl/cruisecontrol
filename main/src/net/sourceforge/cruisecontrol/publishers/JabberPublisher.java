@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.GroupChat;
 import org.jivesoftware.smack.SSLXMPPConnection;

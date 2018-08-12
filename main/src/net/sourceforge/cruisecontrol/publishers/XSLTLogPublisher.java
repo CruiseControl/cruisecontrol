@@ -43,8 +43,8 @@ import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Util;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.transform.JDOMSource;
+import org.jdom2.Element;
+import org.jdom2.transform.JDOMSource;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;

@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.BuilderTest;
@@ -293,12 +293,39 @@ public class AntBuilderTest extends TestCase {
     }
 
     public void testGetAntLogAsElement() throws CruiseControlException {
-        Element buildLogElement = new Element("build");
-        File logFile = new File(TestUtil.getTargetDir(), "_tempAntLog.xml");
+        Element buildLogElement;
+        File logFile;
+
+        buildLogElement = new Element("build");
+        logFile = new File(TestUtil.getTargetDir(), "_tempAntLog.xml");
         filesToDelete.add(logFile);
         IO.write(logFile,
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
                 + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build></build>");
+
+        assertEquals(
+                buildLogElement.toString(),
+                builder.getAntLogAsElement(logFile).toString());
+
+        // Such CData caused problems with jdom 1.x
+        buildLogElement = new Element("build");
+        logFile = new File(TestUtil.getTargetDir(), "_tempAntLog.xml");
+        IO.write(logFile,
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<?xml-stylesheet "
+                + "type=\"text/xsl\" href=\"log.xsl\"?>\n<build>"
+                + "<message priority=\"info\"><![CDATA[<Overriding bean definition for bean "
+                + "'sharedUrlMapping': replacing [Root bean: class [org.springframework.web."
+                + "servlet.handler.SimpleUrlHandlerMapping]; scope=singleton; abstract=false; "
+                + "lazyInit=false; autowireCandidate=true; autowireMode=0; dependencyCheck=0; "
+                + "factoryBeanName=null; factoryMethodName=null; initMethodName=null; destroy"
+                + "MethodName=null; defined in ServletContext resource [/WEB-INF/tabs"
+                + "/dashboard-builds-shared.xml]] with [Root bean: class [org.springframework."
+                + "web.servlet.handler.SimpleUrlHandlerMapping]; scope=singleton; abstract="
+                + "false; lazyInit=false; autowireCandidate=true; autowireMode=0; dependencyCheck"
+                + "=0; factoryBeanName=null; factoryMethodName=null; initMethodName=null; "
+                + "destroyMethodName=null; defined in ServletContext resource [/WEB-INF/tabs/"
+                + "dashboard-builds-shared.xml]]]]><![CDATA[>]]></message>\n"
+                + "</build>");
 
         assertEquals(
                 buildLogElement.toString(),

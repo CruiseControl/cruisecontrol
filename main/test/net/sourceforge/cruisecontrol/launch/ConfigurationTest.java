@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestCase;
@@ -22,7 +22,7 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 
 
 public class ConfigurationTest extends TestCase {
-    
+
     private FilesToDelete filesToDelete = new FilesToDelete();
     private PropertiesRestorer propRestorer = new PropertiesRestorer();
 
@@ -41,7 +41,7 @@ public class ConfigurationTest extends TestCase {
 //                System.clearProperty(name);
 //            }
 //        }
-//        final Properties props = System.getProperties(); 
+//        final Properties props = System.getProperties();
 //        for (String name : props.stringPropertyNames()) {
 //            if (name.startsWith("cc.")) {
 //                props.remove(name);
@@ -49,7 +49,7 @@ public class ConfigurationTest extends TestCase {
 //        }
     }
 
-    /** Tests the default values of the options, when not overridden by anything else 
+    /** Tests the default values of the options, when not overridden by anything else
      * @throws LaunchException */
     public void testDefaultVals() throws CruiseControlException, LaunchException {
         final Configuration config = Configuration.getInstance(new String[0]);
@@ -64,7 +64,7 @@ public class ConfigurationTest extends TestCase {
         // libs
         // distDir
         // homeDir
-        
+
         // None was set
         assertFalse(config.wasOptionSet(Configuration.KEY_ARTIFACTS));
         assertFalse(config.wasOptionSet(Configuration.KEY_LIBRARY_DIR));
@@ -96,7 +96,7 @@ public class ConfigurationTest extends TestCase {
 //        public static final String keyUser = "user";
 //        public static final String keyCCname = "ccname";
 //        public static final String keyJmxAgentUtil = "agentutil";
-    
+
     }
 
     /** Tests the case where there is no -XXX option on the command line
@@ -106,7 +106,7 @@ public class ConfigurationTest extends TestCase {
                 "param", "a value",
                 "lib", "path/1/with/subpath",
                 "path", "path/3/"};
-        
+
         try {
             Configuration.getInstance(args);
             fail("Exception has been expected");
@@ -147,7 +147,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc."+Configuration.KEY_ARTIFACTS,  "/tmp/cruise/artifacts");
         System.setProperty("cc."+Configuration.KEY_LIBRARY_DIR, "/usr/share/cruise/lib");
         System.setProperty("cc."+Configuration.KEY_LOG4J_CONFIG,"/var/spool/cruise/log4j.conf");
-        
+
         final Configuration config = Configuration.getInstance(new String[0]);
 
         // test changed
@@ -167,7 +167,7 @@ public class ConfigurationTest extends TestCase {
         assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
         assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
     }
-    
+
     public void testConfigVals() throws LaunchException, CruiseControlException, IOException {
         final Map<String, String> opts = new HashMap<String, String>();
         opts.put(Configuration.KEY_ARTIFACTS,  "/home/CC/artifacts");
@@ -196,7 +196,7 @@ public class ConfigurationTest extends TestCase {
         assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
         assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
     }
-    
+
     /** Tests various levels of data overriding */
     public void testConfigOverride() throws LaunchException, CruiseControlException, IOException {
         // Configuration file, the lowest priority
@@ -208,12 +208,12 @@ public class ConfigurationTest extends TestCase {
         // Properties - the highest priority, overrides config file
         System.setProperty("cc."+Configuration.KEY_ARTIFACTS,  "/tmp/cruise/artifacts");
         System.setProperty("cc."+Configuration.KEY_LIBRARY_DIR, "/usr/share/cruisecontrol/lib");
-        // command line options - overrides options from config and from properties 
+        // command line options - overrides options from config and from properties
         final String[] args = new String[] {
                 "-"+Configuration.KEY_ARTIFACTS,  "/tmp/artifacts",
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
-        
+
         // Create the object
         final Configuration config = Configuration.getInstance(args);
 
@@ -221,13 +221,13 @@ public class ConfigurationTest extends TestCase {
         assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
         assertEquals("/usr/share/cruisecontrol/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIR));
     }
-    
-    
+
+
     /** Tests if correct path to main config file is returned when the <launcher>...</launcher>
      *  configuration stands on its own and points to an "external" main
      *  <cruisecontrol>...</cruisecontrol> configuration.
-     *  
-     *  @throws Exception 
+     *
+     *  @throws Exception
      */
     public void testLaunchSeparate() throws Exception {
         // Configuration file, referenced to an external file
@@ -235,20 +235,20 @@ public class ConfigurationTest extends TestCase {
         opts.put(Configuration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");
         final Element launch = makeLauchXML(opts);
         final File xml = storeXML(launch, filesToDelete.add("launch.xml"));
-        // command line options - overrides options from config 
+        // command line options - overrides options from config
         final String[] args = new String[] {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
         final Configuration config = Configuration.getInstance(args);
 
-        // Must return path to the main configuration file! 
+        // Must return path to the main configuration file!
         assertEquals("/home/CC/mainconfig.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
     }
     /** Tests if correct path to main config file is returned when the <launcher>...</launcher> configuration
      *  is embedded in the main <cruisecontrol>...</cruisecontrol> configuration.
-     *  
-     *  @throws Exception 
+     *
+     *  @throws Exception
      */
     public void testLaunchEmbedded() throws Exception {
         // Configuration file, referenced to an external file
@@ -257,41 +257,41 @@ public class ConfigurationTest extends TestCase {
         final Element launch = makeLauchXML(opts);
         final Element main = makeConfigXML(launch); // embeds <launcher> to the main config
         final File xml = storeXML(main, filesToDelete.add("cruisecontrol.xml"));
-        // command line options - overrides options from config 
+        // command line options - overrides options from config
         final String[] args = new String[] {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
         final Configuration config = Configuration.getInstance(args);
 
-        // Must return path to the main configuration file! 
+        // Must return path to the main configuration file!
         assertEquals(xml.getAbsolutePath(), config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
     }
 
     /** Tests if default path to main config file is returned when the <launcher>...</launcher>
      *  configuration stands on its own and DOES NOT point to an "external" main
      *  <cruisecontrol>...</cruisecontrol> configuration.
-     *  
-     *  @throws Exception 
+     *
+     *  @throws Exception
      */
     public void testConfigNotSet() throws Exception {
         // Configuration file, referenced to an external file
         final Element launch = makeLauchXML(new HashMap<String, String>());
         final File xml = storeXML(launch, filesToDelete.add("launch.xml"));
-        // command line options - overrides options from config 
+        // command line options - overrides options from config
         final String[] args = new String[] {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
         final Configuration config = Configuration.getInstance(args);
 
-        // Must return default path to the main configuration file! 
+        // Must return default path to the main configuration file!
         assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
     }
-    
+
     public void testBoolArgs() throws Exception {
         Configuration config;
-        
+
         config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_DEBUG, "true"});
         assertTrue(config.getOptionBool(Configuration.KEY_DEBUG));
 
@@ -312,7 +312,7 @@ public class ConfigurationTest extends TestCase {
      */
     public void testMultiOpts() throws Exception {
         Configuration config;
-        List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>(); 
+        List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
 
         // Fill with values. Paths does not have to exist since Configuration.getOptionRaw() method
         // is used to ge the value
@@ -323,14 +323,14 @@ public class ConfigurationTest extends TestCase {
         opts.add(new AbstractMap.SimpleEntry<String, String>("lib", "path_4_with_nonsence"));
         // Make XML config
         File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
-        
+
         config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, confFile.getAbsolutePath()});
         assertEquals("path/1" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath/"  + Configuration.ITEM_SEPARATOR +
                      "path/2" + Configuration.ITEM_SEPARATOR + "path/3/with/even/more" + Configuration.ITEM_SEPARATOR +
                      "path_4_with_nonsence",
                      config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
     }
-    
+
     /** Tests the case where an option can be set multiple times on the command line, i.e.
      *  <code>-lib path/to/lib/1 -lib path/to/lib/3 -lib path/to/lib/2 ...</code>
      */
@@ -341,10 +341,10 @@ public class ConfigurationTest extends TestCase {
                 "-lib", "path/2/",
                 "-lib", "path/3/"};
         Configuration config;
-        
+
         config = Configuration.getInstance(args);
         assertEquals("path/1/" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath" + Configuration.ITEM_SEPARATOR +
-                     "path/2/" + Configuration.ITEM_SEPARATOR + "path/3/", 
+                     "path/2/" + Configuration.ITEM_SEPARATOR + "path/3/",
                      config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
     }
 
@@ -356,7 +356,7 @@ public class ConfigurationTest extends TestCase {
                 "-lib", "path/1/with/subpath",
                 "-lib", "path/2/" + Configuration.ITEM_SEPARATOR + "and/one/more",
                 "-lib", "path/3/"};
-        
+
         try {
             Configuration.getInstance(args);
             fail("Exception was expected!");
@@ -364,7 +364,7 @@ public class ConfigurationTest extends TestCase {
             // OK, here
         }
     }
-    
+
     public void testFindFile() throws Exception {
         // Various files
         final File inAbsolutePath = filesToDelete.add("file1.xml");
@@ -372,51 +372,51 @@ public class ConfigurationTest extends TestCase {
         final File inHomeDir = filesToDelete.add(new File(new File(System.getProperty("user.home")).getAbsoluteFile(), "file3.txt"));
         Configuration config;
         String file;
-        
+
         // absolute
         file = inAbsolutePath.getAbsolutePath();
         makeLaunchConfig(inAbsolutePath, file);
-        
+
         config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
-        
+
         assertTrue(new File(file).isAbsolute());
         assertEquals(inAbsolutePath, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
-        
+
         // in working dir
         file = inWorkingDir.getName();
         makeLaunchConfig(inWorkingDir, file);
-        
+
         config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
-        
+
         assertFalse(new File(file).isAbsolute());
         assertEquals(inWorkingDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
-        
+
         // in home dir
         file = inHomeDir.getName();
         makeLaunchConfig(inHomeDir, file);
-        
+
         config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
-        
+
         assertFalse(new File(file).isAbsolute());
         assertEquals(inHomeDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
     }
-    
-    
+
+
     /** From the set of entries creates string with <launch> ... </launch> XML fragment with values
      *  filled according to the items in the set */
     public static Element makeLauchXML(final Map<String,String> opts) {
         return makeLauchXML(opts.entrySet());
     }
-    
+
     /** From the map, where keys are names of options, creates string with <launch> ... </launch> XML
      *  fragment with values filled according to the map */
     public static Element makeLauchXML(final Collection<Map.Entry<String,String>> opts) {
        Element root = new Element("launcher");
-       
+
        for (Map.Entry<String, String> item : opts) {
            Element conf = new Element(item.getKey());
            conf.setText(item.getValue());
-           
+
            root.addContent(conf);
        }
        return root;
@@ -427,14 +427,14 @@ public class ConfigurationTest extends TestCase {
     public static Element makeConfigXML(final Element launchConf) {
        Element root = new Element("cruisecontrol");
        root.addContent((Element) launchConf.clone());
-       
+
        return root;
     }
-    
-    /** Stores the given element to the given file */ 
-    public static File storeXML(final Element xml, final File file) throws IOException { 
+
+    /** Stores the given element to the given file */
+    public static File storeXML(final Element xml, final File file) throws IOException {
        final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-       
+
        out.output(new Document(xml), new FileOutputStream(file));
        return file;
     }
@@ -447,20 +447,20 @@ public class ConfigurationTest extends TestCase {
      *      <launcher>
      * </pre>
      * and stores it to launchConfigFname
-     * 
+     *
      * @param launchConfigFname the file to be created
      * @param cruiseConfigFname the content of <configfile>...</configfile> element
-     * @throws IOException if the file cannot be created 
+     * @throws IOException if the file cannot be created
      */
     static
     private void makeLaunchConfig(final File launchConfigFname, final String cruiseConfigFname) throws IOException  {
         Map<String, String> opts = new HashMap<String, String>();
         Element xml;
-        
+
         opts.put(Configuration.KEY_CONFIG_FILE, cruiseConfigFname);
         xml = makeLauchXML(opts);
-        
+
         storeXML(xml, launchConfigFname);
     }
-    
+
 }

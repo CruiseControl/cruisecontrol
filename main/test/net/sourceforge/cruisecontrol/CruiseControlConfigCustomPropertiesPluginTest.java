@@ -5,8 +5,8 @@ import java.util.Map;
 
 import net.sourceforge.cruisecontrol.config.PropertiesPlugin;
 
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
@@ -25,7 +25,7 @@ public class CruiseControlConfigCustomPropertiesPluginTest {
             + "<my.properties/>"
             + "</cruisecontrol>";
         
-        SAXBuilder saxBuilder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        SAXBuilder saxBuilder = new SAXBuilder();
         return saxBuilder.build(new InputSource(new StringReader(config))).getRootElement();
     }
 

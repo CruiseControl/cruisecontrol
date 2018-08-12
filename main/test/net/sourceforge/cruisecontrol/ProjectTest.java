@@ -76,8 +76,7 @@ import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-//import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

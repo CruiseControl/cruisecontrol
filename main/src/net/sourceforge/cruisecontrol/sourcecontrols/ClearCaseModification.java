@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import net.sourceforge.cruisecontrol.Modification;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * data structure for holding data about a single modification

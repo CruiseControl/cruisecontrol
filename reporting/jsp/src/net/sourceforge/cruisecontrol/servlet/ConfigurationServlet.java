@@ -49,7 +49,7 @@ import javax.management.ReflectionException;
 import net.sourceforge.cruisecontrol.Configuration;
 import net.sourceforge.cruisecontrol.interceptor.ConfigurationAware;
 
-import org.jdom.JDOMException;
+import org.jdom2.JDOMException;
 
 import com.opensymphony.xwork.ActionSupport;
 import com.opensymphony.webwork.interceptor.SessionAware;

@@ -4,7 +4,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 import static net.sourceforge.cruisecontrol.util.ValidationHelper.assertIsSet;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.Element;
+import org.jdom2.Element;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 

@@ -43,11 +43,13 @@ import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
+
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.input.sax.XMLReaders;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,8 +101,8 @@ public class Store implements SourceControl {
 
     /**
      * Sets the working directory to use when interacting with Store.
-     * 
-     * @param directory  String indicating the directory to use as the 
+     *
+     * @param directory  String indicating the directory to use as the
      *                   working directory
      */
     public void setWorkingDirectory(String directory) {
@@ -109,11 +111,11 @@ public class Store implements SourceControl {
 
     /**
      * Sets the script to use to make calls to Store.
-     * 
+     *
      * This script should start a VisualWorks image with the CruiseControl
-     * package loaded and pass on the rest of the command-line arguments 
+     * package loaded and pass on the rest of the command-line arguments
      * supplied by this plugin.
-     * 
+     *
      * @param script  String indicating the executable script to
      *                use when making calls to Store.
      */
@@ -149,7 +151,7 @@ public class Store implements SourceControl {
     /**
      * Sets a regex to use to select versions of interest.
      *
-     * @param regex  String containing a regular expression that 
+     * @param regex  String containing a regular expression that
      *               matches versions of interest
      */
     public void setVersionRegex(String regex) {
@@ -193,14 +195,14 @@ public class Store implements SourceControl {
                                         "'workingDirectory' must be an existing directory. Was "
                                         + directory.getAbsolutePath());
         }
-        
+
         ValidationHelper.assertTrue(script != null, "'script' is a required attribute on the Store task");
         if (script != null) {
             File scriptFile = new File(script);
             ValidationHelper.assertTrue(scriptFile.exists(), "'script' must be an existing file. Was "
                                         + scriptFile.getAbsolutePath());
         }
-        
+
         ValidationHelper.assertTrue(profile != null, "'profile' is a required attribute on the Store task");
         ValidationHelper.assertTrue(packages != null, "'packages' is a required attribute on the Store task");
         ValidationHelper.assertTrue(packages.size() > 0, "'packages' must specify at least one package");
@@ -327,7 +329,7 @@ public class Store implements SourceControl {
         static List<Modification> parse(final Reader reader)
             throws ParseException, JDOMException, IOException {
 
-            final SAXBuilder builder = new SAXBuilder(false);
+            final SAXBuilder builder = new SAXBuilder(XMLReaders.NONVALIDATING);
             final Document document = builder.build(reader);
             return parseDOMTree(document);
         }
@@ -376,7 +378,7 @@ public class Store implements SourceControl {
          * Converts the specified Store date string into a Date.
          * @param date with format "MM/dd/yyyy HH:mm:ss.SSS"
          * @return converted date
-         * @throws ParseException if specified date doesn't match the expected format 
+         * @throws ParseException if specified date doesn't match the expected format
          */
         static Date convertDate(String date) throws ParseException {
             return getDateFormatter().parse(date);

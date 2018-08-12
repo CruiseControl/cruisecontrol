@@ -43,7 +43,7 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.Processes;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.BufferedReader;
 import java.io.File;

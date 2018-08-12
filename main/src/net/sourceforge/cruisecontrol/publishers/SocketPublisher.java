@@ -41,7 +41,7 @@ import net.sourceforge.cruisecontrol.Publisher;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.IOException;
 import java.io.PrintWriter;

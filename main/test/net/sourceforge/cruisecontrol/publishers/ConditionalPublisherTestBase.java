@@ -39,7 +39,7 @@ package net.sourceforge.cruisecontrol.publishers;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Publisher;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import junit.framework.TestCase;
 

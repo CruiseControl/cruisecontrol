@@ -56,7 +56,7 @@ import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.PerDayScheduleItem;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public abstract class Builder extends PerDayScheduleItem implements Comparable {
 

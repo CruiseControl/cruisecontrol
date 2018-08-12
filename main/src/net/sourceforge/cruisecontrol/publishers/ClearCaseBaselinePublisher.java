@@ -46,8 +46,8 @@ import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
 import org.apache.log4j.Logger;
-import org.jdom.CDATA;
-import org.jdom.Element;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -213,7 +213,7 @@ public class ClearCaseBaselinePublisher implements Publisher {
     } // shouldPublish
 
     /* (non-Javadoc)
-    * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
+    * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom2.Element)
     */
     public void publish(final Element log) throws CruiseControlException {
         final XMLLogHelper helper = new XMLLogHelper(log);

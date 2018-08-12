@@ -45,7 +45,7 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.publishers.MockPublisher;
 import net.sourceforge.cruisecontrol.publishers.email.MockMapping;
 
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class PluginXMLHelperTest extends TestCase {
     private PluginXMLHelper helper;

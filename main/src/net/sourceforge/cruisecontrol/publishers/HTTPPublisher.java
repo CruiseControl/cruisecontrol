@@ -37,7 +37,7 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.util.NamedXPathAwareChild;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.apache.log4j.Logger;
 
 import java.net.URL;

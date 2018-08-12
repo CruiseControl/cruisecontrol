@@ -38,8 +38,8 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.util.StringTokenizer;
 
-import org.jdom.Element;
-import org.jdom.CDATA;
+import org.jdom2.Element;
+import org.jdom2.CDATA;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;

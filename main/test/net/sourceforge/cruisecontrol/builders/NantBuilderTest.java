@@ -52,10 +52,10 @@ import net.sourceforge.cruisecontrol.util.MockCommandline;
 import net.sourceforge.cruisecontrol.util.MockProcess;
 import net.sourceforge.cruisecontrol.util.Util;
 
-import org.jdom.Attribute;
-import org.jdom.CDATA;
-import org.jdom.DataConversionException;
-import org.jdom.Element;
+import org.jdom2.Attribute;
+import org.jdom2.CDATA;
+import org.jdom2.DataConversionException;
+import org.jdom2.Element;
 
 public class NantBuilderTest extends TestCase {
 

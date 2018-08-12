@@ -40,9 +40,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Document;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.output.XMLOutputter;
 import org.xml.sax.XMLFilter;
 
 import junit.framework.TestCase;
@@ -56,7 +56,7 @@ public class EmptyElementFilterTest extends TestCase {
     private SAXBuilder builder;
 
     protected void setUp() throws Exception {
-        builder = new SAXBuilder("org.apache.xerces.parsers.SAXParser");
+        builder = new SAXBuilder();
         XMLFilter emptyTaskFilter = new EmptyElementFilter("task");
         XMLFilter emptyMessageFilter = new EmptyElementFilter("message");
         emptyTaskFilter.setParent(emptyMessageFilter);

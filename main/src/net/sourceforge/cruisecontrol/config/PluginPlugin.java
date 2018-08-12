@@ -37,7 +37,7 @@
 package net.sourceforge.cruisecontrol.config;
 
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * <p>A <code>&lt;plugin&gt;</code> element registers a classname with an alias for use within the

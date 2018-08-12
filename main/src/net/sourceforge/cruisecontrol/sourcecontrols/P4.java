@@ -65,7 +65,7 @@ import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * This class implements the SourceControlElement methods for a P4 depot. The call to CVS is assumed to work without any

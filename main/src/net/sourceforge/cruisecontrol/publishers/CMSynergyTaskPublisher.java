@@ -45,7 +45,7 @@ import net.sourceforge.cruisecontrol.util.ManagedCommandline;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * After a successful build, this class copies newly checked in tasks to a given
@@ -80,7 +80,7 @@ public class CMSynergyTaskPublisher extends CMSynergyPublisher {
     }
 
     /* (non-Javadoc)
-     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom.Element)
+     * @see net.sourceforge.cruisecontrol.Publisher#publish(org.jdom2.Element)
      */
     public void publish(final Element log) throws CruiseControlException {
 
