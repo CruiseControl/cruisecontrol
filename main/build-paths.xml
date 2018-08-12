@@ -50,7 +50,6 @@
         <fileset refid="comm.lib" />
         <fileset refid="commons-codec.lib" />
         <fileset refid="jaxen.lib" />
-        <fileset refid="xerces.lib" />
     </path>
 
     <path id="test.functional.compile.path">

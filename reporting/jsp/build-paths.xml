@@ -70,7 +70,6 @@
         <fileset refid="serializer.lib"/>
         <fileset refid="velocity-dep.lib"/>
         <fileset refid="webwork.lib"/>
-        <fileset refid="xerces.lib"/>
         <fileset refid="xml-apis.lib"/>
     </path>
 </project>
