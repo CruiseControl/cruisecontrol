@@ -16,8 +16,14 @@
 
     <target name="-javadoc" depends="--javadoc-init,--javadoc"/>
 
-    <target name="-package" depends="-javadoc,--package-init,--package-jar"/>
-    <target name="-package-test" depends="-package,--tests-jar"/>
+    <target name="-package-test" depends="--package-init,--package-jar,--tests-jar"/>
+    <target name="-package" depends="-javadoc,--package-init,--package-jar">
+        <!-- build tests if build_test_jar property is defined -->
+        <if><isset property="build_test_jar"/>
+            <then><antcall target="-package-test"/>
+            </then>
+        </if>
+    </target>
 
     <target name="-test-functional"
             depends="--test-init,--test-functional-init,--test-functional-compile,--test-functional-copy-resources,--test-functional,--test-functional-report"/>
