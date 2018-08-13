@@ -23,8 +23,8 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 
 public class ConfigurationTest extends TestCase {
 
-    private FilesToDelete filesToDelete = new FilesToDelete();
-    private PropertiesRestorer propRestorer = new PropertiesRestorer();
+    private final FilesToDelete filesToDelete = new FilesToDelete();
+    private final PropertiesRestorer propRestorer = new PropertiesRestorer();
 
     @Override
     protected void setUp() throws IOException {
@@ -59,7 +59,7 @@ public class ConfigurationTest extends TestCase {
         assertEquals("logs", config.getOptionRaw(Configuration.KEY_LOG_DIR));
         assertEquals("projects", config.getOptionRaw(Configuration.KEY_PROJECTS));
         assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
-        assertEquals("log4j.properties", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
+        assertEquals(null, config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG)); // no config by default
         assertEquals(false, config.getOptionBool(Configuration.KEY_NO_USER_LIB));
         // libs
         // distDir

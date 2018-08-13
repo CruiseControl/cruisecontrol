@@ -57,9 +57,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Arrays;
 
 import net.sourceforge.cruisecontrol.launch.util.Locator;
 
@@ -88,7 +88,7 @@ public class Launcher {
     /** The startup class that is to be run */
     public static final String MAIN_CLASS = "net.sourceforge.cruisecontrol.Main";
 
-    /** Log4j system property name. */
+    /** Property name used by log4j to find its configuration source. */
     public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
 
     private static final URL[] EMPTY_URL_ARRAY = new URL[0];
@@ -128,8 +128,10 @@ public class Launcher {
         final File distJarDir = sourceJar.getParentFile();
         //
         // Make notice to log4j where is configuration file is
-        final URL log4jcofig = config.getOptionUrl(Configuration.KEY_LOG4J_CONFIG);
-        System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
+        if (config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG)) {
+            final URL log4jcofig = config.getOptionUrl(Configuration.KEY_LOG4J_CONFIG);
+            System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
+        }
 
         // Process the lib dir entries found on the command line
         final List<URL> libPathURLs = new ArrayList<URL>();

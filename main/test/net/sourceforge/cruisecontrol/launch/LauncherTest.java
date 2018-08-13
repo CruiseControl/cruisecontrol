@@ -2,8 +2,9 @@ package net.sourceforge.cruisecontrol.launch;
 
 import java.io.File;
 
-import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 
 /**
  * @author Dan Rollo
@@ -12,14 +13,16 @@ public class LauncherTest extends TestCase {
 
     private static final String[] EMPTY_STRING_ARRAY = new String[]{};
 
-    private PropertiesRestorer origSysProps = new PropertiesRestorer();
+    private final PropertiesRestorer origSysProps = new PropertiesRestorer();
     private ClassLoader origClassLoader;
 
+    @Override
     protected void setUp() throws Exception {
         origSysProps.record();
         origClassLoader = Thread.currentThread().getContextClassLoader();
     }
 
+    @Override
     protected void tearDown() throws Exception {
         // restore classloader and properties
         Thread.currentThread().setContextClassLoader(origClassLoader);
@@ -68,19 +71,34 @@ public class LauncherTest extends TestCase {
         assertNull(System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
 
         final Launcher launcher = new LauncherMock();
-
         // prevent printUsage msg from printing
 //        MainTest.setSkipUsage();
 //        // prevent system.exit calls from printUsage
 //        System.setProperty(Launcher.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
 
-        // When not set, default value (in working directory) is used
+        // Correct log4j config (at least file exists)
         try {
-            launcher.run(EMPTY_STRING_ARRAY);
-            assertNotNull("log4j sys prop is not set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+            final FilesToDelete f = new FilesToDelete();
+            final File log4jConfig = f.add("log4j.user.config");
+
+            launcher.run(new String[]{ "-" + Configuration.KEY_LOG4J_CONFIG, "file://" + log4jConfig.getAbsolutePath()});
+            assertNotNull("log4j sys prop should be set", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
         } catch (Exception e) {
             // Here the default file was not found ...
-            assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+            fail("log4j sys prop error: " + e.getMessage());
+        } finally {
+            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
+        }
+
+        // When not set, no property is set
+        try {
+            launcher.run(EMPTY_STRING_ARRAY);
+            assertNull("log4j sys prop should not be set", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+        } catch (Exception e) {
+            // Here the default file was not found ...
+            fail("log4j sys prop error: " + e.getMessage());
+        } finally {
+            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
         }
 
         // The same is when only -option is set
@@ -88,13 +106,15 @@ public class LauncherTest extends TestCase {
             // Set without value will use the default path. This will fail anyway, since the file
             // does not exist, and the same would be if no file is configured
             launcher.run(new String[]{ "-" + Configuration.KEY_LOG4J_CONFIG });
-            assertNotNull("log4j sys prop is not set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+            assertNull("log4j sys prop should not be set", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
         } catch (Exception e) {
             // Here the default file was not found ...
-            assertNull("log4j sys prop should not be set.", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
+            fail("log4j sys prop error: " + e.getMessage());
+        } finally {
+            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
         }
 
-        // Set the non-existing path - through config
+        // Set the non-URL path - through config
         try {
             final String bogusLog4jConfig = "bogusLog4jConfig";
             final String[] args = new String[] { "-" + Configuration.KEY_LOG4J_CONFIG, bogusLog4jConfig };
@@ -105,14 +125,15 @@ public class LauncherTest extends TestCase {
         } catch (IllegalArgumentException e) {
             assertEquals("Option 'log4jconfig' = 'bogusLog4jConfig' does not represent URL value!",
                          e.getMessage());
+        } finally {
+            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
         }
-
     }
 
     /** Mock object for {@link Launcher} which disables the System.exit() call on failure */
     private static class LauncherMock extends Launcher {
 
-        /** Does nothing to prevent tests cancellation */ 
+        /** Does nothing to prevent tests cancellation */
         @Override
         protected void exitWithErrorCode() {
             // Nothing here
