@@ -42,6 +42,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
 import net.sourceforge.cruisecontrol.launch.Configuration;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
@@ -51,9 +54,6 @@ import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.report.BuildLoopPostingConfiguration;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
 import net.sourceforge.cruisecontrol.web.EmbeddedJettyServer;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * Command line entry point.
@@ -75,6 +75,7 @@ public final class Main implements CruiseControlMain {
      *
      * @return true indicates normal return/exit.
      */
+    @Override
     public boolean start(Configuration config) {
         Properties versionProperties = getBuildVersionProperties();
         printVersion(versionProperties);
@@ -101,6 +102,8 @@ public final class Main implements CruiseControlMain {
             }
             if (shouldStartEmbeddedServer(config)) {
                 startEmbeddedServer(config);
+            } else {
+                LOG.info("Skipping start of embedded server");
             }
             if (shouldPostDataToDashboard(config)) {
                 startPostingToDashboard(config);
@@ -208,8 +211,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("");
         System.out.println("  -configfile file     configuration file; default config.xml");
         System.out.println("  -" + Configuration.KEY_DEBUG + "  set logging level to DEBUG");
-        System.out.println("  -"
-                + Configuration.KEY_LOG4J_CONFIG + " url     URL to a log4j config (example: "
+        System.out.println("  -" + Configuration.KEY_LOG4J_CONFIG + " url     URL to a log4j config (example: "
                 + "\"file:/c:/mylog4j.xml\")");
         System.out.println("  -" + Configuration.KEY_PRINT_HELP1 + " or -" + Configuration.KEY_PRINT_HELP2
                 + "          print this usage message");
@@ -342,12 +344,19 @@ public final class Main implements CruiseControlMain {
         }
         final boolean nullOrEmpty = ccHome == null || ccHome.length() == 0;
         final String defaultJettyXml = conf.getOptionFile(Configuration.KEY_JETTY_XML).getPath();
-        return nullOrEmpty ? defaultJettyXml : ccHome + File.separatorChar + defaultJettyXml;
+        return nullOrEmpty ? defaultJettyXml : new File(ccHome, defaultJettyXml).getAbsolutePath();
     }
 
     static boolean shouldStartJmxAgent(Configuration conf) {
-        return conf.wasOptionSet(Configuration.KEY_JMX_PORT) || conf.wasOptionSet(Configuration.KEY_RMI_PORT)
+        final boolean res = conf.wasOptionSet(Configuration.KEY_JMX_PORT)
+                || conf.wasOptionSet(Configuration.KEY_RMI_PORT)
                 || conf.wasOptionSet(Configuration.KEY_PORT);
+
+        if (!res) {
+            LOG.info("Skipping start of Jmx agent. None of " + Configuration.KEY_JMX_PORT + "/"
+                    + Configuration.KEY_RMI_PORT + "/" + Configuration.KEY_PORT + " was set");
+        }
+        return res;
     }
 
     /**
@@ -358,7 +367,14 @@ public final class Main implements CruiseControlMain {
      * @return true if the embedded Jetty server should be started, false if not.
      */
     static boolean shouldStartEmbeddedServer(Configuration conf) {
-        return conf.wasOptionSet(Configuration.KEY_WEB_PORT) || conf.wasOptionSet(Configuration.KEY_WEBAPP_PATH);
+        final boolean res = conf.wasOptionSet(Configuration.KEY_WEB_PORT)
+                || conf.wasOptionSet(Configuration.KEY_WEBAPP_PATH);
+
+        if (!res) {
+            LOG.info("Skipping start of embedded server. None of " + Configuration.KEY_WEB_PORT + "/"
+                    + Configuration.KEY_WEBAPP_PATH + " was set");
+        }
+        return res;
     }
 
     /**
@@ -502,7 +518,7 @@ public final class Main implements CruiseControlMain {
         @Override
         /** Does nothing, throws LaunchException when called */
         public void flush(LogInterface log) throws LaunchException {
-            throw new LaunchException("Cannot flush log4j to nother log, probably trying to set "
+            throw new LaunchException("Cannot flush log4j to another log, probably trying to set "
                     + "log4j when one already set");
         }
     }
