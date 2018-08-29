@@ -217,9 +217,11 @@ public class ConfigurationTest extends TestCase {
         // Create the object
         final Configuration config = Configuration.getInstance(args);
 
-        // test changed
+        // Single overrides
         assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
-        assertEquals("/usr/share/cruisecontrol/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIR));
+        // Multiple appends (higher priority first)
+        assertEquals("/usr/share/cruisecontrol/lib" + config.ITEM_SEPARATOR
+                + "/usr/share/CC/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIR));
     }
 
 
@@ -348,21 +350,38 @@ public class ConfigurationTest extends TestCase {
                      config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
     }
 
-    /** Tests the case where an option is set multiple times, but an option contains forbidden separator
+    /** Tests the case where an option sequence can be set multiple times - through the command line,
+     *  properties and config file. Check the correct priority
      */
-    public void testMultiArgsInvalid() throws Exception {
-        String args[] = {
-                "-lib", "path/1/",
-                "-lib", "path/1/with/subpath",
-                "-lib", "path/2/" + Configuration.ITEM_SEPARATOR + "and/one/more",
-                "-lib", "path/3/"};
+    public void testMultiArgSequence() throws Exception {
+        final Configuration config;
 
-        try {
-            Configuration.getInstance(args);
-            fail("Exception was expected!");
-        } catch(IllegalArgumentException exc) {
-            // OK, here
-        }
+        // Options in file
+        // Paths does not have to exist since Configuration.getOptionRaw() method is used to get the value
+        final List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
+        opts.add(new AbstractMap.SimpleEntry<String, String>("lib", "path/c1/"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("lib", "path/c2/"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("lib", "path/c3/with/even/more"));
+        // Make XML config
+        final File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
+
+        // Options through command line
+        final String args[] = {
+                "-lib",  "path/a1/",
+                "-lib",  "path/a2/",
+                "-lib",  "path/a3/",
+                "-configfile", confFile.getAbsolutePath()};
+
+        // Options in properties
+        System.setProperty("cc.lib", "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/");
+
+        // Test the sequence. It must be command-line first, properties second and the config the last
+        config = Configuration.getInstance(args);
+        assertEquals("path/a1/" + Configuration.ITEM_SEPARATOR + "path/a2/" + Configuration.ITEM_SEPARATOR +
+                     "path/a3/" + Configuration.ITEM_SEPARATOR +
+                     "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/" + Configuration.ITEM_SEPARATOR +
+                     "path/c1/" + Configuration.ITEM_SEPARATOR + "path/c2/" + Configuration.ITEM_SEPARATOR +
+                     "path/c3/with/even/more",  config.getOptionRaw("lib"));
     }
 
     public void testFindFile() throws Exception {
@@ -426,7 +445,7 @@ public class ConfigurationTest extends TestCase {
      *  element */
     public static Element makeConfigXML(final Element launchConf) {
        Element root = new Element("cruisecontrol");
-       root.addContent((Element) launchConf.clone());
+       root.addContent(launchConf.clone());
 
        return root;
     }

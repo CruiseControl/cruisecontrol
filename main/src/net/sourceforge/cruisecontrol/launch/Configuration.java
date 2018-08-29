@@ -39,11 +39,10 @@ package net.sourceforge.cruisecontrol.launch;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -88,13 +87,13 @@ public class Configuration {
     /** Array of default values for all the option keys */
     private static final Option[] DEFAULT_OPTIONS = {
         new Option(KEY_CONFIG_FILE,    "cruisecontrol.xml",  File.class),
-        new Option(KEY_LIBRARY_DIR,    "lib",                File.class),
+        new Option(KEY_LIBRARY_DIR,    "lib",                File[].class),
         new Option(KEY_PROJECTS,       "projects",           File.class),
         new Option(KEY_ARTIFACTS,      "artifacts",          File.class),
         new Option(KEY_LOG_DIR,        "logs",               File.class),
         new Option(KEY_LOG4J_CONFIG,    null,                URL.class),
         new Option(KEY_NO_USER_LIB,    "false",              Boolean.class),
-        new Option(KEY_USER_LIB_DIRS,  "",                   String[].class), // File[] is not supported yet
+        new Option(KEY_USER_LIB_DIRS,  "",                   File[].class),
         new Option(KEY_DIST_DIR,       "dist",               File.class),
         new Option(KEY_HOME_DIR,       ".",                  File.class),
         new Option(KEY_PRINT_HELP1,    "false",              Boolean.class),
@@ -126,10 +125,11 @@ public class Configuration {
 
     // String used to separate items in the array-holding options
     public static final String ITEM_SEPARATOR = File.pathSeparator;
+    // The home directory of the user we run under
+    public static final File USER_HOMEDIR = new File(System.getProperty("user.home"));
 
     private static Configuration config = null; //instance
-    private final Map<Object, Option> options = new HashMap<Object, Option>(DEFAULT_OPTIONS.length);
-    private final Set<Object> optionsSet = new HashSet<Object>(DEFAULT_OPTIONS.length / 2);
+    private final Map<String, Option> options = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
 
     // Must use "special" logger, since the log4j may not be initialized yet
     private static LogInterface log = new LogBuffer();
@@ -206,13 +206,13 @@ public class Configuration {
     }
 
     /**
-     * checks, if the given option has been set or it it holds a default value.
-     *
+     * Checks, if the given option has been set or it it holds a default value.
+     * @param key the key to check
      * @return <code>true</code> if the given option has been set, <code>false</code> if not so get
      * methods are going to return the hard-coded default value.
      */
     public boolean wasOptionSet(String key) {
-        return optionsSet.contains(key);
+        return options.containsKey(key);
     }
 
     /**
@@ -230,10 +230,37 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a file
      */
     public File getOptionFile(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            File file;
+
+            file = findFile(opt.val, new File("./"));
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+            file = findFile(opt.val, USER_HOMEDIR);
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
+                + "' does not represent existing file!");
+    }
+    /**
+     * @param key the name of the option to search for.
+     * @param parent the directory to use as the parent when no absolute path is set in the option
+     * @return the value of the option; gets <code>null</code> if the file does not exist
+     * @throws IllegalArgumentException when the option does not exist or it is not a file
+     */
+    public File getOptionFile(String key, File parent) {
       final Option opt = getOption(options, key);
       // must be file type
       if (File.class.equals(opt.type)) {
-          final File file = findFile(opt.val);
+          final File file = findFile(opt.val, parent);
           // Must be existing file
           if (file != null && file.isFile()) {
               return file;
@@ -249,14 +276,41 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a directory
      */
     public File getOptionDir(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            File dir;
+
+            dir = findFile(opt.val, new File("./"));
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+            dir = findFile(opt.val, USER_HOMEDIR);
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
+                + "' does not represent existing directory!");
+    }
+    /**
+     * @param key the name of the option to search for.
+     * @param parent the directory to use as the parent when no absolute path is set in the option
+     * @return the value of the option; gets <code>null</code> if the directory does not exist
+     * @throws IllegalArgumentException when the option does not exist or it is not a directory
+     */
+    public File getOptionDir(String key, File parent) {
       final Option opt = getOption(options, key);
       // must be file type
       if (File.class.equals(opt.type)) {
-        final File dir = findFile(opt.val);
-        // Must be existing directory
-        if (dir != null && dir.isDirectory()) {
-            return dir;
-        }
+          final File dir = findFile(opt.val, parent);
+          // Must be existing directory
+          if (dir != null && dir.isDirectory()) {
+              return dir;
+          }
       }
       // The option is not file
       throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
@@ -327,7 +381,7 @@ public class Configuration {
 
             // If the URL represents a file, check is as if it is a file
             if ("file".equalsIgnoreCase(protocol) && (host == null || host.isEmpty())) {
-                final File file = findFile(val.getPath());
+                final File file = findFile(val.getPath(), new File("./"));
                 // Must be existing directory
                 if (file == null || !file.isFile()) {
                     throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
@@ -360,42 +414,67 @@ public class Configuration {
         throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
                 + "' does not represent array of string!");
     }
+    /**
+     * @param key the name of the option to search for.
+     * @param parent the directory to use as parent for non-absolute path settings
+     * @return the value of the option
+     * @throws IllegalArgumentException when the option does not exist or it is no a string
+     */
+    public File[] getOptionDirArray(final String key, final File parent) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File[].class.equals(opt.type)) {
+          final String [] vals = opt.val.split(ITEM_SEPARATOR);
+          final File [] files = new File[vals.length];
+
+          for (int i = 0; i < vals.length; i++) {
+              files[i] = findFile(vals[i], parent);
+          }
+          return files;
+        }
+        // The option is not a boolean
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
+                + "' does not represent array of files!");
+    }
 
     /**
      * Constructor. It is hidden since the class can only be used as singleton, but protected to be
-     * overidable for test purposes
+     * overridable for test purposes
      *
      * @param args the array of command line arguments passed to CC launcher
      * @throws LaunchException
      */
     protected Configuration(final String[] args) throws LaunchException {
-      final Set<Object> dummy = new HashSet<Object>();
-
-      // Initialize the configuration options with default values
-      for (Option o : DEFAULT_OPTIONS) {
-        options.put(o.key, o); // WARN: must put string as a key, Map<>.get() does not work for key == Option
-      }
+      final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
 
       // Override default values with command-line options. This step is used to get the
       // path to launcher XML (ignore marking of set attributes)
-      parseArguments(options, dummy, args);
-      // But remove the option from the command line arguments now, since
+      parseArguments(temp, args);
+      // Store the config file
+      final Option configFile = getOption(temp, KEY_CONFIG_FILE);
+      final String configOpt = "-" + KEY_CONFIG_FILE;
+      // And remove the option from the command line arguments now, since
       // - it is the main XML configuration with the configuration of launcher embedded in it; the
       //   path is already stored so overwrite would not
       // - it is raw launcher configuration containing path to the main XML config file; the path to
       //   the main cruisecontrol config will be read from launcher and thus we must prevent its
       //   re-overwrite from args
       for (int i = 0; i < args.length; i++) {
-          if (("-" + KEY_CONFIG_FILE).equals(args[i])) {
+          if (configOpt.equals(args[i])) {
               args[i] = "-" + KEY_IGNORE;
           }
       }
-      // Override the values from config
-      parseXmlConfig(options, optionsSet, options.get(KEY_CONFIG_FILE));
-      // Override values from properties
-      parseProperties(options, optionsSet);
-      // Override values from command line (to overwrite values overwritten by the config :-))
-      parseArguments(options, optionsSet, args);
+
+      // Get values from command line (the highest priority)
+      parseArguments(options, args);
+      // Get values from properties (lower priority)
+      temp.clear();
+      parseProperties(temp);
+      mergeOptions(options, temp);
+      // Get the values from config (the lowest priority)
+      temp.clear();
+      parseXmlConfig(temp, configFile);
+      mergeOptions(options, temp);
     }
 
     /**
@@ -404,18 +483,26 @@ public class Configuration {
      * the home directory of the user is tried.
      *
      * @param fname the name (+ path) to read the file from
+     * @param parent the path to use as parent when the directory is set as relative path and cannot be found
+     *      in the current directory
      * @return absolute path to the file or <code>null</code> if it cannot be found or read
      */
-    private File findFile(final String fname) {
+    private File findFile(final String fname, File parent) {
+        if (fname == null) {
+            return null;
+        }
+
         File file = new File(fname);
 
         // If the file is not accessible (i.e. set by absolute path or in the current working directory),
         // try home directory of the user
         if (!file.isAbsolute() && !file.exists()) {
-            final String home = System.getProperty("user.home");
+            if (parent == null || !parent.exists() || !parent.isDirectory()) {
+                parent = new File("./"); // try current working directory ...
+            }
 
-            log.warn("Unable to find " + file.getAbsolutePath() + ", trying home directory " + home);
-            file = new File(home, fname);
+            log.warn("Unable to find " + file.getAbsolutePath() + ", trying directory " + parent.getAbsolutePath());
+            file = new File(parent, fname);
 
             if (!file.exists()) {
                 log.warn("Unable to find " + fname);
@@ -434,27 +521,31 @@ public class Configuration {
      * @param xmlPath
      * @throws LaunchException
      */
-    private void parseXmlConfig(final Map<Object, Option> opts, final Set<Object> set, final Option xmlPath)
+    private void parseXmlConfig(final Map<String, Option> opts, final Option xmlPath)
             throws LaunchException {
+
         // The path is NULL, just leave
         if (xmlPath == null || "".equals(xmlPath.val)) {
             return;
         }
 
-        Element xmlConfig;
-        File path = findFile(xmlPath.val);
-
+        File path = findFile(xmlPath.val, new File("./"));
+        // Not in the current
+        if (path == null) {
+            path = findFile(xmlPath.val, USER_HOMEDIR);
+        }
         // File cannot be found, skip its reading
         if (path == null) {
             log.warn("Skipping the read of config file, using default values!");
             return;
         }
 
+        Element xmlConfig;
         // Read the config. Use standard Java's XML tools to avoid the dependency ion an external
         // XML handling package (although net.sourceforge.cruisecontrol.util.Util class contains
         // more advanced CML parsers. Could be nice to join them ...)
         try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            final DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             xmlConfig = builder.parse(path).getDocumentElement();
         } catch (Exception e) {
             throw new LaunchException("Failed to read XML file:" + path.getAbsolutePath(), e);
@@ -471,17 +562,8 @@ public class Configuration {
             // Remove the option from the <launch> element since the config is this file
             removeChild(launch, KEY_CONFIG_FILE); // Remove it in case that it will be set
             // Set the path to the file and continue with parsing the launcher element
-            setOption(opts, set, KEY_CONFIG_FILE, path.getAbsolutePath());
+            setOption(opts, KEY_CONFIG_FILE, path.getAbsolutePath());
             xmlConfig = launch;
-        } else {
-            // Remove element pointing to the config file - initialize it with the default value, and it
-            // optionally will be re-read from the values just going to be parsed
-            for (Option opt : DEFAULT_OPTIONS) {
-                if (KEY_CONFIG_FILE.equals(opt.key)) {
-                    opts.put(opt.key, opt);
-                    set.remove(opt.key);
-                }
-            }
         }
 
         // Parse options from <launcher>...</launcher> element
@@ -493,7 +575,7 @@ public class Configuration {
             final String key = elem.getNodeName();
             final String val = elem.getTextContent().trim();
 
-            setOption(opts, set, key, val);
+            setOption(opts, key, val);
         }
     }
 
@@ -531,35 +613,36 @@ public class Configuration {
      * @param args
      * @throws LaunchException
      */
-    private void parseArguments(final Map<Object, Option> opts, final Set<Object> set, final String[] args)
+    private static void parseArguments(final Map<String, Option> opts, final String[] args)
             throws LaunchException {
 
       String key = null;
 
       // Process the command line arguments
-      for (String arg : args) {
+      for (final String arg : args) {
+
         // boolean flags process here
         if (arg.startsWith("-")) {
             final String name = arg.substring(1);
 
             if (KEY_PRINT_HELP1.equals(name)) {
-                setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
                 // continue with further processing since value can follow
             }
             if (KEY_PRINT_HELP2.equals(name)) {
-                setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
             }
             if (KEY_NO_USER_LIB.equals(name)) {
-                setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
             }
             if (KEY_DEBUG.equals(name)) {
-                setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
             }
             if (KEY_POST_ENABLED.equals(name)) {
-                 setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
             }
             if (KEY_JMX_AGENT_UTIL.equals(name)) {
-                 setOption(opts, set, name, "true");
+                setOption(opts, name, "true");
             }
 
             // This is little hack for backward compatibility. If the given option appears, set its
@@ -567,7 +650,7 @@ public class Configuration {
             // "-webport 8585 -dashboardurl" must pretend that the dashboardurl was set as well.
             if (KEY_DASHBOARD_URL.equals(name)) {
                 log.warn("Using " + arg + " without value. Try to avoid this!");
-                setOption(opts, set, name, getOption(opts, name).val);
+                setOption(opts, name, "???");
             }
         }
 
@@ -577,9 +660,12 @@ public class Configuration {
           key = arg.substring(1);
           continue;
         }
-        // Store the value
+        // Store the value into temporary since the option may contain array which is merged later
+        // on (prepending the option to already defined values)
         if (key != null) {
-          setOption(opts, set, key, arg);
+          setOption(opts, key, arg);
+
+          key = null;
           continue;
         }
         // Unknown option
@@ -594,63 +680,116 @@ public class Configuration {
      *
      * Dots in the properties are replaced by underscores, so <i>cc.library.dir</i> becomes
      * <i>library_dir</i>
+     * @param opts the map to fill options into
      */
-    private void parseProperties(final Map<Object, Option> opts, final Set<Object> set) throws LaunchException {
+    private static void parseProperties(final Map<String, Option> opts) {
         final Properties props = System.getProperties();
 
         for (String name : props.stringPropertyNames()) {
             if (name.startsWith("cc.")) {
                 String key = name.substring(3).replace(".", "_");      // cc.library.dir -> library_dir
-                setOption(opts, set, key, props.getProperty(name));
+                setOption(opts, key, props.getProperty(name));
             }
         }
     }
 
     /**
-     * Creates new {@link Option} object, stores it into the map of options as well as into the set of
-     * options being set. An object with the given key must exist in the map, otherwise {@link LaunchException}
-     * is thrown. In this way, default (or previous) values are overwritten and the correctness of the key is
-     * checked (i.e. all keys must have default values assigned).
+     * Merges options from <code>opt2</code> to <code>opt1</code>, if the <code>opt1</code> does not contain
+     * the value (i.e. <code>opt1</code> has higher priority than <code>opt2</code>). In case of array options,
+     * the values from <code>opt2</code> are added to the end of <code>opt1</code> options.
      *
-     * @param opts the map with options to be updated
-     * @param set the set with options being set
-     * @param key the name of the option
-     * @param val the value of the option
+     * @param opt1 the resulting options map
+     * @param opt2 the options map to merge
      */
-    private static void setOption(final Map<Object, Option> opts, final Set<Object> set, final String key,
-            String val) {
-      Option opt = getOption(opts, key);
+    private void mergeOptions(final Map<String, Option> opt1, final Map<String, Option> opt2) {
+        // Merge secondary to primary
+        for (final String key : opt2.keySet()) {
+            Option o1 = opt1.get(key); // Primary
+            Option o2 = opt2.get(key); // Secondary
 
-      // If the option is array and a value has already been set into it, must be treated differently
-      if (opt.type.isArray() && set.contains(opt.key)) {
-          // CAREFUL - the value must not contain the separator char
-          if (val.contains(ITEM_SEPARATOR)) {
-              throw new IllegalArgumentException("'" + ITEM_SEPARATOR + "' is not allowed in '"
-                      + key + "' = '" + val + "'");
-          }
-          // Join the original options with the new option
-          val = opt.val + ITEM_SEPARATOR + val;
-      }
-
-      opt = new Option(opt, val);
-      opts.put(opt.key, opt); // WARN: must put string as a key, Map<>.get() does not work for key == Option
-      set.add(opt.key);
+            // Already in the primary and not an array
+            if (o1 != null && ! o1.type.isArray()) {
+                continue;
+            }
+            // Key not yet in the primary options
+            if (o1 == null) {
+                o1 = o2;
+            }
+            // Option type mismatch ??!!
+            if (o1.type != o2.type) {
+                log.warn("Option type mismatch for " + key + ": " + o1.type + " != " + o2.type);
+                continue;
+            }
+            // Set
+            setOption(opt1, o1.key, o2.val);
+        }
     }
 
     /**
-     * Finds the option according top the string key.
+     * Creates new {@link Option} object and stores it into the map of options. When the given option exists
+     * in the map, it is overwritten. If it exists and is an array option, the new value is added to the end
+     * of the options already set.
+     *
+     * @param opts the map with options to be updated
+     * @param key the name of the option
+     * @param val the value of the option
+     */
+    private static void setOption(final Map<String, Option> opts, final String key, String val) {
+      Option opt = opts.get(key);
+
+      // Not found, get option pattern (but not the value!) from the default settings
+      if (opt == null) {
+          opt = getOption(Collections.EMPTY_MAP, key);
+          opt = new Option(opt, ""); // Option without value to prevent join in case of array
+      }
+      // If the option is array, add the value to its end
+      if (opt.type.isArray()) {
+          val = joinArray(opt.val, val);
+      }
+      // set
+      opt = new Option(opt, val);
+      opts.put(opt.key, opt);
+    }
+    /**
+     * Finds the option according top the string key. If the option is not set in the given map,
+     * the default value will be get.
      *
      * @param opts the map with options to be searched in
      * @param key the name of the option to be found
      * @return value the option; is never <code>null</code>
+     * @throws IllegalArgumentException when the option key is unknown
      */
-    private static Option getOption(final Map<Object, Option> opts, final String key) {
+    private static Option getOption(final Map<String, Option> opts, final String key) {
       final Option opt = opts.get(key); //new Option(key, "", null));
-      // Must already be pre-filled with a default value!
-      if (opt == null) {
-        throw new IllegalArgumentException("Unknown option '" + key + "'");
+      // Should already be pre-filled with a default value ...
+      if (opt != null) {
+          return opt;
       }
-      return opt;
+      // No, it wasnt' ... try to find the default value
+      for (Option o : DEFAULT_OPTIONS) {
+          if (o.key.equals(key)) {
+              return o;
+          }
+      }
+      // Option key not found ...
+      throw new IllegalArgumentException("Unknown option '" + key + "'");
+    }
+
+    /**
+     * Joins the strings, separating them by {@link #ITEM_SEPARATOR}. It correctly handles all the
+     * "empty" string cases.
+     * @param v1 the first string
+     * @param v2 the second string
+     * @return the joined options
+     */
+    private static String joinArray(final String v1, final String v2) {
+        if (v1 == null || v1.length() == 0) {
+            return v2;
+        }
+        if (v2 == null || v2.length() == 0) {
+            return v1;
+        }
+        return v1 + ITEM_SEPARATOR + v2;
     }
 
     /**
