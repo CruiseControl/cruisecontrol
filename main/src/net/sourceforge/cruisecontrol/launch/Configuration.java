@@ -51,7 +51,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
 public class Configuration {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
@@ -128,7 +127,7 @@ public class Configuration {
     // The home directory of the user we run under
     public static final File USER_HOMEDIR = new File(System.getProperty("user.home"));
 
-    private static Configuration config = null; //instance
+    private static Configuration config = null; // instance
     private final Map<String, Option> options = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
 
     // Must use "special" logger, since the log4j may not be initialized yet
@@ -156,10 +155,10 @@ public class Configuration {
      * @throws LaunchException
      */
     public static Configuration getInstance(final String[] args) throws LaunchException {
-      if (config != null) {
-        throw new LaunchException("Config was already initialized. Use getInstance()");
-      }
-      return new Configuration(args);
+        if (config != null) {
+            throw new LaunchException("Config was already initialized. Use getInstance()");
+        }
+        return new Configuration(args);
     }
 
     /**
@@ -170,10 +169,10 @@ public class Configuration {
      * @throws IllegalStateException when not initialized
      */
     public static Configuration getInstance() {
-      if (config == null) {
-        throw new IllegalStateException("You must first initialize ConfigLoader. Use getInstance(args)");
-      }
-      return config;
+        if (config == null) {
+            throw new IllegalStateException("You must first initialize ConfigLoader. Use getInstance(args)");
+        }
+        return config;
     }
 
     /**
@@ -188,28 +187,30 @@ public class Configuration {
         return log;
     }
 
-    /** It sets correct instance of "real logger" to log data through. All the data logged into the temporary
-     *  logger will be pushed to the logger just being set. Once the real logger is set, it cannot be changed.
+    /**
+     * It sets correct instance of "real logger" to log data through. All the data logged into the temporary
+     * logger will be pushed to the logger just being set. Once the real logger is set, it cannot be changed.
      *
-     *  @param logger the real logger to log into
+     * @param logger the real logger to log into
      * @throws LaunchException
      */
     public static void setRealLog(LogInterface logger) throws LaunchException {
-       // Ignore, if the instance is the same
-       if (logger.equals(log)) {
-           log.warn("Trying to set the same logger, ignoring");
-           return;
-       }
-       // Set
-       log.flush(logger);
-       log = logger;
+        // Ignore, if the instance is the same
+        if (logger.equals(log)) {
+            log.warn("Trying to set the same logger, ignoring");
+            return;
+        }
+        // Set
+        log.flush(logger);
+        log = logger;
     }
 
     /**
      * Checks, if the given option has been set or it it holds a default value.
+     *
      * @param key the key to check
-     * @return <code>true</code> if the given option has been set, <code>false</code> if not so get
-     * methods are going to return the hard-coded default value.
+     * @return <code>true</code> if the given option has been set, <code>false</code> if not so get methods
+     *         are going to return the hard-coded default value.
      */
     public boolean wasOptionSet(String key) {
         return options.containsKey(key);
@@ -221,7 +222,7 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist
      */
     public String getOptionRaw(String key) {
-      return getOption(options, key).val;
+        return getOption(options, key).val;
     }
 
     /**
@@ -247,9 +248,10 @@ public class Configuration {
             }
         }
         // The option is not file
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                + "' does not represent existing file!");
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
     }
+
     /**
      * @param key the name of the option to search for.
      * @param parent the directory to use as the parent when no absolute path is set in the option
@@ -257,19 +259,20 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a file
      */
     public File getOptionFile(String key, File parent) {
-      final Option opt = getOption(options, key);
-      // must be file type
-      if (File.class.equals(opt.type)) {
-          final File file = findFile(opt.val, parent);
-          // Must be existing file
-          if (file != null && file.isFile()) {
-              return file;
-          }
-      }
-      // The option is not file
-      throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-              + "' does not represent existing file!");
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            final File file = findFile(opt.val, parent);
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
     }
+
     /**
      * @param key the name of the option to search for.
      * @return the value of the option; gets <code>null</code> if the directory does not exist
@@ -293,9 +296,10 @@ public class Configuration {
             }
         }
         // The option is not file
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                + "' does not represent existing directory!");
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
     }
+
     /**
      * @param key the name of the option to search for.
      * @param parent the directory to use as the parent when no absolute path is set in the option
@@ -303,18 +307,18 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a directory
      */
     public File getOptionDir(String key, File parent) {
-      final Option opt = getOption(options, key);
-      // must be file type
-      if (File.class.equals(opt.type)) {
-          final File dir = findFile(opt.val, parent);
-          // Must be existing directory
-          if (dir != null && dir.isDirectory()) {
-              return dir;
-          }
-      }
-      // The option is not file
-      throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-              + "' does not represent existing directory!");
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            final File dir = findFile(opt.val, parent);
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
     }
 
     /**
@@ -326,11 +330,10 @@ public class Configuration {
         final Option opt = getOption(options, key);
         // must be file type
         if (String.class.equals(opt.type)) {
-          return opt.val;
+            return opt.val;
         }
         // The option is not a boolean
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                + "' does not represent string!");
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent string!");
     }
 
     /**
@@ -339,14 +342,14 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a boolean value
      */
     public boolean getOptionBool(String key) {
-      final Option opt = getOption(options, key);
-      // must be file type
-      if (Boolean.class.equals(opt.type)) {
-        return Boolean.parseBoolean(opt.val);
-      }
-      // The option is not a boolean
-      throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-              + "' does not represent boolean value!");
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (Boolean.class.equals(opt.type)) {
+            return Boolean.parseBoolean(opt.val);
+        }
+        // The option is not a boolean
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent boolean value!");
     }
 
     /**
@@ -355,14 +358,13 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not an integer value
      */
     public int getOptionInt(String key) {
-      final Option opt = getOption(options, key);
-      // must be file type
-      if (Integer.class.equals(opt.type)) {
-        return Integer.parseInt(opt.val);
-      }
-      // The option is not an integer value
-      throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-              + "' does not represent int value!");
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (Integer.class.equals(opt.type)) {
+            return Integer.parseInt(opt.val);
+        }
+        // The option is not an integer value
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent int value!");
     }
 
     /**
@@ -371,32 +373,31 @@ public class Configuration {
      * @throws IllegalArgumentException when the option does not exist or it is not a valid URL
      */
     public URL getOptionUrl(String key) {
-      final Option opt = getOption(options, key);
-      // must be file type
-      if (URL.class.equals(opt.type)) {
-        try {
-            final URL val = new URL(opt.val);
-            final String protocol = val.getProtocol();
-            final String host = val.getHost();
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (URL.class.equals(opt.type)) {
+            try {
+                final URL val = new URL(opt.val);
+                final String protocol = val.getProtocol();
+                final String host = val.getHost();
 
-            // If the URL represents a file, check is as if it is a file
-            if ("file".equalsIgnoreCase(protocol) && (host == null || host.isEmpty())) {
-                final File file = findFile(val.getPath(), new File("./"));
-                // Must be existing directory
-                if (file == null || !file.isFile()) {
-                    throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                            + "' does not represent existing file!");
+                // If the URL represents a file, check is as if it is a file
+                if ("file".equalsIgnoreCase(protocol) && (host == null || host.isEmpty())) {
+                    final File file = findFile(val.getPath(), new File("./"));
+                    // Must be existing directory
+                    if (file == null || !file.isFile()) {
+                        throw new IllegalArgumentException(
+                                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
+                    }
                 }
+                // Return the URL
+                return val;
+            } catch (MalformedURLException e) {
+                // Nothing here, exception will be thrown anyway
             }
-            // Return the URL
-            return val;
-        } catch (MalformedURLException e) {
-            // Nothing here, exception will be thrown anyway
         }
-      }
-      // The option is not an integer value
-      throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-              + "' does not represent URL value!");
+        // The option is not an integer value
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent URL value!");
     }
 
     /**
@@ -408,12 +409,13 @@ public class Configuration {
         final Option opt = getOption(options, key);
         // must be file type
         if (String[].class.equals(opt.type)) {
-          return opt.val.split(ITEM_SEPARATOR);
+            return opt.val.split(ITEM_SEPARATOR);
         }
         // The option is not a boolean
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                + "' does not represent array of string!");
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent array of string!");
     }
+
     /**
      * @param key the name of the option to search for.
      * @param parent the directory to use as parent for non-absolute path settings
@@ -424,17 +426,17 @@ public class Configuration {
         final Option opt = getOption(options, key);
         // must be file type
         if (File[].class.equals(opt.type)) {
-          final String [] vals = opt.val.split(ITEM_SEPARATOR);
-          final File [] files = new File[vals.length];
+            final String[] vals = opt.val.split(ITEM_SEPARATOR);
+            final File[] files = new File[vals.length];
 
-          for (int i = 0; i < vals.length; i++) {
-              files[i] = findFile(vals[i], parent);
-          }
-          return files;
+            for (int i = 0; i < vals.length; i++) {
+                files[i] = findFile(vals[i], parent);
+            }
+            return files;
         }
         // The option is not a boolean
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
-                + "' does not represent array of files!");
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent array of files!");
     }
 
     /**
@@ -445,36 +447,36 @@ public class Configuration {
      * @throws LaunchException
      */
     protected Configuration(final String[] args) throws LaunchException {
-      final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
+        final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
 
-      // Override default values with command-line options. This step is used to get the
-      // path to launcher XML (ignore marking of set attributes)
-      parseArguments(temp, args);
-      // Store the config file
-      final Option configFile = getOption(temp, KEY_CONFIG_FILE);
-      final String configOpt = "-" + KEY_CONFIG_FILE;
-      // And remove the option from the command line arguments now, since
-      // - it is the main XML configuration with the configuration of launcher embedded in it; the
-      //   path is already stored so overwrite would not
-      // - it is raw launcher configuration containing path to the main XML config file; the path to
-      //   the main cruisecontrol config will be read from launcher and thus we must prevent its
-      //   re-overwrite from args
-      for (int i = 0; i < args.length; i++) {
-          if (configOpt.equals(args[i])) {
-              args[i] = "-" + KEY_IGNORE;
-          }
-      }
+        // Override default values with command-line options. This step is used to get the
+        // path to launcher XML (ignore marking of set attributes)
+        parseArguments(temp, args);
+        // Store the config file
+        final Option configFile = getOption(temp, KEY_CONFIG_FILE);
+        final String configOpt = "-" + KEY_CONFIG_FILE;
+        // And remove the option from the command line arguments now, since
+        // - it is the main XML configuration with the configuration of launcher embedded in it; the
+        // path is already stored so overwrite would not
+        // - it is raw launcher configuration containing path to the main XML config file; the path to
+        // the main cruisecontrol config will be read from launcher and thus we must prevent its
+        // re-overwrite from args
+        for (int i = 0; i < args.length; i++) {
+            if (configOpt.equals(args[i])) {
+                args[i] = "-" + KEY_IGNORE;
+            }
+        }
 
-      // Get values from command line (the highest priority)
-      parseArguments(options, args);
-      // Get values from properties (lower priority)
-      temp.clear();
-      parseProperties(temp);
-      mergeOptions(options, temp);
-      // Get the values from config (the lowest priority)
-      temp.clear();
-      parseXmlConfig(temp, configFile);
-      mergeOptions(options, temp);
+        // Get values from command line (the highest priority)
+        parseArguments(options, args);
+        // Get values from properties (lower priority)
+        temp.clear();
+        parseProperties(temp);
+        mergeOptions(options, temp);
+        // Get the values from config (the lowest priority)
+        temp.clear();
+        parseXmlConfig(temp, configFile);
+        mergeOptions(options, temp);
     }
 
     /**
@@ -483,8 +485,8 @@ public class Configuration {
      * the home directory of the user is tried.
      *
      * @param fname the name (+ path) to read the file from
-     * @param parent the path to use as parent when the directory is set as relative path and cannot be found
-     *      in the current directory
+     * @param parent the path to use as parent when the directory is set as relative path and
+     *          cannot be found in the current directory
      * @return absolute path to the file or <code>null</code> if it cannot be found or read
      */
     private File findFile(final String fname, File parent) {
@@ -507,7 +509,7 @@ public class Configuration {
             if (!file.exists()) {
                 log.warn("Unable to find " + fname);
                 return null;
-                //throw new LaunchException("Unable to find " + configFile);
+                // throw new LaunchException("Unable to find " + configFile);
             }
         }
 
@@ -521,8 +523,7 @@ public class Configuration {
      * @param xmlPath
      * @throws LaunchException
      */
-    private void parseXmlConfig(final Map<String, Option> opts, final Option xmlPath)
-            throws LaunchException {
+    private void parseXmlConfig(final Map<String, Option> opts, final Option xmlPath) throws LaunchException {
 
         // The path is NULL, just leave
         if (xmlPath == null || "".equals(xmlPath.val)) {
@@ -579,9 +580,11 @@ public class Configuration {
         }
     }
 
-    /* Methods for XML manipulation. They have their equivalents in org.jdom2.Element object,
+    /*
+     * Methods for XML manipulation. They have their equivalents in org.jdom2.Element object,
      * but since "external" org.jdompackage is not used by the launcher (to avoid the need to
-     * define path to external jars, we have to re-implement them here. */
+     * define path to external jars, we have to re-implement them here.
+     */
     private static Element getChild(final Element xmlNode, final String name) {
         for (final Node child : getChildNodes(xmlNode)) {
             if (name.equals(child.getNodeName()) && child.getNodeType() == Node.ELEMENT_NODE) {
@@ -590,6 +593,7 @@ public class Configuration {
         }
         return null;
     }
+
     private static void removeChild(final Element xmlNode, final String name) {
         for (final Node child : getChildNodes(xmlNode)) {
             if (name.equals(child.getNodeName()) && child.getNodeType() == Node.ELEMENT_NODE) {
@@ -597,80 +601,79 @@ public class Configuration {
             }
         }
     }
-    private static Node[] getChildNodes(final Element xmlNode) {
-       NodeList list = xmlNode.getChildNodes();
-       Node[] nodes = new Node[list.getLength()];
 
-       for (int i = 0; i < nodes.length; i++) {
-           nodes[i] = list.item(i);
-       }
-       return nodes;
+    private static Node[] getChildNodes(final Element xmlNode) {
+        NodeList list = xmlNode.getChildNodes();
+        Node[] nodes = new Node[list.getLength()];
+
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i] = list.item(i);
+        }
+        return nodes;
     }
 
     /**
-     *
      * @param opts
      * @param args
      * @throws LaunchException
      */
-    private static void parseArguments(final Map<String, Option> opts, final String[] args)
-            throws LaunchException {
+    private static void parseArguments(final Map<String, Option> opts, final String[] args) throws LaunchException {
 
-      String key = null;
+        String key = null;
 
-      // Process the command line arguments
-      for (final String arg : args) {
+        // Process the command line arguments
+        for (final String arg : args) {
 
-        // boolean flags process here
-        if (arg.startsWith("-")) {
-            final String name = arg.substring(1);
+            // boolean flags process here
+            if (arg.startsWith("-")) {
+                final String name = arg.substring(1);
 
-            if (KEY_PRINT_HELP1.equals(name)) {
-                setOption(opts, name, "true");
-                // continue with further processing since value can follow
-            }
-            if (KEY_PRINT_HELP2.equals(name)) {
-                setOption(opts, name, "true");
-            }
-            if (KEY_NO_USER_LIB.equals(name)) {
-                setOption(opts, name, "true");
-            }
-            if (KEY_DEBUG.equals(name)) {
-                setOption(opts, name, "true");
-            }
-            if (KEY_POST_ENABLED.equals(name)) {
-                setOption(opts, name, "true");
-            }
-            if (KEY_JMX_AGENT_UTIL.equals(name)) {
-                setOption(opts, name, "true");
+                if (KEY_PRINT_HELP1.equals(name)) {
+                    setOption(opts, name, "true");
+                    // continue with further processing since value can follow
+                }
+                if (KEY_PRINT_HELP2.equals(name)) {
+                    setOption(opts, name, "true");
+                }
+                if (KEY_NO_USER_LIB.equals(name)) {
+                    setOption(opts, name, "true");
+                }
+                if (KEY_DEBUG.equals(name)) {
+                    setOption(opts, name, "true");
+                }
+                if (KEY_POST_ENABLED.equals(name)) {
+                    setOption(opts, name, "true");
+                }
+                if (KEY_JMX_AGENT_UTIL.equals(name)) {
+                    setOption(opts, name, "true");
+                }
+
+                // This is little hack for backward compatibility. If the given option appears, set its
+                // current value again to pretend that it was set on the command line; i.e. the call of
+                // "-webport 8585 -dashboardurl" must pretend that the dashboardurl was set as well.
+                if (KEY_DASHBOARD_URL.equals(name)) {
+                    log.warn("Using " + arg + " without value. Try to avoid this!");
+                    setOption(opts, name, getOption(Collections.<String, Option>emptyMap(), name).val);
+                }
             }
 
-            // This is little hack for backward compatibility. If the given option appears, set its
-            // current value again to pretend that it was set on the command line; i.e. the call of
-            // "-webport 8585 -dashboardurl" must pretend that the dashboardurl was set as well.
-            if (KEY_DASHBOARD_URL.equals(name)) {
-                log.warn("Using " + arg + " without value. Try to avoid this!");
-                setOption(opts, name, "???");
+            // -key value types
+            // store the key
+            if (arg.startsWith("-")) {
+                key = arg.substring(1);
+                continue;
             }
+            // Store the value into temporary since the option may contain array which is merged later
+            // on (prepending the option to already defined values)
+            if (key != null) {
+                setOption(opts, key, arg);
+
+                key = null;
+                continue;
+            }
+            // Unknown option
+            throw new LaunchException("Unknown option " + arg);
         }
-
-        // -key value types
-        // store the key
-        if (arg.startsWith("-")) {
-          key = arg.substring(1);
-          continue;
-        }
-        // Store the value into temporary since the option may contain array which is merged later
-        // on (prepending the option to already defined values)
-        if (key != null) {
-          setOption(opts, key, arg);
-
-          key = null;
-          continue;
-        }
-        // Unknown option
-        throw new LaunchException("Unknown option " + arg);
-      }
     }
 
     /**
@@ -680,6 +683,7 @@ public class Configuration {
      *
      * Dots in the properties are replaced by underscores, so <i>cc.library.dir</i> becomes
      * <i>library_dir</i>
+     *
      * @param opts the map to fill options into
      */
     private static void parseProperties(final Map<String, Option> opts) {
@@ -687,7 +691,7 @@ public class Configuration {
 
         for (String name : props.stringPropertyNames()) {
             if (name.startsWith("cc.")) {
-                String key = name.substring(3).replace(".", "_");      // cc.library.dir -> library_dir
+                String key = name.substring(3).replace(".", "_"); // cc.library.dir -> library_dir
                 setOption(opts, key, props.getProperty(name));
             }
         }
@@ -708,7 +712,7 @@ public class Configuration {
             Option o2 = opt2.get(key); // Secondary
 
             // Already in the primary and not an array
-            if (o1 != null && ! o1.type.isArray()) {
+            if (o1 != null && !o1.type.isArray()) {
                 continue;
             }
             // Key not yet in the primary options
@@ -735,21 +739,22 @@ public class Configuration {
      * @param val the value of the option
      */
     private static void setOption(final Map<String, Option> opts, final String key, String val) {
-      Option opt = opts.get(key);
+        Option opt = opts.get(key);
 
-      // Not found, get option pattern (but not the value!) from the default settings
-      if (opt == null) {
-          opt = getOption(Collections.EMPTY_MAP, key);
-          opt = new Option(opt, ""); // Option without value to prevent join in case of array
-      }
-      // If the option is array, add the value to its end
-      if (opt.type.isArray()) {
-          val = joinArray(opt.val, val);
-      }
-      // set
-      opt = new Option(opt, val);
-      opts.put(opt.key, opt);
+        // Not found, get option pattern (but not the value!) from the default settings
+        if (opt == null) {
+            opt = getOption(Collections.<String, Option>emptyMap(), key);
+            opt = new Option(opt, ""); // Option without value to prevent join in case of array
+        }
+        // If the option is array, add the value to its end
+        if (opt.type.isArray()) {
+            val = joinArray(opt.val, val);
+        }
+        // set
+        opt = new Option(opt, val);
+        opts.put(opt.key, opt);
     }
+
     /**
      * Finds the option according top the string key. If the option is not set in the given map,
      * the default value will be get.
@@ -760,24 +765,25 @@ public class Configuration {
      * @throws IllegalArgumentException when the option key is unknown
      */
     private static Option getOption(final Map<String, Option> opts, final String key) {
-      final Option opt = opts.get(key); //new Option(key, "", null));
-      // Should already be pre-filled with a default value ...
-      if (opt != null) {
-          return opt;
-      }
-      // No, it wasnt' ... try to find the default value
-      for (Option o : DEFAULT_OPTIONS) {
-          if (o.key.equals(key)) {
-              return o;
-          }
-      }
-      // Option key not found ...
-      throw new IllegalArgumentException("Unknown option '" + key + "'");
+        final Option opt = opts.get(key); // new Option(key, "", null));
+        // Should already be pre-filled with a default value ...
+        if (opt != null) {
+            return opt;
+        }
+        // No, it wasnt' ... try to find the default value
+        for (Option o : DEFAULT_OPTIONS) {
+            if (o.key.equals(key)) {
+                return o;
+            }
+        }
+        // Option key not found ...
+        throw new IllegalArgumentException("Unknown option '" + key + "'");
     }
 
     /**
      * Joins the strings, separating them by {@link #ITEM_SEPARATOR}. It correctly handles all the
      * "empty" string cases.
+     *
      * @param v1 the first string
      * @param v2 the second string
      * @return the joined options
@@ -796,35 +802,38 @@ public class Configuration {
      * Single configuration option holder. It is hasheable by {@link #key} value
      */
     private static final class Option {
-      final String key; /** Name of the option */
-      final String val; /** The associated value */
-      final Class< ? > type; /** The class the option type belongs to */
+        /** Name of the option */
+        final String key;
+        /** The associated value */
+        final String val;
+        /** The class the option type belongs to */
+        final Class type;
 
-      Option(final String key, final String val, Class< ? > type) {
-        this.key = key;
-        this.val = val;
-        this.type = type;
-      }
-      Option(final Option opt, final String val) {
-        this.key = opt.key;
-        this.val = val;
-        this.type = opt.type;
-      }
-
-      /** Compares key to String or Option objects */
-      @Override
-      public boolean equals(Object obj) {
-        if (obj instanceof Option) {
-          return key.equals(((Option) obj).key);
+        Option(final String key, final String val, Class type) {
+            this.key = key;
+            this.val = val;
+            this.type = type;
         }
-        return key.equals(obj);
-      }
-      /** Gets hash code of the key */
-      @Override
-      public int hashCode() {
-        return this.key.hashCode();
-      }
+
+        Option(final Option opt, final String val) {
+            this.key = opt.key;
+            this.val = val;
+            this.type = opt.type;
+        }
+
+        /** Compares key to String or Option objects */
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof Option) {
+                return key.equals(((Option) obj).key);
+            }
+            return key.equals(obj);
+        }
+
+        /** Gets hash code of the key */
+        @Override
+        public int hashCode() {
+            return this.key.hashCode();
+        }
     }
 }
-
-
