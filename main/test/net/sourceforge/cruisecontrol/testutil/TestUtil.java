@@ -43,8 +43,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import org.jdom2.Document;
@@ -154,7 +156,7 @@ public final class TestUtil {
      */
     public static class PropertiesRestorer {
 
-        private Properties recordedProps;
+        private final Map<String, String> recordedProps = new HashMap<String, String>();
 
         /**
          * Stores all properties as they are defined in the time of the call of the method.
@@ -162,8 +164,11 @@ public final class TestUtil {
          * of a particular test
          */
         public void record() {
-            // TODO: if shallow copy of keys and values is not enough, make deep copy
-            recordedProps = (Properties) System.getProperties().clone();
+            recordedProps.clear();
+            // Cop item-by-item to prevent shallow copy
+            for (String name : System.getProperties().stringPropertyNames()) {
+                recordedProps.put(name, System.getProperty(name));
+            }
         }
 
         /**
@@ -171,7 +176,11 @@ public final class TestUtil {
          * It is recommended to call this method in @link {@link TestCase#tearDown()}.
          */
         public void restore() {
-            System.setProperties(recordedProps);
+            System.getProperties().clear();
+            // Cop item-by-item to prevent shallow copy
+            for (Entry<String, String> p : recordedProps.entrySet()) {
+                System.setProperty(p.getKey(), p.getValue());
+            }
         }
     }
 
