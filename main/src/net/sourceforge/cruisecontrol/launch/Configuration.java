@@ -163,7 +163,8 @@ public class Configuration {
         if (config != null) {
             throw new LaunchException("Config was already initialized. Use getInstance()");
         }
-        return new Configuration(args);
+        config = new Configuration(args);
+        return config;
     }
 
     /**

@@ -52,7 +52,7 @@ public class ConfigurationTest extends TestCase {
     /** Tests the default values of the options, when not overridden by anything else
      * @throws LaunchException */
     public void testDefaultVals() throws CruiseControlException, LaunchException {
-        final Configuration config = Configuration.getInstance(new String[0]);
+        final Configuration config = new Configuration4Test(new String[0]);
 
         assertEquals("artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
         assertEquals("lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
@@ -108,7 +108,7 @@ public class ConfigurationTest extends TestCase {
                 "path", "path/3/"};
 
         try {
-            Configuration.getInstance(args);
+            new Configuration4Test(args);
             fail("Exception has been expected");
         } catch (LaunchException e) {
             assertEquals("Unknown option opt1", e.getMessage());
@@ -122,7 +122,7 @@ public class ConfigurationTest extends TestCase {
                 "-"+Configuration.KEY_LIBRARY_DIRS, "/usr/share/cruisecontrol/lib",
                 "-"+Configuration.KEY_LOG4J_CONFIG,"/var/spool/cruisecontrol/log4j.config",
                 };
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
 
         // test changed
         assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
@@ -148,7 +148,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc."+Configuration.KEY_LIBRARY_DIRS, "/usr/share/cruise/lib");
         System.setProperty("cc."+Configuration.KEY_LOG4J_CONFIG,"/var/spool/cruise/log4j.conf");
 
-        final Configuration config = Configuration.getInstance(new String[0]);
+        final Configuration config = new Configuration4Test(new String[0]);
 
         // test changed
         assertEquals("/tmp/cruise/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
@@ -176,7 +176,7 @@ public class ConfigurationTest extends TestCase {
 
         final Element data = makeLauchXML(opts);
         final File xml = storeXML(data, filesToDelete.add("config.xml"));
-        final Configuration config = Configuration.getInstance(
+        final Configuration config = new Configuration4Test(
                 new String[] {"-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()});
 
         // test changed
@@ -215,7 +215,7 @@ public class ConfigurationTest extends TestCase {
                 };
 
         // Create the object
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
 
         // Single overrides
         assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
@@ -242,7 +242,7 @@ public class ConfigurationTest extends TestCase {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
 
         // Must return path to the main configuration file!
         assertEquals("/home/CC/mainconfig.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
@@ -264,7 +264,7 @@ public class ConfigurationTest extends TestCase {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
 
         // Must return path to the main configuration file!
         assertEquals(xml.getAbsolutePath(), config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
@@ -285,7 +285,7 @@ public class ConfigurationTest extends TestCase {
                 "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
 
         // Must return default path to the main configuration file!
         assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
@@ -294,18 +294,18 @@ public class ConfigurationTest extends TestCase {
     public void testBoolArgs() throws Exception {
         Configuration config;
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_DEBUG, "true"});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG, "true"});
         assertTrue(config.getOptionBool(Configuration.KEY_DEBUG));
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_DEBUG, "false"});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG, "false"});
         assertFalse(config.getOptionBool(Configuration.KEY_DEBUG));
 
         // No true/false value set, must be true
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_DEBUG});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG});
         assertTrue(config.getOptionBool(Configuration.KEY_DEBUG));
 
         // Default is false to make the previous test meaningful
-        config = Configuration.getInstance(new String[] {});
+        config = new Configuration4Test(new String[] {});
         assertFalse(config.getOptionBool(Configuration.KEY_DEBUG));
     }
 
@@ -326,7 +326,7 @@ public class ConfigurationTest extends TestCase {
         // Make XML config
         File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, confFile.getAbsolutePath()});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, confFile.getAbsolutePath()});
         assertEquals("path/1" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath/"  + Configuration.ITEM_SEPARATOR +
                      "path/2" + Configuration.ITEM_SEPARATOR + "path/3/with/even/more" + Configuration.ITEM_SEPARATOR +
                      "path_4_with_nonsence",
@@ -344,7 +344,7 @@ public class ConfigurationTest extends TestCase {
                 "-user_lib", "path/3/"};
         Configuration config;
 
-        config = Configuration.getInstance(args);
+        config = new Configuration4Test(args);
         assertEquals("path/1/" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath" + Configuration.ITEM_SEPARATOR +
                      "path/2/" + Configuration.ITEM_SEPARATOR + "path/3/",
                      config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
@@ -376,7 +376,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.user_lib", "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        config = Configuration.getInstance(args);
+        config = new Configuration4Test(args);
         assertEquals("path/a1/" + Configuration.ITEM_SEPARATOR + "path/a2/" + Configuration.ITEM_SEPARATOR +
                      "path/a3/" + Configuration.ITEM_SEPARATOR +
                      "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/" + Configuration.ITEM_SEPARATOR +
@@ -432,7 +432,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.proj", "${dist}/project/path/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
         try {
             config.getOptionRaw("dist");
             fail("Loop was not detected!");
@@ -463,7 +463,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.logdir", "${proj}/project/path/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        final Configuration config = Configuration.getInstance(args);
+        final Configuration config = new Configuration4Test(args);
         try {
             config.getOptionRaw("logdir");
             fail("Loop was not detected!");
@@ -484,7 +484,7 @@ public class ConfigurationTest extends TestCase {
         file = inAbsolutePath.getAbsolutePath();
         makeLaunchConfig(inAbsolutePath, file);
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
 
         assertTrue(new File(file).isAbsolute());
         assertEquals(inAbsolutePath, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
@@ -493,7 +493,7 @@ public class ConfigurationTest extends TestCase {
         file = inWorkingDir.getName();
         makeLaunchConfig(inWorkingDir, file);
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
 
         assertFalse(new File(file).isAbsolute());
         assertEquals(inWorkingDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
@@ -502,7 +502,7 @@ public class ConfigurationTest extends TestCase {
         file = inHomeDir.getName();
         makeLaunchConfig(inHomeDir, file);
 
-        config = Configuration.getInstance(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
 
         assertFalse(new File(file).isAbsolute());
         assertEquals(inHomeDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
@@ -568,6 +568,16 @@ public class ConfigurationTest extends TestCase {
         xml = makeLauchXML(opts);
 
         storeXML(xml, launchConfigFname);
+    }
+
+    /**
+     * Wrapper around {@link Configuration} making it possible to call its constructor
+     */
+    static final class Configuration4Test extends Configuration {
+        /** Just caller of {@link Configuration#Configuration(String[])} */
+        Configuration4Test(final String[] args) throws LaunchException {
+            super(args);
+        }
     }
 
 }
