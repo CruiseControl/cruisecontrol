@@ -43,6 +43,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -126,6 +128,9 @@ public class Configuration {
     public static final String ITEM_SEPARATOR = File.pathSeparator;
     // The home directory of the user we run under
     public static final File USER_HOMEDIR = new File(System.getProperty("user.home"));
+
+    // The patters used to mach ${xxx} references
+    private static final Pattern REF_CHECK = Pattern.compile("[$][{]([^}]+)[}]");
 
     private static Configuration config = null; // instance
     private final Map<String, Option> options = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
@@ -832,10 +837,26 @@ public class Configuration {
      * @throws IllegalArgumentException when the option key is unknown
      */
     private static Option getOption(final Map<String, Option> opts, final String key) {
+        return getOption(opts, key, 0);
+    }
+    // Method which actually carries out the work of #getOption(Map<String, Option>, String). It also checks,
+    // if the recursive call is not too deep ...
+    private static Option getOption(final Map<String, Option> opts, final String key, int iRecursCntr) {
         final Option opt = opts.get(key);
         // Should already be pre-filled with a default value ...
         if (opt != null) {
-            return opt;
+            final Matcher match = REF_CHECK.matcher(opt.val);
+            // Does it contain ${...} pattern?
+            if (!match.find()) {
+                return opt;
+            }
+            // Check loop (simulated by too deep recursion check)
+            if (iRecursCntr > 3) {
+                throw new IllegalStateException("Too deep recursion");
+            }
+            // Get the option and replace the match by its value
+            final Option op = getOption(opts, match.group(1), ++iRecursCntr);
+            return new Option(opt, match.replaceAll(op.val));
         }
         // No, it wasnt' ... try to find the default value
         for (Option o : DEFAULT_OPTIONS) {

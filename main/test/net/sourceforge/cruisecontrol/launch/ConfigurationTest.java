@@ -384,6 +384,94 @@ public class ConfigurationTest extends TestCase {
                      "path/c3/with/even/more",  config.getOptionRaw("user_lib"));
     }
 
+    /** Tests the case where an option conains reference to another option, for example <code>${proj}/a/path</code>
+     */
+    public void testReference() throws Exception {
+        // Options in file
+        // Paths does not have to exist since Configuration.getOptionRaw() method is used to get the value
+        final List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
+        opts.add(new AbstractMap.SimpleEntry<String, String>("dist", "/install/path"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("proj", "/project/path"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("user_lib", "${proj}/custom/lib1/"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("user_lib", "${proj}/custom/lib2/"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("log4jconfig", "${dist}/log4j/log4j.cfg"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("configfile", "${proj}/conf/projects.cfg"));
+        // Make XML config
+        final File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
+
+        // Options through command line
+        final String args[] = {
+                "-lib",  "${dist}/spec/path/lib/", // refers to launch config file
+                "-configfile", confFile.getAbsolutePath()};
+
+        // Options in properties
+        System.setProperty("cc.user_lib", "${proj}/spec/lib/");
+
+        // Test the sequence. It must be command-line first, properties second and the config the last
+        final Configuration config = Configuration.getInstance(args);
+        assertEquals("/project/path/spec/lib/" + Configuration.ITEM_SEPARATOR +
+                     "/project/path/custom/lib1/" + Configuration.ITEM_SEPARATOR +
+                     "/project/path/custom/lib2/", config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
+        assertEquals("/install/path/spec/path/lib/", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
+        assertEquals("/install/path/log4j/log4j.cfg", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
+        assertEquals("/project/path/conf/projects.cfg", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+    }
+
+    /** Tests the loop detection in references
+     */
+    public void testReferenceLoop() throws Exception {
+        // Options in file
+        // Paths does not have to exist since Configuration.getOptionRaw() method is used to get the value
+        final List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
+        opts.add(new AbstractMap.SimpleEntry<String, String>("dist", "${proj}/install/path"));
+        // Make XML config
+        final File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
+        // Options through command line
+        final String args[] = {"-configfile", confFile.getAbsolutePath()};
+        // Options in properties
+        System.setProperty("cc.proj", "${dist}/project/path/");
+
+        // Test the sequence. It must be command-line first, properties second and the config the last
+        final Configuration config = Configuration.getInstance(args);
+        try {
+            config.getOptionRaw("dist");
+            fail("Loop was not detected!");
+        } catch (IllegalStateException e) {
+            assertEquals("Too deep recursion", e.getMessage());
+        }
+        try {
+            config.getOptionRaw("proj");
+            fail("Loop was not detected!");
+        } catch (IllegalStateException e) {
+            assertEquals("Too deep recursion", e.getMessage());
+        }
+    }
+
+    /** Tests too complex reference embeddings (2 levels)
+     */
+    public void testReferenceEmbedded() throws Exception {
+        // Options in file
+        // Paths does not have to exist since Configuration.getOptionRaw() method is used to get the value
+        final List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
+        opts.add(new AbstractMap.SimpleEntry<String, String>("dist", "${proj}/install/path"));
+        opts.add(new AbstractMap.SimpleEntry<String, String>("proj", "${dist}"));
+        // Make XML config
+        final File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
+        // Options through command line
+        final String args[] = {"-configfile", confFile.getAbsolutePath()};
+        // Options in properties
+        System.setProperty("cc.logdir", "${proj}/project/path/");
+
+        // Test the sequence. It must be command-line first, properties second and the config the last
+        final Configuration config = Configuration.getInstance(args);
+        try {
+            config.getOptionRaw("logdir");
+            fail("Loop was not detected!");
+        } catch (IllegalStateException e) {
+            assertEquals("Too deep recursion", e.getMessage());
+        }
+    }
+
     public void testFindFile() throws Exception {
         // Various files
         final File inAbsolutePath = filesToDelete.add("file1.xml");
