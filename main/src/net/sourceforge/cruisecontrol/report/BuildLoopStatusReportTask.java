@@ -38,22 +38,24 @@ package net.sourceforge.cruisecontrol.report;
 
 import java.util.TimerTask;
 
-import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 
+import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
+
 
 
 public class BuildLoopStatusReportTask extends TimerTask {
-    private BuildLoopInformationBuilder builder;
+    private final BuildLoopInformationBuilder builder;
 
     private static final Logger LOGGER = Logger.getLogger(BuildLoopStatusReportTask.class);
 
-    private HttpClient http;
+    private final HttpClient http;
 
-    private String url;
+    private final String url;
 
     private String sent;
 
@@ -71,23 +73,27 @@ public class BuildLoopStatusReportTask extends TimerTask {
         this.http.getParams().setSoTimeout(timeout);
     }
 
+    @Override
     public void run() {
         run(new PostMethod(url));
     }
 
-    public String getSent() {
+    public synchronized String getSent() {
         return this.sent;
     }
 
-    public String getReponse() {
-        return this.response; 
+    public synchronized String getReponse() {
+        return this.response;
     }
 
-    public void run(PostMethod postMethod) {
+    public synchronized void run(PostMethod postMethod) {
         try {
             this.sent = builder.buildBuildLoopInformation().toXml();
             postMethod.setRequestEntity(new StringRequestEntity(sent));
-            http.executeMethod(postMethod);
+            int statusCode = http.executeMethod(postMethod);
+            if (statusCode != HttpStatus.SC_OK) {
+                LOGGER.warn("Method failed: " + postMethod.getStatusLine());
+            }
             this.response = new String(postMethod.getResponseBody());
         } catch (Exception e) {
             LOGGER.warn("Failed to reach dashboard instance : " + this.url
