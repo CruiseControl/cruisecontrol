@@ -29,43 +29,59 @@ public class LauncherTest extends TestCase {
         origSysProps.restore();
     }
 
-    public void testGetCCHomeDir() throws Exception {
+    public void testGetCCProjDir() throws Exception {
         final Launcher launcher = new LauncherMock();
-        final File sourceJar = launcher.getClassSource();
-        final File distJarDir = sourceJar.getParentFile();
+        final File validProjDir = new File(".");
 
-        final File validHomeDir = distJarDir.getParentFile();
-        final Configuration config = Configuration.getInstance(new String[] {"-home", "wrong/path"});
-
-        assertEquals("Wrong default CCHomeDir", validHomeDir, launcher.getCCHomeDir(config, distJarDir).getAbsoluteFile());
-
-        // Need to reset SysProp after successful call to getCCHomeDir() because
-        // getCCHomeDir() resets the SysProp when a valid default is found.
-        System.setProperty("cc."+Launcher.CCHOME_PROPERTY, "bogusHomeSysProp");
-        // this should work since invalid sys prop is overridden if default is valid.
-        assertEquals("Wrong default CCHomeDir w/ bad sysprop", validHomeDir, launcher.getCCHomeDir(config, distJarDir));
-
-        System.setProperty(Launcher.CCHOME_PROPERTY, "bogusHomeSysProp");
+        // proj is not set explicitly
         try {
-            launcher.getCCHomeDir(config, new File("bogus"));
-            fail("Wrong default CCHomeDir w/ bad sysprop AND bad distDir should have failed.");
+            final Configuration conf = Configuration.getInstance(new String[0]);
+            assertEquals(validProjDir.getCanonicalPath(), launcher.getCCProjDir(conf).getCanonicalPath());
+        } finally {
+            origSysProps.restore();
+        }
+
+        // proj is set explicitly and valid
+        try {
+            final Configuration conf = Configuration.getInstance(new String[] {"-proj", "./"});
+            assertEquals(validProjDir.getCanonicalPath(), launcher.getCCProjDir(conf).getCanonicalPath());
+        } finally {
+            origSysProps.restore();
+        }
+
+        // proj is set explicitly but invalid
+        try {
+            final Configuration conf = Configuration.getInstance(new String[] {"-proj", "wrong/path"});
+            launcher.getCCProjDir(conf);
+            fail("Wrong explicit CCProjDir should have failed.");
         } catch (LaunchException e) {
-            assertEquals(Launcher.MSG_BAD_CCHOME, e.getMessage());
+            assertEquals(Launcher.MSG_BAD_CCPROJ, e.getMessage());
         }
     }
 
-// Not necessary now, since launcher.run(args) would fail anyway if the config file is invalid
-//
-//    public void testLauncherNullCCHomeProperty() throws Exception {
-//        final String[] args = new String[] { "-configfile", "bogusConfigFile" };
-//        final Launcher launcher = new LauncherMock();
-//        System.getProperties().remove(Launcher.CCHOME_PROPERTY);
-//        // prevent system.exit calls from printUsage
-//        System.setProperty(Launcher.SYSPROP_CCMAIN_SKIP_USAGE_EXIT, "true");
-//
-//        // line below fails w/ NPE if sysprop "cc.home" doesn't exist
-//        launcher.run(args);
-//    }
+    public void testGetCCDistDir() throws Exception {
+        final Launcher launcher = new LauncherMock();
+        final File sourceJar = launcher.getClassSource();
+        final File sourceJarDir = sourceJar.getParentFile();
+        final File validDistDir = sourceJarDir.getParentFile();
+
+        // Dist is not set explicitly
+        final Configuration conf1 = Configuration.getInstance(new String[0]);
+        assertEquals(validDistDir.getCanonicalPath(), launcher.getCCDistDir(conf1).getCanonicalPath());
+
+        // Dist is set explicitly and valid
+        final Configuration conf2 = Configuration.getInstance(new String[] {"-dist", validDistDir.getPath()});
+        assertEquals(validDistDir.getCanonicalPath(), launcher.getCCDistDir(conf2).getCanonicalPath());
+
+        // Dist is set explicitly but invalid
+        final Configuration conf3 = Configuration.getInstance(new String[] {"-dist", "wrong/path"});
+        try {
+            launcher.getCCDistDir(conf3);
+            fail("Wrong explicit CCDistDir should have failed.");
+        } catch (LaunchException e) {
+            assertEquals(Launcher.MSG_BAD_CCDIST, e.getMessage());
+        }
+    }
 
     public void testArgLog4jconfig() throws Exception {
         assertNull(System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
@@ -87,7 +103,7 @@ public class LauncherTest extends TestCase {
             // Here the default file was not found ...
             fail("log4j sys prop error: " + e.getMessage());
         } finally {
-            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
+            origSysProps.restore();
         }
 
         // When not set, no property is set
@@ -98,7 +114,7 @@ public class LauncherTest extends TestCase {
             // Here the default file was not found ...
             fail("log4j sys prop error: " + e.getMessage());
         } finally {
-            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
+            origSysProps.restore();
         }
 
         // The same is when only -option is set
@@ -111,7 +127,7 @@ public class LauncherTest extends TestCase {
             // Here the default file was not found ...
             fail("log4j sys prop error: " + e.getMessage());
         } finally {
-            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
+            origSysProps.restore();
         }
 
         // Set the non-URL path - through config
@@ -126,7 +142,7 @@ public class LauncherTest extends TestCase {
             assertEquals("Option 'log4jconfig' = 'bogusLog4jConfig' does not represent URL value!",
                          e.getMessage());
         } finally {
-            System.clearProperty(Launcher.PROP_LOG4J_CONFIGURATION);
+            origSysProps.restore();
         }
     }
 

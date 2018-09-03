@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Set absolute path to directory where cruisecontrol is installed. Does not have to be set if lib/cruisecontrol-launcher.jar
+       path is right under the cruisecontrol install path
+  <dist>/an/cruisecontrol/install/path</dist>
+  -->
+  <!-- Set absolute path to directory where project files are located, if these are not located in the working directory
+       of the cruisecontrol process
+  <proj>/a/dir/with/projects</proj>
+  -->
+
+  <!-- cruisecontrol configuration. If not set as absolute path, is searched under <proj> and $HOME directories -->
+  <configfile>config.xml</configfile>
+
+  <!-- The URL to log4j config. Does not have to be set if log4j.properties file is under <dist> directory
+  <log4jconfig>file:///home/dtihelka/temp/cruisecontrol-bin-master/log4j.properties</log4jconfig>
+   -->
+
+  <!-- Set path to directoies where to find the libraries required for cruisecontrol run:
+       - for non absolute path, the <dist> parent path is used
+       - if not set at all, <dist>/lib path is used
+  <lib>/a/special/lib1</lib>
+  <lib>/a/special/lib2</lib>
+  <lib>/a/special/lib3</lib>
+  <lib>/a/special/lib4</lib>
+  -->
+  <!-- Set absolute path to directories where user libs are located:
+       - for non absolute path, the <proj> parent path is used
+       - in addition, the /home/user/.cruisecontrol/lib directory is always searched as well (does not have to be configured)
+  <user_lib>/a/special/user/lib/path1</user_lib>
+  <user_lib>/a/special/user/lib/path2</user_lib>
+  -->
+
+  <!-- Internal dashboard config. If not set, the dasboard is no started -->
+  <jmxport>8000</jmxport>
+  <webport>8080</webport>
+  <rmiport>1099</rmiport>
+
+</launch>
+

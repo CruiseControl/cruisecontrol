@@ -139,7 +139,7 @@ public class MainTest extends TestCase {
         String[] missingValue = new String[] {"-jettyxml"};
         String[] missingParam = new String[] {};
         String[] correctArgs = new String[] {"-jettyxml", makeFile("myJetty.xml", fullPath)};
-        assertEquals(fullPath.toString(), Main.parseJettyXml(new TestConfiguration(correctArgs), "ccHome"));
+        assertEquals(fullPath.toString(), Main.parseJettyXml(new TestConfiguration(correctArgs), new File("ccHome")));
 
         // Default file does not exist
         try {
@@ -153,11 +153,11 @@ public class MainTest extends TestCase {
         // Both paths must exist, otherwise the configuration will throw IllegalArgumentException
         makeDir(new File(new File("ccHome"), "etc"), fullPath);
         makeFile(new File(fullPath.toString(), "jetty.xml"), fullPath);
+        assertEquals(new File("ccHome/etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingParam), new File("ccHome")));
+
         makeDir("etc/", fullPath);
         makeFile(new File(fullPath.toString(), "jetty.xml"), fullPath);
-
-        assertEquals(new File("ccHome/etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingParam), "ccHome"));
-        assertEquals(new File("etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingValue), ""));
+        assertEquals(new File("etc/jetty.xml").getPath(), Main.parseJettyXml(new TestConfiguration(missingValue), null));
     }
 
     public void testParseDashboardUrl() throws Exception {

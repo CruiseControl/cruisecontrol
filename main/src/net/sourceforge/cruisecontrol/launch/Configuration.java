@@ -54,15 +54,15 @@ import org.w3c.dom.NodeList;
 public class Configuration {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
-    public static final String KEY_LIBRARY_DIR = "library_dir";
+    public static final String KEY_LIBRARY_DIRS = "lib";
     public static final String KEY_PROJECTS = "projects";
     public static final String KEY_ARTIFACTS = "artifacts";
     public static final String KEY_LOG_DIR = "logdir";
     public static final String KEY_LOG4J_CONFIG = "log4jconfig";
     public static final String KEY_NO_USER_LIB = "nouserlib";
-    public static final String KEY_USER_LIB_DIRS = "lib";
+    public static final String KEY_USER_LIB_DIRS = "user_lib";
     public static final String KEY_DIST_DIR = "dist";
-    public static final String KEY_HOME_DIR = "home";
+    public static final String KEY_PROJ_DIR = "proj";
     public static final String KEY_PRINT_HELP1 = "help";
     public static final String KEY_PRINT_HELP2 = "?";
     public static final String KEY_DEBUG = "debug";
@@ -86,15 +86,15 @@ public class Configuration {
     /** Array of default values for all the option keys */
     private static final Option[] DEFAULT_OPTIONS = {
         new Option(KEY_CONFIG_FILE,    "cruisecontrol.xml",  File.class),
-        new Option(KEY_LIBRARY_DIR,    "lib",                File[].class),
+        new Option(KEY_LIBRARY_DIRS,   "lib",                File[].class),
         new Option(KEY_PROJECTS,       "projects",           File.class),
         new Option(KEY_ARTIFACTS,      "artifacts",          File.class),
         new Option(KEY_LOG_DIR,        "logs",               File.class),
         new Option(KEY_LOG4J_CONFIG,    null,                URL.class),
         new Option(KEY_NO_USER_LIB,    "false",              Boolean.class),
-        new Option(KEY_USER_LIB_DIRS,  "",                   File[].class),
-        new Option(KEY_DIST_DIR,       "dist",               File.class),
-        new Option(KEY_HOME_DIR,       ".",                  File.class),
+        new Option(KEY_USER_LIB_DIRS,   "",                  File[].class),
+        new Option(KEY_DIST_DIR,        null,                File.class),
+        new Option(KEY_PROJ_DIR,        null,                File.class),
         new Option(KEY_PRINT_HELP1,    "false",              Boolean.class),
         new Option(KEY_PRINT_HELP2,    "false",              Boolean.class),
         new Option(KEY_DEBUG,          "false",              Boolean.class),
@@ -440,6 +440,76 @@ public class Configuration {
     }
 
     /**
+     * Determine and return the directory set under {@link #KEY_DIST_DIR}. This is wrapper around
+     * {@link #getOptionDir(String)} with a bit of cleverness added - if the the directory was not set,
+     * it expects <code>dist/lib/classSource</code> path (if it is valid) and stores the guessed path
+     * as the new option value.
+     *
+     * @param classSource the path to use as backup for determining the dist directory.
+     * @return path to dist directory or <code>null</code> if cannot be found
+     */
+    public File getDistDir(File classSource) {
+        // Check, if the directory was defined in a configuration
+        if (wasOptionSet(KEY_DIST_DIR)) {
+            try {
+                return getOptionDir(KEY_DIST_DIR);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+
+        // If the location was not specified, or it does not exist, try to guess
+        // the location based upon the location of the launcher Jar.
+        if (classSource == null || !classSource.exists()) {
+            return null;
+        }
+        // Parent dir of classSource
+        if (classSource.getParentFile() != null) {
+            classSource = classSource.getParentFile();
+        }
+        // Parent dir of lib/
+        if (classSource.getParentFile() != null) {
+            classSource = classSource.getParentFile();
+            // Store it and return
+            setOption(options, KEY_DIST_DIR, classSource.getAbsolutePath());
+            return classSource;
+        }
+        // If none of the above worked, give up now.
+        return null;
+    }
+    /**
+     * Determine and return the the directory under {@link #KEY_PROJ_DIR}. This is wrapper around
+     * {@link #getOptionDir(String)} with a bit of cleverness added - if the the directory was not
+     * set, it gets projDir path (if it is valid) and stores the guessed path as the new option value.
+     *
+     * @param projDir the directory to use when the option was not set
+     * @return CruiseControl project directory or <code>null</code> if cannot be found
+     */
+    public File getProjDir(File projDir) {
+        // Check, if the directory was defined in a configuration
+        if (wasOptionSet(KEY_PROJ_DIR)) {
+            try {
+                return getOptionDir(KEY_PROJ_DIR);
+            } catch (IllegalArgumentException e) {
+                return null;
+            }
+        }
+        // If the location was not specified, or it does not exist, try to guess
+        // the location based upon the location of the launcher Jar.
+        if (projDir == null || !projDir.exists()) {
+            return null;
+        }
+        try {
+            projDir =  getOptionDir(KEY_PROJ_DIR, projDir);
+        } catch (IllegalArgumentException e) {
+            projDir = projDir.getAbsoluteFile();
+        }
+        // Store it and return
+        setOption(options, KEY_PROJ_DIR, projDir.getAbsolutePath());
+        return projDir;
+    }
+
+    /**
      * Constructor. It is hidden since the class can only be used as singleton, but protected to be
      * overridable for test purposes
      *
@@ -457,10 +527,10 @@ public class Configuration {
         final String configOpt = "-" + KEY_CONFIG_FILE;
         // And remove the option from the command line arguments now, since
         // - it is the main XML configuration with the configuration of launcher embedded in it; the
-        // path is already stored so overwrite would not
+        //   path is already stored so overwrite would not
         // - it is raw launcher configuration containing path to the main XML config file; the path to
-        // the main cruisecontrol config will be read from launcher and thus we must prevent its
-        // re-overwrite from args
+        //   the main cruisecontrol config will be read from launcher and thus we must prevent its
+        //   re-overwrite from args
         for (int i = 0; i < args.length; i++) {
             if (configOpt.equals(args[i])) {
                 args[i] = "-" + KEY_IGNORE;
@@ -509,7 +579,6 @@ public class Configuration {
             if (!file.exists()) {
                 log.warn("Unable to find " + fname);
                 return null;
-                // throw new LaunchException("Unable to find " + configFile);
             }
         }
 
@@ -593,7 +662,6 @@ public class Configuration {
         }
         return null;
     }
-
     private static void removeChild(final Element xmlNode, final String name) {
         for (final Node child : getChildNodes(xmlNode)) {
             if (name.equals(child.getNodeName()) && child.getNodeType() == Node.ELEMENT_NODE) {
@@ -601,7 +669,6 @@ public class Configuration {
             }
         }
     }
-
     private static Node[] getChildNodes(final Element xmlNode) {
         NodeList list = xmlNode.getChildNodes();
         Node[] nodes = new Node[list.getLength()];
@@ -765,7 +832,7 @@ public class Configuration {
      * @throws IllegalArgumentException when the option key is unknown
      */
     private static Option getOption(final Map<String, Option> opts, final String key) {
-        final Option opt = opts.get(key); // new Option(key, "", null));
+        final Option opt = opts.get(key);
         // Should already be pre-filled with a default value ...
         if (opt != null) {
             return opt;
@@ -807,9 +874,9 @@ public class Configuration {
         /** The associated value */
         final String val;
         /** The class the option type belongs to */
-        final Class type;
+        final Class< ? > type;
 
-        Option(final String key, final String val, Class type) {
+        Option(final String key, final String val, Class< ? > type) {
             this.key = key;
             this.val = val;
             this.type = type;

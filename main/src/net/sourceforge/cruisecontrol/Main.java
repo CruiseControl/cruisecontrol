@@ -112,6 +112,9 @@ public final class Main implements CruiseControlMain {
             controller.resume();
         } catch (Exception e) {
             LOG.fatal(e.getMessage());
+            if (LOG.isDebugEnabled()) {
+                LOG.fatal("Failure details:", e);
+            }
             printUsage();
             return false;
         }
@@ -147,7 +150,7 @@ public final class Main implements CruiseControlMain {
      * argument are not specified.
      *
      * @param conf configuration holder
-     * @throws CruiseControlException if final configfile value is null
+     * @throws CruiseControlException if final config file value is null
      */
     void startEmbeddedServer(Configuration conf) throws CruiseControlException {
         String configFileName = parseConfigFileName(conf, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
@@ -156,16 +159,16 @@ public final class Main implements CruiseControlMain {
         int webPort = parseWebPort(conf);
         setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort, webPort);
 
-        File ccHome;
+        File ccDist;
         try {
-            ccHome = conf.getOptionFile(Configuration.KEY_HOME_DIR);
+            ccDist = conf.getDistDir(null);
         } catch (IllegalArgumentException e) {
             throw new CruiseControlException(e);
         }
 
-        System.setProperty("jetty.home", ccHome.getAbsolutePath());
+        System.setProperty("jetty.home", ccDist.getAbsolutePath());
 
-        File jettyXml = new File(parseJettyXml(conf, ccHome.getAbsolutePath()));
+        File jettyXml = new File(parseJettyXml(conf, ccDist));
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, webPort);
         embeddedJettyServer.start();
     }
@@ -338,13 +341,11 @@ public final class Main implements CruiseControlMain {
         return configFileName;
     }
 
-    static String parseJettyXml(Configuration conf, String ccHome) {
+    static String parseJettyXml(Configuration conf, File ccDist) {
         if (conf.wasOptionSet(Configuration.KEY_JETTY_XML)) {
             return conf.getOptionFile(Configuration.KEY_JETTY_XML).getAbsolutePath();
         }
-        final boolean nullOrEmpty = ccHome == null || ccHome.length() == 0;
-        final String defaultJettyXml = conf.getOptionFile(Configuration.KEY_JETTY_XML).getPath();
-        return nullOrEmpty ? defaultJettyXml : new File(ccHome, defaultJettyXml).getAbsolutePath();
+        return conf.getOptionFile(Configuration.KEY_JETTY_XML, ccDist).getPath();
     }
 
     static boolean shouldStartJmxAgent(Configuration conf) {

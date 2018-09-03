@@ -14,6 +14,7 @@ general
 * Add new systemd service configuration - see: documentation/main/install.html
 * Add support for inclusion of XML files using <xi:include href="something.xml" xpointer='element()'/>
 * use jdom 2 (jdom.2.0.6) library. It fixes a problem with split CData (see e.g. https://github.com/hunterhacker/jdom/pull/124)
+* configuration rework. The CC should now be able to start with (almost) empty launch.xml. There is a bit change in meaning of dist, proj, lib and home config options. See the related commit message for details
 
 build loop
 ======================
