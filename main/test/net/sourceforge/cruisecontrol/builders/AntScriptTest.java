@@ -36,20 +36,20 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProgressImplTest;
-import net.sourceforge.cruisecontrol.util.UtilLocator;
-import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.util.Util;
+import net.sourceforge.cruisecontrol.util.UtilLocator;
 
 public class AntScriptTest extends TestCase {
     private AntScript script;
@@ -112,6 +112,7 @@ public class AntScriptTest extends TestCase {
     /** Expose package level constant for unit testing only. */
     public static final String MSG_PREFIX_ANT_PROGRESS = AntScript.MSG_PREFIX_ANT_PROGRESS;
 
+    @Override
     protected void setUp() throws Exception {
         script = new AntScript();
 
@@ -129,6 +130,7 @@ public class AntScriptTest extends TestCase {
         script.setTarget("target");
 
         unixBuilder = new AntBuilder() {
+            @Override
             protected String getSystemClassPath() {
                 return UNIX_PATH;
             }
@@ -137,13 +139,14 @@ public class AntScriptTest extends TestCase {
         unixBuilder.setBuildFile("buildfile");
 
         windowsBuilder = new AntBuilder() {
+            @Override
             protected String getSystemClassPath() {
                 return WINDOWS_PATH;
             }
         };
         windowsBuilder.setTarget("target");
         windowsBuilder.setBuildFile("buildfile");
-     
+
         unixPathWithoutSaxonJars = script.removeSaxonJars(UNIX_PATH, !IS_WINDOWS);
         windowsPathWithoutSaxonJars = script.removeSaxonJars(WINDOWS_PATH, IS_WINDOWS);
     }
@@ -233,14 +236,19 @@ public class AntScriptTest extends TestCase {
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
                 "log.xml",
+                "-Dcustom=label.200.1.23",
                 "-Dlabel=200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
+
+        properties.put("custom", "label.${label}"); // Add custom property refering another property
+
         script.setBuildProperties(properties);
         script.setUseLogger(USE_LOGGER);
         script.setWindows(!IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
+
         TestUtil.assertArray(
                 "Using result Logger",
                 resultLogger,
@@ -448,7 +456,7 @@ public class AntScriptTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        final AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
+        final AntBuilder.JVMArg arg = unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
         final List<AntBuilder.JVMArg> args = new ArrayList<AntBuilder.JVMArg>();
         args.add(arg);
@@ -484,7 +492,7 @@ public class AntScriptTest extends TestCase {
                 "-buildfile",
                 "buildfile",
                 "target" };
-        final AntBuilder.JVMArg arg = (AntBuilder.JVMArg) unixBuilder.createJVMArg();
+        final AntBuilder.JVMArg arg = unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
         final Property prop = unixBuilder.createProperty();
         prop.setName("foo");
@@ -981,7 +989,7 @@ public class AntScriptTest extends TestCase {
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
                 "-propertyfile",
-                "testPropertyFile.properties",    
+                "testPropertyFile.properties",
                 "-buildfile",
                 "buildfile",
                 "target" };
@@ -1030,7 +1038,7 @@ public class AntScriptTest extends TestCase {
         TestUtil.assertArray(
              "args",
              args,
-             script.buildCommandline().getCommandline());    
+             script.buildCommandline().getCommandline());
      }
 
     public void testGetCommandLineArgs_MultipleListeners() throws CruiseControlException {
