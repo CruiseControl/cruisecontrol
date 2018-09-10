@@ -269,4 +269,8 @@
     <property name="glob.templ" value="${local}_filled_${global}"/>
   </mock.project.props3>
 
+  <mock.project name='settings' >
+    <foo name="${launch.ccname} + ${launch.user}" />
+  </mock.project>
+
 </cruisecontrol>

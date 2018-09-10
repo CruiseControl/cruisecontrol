@@ -151,6 +151,7 @@ public class CruiseControlConfig {
             final CruiseControlController controller) throws CruiseControlException {
         this.resolvers = resolvers;
         this.controller = controller;
+        setLaunchProperties();
         parse(ccElement);
     }
 
@@ -386,6 +387,7 @@ public class CruiseControlConfig {
      * @param plugin only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Deprecated
     @Description("Registers a classname with an alias.")
     public void add(final PluginPlugin plugin) {
         // FIXME this is empty today for the documentation to be generated properly
@@ -396,6 +398,7 @@ public class CruiseControlConfig {
      * @param project only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Deprecated
     @Description("Defines a basic unit of work.")
     @Cardinality(min = 1, max = -1)
     public void add(final ProjectInterface project) {
@@ -407,6 +410,7 @@ public class CruiseControlConfig {
      * @param plugin only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Deprecated
     @Description("Defines a name/value pair used in configuration.")
     public void add(final DefaultPropertiesPlugin plugin) {
         // FIXME currently only declared for documentation generation purposes
@@ -417,6 +421,7 @@ public class CruiseControlConfig {
      * @param dashboard only for gendoc
      * @deprecated exists only for gendoc, should not be called.
      */
+    @Deprecated
     @Description("Configures dashboard-related settings.")
     @Cardinality(min = 0, max = 1)
     public void add(final DashboardConfigurationPlugin dashboard) {
@@ -552,6 +557,25 @@ public class CruiseControlConfig {
         this.projects.put(projectName, project);
         this.PROJECTS_REGISTRY.put(projectName, project);
         this.projectPluginRegistries.put(projectName, projectPlugins);
+    }
+
+    /**
+     * Adds the launch properties from {@link Configuration} into {@link #rootProperties}. Each property
+     * is prefixes with "launch." string
+     * @throws CruiseControlException
+     */
+    private void setLaunchProperties() throws CruiseControlException {
+        final CruiseControlSettings conf = CruiseControlSettings.getInstance();
+
+        for (String key : conf.allOptionKeys()) {
+            // Must no be set
+            if (!rootProperties.containsKey(key)) {
+                rootProperties.put("launch." + key, conf.getOptionRaw(key));
+            } else {
+                LOG.info("Trying to set " + key + "=" + conf.getOptionRaw(key) + " property, but it is already "
+                            + "set to " + key + "=" + rootProperties.get(key));
+            }
+        }
     }
 
     private String getProjectName(final Element childElement) throws CruiseControlException {

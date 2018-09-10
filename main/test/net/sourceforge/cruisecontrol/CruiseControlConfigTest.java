@@ -73,7 +73,10 @@ public class CruiseControlConfigTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        CruiseControlSettings.getInstance(this);
+        // Fill properties to be tested
+        CruiseControlSettings settings = CruiseControlSettings.getInstance(this);
+        settings.setOption("user", "value_for_user", this);
+        settings.setOption("ccname", "value_for_ccname", this);
 
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
@@ -231,7 +234,7 @@ public class CruiseControlConfigTest extends TestCase {
     }
 
     public void testGetProjectNames() {
-        assertEquals(24, config.getProjectNames().size());
+        assertEquals(25, config.getProjectNames().size());
     }
 
     public void testGlobalProperty() throws Exception {
@@ -359,6 +362,14 @@ public class CruiseControlConfigTest extends TestCase {
         foo = projConfig.getFoo();
         assertEquals("local-in-customprops6_filled_works!", foo.getName());
     }
+
+    public void testSettingsProperties() throws Exception {
+        MockProjectInterface projConfig;
+
+        projConfig = (MockProjectInterface) config.getProject("settings");
+        assertEquals("value_for_ccname + value_for_user", projConfig.getFoo().getName());
+    }
+
     // TODO backport
     /*
     public void testMissingProperty() {
