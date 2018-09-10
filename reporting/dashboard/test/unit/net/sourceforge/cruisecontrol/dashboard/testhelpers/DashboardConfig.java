@@ -100,7 +100,7 @@ public class DashboardConfig {
     private final ResolverHolder resolvers;
 
     public DashboardConfig(final Element ccElement) throws CruiseControlException {
-        this(ccElement, new ResolverHolder.DummeResolvers());
+        this(ccElement, new ResolverHolder.DummyResolvers());
     }
 
     public DashboardConfig(final Element ccElement, final ResolverHolder resolvers)

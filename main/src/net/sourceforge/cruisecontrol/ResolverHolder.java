@@ -57,7 +57,7 @@ public interface ResolverHolder {
     /** The implementation of {@link ResolverHolder} returning 
      *  {@link net.sourceforge.cruisecontrol.config.FileResolver.DummyResolver} and
      *  {@link net.sourceforge.cruisecontrol.config.XmlResolver.DummyResolver} instances. */
-    public class DummeResolvers implements ResolverHolder {
+    public class DummyResolvers implements ResolverHolder {
 
         public FileResolver getFileResolver() {
             return R1;

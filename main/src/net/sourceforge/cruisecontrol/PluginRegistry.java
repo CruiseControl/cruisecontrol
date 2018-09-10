@@ -208,7 +208,7 @@ public final class PluginRegistry implements Serializable, Iterable<String> {
       }
 
       final PluginPlugin plugin = (PluginPlugin) new ProjectXMLHelper(
-            new ResolverHolder.DummeResolvers()).configurePlugin(pluginElement, false);
+            new ResolverHolder.DummyResolvers()).configurePlugin(pluginElement, false);
       register(plugin);
     }
 
