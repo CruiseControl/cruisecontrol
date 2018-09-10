@@ -167,7 +167,9 @@ public class LauncherTest extends TestCase {
         final LauncherMock launcher = new LauncherMock();
 
         try {
-            launcher.run(new String[] {"-" + LaunchConfiguration.KEY_CONFIG_FILE, launchConf.getAbsolutePath()});
+            launcher.run(new String[] {"-" + LaunchConfiguration.KEY_CONFIG_FILE, launchConf.getAbsolutePath(),
+                                       "-" + CruiseControlSettings.KEY_USER, "DummyUser",  //Some CC-specific options
+                                       "-" + CruiseControlSettings.KEY_CC_NAME,  "CC_Tester"});
             // Launch must be OK
             assertEquals(false, launcher.exitedWithErrorCode());
 
@@ -177,6 +179,8 @@ public class LauncherTest extends TestCase {
             assertEquals((new File("./ccHome")).getCanonicalPath(), conf.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR).getCanonicalPath());
             assertEquals((new File(".")).getCanonicalPath(), conf.getOptionDir(LaunchConfiguration.KEY_DIST_DIR).getCanonicalPath());
 
+            assertEquals("DummyUser", conf.getOptionStr(CruiseControlSettings.KEY_USER));
+            assertEquals("CC_Tester", conf.getOptionStr(CruiseControlSettings.KEY_CC_NAME));
 
         } finally {
             launcher.clearConfig();

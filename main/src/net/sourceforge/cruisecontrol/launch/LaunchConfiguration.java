@@ -42,10 +42,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -240,24 +241,16 @@ public class LaunchConfiguration implements Config {
 
     @Override
     public Iterable<String> allOptionKeys() {
-        class KeyIter implements Iterable<String>, Iterator<String> {
-            @Override
-            public boolean hasNext() {
-                return cnt < DEFAULT_OPTIONS.length;
-            }
-            @Override
-            public String next() {
-                return DEFAULT_OPTIONS[cnt++].key;
-            }
-            @Override
-            public Iterator<String> iterator() {
-                return this;
-            }
+        final Set<String> keys = new HashSet<String>(options.size() + DEFAULT_OPTIONS.length);
 
-            private int cnt = 0;
+        // Join all the option sources
+        keys.addAll(options.keySet());
+        for (Option o : DEFAULT_OPTIONS) {
+            keys.add(o.key);
         }
-        // Get the option key iterator
-        return new KeyIter();
+        keys.remove(KEY_IGNORE);
+
+        return keys;
     }
 
     /**
