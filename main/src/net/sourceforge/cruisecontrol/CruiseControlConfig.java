@@ -155,6 +155,8 @@ public class CruiseControlConfig {
     }
 
     private void parse(final Element ccElement) throws CruiseControlException {
+        // Ignore the <launch>...</launch> section, see LaunchConfiguration
+        ccElement.removeChild("launcher");
         // parse properties and plugins first, so their order in the config file
         // doesn't matter
         for (final Object o : ccElement.getChildren("property")) {

@@ -48,11 +48,10 @@ import net.sourceforge.cruisecontrol.builders.AntBuilder;
 import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.listeners.CurrentBuildStatusListener;
 import net.sourceforge.cruisecontrol.publishers.AntPublisher;
-import net.sourceforge.cruisecontrol.publishers.OnFailurePublisher;
 import net.sourceforge.cruisecontrol.publishers.OnSuccessPublisher;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom2.Element;
 
@@ -63,7 +62,10 @@ public class CruiseControlConfigPreConfTest extends TestCase {
     private CruiseControlConfig config;
     private File configFile;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
 
@@ -76,11 +78,13 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         filesToDelete.add(testLogsDir);
     }
 
+    @Override
     protected void tearDown() {
         configFile = null;
         config = null;
 
         filesToDelete.delete();
+        CruiseControlSettings.delInstance(this);
     }
 
     public void testGetProjectNames() {
@@ -137,16 +141,16 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals("baz", foo.property.getValue());
     }
 
-    
+
     public void testPluginInherritnance_leve1() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project9");
         List builders = projConfig.getSchedule().getBuilders();
         List publishers = projConfig.getPublishers();
-        
+
         assertEquals(2, publishers.size());
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
-        
+
         System.out.println(getClassInList(builders));
         Foo foo = (Foo) builders.get(0);
         assertNotNull("createProperty wasn't called", foo.property);
@@ -162,12 +166,12 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project10");
         List builders = projConfig.getSchedule().getBuilders();
         List publishers = projConfig.getPublishers();
-        
+
         assertEquals(3, publishers.size());
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
         assertEquals(OnSuccessPublisher.class.getName(), getClassInList(publishers, 2));
-        
+
         System.out.println(getClassInList(builders));
         Foo foo = (Foo) builders.get(0);
         assertNotNull("createProperty wasn't called", foo.property);
@@ -180,17 +184,17 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals("val3",foo.getEnv("ENV3"));
         assertEquals("embedded",foo.getEnv("EMB"));
     }
-    
+
     public void testPluginInherritnance_leve3() {
         ProjectConfig projConfig = (ProjectConfig) config.getProject("project11");
         List builders = projConfig.getSchedule().getBuilders();
         List publishers = projConfig.getPublishers();
-        
+
         assertEquals(3, publishers.size());
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 0));
         assertEquals(AntPublisher.class.getName(), getClassInList(publishers, 1));
         assertEquals(OnSuccessPublisher.class.getName(), getClassInList(publishers, 2));
-        
+
         System.out.println(getClassInList(builders));
         Foo foo = (Foo) builders.get(0);
         assertNotNull("createProperty wasn't called", foo.property);
@@ -203,8 +207,8 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         assertEquals("val3.override",foo.getEnv("ENV3"));
         assertEquals("N/A", foo.getEnv("EMB"));
     }
-    
-    
+
+
     public static class Foo extends Builder {
         private Property property;
         private String att1 = "";
@@ -221,18 +225,18 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         public void setAtt2(String val) {
             att2 = val;
         }
-        
+
         public Element build(Map properties, Progress progress) throws CruiseControlException {
             return null;
         }
         public Element buildWithTarget(Map properties, String target, Progress progress) throws CruiseControlException {
             return null;
         }
-        
+
         public String getEnv(final String name) {
-            OSEnvironment env = new OSEnvironment(); 
+            OSEnvironment env = new OSEnvironment();
             mergeEnv(env);
-            return env.getVariable(name, "N/A"); 
+            return env.getVariable(name, "N/A");
         }
     }
 }

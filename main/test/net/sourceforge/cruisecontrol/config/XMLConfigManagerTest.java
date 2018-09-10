@@ -43,6 +43,7 @@ import org.jdom2.Element;
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.IO;
@@ -51,7 +52,10 @@ public class XMLConfigManagerTest extends TestCase {
     private File configurationFile;
     private final FilesToDelete filesToDelete = new FilesToDelete();
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         configurationFile = File.createTempFile("config", "xml");
         filesToDelete.add(configurationFile);
         
@@ -61,8 +65,10 @@ public class XMLConfigManagerTest extends TestCase {
                         + "<ant/></schedule></project></cruisecontrol>\n");
     }
 
+    @Override
     protected void tearDown() throws Exception {
         filesToDelete.delete();
+        CruiseControlSettings.delInstance(this);
     }
 
     public void testShouldStoreUpdatedMD5HashWhenItChanges() throws CruiseControlException {

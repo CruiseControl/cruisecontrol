@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import junit.framework.TestCase;
+
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.PluginRegistry;
 import net.sourceforge.cruisecontrol.gendoc.AttributeInfo;
 import net.sourceforge.cruisecontrol.gendoc.ChildInfo;
@@ -113,13 +115,20 @@ public class ConfigHtmlGeneratorTest extends TestCase {
     /**
      * Generates the HTML and parses it for testing purposes.
      */
+    @Override
     protected void setUp() throws Exception {        
+        CruiseControlSettings.getInstance(this);
         configHtmlGenerator = new ConfigHtmlGenerator();
         parser = new PluginInfoParser(
                 PluginRegistry.createRegistry(), PluginRegistry.ROOT_PLUGIN);
         html = configHtmlGenerator.generate(parser).trim();
 
         parseHTML();
+    }
+
+    @Override
+    protected void tearDown() {
+        CruiseControlSettings.delInstance(this);
     }
 
     /**

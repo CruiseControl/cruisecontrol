@@ -61,7 +61,10 @@ public final class CruiseControlControllerTest extends TestCase {
     private final File configFile2 = new File(dir, "_tempConfigFile2");
     private CruiseControlController ccController;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         Util.doMkDirs(dir);
         ccController = new CruiseControlController();
         ensureFileDoesntExist(configFile);
@@ -70,6 +73,7 @@ public final class CruiseControlControllerTest extends TestCase {
         filesToDelete.add(new File(TestUtil.getTargetDir(), "logs"));
     }
 
+    @Override
     public void tearDown() {
         ccController.pause();
         ccController = null;
@@ -77,6 +81,7 @@ public final class CruiseControlControllerTest extends TestCase {
         ensureFileDoesntExist(configFile2);
 
         filesToDelete.delete();
+        CruiseControlSettings.delInstance(this);
     }
 
     private void ensureFileDoesntExist(File file) {
@@ -451,9 +456,11 @@ public final class CruiseControlControllerTest extends TestCase {
             added.clear();
             removed.clear();
         }
+        @Override
         public void projectAdded(final ProjectInterface project) {
             added.add(project);
         }
+        @Override
         public void projectRemoved(final ProjectInterface project) {
             removed.add(project);
         }

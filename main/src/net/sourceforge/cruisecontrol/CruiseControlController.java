@@ -53,7 +53,6 @@ import org.apache.log4j.Logger;
  */
 public class CruiseControlController {
     private static final Logger LOG = Logger.getLogger(CruiseControlController.class);
-    public static final String DEFAULT_CONFIG_FILE_NAME = "config.xml";
     private File configFile;
     private final List<ProjectInterface> projects = new ArrayList<ProjectInterface>();
     private final BuildQueue buildQueue = new BuildQueue();

@@ -57,12 +57,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import net.sourceforge.cruisecontrol.launch.util.Locator;
 
@@ -78,7 +76,7 @@ public class Launcher {
     /** The property containing the CruiseControl home directory.
      *  This is for backward compatibility of the individual modules. They should use "proj" instead
      *  of "home" (if they mean main CC projects directory. User's home can be obtained by
-     *  {@link Configuration#USER_HOMEDIR})  */
+     *  {@link LaunchConfiguration#USER_HOMEDIR})  */
     public static final String CCHOME_PROPERTY = "cc.home";
 
     /** The startup class that is to be run */
@@ -88,7 +86,8 @@ public class Launcher {
     public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
 
     /** The location of a per-user library directory */
-    public static final File USER_LIBDIR = new File(new File(Configuration.USER_HOMEDIR, ".cruisecontrol"), "lib");
+    public static final File USER_LIBDIR = new File(new File(LaunchConfiguration.USER_HOMEDIR, ".cruisecontrol"),
+            "lib");
 
     /**
      *  Entry point for starting CruiseControl from the command line
@@ -119,37 +118,36 @@ public class Launcher {
     void run(final String[] args) throws LaunchException, MalformedURLException {
 
         // First of all read the configuration
-        final Configuration config = Configuration.getInstance(args);
-        final File sourceJar = getClassSource();
-
+        final LogInterface firstLogger = new LogBuffer();
+        final LaunchConfiguration config = new LaunchConfiguration(args, firstLogger, this);
         // Make notice to log4j where is configuration file is
-        if (config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG)) {
-            final URL log4jcofig = config.getOptionUrl(Configuration.KEY_LOG4J_CONFIG);
+        if (config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG)) {
+            final URL log4jcofig = config.getOptionUrl(LaunchConfiguration.KEY_LOG4J_CONFIG);
             System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
         }
 
         // Determine the CruiseControl directory for the distribution jars if it was provided,
         // Otherwise make a guess based upon the location of the launcher jar.
-        final File ccDistDir = getCCDistDir(config);
-        final File ccProjDir = getCCProjDir(config);
+        final File ccDistDir = getCCDistDir(config, firstLogger);
+        final File ccProjDir = getCCProjDir(config, firstLogger);
         // The property is required by other modules. It would be better to use Configuration
         // directly ... Moreover, the "cc.proj" should be used instead!
         System.setProperty(CCHOME_PROPERTY, ccProjDir.getAbsolutePath());
 
         // Determine CruiseControl library directory for third party jars, if it was provided.
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
-        final File[] ccLibDirs = config.getOptionDirArray(Configuration.KEY_LIBRARY_DIRS, ccDistDir);
-        final URL[] distJars = collectJars(ccDistDir, config.getLogger());
-        final URL[] libJars = collectJars(ccLibDirs, config.getLogger());
-        final URL[] antJars = collectAntLibs(ccLibDirs, config.getLogger());
+        final File[] ccLibDirs = config.getOptionDirArray(LaunchConfiguration.KEY_LIBRARY_DIRS, ccDistDir);
+        final URL[] distJars = collectJars(ccDistDir, firstLogger);
+        final URL[] libJars = collectJars(ccLibDirs, firstLogger);
+        final URL[] antJars = collectAntLibs(ccLibDirs, firstLogger);
 
         // Locate any jars in the per-user lib directory
-        final boolean noUserLib = config.getOptionBool(Configuration.KEY_NO_USER_LIB);
-        final URL[] userJars2 = noUserLib ? new URL[0] : collectJars(USER_LIBDIR, config.getLogger());
+        final boolean noUserLib = config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB);
+        final URL[] userJars2 = noUserLib ? new URL[0] : collectJars(USER_LIBDIR, firstLogger);
         // Process the user lib dir directories found on the command line
         final File[] userDir1 = noUserLib ? new File[0]
-                : config.getOptionDirArray(Configuration.KEY_USER_LIB_DIRS, ccProjDir);
-        final URL[] userJars1 = collectJars(userDir1, config.getLogger());
+                : config.getOptionDirArray(LaunchConfiguration.KEY_USER_LIB_DIRS, ccProjDir);
+        final URL[] userJars1 = collectJars(userDir1, firstLogger);
         // Locate the Java tools jar
         final File toolsJar = Locator.getToolsJar();
 
@@ -187,7 +185,7 @@ public class Launcher {
         baseClassPath.append(ccProjDir.getAbsolutePath()).append(File.separatorChar);
 
         System.setProperty("java.class.path", baseClassPath.toString());
-        config.getLogger().info("Classpath: " + baseClassPath.toString());
+        firstLogger.info("Classpath: " + baseClassPath.toString());
 
         // Create a new class loader which has access to our jars
         final URLClassLoader loader = new URLClassLoader(jars.toArray(new URL[jars.size()]));
@@ -195,14 +193,27 @@ public class Launcher {
 
         // Launch CruiseControl!
         try {
-            final Class mainClass = loader.loadClass(MAIN_CLASS);
+            final Class< ? > mainClass = loader.loadClass(MAIN_CLASS);
             final CruiseControlMain main = (CruiseControlMain) mainClass.newInstance();
-            final boolean normalExit = main.start(config);
+
+            // Pass the config to main CC process
+            final Object confOwner = newConfOwner();
+            final Config confMain = main.confFactory(confOwner);
+
+            for (final String key : config.allOptionKeys()) {
+                if (confMain.knowsOption(key)) {
+                    confMain.setOption(key, config.getOptionRaw(key), confOwner);
+                }
+            }
+
+            // Start the CC process
+            final boolean normalExit = main.start();
             if (!normalExit) {
                 exitWithErrorCode();
             }
         } catch (Throwable t) {
             t.printStackTrace();
+            exitWithErrorCode();
         }
     }
 
@@ -218,6 +229,14 @@ public class Launcher {
     protected void exitWithErrorCode() {
        System.exit(1);
     }
+    /**
+     * Each call gets the new instance of {@link Object} to be passed to {@link CruiseControlMain#confFactory(Object)}.
+     * The method is mainly for test purposes;
+     * @return new instance of {@link Object}
+     */
+    protected Object newConfOwner() {
+        return new Object();
+    }
 
     /** Exception message if CC Home directory couldn't be determined. */
     static final String MSG_BAD_CCPROJ = "CruiseControl project is not set or could not be located.";
@@ -225,92 +244,82 @@ public class Launcher {
     static final String MSG_BAD_CCDIST = "CruiseControl dist is not set or could not be located.";
 
     /**
-     * Determine and return the CC dist directory. It is either the value set explicitly byHOME
-     * {@link Configuration.KEY_DIST_DIR} option or guessed as the ../../{@link #getClassSource()} path.
+     * Determine and return the CC dist directory. It is either the value set explicitly by
+     * {@link LaunchConfiguration#KEY_DIST_DIR} option or guessed as the ../../{@link #getClassSource()} path.
+     * @param config the configuration holder
+     * @param log the logger
      * @return CruiseControl dist directory
      * @throws LaunchException if CruiseControl dist is not set or could not be located.
-     * @see Configuration#getDistDir(File)
      */
-    File getCCDistDir(Configuration conf) throws LaunchException {
-        File dist;
-
-        // Try if set
-        dist = conf.getDistDir(null);
-        if (dist != null) {
-            return dist;
+    File getCCDistDir(LaunchConfiguration config, LogInterface log) throws LaunchException {
+        // Check, if the directory was defined in a configuration
+        if (config.wasOptionSet(LaunchConfiguration.KEY_DIST_DIR)) {
+            try {
+                return config.getOptionDir(LaunchConfiguration.KEY_DIST_DIR);
+            } catch (IllegalArgumentException e) {
+                throw new LaunchException(MSG_BAD_CCDIST);
+            }
         }
 
         // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the launcher Jar.
         File classSource = getClassSource();
-        conf.getLogger().warn("Trying to guess '" + Configuration.KEY_DIST_DIR + "' from '"
-                + classSource.getAbsolutePath());
+        log.warn("Trying to guess '" + LaunchConfiguration.KEY_DIST_DIR + "' from '" + classSource.getAbsolutePath());
 
-        dist = conf.getDistDir(classSource);
-        if (dist != null) {
-            return dist;
+        // If the location was not specified, or it does not exist, try to guess
+        // the location based upon the location of the launcher Jar.
+        if (classSource == null || !classSource.exists()) {
+            return null;
+        }
+        // Parent dir of classSource
+        if (classSource.getParentFile() != null) {
+            classSource = classSource.getParentFile();
+        }
+        // Parent dir of lib/
+        if (classSource.getParentFile() != null) {
+            classSource = classSource.getParentFile();
+            // Store it and return
+            config.setOption(LaunchConfiguration.KEY_DIST_DIR, classSource.getAbsolutePath(), this);
+            return classSource;
         }
         // If none of the above worked, give up.
         throw new LaunchException(MSG_BAD_CCDIST);
     }
     /**
      * Determine and return the CC Home directory, and reset the {@link #CCHOME_PROPERTY} to match if needed.
+     * @param config the configuration holder
+     * @param log the logger
      * @return CruiseControl home directory
      * @throws LaunchException if CruiseControl home is not set or could not be located.
-     * @see Configuration#getProjDir(File)
      */
-    File getCCProjDir(Configuration conf) throws LaunchException {
-        File proj;
-
-        // Try if set
-        proj = conf.getProjDir(null);
-        if (proj != null) {
-            return proj;
+    File getCCProjDir(LaunchConfiguration config, LogInterface log) throws LaunchException {
+        // Check, if the directory was defined in a configuration
+        if (config.wasOptionSet(LaunchConfiguration.KEY_PROJ_DIR)) {
+            try {
+                return config.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR);
+            } catch (IllegalArgumentException e) {
+                throw new LaunchException(MSG_BAD_CCPROJ);
+            }
         }
-
         // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the working directory.
         File workdir = new File(".");
-        conf.getLogger().warn("Trying to guess '" + Configuration.KEY_PROJ_DIR + "' from working dir '"
+        log.warn("Trying to guess '" + LaunchConfiguration.KEY_PROJ_DIR + "' from working dir '"
                 + workdir.getAbsolutePath() + "'");
 
-        proj = conf.getProjDir(workdir);
-        if (proj != null) {
-            return proj;
+        if (workdir == null || !workdir.exists()) {
+            throw new LaunchException(MSG_BAD_CCPROJ);
         }
-        // If none of the above worked, give up.
-        throw new LaunchException(MSG_BAD_CCPROJ);
+        try {
+            workdir =  config.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR, workdir);
+        } catch (IllegalArgumentException e) {
+            workdir = workdir.getAbsoluteFile();
+        }
+        // Store it and return
+        config.setOption(LaunchConfiguration.KEY_PROJ_DIR, workdir.getAbsolutePath(), this);
+        return workdir;
+
     }
-
-    /**
-     * Add a CLASSPATH or -lib to lib path urls.
-     * @param path        the classpath or lib path to add to the libPathULRLs
-     * @param getJars     if true and a path is a directory, add the jars in
-     *                    the directory to the path urls
-     * @param libPathURLs the list of paths to add to
-     * @throws MalformedURLException if the URLs required for the classloader
-     *            cannot be created.
-     */
-   private void addPath(final String path, final boolean getJars, final List<URL> libPathURLs)
-       throws MalformedURLException {
-
-       final StringTokenizer myTokenizer
-           = new StringTokenizer(path, System.getProperty("path.separator"));
-       while (myTokenizer.hasMoreElements()) {
-           final String elementName = myTokenizer.nextToken();
-           final File element = new File(elementName);
-           if (elementName.indexOf("%") != -1 && !element.exists()) {
-               continue;
-           }
-           if (getJars && element.isDirectory()) {
-               // add any jars in the directory
-               final URL[] dirURLs = Locator.getLocationURLs(element);
-               libPathURLs.addAll(Arrays.asList(dirURLs));
-           }
-
-           libPathURLs.add(element.toURI().toURL());
-       }
-   }
 
    /**
     * Collects JAR files within the given list of directories
@@ -346,6 +355,7 @@ public class Launcher {
     * @param dirs the list of directories to search
     * @param log the logger to log errors through
     * @return list of {@link URL} classes with the <code>ant/*.jar</code> files found
+    * @throws LaunchException
     */
    private URL[] collectAntLibs(final File[] dirs, final LogInterface log) throws LaunchException {
        Set<URL> urls = new HashSet<URL>(dirs.length * 5);

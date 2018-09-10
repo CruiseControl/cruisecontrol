@@ -46,10 +46,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
-import net.sourceforge.cruisecontrol.launch.Configuration;
+import net.sourceforge.cruisecontrol.launch.Config;
 import net.sourceforge.cruisecontrol.launch.CruiseControlMain;
-import net.sourceforge.cruisecontrol.launch.LaunchException;
-import net.sourceforge.cruisecontrol.launch.LogInterface;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.report.BuildLoopPostingConfiguration;
 import net.sourceforge.cruisecontrol.util.threadpool.ThreadQueueProperties;
@@ -69,6 +67,17 @@ public final class Main implements CruiseControlMain {
 
     private CruiseControlControllerAgent agent;
 
+
+
+    @Override
+    public Config confFactory(Object owner) {
+        try {
+            return CruiseControlSettings.getInstance(owner);
+        } catch (CruiseControlException e) {
+            throw new IllegalStateException("Configuration instantiation failed", e);
+        }
+    }
+
     /**
      * Print the version, configure the project with serialized build info and/or arguments and start the project build
      * process.
@@ -76,39 +85,49 @@ public final class Main implements CruiseControlMain {
      * @return true indicates normal return/exit.
      */
     @Override
-    public boolean start(Configuration config) {
+    public boolean start() {
+        CruiseControlSettings config;
+
+        // Config must be filled
+        try {
+            config = CruiseControlSettings.getInstance();
+        } catch (CruiseControlException e) {
+            throw new IllegalStateException("Configuration instance has not been instantiated");
+        }
+
+
         Properties versionProperties = getBuildVersionProperties();
         printVersion(versionProperties);
         try {
-            if (shouldPrintUsage(config)) {
+            if (shouldPrintUsage()) {
                 printUsage();
                 return false;
             }
 
-            if (config.getOptionBool(Configuration.KEY_DEBUG)) {
+            if (config.getOptionBool(CruiseControlSettings.KEY_DEBUG)) {
                 Logger.getRootLogger().setLevel(Level.DEBUG);
             }
-            // Set the logger. Now it is fully configured
-            try {
-                Configuration.setRealLog(new Log4jLog());
-            } catch (LaunchException e) {
-                LOG.error("Unable to set real logger to config class; all previous messages are probably lost", e);
-            }
+//            // Set the logger. Now it is fully configured
+//            try {
+//                Configuration.setRealLog(new Log4jLog());
+//            } catch (LaunchException e) {
+//                LOG.error("Unable to set real logger to config class; all previous messages are probably lost", e);
+//            }
 
-            checkDeprecatedArguments(config, LOG);
-            controller = createController(config, versionProperties);
-            if (shouldStartJmxAgent(config)) {
-                startJmxAgent(config);
+            checkDeprecatedArguments();
+            controller = createController(versionProperties);
+            if (shouldStartJmxAgent()) {
+                startJmxAgent();
             }
-            if (shouldStartEmbeddedServer(config)) {
-                startEmbeddedServer(config);
+            if (shouldStartEmbeddedServer()) {
+                startEmbeddedServer();
             } else {
                 LOG.info("Skipping start of embedded server");
             }
-            if (shouldPostDataToDashboard(config)) {
-                startPostingToDashboard(config);
+            if (shouldPostDataToDashboard()) {
+                startPostingToDashboard();
             }
-            parseCCName(config);
+            parseCCName();
             controller.resume();
         } catch (Exception e) {
             LOG.fatal(e.getMessage());
@@ -121,18 +140,18 @@ public final class Main implements CruiseControlMain {
         return true;
     }
 
-    private void startJmxAgent(Configuration conf) {
-        agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(conf),
-                parseRmiPort(conf), parseUser(conf), parsePassword(conf), parseXslPath(conf),
-                parseEnableJMXAgentUtility(conf));
+    private void startJmxAgent() throws CruiseControlException {
+        agent = new CruiseControlControllerAgent(controller, parseJMXHttpPort(),
+                parseRmiPort(), parseUser(), parsePassword(), parseXslPath(),
+                parseEnableJMXAgentUtility());
         agent.start();
     }
 
-    private CruiseControlController createController(Configuration config, Properties versionProperties)
+    private CruiseControlController createController(Properties versionProperties)
             throws CruiseControlException {
         CruiseControlController ccController = new CruiseControlController();
         ccController.setVersionProperties(versionProperties);
-        File configFile = new File(parseConfigFileName(config, CruiseControlController.DEFAULT_CONFIG_FILE_NAME));
+        File configFile = CruiseControlSettings.getInstance().getOptionFile(CruiseControlSettings.KEY_CONFIG_FILE);
         try {
           ccController.setConfigFile(configFile);
         } catch (CruiseControlException e) {
@@ -149,26 +168,22 @@ public final class Main implements CruiseControlMain {
      * application from the path specified by the command line argument -webapppath. Uses default values if either
      * argument are not specified.
      *
-     * @param conf configuration holder
      * @throws CruiseControlException if final config file value is null
      */
-    void startEmbeddedServer(Configuration conf) throws CruiseControlException {
-        String configFileName = parseConfigFileName(conf, CruiseControlController.DEFAULT_CONFIG_FILE_NAME);
-        int jmxPort = parseJMXHttpPort(conf);
-        int rmiPort = parseRmiPort(conf);
-        int webPort = parseWebPort(conf);
+    void startEmbeddedServer() throws CruiseControlException {
+        CruiseControlSettings config = CruiseControlSettings.getInstance();
+        String configFileName = parseConfigFileName(config.getOptionFile(
+                    CruiseControlSettings.KEY_CONFIG_FILE).getAbsolutePath());
+        int jmxPort = parseJMXHttpPort();
+        int rmiPort = parseRmiPort();
+        int webPort = parseWebPort();
         setUpSystemPropertiesForDashboard(configFileName, jmxPort, rmiPort, webPort);
 
-        File ccDist;
-        try {
-            ccDist = conf.getDistDir(null);
-        } catch (IllegalArgumentException e) {
-            throw new CruiseControlException(e);
-        }
+        File ccDist = config.getOptionDir(CruiseControlSettings.KEY_DIST_DIR);
 
         System.setProperty("jetty.home", ccDist.getAbsolutePath());
 
-        File jettyXml = new File(parseJettyXml(conf, ccDist));
+        File jettyXml = new File(parseJettyXml(ccDist));
         EmbeddedJettyServer embeddedJettyServer = new EmbeddedJettyServer(jettyXml, webPort);
         embeddedJettyServer.start();
     }
@@ -186,9 +201,10 @@ public final class Main implements CruiseControlMain {
         System.setProperty("cc.webport", String.valueOf(webPort));
     }
 
-    static void checkDeprecatedArguments(Configuration conf, Logger logger) {
-        if (conf.wasOptionSet(Configuration.KEY_PORT)) {
-            logger.warn("WARNING: The port argument is deprecated. Use jmxport instead.");
+    static void checkDeprecatedArguments() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        if (config.wasOptionSet(CruiseControlSettings.KEY_PORT)) {
+            LOG.warn("WARNING: The port argument is deprecated. Use jmxport instead.");
         }
     }
 
@@ -198,10 +214,18 @@ public final class Main implements CruiseControlMain {
      */
     static final String SYSPROP_CCMAIN_SKIP_USAGE = "cc.main.skip.usage";
 
+
+    @Override
+    public Iterable<String> confHelp() {
+        return null;
+    }
+
     public static void printUsage() {
         if (Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE)) {
             return;
         }
+
+ // TODO: finish !!!
 
         System.out.println("");
         System.out.println("Usage:");
@@ -213,11 +237,11 @@ public final class Main implements CruiseControlMain {
         System.out.println("Build loop options are:");
         System.out.println("");
         System.out.println("  -configfile file     configuration file; default config.xml");
-        System.out.println("  -" + Configuration.KEY_DEBUG + "  set logging level to DEBUG");
-        System.out.println("  -" + Configuration.KEY_LOG4J_CONFIG + " url     URL to a log4j config (example: "
-                + "\"file:/c:/mylog4j.xml\")");
-        System.out.println("  -" + Configuration.KEY_PRINT_HELP1 + " or -" + Configuration.KEY_PRINT_HELP2
-                + "          print this usage message");
+        System.out.println("  -" + CruiseControlSettings.KEY_DEBUG + "  set logging level to DEBUG");
+        //System.out.println("  -" + CruiseControlSettings.KEY_LOG4J_CONFIG + " url     URL to a log4j "
+        //        + "config (example: ""\"file:/c:/mylog4j.xml\")");
+        System.out.println("  -" + CruiseControlSettings.KEY_PRINT_HELP1 + " or -"
+                + CruiseControlSettings.KEY_PRINT_HELP2 + "          print this usage message");
         System.out.println("");
         System.out.println("Options when using JMX");
         System.out.println("  Note: JMX server only started if -jmxport and/or -rmiport specified");
@@ -226,7 +250,7 @@ public final class Main implements CruiseControlMain {
         System.out.println("  -user username          username for HttpAdapter; default no login required");
         System.out.println("  -password pwd           password for HttpAdapter; default no login required");
         System.out.println("  -xslpath directory      location of jmx xsl files; default files in package");
-        System.out.println("  -" + Configuration.KEY_JMX_AGENT_UTIL
+        System.out.println("  -" + CruiseControlSettings.KEY_JMX_AGENT_UTIL
                 + " [true/false] load JMX Build Agent utility; default is true");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
@@ -245,61 +269,65 @@ public final class Main implements CruiseControlMain {
     }
 
     /**
-     * Parse cc Name from arguments.
+     * Parse cc Name from configuration.
      *
-     * @param args command line arguments.
      * @return the name of this instance if specified on the command line, otherwise DEFAULT_NAME.
+     * @throws CruiseControlException
      */
-    static String parseCCName(Configuration conf) {
-        final String theCCName = conf.getOptionStr(Configuration.KEY_CC_NAME);
+    static String parseCCName() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final String theCCName = config.getOptionStr(CruiseControlSettings.KEY_CC_NAME);
         System.setProperty("ccname", theCCName);
         return theCCName;
     }
 
-    static boolean shouldPostDataToDashboard(Configuration conf) {
-        return parseHttpPostingEnabled(conf) && BuildLoopMonitorRepository.getBuildLoopMonitor() == null;
+    static boolean shouldPostDataToDashboard() throws CruiseControlException {
+        return parseHttpPostingEnabled() && BuildLoopMonitorRepository.getBuildLoopMonitor() == null;
     }
 
-    public void startPostingToDashboard(Configuration conf) {
-        String url = parseDashboardUrl(conf);
-        long interval = parseHttpPostingInterval(conf);
+    public void startPostingToDashboard() throws CruiseControlException {
+        final String url = parseDashboardUrl();
+        final long interval = parseHttpPostingInterval();
         BuildLoopMonitorRepository.cancelExistingAndStartNewPosting(controller,
                 new BuildLoopPostingConfiguration(url, interval));
     }
 
     /**
-     * Parse webport from arguments.
+     * Parse webport from configuration.
      *
-     * @param args command line arguments.
      * @return the webport if specified, otherwise its default value.
+     * @throws CruiseControlException
      */
-    static int parseWebPort(Configuration conf) {
-        return conf.getOptionInt(Configuration.KEY_WEB_PORT);
-        //return MainArgs.parseInt(args, "webport", DEFAULT_WEB_PORT, DEFAULT_WEB_PORT);
+    static int parseWebPort() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionInt(CruiseControlSettings.KEY_WEB_PORT);
     }
 
     /**
-     * Parse webapppath from arguments.
+     * Parse webapppath from configuration.
      *
-     * @param args command line arguments.
      * @return the webappdir if specified in the command line arguments, otherwise returns DEFAULT_WEBAPP_DIR.
+     * @throws CruiseControlException
      */
-    String parseWebappPath(Configuration conf) {
-        final File webappPath = conf.getOptionDir(Configuration.KEY_WEBAPP_PATH);
+    String parseWebappPath() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final File webappPath = config.getOptionDir(CruiseControlSettings.KEY_WEBAPP_PATH);
         // TODO: validate is useless, since conf.getOptionDir() already validates the dir
-        validateWebAppPath(webappPath, Configuration.KEY_WEBAPP_PATH);
+        validateWebAppPath(webappPath, CruiseControlSettings.KEY_WEBAPP_PATH);
         return webappPath.getAbsolutePath();
     }
 
     /**
-     * Parse dashboardpath (new webapp) from arguments.
+     * Parse dashboardpath (new webapp) from configuration.
      *
      * @param args command line arguments.
      * @return the directory if specified in the command line arguments, otherwise returns DEFAULT_DASHBOARD_PATH.
+     * @throws CruiseControlException
      */
-    static String parseDashboardPath(Configuration conf) {
-        File dashboardPath = conf.getOptionFile(Configuration.KEY_DASHBOARD);
-        validateWebAppPath(dashboardPath, Configuration.KEY_DASHBOARD);
+    static String parseDashboardPath() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final File dashboardPath = config.getOptionFile(CruiseControlSettings.KEY_DASHBOARD);
+        validateWebAppPath(dashboardPath, CruiseControlSettings.KEY_DASHBOARD);
 
         return dashboardPath.getAbsolutePath();
     }
@@ -317,16 +345,17 @@ public final class Main implements CruiseControlMain {
     }
 
     /**
-     * Parse configfile from arguments and override any existing configfile value from reading serialized Project info.
+     * Parse configfile from configuration and override any existing configfile value from reading serialized
+     * Project info.
      *
-     * @param conf configuration holder
      * @param configFileName existing configfile value read from serialized Project info (DEPRECATED!)
      * @return final value of configFileName; never null
      * @throws CruiseControlException if final configfile value is invalid
      */
-    static String parseConfigFileName(Configuration conf, String configFileName) throws CruiseControlException {
+    static String parseConfigFileName(String configFileName) throws CruiseControlException {
         try {
-            configFileName = conf.getOptionFile(Configuration.KEY_CONFIG_FILE).getAbsolutePath();
+            CruiseControlSettings config = CruiseControlSettings.getInstance();
+            configFileName = config.getOptionFile(CruiseControlSettings.KEY_CONFIG_FILE).getAbsolutePath();
         } catch (IllegalArgumentException e) {
             // This is deprecated behaviour where the given config file is used instad of relaying on
             // Configuration's ability to check that the (default) config file does not exist
@@ -341,74 +370,94 @@ public final class Main implements CruiseControlMain {
         return configFileName;
     }
 
-    static String parseJettyXml(Configuration conf, File ccDist) {
-        if (conf.wasOptionSet(Configuration.KEY_JETTY_XML)) {
-            return conf.getOptionFile(Configuration.KEY_JETTY_XML).getAbsolutePath();
+    static String parseJettyXml(File ccDist) throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        if (config.wasOptionSet(CruiseControlSettings.KEY_JETTY_XML)) {
+            return config.getOptionFile(CruiseControlSettings.KEY_JETTY_XML).getAbsolutePath();
         }
-        return conf.getOptionFile(Configuration.KEY_JETTY_XML, ccDist).getPath();
+        // ccDist not set, try current working directory
+        if (ccDist == null) {
+            ccDist = new File("./");
+        }
+        // Not set. Use default value and search it the ccDist directory
+        final File path = new File(ccDist, config.getOptionRaw(CruiseControlSettings.KEY_JETTY_XML));
+        if (path.exists()) {
+            return path.getAbsolutePath();
+        }
+        throw new CruiseControlException("Unable to find " + config.getOptionRaw(CruiseControlSettings.KEY_JETTY_XML)
+                + "; does not exist in " + path.getAbsolutePath());
     }
 
-    static boolean shouldStartJmxAgent(Configuration conf) {
-        final boolean res = conf.wasOptionSet(Configuration.KEY_JMX_PORT)
-                || conf.wasOptionSet(Configuration.KEY_RMI_PORT)
-                || conf.wasOptionSet(Configuration.KEY_PORT);
+    static boolean shouldStartJmxAgent() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final boolean res;
+        res = config.wasOptionSet(CruiseControlSettings.KEY_JMX_PORT)
+                || config.wasOptionSet(CruiseControlSettings.KEY_RMI_PORT)
+                || config.wasOptionSet(CruiseControlSettings.KEY_PORT);
 
         if (!res) {
-            LOG.info("Skipping start of Jmx agent. None of " + Configuration.KEY_JMX_PORT + "/"
-                    + Configuration.KEY_RMI_PORT + "/" + Configuration.KEY_PORT + " was set");
+            LOG.info("Skipping start of Jmx agent. None of " + CruiseControlSettings.KEY_JMX_PORT + "/"
+                    + CruiseControlSettings.KEY_RMI_PORT + "/" + CruiseControlSettings.KEY_PORT + " was set");
         }
         return res;
     }
 
     /**
-     * If either -webport or -webapppath are specified on the command line, then the embedded Jetty server should be
+     * If either -webport or -webapppath are specified in the configuration, then the embedded Jetty server should be
      * started, otherwise it should not.
      *
-     * @param conf configuration holder
      * @return true if the embedded Jetty server should be started, false if not.
+     * @throws CruiseControlException
      */
-    static boolean shouldStartEmbeddedServer(Configuration conf) {
-        final boolean res = conf.wasOptionSet(Configuration.KEY_WEB_PORT)
-                || conf.wasOptionSet(Configuration.KEY_WEBAPP_PATH);
+    static boolean shouldStartEmbeddedServer() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final boolean res = config.wasOptionSet(CruiseControlSettings.KEY_WEB_PORT)
+                || config.wasOptionSet(CruiseControlSettings.KEY_WEBAPP_PATH);
 
         if (!res) {
-            LOG.info("Skipping start of embedded server. None of " + Configuration.KEY_WEB_PORT + "/"
-                    + Configuration.KEY_WEBAPP_PATH + " was set");
+            LOG.info("Skipping start of embedded server. None of " + CruiseControlSettings.KEY_WEB_PORT + "/"
+                    + CruiseControlSettings.KEY_WEBAPP_PATH + " was set");
         }
         return res;
     }
 
     /**
-     * Parse port number from arguments.
+     * Parse port number from configuration.
      *
-     * @param conf configuration holder
      * @return port number
+     * @throws CruiseControlException
      * @throws IllegalArgumentException if port argument is invalid
      */
-    static int parseJMXHttpPort(Configuration conf) {
-        if (conf.wasOptionSet(Configuration.KEY_JMX_PORT) && conf.wasOptionSet(Configuration.KEY_PORT)) {
+    static int parseJMXHttpPort() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        if (config.wasOptionSet(CruiseControlSettings.KEY_JMX_PORT)
+                && config.wasOptionSet(CruiseControlSettings.KEY_PORT)) {
             throw new IllegalArgumentException(
                     "'jmxport' and 'port' arguments are not valid together. Use" + " 'jmxport' instead.");
-        } else if (conf.wasOptionSet(Configuration.KEY_JMX_PORT)) {
-            return conf.getOptionInt(Configuration.KEY_JMX_PORT);
+        } else if (config.wasOptionSet(CruiseControlSettings.KEY_JMX_PORT)) {
+            return config.getOptionInt(CruiseControlSettings.KEY_JMX_PORT);
         } else {
-            return conf.getOptionInt(Configuration.KEY_PORT);
+            return config.getOptionInt(CruiseControlSettings.KEY_PORT);
         }
     }
 
-    static int parseRmiPort(Configuration conf) {
-        return conf.getOptionInt(Configuration.KEY_RMI_PORT);
+    static int parseRmiPort() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionInt(CruiseControlSettings.KEY_RMI_PORT);
     }
 
     /**
-     * @return absolute path for {@link Configuration.KEY_XLS_PATH} config item
+     * @return absolute path for {@link CruiseControlSettings#KEY_XLS_PATH} config item
+     * @throws CruiseControlException
      */
-    static String parseXslPath(Configuration conf) {
-        return conf.getOptionDir(Configuration.KEY_XLS_PATH).getAbsolutePath();
+    static String parseXslPath() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionDir(CruiseControlSettings.KEY_XLS_PATH).getAbsolutePath();
     }
 
-    static CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL parseEnableJMXAgentUtility(Configuration conf) {
-        final String argval = conf.getOptionStr(Configuration.KEY_JMX_AGENT_UTIL);
+    static CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL parseEnableJMXAgentUtility() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        final String argval = config.getOptionStr(CruiseControlSettings.KEY_JMX_AGENT_UTIL);
         if (argval.isEmpty()) {
             /** default, if no command line arg present. Not an error if load fails. */
             return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE;
@@ -422,29 +471,25 @@ public final class Main implements CruiseControlMain {
     }
 
     /**
-     * Parse password from arguments and override any existing password value from reading serialized Project info.
+     * Parse password from configuration and override any existing password value from reading serialized Project info.
      *
-     * @param args command line arguments
      * @return final value of password.
+     * @throws CruiseControlException
      */
-    static String parsePassword(Configuration conf) {
-        if (conf.wasOptionSet(Configuration.KEY_PASSWORD)) {
-            return conf.getOptionStr(Configuration.KEY_PASSWORD);
-        }
-        return null;
+    static String parsePassword() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionStr(CruiseControlSettings.KEY_PASSWORD);
     }
 
     /**
-     * Parse user from arguments and override any existing user value from reading serialized Project info.
+     * Parse user from configuration and override any existing user value from reading serialized Project info.
      *
-     * @param args command line arguments
      * @return final value of user.
+     * @throws CruiseControlException
      */
-    static String parseUser(Configuration conf) {
-        if (conf.wasOptionSet(Configuration.KEY_USER)) {
-            return conf.getOptionStr(Configuration.KEY_USER);
-        }
-        return null;
+    static String parseUser() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionStr(CruiseControlSettings.KEY_USER);
     }
 
     /**
@@ -468,8 +513,10 @@ public final class Main implements CruiseControlMain {
         LOG.info("CruiseControl Version " + props.getProperty("version") + " " + props.getProperty("version.info"));
     }
 
-    static boolean shouldPrintUsage(Configuration conf) {
-        return (conf.getOptionBool(Configuration.KEY_PRINT_HELP1) || conf.getOptionBool(Configuration.KEY_PRINT_HELP2));
+    static boolean shouldPrintUsage() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return (config.getOptionBool(CruiseControlSettings.KEY_PRINT_HELP1)
+             || config.getOptionBool(CruiseControlSettings.KEY_PRINT_HELP2));
     }
 
     public void stop() {
@@ -477,15 +524,17 @@ public final class Main implements CruiseControlMain {
         agent.stop();
     }
 
-    public static String parseDashboardUrl(Configuration conf) {
-        URL url = conf.getOptionUrl(Configuration.KEY_DASHBOARD_URL);
+    public static String parseDashboardUrl() throws CruiseControlException {
+        CruiseControlSettings config = CruiseControlSettings.getInstance();
+        URL url = config.getOptionUrl(CruiseControlSettings.KEY_DASHBOARD_URL);
 
         // Special composition of some arguments if port has been set but dashboard url
         // has not. Use default dashboard url, but change the default port in it
-        if (conf.wasOptionSet(Configuration.KEY_WEB_PORT) && !conf.wasOptionSet(Configuration.KEY_DASHBOARD_URL)) {
+        if (config.wasOptionSet(CruiseControlSettings.KEY_WEB_PORT)
+                && !config.wasOptionSet(CruiseControlSettings.KEY_DASHBOARD_URL)) {
             try {
-              url = new URL(url.getProtocol(), url.getHost(), conf.getOptionInt(Configuration.KEY_WEB_PORT),
-                      url.getPath());
+              url = new URL(url.getProtocol(), url.getHost(),
+                      config.getOptionInt(CruiseControlSettings.KEY_WEB_PORT), url.getPath());
             } catch (MalformedURLException e) {
               // should not happen ...
             }
@@ -493,34 +542,13 @@ public final class Main implements CruiseControlMain {
         return url.toString();
     }
 
-    public static int parseHttpPostingInterval(Configuration conf) {
-        return conf.getOptionInt(Configuration.KEY_POST_INTERVAL);
+    public static int parseHttpPostingInterval() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionInt(CruiseControlSettings.KEY_POST_INTERVAL);
     }
 
-    public static boolean parseHttpPostingEnabled(Configuration conf) {
-        return conf.getOptionBool(Configuration.KEY_POST_ENABLED);
-    }
-
-    /** Implementation of the {@link LogInterface} passing data to Log4j logger instance */
-    private static class Log4jLog implements LogInterface {
-
-        @Override
-        public void error(Object message) {
-            LOG.error(message); // use the context of Main
-        }
-        @Override
-        public void warn(Object message) {
-            LOG.warn(message);
-        }
-        @Override
-        public void info(Object message) {
-            LOG.info(message);
-        }
-        @Override
-        /** Does nothing, throws LaunchException when called */
-        public void flush(LogInterface log) throws LaunchException {
-            throw new LaunchException("Cannot flush log4j to another log, probably trying to set "
-                    + "log4j when one already set");
-        }
+    public static boolean parseHttpPostingEnabled() throws CruiseControlException {
+        final CruiseControlSettings config = CruiseControlSettings.getInstance();
+        return config.getOptionBool(CruiseControlSettings.KEY_POST_ENABLED);
     }
 }

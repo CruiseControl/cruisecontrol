@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 
 import junit.framework.TestCase;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.config.FileResolver;
 import net.sourceforge.cruisecontrol.config.XmlResolver;
 import net.sourceforge.cruisecontrol.util.Util;
@@ -18,7 +19,10 @@ public class CruiseControlConfigIncludeTest extends TestCase implements Resolver
     private XmlResolver xmlResolver;
     private FileResolver fileResolver;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         final StringBuilder configText = new StringBuilder(200);
         configText.append("<cruisecontrol>");
         configText.append("  <plugin name='foo.project'");
@@ -38,7 +42,9 @@ public class CruiseControlConfigIncludeTest extends TestCase implements Resolver
         fileResolver = new EmptyFileResolver();
     }
 
+    @Override
     protected void tearDown() throws Exception {
+        CruiseControlSettings.delInstance(this);
         rootElement = null;
         includeElement = null;
         xmlResolver = null;

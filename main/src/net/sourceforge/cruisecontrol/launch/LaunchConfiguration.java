@@ -39,8 +39,11 @@ package net.sourceforge.cruisecontrol.launch;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -53,70 +56,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Configuration {
+public class LaunchConfiguration implements Config {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
     public static final String KEY_LIBRARY_DIRS = "lib";
-    public static final String KEY_PROJECTS = "projects";
-    public static final String KEY_ARTIFACTS = "artifacts";
-    public static final String KEY_LOG_DIR = "logdir";
     public static final String KEY_LOG4J_CONFIG = "log4jconfig";
     public static final String KEY_NO_USER_LIB = "nouserlib";
     public static final String KEY_USER_LIB_DIRS = "user_lib";
     public static final String KEY_DIST_DIR = "dist";
     public static final String KEY_PROJ_DIR = "proj";
-    public static final String KEY_PRINT_HELP1 = "help";
-    public static final String KEY_PRINT_HELP2 = "?";
-    public static final String KEY_DEBUG = "debug";
-    public static final String KEY_RMI_PORT = "rmiport";
-    public static final String KEY_PORT = "port"; // deprecated, use keyJMXPort
-    public static final String KEY_JMX_PORT = "jmxport";
-    public static final String KEY_WEB_PORT = "webport";
-    public static final String KEY_WEBAPP_PATH = "webapppath";
-    public static final String KEY_DASHBOARD = "dashboard";
-    public static final String KEY_DASHBOARD_URL = "dashboardurl";
-    public static final String KEY_POST_INTERVAL = "postinterval";
-    public static final String KEY_POST_ENABLED = "postenabled";
-    public static final String KEY_XLS_PATH = "xslpath";
-    public static final String KEY_JETTY_XML = "jettyxml";
-    public static final String KEY_PASSWORD = "password";
-    public static final String KEY_USER = "user";
-    public static final String KEY_CC_NAME = "ccname";
-    public static final String KEY_JMX_AGENT_UTIL = "agentutil";
+
     private static final String KEY_IGNORE = "XXXX";
 
     /** Array of default values for all the option keys */
     private static final Option[] DEFAULT_OPTIONS = {
         new Option(KEY_CONFIG_FILE,    "cruisecontrol.xml",  File.class),
         new Option(KEY_LIBRARY_DIRS,   "lib",                File[].class),
-        new Option(KEY_PROJECTS,       "projects",           File.class),
-        new Option(KEY_ARTIFACTS,      "artifacts",          File.class),
-        new Option(KEY_LOG_DIR,        "logs",               File.class),
         new Option(KEY_LOG4J_CONFIG,    null,                URL.class),
         new Option(KEY_NO_USER_LIB,    "false",              Boolean.class),
         new Option(KEY_USER_LIB_DIRS,   "",                  File[].class),
         new Option(KEY_DIST_DIR,        null,                File.class),
         new Option(KEY_PROJ_DIR,        null,                File.class),
-        new Option(KEY_PRINT_HELP1,    "false",              Boolean.class),
-        new Option(KEY_PRINT_HELP2,    "false",              Boolean.class),
-        new Option(KEY_DEBUG,          "false",              Boolean.class),
-        new Option(KEY_RMI_PORT,       "1099",               Integer.class),
-        new Option(KEY_PORT,           "8000",               Integer.class),
-        new Option(KEY_JMX_PORT,       "8000",               Integer.class),
-        new Option(KEY_WEB_PORT,       "8080",               Integer.class),
-        new Option(KEY_WEBAPP_PATH,    "/webapps/cruisecontrol",
-                                                             File.class),
-        new Option(KEY_DASHBOARD,      "/webapps/dashboard", File.class),
-        new Option(KEY_DASHBOARD_URL,  "http://localhost:8080/dashboard",
-                                                             URL.class),
-        new Option(KEY_XLS_PATH,       ".",                  File.class),
-        new Option(KEY_JETTY_XML,      "etc/jetty.xml",      File.class),
-        new Option(KEY_POST_INTERVAL,  "5",                  Integer.class),
-        new Option(KEY_POST_ENABLED,   "true",               Boolean.class),
-        new Option(KEY_PASSWORD,       "",                   String.class),
-        new Option(KEY_USER,           "",                   String.class),
-        new Option(KEY_CC_NAME,        "",                   String.class),
-        new Option(KEY_JMX_AGENT_UTIL, "",                   String.class),
         // Just placeholders
         new Option(KEY_IGNORE,         "",                   String.class),
         // Alternative to keyConfigFile set in Main.setUpSystemPropertiesForDashboard(). Don't know
@@ -124,406 +84,46 @@ public class Configuration {
         new Option("config_file",      "",                   String.class)
     };
 
-    // String used to separate items in the array-holding options
-    public static final String ITEM_SEPARATOR = File.pathSeparator;
-    // The home directory of the user we run under
+    // The home directory of the user we are running under
     public static final File USER_HOMEDIR = new File(System.getProperty("user.home"));
-
-    // The patters used to mach ${xxx} references
+    // The patters used to match ${xxx} references
     private static final Pattern REF_CHECK = Pattern.compile("[$][{]([^}]+)[}]");
 
-    private static Configuration config = null; // instance
     private final Map<String, Option> options = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
-
     // Must use "special" logger, since the log4j may not be initialized yet
-    private static LogInterface log = new LogBuffer();
+    private final LogInterface log;
+    // The instance which can call #setOption() method
+    private final Object confOwner;
 
     /**
-     * Initializes a singleton instance of ConfigLoader and returns this instance. First it looks for
+     * Constructor initializing an instance of {@link LaunchConfiguration}. First it looks for
      * configuration file specified in argument -configfile. It searches the file system in this order:
      * <ol>
      * <li>If the specified path is absolute and file exists then it uses this file.</li>
      * <li>If the specified path is not absolute but file is directly accessible then it uses this path.</li>
      * <li>If the file can not be found, it tries to locate it in home directory.</li>
      * </ol>
-     * Properties are initialized with default values, config file values, system property values, and
-     * arguments values. If the same property is specified in more places it uses the one with higher
-     * priority. Priorities from the highest:
+     * Configuration options are initialized with default values, config file values, system property values,
+     * and command line arguments values. If the same option is specified in more places it uses the one with
+     * higher priority. Priorities from the highest:
      * <ol>
      * <li>Program arguments</li>
      * <li>System -D properties</li>
      * <li>Configuration file</li>
      * </ol>
      *
-     * @param args the command line arguments to process
-     * @return the initialized instance of {@link Configuration}
-     * @throws LaunchException
-     */
-    public static Configuration getInstance(final String[] args) throws LaunchException {
-        if (config != null) {
-            throw new LaunchException("Config was already initialized. Use getInstance()");
-        }
-        config = new Configuration(args);
-        return config;
-    }
-
-    /**
-     * Returns a singleton instance of ConfigLoader. Use this when ConfigLoader has been already initialized.
-     * If not, initialize it by calling {@link #getInstance(String[])}.
-     *
-     * @return the instance of {@link Configuration} initialized by {@link #getInstance(String[])}.
-     * @throws IllegalStateException when not initialized
-     */
-    public static Configuration getInstance() {
-        if (config == null) {
-            throw new IllegalStateException("You must first initialize ConfigLoader. Use getInstance(args)");
-        }
-        return config;
-    }
-
-    /**
-     * Gets the current interface through which messages are logged. It is designed for the use when
-     * real logger is not defined yet (i.e. not set by #set ], but something is required to be logged.
-     *
-     * It is not recommended for extensive logging! Also, all the messages logged through this logger
-     * appears in the context of this class (and not in the context of the class logging the message).
-     * Redesign your algorithm to use a real logged, if "real" logging is required.
-     */
-    public LogInterface getLogger() {
-        return log;
-    }
-
-    /**
-     * It sets correct instance of "real logger" to log data through. All the data logged into the temporary
-     * logger will be pushed to the logger just being set. Once the real logger is set, it cannot be changed.
-     *
-     * @param logger the real logger to log into
-     * @throws LaunchException
-     */
-    public static void setRealLog(LogInterface logger) throws LaunchException {
-        // Ignore, if the instance is the same
-        if (logger.equals(log)) {
-            log.warn("Trying to set the same logger, ignoring");
-            return;
-        }
-        // Set
-        log.flush(logger);
-        log = logger;
-    }
-
-    /**
-     * Checks, if the given option has been set or it it holds a default value.
-     *
-     * @param key the key to check
-     * @return <code>true</code> if the given option has been set, <code>false</code> if not so get methods
-     *         are going to return the hard-coded default value.
-     */
-    public boolean wasOptionSet(String key) {
-        return options.containsKey(key);
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist
-     */
-    public String getOptionRaw(String key) {
-        return getOption(options, key).val;
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option; gets <code>null</code> if the file does not exist
-     * @throws IllegalArgumentException when the option does not exist or it is not a file
-     */
-    public File getOptionFile(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (File.class.equals(opt.type)) {
-            File file;
-
-            file = findFile(opt.val, new File("./"));
-            // Must be existing file
-            if (file != null && file.isFile()) {
-                return file;
-            }
-            file = findFile(opt.val, USER_HOMEDIR);
-            // Must be existing file
-            if (file != null && file.isFile()) {
-                return file;
-            }
-        }
-        // The option is not file
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @param parent the directory to use as the parent when no absolute path is set in the option
-     * @return the value of the option; gets <code>null</code> if the file does not exist
-     * @throws IllegalArgumentException when the option does not exist or it is not a file
-     */
-    public File getOptionFile(String key, File parent) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (File.class.equals(opt.type)) {
-            final File file = findFile(opt.val, parent);
-            // Must be existing file
-            if (file != null && file.isFile()) {
-                return file;
-            }
-        }
-        // The option is not file
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option; gets <code>null</code> if the directory does not exist
-     * @throws IllegalArgumentException when the option does not exist or it is not a directory
-     */
-    public File getOptionDir(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (File.class.equals(opt.type)) {
-            File dir;
-
-            dir = findFile(opt.val, new File("./"));
-            // Must be existing directory
-            if (dir != null && dir.isDirectory()) {
-                return dir;
-            }
-            dir = findFile(opt.val, USER_HOMEDIR);
-            // Must be existing directory
-            if (dir != null && dir.isDirectory()) {
-                return dir;
-            }
-        }
-        // The option is not file
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @param parent the directory to use as the parent when no absolute path is set in the option
-     * @return the value of the option; gets <code>null</code> if the directory does not exist
-     * @throws IllegalArgumentException when the option does not exist or it is not a directory
-     */
-    public File getOptionDir(String key, File parent) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (File.class.equals(opt.type)) {
-            final File dir = findFile(opt.val, parent);
-            // Must be existing directory
-            if (dir != null && dir.isDirectory()) {
-                return dir;
-            }
-        }
-        // The option is not file
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is no a string
-     */
-    public String getOptionStr(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (String.class.equals(opt.type)) {
-            return opt.val;
-        }
-        // The option is not a boolean
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent string!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is not a boolean value
-     */
-    public boolean getOptionBool(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (Boolean.class.equals(opt.type)) {
-            return Boolean.parseBoolean(opt.val);
-        }
-        // The option is not a boolean
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent boolean value!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is not an integer value
-     */
-    public int getOptionInt(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (Integer.class.equals(opt.type)) {
-            return Integer.parseInt(opt.val);
-        }
-        // The option is not an integer value
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent int value!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is not a valid URL
-     */
-    public URL getOptionUrl(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (URL.class.equals(opt.type)) {
-            try {
-                final URL val = new URL(opt.val);
-                final String protocol = val.getProtocol();
-                final String host = val.getHost();
-
-                // If the URL represents a file, check is as if it is a file
-                if ("file".equalsIgnoreCase(protocol) && (host == null || host.isEmpty())) {
-                    final File file = findFile(val.getPath(), new File("./"));
-                    // Must be existing directory
-                    if (file == null || !file.isFile()) {
-                        throw new IllegalArgumentException(
-                                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
-                    }
-                }
-                // Return the URL
-                return val;
-            } catch (MalformedURLException e) {
-                // Nothing here, exception will be thrown anyway
-            }
-        }
-        // The option is not an integer value
-        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent URL value!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is no a string
-     */
-    public String[] getOptionStrArray(String key) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (String[].class.equals(opt.type)) {
-            return opt.val.split(ITEM_SEPARATOR);
-        }
-        // The option is not a boolean
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent array of string!");
-    }
-
-    /**
-     * @param key the name of the option to search for.
-     * @param parent the directory to use as parent for non-absolute path settings
-     * @return the value of the option
-     * @throws IllegalArgumentException when the option does not exist or it is no a string
-     */
-    public File[] getOptionDirArray(final String key, final File parent) {
-        final Option opt = getOption(options, key);
-        // must be file type
-        if (File[].class.equals(opt.type)) {
-            final String[] vals = opt.val.split(ITEM_SEPARATOR);
-            final File[] files = new File[vals.length];
-
-            for (int i = 0; i < vals.length; i++) {
-                files[i] = findFile(vals[i], parent);
-            }
-            return files;
-        }
-        // The option is not a boolean
-        throw new IllegalArgumentException(
-                "Option '" + key + "' = '" + opt.val + "' does not represent array of files!");
-    }
-
-    /**
-     * Determine and return the directory set under {@link #KEY_DIST_DIR}. This is wrapper around
-     * {@link #getOptionDir(String)} with a bit of cleverness added - if the the directory was not set,
-     * it expects <code>dist/lib/classSource</code> path (if it is valid) and stores the guessed path
-     * as the new option value.
-     *
-     * @param classSource the path to use as backup for determining the dist directory.
-     * @return path to dist directory or <code>null</code> if cannot be found
-     */
-    public File getDistDir(File classSource) {
-        // Check, if the directory was defined in a configuration
-        if (wasOptionSet(KEY_DIST_DIR)) {
-            try {
-                return getOptionDir(KEY_DIST_DIR);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-
-        // If the location was not specified, or it does not exist, try to guess
-        // the location based upon the location of the launcher Jar.
-        if (classSource == null || !classSource.exists()) {
-            return null;
-        }
-        // Parent dir of classSource
-        if (classSource.getParentFile() != null) {
-            classSource = classSource.getParentFile();
-        }
-        // Parent dir of lib/
-        if (classSource.getParentFile() != null) {
-            classSource = classSource.getParentFile();
-            // Store it and return
-            setOption(options, KEY_DIST_DIR, classSource.getAbsolutePath());
-            return classSource;
-        }
-        // If none of the above worked, give up now.
-        return null;
-    }
-    /**
-     * Determine and return the the directory under {@link #KEY_PROJ_DIR}. This is wrapper around
-     * {@link #getOptionDir(String)} with a bit of cleverness added - if the the directory was not
-     * set, it gets projDir path (if it is valid) and stores the guessed path as the new option value.
-     *
-     * @param projDir the directory to use when the option was not set
-     * @return CruiseControl project directory or <code>null</code> if cannot be found
-     */
-    public File getProjDir(File projDir) {
-        // Check, if the directory was defined in a configuration
-        if (wasOptionSet(KEY_PROJ_DIR)) {
-            try {
-                return getOptionDir(KEY_PROJ_DIR);
-            } catch (IllegalArgumentException e) {
-                return null;
-            }
-        }
-        // If the location was not specified, or it does not exist, try to guess
-        // the location based upon the location of the launcher Jar.
-        if (projDir == null || !projDir.exists()) {
-            return null;
-        }
-        try {
-            projDir =  getOptionDir(KEY_PROJ_DIR, projDir);
-        } catch (IllegalArgumentException e) {
-            projDir = projDir.getAbsoluteFile();
-        }
-        // Store it and return
-        setOption(options, KEY_PROJ_DIR, projDir.getAbsolutePath());
-        return projDir;
-    }
-
-    /**
-     * Constructor. It is hidden since the class can only be used as singleton, but protected to be
-     * overridable for test purposes
-     *
      * @param args the array of command line arguments passed to CC launcher
+     * @param log the instance of {@link LogInterface} to write information details through
+     * @param confOwner the object "owning" the configuration, i.e. it is allowed to call
+     *          {@link #setOption(String, String, Object)} method.
      * @throws LaunchException
      */
-    protected Configuration(final String[] args) throws LaunchException {
+    public LaunchConfiguration(final String[] args, LogInterface log, Object confOwner) throws LaunchException {
         final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
+
+        // Fills the final attribs
+        this.log = log;
+        this.confOwner = confOwner;
 
         // Override default values with command-line options. This step is used to get the
         // path to launcher XML (ignore marking of set attributes)
@@ -556,13 +156,342 @@ public class Configuration {
     }
 
     /**
+     * Returns <code>true</code> when the option was explicitly set, <code>false</code> when the default
+     * value will be used.
+     *
+     * @param key the key to check
+     * @return <code>true</code> if the option has been set, <code>false</code> otherwise.
+     */
+    public boolean wasOptionSet(String key) {
+        return options.containsKey(key);
+    }
+
+    /**
+     * The implementation of {@link Config#knowsOption(String)}. In contary to {@link #wasOptionSet(String)},
+     * this method returns <code>true</code> for both options which has been set and for options having a
+     * default value.
+     */
+    @Override
+    public boolean knowsOption(String key) {
+        if (wasOptionSet(key)) {
+            return true;
+        }
+        // Not set (yet), try defaults
+        for (Option o : DEFAULT_OPTIONS) {
+            if (o.key.equals(key)) {
+                return true;
+            }
+        }
+        // Unknown
+        return false;
+    }
+
+    @Override
+    public String getOptionRaw(String key) {
+        return getOption(options, key).val;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public Object getOptionType(String key, Class< ? > type) {
+        Option opt = options.get(key);
+        // Not set
+        if (opt == null) {
+            return null;
+        }
+        // Type check
+        if (opt.type == File.class && type == opt.type) {
+            return getOptionFile(key);
+        }
+        if (opt.type == URL.class && type == opt.type) {
+            return getOptionUrl(key);
+        }
+        if (opt.type == Integer.class && type == opt.type) {
+            return getOptionInt(key);
+        }
+        if (opt.type == Boolean.class && type == opt.type) {
+            return getOptionInt(key);
+        }
+        return opt.val;
+    }
+
+    @Override
+    public void setOption(String key, String val, Object owner) throws IllegalAccessError {
+        if (owner != this.confOwner) {
+            throw new IllegalAccessError("Invalid owner");
+
+        }
+        // Set the option
+        Option opt = getOption(options, key);
+        if (opt.type == File.class) {
+           final File f = new File(val);
+
+            if (!f.exists()) {
+                throw new IllegalStateException("Trying to set not existing path: " + f.getAbsolutePath());
+            }
+            setOption(options, key, f.getAbsolutePath());
+            return;
+        }
+
+        throw new IllegalAccessError("Explicit option setting is not supported for " + key + "=" + val);
+    }
+
+    @Override
+    public Iterable<String> allOptionKeys() {
+        class KeyIter implements Iterable<String>, Iterator<String> {
+            @Override
+            public boolean hasNext() {
+                return cnt < DEFAULT_OPTIONS.length;
+            }
+            @Override
+            public String next() {
+                return DEFAULT_OPTIONS[cnt++].key;
+            }
+            @Override
+            public Iterator<String> iterator() {
+                return this;
+            }
+
+            private int cnt = 0;
+        }
+        // Get the option key iterator
+        return new KeyIter();
+    }
+
+    /**
+     * Gets option value as {@link File}. It checks if the file exists, trying it to find in the current working
+     * directory first and in the user's home directory after that when not set an an absolute path
+     *
+     * @param key the required option
+     * @return {@link File} instance pointing to an existing file
+     * @throws IllegalArgumentException if the option does not represent {@link File}, or the file does not exist
+     */
+    public File getOptionFile(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            File file;
+
+            file = findFile(opt.val, new File("./"));
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+            file = findFile(opt.val, USER_HOMEDIR);
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
+    }
+
+    /**
+     * Gets option value as {@link File}. It checks if the file exists, trying it to find under the given
+     * directory if not absolute or in accessible path.
+     *
+     * @param key the name of the option to search for.
+     * @param parent the directory to use as the parent when no absolute path is set in the option
+     * @return {@link File} instance pointing to an existing file
+     * @throws IllegalArgumentException if the option does not represent {@link File}, or the file does not exist
+     */
+    public File getOptionFile(String key, File parent) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            final File file = findFile(opt.val, parent);
+            // Must be existing file
+            if (file != null && file.isFile()) {
+                return file;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
+    }
+
+    /**
+     * Gets option value as {@link File}. It checks if the directory exists, trying it to find under the current
+     * working directory first and in the user's home directory after that when not set an absolute path..
+     *
+     * @param key the required option
+     * @return {@link File} instance pointing to an existing directory
+     * @throws IllegalArgumentException if the option does not represent {@link File}, or the directory does not
+     *           exist
+     */
+    public File getOptionDir(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            File dir;
+
+            dir = findFile(opt.val, new File("./"));
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+            dir = findFile(opt.val, USER_HOMEDIR);
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
+    }
+
+    /**
+     * Gets option value as {@link File}. It checks if the directory exists, trying it to find under the given
+     * directory if not absolute or in accessible path.
+
+     * @param key the name of the option to search for.
+     * @param parent the directory to use as the parent when no absolute path is set in the option
+     * @return {@link File} instance pointing to an existing file
+     * @throws IllegalArgumentException if the option does not represent {@link File}, or the file does not exist
+     */
+    public File getOptionDir(String key, File parent) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File.class.equals(opt.type)) {
+            final File dir = findFile(opt.val, parent);
+            // Must be existing directory
+            if (dir != null && dir.isDirectory()) {
+                return dir;
+            }
+        }
+        // The option is not file
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent existing directory!");
+    }
+
+    /**
+     * Gets the list of {@link File} values for options allowing to set a list of directories.
+     * It checks if the every of the directories exists, trying it to find under the given
+     * directory if not absolute or in accessible path. Directories not found are logger but
+     * ignored (not returned).
+     *
+     * @param key the required option
+     * @param parent
+     * @return the array of File instances pointing to existing directories
+     * @throws IllegalArgumentException when the option does not represent file/directory list
+     */
+    public File[] getOptionDirArray(final String key, final File parent) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (File[].class.equals(opt.type)) {
+            final String[] vals = opt.val.split(ITEM_SEPARATOR);
+            final List<File> files = new ArrayList<File>(vals.length);
+
+            for (int i = 0; i < vals.length; i++) {
+                final File f = findFile(vals[i], parent);
+                if (f != null) {
+                    files.add(findFile(vals[i], parent));
+                }
+            }
+            return files.toArray(new File[files.size()]);
+        }
+        // The option is not a boolean
+        throw new IllegalArgumentException(
+                "Option '" + key + "' = '" + opt.val + "' does not represent array of files!");
+    }
+
+    /**
+     * Gets option value as {@link String}.
+     * @param key the required option
+     * @return String instance
+     * @throws IllegalArgumentException if the option does not represent {@link String}
+     */
+    public String getOptionStr(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (String.class.equals(opt.type)) {
+            return opt.val;
+        }
+        // The option is not a boolean
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent string!");
+    }
+
+    /**
+     * Gets option value as {@link Boolean}.
+     * @param key the required option
+     * @return Integer instance
+     * @throws IllegalArgumentException if the option does not represent {@link Boolean}
+     */
+    public boolean getOptionBool(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (Boolean.class.equals(opt.type)) {
+            return Boolean.parseBoolean(opt.val);
+        }
+        // The option is not a boolean
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val
+                + "' does not represent boolean value!");
+    }
+
+    /**
+     * Gets option value as {@link Integer}.
+     * @param key the required option
+     * @return Integer instance
+     * @throws IllegalArgumentException if the option does not represent {@link Integer}
+     */
+    public int getOptionInt(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (Integer.class.equals(opt.type)) {
+            return Integer.parseInt(opt.val);
+        }
+        // The option is not an integer value
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent int value!");
+    }
+
+    /**
+     * Gets option value as {@link URL}.
+     * @param key the required option
+     * @return Integer instance
+     * @throws IllegalArgumentException if the option does not represent URL, or the URL is invalid
+     */
+    public URL getOptionUrl(String key) {
+        final Option opt = getOption(options, key);
+        // must be file type
+        if (URL.class.equals(opt.type)) {
+            try {
+                final URL val = new URL(opt.val);
+                final String protocol = val.getProtocol();
+                final String host = val.getHost();
+
+                // If the URL represents a file, check is as if it is a file
+                if ("file".equalsIgnoreCase(protocol) && (host == null || host.isEmpty())) {
+                    final File file = findFile(val.getPath(), new File("./"));
+                    // Must be existing directory
+                    if (file == null || !file.isFile()) {
+                        throw new IllegalArgumentException(
+                                "Option '" + key + "' = '" + opt.val + "' does not represent existing file!");
+                    }
+                }
+                // Return the URL
+                return val;
+            } catch (MalformedURLException e) {
+                // Nothing here, exception will be thrown anyway
+            }
+        }
+        // The option is not an integer value
+        throw new IllegalArgumentException("Option '" + key + "' = '" + opt.val + "' does not represent URL value!");
+    }
+
+    /**
      * Checks, if the given file is accessible and returns absolute path to it. If the file
      * cannot be read (i.e. it is not set by absolute path or not being in the working directory),
-     * the home directory of the user is tried.
+     * it is tried to be found under the given parent directory.
      *
-     * @param fname the name (+ path) to read the file from
+     * @param fname the name (+ path) of file to check
      * @param parent the path to use as parent when the directory is set as relative path and
-     *          cannot be found in the current directory
+     *          cannot be found in the current directory. If the parent is <code>null</code>,
+     *          the current working directory is tried instead.
      * @return absolute path to the file or <code>null</code> if it cannot be found or read
      */
     private File findFile(final String fname, File parent) {
@@ -579,7 +508,8 @@ public class Configuration {
                 parent = new File("./"); // try current working directory ...
             }
 
-            log.warn("Unable to find " + file.getAbsolutePath() + ", trying directory " + parent.getAbsolutePath());
+            log.warn("Unable to find " + file.getAbsolutePath() + ", trying directory "
+                    + new File(parent, fname).getAbsolutePath());
             file = new File(parent, fname);
 
             if (!file.exists()) {
@@ -593,9 +523,11 @@ public class Configuration {
     }
 
     /**
-     * @param opts
-     * @param set
-     * @param xmlPath
+     * Parses the given XML file to fill the configuration options, overriding already defined
+     * values in <code>opts</code> attribute.
+     *
+     * @param opts the map to fill options into
+     * @param xmlPath the file to read
      * @throws LaunchException
      */
     private void parseXmlConfig(final Map<String, Option> opts, final Option xmlPath) throws LaunchException {
@@ -654,7 +586,6 @@ public class Configuration {
             setOption(opts, key, val);
         }
     }
-
     /*
      * Methods for XML manipulation. They have their equivalents in org.jdom2.Element object,
      * but since "external" org.jdompackage is not used by the launcher (to avoid the need to
@@ -686,53 +617,27 @@ public class Configuration {
     }
 
     /**
-     * @param opts
-     * @param args
+     * Parses the command line arguments to fill the configuration options, overriding already defined
+     * values in <code>opts</code> attribute.
+     *
+     * @param opts the map to fill options into
+     * @param args the command line argument to process
      * @throws LaunchException
      */
-    private static void parseArguments(final Map<String, Option> opts, final String[] args) throws LaunchException {
+    private void parseArguments(final Map<String, Option> opts, final String[] args) throws LaunchException {
 
         String key = null;
 
         // Process the command line arguments
         for (final String arg : args) {
-
-            // boolean flags process here
-            if (arg.startsWith("-")) {
-                final String name = arg.substring(1);
-
-                if (KEY_PRINT_HELP1.equals(name)) {
-                    setOption(opts, name, "true");
-                    // continue with further processing since value can follow
-                }
-                if (KEY_PRINT_HELP2.equals(name)) {
-                    setOption(opts, name, "true");
-                }
-                if (KEY_NO_USER_LIB.equals(name)) {
-                    setOption(opts, name, "true");
-                }
-                if (KEY_DEBUG.equals(name)) {
-                    setOption(opts, name, "true");
-                }
-                if (KEY_POST_ENABLED.equals(name)) {
-                    setOption(opts, name, "true");
-                }
-                if (KEY_JMX_AGENT_UTIL.equals(name)) {
-                    setOption(opts, name, "true");
-                }
-
-                // This is little hack for backward compatibility. If the given option appears, set its
-                // current value again to pretend that it was set on the command line; i.e. the call of
-                // "-webport 8585 -dashboardurl" must pretend that the dashboardurl was set as well.
-                if (KEY_DASHBOARD_URL.equals(name)) {
-                    log.warn("Using " + arg + " without value. Try to avoid this!");
-                    setOption(opts, name, getOption(Collections.<String, Option>emptyMap(), name).val);
-                }
-            }
-
             // -key value types
             // store the key
             if (arg.startsWith("-")) {
+                // If there is a key
+                if (key != null) {
+                    setOption(opts, key, Boolean.toString(true));
+                }
+                // Store the current key
                 key = arg.substring(1);
                 continue;
             }
@@ -744,8 +649,11 @@ public class Configuration {
                 key = null;
                 continue;
             }
-            // Unknown option
-            throw new LaunchException("Unknown option " + arg);
+        }
+
+        // Args ends with "-option"
+        if (key != null) {
+            setOption(opts, key, Boolean.toString(true));
         }
     }
 
@@ -759,7 +667,7 @@ public class Configuration {
      *
      * @param opts the map to fill options into
      */
-    private static void parseProperties(final Map<String, Option> opts) {
+    private void parseProperties(final Map<String, Option> opts) {
         final Properties props = System.getProperties();
 
         for (String name : props.stringPropertyNames()) {
@@ -829,13 +737,12 @@ public class Configuration {
     }
 
     /**
-     * Finds the option according top the string key. If the option is not set in the given map,
+     * Finds the option according to the string key. If the option is not set in the given map,
      * the default value will be get.
      *
      * @param opts the map with options to be searched in
      * @param key the name of the option to be found
      * @return value the option; is never <code>null</code>
-     * @throws IllegalArgumentException when the option key is unknown
      */
     private static Option getOption(final Map<String, Option> opts, final String key) {
         return getOption(opts, key, 0);
@@ -865,8 +772,8 @@ public class Configuration {
                 return o;
             }
         }
-        // Option key not found ...
-        throw new IllegalArgumentException("Unknown option '" + key + "'");
+        // Option key not found ... Build the new one
+        return new Option(key, null, String.class);
     }
 
     /**
@@ -888,7 +795,7 @@ public class Configuration {
     }
 
     /**
-     * Single configuration option holder. It is hasheable by {@link #key} value
+     * Single configuration option holder.
      */
     private static final class Option {
         /** Name of the option */
@@ -908,21 +815,6 @@ public class Configuration {
             this.key = opt.key;
             this.val = val;
             this.type = opt.type;
-        }
-
-        /** Compares key to String or Option objects */
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Option) {
-                return key.equals(((Option) obj).key);
-            }
-            return key.equals(obj);
-        }
-
-        /** Gets hash code of the key */
-        @Override
-        public int hashCode() {
-            return this.key.hashCode();
         }
     }
 }

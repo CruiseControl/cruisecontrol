@@ -52,6 +52,7 @@ import net.sourceforge.cruisecontrol.BuildQueue;
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ProjectConfig;
 import net.sourceforge.cruisecontrol.ProjectInterface;
@@ -71,7 +72,10 @@ public class ProjectStatusTest extends TestCase {
     private BuildQueue queue;
     private File proj1Data;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         proj1Data = filesToDelete.add(this);
         IO.write(proj1Data, "");
 
@@ -112,6 +116,7 @@ public class ProjectStatusTest extends TestCase {
         }
     }
 
+    @Override
     protected void tearDown() {
         // Stop all projects
         for (String proj : config.getProjectNames()) {
@@ -120,6 +125,8 @@ public class ProjectStatusTest extends TestCase {
         // Clear the rest
         config = null;
         filesToDelete.delete();
+
+        CruiseControlSettings.delInstance(this);
     }    
     /**
      * Make sure the validate() method works properly.

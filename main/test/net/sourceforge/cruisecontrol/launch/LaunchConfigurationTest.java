@@ -21,10 +21,11 @@ import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 
 
-public class ConfigurationTest extends TestCase {
+public class LaunchConfigurationTest extends TestCase {
 
     private final FilesToDelete filesToDelete = new FilesToDelete();
     private final PropertiesRestorer propRestorer = new PropertiesRestorer();
+    private final LogInterface log = new StdErrLogger();
 
     @Override
     protected void setUp() throws IOException {
@@ -52,176 +53,121 @@ public class ConfigurationTest extends TestCase {
     /** Tests the default values of the options, when not overridden by anything else
      * @throws LaunchException */
     public void testDefaultVals() throws CruiseControlException, LaunchException {
-        final Configuration config = new Configuration4Test(new String[0]);
+        final LaunchConfiguration config = new LaunchConfiguration(new String[0], log, null);
 
-        assertEquals("artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
-        assertEquals("lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
-        assertEquals("logs", config.getOptionRaw(Configuration.KEY_LOG_DIR));
-        assertEquals("projects", config.getOptionRaw(Configuration.KEY_PROJECTS));
-        assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
-        assertEquals(null, config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG)); // no config by default
-        assertEquals(false, config.getOptionBool(Configuration.KEY_NO_USER_LIB));
+        assertEquals("lib", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertEquals("cruisecontrol.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
+        assertEquals(null, config.getOptionRaw(LaunchConfiguration.KEY_LOG4J_CONFIG)); // no config by default
+        assertEquals(false, config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
         // libs
         // distDir
         // homeDir
 
         // None was set
-        assertFalse(config.wasOptionSet(Configuration.KEY_ARTIFACTS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_LIBRARY_DIRS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_LOG_DIR));
-        assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
-        assertFalse(config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG));
-        assertFalse(config.wasOptionSet(Configuration.KEY_NO_USER_LIB));
-
-//        public static final String keyNoUserLib = "nouserlib";
-//        public static final String keyUserLibDirs = "lib";
-//        public static final String keyDistDir = "dist";
-//        public static final String keyHomeDir = "home";
-//        public static final String keyPrintHelp1 = "help";
-//        public static final String keyPrintHelp2 = "?";
-//        public static final String keyDebug = "debug";
-//        public static final String keyRMIPort = "rmiport";
-//        public static final String keyPort = "port"; // deprecated, use keyJMXPort
-//        public static final String keyJMXPort = "jmxport";
-//        public static final String keyWebPort = "webport";
-//        public static final String keyWebAppPath = "webapppath";
-//        public static final String keyDashboard = "dashboard";
-//        public static final String keyDashboardUrl = "dashboardurl";
-//        public static final String keyPostInterval = "postinterval";
-//        public static final String keyPostEnabled = "postenabled";
-//        public static final String keyXLSPath = "xslpath";
-//        public static final String keyJettyXml = "jettyxml";
-//        public static final String keyPassword = "password";
-//        public static final String keyUser = "user";
-//        public static final String keyCCname = "ccname";
-//        public static final String keyJmxAgentUtil = "agentutil";
-
-    }
-
-    /** Tests the case where there is no -XXX option on the command line
-     */
-    public void testNoOptName() {
-        String args[] = {"opt1", "val1", //  options may be invalid since they are not recognised anyway
-                "param", "a value",
-                "lib", "path/1/with/subpath",
-                "path", "path/3/"};
-
-        try {
-            new Configuration4Test(args);
-            fail("Exception has been expected");
-        } catch (LaunchException e) {
-            assertEquals("Unknown option opt1", e.getMessage());
-        }
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_CONFIG_FILE));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_NO_USER_LIB));
     }
 
     /** Tests the overwrite of default values through command line arguments */
     public void testArgumentVals() throws LaunchException, CruiseControlException {
         final String[] args = new String[] {
-                "-"+Configuration.KEY_ARTIFACTS,  "/tmp/artifacts",
-                "-"+Configuration.KEY_LIBRARY_DIRS, "/usr/share/cruisecontrol/lib",
-                "-"+Configuration.KEY_LOG4J_CONFIG,"/var/spool/cruisecontrol/log4j.config",
+                "-artefacts",  "/tmp/artifacts",
+                "-some_bool_option",
+                "-another_bool_option",
+                "-"+LaunchConfiguration.KEY_LIBRARY_DIRS, "/usr/share/cruisecontrol/lib",
+                "-"+LaunchConfiguration.KEY_LOG4J_CONFIG,"/var/spool/cruisecontrol/log4j.config",
                 };
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
 
         // test changed
-        assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
-        assertEquals("/usr/share/cruisecontrol/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
-        assertEquals("/var/spool/cruisecontrol/log4j.config", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
+        assertEquals("/tmp/artifacts", config.getOptionRaw("artefacts"));
+        assertEquals("true", config.getOptionRaw("some_bool_option"));
+        assertEquals("true", config.getOptionRaw("another_bool_option"));
+        assertEquals("/usr/share/cruisecontrol/lib", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertEquals("/var/spool/cruisecontrol/log4j.config", config.getOptionRaw(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Those has been set
-        assertTrue(config.wasOptionSet(Configuration.KEY_ARTIFACTS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LIBRARY_DIRS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Others must remain
-        assertEquals("logs", config.getOptionRaw(Configuration.KEY_LOG_DIR));
-        assertEquals("projects", config.getOptionRaw(Configuration.KEY_PROJECTS));
-        assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        assertEquals("cruisecontrol.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
         // So they have not been set
-        assertFalse(config.wasOptionSet(Configuration.KEY_LOG_DIR));
-        assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     /** Tests the overwrite of default values through properties */
     public void testPropertiesVals() throws LaunchException, CruiseControlException {
-        System.setProperty("cc."+Configuration.KEY_ARTIFACTS,  "/tmp/cruise/artifacts");
-        System.setProperty("cc."+Configuration.KEY_LIBRARY_DIRS, "/usr/share/cruise/lib");
-        System.setProperty("cc."+Configuration.KEY_LOG4J_CONFIG,"/var/spool/cruise/log4j.conf");
+        System.setProperty("cc.artefacts",  "/tmp/cruise/artifacts");
+        System.setProperty("cc."+LaunchConfiguration.KEY_LIBRARY_DIRS, "/usr/share/cruise/lib");
+        System.setProperty("cc."+LaunchConfiguration.KEY_LOG4J_CONFIG,"/var/spool/cruise/log4j.conf");
 
-        final Configuration config = new Configuration4Test(new String[0]);
+        final LaunchConfiguration config = new LaunchConfiguration(new String[0], log, null);
 
         // test changed
-        assertEquals("/tmp/cruise/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
-        assertEquals("/usr/share/cruise/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
-        assertEquals("/var/spool/cruise/log4j.conf", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
+        assertEquals("/tmp/cruise/artifacts", config.getOptionRaw("artefacts"));
+        assertEquals("/usr/share/cruise/lib", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertEquals("/var/spool/cruise/log4j.conf", config.getOptionRaw(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Those has been set
-        assertTrue(config.wasOptionSet(Configuration.KEY_ARTIFACTS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LIBRARY_DIRS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG));
+        assertTrue(config.wasOptionSet("artefacts"));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Others must remain
-        assertEquals("logs", config.getOptionRaw(Configuration.KEY_LOG_DIR));
-        assertEquals("projects", config.getOptionRaw(Configuration.KEY_PROJECTS));
-        assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        assertEquals("cruisecontrol.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
         // So they have not been set
-        assertFalse(config.wasOptionSet(Configuration.KEY_LOG_DIR));
-        assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     public void testConfigVals() throws LaunchException, CruiseControlException, IOException {
         final Map<String, String> opts = new HashMap<String, String>();
-        opts.put(Configuration.KEY_ARTIFACTS,  "/home/CC/artifacts");
-        opts.put(Configuration.KEY_LIBRARY_DIRS, "/usr/share/CC/lib");
-        opts.put(Configuration.KEY_LOG4J_CONFIG,"/var/spool/CC/log4j.conf");
+        opts.put("artefacts",  "/home/CC/artifacts");
+        opts.put(LaunchConfiguration.KEY_LIBRARY_DIRS, "/usr/share/CC/lib");
+        opts.put(LaunchConfiguration.KEY_LOG4J_CONFIG,"/var/spool/CC/log4j.conf");
 
         final Element data = makeLauchXML(opts);
         final File xml = storeXML(data, filesToDelete.add("config.xml"));
-        final Configuration config = new Configuration4Test(
-                new String[] {"-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()});
+        final LaunchConfiguration config = new LaunchConfiguration(
+                new String[] {"-"+LaunchConfiguration.KEY_CONFIG_FILE, xml.getAbsolutePath()}, log, null);
 
         // test changed
-        assertEquals("/home/CC/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
-        assertEquals("/usr/share/CC/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
-        assertEquals("/var/spool/CC/log4j.conf", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
+        assertEquals("/home/CC/artifacts", config.getOptionRaw("artefacts"));
+        assertEquals("/usr/share/CC/lib", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertEquals("/var/spool/CC/log4j.conf", config.getOptionRaw(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Those has been set
-        assertTrue(config.wasOptionSet(Configuration.KEY_ARTIFACTS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LIBRARY_DIRS));
-        assertTrue(config.wasOptionSet(Configuration.KEY_LOG4J_CONFIG));
+        assertTrue(config.wasOptionSet("artefacts"));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertTrue(config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG));
         // Others must remain
-        assertEquals("logs", config.getOptionRaw(Configuration.KEY_LOG_DIR));
-        assertEquals("projects", config.getOptionRaw(Configuration.KEY_PROJECTS));
-        assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE)); // must be default since no other has been specified
+        assertEquals("cruisecontrol.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE)); // must be default since no other has been specified
         // So they have not been set
-        assertFalse(config.wasOptionSet(Configuration.KEY_LOG_DIR));
-        assertFalse(config.wasOptionSet(Configuration.KEY_PROJECTS));
-        assertFalse(config.wasOptionSet(Configuration.KEY_CONFIG_FILE));
+        assertFalse(config.wasOptionSet(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     /** Tests various levels of data overriding */
     public void testConfigOverride() throws LaunchException, CruiseControlException, IOException {
         // Configuration file, the lowest priority
         final Map<String, String> opts = new HashMap<String, String>();
-        opts.put(Configuration.KEY_ARTIFACTS,  "/home/CC/artifacts");
-        opts.put(Configuration.KEY_LIBRARY_DIRS, "/usr/share/CC/lib");
+        opts.put("artefacts",  "/home/CC/artifacts");
+        opts.put(LaunchConfiguration.KEY_LIBRARY_DIRS, "/usr/share/CC/lib");
         final Element data = makeLauchXML(opts);
         final File xml = storeXML(data, filesToDelete.add("config.xml"));
         // Properties - the highest priority, overrides config file
-        System.setProperty("cc."+Configuration.KEY_ARTIFACTS,  "/tmp/cruise/artifacts");
-        System.setProperty("cc."+Configuration.KEY_LIBRARY_DIRS, "/usr/share/cruisecontrol/lib");
+        System.setProperty("cc.artefacts",  "/tmp/cruise/artifacts");
+        System.setProperty("cc."+LaunchConfiguration.KEY_LIBRARY_DIRS, "/usr/share/cruisecontrol/lib");
         // command line options - overrides options from config and from properties
         final String[] args = new String[] {
-                "-"+Configuration.KEY_ARTIFACTS,  "/tmp/artifacts",
-                "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
+                "-artefacts",  "/tmp/artifacts",
+                "-"+LaunchConfiguration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
 
         // Create the object
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
 
         // Single overrides
-        assertEquals("/tmp/artifacts", config.getOptionRaw(Configuration.KEY_ARTIFACTS));
+        assertEquals("/tmp/artifacts", config.getOptionRaw("artefacts"));
         // Multiple appends (higher priority first)
         assertEquals("/usr/share/cruisecontrol/lib" + config.ITEM_SEPARATOR
-                + "/usr/share/CC/lib", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
+                + "/usr/share/CC/lib", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
     }
 
 
@@ -234,18 +180,18 @@ public class ConfigurationTest extends TestCase {
     public void testLaunchSeparate() throws Exception {
         // Configuration file, referenced to an external file
         final Map<String, String> opts = new HashMap<String, String>();
-        opts.put(Configuration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");
+        opts.put(LaunchConfiguration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");
         final Element launch = makeLauchXML(opts);
         final File xml = storeXML(launch, filesToDelete.add("launch.xml"));
         // command line options - overrides options from config
         final String[] args = new String[] {
-                "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
+                "-"+LaunchConfiguration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
 
         // Must return path to the main configuration file!
-        assertEquals("/home/CC/mainconfig.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        assertEquals("/home/CC/mainconfig.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
     /** Tests if correct path to main config file is returned when the <launcher>...</launcher> configuration
      *  is embedded in the main <cruisecontrol>...</cruisecontrol> configuration.
@@ -255,19 +201,19 @@ public class ConfigurationTest extends TestCase {
     public void testLaunchEmbedded() throws Exception {
         // Configuration file, referenced to an external file
         final Map<String, String> opts = new HashMap<String, String>();
-        opts.put(Configuration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");  // should be ignored, even if presented!
+        opts.put(LaunchConfiguration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");  // should be ignored, even if presented!
         final Element launch = makeLauchXML(opts);
         final Element main = makeConfigXML(launch); // embeds <launcher> to the main config
         final File xml = storeXML(main, filesToDelete.add("cruisecontrol.xml"));
         // command line options - overrides options from config
         final String[] args = new String[] {
-                "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
+                "-"+LaunchConfiguration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
 
         // Must return path to the main configuration file!
-        assertEquals(xml.getAbsolutePath(), config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        assertEquals(xml.getAbsolutePath(), config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     /** Tests if default path to main config file is returned when the <launcher>...</launcher>
@@ -282,38 +228,38 @@ public class ConfigurationTest extends TestCase {
         final File xml = storeXML(launch, filesToDelete.add("launch.xml"));
         // command line options - overrides options from config
         final String[] args = new String[] {
-                "-"+Configuration.KEY_CONFIG_FILE, xml.getAbsolutePath()
+                "-"+LaunchConfiguration.KEY_CONFIG_FILE, xml.getAbsolutePath()
                 };
         // Create the object
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
 
         // Must return default path to the main configuration file!
-        assertEquals("cruisecontrol.xml", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        assertEquals("cruisecontrol.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     public void testBoolArgs() throws Exception {
-        Configuration config;
+        LaunchConfiguration config;
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG, "true"});
-        assertTrue(config.getOptionBool(Configuration.KEY_DEBUG));
+        config = new LaunchConfiguration(new String[] {"-" + LaunchConfiguration.KEY_NO_USER_LIB, "true"}, log, null);
+        assertTrue(config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG, "false"});
-        assertFalse(config.getOptionBool(Configuration.KEY_DEBUG));
+        config = new LaunchConfiguration(new String[] {"-" + LaunchConfiguration.KEY_NO_USER_LIB, "false"}, log, null);
+        assertFalse(config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
 
         // No true/false value set, must be true
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_DEBUG});
-        assertTrue(config.getOptionBool(Configuration.KEY_DEBUG));
+        config = new LaunchConfiguration(new String[] {"-" + LaunchConfiguration.KEY_NO_USER_LIB}, log, null);
+        assertTrue(config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
 
         // Default is false to make the previous test meaningful
-        config = new Configuration4Test(new String[] {});
-        assertFalse(config.getOptionBool(Configuration.KEY_DEBUG));
+        config = new LaunchConfiguration(new String[] {}, log, null);
+        assertFalse(config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
     }
 
     /** Tests the case where an option can be set multiple times in the <launcher>...</launcher>
      *  XML element
      */
     public void testMultiOpts() throws Exception {
-        Configuration config;
+        LaunchConfiguration config;
         List<Map.Entry<String,String>> opts = new ArrayList<Map.Entry<String,String>>();
 
         // Fill with values. Paths does not have to exist since Configuration.getOptionRaw() method
@@ -326,11 +272,11 @@ public class ConfigurationTest extends TestCase {
         // Make XML config
         File confFile = storeXML(makeLauchXML(opts), filesToDelete.add("launch", ".conf"));
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, confFile.getAbsolutePath()});
-        assertEquals("path/1" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath/"  + Configuration.ITEM_SEPARATOR +
-                     "path/2" + Configuration.ITEM_SEPARATOR + "path/3/with/even/more" + Configuration.ITEM_SEPARATOR +
+        config = new LaunchConfiguration(new String[] {"-"+LaunchConfiguration.KEY_CONFIG_FILE, confFile.getAbsolutePath()}, log, null);
+        assertEquals("path/1" + LaunchConfiguration.ITEM_SEPARATOR + "path/1/with/subpath/"  + LaunchConfiguration.ITEM_SEPARATOR +
+                     "path/2" + LaunchConfiguration.ITEM_SEPARATOR + "path/3/with/even/more" + LaunchConfiguration.ITEM_SEPARATOR +
                      "path_4_with_nonsence",
-                     config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
+                     config.getOptionRaw(LaunchConfiguration.KEY_USER_LIB_DIRS));
     }
 
     /** Tests the case where an option can be set multiple times on the command line, i.e.
@@ -342,19 +288,19 @@ public class ConfigurationTest extends TestCase {
                 "-user_lib", "path/1/with/subpath",
                 "-user_lib", "path/2/",
                 "-user_lib", "path/3/"};
-        Configuration config;
+        LaunchConfiguration config;
 
-        config = new Configuration4Test(args);
-        assertEquals("path/1/" + Configuration.ITEM_SEPARATOR + "path/1/with/subpath" + Configuration.ITEM_SEPARATOR +
-                     "path/2/" + Configuration.ITEM_SEPARATOR + "path/3/",
-                     config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
+        config = new LaunchConfiguration(args, log, null);
+        assertEquals("path/1/" + LaunchConfiguration.ITEM_SEPARATOR + "path/1/with/subpath" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "path/2/" + LaunchConfiguration.ITEM_SEPARATOR + "path/3/",
+                     config.getOptionRaw(LaunchConfiguration.KEY_USER_LIB_DIRS));
     }
 
     /** Tests the case where an option sequence can be set multiple times - through the command line,
      *  properties and config file. Check the correct priority
      */
     public void testMultiArgSequence() throws Exception {
-        final Configuration config;
+        final LaunchConfiguration config;
 
         // Options in file
         // Paths does not have to exist since Configuration.getOptionRaw() method is used to get the value
@@ -373,14 +319,14 @@ public class ConfigurationTest extends TestCase {
                 "-configfile", confFile.getAbsolutePath()};
 
         // Options in properties
-        System.setProperty("cc.user_lib", "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/");
+        System.setProperty("cc.user_lib", "path/p1/" + LaunchConfiguration.ITEM_SEPARATOR + "path/p2/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        config = new Configuration4Test(args);
-        assertEquals("path/a1/" + Configuration.ITEM_SEPARATOR + "path/a2/" + Configuration.ITEM_SEPARATOR +
-                     "path/a3/" + Configuration.ITEM_SEPARATOR +
-                     "path/p1/" + Configuration.ITEM_SEPARATOR + "path/p2/" + Configuration.ITEM_SEPARATOR +
-                     "path/c1/" + Configuration.ITEM_SEPARATOR + "path/c2/" + Configuration.ITEM_SEPARATOR +
+        config = new LaunchConfiguration(args, log, null);
+        assertEquals("path/a1/" + LaunchConfiguration.ITEM_SEPARATOR + "path/a2/" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "path/a3/" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "path/p1/" + LaunchConfiguration.ITEM_SEPARATOR + "path/p2/" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "path/c1/" + LaunchConfiguration.ITEM_SEPARATOR + "path/c2/" + LaunchConfiguration.ITEM_SEPARATOR +
                      "path/c3/with/even/more",  config.getOptionRaw("user_lib"));
     }
 
@@ -408,13 +354,13 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.user_lib", "${proj}/spec/lib/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        final Configuration config = Configuration.getInstance(args);
-        assertEquals("/project/path/spec/lib/" + Configuration.ITEM_SEPARATOR +
-                     "/project/path/custom/lib1/" + Configuration.ITEM_SEPARATOR +
-                     "/project/path/custom/lib2/", config.getOptionRaw(Configuration.KEY_USER_LIB_DIRS));
-        assertEquals("/install/path/spec/path/lib/", config.getOptionRaw(Configuration.KEY_LIBRARY_DIRS));
-        assertEquals("/install/path/log4j/log4j.cfg", config.getOptionRaw(Configuration.KEY_LOG4J_CONFIG));
-        assertEquals("/project/path/conf/projects.cfg", config.getOptionRaw(Configuration.KEY_CONFIG_FILE));
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
+        assertEquals("/project/path/spec/lib/" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "/project/path/custom/lib1/" + LaunchConfiguration.ITEM_SEPARATOR +
+                     "/project/path/custom/lib2/", config.getOptionRaw(LaunchConfiguration.KEY_USER_LIB_DIRS));
+        assertEquals("/install/path/spec/path/lib/", config.getOptionRaw(LaunchConfiguration.KEY_LIBRARY_DIRS));
+        assertEquals("/install/path/log4j/log4j.cfg", config.getOptionRaw(LaunchConfiguration.KEY_LOG4J_CONFIG));
+        assertEquals("/project/path/conf/projects.cfg", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
     /** Tests the loop detection in references
@@ -432,7 +378,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.proj", "${dist}/project/path/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
         try {
             config.getOptionRaw("dist");
             fail("Loop was not detected!");
@@ -463,7 +409,7 @@ public class ConfigurationTest extends TestCase {
         System.setProperty("cc.logdir", "${proj}/project/path/");
 
         // Test the sequence. It must be command-line first, properties second and the config the last
-        final Configuration config = new Configuration4Test(args);
+        final LaunchConfiguration config = new LaunchConfiguration(args, log, null);
         try {
             config.getOptionRaw("logdir");
             fail("Loop was not detected!");
@@ -477,35 +423,35 @@ public class ConfigurationTest extends TestCase {
         final File inAbsolutePath = filesToDelete.add("file1.xml");
         final File inWorkingDir = filesToDelete.add(new File("file2.txt"));
         final File inHomeDir = filesToDelete.add(new File(new File(System.getProperty("user.home")).getAbsoluteFile(), "file3.txt"));
-        Configuration config;
+        LaunchConfiguration config;
         String file;
 
         // absolute
         file = inAbsolutePath.getAbsolutePath();
         makeLaunchConfig(inAbsolutePath, file);
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new LaunchConfiguration(new String[] {"-"+LaunchConfiguration.KEY_CONFIG_FILE, file}, log, null);
 
         assertTrue(new File(file).isAbsolute());
-        assertEquals(inAbsolutePath, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
+        assertEquals(inAbsolutePath, config.getOptionFile(LaunchConfiguration.KEY_CONFIG_FILE));
 
         // in working dir
         file = inWorkingDir.getName();
         makeLaunchConfig(inWorkingDir, file);
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new LaunchConfiguration(new String[] {"-"+LaunchConfiguration.KEY_CONFIG_FILE, file}, log, null);
 
         assertFalse(new File(file).isAbsolute());
-        assertEquals(inWorkingDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
+        assertEquals(inWorkingDir, config.getOptionFile(LaunchConfiguration.KEY_CONFIG_FILE));
 
         // in home dir
         file = inHomeDir.getName();
         makeLaunchConfig(inHomeDir, file);
 
-        config = new Configuration4Test(new String[] {"-"+Configuration.KEY_CONFIG_FILE, file});
+        config = new LaunchConfiguration(new String[] {"-"+LaunchConfiguration.KEY_CONFIG_FILE, file}, log, null);
 
         assertFalse(new File(file).isAbsolute());
-        assertEquals(inHomeDir, config.getOptionFile(Configuration.KEY_CONFIG_FILE));
+        assertEquals(inHomeDir, config.getOptionFile(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
 
@@ -564,20 +510,9 @@ public class ConfigurationTest extends TestCase {
         Map<String, String> opts = new HashMap<String, String>();
         Element xml;
 
-        opts.put(Configuration.KEY_CONFIG_FILE, cruiseConfigFname);
+        opts.put(LaunchConfiguration.KEY_CONFIG_FILE, cruiseConfigFname);
         xml = makeLauchXML(opts);
 
         storeXML(xml, launchConfigFname);
     }
-
-    /**
-     * Wrapper around {@link Configuration} making it possible to call its constructor
-     */
-    static final class Configuration4Test extends Configuration {
-        /** Just caller of {@link Configuration#Configuration(String[])} */
-        Configuration4Test(final String[] args) throws LaunchException {
-            super(args);
-        }
-    }
-
 }

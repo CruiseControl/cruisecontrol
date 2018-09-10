@@ -6,6 +6,7 @@ import java.io.FileWriter;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.gendoc.PluginInfo;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
@@ -20,7 +21,9 @@ public class CruiseControlControllerJMXAdaptorProjectTest extends TestCase {
 
     private CruiseControlControllerJMXAdaptor adaptor;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
         // Generate a temporary config.xml file.
         File configFile = File.createTempFile("config", ".xml");
         filesToDelete.add(configFile);
@@ -44,7 +47,9 @@ public class CruiseControlControllerJMXAdaptorProjectTest extends TestCase {
         adaptor = new CruiseControlControllerJMXAdaptor(ccController);
     }
 
+    @Override
     protected void tearDown() throws Exception {
+        CruiseControlSettings.delInstance(this);
         filesToDelete.delete();
     }
     

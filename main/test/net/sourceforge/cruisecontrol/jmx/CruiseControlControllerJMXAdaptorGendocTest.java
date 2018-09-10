@@ -6,13 +6,14 @@
  */
 package net.sourceforge.cruisecontrol.jmx;
 
-import java.util.List;
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlConfig;
 import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.gendoc.PluginInfo;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
@@ -25,9 +26,11 @@ public class CruiseControlControllerJMXAdaptorGendocTest extends TestCase {
 
     private CruiseControlControllerJMXAdaptor adaptor;
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
-        
+        CruiseControlSettings.getInstance(this);
+
         // Create a dummy config file.
         File configFile = File.createTempFile("cruisecontrol-test", ".xml");
         filesToDelete.add(configFile);
@@ -41,15 +44,17 @@ public class CruiseControlControllerJMXAdaptorGendocTest extends TestCase {
                 "  </project>" +
                 "</cruisecontrol>");
         writer.close();
-        
+
         CruiseControlController controller = new CruiseControlController();
         controller.setConfigFile(configFile);
-        
+
         adaptor = new CruiseControlControllerJMXAdaptor(controller);
     }
 
+    @Override
     protected void tearDown() throws Exception {
         filesToDelete.delete();
+        CruiseControlSettings.delInstance(this);
     }
 
     public void testGetPluginCSS() {
@@ -57,22 +62,22 @@ public class CruiseControlControllerJMXAdaptorGendocTest extends TestCase {
         assertTrue("CSS not loaded (if this fails in your IDE you simply need to run a command line build first in order to generate gendoc.css)",
                 css.length() > 1000);
     }
-    
+
     public void testGetPluginInfo() {
         for (PluginInfo info : new PluginInfo[] {
                 adaptor.getPluginInfo(null),
                 adaptor.getPluginInfo("proj")}) {
-            
+
             assertEquals("cruisecontrol", info.getName());
             assertEquals(CruiseControlConfig.class.getName(), info.getClassName());
             assertTrue(info.getChildren().size() > 0);
         }
     }
-    
+
     public void testGetAllPlugins() {
         List<PluginInfo> infos = adaptor.getAllPlugins(null);
         assertTrue(infos.size() > 10);
-        
+
         // Make sure the <cruisecontrol> plugin is in there.
         boolean found = false;
         for (PluginInfo info : infos) {
@@ -85,11 +90,11 @@ public class CruiseControlControllerJMXAdaptorGendocTest extends TestCase {
             fail("Expected to find <cruisecontrol> plugin in list");
         }
     }
-    
+
     public void testGetPluginHTML() {
         String html = adaptor.getPluginHTML(null);
         assertTrue("HTML not generated", html.length() > 1000);
         assertTrue(html.trim().startsWith("<!DOCTYPE html PUBLIC"));
     }
-    
+
 }

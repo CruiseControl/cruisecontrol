@@ -39,8 +39,6 @@ package net.sourceforge.cruisecontrol;
 import java.io.File;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -51,15 +49,14 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.BuildQueueTest.TestListener;
 import net.sourceforge.cruisecontrol.builders.ExecBuilder;
 import net.sourceforge.cruisecontrol.labelincrementers.DefaultLabelIncrementer;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestOtherNestedPlugin;
 import net.sourceforge.cruisecontrol.listeners.ListenerTestPlugin;
+import net.sourceforge.cruisecontrol.testutil.TestUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
-import net.sourceforge.cruisecontrol.testutil.TestUtil;
 
 import org.jdom2.Element;
 
@@ -74,7 +71,10 @@ public class CruiseControlConfigTest extends TestCase {
 
     private static final int ONE_SECOND = 1000;
 
+    @Override
     protected void setUp() throws Exception {
+        CruiseControlSettings.getInstance(this);
+
         URL url;
         url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/test.properties");
         propertiesFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
@@ -105,6 +105,7 @@ public class CruiseControlConfigTest extends TestCase {
         config = new CruiseControlConfig(ccElement);
     }
 
+    @Override
     protected void tearDown() {
         filesToDelete.delete();
 
@@ -112,6 +113,8 @@ public class CruiseControlConfigTest extends TestCase {
         configFile = null;
         classpathDirectory = null;
         config = null;
+
+        CruiseControlSettings.delInstance(this);
     }
 
     public void testUseNonDefaultProjects() throws CruiseControlException {
