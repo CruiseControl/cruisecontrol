@@ -133,13 +133,13 @@ public class CruiseControlConfig {
     private final Set<String> customPropertiesPlugins = new HashSet<String>();
 
     public CruiseControlConfig(final Element ccElement) throws CruiseControlException {
-        this(ccElement, new ResolverHolder.DummeResolvers(), null);
+        this(ccElement, new ResolverHolder.DummyResolvers(), null);
     }
 
     public CruiseControlConfig(final Element ccElement, final CruiseControlController controller)
             throws CruiseControlException {
 
-        this(ccElement, new ResolverHolder.DummeResolvers(), controller);
+        this(ccElement, new ResolverHolder.DummyResolvers(), controller);
     }
 
     public CruiseControlConfig(final Element ccElement, final ResolverHolder resolvers)

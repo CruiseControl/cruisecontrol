@@ -281,7 +281,7 @@ public final class InteractiveBuildUtility {
 
         System.out.println("Beginning build...");
         System.out.println();
-        ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper(new ResolverHolder.DummeResolvers());
+        ProjectXMLHelper projectXMLHelper = new ProjectXMLHelper(new ResolverHolder.DummyResolvers());
         PluginXMLHelper pluginXMLHelper = new PluginXMLHelper(projectXMLHelper);
 
         final DistributedMasterBuilder distributedBuildMaster;

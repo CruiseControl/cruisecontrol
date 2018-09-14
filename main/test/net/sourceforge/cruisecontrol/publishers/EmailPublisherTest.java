@@ -129,7 +129,7 @@ public class EmailPublisherTest extends TestCase {
         SAXBuilder builder = new SAXBuilder();
 
         Element emailPublisherElement = builder.build(new StringReader(xml)).getRootElement();
-        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper(new ResolverHolder.DummeResolvers()));
+        PluginXMLHelper xmlHelper = new PluginXMLHelper(new ProjectXMLHelper(new ResolverHolder.DummyResolvers()));
 
         EmailPublisher ePublisher =
             (MockEmailPublisher) xmlHelper.configure(
