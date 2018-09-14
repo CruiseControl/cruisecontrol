@@ -51,6 +51,8 @@ import net.sourceforge.cruisecontrol.util.IO;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.Util;
 
+import org.jdom2.Element;
+
 /**
  * Exec builder test class.
  *
