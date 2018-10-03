@@ -236,8 +236,8 @@ public class AntScriptTest extends TestCase {
                 "org.apache.tools.ant.XmlLogger",
                 "-logfile",
                 "log.xml",
-                "-Dcustom=label.200.1.23",
                 "-Dlabel=200.1.23",
+                "-Dcustom=label.200.1.23",
                 "-buildfile",
                 "buildfile",
                 "target" };
