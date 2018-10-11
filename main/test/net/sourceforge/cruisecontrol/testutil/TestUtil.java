@@ -53,6 +53,7 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 
 import junit.framework.Assert;
+import net.sourceforge.cruisecontrol.util.Commandline;
 import net.sourceforge.cruisecontrol.util.IO;
 
 public final class TestUtil {
@@ -333,6 +334,61 @@ public final class TestUtil {
         Assert.assertEquals(msg + " Arrays have different lengths", refarr.length, testarr.length);
         Assert.assertEquals(msg, Arrays.asList(refarr), Arrays.asList(testarr));
     }
+
+    /**
+     * Checks if the given arguments are in the command line. The assert succeeds when all the expected
+     * arguments are found in the given command line and no other attributes remain.
+     *
+     * @param expect the array of expected command line options and their values, grouped according to their
+     *      expected meaning. For example, having:
+     *      "foo -opt1 val1 -opt2 -opt3 val3.1 val3.2 arg1 arg2"
+     *      command line, it is recommended to pass expected arguments as:
+     *      ["foo", "-opt1 val1", "-opt2", "-opt3 val3.1 val3.2", "arg1", "arg2"]
+     * @param args the array of command line arguments as get e.g. by {@link Commandline#getCommandline()}
+     */
+    public static void assertCommandLine(final String[] expect, final String[] args) {
+        final String o = String.join(" ", args);
+        String a = o;
+
+        // Match all the commands
+        for (final String e : expect) {
+             a = assertCommandLine(e, a, o);
+        }
+        // Must be empty
+        if (!a.trim().isEmpty()) {
+            Assert.fail("No full match. [" + a + "] not matched to anything in [" + o + "]");
+        }
+    }
+    // Helper for #assertCommandLine(String[], String[])
+    private static String assertCommandLine(final String expect, final String args, final String argsFull) {
+        final int beg = args.indexOf(expect);
+        final int end = beg + expect.length();
+
+        // Not found
+        if (beg < 0) {
+            Assert.fail("No [" + expect + "] in [" + argsFull + "]");
+            return args;
+        }
+        // Space must preceed
+        if (beg > 0 && args.charAt(beg -1) != ' ') {
+            Assert.fail("No [" + expect + "] in [" + argsFull + "] as an argument");
+            return args;
+        }
+        // Space must follow
+        if (end < args.length() && args.charAt(end) != ' ') {
+            Assert.fail("No [" + expect + "] in [" + argsFull + "] as an argument");
+            return args;
+        }
+
+        // Remove the part which has been matched
+        if (end < args.length()) {
+            return args.substring(0, beg) + args.substring(end +1);
+        }
+        else {
+            return args.substring(0, beg);
+        }
+    }
+
 
     public static void addProperty(Element e, String name, String value) {
         Element prop = new Element("property");

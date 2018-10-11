@@ -48,10 +48,13 @@ import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.ProgressImplTest;
 import net.sourceforge.cruisecontrol.testutil.TestUtil;
+import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.UtilLocator;
 
 public class AntScriptTest extends TestCase {
+    private static final FilesToDelete files2del = new FilesToDelete();
+    private static File fakeJar = null;
     private AntScript script;
     private AntBuilder unixBuilder;
     private AntBuilder windowsBuilder;
@@ -114,8 +117,9 @@ public class AntScriptTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        script = new AntScript();
+        createFakeProgressLoggerLib();
 
+        script = new AntScript();
 
         properties = new HashMap<String, String>();
         properties.put("label", "200.1.23");
@@ -200,17 +204,12 @@ public class AntScriptTest extends TestCase {
         String[] resultInfo =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -218,59 +217,40 @@ public class AntScriptTest extends TestCase {
         script.setWindows(!IS_WINDOWS);
         script.setSystemClassPath(UNIX_PATH);
 
-        TestUtil.assertArray(
-                "Logger set to INFO",
-                resultInfo,
-            script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(resultInfo, script.buildCommandline().getCommandline());
 
 
         String[] resultLogger =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-logger org.apache.tools.ant.XmlLogger",
+                "-logfile log.xml",
                 "-Dcustom=label.200.1.23",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
 
-        properties.put("custom", "label.${label}"); // Add custom property refering another property
+        properties.put("custom", "label.${label}"); // Add custom property referring another property
 
         script.setBuildProperties(properties);
         script.setUseLogger(USE_LOGGER);
         script.setWindows(!IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
 
-        TestUtil.assertArray(
-                "Using result Logger",
-                resultLogger,
-            script.buildCommandline().getCommandline());
-
-
+        TestUtil.assertCommandLine(resultLogger, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_EmptyLogger() throws CruiseControlException {
         String[] resultInfo =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         properties.put("label", "");
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
@@ -279,55 +259,38 @@ public class AntScriptTest extends TestCase {
         script.setWindows(IS_WINDOWS);
         script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(WINDOWS_PATH);
-        TestUtil.assertArray(
-                "resultInfo",
-                resultInfo,
-            script.buildCommandline().getCommandline());
+
+        TestUtil.assertCommandLine(resultInfo, script.buildCommandline().getCommandline());
 
 
         String[] resultLogger =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
-                "-buildfile",
-                "buildfile",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-logger org.apache.tools.ant.XmlLogger",
+                "-logfile log.xml",
+                "-buildfile buildfile",
                 "target" };
         script.setUseLogger(USE_LOGGER);
         script.setUseScript(!USE_SCRIPT);
         script.setWindows(!IS_WINDOWS);
         script.setSystemClassPath(UNIX_PATH);
-        TestUtil.assertArray(
-                "resultLogger",
-                resultLogger,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultLogger, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_Debug() throws CruiseControlException {
         String[] resultDebug =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-logger org.apache.tools.ant.XmlLogger",
+                "-logfile log.xml",
                 "-debug",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
 
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
@@ -337,29 +300,21 @@ public class AntScriptTest extends TestCase {
         script.setUseScript(!USE_SCRIPT);
         script.setUseDebug(true);
         script.setSystemClassPath(UNIX_PATH);
-        TestUtil.assertArray(
-                "resultDebug",
-                resultDebug,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultDebug, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_DebugWithListener() throws CruiseControlException {
              String[] resultDebug =
              {
                  "java",
-                 "-classpath",
-                 script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                 "org.apache.tools.ant.launch.Launcher",
-                 "-lib",
-                 unixPathWithoutSaxonJars,
-                 "-listener",
-                 "org.apache.tools.ant.XmlLogger",
+                 "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                 "-lib " + unixPathWithoutSaxonJars,
+                 "-listener org.apache.tools.ant.XmlLogger",
                  "-DXmlLogger.file=log.xml",
                  "-debug",
                  "-Dlabel=200.1.23",
-                 "-buildfile",
-                 "buildfile",
+                 "-buildfile buildfile",
                  "target" };
              script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
              script.setBuildProperties(properties);
@@ -368,29 +323,21 @@ public class AntScriptTest extends TestCase {
              script.setUseScript(!USE_SCRIPT);
              script.setSystemClassPath(UNIX_PATH);
              script.setUseDebug(true);
-        TestUtil.assertArray(
-                     "debug with listener",
-                     resultDebug,
-            script.buildCommandline().getCommandline());
+
+             TestUtil.assertCommandLine(resultDebug, script.buildCommandline().getCommandline());
          }
 
     public void testGetCommandLineArgs_Quiet() throws CruiseControlException {
         String[] resultQuiet =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-logger org.apache.tools.ant.XmlLogger",
+                "-logfile log.xml",
                 "-quiet",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -399,30 +346,21 @@ public class AntScriptTest extends TestCase {
         script.setUseScript(!USE_SCRIPT);
         script.setSystemClassPath(UNIX_PATH);
         script.setUseQuiet(true);
-        TestUtil.assertArray(
-                "resultQuiet",
-                resultQuiet,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultQuiet, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_KeepGoingDebug() throws CruiseControlException {
         String[] resultDebug =
             {
                 "java",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-logger",
-                "org.apache.tools.ant.XmlLogger",
-                "-logfile",
-                "log.xml",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-logger org.apache.tools.ant.XmlLogger",
+                "-logfile log.xml",
                 "-keep-going",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
 
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
@@ -432,11 +370,8 @@ public class AntScriptTest extends TestCase {
         script.setUseScript(!USE_SCRIPT);
         script.setKeepGoing(true);
         script.setSystemClassPath(UNIX_PATH);
-        TestUtil.assertArray(
-                "resultDebug",
-                resultDebug,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultDebug, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_MaxMemory() throws CruiseControlException {
@@ -444,17 +379,12 @@ public class AntScriptTest extends TestCase {
             {
                 "java",
                 "-Xmx256m",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         final AntBuilder.JVMArg arg = unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
@@ -467,11 +397,8 @@ public class AntScriptTest extends TestCase {
         script.setUseScript(!USE_SCRIPT);
         script.setArgs(args);
         script.setSystemClassPath(UNIX_PATH);
-        TestUtil.assertArray(
-                "resultWithMaxMemory",
-                resultWithMaxMemory,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultWithMaxMemory, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_MaxMemoryAndProperty() throws CruiseControlException {
@@ -479,18 +406,13 @@ public class AntScriptTest extends TestCase {
             {
                 "java",
                 "-Xmx256m",
-                "-classpath",
-                script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                unixPathWithoutSaxonJars,
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-classpath " + script.getAntLauncherJarLocation(UNIX_PATH, !IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + unixPathWithoutSaxonJars,
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
                 "-Dfoo=bar",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         final AntBuilder.JVMArg arg = unixBuilder.createJVMArg();
         arg.setArg("-Xmx256m");
@@ -510,22 +432,18 @@ public class AntScriptTest extends TestCase {
         script.setArgs(args);
         script.setProperties(props);
         script.setSystemClassPath(UNIX_PATH);
-        TestUtil.assertArray(
-                "resultWithMaxMemoryAndProperty",
-                resultWithMaxMemoryAndProperty,
-            script.buildCommandline().getCommandline());
+
+        TestUtil.assertCommandLine(resultWithMaxMemoryAndProperty, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_BatchFile() throws CruiseControlException {
         String[] resultBatchFile =
             {
                 "ant.bat",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setAntScript("ant.bat");
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
@@ -533,23 +451,18 @@ public class AntScriptTest extends TestCase {
         script.setUseLogger(!USE_LOGGER);
         script.setWindows(IS_WINDOWS);
         script.setUseScript(USE_SCRIPT);
-        TestUtil.assertArray(
-                "resultBatchFile",
-                resultBatchFile,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultBatchFile, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShellScript() throws CruiseControlException {
         String[] resultShellScript =
             {
                 "ant.sh",
-                "-listener",
-                "org.apache.tools.ant.XmlLogger",
+                "-listener org.apache.tools.ant.XmlLogger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setAntScript("ant.sh");
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
@@ -557,28 +470,20 @@ public class AntScriptTest extends TestCase {
         script.setUseLogger(!USE_LOGGER);
         script.setWindows(!IS_WINDOWS);
         script.setUseScript(USE_SCRIPT);
-        TestUtil.assertArray(
-                "resultShellScript",
-                resultShellScript,
-            script.buildCommandline().getCommandline());
 
+        TestUtil.assertCommandLine(resultShellScript, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_AlternateLogger() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                "com.canoo.Logger",
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener com.canoo.Logger",
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName("com.canoo.Logger");
         script.setBuildProperties(properties);
@@ -588,11 +493,7 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
 
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
-
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
 
@@ -654,6 +555,8 @@ public class AntScriptTest extends TestCase {
 
     public void testDefaultProgressLoggerLib() throws Exception {
         try {
+            fakeJar.delete();
+
             AntScript.findDefaultProgressLoggerLib();
             fail("Shouldn't find ProgressLoggerLib in classes tree.");
         } catch (AntScript.ProgressLibLocatorException e) {
@@ -672,57 +575,35 @@ public class AntScriptTest extends TestCase {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntProgressLogger.class.getName(),
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntProgressLogger.class.getName(),
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
-                "-lib",
-                getLib(),
+                "-lib " + getLib(),
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new ProgressImplTest.MockProgress());
 
-        final File fakeJar = createFakeProgressLoggerLib();
-        try {
-            TestUtil.assertArray(
-                    "args",
-                    args,
-                script.buildCommandline().getCommandline());
-        } finally {
-            fakeJar.delete();
-        }
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ProgressLoggerUseLogger() throws Exception {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntProgressXmlLogger.class.getName(),
-                "-listener",
-                AntProgressXmlListener.class.getName(),
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntProgressXmlLogger.class.getName(),
+                "-listener " + AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
-                "-lib",
-                getLib(),
+                "-lib " + getLib(),
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressXmlLogger.class.getName());
         script.setUseLogger(USE_LOGGER);
@@ -730,36 +611,21 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setProgress(new ProgressImplTest.MockProgress());
 
-        final File fakeJar = createFakeProgressLoggerLib();
-        try {
-            TestUtil.assertArray(
-                    "args",
-                    args,
-                script.buildCommandline().getCommandline());
-        } finally {
-            fakeJar.delete();
-        }
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ProgressLoggerLibNotUseLogger() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntProgressLogger.class.getName(),
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntProgressLogger.class.getName(),
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
-                "-lib",
-                "c:\\PathToAntProgressLogger.jar",
+                "-lib c:\\PathToAntProgressLogger.jar",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressLogger.class.getName());
         script.setWindows(IS_WINDOWS);
@@ -767,31 +633,21 @@ public class AntScriptTest extends TestCase {
         script.setProgress(new ProgressImplTest.MockProgress());
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ProgressLoggerLibUseLogger() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntProgressXmlLogger.class.getName(),
-                "-listener",
-                AntProgressXmlListener.class.getName(),
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntProgressXmlLogger.class.getName(),
+                "-listener " + AntProgressXmlListener.class.getName(),
                 "-DXmlLogger.file=log.xml",
-                "-lib",
-                "c:\\PathToAntProgressLogger.jar",
+                "-lib c:\\PathToAntProgressLogger.jar",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntProgressXmlLogger.class.getName());
         script.setUseLogger(USE_LOGGER);
@@ -800,27 +656,19 @@ public class AntScriptTest extends TestCase {
         script.setProgress(new ProgressImplTest.MockProgress());
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShowAntOutputFalse() throws Exception {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -828,32 +676,19 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setShowAntOutput(false);
 
-        final File fakeJar = createFakeProgressLoggerLib();
-        try {
-            TestUtil.assertArray(
-                    "args",
-                    args,
-                script.buildCommandline().getCommandline());
-        } finally {
-            fakeJar.delete();
-        }
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShowAntOutputTrue() throws Exception {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -861,37 +696,21 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setShowAntOutput(true);
 
-        final File fakeJar = createFakeProgressLoggerLib();
-        try {
-            TestUtil.assertArray(
-                    "args",
-                    args,
-                script.buildCommandline().getCommandline());
-        } finally {
-            fakeJar.delete();
-        }
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShowAntOutputUseLogger() throws Exception {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntBuilder.DEFAULT_LOGGER,
-                "-logfile",
-                "log.xml",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-lib",
-                getLib(),
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntBuilder.DEFAULT_LOGGER,
+                "-logfile log.xml",
+                "-listener " + AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib " + getLib(),
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -900,32 +719,19 @@ public class AntScriptTest extends TestCase {
         script.setShowAntOutput(true);
         script.setUseLogger(true);
 
-        final File fakeJar = createFakeProgressLoggerLib();
-        try {
-            TestUtil.assertArray(
-                    "args",
-                    args,
-                script.buildCommandline().getCommandline());
-        } finally {
-            fakeJar.delete();
-        }
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShowAntOutputOverrideLib() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -934,32 +740,21 @@ public class AntScriptTest extends TestCase {
         script.setShowAntOutput(true);
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_ShowAntOutputOverrideLibUseLogger() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-logger",
-                AntBuilder.DEFAULT_LOGGER,
-                "-logfile",
-                "log.xml",
-                "-listener",
-                AntScript.CLASSNAME_DASHBOARD_LISTENER,
-                "-lib",
-                "c:\\PathToAntProgressLogger.jar",
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-logger " + AntBuilder.DEFAULT_LOGGER,
+                "-logfile log.xml",
+                "-listener " + AntScript.CLASSNAME_DASHBOARD_LISTENER,
+                "-lib c:\\PathToAntProgressLogger.jar",
                 "-Dlabel=200.1.23",
-                "-buildfile",
-                "buildfile",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -969,29 +764,20 @@ public class AntScriptTest extends TestCase {
         script.setProgressLoggerLib("c:\\PathToAntProgressLogger.jar");
         script.setUseLogger(true);
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_PropertyFile() throws CruiseControlException {
         String[] args =
             {
                 "java.exe",
-                "-classpath",
-                script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-                "org.apache.tools.ant.launch.Launcher",
-                "-lib",
-                windowsPathWithoutSaxonJars,
-                "-listener",
-                AntBuilder.DEFAULT_LOGGER,
+                "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+                "-lib " + windowsPathWithoutSaxonJars,
+                "-listener " + AntBuilder.DEFAULT_LOGGER,
                 "-DXmlLogger.file=log.xml",
                 "-Dlabel=200.1.23",
-                "-propertyfile",
-                "testPropertyFile.properties",
-                "-buildfile",
-                "buildfile",
+                "-propertyfile testPropertyFile.properties",
+                "-buildfile buildfile",
                 "target" };
         script.setLoggerClassName(AntBuilder.DEFAULT_LOGGER);
         script.setBuildProperties(properties);
@@ -999,30 +785,20 @@ public class AntScriptTest extends TestCase {
         script.setSystemClassPath(WINDOWS_PATH);
         script.setPropertyFile("testPropertyFile.properties");
 
-        TestUtil.assertArray(
-                "args",
-                args,
-            script.buildCommandline().getCommandline());
-
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
     }
 
     public void testGetCommandLineArgs_MultipleLibs() throws CruiseControlException {
         final String[] args =
          {
              "java.exe",
-             "-classpath",
-             script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-             "org.apache.tools.ant.launch.Launcher",
-             "-lib",
-             windowsPathWithoutSaxonJars,
-             "-listener",
-             "com.canoo.Logger",
+             "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+             "-lib " + windowsPathWithoutSaxonJars,
+             "-listener com.canoo.Logger",
              "-DXmlLogger.file=log.xml",
-             "-lib",
-             "c:\\somedir",
+             "-lib c:\\somedir",
              "-Dlabel=200.1.23",
-             "-buildfile",
-             "buildfile",
+             "-buildfile buildfile",
              "target" };
         script.setLoggerClassName("com.canoo.Logger");
         script.setBuildProperties(properties);
@@ -1034,30 +810,20 @@ public class AntScriptTest extends TestCase {
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
 
-
-        TestUtil.assertArray(
-             "args",
-             args,
-             script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
      }
 
     public void testGetCommandLineArgs_MultipleListeners() throws CruiseControlException {
         final String[] args =
          {
              "java.exe",
-             "-classpath",
-             script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS),
-             "org.apache.tools.ant.launch.Launcher",
-             "-lib",
-             windowsPathWithoutSaxonJars,
-             "-listener",
-             "com.canoo.Logger",
+             "-classpath " + script.getAntLauncherJarLocation(WINDOWS_PATH, IS_WINDOWS) + " org.apache.tools.ant.launch.Launcher",
+             "-lib " + windowsPathWithoutSaxonJars,
+             "-listener com.canoo.Logger",
              "-DXmlLogger.file=log.xml",
-             "-listener",
-             "org.apache.tools.ant.listener.Log4jListener",
+             "-listener org.apache.tools.ant.listener.Log4jListener",
              "-Dlabel=200.1.23",
-             "-buildfile",
-             "buildfile",
+             "-buildfile buildfile",
              "target" };
         script.setLoggerClassName("com.canoo.Logger");
         script.setBuildProperties(properties);
@@ -1069,11 +835,7 @@ public class AntScriptTest extends TestCase {
         script.setWindows(IS_WINDOWS);
         script.setSystemClassPath(WINDOWS_PATH);
 
-
-        TestUtil.assertArray(
-             "args",
-             args,
-             script.buildCommandline().getCommandline());
+        TestUtil.assertCommandLine(args, script.buildCommandline().getCommandline());
      }
 
     public void testConsumeLine() throws Exception {
@@ -1098,6 +860,7 @@ public class AntScriptTest extends TestCase {
         assertEquals("valid progress msg", progress.getText());
     }
 
+
     private static String getLib() {
         File ccMain = UtilLocator.getClassSource(AntScript.class);
         final File progressLoggerJar = new File(ccMain, AntScript.LIBNAME_PROGRESS_LOGGER);
@@ -1105,9 +868,12 @@ public class AntScriptTest extends TestCase {
     }
 
     static File createFakeProgressLoggerLib() throws IOException {
-        final File fakeJar = new File(getLib());
+        if (fakeJar != null && fakeJar.exists()) {
+            return fakeJar;
+        }
+
+        fakeJar = files2del.add(new File(getLib()));
         fakeJar.createNewFile();
-        fakeJar.deleteOnExit();
         return fakeJar;
     }
 }
