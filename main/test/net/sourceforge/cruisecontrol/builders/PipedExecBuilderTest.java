@@ -794,17 +794,17 @@ public final class PipedExecBuilderTest extends TestCase {
      *
      * @param builder the instance to set the repipe request into
      * @param ID {@link PipedScript#setID(String)}
-     * @param repipe {@link PipedScript#setRepipe(String)}
+     * @param repipe new ID to pipe from
      */
-    private static void setRepipe(final PipedExecBuilder builder, final String ID, final String repipe) {
+    private static void setRepipe(final PipedExecBuilder builder, final String id, final String repipe) {
         assertNotNull(builder);
-        assertNotNull(ID);
+        assertNotNull(id);
 
-        final PipedScript script;
+        final PipedExecBuilder.Special spec;
 
-        script = builder.createExec();
-        script.setID(ID);
-        script.setRepipe(repipe);
+        spec = builder.createRepipe();
+        spec.setID(id);
+        spec.setPipeFrom(repipe);
     }
     /**
      * Method filling the "disable" attributes of the {@link PipedScript} class.
@@ -816,11 +816,10 @@ public final class PipedExecBuilderTest extends TestCase {
         assertNotNull(builder);
         assertNotNull(id);
 
-        final PipedScript script;
+        final PipedExecBuilder.Special spec;
 
-        script = builder.createExec();
-        script.setID(id);
-        script.setDisable(true);
+        spec = builder.createDisable();
+        spec.setID(id);
     }
 
     /**

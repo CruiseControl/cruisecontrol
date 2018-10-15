@@ -40,6 +40,7 @@ package net.sourceforge.cruisecontrol.builders;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -116,6 +117,9 @@ public class PipedExecBuilder extends Builder {
     /** The list of scripts to execute during build. Once the script is started, it is moved
      *  to the list of started scripts. */
     private final LinkedList<PipedScript> scripts = new LinkedList<PipedScript>();
+    /** The list of scripts to execute during build. Once the script is started, it is moved
+     *  to the list of started scripts. */
+    private final LinkedList<Special> specials = new LinkedList<Special>();
 
     /**
      * Validate the attributes for the plugin.
@@ -124,51 +128,48 @@ public class PipedExecBuilder extends Builder {
     public void validate() throws CruiseControlException {
         super.validate();
 
-        Set<PipedScript> removeIDs = new HashSet<PipedScript>(scripts.size()); /* Scripts to be removed */
-        Set<String> uniqueIDs = new HashSet<String>(scripts.size()); /* To check unique IDs */
-        Set<String> notInLoop = new HashSet<String>(scripts.size()); /* Loops detection */
-
         /*
-         * Resolve repiped scripts
-         */
-        for (PipedScript s : scripts) {
-             if (s.getRepipe() == null) {
-                 continue;
-             }
+         * Resolve specials
+         * Process the repiped. Must be processed prior to disables, since a repiped script may originally
+         * be in a pipe which is going to be disabled  */
+        for (Iterator<PipedScript> siter = scripts.iterator(); siter.hasNext(); ) {
+             final PipedScript s = siter.next();
 
-             /* Repipe required, check setting */
-             ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
-             /* Repipe */
-             for (PipedScript c : scripts) {
-                  if (c != s && s.getID().equals(c.getID())) { // ID is defined, just checked
-                      c.setPipeFrom(s.getRepipe());
+             for (Iterator<Special> xiter = specials.iterator(); xiter.hasNext(); ) {
+                  final Special x = xiter.next();
+                  /* Validate the specials */
+                  x.validate();
+                  /* ID not matching */
+                  if (s.getID().equals(x.getID()) && x.repipe()) {
+                      s.setPipeFrom(x.getPipeFrom());
+                      xiter.remove();
+                      break;
                   }
              }
-             /* Remove the "repipe" script from the sequence */
-             removeIDs.add(s);
         }
-        /*
-         * Remove disabled scripts
-         */
-        for (PipedScript s : scripts) {
-            if (!s.getDisable()) {
-                continue;
-            }
-            /* Disabled - check setting */
-            ValidationHelper.assertIsSet(s.getID(), "ID", s.getClass());
-            /* Remove the command from the sequence */
-            for (PipedScript c : scripts) {
-                 if (s.getID().equals(c.getID())) { // ID is defined, just checked
-                     removeIDs.add(c);
-                     removeIDs.addAll(findPipedSeq(c.getID(), scripts));
-                 }
-            }
-            /* Remove the disabled */
-            removeIDs.add(s);
-        }
-        scripts.removeAll(removeIDs);
-        removeIDs.clear();
+        /* Process the disabled now */
+        for (Iterator<PipedScript> siter = scripts.iterator(); siter.hasNext(); ) {
+             final PipedScript s = siter.next();
 
+             for (Iterator<Special> xiter = specials.iterator(); xiter.hasNext(); ) {
+                  final Special x = xiter.next();
+                  /* ID not matching */
+                  if (s.getID().equals(x.getID()) && x.disable()) {
+                      /* Remove the command from the sequence and all the commands which are piped from it,
+                       * since they would not be started ... */
+                      siter.remove();
+                      scripts.removeAll(findPipedSeq(s.getID(), scripts));
+                      xiter.remove();
+                      /* Re-assign the iterator (checkstyle suppresses in main/checkstyleSuppressions.xml) */
+                      siter = scripts.iterator();
+                      break;
+                  }
+             }
+        }
+        specials.clear();
+
+        Set<String> uniqueIDs = new HashSet<String>(scripts.size()); /* To check unique IDs */
+        Set<String> notInLoop = new HashSet<String>(scripts.size()); /* Loops detection */
         /*
          * Check the (remaining) scripts for basic setting
          */
@@ -423,6 +424,32 @@ public class PipedExecBuilder extends Builder {
         scripts.add(new Script());
         return scripts.getLast();
     } // createExec
+
+    /**
+     * Creates object to disable a particular script in the pipe. The directive is helpful when 
+     * the {@link PipedExecBuilder} is pre-configured as a plugin and its pipes needs to be redefined.
+     * The pipe required to have <code>pipeFrom="ID"</code> defined, giving the new ID to be piped
+     * from.
+     *
+     * @return new {@link Special} object to configure.
+     */
+    @ManualChildName("Repipe")
+    public Special createRepipe() {
+        specials.add(new Special(false, true));
+        return specials.getLast();
+    }
+    /**
+     * Creates object to disable a particular script in the pipe. The directive is helpful when 
+     * the {@link PipedExecBuilder} is pre-configured as a plugin and its pipes needs to be redefined.
+     * Disabling an object will also disable all the objects piped from the object disabled!
+     *
+     * @return new {@link Special} object to configure.
+     */
+    @ManualChildName("Disable")
+    public Special createDisable() {
+        specials.add(new Special(true, false));
+        return specials.getLast();
+    }
 
     /**
      * Adds object into the builder. It is similar to {@link #createExec()}, but allows to add any
@@ -771,6 +798,60 @@ public class PipedExecBuilder extends Builder {
         }
 
     } // PipedExecScript
+
+    /**
+     * Special object used to mark scripts and repiped or disabled.
+     *
+     * @see PipedExecBuilder#createDisable()
+     * @see PipedExecBuilder#createRepipe()
+     */
+    public final class Special {
+
+        /** Value set by {@link #setID(String)} */
+        private String id = null;
+        /** Value set by {@link #setWaitFor(String)} */
+        private String pipeFrom = null;
+
+        /** Value get by {@link #repipe()} */
+        private final boolean repipe;
+        /** Value get by {@link #disable()} */
+        private final boolean disable;
+
+        public Special(boolean disable, boolean repipe) {
+            this.repipe = repipe;
+            this.disable = disable;
+        }
+
+        void validate() throws CruiseControlException {
+            ValidationHelper.assertIsSet(id, "id", repipe ? "repipe" : "disable");
+            ValidationHelper.assertFalse(repipe && disable, "ID " + id + ": cannot repipe and disable concruently");
+            // Must set where to repipe
+            if (repipe) {
+                ValidationHelper.assertIsSet(pipeFrom, "pipefrom", "repipe");
+            }
+        }
+
+        boolean repipe() {
+            return repipe;
+        }
+        boolean disable() {
+            return disable;
+        }
+
+        void setID(String value) {
+            id = value;
+        }
+        String getID() {
+            return id;
+        }
+
+        void setPipeFrom(String value) {
+            pipeFrom = value;
+        }
+        String getPipeFrom() {
+            return pipeFrom;
+        }
+    }
 
     /**
      * Simple class with pool of started threads. It implements {@link #join()} method waiting

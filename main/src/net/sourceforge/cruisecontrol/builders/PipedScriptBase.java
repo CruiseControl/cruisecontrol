@@ -28,10 +28,6 @@ public abstract class PipedScriptBase implements PipedScript {
     private String pipeFrom = null;
     /** The index of script to wait for, set by {@link #setWaitFor(String)}. */
     private String waitFor = null;
-    /** The value set by {@link #setRepipe(String)} */
-    private String repipe = null;
-    /** The value set by {@link #setDisable(boolean)} */
-    private boolean disable = false;
     /** Signalizes wherever the script finished or not */
     private boolean isDone = false;
     /** Keep STDOUT gzipped? Set by {@link #setGZipStdout(boolean)}. */
@@ -146,16 +142,6 @@ public abstract class PipedScriptBase implements PipedScript {
         }
     }
 
-//    /** The implementation of {@link PipedScript#clean()}, it cleans all large-memory consuming
-//     *  objects hold. Do not forget to call this method in the overridden classes!
-//     */
-//    @Override
-//    public void clean() {
-//        // Clean those since they contain the largest amount of memory
-//        this.outputBuffer = null;
-//        this.buildLogParent = null;
-//    }
-
     @Override
     public void setID(String value) {
         this.id = value;
@@ -180,22 +166,7 @@ public abstract class PipedScriptBase implements PipedScript {
     public String getWaitFor() {
         return this.waitFor;
     }
-    @Override
-    public void setRepipe(String repipe) {
-        this.repipe = repipe;
-    }
-    @Override
-    public String getRepipe() {
-        return this.repipe;
-    }
-    @Override
-    public void setDisable(boolean disable) {
-        this.disable = disable;
-    }
-    @Override
-    public boolean getDisable() {
-        return this.disable;
-    }
+
     @Override
     public void setBuildLogParent(Element buildLogParent) {
         this.buildLogParent = buildLogParent;

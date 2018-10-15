@@ -98,48 +98,6 @@ public interface PipedScript extends Runnable {
     String getWaitFor();
 
     /**
-     * Sets the ID of the script ton which an existing (and pre-configured) script is "repiped".
-     * The directive is helpful when the {@link PipedExecBuilder} is preconfigured as plugin (with
-     * exec-childs sequence defined) and it needs to be redefined.
-     *
-     * In case of repiping, neither {@link #setPipeFrom(String)} nor any other options (except
-     * {@link #setID(String)} must be filled!
-     *
-     * @param repipe <code>true</code> if to re-pipe the exec to another source.
-     */
-    void setRepipe(String repipe);
-
-    /**
-     * Gets the value set through {@link #setRepipe(String)}, or <code>null</code> if repipe
-     * was not set in case of "full" script configuration.
-     *
-     * @return <code>true/false</code> or <code>null</code>.
-     */
-    String getRepipe();
-
-    /**
-     * Set <code>true</code> if to disable the given script and ALL SCRIPTS PIPED FROM IT. The
-     * directive is helpful when the {@link PipedExecBuilder} is pre-configured as plugin (with
-     * exec-childs sequence defined) and it needs to be redefined in such a way that some
-     * scripts from the original sequence will not be used anymore.
-     *
-     * In case of disabling, neither {@link #setPipeFrom(String)} nor any other options (except
-     * {@link #setID(String)} must be filled!
-     *
-     * @param disable <code>true</code> if to disable the execution of the script as well as the
-     *        execution of all scripts piped from the script.
-     */
-    void setDisable(boolean disable);
-
-    /**
-     * Gets the value set through {@link #setDisable(boolean)}, or <code>false</code> in case
-     * "full" script configuration.
-     *
-     * @return <code>true/false</code>.
-     */
-    boolean getDisable();
-
-    /**
      * Sets the XML element into which the build log returned by
      * {@link net.sourceforge.cruisecontrol.Builder#build(Map, Progress)}, when called in {@link #run()},
      * is required to be stored.

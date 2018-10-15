@@ -9,6 +9,7 @@
     <suppress checks="AnonInnerLength" files="NantBuilderTest.java"/>
 
     <suppress checks="ModifiedControlVariable" files="Launcher.java"/>
+    <suppress checks="ModifiedControlVariable" files="PipedExecBuilder.java"/>  <!-- iterator re-assignment in for loop within validate() -->
 
     <suppress checks="PackageDeclaration" files="CruiseControl.java"/>
     <suppress checks="PackageDeclaration" files="CruiseControlWithJetty.java"/>
