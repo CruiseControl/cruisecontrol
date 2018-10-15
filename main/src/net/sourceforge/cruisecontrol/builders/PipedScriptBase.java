@@ -98,9 +98,22 @@ public abstract class PipedScriptBase implements PipedScript {
         // No done from now on
         this.isDone = false;
     }
+    /** The implementation of {@link PipedScript#finish()}.
+     */
+    @Override
+    public void finish() throws CruiseControlException {
+        if (!isDone()) {
+            throw new CruiseControlException("Calling finish() when not marked as done??!!");
+        }
+        if (outputBuffer != null) {
+            outputBuffer.close();
+            outputBuffer = null;
+        }
+        inputProvider = null;
+    }
 
     /**
-     * Main build caller. It calls {@link #build()} implementation and then cleares
+     * Main build caller. It calls {@link #build()} implementation and then clears
      * both pipe streams and sets {@link #isDone} to return <code>true</code>
      */
     @Override

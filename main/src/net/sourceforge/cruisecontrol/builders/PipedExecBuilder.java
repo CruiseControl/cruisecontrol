@@ -46,6 +46,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+
 import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
@@ -55,15 +59,11 @@ import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
+import net.sourceforge.cruisecontrol.util.StreamLogger;
 import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
-
-import org.apache.log4j.Logger;
-import org.jdom2.Attribute;
-import org.jdom2.Element;
 
 
 /**
@@ -309,7 +309,7 @@ public class PipedExecBuilder extends Builder {
                 /* Remove the script from 'started' map when finished and not required by any
                  * other script not started yet */
                 if (s.isDone() && null == findPipedFrom(s.getID(), tostart)) {
-                    s.initialize(); // re-init is supposed to clear the inner variables to save memory
+                    s.finish(); // mark as finished (will not be used anymore) to save memory
                     iter.remove();
                 }
             }
@@ -327,7 +327,7 @@ public class PipedExecBuilder extends Builder {
         /* Wait for all scripts to finish (they may be killed by their own timeouts) */
         threads.join();
         for (PipedScript s : scripts) {
-             s.initialize(); // re-init is supposed to clear the inner variables to save memory
+             s.finish(); // Mark as finished
         }
 
         /* Set the time it took to exec command */

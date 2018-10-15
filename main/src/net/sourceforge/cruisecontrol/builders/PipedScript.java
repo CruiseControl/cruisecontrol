@@ -25,7 +25,14 @@ public interface PipedScript extends Runnable {
      * ensured that the method will only be called when {@link #validate()} will pass and
      * before {@link #run()} is called. However, it can be called repeatedly for the object.
      */
-    void initialize();
+    void initialize() throws CruiseControlException;
+    /**
+     * Object finishing method - it must be supposed to clean the script internal variables (to save a
+     * memory) after running. It is ensured that the method will only be called after {@link #run()} is
+     * done (i.e. {@link #isDone()} reports <code>true</code>), and no other method of the script will
+     * be called except the new {@link #initialize()} initialization.
+     */
+    void finish() throws CruiseControlException;
 
     /**
      * The {@link Runnable#run()} method. It is ensured that the method will only be called after
