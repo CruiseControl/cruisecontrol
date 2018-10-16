@@ -1,12 +1,12 @@
 package net.sourceforge.cruisecontrol.util;
 
-import net.sourceforge.cruisecontrol.CruiseControlException;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+
+import net.sourceforge.cruisecontrol.CruiseControlException;
 
 /**
  * Reusable assertion like facility for handling configuration mistakes (e.g. unsupported/required attributes).
@@ -82,6 +82,19 @@ public final class ValidationHelper {
         final String usualChildNodeName, final Class plugin) throws CruiseControlException {
         if (child == null) {
             fail("child <" + usualChildNodeName + "> is required for plugin " + getShortClassName(plugin));
+        }
+    }
+
+    public static void assertFalse(boolean condition, String message, final Class plugin)
+        throws CruiseControlException {
+        if (condition) {
+            fail(message + " for plugin " + getShortClassName(plugin));
+        }
+    }
+    public static void assertTrue(boolean condition, String message, final Class plugin)
+        throws CruiseControlException {
+        if (!condition) {
+            fail(message + " for plugin " + getShortClassName(plugin));
         }
     }
 
