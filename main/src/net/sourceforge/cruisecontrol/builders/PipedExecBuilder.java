@@ -57,6 +57,7 @@ import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.DateUtil;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
@@ -139,7 +140,7 @@ public class PipedExecBuilder extends Builder {
                   final Special x = xiter.next();
                   /* Validate the specials */
                   x.validate();
-                  /* ID not matching */
+                  /* ID matching */
                   if (s.getID().equals(x.getID()) && x.repipe()) {
                       s.setPipeFrom(x.getPipeFrom());
                       xiter.remove();
@@ -153,15 +154,22 @@ public class PipedExecBuilder extends Builder {
 
              for (Iterator<Special> xiter = specials.iterator(); xiter.hasNext(); ) {
                   final Special x = xiter.next();
-                  /* ID not matching */
+                  /* ID matching */
                   if (s.getID().equals(x.getID()) && x.disable()) {
+                      final Collection<PipedScript> todel = findPipedSeq(s.getID(), scripts);
+                      todel.add(s);
                       /* Remove the command from the sequence and all the commands which are piped from it,
                        * since they would not be started ... */
-                      siter.remove();
-                      scripts.removeAll(findPipedSeq(s.getID(), scripts));
-                      xiter.remove();
+                      scripts.removeAll(todel);
+                      /* Remove waitFor from all the scripts affected */
+                      for (PipedScript p : scripts) {
+                          if (findScript(p.getWaitFor(), todel) != null) {
+                              p.setWaitFor(null);
+                          }
+                      }
                       /* Re-assign the iterator (checkstyle suppresses in main/checkstyleSuppressions.xml) */
                       siter = scripts.iterator();
+                      xiter.remove();
                       break;
                   }
              }
@@ -196,12 +204,12 @@ public class PipedExecBuilder extends Builder {
                     "Script " + s.getID() + " cannot wait for itself");
             /* If the script is piped from for another script, the "another: must exist */
             if (s.getPipeFrom() != null) {
-                ValidationHelper.assertTrue(findToStart(s.getPipeFrom(), scripts) != null,
+                ValidationHelper.assertTrue(findScript(s.getPipeFrom(), scripts) != null,
                         "Script " + s.getID() + " is piped from non-existing script " + s.getPipeFrom());
             }
             /* If the script waits for another script, the "another: must exist */
             if (s.getWaitFor() != null) {
-                ValidationHelper.assertTrue(findToStart(s.getWaitFor(), scripts) != null,
+                ValidationHelper.assertTrue(findScript(s.getWaitFor(), scripts) != null,
                         "Script " + s.getID() + " waits for non-existing script " + s.getWaitFor());
             }
             /* ID must be unique */
@@ -248,7 +256,7 @@ public class PipedExecBuilder extends Builder {
                  * - it waits for another script and the script is finished
                  */
                 canStart = s.getPipeFrom() == null;
-                canStart = s.getPipeFrom() != null && findStarted(s.getPipeFrom(), started) != null ? true : canStart;
+                canStart = s.getPipeFrom() != null && findScript(s.getPipeFrom(), started) != null ? true : canStart;
                 canStart = s.getWaitFor()  != null && !isDone(s.getWaitFor(), tostart, started) ? false : canStart;
                 /* If cannot be started, try another one */
                 if (!canStart) {
@@ -267,7 +275,7 @@ public class PipedExecBuilder extends Builder {
                 s.setProgress(progressIn);
                 /* Pipe to the required script */
                 if (s.getPipeFrom() != null) {
-                    s.setInputProvider(findStarted(s.getPipeFrom(), started).getOutputReader());
+                    s.setInputProvider(findScript(s.getPipeFrom(), started).getOutputReader());
                 }
 
                 /* Initialize the script */
@@ -462,23 +470,21 @@ public class PipedExecBuilder extends Builder {
         scripts.add(execobj);
     } // add
 
-
     /**
-     * Finds script with the given ID in the array of scripts not started yet.
+     * Finds script with the given ID in the given array of scripts.
      *
      * @param id the ID of the script to look for.
-     * @param tostart the list of scripts to be started.
+     * @param tostart the list of scripts to be searched.
      * @return the instance of {@link Script} or <code>null</code> if not found.
      */
-    private static PipedScript findToStart(String id, List<PipedScript> tostart) {
+    private static PipedScript findScript(String id, Collection<PipedScript> tostart) {
         for (PipedScript s : tostart) {
             if (id != null && id.equals(s.getID())) {
                 return s;
             }
         }
-        /* No such found */
         return null;
-    } // findToStart
+    }
     /**
      * Checks. if there is a script in {@link #scripts} array which is required to be piped
      * to script with given ID.
@@ -488,31 +494,13 @@ public class PipedExecBuilder extends Builder {
      * @return the instance of {@link Script} or <code>null</code> if not found.
      */
     private static PipedScript findPipedFrom(String id, List<PipedScript> scripts) {
-         for (PipedScript s : scripts) {
+        for (PipedScript s : scripts) {
              if (id != null && id.equals(s.getPipeFrom())) {
                 return s;
              }
-         }
-         /* No such found */
-        return null;
-    } // findPipedFrom
-    /**
-     * Finds script with the given ID among those started (script is 'started' either if it is
-     * running, or it is finished but piped to other script not started yet).
-     *
-     * @param id the ID of the script to look for.
-     * @param started the list of scripts which were started.
-     * @return the instance of {@link Script} or <code>null</code> if not found.
-     */
-    private static PipedScript findStarted(String id, List<PipedScript> started) {
-        for (PipedScript s : started) {
-            if (s.getID().equals(id)) {
-                return s;
-            }
         }
-        /* No such found */
         return null;
-    } // findStarted
+    }
     /**
      * Checks if script with the given ID is finished or not.
      *
@@ -526,11 +514,11 @@ public class PipedExecBuilder extends Builder {
      */
     private static boolean isDone(String id, List<PipedScript> tostart, List<PipedScript> started) {
         /* Not started yet */
-        if (findToStart(id, tostart) != null) {
+        if (findScript(id, tostart) != null) {
             return false;
         }
 
-        PipedScript script = findStarted(id, started);
+        PipedScript script = findScript(id, started);
         /* Not among started => finished */
         if (script == null) {
             return true;
@@ -589,7 +577,7 @@ public class PipedExecBuilder extends Builder {
             }
             /* Cannot detect loop now, check the predecessor */
             checking.add(id);
-            notInLoop = checkLoop(findToStart(pipeFrom, scripts), notInLoop, checking);
+            notInLoop = checkLoop(findScript(pipeFrom, scripts), notInLoop, checking);
         }
         /* If waiting, check recursively as well */
         if (waitFor != null) {
@@ -599,7 +587,7 @@ public class PipedExecBuilder extends Builder {
             }
             /* Cannot detect loop now, ... */
             checking.add(id);
-            notInLoop = checkLoop(findToStart(waitFor, scripts), notInLoop, checking);
+            notInLoop = checkLoop(findScript(waitFor, scripts), notInLoop, checking);
         }
 
         /* Exception was not thrown, not in loop */
@@ -809,7 +797,7 @@ public class PipedExecBuilder extends Builder {
 
         /** Value set by {@link #setID(String)} */
         private String id = null;
-        /** Value set by {@link #setWaitFor(String)} */
+        /** Value set by {@link #setPipeFrom(String)} */
         private String pipeFrom = null;
 
         /** Value get by {@link #repipe()} */
@@ -837,17 +825,30 @@ public class PipedExecBuilder extends Builder {
         boolean disable() {
             return disable;
         }
-
+        /**
+         * Sets the ID of the script
+         * @param value the ID
+         */
+        @Required
         void setID(String value) {
             id = value;
         }
+        /**
+         * @return the value set by {@link #setID(String)}
+         */
         String getID() {
             return id;
         }
-
+        /**
+         * On <repipe />, it sets the new ID of script to be piped from.
+         * @param value the ID of script to read data from
+         */
         void setPipeFrom(String value) {
             pipeFrom = value;
         }
+        /**
+         * @return the value set by {@link #setPipeFrom(String)}
+         */
         String getPipeFrom() {
             return pipeFrom;
         }

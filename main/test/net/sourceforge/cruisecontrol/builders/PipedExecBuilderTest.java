@@ -366,6 +366,30 @@ public final class PipedExecBuilderTest extends TestCase {
     }
 
     /**
+     * Checks the validation when we wait for a script which is going to be disabled later on
+     * <pre>
+     * </pre>
+     * @throws CruiseControlException
+     */
+    public void testValidate_disable() throws CruiseControlException {
+        PipedExecBuilder builder  = new PipedExecBuilder();
+
+        //        builder, ID,   script,               pipeFrom, waitFor
+        addScript(builder, "01", new ExecScriptMock.Cat(), null, null);
+        addScript(builder, "02", new ExecScriptMock.Cat(), "01", null);
+        addScript(builder, "03", new ExecScriptMock.Cat(), "02", null);
+        /* add for new pipe */
+        addScript(builder, "10", new ExecScriptMock.Cat(), "01", null);
+        addScript(builder, "11", new ExecScriptMock.Cat(), "10", "02");
+
+        /* repipe now - define only ID (again) and pipe */
+        setDisble(builder, "02");
+
+        /* Must be validated correctly (waitfor must be removed) */
+        builder.validate();
+    }
+
+    /**
      * Checks the correct function of the commands piping.
      * <b>This is fundamental test, actually!</b> if this test is not passed, the others will
      * fail as well.
@@ -596,6 +620,7 @@ public final class PipedExecBuilderTest extends TestCase {
         addScript(builder, "04", new ExecScriptMock.Cat(),                              "03", null);
         addScript(builder, "05", new ExecScriptMock.Cat(">"+ou1File.getAbsolutePath()), "04", null);
         addScript(builder, "06", new ExecScriptMock.Cat(">"+ou3File.getAbsolutePath()), "03", null);
+        addScript(builder, "X1", new ExecScriptMock.Cat(),                              "04", null);
 
         /* Now define the repipe */
         addScript(builder, "10", new ExecScriptMock.Shuf(),                             "01", null);
@@ -675,7 +700,7 @@ public final class PipedExecBuilderTest extends TestCase {
      * @throws CruiseControlException
      * @throws IOException
      */
-    public void testExec_SetEnvVal() throws IOException, CruiseControlException {
+    public void testExec_setEnvVal() throws IOException, CruiseControlException {
         PipedExecBuilder builder  = new PipedExecBuilder();
         Builder.EnvConf env;
         String envvar = "TESTENV";
