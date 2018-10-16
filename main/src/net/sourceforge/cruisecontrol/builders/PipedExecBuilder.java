@@ -143,6 +143,7 @@ public class PipedExecBuilder extends Builder {
                   /* ID matching */
                   if (s.getID().equals(x.getID()) && x.repipe()) {
                       s.setPipeFrom(x.getPipeFrom());
+                      s.setWaitFor(x.newWaitFor(s.getWaitFor()));
                       xiter.remove();
                       break;
                   }
@@ -799,6 +800,8 @@ public class PipedExecBuilder extends Builder {
         private String id = null;
         /** Value set by {@link #setPipeFrom(String)} */
         private String pipeFrom = null;
+        /** Value set by {@link #setWaitFor(String)} */
+        private String waitfor = null;
 
         /** Value get by {@link #repipe()} */
         private final boolean repipe;
@@ -851,6 +854,34 @@ public class PipedExecBuilder extends Builder {
          */
         String getPipeFrom() {
             return pipeFrom;
+        }
+        /**
+         * On <repipe />, it sets the new ID of script to wait for. If not set, the wait is not not
+         * changed in the original script, but if "-" is set, the original waiting is removed.
+         * @param value the new ID to wait for
+         * @see  #newWaitFor(Sting)
+         */
+        void setWaitFor(String value) {
+            waitfor = value;
+        }
+        /**
+         * @return the value set by {@link #setWaitFor(String)}
+         */
+        String getWaitFor() {
+            return waitfor;
+        }
+        /**
+         * It gets the new Id to wait for as a merge of the value get by {@link #getWaitFor()} and the
+         * value passed as the option. The rules are as follow:
+         * - if {@link #getWaitFor()} returns <code>null</code>, orig is returned (no change of waiting)
+         * - if {@link #getWaitFor()} returns "-", <code>null</code> is returned (do not wait)
+         * - otherwise, the value of {@link #getWaitFor()} is get
+         *
+         * @param orig the original ID to wait for (may be <code>null</code>)
+         * @return the new ID to wait for
+         */
+        String newWaitFor(String orig) {
+            return waitfor == null ? orig : ("-".equals(waitfor) ? null : waitfor);
         }
     }
 
