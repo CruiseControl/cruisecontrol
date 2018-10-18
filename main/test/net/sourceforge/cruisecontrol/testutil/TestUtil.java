@@ -347,7 +347,13 @@ public final class TestUtil {
      * @param args the array of command line arguments as get e.g. by {@link Commandline#getCommandline()}
      */
     public static void assertCommandLine(final String[] expect, final String[] args) {
-        final String o = String.join(" ", args);
+        StringBuffer sb = new StringBuffer(256);
+        for (String a : args) {
+            sb.append(a);
+            sb.append(' ');
+        }
+        final String o = sb.toString();
+      //final String o = String.join(" ", args); Works on java-8 and higher ...
         String a = o;
 
         // Match all the commands
