@@ -37,13 +37,14 @@
 
 package net.sourceforge.cruisecontrol.builders;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -110,16 +111,23 @@ public abstract class ExecScriptMock extends PipedScriptBase {
                 out = getOutputBuffer();
             }
             else {
-                assertNotNull("Output file cannot be NULL", outFile);
+                assertNotNull("ID " + getID() + ": output file cannot be NULL", outFile);
                 out = new BufferedOutputStream(new FileOutputStream(outFile));
             }
 
             /* Read all the inputs */
             for (String s : inpFiles) {
                 /* Prepare input stream */
-                if ("-".equals(s)) {
-                    inp = getInputProvider();
-                    assertNotNull("Input stream required but not set", inp);
+                if (s.startsWith("-")) {
+                    s = s.substring(1);
+                    /* Only "-" was set, use the only pipe ID set */
+                    if (s.isEmpty()) {
+                        assertEquals("ID " + getID() + ": cannot set - as pipe when " + getPipeFrom().length
+                                + " pipes configured", 1, getPipeFrom().length);
+                        s = getPipeFrom()[0];
+                    }
+                    inp = getInputProvider(s);
+                    assertNotNull("ID " + getID() + ": input stream required but not set", inp);
                 }
                 else if ("ZERO".equals(s)) {
                     inp = new InputStream() {
@@ -131,7 +139,7 @@ public abstract class ExecScriptMock extends PipedScriptBase {
                     };
                 }
                 else {
-                    assertNotNull("Input file cannot be NULL", s);
+                    assertNotNull("ID " + getID() + ": input file cannot be NULL", s);
                     inp = new BufferedInputStream(new FileInputStream(s));
                 }
 
@@ -155,10 +163,8 @@ public abstract class ExecScriptMock extends PipedScriptBase {
                 inp.close();
             }
 
-        } catch (FileNotFoundException e) {
-            throw new CruiseControlException(e);
-        } catch (IOException e) {
-            throw new CruiseControlException(e);
+        } catch (Exception e) {
+            fail("ID " + getID() + ": failed in build: " + e.getMessage());
         } finally {
             /* Close all streams */
             try {
@@ -169,7 +175,7 @@ public abstract class ExecScriptMock extends PipedScriptBase {
                     out.close();
                 }
             } catch (IOException e) {
-                throw new CruiseControlException("Failed to close output stream", e);
+                fail("ID " + getID() + ": failed to close output stream: " + e.getMessage());
             }
         }
 
@@ -230,6 +236,9 @@ public abstract class ExecScriptMock extends PipedScriptBase {
             if (s.startsWith("<")) {
                 f.add(s.substring(1));
             }
+            if (s.startsWith("-")) {
+                f.add(s);
+            }
         }
         /* None was set, add the input stream */
         if (f.size() == 0) {
@@ -246,7 +255,7 @@ public abstract class ExecScriptMock extends PipedScriptBase {
      * @return the name of output file (without the leading ">")
      * @throws CruiseControlException when multiple output files are defined
      */
-    private static String outFile(final String files) throws CruiseControlException {
+    private static String outFile(final String files) {
         String f = null;
 
         /* Get these starting with "<" */
@@ -257,7 +266,7 @@ public abstract class ExecScriptMock extends PipedScriptBase {
                     f = s;
                 }
                 else {
-                    throw new CruiseControlException("Multiple output files: " + f + " + " + s);
+                    fail("Multiple output files: " + f + " + " + s);
                 }
             }
         }

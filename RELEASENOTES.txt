@@ -42,6 +42,7 @@ PipedExecBuilder
 * Refactoring of the builder - it now allows to plug 3rd party modules into the pipe. They only must
   implement PipedScript interface (with the optional use of PipedScriptBase helper class)
 * To disable or re-pipe scrit, use new directives <repipe id="ID" pipefrom="new_pipe"/> (instead of <exec id="ID" repipe="new_pipe"/>) and <disable id="ID"/> (instead of <exec id="ID" disable="true"/>). It is more generic.
+* Scripts may wait to more than one script when set by comma-separated values in <exec ... waitfor="A,B,C"/> attribute. The inner implementation also allows to be piped from more than one script, but it is (naturarly) not allowed for <exec ... /> scripts.
 
 EmailPublisher
 ----------------------

@@ -25,9 +25,9 @@ public abstract class PipedScriptBase implements PipedScript {
     /** The ID of the script set by {@link #setID(String)}. */
     private String id = null;
     /** The ID of script to pipe from, set by {@link #setPipeFrom(String)}. */
-    private String pipeFrom = null;
+    private String[] pipeFrom  = new String[0];
     /** The index of script to wait for, set by {@link #setWaitFor(String)}. */
-    private String waitFor = null;
+    private String[] waitFor = new String[0];
     /** Signalizes wherever the script finished or not */
     private boolean isDone = false;
     /** Keep STDOUT gzipped? Set by {@link #setGZipStdout(boolean)}. */
@@ -37,7 +37,7 @@ public abstract class PipedScriptBase implements PipedScript {
     /** The buffer holding the output of the command */
     private transient StdoutBuffer outputBuffer = null;
     /** The stream to read STDIN of the command, set by {@link #setInputProvider(InputStream)}. */
-    private transient InputStream inputProvider = null;
+    private transient InputStream[] inputProvider = null;
     /** The build properties, set by {@link #setBuildProperties(Map)}. */
     private transient Map<String, String> buildProperties = null;
     /** The callback to provide progress updates, set by {@link #setProgress(Progress)}. */
@@ -152,18 +152,21 @@ public abstract class PipedScriptBase implements PipedScript {
     }
     @Override
     public void setPipeFrom(String value) {
-        this.pipeFrom = value;
+        this.pipeFrom = Helpers.split(value);
     }
     @Override
-    public String getPipeFrom() {
+    public String[] getPipeFrom() {
         return this.pipeFrom;
     }
     @Override
     public void setWaitFor(String value) {
-        this.waitFor = value;
+        if (value != null && value.length() == 0) {
+            value = null;
+        }
+        this.waitFor = Helpers.split(value);
     }
     @Override
-    public String getWaitFor() {
+    public String[] getWaitFor() {
         return this.waitFor;
     }
 
@@ -194,15 +197,32 @@ public abstract class PipedScriptBase implements PipedScript {
         return this.progress; // null can be returned
     }
     @Override
-    public void setInputProvider(InputStream stdinProvider) {
-        this.inputProvider = stdinProvider;
+    public void setInputProvider(InputStream stdinProvider, String id) throws CruiseControlException {
+        if (inputProvider == null) {
+            inputProvider = new InputStream[pipeFrom.length];
+        }
+        for (int i = 0; i < Math.min(pipeFrom.length, inputProvider.length); i++) {
+            if (pipeFrom[i].equals(id)) {
+                inputProvider[i] = stdinProvider;
+                return;
+            }
+        }
+        throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
     }
     /**
-     * @return the instance set through {@link #setInputProvider(InputStream)} or <code>null</code>
-     *      if no provider has been set through {@link #setInputProvider(InputStream)}
+     * @return the instance set through {@link #setInputProvider(InputStream, String)} or <code>null</code>
+     *      if no provider has been set through {@link #setInputProvider(InputStream, String)}
      */
-    protected InputStream getInputProvider() {
-        return this.inputProvider; // null can be returned
+    protected InputStream getInputProvider(final String id) throws CruiseControlException {
+        if (inputProvider == null) {
+            return null;
+        }
+        for (int i = 0; i < Math.min(pipeFrom.length, inputProvider.length); i++) {
+            if (pipeFrom[i].equals(id)) {
+                return inputProvider[i];
+            }
+        }
+        throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
     }
     /**
      * @return the stream to which the output of the script is supposed to be written.
@@ -210,20 +230,20 @@ public abstract class PipedScriptBase implements PipedScript {
      */
     protected OutputStream getOutputBuffer() {
         if (this.outputBuffer == null || this.isDone) {
-            throw new NullPointerException("Object has not been initialized");
+            throw new NullPointerException("Script ID '" + this.getID() + "': object has not been initialized");
         }
         return this.outputBuffer; // null can be returned
     }
     @Override
     public InputStream getOutputReader() {
         if (this.outputBuffer == null) {
-            throw new NullPointerException("Object has not been initialized");
+            throw new NullPointerException("Script ID '" + this.getID() + "': object has not been initialized");
         }
 
         try {
             return this.outputBuffer.getContent();
         } catch (IOException e) {
-            log().error("exec ID=" + getID() + ": unable to create STDOUT reader", e);
+            log().error("Script ID '" + this.getID() + "': unable to create STDOUT reader", e);
             return new ByteArrayInputStream(new byte[0]);
         }
     }
