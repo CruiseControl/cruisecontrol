@@ -71,7 +71,7 @@ public abstract class PipedScriptBase implements PipedScript {
      *  @throws CruiseControlException if the validation fails */
     @Override
     public void validate() throws CruiseControlException {
-        ValidationHelper.assertIsSet(id, "ID", getClass());
+        ValidationHelper.assertIsSet(getID(), "ID", getClass());
     }
 
     /** The implementation of {@link PipedScript#initialize()}. Do not forget to call this method
@@ -79,12 +79,12 @@ public abstract class PipedScriptBase implements PipedScript {
      */
     @Override
     public void initialize() {
-        if (Boolean.TRUE.equals(gzip)) {
+        if (Boolean.TRUE.equals(getGZipStdout())) {
             outputBuffer = new GZippedStdoutBuffer(log());
         } else {
             outputBuffer = new StdoutBuffer(log());
         }
-        if (buildProperties == null) {
+        if (getBuildProperties() == null) {
             log().warn("Build properties has not been set, setting empty map");
             buildProperties = new HashMap<String, String>();
         }
@@ -205,11 +205,13 @@ public abstract class PipedScriptBase implements PipedScript {
     @SkipDoc
     @Override
     public void setInputProvider(InputStream stdinProvider, String id) throws CruiseControlException {
+        final String[] pipeFr = getPipeFrom();
+
         if (inputProvider == null) {
-            inputProvider = new InputStream[pipeFrom.length];
+            inputProvider = new InputStream[pipeFr.length];
         }
-        for (int i = 0; i < Math.min(pipeFrom.length, inputProvider.length); i++) {
-            if (pipeFrom[i].equals(id)) {
+        for (int i = 0; i < Math.min(pipeFr.length, inputProvider.length); i++) {
+            if (pipeFr[i].equals(id)) {
                 inputProvider[i] = stdinProvider;
                 return;
             }
@@ -221,11 +223,13 @@ public abstract class PipedScriptBase implements PipedScript {
      *      if no provider has been set through {@link #setInputProvider(InputStream, String)}
      */
     protected InputStream getInputProvider(final String id) throws CruiseControlException {
+        final String[] pipeFr = getPipeFrom();
+
         if (inputProvider == null) {
             return null;
         }
-        for (int i = 0; i < Math.min(pipeFrom.length, inputProvider.length); i++) {
-            if (pipeFrom[i].equals(id)) {
+        for (int i = 0; i < Math.min(pipeFr.length, inputProvider.length); i++) {
+            if (pipeFr[i].equals(id)) {
                 return inputProvider[i];
             }
         }
@@ -237,7 +241,7 @@ public abstract class PipedScriptBase implements PipedScript {
      * @throws NullPointerException when {@link #initialize()} has not been called.
      */
     protected OutputStream getOutputBuffer() {
-        if (this.outputBuffer == null || this.isDone) {
+        if (this.outputBuffer == null || isDone()) {
             throw new NullPointerException("Script ID '" + this.getID() + "': object has not been initialized");
         }
         return this.outputBuffer; // null can be returned
