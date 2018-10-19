@@ -10,11 +10,22 @@ import org.jdom2.Element;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
+import net.sourceforge.cruisecontrol.util.OSEnvironment;
 
 /**
  * The interface which commands run within {@link PipedExecBuilder} must implement.
  */
 public interface PipedScript extends Runnable {
+
+    /**
+     * Embedded interface to merge local environment variable settings with the variable settings of the
+     * parent builder.
+     */
+    interface EnvGlue {
+        /** The same action as implemented by {@link Builder#mergeEnv(OSEnvironment)} */
+        void mergeEnv(final OSEnvironment env);
+    }
+
 
     /**
      * Validates the object (checks if all the attributes are set and correct)
@@ -136,6 +147,13 @@ public interface PipedScript extends Runnable {
      */
     @SkipDoc
     void setInputProvider(final InputStream input, final String id) throws CruiseControlException;
+
+    /**
+     * Sets the environment variables glue object.
+     * @param env the glue object
+     */
+    @SkipDoc
+    void setEnvGlue(final EnvGlue env);
 
     /**
      * Returns the stream from which the output of the script can be read.

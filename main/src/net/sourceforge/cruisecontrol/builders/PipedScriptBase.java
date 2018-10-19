@@ -12,6 +12,7 @@ import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
+import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.GZippedStdoutBuffer;
 import net.sourceforge.cruisecontrol.util.StdoutBuffer;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
@@ -170,10 +171,12 @@ public abstract class PipedScriptBase implements PipedScript {
         return this.waitFor;
     }
 
+    @SkipDoc
     @Override
     public void setBuildLogParent(Element buildLogParent) {
         this.buildLogParent = buildLogParent;
     }
+    @SkipDoc
     @Override
     public void setBuildProperties(Map<String, String> buildProperties) {
         this.buildProperties = buildProperties; /* Shallow copy should be OK */
@@ -185,6 +188,8 @@ public abstract class PipedScriptBase implements PipedScript {
     protected Map<String, String> getBuildProperties() {
         return this.buildProperties;
     }
+
+    @SkipDoc
     @Override
     public void setProgress(Progress progress) {
         this.progress = progress;
@@ -196,6 +201,8 @@ public abstract class PipedScriptBase implements PipedScript {
     protected Progress getProgress() {
         return this.progress; // null can be returned
     }
+
+    @SkipDoc
     @Override
     public void setInputProvider(InputStream stdinProvider, String id) throws CruiseControlException {
         if (inputProvider == null) {
@@ -224,6 +231,7 @@ public abstract class PipedScriptBase implements PipedScript {
         }
         throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
     }
+
     /**
      * @return the stream to which the output of the script is supposed to be written.
      * @throws NullPointerException when {@link #initialize()} has not been called.
@@ -270,5 +278,13 @@ public abstract class PipedScriptBase implements PipedScript {
     @Override
     public Boolean getBinaryOutput() {
         return this.binary;
+    }
+
+    /**
+     * The implementation of {@link PipedScript#setEnvGlue(EnvGlue)}. <b>Does nothing!</b>.
+     */
+    @SkipDoc
+    public void setEnvGlue(final EnvGlue env) {
+        // Does nothing
     }
 }

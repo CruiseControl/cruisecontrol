@@ -765,7 +765,7 @@ public final class PipedExecBuilderTest extends TestCase {
      */
     public void testExec_badCommand() throws IOException, CruiseControlException {
         final PipedExecBuilder builder  = new PipedExecBuilder();
-        final PipedExecBuilder.Script badScript = builder.new Script();
+        final PipedExecScript badScript = new PipedExecScript();
 
         /* Fill script with valid arguments but with non-existing command */
         badScript.setTimeout(300000);
@@ -804,7 +804,7 @@ public final class PipedExecBuilderTest extends TestCase {
      */
     public void testExec_oneScriptPipe() {
         final PipedExecBuilder builder = new PipedExecBuilder();
-        final PipedExecBuilder.Script script = (PipedExecBuilder.Script) builder.createExec();
+        final PipedExecScript script = builder.createExec();
 
         /* Fill script with valid arguments but with non-existing command */
         script.setCommand("echo");  /* The command does not matter */
@@ -817,7 +817,7 @@ public final class PipedExecBuilderTest extends TestCase {
             fail("Script cannot pass validation when piped from multiple streams");
         }
         catch (CruiseControlException e) {
-            assertEquals("ID one: only single piped script is allowed for plugin PipedExecBuilder$Script", e.getMessage());
+            assertEquals("ID one: only single piped script is allowed for plugin PipedExecScript", e.getMessage());
         }
     }
 
@@ -845,7 +845,7 @@ public final class PipedExecBuilderTest extends TestCase {
         // as used in ExecBuilderTest), and we must use PipedExecBuilder.createExec() to create the script
         // with env setting linked. This must be solved in a better way ...
         final ExecBuilder envGetter = ExecBuilderTest.createEnvExec(envExec);
-        final PipedExecBuilder.Script script = (PipedExecBuilder.Script) builder.createExec();
+        final PipedExecScript script = builder.createExec();
         script.setCommand(envGetter.getCommand());
         script.setArgs(envGetter.getArgs());
         script.setID("env");
@@ -889,7 +889,7 @@ public final class PipedExecBuilderTest extends TestCase {
         // as used in ExecBuilderTest), and we copy its parameters to the script build by
         // PipedExecBuilder.createExec()
         final ExecBuilder infExec = ExecBuilderTest.createSleepExec(infScript, 10);
-        final PipedExecBuilder.Script script = (PipedExecBuilder.Script) builder.createExec();
+        final PipedExecScript script = builder.createExec();
         script.setCommand(infExec.getCommand());
         script.setArgs(infExec.getArgs());
         script.setID("01");

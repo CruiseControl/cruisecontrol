@@ -255,7 +255,7 @@ public abstract class Builder extends PerDayScheduleItem implements Comparable {
      *
      * @param env the environment holder
      */
-    protected void mergeEnv(final OSEnvironment env) {
+    public void mergeEnv(final OSEnvironment env) {
         for (final EnvConf e : this.env) {
             e.merge(env);
         }

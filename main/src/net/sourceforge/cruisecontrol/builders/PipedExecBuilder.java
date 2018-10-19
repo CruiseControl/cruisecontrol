@@ -56,15 +56,10 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
-import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.DateUtil;
-import net.sourceforge.cruisecontrol.util.OSEnvironment;
-import net.sourceforge.cruisecontrol.util.StreamConsumer;
-import net.sourceforge.cruisecontrol.util.StreamLogger;
-import net.sourceforge.cruisecontrol.util.StreamPumper;
 import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 
@@ -99,7 +94,7 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  *
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
  */
-public class PipedExecBuilder extends Builder {
+public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
 
     /** Serialization UID */
     private static final long serialVersionUID = -6632406315466647230L;
@@ -224,6 +219,9 @@ public class PipedExecBuilder extends Builder {
                 ValidationHelper.assertTrue(findScript(w, scripts) != null,
                         "Script " + s.getID() + " waits for non-existing script " + w);
             }
+
+            /* Set the environment glue */
+            s.setEnvGlue(this);
         }
         auxIDs.clear();
 
@@ -420,7 +418,7 @@ public class PipedExecBuilder extends Builder {
      * Should the STDOUT content of the scripts be kept gzipped within the builder? It may save
      * some memory required by CruiseControl in cases that data piped through scripts are huge, but
      * compressible. Can be overridden by the configuration of individual scripts, see
-     * {@link Script#setGZipStdout(boolean)}.
+     * {@link PipedScript#setGZipStdout(boolean)}.
      *
      * @param gzip <code>true</code> if STDOUT is required to be stored gzipped, <code>false</code>
      *   if raw STDOUT contents are kept.
@@ -433,7 +431,7 @@ public class PipedExecBuilder extends Builder {
      * Is the STDOUT content of the scripts in binary form? If <code>true</code>, the STDOUT is not
      * logged even in debug mode. If <code>false</code>, the STDOUT of the scripts will be logged in
      * debug mode. Can be overridden by the configuration of individual scripts, see
-     * {@link Script#setBinaryStdout(boolean)}.
+     * {@link PipedScript#setBinaryOutput(boolean)}.
      *
      * @param binary <code>true</code> if STDOUT is in binary form, <code>false</code>
      *   if STDOUT is text.
@@ -447,13 +445,14 @@ public class PipedExecBuilder extends Builder {
      * object which is expected to be set by CC. The attribute is not required; if not
      * specified, nothing will be executed.
      *
-     * @return new {@link Script} object to configure.
+     * @return new {@link PipedExecScript} object to configure.
      */
     @Cardinality(min = 0, max = -1)
     @ManualChildName("ExecBuilder")
-    public PipedScript createExec() {
-        scripts.add(new Script());
-        return scripts.getLast();
+    public PipedExecScript createExec() {
+        final PipedExecScript exec = new PipedExecScript();
+        scripts.add(exec);
+        return  exec;
     } // createExec
 
     /**
@@ -633,13 +632,6 @@ public class PipedExecBuilder extends Builder {
         return false;
     }
 
-    /** Wrapper for {@link #mergeEnv(OSEnvironment)}, just calling the wrapped method. It
-     * is required for {@link #mergeEnv(OSEnvironment)} be callable from by Script class,
-     * since it contains the method with the same name */
-    private void mergeEnv_wrap(final OSEnvironment env) {
-        super.mergeEnv(env);
-    }
-
     /**
      * Gets the list of IDs of the scripts known (either registered when called prior to {@link #validate()},
      * or ready to be executed when called after). The method is just for testing purposes.
@@ -653,166 +645,8 @@ public class PipedExecBuilder extends Builder {
         return ids;
     }
 
+
     /* ----------- NESTED CLASSES ----------- */
-
-    /**
-     * Class for the configuration script to execute. It has the same arguments as
-     * {@link ExecBuilder}, plus the ID of script, the ID of script from which it is supposed to
-     * read data through STDIN (optional), and the ID of script which the current should wait
-     * for.
-     *
-     * The class is the implementation of {@link Runnable} interface, as several scripts piped
-     * one with another are started simultaneously.
-     */
-    @Description("Standard exec builder extended with attributes required for a builder to be piped "
-            + "into the pipedexec builder. ")
-    public final class Script extends PipedScriptBase implements PipedScript {
-
-        /**
-         * Override of {@link ScriptRunner} piping STDIN and STDOUT from/to other scripts
-         * @author dtihelka
-         */
-        private final class PipedScriptRunner extends ScriptRunner {
-            /**
-             * Disable script consumption of STDOUT - although errors cannot be found in it now,
-             * it is expected that errors are printed to STDERR when a sequence of piped
-             * commands is started. Also, STDOUT of the script may contain binary data - it is
-             * generally bad idea pass through text-expected classes.
-             */
-            @Override
-            protected boolean letConsumeOut() {
-                return false;
-            }
-
-            /**
-             * Returns the consumer printing STDOUT of the script on
-             * {@link org.apache.log4j.Level#DEBUG} level.
-             */
-            @Override
-            protected StreamConsumer getDirectOutLogger() {
-                /* Log only non-binary output */
-                if (Boolean.FALSE.equals(getBinaryOutput())) {
-                    return StreamLogger.getDebugLogger(ScriptRunner.LOG);
-                }
-                /* Disable logging otherwise */
-                return new StreamConsumer() {
-                    @Override
-                    public void consumeLine(final String arg0) { /* Ignore data */ }
-                };
-            }
-
-            /**
-             * Assign STDOUT of the process directly to the StdoutBuffer (as byte stream) in
-             * addition to the (text) consumer given.
-             */
-            @Override
-            protected StreamPumper getOutPumper(final Process p, final StreamConsumer consumer) {
-                return new StreamPumper(p.getInputStream(), getBinaryOutput().booleanValue(), consumer,
-                        getOutputBuffer());
-            } // getPumperOut
-        }
-
-        /** The override of {@link ExecBuilder} class customising {@link ExecBuilder#createScriptRunner()}
-         *  and {@link Builder#mergeEnv(OSEnvironment)} methods; see their description for further
-         *  details. */
-        private final ExecBuilder builder = new ExecBuilder() {
-            /** Returns script runner which does not allow to consume STDOUT, and it logs STDOUT in
-             *  debug mode only (the output is passed to the piped script, and it may be huge, or it may
-             *  contain binary data ...) */
-            @Override
-            protected ScriptRunner createScriptRunner() {
-                return new PipedScriptRunner();
-            } // createScriptRunner
-            /** Override of {@link #mergeEnv(OSEnvironment)}, merging ENV set to {@link PipedExecBuilder}
-             *  first and then ENV set to the script itself. */
-            @Override
-            protected void mergeEnv(final OSEnvironment env) {
-                mergeEnv_wrap(env);
-                super.mergeEnv(env);
-            }
-            /** Serialization UID */
-            private static final long serialVersionUID = 2452456256173465623L;
-        };
-
-        @Override
-        public void validate() throws CruiseControlException {
-            super.validate();
-            builder.validate();
-            /* Only single pipe is allowed! */
-            ValidationHelper.assertTrue(getPipeFrom().length <= 1,
-                    "ID " + getID() + ": only single piped script is allowed", getClass());
-        }
-
-        @Override
-        protected Element build() throws CruiseControlException {
-            final String[] pipe = getPipeFrom();
-            return builder.build(getBuildProperties(), getProgress(),
-                    (pipe != null && pipe.length == 1) ? getInputProvider(pipe[0]) : null);
-        }
-
-        @Override
-        protected Logger log() {
-            return ExecBuilder.LOG;
-        }
-
-        /** Just caller of {@link ExecBuilder#setTimeout(long)} */
-        @Override
-        public void setTimeout(long time) {
-            builder.setTimeout(time);
-        }
-        /** Just caller of {@link ExecBuilder#getTimeout()} */
-        @Override
-        public long getTimeout() {
-            return builder.getTimeout();
-        }
-
-        /** Just caller of {@link ExecBuilder#setWorkingDir(String)} */
-        @Override
-        public void setWorkingDir(String workingDir) {
-            builder.setWorkingDir(workingDir);
-        }
-        /** Just caller of {@link ExecBuilder#getWorkingDir()} */
-        @Override
-        public String getWorkingDir() {
-            return builder.getWorkingDir();
-        }
-
-        /** Raw caller of {@link ExecBuilder#setCommand(String)} for the script configuration
-         *  purposes */
-        @SuppressWarnings("javadoc")
-        public void setCommand(String cmd) {
-            this.builder.setCommand(cmd);
-        }
-        /** Raw caller of {@link ExecBuilder#setArgs(String)} for the script configuration
-         *  purposes */
-        @SuppressWarnings("javadoc")
-        public void setArgs(String args) {
-            this.builder.setArgs(args);
-        }
-        /** Raw caller of {@link ExecBuilder#setErrorStr(String)} for the script configuration
-         *  purposes. */
-        @SuppressWarnings("javadoc")
-        public void setErrorStr(String errStr) {
-            this.builder.setErrorStr(errStr);
-        } // setErrorStr
-
-        /** Raw caller of {@link ExecBuilder#createEnv()} for the script configuration
-         *  purposes. */
-        @SuppressWarnings("javadoc")
-        public EnvConf createEnv() {
-            return builder.createEnv();
-        } // createEnv
-
-        /** Prints string representation of the object */
-        @Override
-        public String toString() {
-            return getClass().getName() + "[ID " + getID() + ", piped from "
-                    + (getPipeFrom() != null ? getPipeFrom() : "-") + ", wait for "
-                    + (getWaitFor() != null ? getWaitFor() : "-") + " Command: "
-                    + builder.getCommand() + ' ' + builder.getArgs() + "]";
-        }
-
-    } // PipedExecScript
 
     /**
      * Special object used to mark scripts and repiped or disabled.
