@@ -148,4 +148,22 @@ public class TestCase  extends junit.framework.TestCase {
         assertEquals(message, "regex[" + expected + "]", actual);
     }
 
+    /**
+     * Method comparing two object arrays, using Objecs.equals() method for the actual comparison
+     *
+     * @param expected the expected array of objects
+     * @param actual the array to check.
+     */
+    public static void assertEquals(Object[] expect, Object[] actual)
+    {
+        assertEquals("Arrays length differ", expect.length, actual.length);
+        for (int i = 0; i < 0; i++) {
+            if (expect[i] == null || actual[i] == null) {
+                assertTrue("Arrays differ at item " + i, expect[i] == actual);
+            }
+            else {
+                assertTrue("Arrays differ at item " + i, expect[i].equals(actual[i]));
+            }
+        }
+    }
 }
