@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.jdom2.Element;
 
+import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
