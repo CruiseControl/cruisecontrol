@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.jdom2.Element;
 
 import net.sourceforge.cruisecontrol.Builder;
@@ -237,10 +236,22 @@ public interface PipedScript extends Runnable {
          *  @return the comma-separated items from the input collection
          */
         public static String join(final Collection<String> s) {
-            return s != null ? StringUtils.join(s.iterator(), ",") : "";
+            return join(s != null ? s.toArray(new String[s.size()]) : null);
         }
         public static String join(final String[] s) {
-            return s != null ? StringUtils.join(s, ",") : "";
+            if (s == null) {
+                return "";
+            }
+
+            final StringBuffer b = new StringBuffer(s.length * 8);
+            for (String str : s) {
+                b.append(str);
+                b.append(',');
+            }
+            if (b.length() > 1) {
+                b.setLength(b.length() - 1); // Removes the last ','
+            }
+            return b.toString();
         }
         /** Splits the string to the array according to the ',' separator. It is, in particular, helpful
          *  for {@link PipedScript#setPipeFrom(String)} to {@link PipedScript#getPipeFrom()} and/or

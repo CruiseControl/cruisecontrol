@@ -13,7 +13,7 @@
 
     <!-- main/src/net/sourceforge/cruisecontrol/builders/PipedScript.java:10:8: Unused import - net.sourceforge.cruisecontrol.Builder
          But the import is required by javadoc ...  -->
-    <suppress checks="Unused" files="PipedScript.java" lines="11"/>
+    <suppress checks="Unused" files="PipedScript.java" lines="10"/>
 
     <suppress checks="PackageDeclaration" files="CruiseControl.java"/>
     <suppress checks="PackageDeclaration" files="CruiseControlWithJetty.java"/>
