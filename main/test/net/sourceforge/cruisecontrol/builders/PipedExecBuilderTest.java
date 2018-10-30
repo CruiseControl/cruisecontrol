@@ -597,45 +597,6 @@ public final class PipedExecBuilderTest extends TestCase {
     }
 
     /**
-     * Checks if the STDIN of a command is closed when it is not piped from another command.
-     * When STDIO is not closed <code>cat</code> command should wait for infinite time.
-     * The pipe looks like:
-     * <pre>
-     *  01(no input) --> 02 --> 03
-     * </pre>
-     *
-     * @throws IOException if the test fails!
-     * @throws CruiseControlException if the builder fails!
-     */
-    public void testBuild_stdinClose() throws CruiseControlException, IOException {
-
-        PipedExecBuilder builder = new PipedExecBuilder();
-        Element buildLog;
-        long startTime = System.currentTimeMillis();
-
-        /* Set 2 minutes long timeout. */
-        builder.setTimeout(120);
-        builder.setShowProgress(false);
-
-        /* Read from stdin, but do not have it piped. The command must end immediately
-         * without error, as the stdin MUST BE closed when determined that nothing can be
-         * read from */
-        //        builder, ID,   script,                    pipeFrom, waitFor
-        addScript(builder, "01", new ExecScriptMock.Cat(),      null, null);
-        addScript(builder, "02", new ExecScriptMock.Sort(true), "01", null);
-
-        /* Validate it and run it */
-        builder.validate();
-        buildLog = builder.build(new HashMap<String, String>(), null);
-
-        printXML(buildLog);
-        /* First of all, the command must not run. 20 seconds must be far enough! */
-        assertTrue("command run far longer than it should!", (System.currentTimeMillis() - startTime) / 1000 < 20);
-        /* No 'error' attribute must exist in the build log */
-        assertNull("error attribute was found in build log!", buildLog.getAttribute("error"));
-    }
-
-    /**
      * Tests the repining the validation when an already existing script is re-piped
      * <pre>
      *                           +-> 06(file)
@@ -860,9 +821,11 @@ public final class PipedExecBuilderTest extends TestCase {
         env.setValue(envval);
         // Validate it and run it
         builder.validate();
-        builder.build(new HashMap<String, String>(), null);
+        final Element buildLog = builder.build(new HashMap<String, String>(), null);
 
-        // Test the filtered output.
+        // 'error' attribute must not exist in the build log
+        assertNull("error attribute was found in build log!", buildLog.getAttribute("error"));
+        // And the TESTENV=dummy_value must be in the filtered output
         assertStreams(new StringInputStream(envvar+"="+envval), new FileInputStream(outFile));
     } // testBuild_NewEnvVar
 

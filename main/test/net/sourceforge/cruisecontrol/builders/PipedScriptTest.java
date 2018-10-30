@@ -38,10 +38,14 @@ package net.sourceforge.cruisecontrol.builders;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
+import org.jdom2.Element;
 import org.junit.Test;
 
+import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.testutil.TestCase;
+import net.sourceforge.cruisecontrol.util.Util;
 
 
 public class PipedScriptTest {
@@ -79,4 +83,47 @@ public class PipedScriptTest {
         TestCase.assertEquals("A", PipedScript.Helpers.join(new String[] {"A"}));
         TestCase.assertEquals("1,2,3,4", PipedScript.Helpers.join(new String[] {"1","2","3","4"}));
     }
+
+
+    /**
+     * Checks if the STDIN of an external command is closed when it is not piped from another command.
+     * When STDIO is not closed <code>cat</code> command should wait for infinite time.
+     *
+     * @throws CruiseControlException
+     */
+    @Test
+    public void testBuild_stdinClose() throws CruiseControlException {
+        // Can test only under Linux
+        // I don't know an alternative on windows, which would accept STDIN
+        if (Util.isWindows()) {
+            return;
+        }
+        // ----
+
+        final PipedExecScript script = new PipedExecScript();
+        final Element buildLog = new Element("script");
+        final long startTime = System.currentTimeMillis();
+
+        /* Set 20 seconds long timeout. */
+        script.setTimeout(20);
+        script.setID("cat");
+        script.setBuildLogParent(buildLog);
+        script.setBuildProperties(Collections.<String, String> emptyMap());
+        /* Read from stdin, but do not have it piped. The command must end immediately
+         * without error, as the stdin MUST BE closed when determined that nothing can be
+         * read from */
+        script.setCommand("cat");  /* by default, 'cat' waits until its STDIN is closed */
+
+        /* Run */
+        script.validate();
+        script.initialize();
+        script.run();
+        script.finish();
+
+        /* First of all, the command must not run. 5 seconds must be far enough! */
+        TestCase.assertTrue("command run far longer than it should!", (System.currentTimeMillis() - startTime) / 1000 < 5);
+        /* No 'error' attribute must exist in the build log */
+        TestCase.assertNull("error attribute was found in build log!", buildLog.getAttribute("error"));
+    }
+
 }
