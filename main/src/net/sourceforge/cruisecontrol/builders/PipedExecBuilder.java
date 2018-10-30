@@ -110,10 +110,6 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
 
     /** Build timeout in seconds, set by {@link #setTimeout(long)}. */
     private long timeout = ScriptRunner.NO_TIMEOUT;
-    /** Keep STDOUT of all the scripts gzipped? Set by {@link #setGZipStdout(boolean)} */
-    private boolean gzip;
-    /** Is STDOUT of all the scripts binary? Set by {@link #setBinaryStdout(boolean)} */
-    private boolean binary;
     /** The working directory where the commands are to be executed, set by
      * {@link #setWorkingDir(String)}. */
     private String workingDir;
@@ -200,12 +196,6 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
                before s.validate(), since it sets the variables to a default value */
             if (s.getWorkingDir() == null) {
                 s.setWorkingDir(workingDir);
-            }
-            if (s.getGZipStdout() == null) {
-                s.setGZipStdout(gzip);
-            }
-            if (s.getBinaryOutput() == null) {
-                s.setBinaryOutput(binary);
             }
             /* Let it validate itself */
             s.validate();
@@ -426,32 +416,6 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     } // setWorkingDir
-
-    /**
-     * Should the STDOUT content of the scripts be kept gzipped within the builder? It may save
-     * some memory required by CruiseControl in cases that data piped through scripts are huge, but
-     * compressible. Can be overridden by the configuration of individual scripts, see
-     * {@link PipedScript#setGZipStdout(boolean)}.
-     *
-     * @param gzip <code>true</code> if STDOUT is required to be stored gzipped, <code>false</code>
-     *   if raw STDOUT contents are kept.
-     */
-    public void setGZipStdout(boolean gzip) {
-        this.gzip = gzip;
-    } // setGZipStdout
-
-    /**
-     * Is the STDOUT content of the scripts in binary form? If <code>true</code>, the STDOUT is not
-     * logged even in debug mode. If <code>false</code>, the STDOUT of the scripts will be logged in
-     * debug mode. Can be overridden by the configuration of individual scripts, see
-     * {@link PipedScript#setBinaryOutput(boolean)}.
-     *
-     * @param binary <code>true</code> if STDOUT is in binary form, <code>false</code>
-     *   if STDOUT is text.
-     */
-    public void setBinaryStdout(boolean binary) {
-        this.binary = binary;
-    } // setBinaryStdout
 
     /**
      * Creates object into which <code>{@code <exec />}</code> tag will be set. Each call returns new
