@@ -37,6 +37,8 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol.builders;
 
+import java.io.ByteArrayInputStream;
+
 import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
@@ -136,7 +138,7 @@ public final class PipedExecScript extends PipedScriptBase {
     protected Element build() throws CruiseControlException {
         final String[] pipe = getPipeFrom();
         return builder.build(getBuildProperties(), getProgress(), 
-                (pipe != null && pipe.length == 1) ? getInputProvider(pipe[0]) : null);
+                (pipe != null && pipe.length >= 1) ? getInputProvider(pipe[0]) : new ByteArrayInputStream(new byte[0]));
     }
 
     @Override

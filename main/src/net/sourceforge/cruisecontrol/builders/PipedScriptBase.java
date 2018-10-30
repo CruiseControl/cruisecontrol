@@ -32,9 +32,9 @@ public abstract class PipedScriptBase implements PipedScript {
     /** Signalizes wherever the script finished or not */
     private boolean isDone = false;
     /** Keep STDOUT gzipped? Set by {@link #setGZipStdout(boolean)}. */
-    private Boolean gzip = null;
+    private Boolean gzip = Boolean.FALSE;
     /** Is STDOUT of the script binary? Set by {@link #setBinaryOutput(boolean)} */
-    private Boolean binary = null;
+    private Boolean binary = Boolean.FALSE;
     /** The buffer holding the output of the command */
     private transient StdoutBuffer outputBuffer = null;
     /** The stream to read STDIN of the command, set by {@link #setInputProvider(InputStream)}. */
@@ -115,8 +115,10 @@ public abstract class PipedScriptBase implements PipedScript {
      */
     @Override
     public final void run() {
+        Element buildLog = new Element("PipedScript");
+        buildLog.setAttribute("ID", this.getID());
+
         try {
-            Element buildLog;
 
             /* Start and store the build log element created */
             log().info("Script ID '" + this.getID() + "' started");
@@ -125,15 +127,19 @@ public abstract class PipedScriptBase implements PipedScript {
             if (buildLog.getAttribute("ID") == null) {
                 buildLog.setAttribute("ID", this.getID());
             }
-            /* Add the element into the parent */
-            synchronized (buildLogParent) {
-                this.buildLogParent.addContent(buildLog.detach());
-            }
             log().info("Script ID '" + this.getID() + "' finished");
 
         } catch (Throwable e) {
             log().error("Script ID '" + this.getID() + "' failed", e);
+            /* If no error attribute is set, set it now ... */
+            if (buildLog.getAttribute("error") == null) {
+                buildLog.setAttribute("error", e.getMessage());
+            }
         } finally {
+            /* Add the element into the parent */
+            synchronized (buildLogParent) {
+                this.buildLogParent.addContent(buildLog.detach());
+            }
             /* Close the buffer to signalize that all has been written, and clear STDIN
              * provider to signalize to GC that it is not longer needed */
             this.outputBuffer.close();
@@ -219,14 +225,14 @@ public abstract class PipedScriptBase implements PipedScript {
         throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
     }
     /**
-     * @return the instance set through {@link #setInputProvider(InputStream, String)} or <code>null</code>
+     * @return the instance set through {@link #setInputProvider(InputStream, String)} or empty stream reader
      *      if no provider has been set through {@link #setInputProvider(InputStream, String)}
      */
     protected InputStream getInputProvider(final String id) throws CruiseControlException {
         final String[] pipeFr = getPipeFrom();
 
         if (inputProvider == null) {
-            return null;
+            return new ByteArrayInputStream(new byte[0]); // Nothing to read
         }
         for (int i = 0; i < Math.min(pipeFr.length, inputProvider.length); i++) {
             if (pipeFr[i].equals(id)) {
