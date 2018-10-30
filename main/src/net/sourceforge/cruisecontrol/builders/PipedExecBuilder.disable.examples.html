@@ -1,0 +1,20 @@
+Let us suppose to have the following <a href="#pipedexec">&lt;pipedexec/&gt;</a> defined as a plugin:
+
+  <pre>&lt;plugin name="generic_pipe" from="pipedexec"&gt;
+    &lt;exec id="1" command="cat" args="file.1.txt"&gt;
+    &lt;exec id="2" command="cat" args="file.2.txt -" pipefrom="1"&gt;
+    &lt;exec id="3" command="cat" args="file.3.txt -" pipefrom="2"&gt;
+    &lt;exec id="O" command="tee" args="dest.1.txt"   pipefrom="3"&gt;
+    &lt;exec id="Y" command="cat" args="file.Y.txt -" pipefrom="1"&gt;
+    &lt;exec id="Z" command="tee" args="dest.2.txt"   pipefrom="Y"&gt;
+&lt;/plugin&gt;</pre>
+
+which makes <tt>dest.1.txt</tt> file containing the join of <tt>a.file.3.txt,a.file.2.txt,file.1.txt</tt> and
+<tt>dest.2.txt</tt> file containing the join of <tt>a.file.Y.txt,file.1.txt</tt>.
+But we don't need the <tt>dest.1.txt</tt> output in the real script. So in the final project definition, we use:
+<br/>
+  <pre>&lt;generic_pipe&gt;
+    &lt;disable id="Y"&gt;
+&lt;/generic_pipe&gt;</pre>
+which cuts out the output of Y. Note also, that disabling a script will automatically disable all the scripts which are piped from
+it (since they would not obtain any data they wait for anyway ...).

@@ -56,6 +56,10 @@ import net.sourceforge.cruisecontrol.Builder;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.Progress;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Cardinality;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Default;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.DescriptionFile;
+import net.sourceforge.cruisecontrol.gendoc.annotations.ExamplesFile;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
@@ -94,6 +98,8 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  *
  * @author <a href="mailto:dtihelka@kky.zcu.cz">Dan Tihelka</a>
  */
+@DescriptionFile
+@ExamplesFile
 public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
 
     /** Serialization UID */
@@ -400,6 +406,9 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
      *
      * @param dir the directory where the command is to be executed
      */
+    @Description("The directory in which all the scripts or commands are going to be executed. Each "
+            + " individual script or command may override this value.")
+    @Default("CC working directory")
     public void setWorkingDir(String dir) {
         this.workingDir = dir;
     } // setWorkingDir
@@ -410,6 +419,10 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
      *
      * @param timeout build timeout in seconds
      */
+    @Description("Build will be halted if the scripts or commands running under the pipedexec continue "
+            + "longer than the specified timeout. Each individual script or command may also set its own "
+            + "limitation. Value in seconds.")
+    @Default("no timeout")
     public void setTimeout(long timeout) {
         this.timeout = timeout;
     } // setWorkingDir
@@ -448,37 +461,32 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
      * @return new {@link PipedExecScript} object to configure.
      */
     @Cardinality(min = 0, max = -1)
-    @ManualChildName("ExecBuilder")
+    @ManualChildName("exec")
+    @Description("Defines a script to be executed within its parent builder, pipsed from/to another script(s) "
+            + "within the same builder.")
     public PipedExecScript createExec() {
         final PipedExecScript exec = new PipedExecScript();
         scripts.add(exec);
         return  exec;
     } // createExec
 
-    /**
-     * Creates object to disable a particular script in the pipe. The directive is helpful when 
-     * the {@link PipedExecBuilder} is pre-configured as a plugin and its pipes needs to be redefined.
-     * The pipe required to have <code>pipeFrom="ID"</code> defined, giving the new ID to be piped
-     * from.
-     *
-     * @return new {@link Special} object to configure.
-     */
-    @ManualChildName("Repipe")
-    public Special createRepipe() {
-        specials.add(new Special(false, true));
-        return specials.getLast();
+    @Cardinality(min = 0, max = -1)
+    @ManualChildName("repipe")
+    @Description("Changes the input of an already defined plugin, repiping it from the <i>id</i>s defined here.")
+    @SuppressWarnings("javadoc")
+    public Repipe createRepipe() {
+        final Repipe obj = new Repipe();
+        specials.add(obj);
+        return obj;
     }
-    /**
-     * Creates object to disable a particular script in the pipe. The directive is helpful when 
-     * the {@link PipedExecBuilder} is pre-configured as a plugin and its pipes needs to be redefined.
-     * Disabling an object will also disable all the objects piped from the object disabled!
-     *
-     * @return new {@link Special} object to configure.
-     */
-    @ManualChildName("Disable")
-    public Special createDisable() {
-        specials.add(new Special(true, false));
-        return specials.getLast();
+    @Cardinality(min = 0, max = -1)
+    @ManualChildName("disable")
+    @Description("Disables an already defined script.")
+    @SuppressWarnings("javadoc")
+    public Disable createDisable() {
+        final Disable obj = new Disable();
+        specials.add(obj);
+        return obj;
     }
 
     /**
@@ -638,7 +646,6 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
      */
     public Collection<String> getKnownIDs() {
         final Collection<String> ids = new HashSet<String>(scripts.size());
-
         for (PipedScript s : scripts) {
             ids.add(s.getID());
         }
@@ -649,99 +656,120 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
     /* ----------- NESTED CLASSES ----------- */
 
     /**
-     * Special object used to mark scripts and repiped or disabled.
-     *
-     * @see PipedExecBuilder#createDisable()
-     * @see PipedExecBuilder#createRepipe()
+     * Special object used to mark scripts as repiped or disabled.
      */
-    public final class Special {
+    private abstract class Special {
 
         /** Value set by {@link #setID(String)} */
         private String id = null;
+
+        /** @return <code>true</code> when repipe is required, <code>false</code> otherwise */
+        abstract boolean repipe();
+        /** @return <code>true</code> when disable is required, <code>false</code> otherwise */
+        abstract boolean disable();
+
+        /** Checks, if script ID was set by {@link #setID(String)}. As the <i>id</i> is required,
+         *  do not forget to call this method when overriding! */
+        public void validate() throws CruiseControlException {
+            ValidationHelper.assertIsSet(id, "id", getClass());
+        }
+
+        /** @return the ID of the script to be piped from, when {@link #repipe()} gets <code>true</code>;
+         *      <code>null</code> otherwise */
+        abstract String getPipeFrom();
+        /** @return the ID of the script to wait for, when {@link #repipe()} gets <code>true</code> and
+         *      wait change was required; <code>null</code> otherwise */
+        abstract String getWaitFor();
+
+        @Description("The <i>id</i> of already existing script to change the configuration for.")
+        @Required
+        @SuppressWarnings("javadoc")
+        public void setID(String value) {
+            id = value;
+        }
+        /** @return the value set by {@link #setID(String)} */
+        public String getID() {
+            return id;
+        }
+        /** It gets the new ID to wait for as a merge of the value get by {@link #getWaitFor()} and the
+         *  value passed as the option. The rules are as follow:
+         *  - if {@link #getWaitFor()} returns <code>null</code>, orig is returned (no change of waiting)
+         *  - if {@link #getWaitFor()} returns "", empty list is returned (do not wait)
+         *  - otherwise, the list of values of {@link #getWaitFor()} is get
+         *
+         *  @param orig the original ID to wait for
+         *  @return the new ID (or comma separated list of IDs) to wait for
+         */
+        public String newWaitFor(String[] orig) {
+            final String waitfor = getWaitFor();
+            return waitfor == null ? PipedScript.Helpers.join(orig) : waitfor;
+        }
+    }
+    @DescriptionFile("PipedExecBuilder.repipe.html")
+    @ExamplesFile("PipedExecBuilder.repipe.examples.html")
+    public final class Repipe extends Special {
+
         /** Value set by {@link #setPipeFrom(String)} */
         private String pipeFrom = null;
         /** Value set by {@link #setWaitFor(String)} */
         private String waitfor = null;
 
-        /** Value get by {@link #repipe()} */
-        private final boolean repipe;
-        /** Value get by {@link #disable()} */
-        private final boolean disable;
-
-        public Special(boolean disable, boolean repipe) {
-            this.repipe = repipe;
-            this.disable = disable;
+        @Override
+        public void validate() throws CruiseControlException {
+            super.validate();
+            ValidationHelper.assertIsSet(pipeFrom, "pipefrom", getClass());
         }
 
-        void validate() throws CruiseControlException {
-            ValidationHelper.assertIsSet(id, "id", repipe ? "repipe" : "disable");
-            ValidationHelper.assertFalse(repipe && disable, "ID " + id + ": cannot repipe and disable concruently");
-            // Must set where to repipe
-            if (repipe) {
-                ValidationHelper.assertIsSet(pipeFrom, "pipefrom", "repipe");
-            }
+        @Override
+        public boolean repipe() {
+            return true;
+        }
+        @Override
+        public boolean disable() {
+            return false;
         }
 
-        boolean repipe() {
-            return repipe;
-        }
-        boolean disable() {
-            return disable;
-        }
-        /**
-         * Sets the ID of the script
-         * @param value the ID
-         */
+        @Description("Sets the new <i>id</i>s of script to be piped from.")
         @Required
-        void setID(String value) {
-            id = value;
-        }
-        /**
-         * @return the value set by {@link #setID(String)}
-         */
-        String getID() {
-            return id;
-        }
-        /**
-         * On <repipe />, it sets the new IDs of script to be piped from.
-         * @param value the ID (or comma-separated list of IDs) of script to read data from
-         */
-        void setPipeFrom(String value) {
+        @SuppressWarnings("javadoc")
+        public void setPipeFrom(String value) {
             pipeFrom = value;
         }
-        /**
-         * @return the value set by {@link #setPipeFrom(String)}
-         */
-        String getPipeFrom() {
+        @Override
+        public String getPipeFrom() {
             return pipeFrom;
         }
-        /**
-         * On <repipe />, it sets the new ID of script to wait for. If not set, the wait is not not
-         * changed in the original script, but if empty string is set, the original waiting is removed.
-         * @param value the new ID (or comma-separated list of IDs) to wait for
-         * @see  #newWaitFor(Sting)
-         */
-        void setWaitFor(String value) {
+        @Description("Sets the new <i>id</i>s of script to wait for. If not set, the wait is not changed in "
+                + "the original script, but if empty string is set, the original waiting is removed.")
+        @SuppressWarnings("javadoc")
+        public void setWaitFor(String value) {
             waitfor = value;
         }
-        /**
-         * @return the value set by {@link #setWaitFor(String)}
-         */
-        String getWaitFor() {
+        @Override
+        public String getWaitFor() {
             return waitfor;
         }
-        /**
-         * It gets the new Id to wait for as a merge of the value get by {@link #getWaitFor()} and the
-         * value passed as the option. The rules are as follow:
-         * - if {@link #getWaitFor()} returns <code>null</code>, orig is returned (no change of waiting)
-         * - if {@link #getWaitFor()} returns "", empty list is returned (do not wait)
-         * - otherwise, the list of values of {@link #getWaitFor()} is get
-         *
-         * @param orig the original ID to wait for
-         * @return the new ID (or comma separated list of IDs) to wait for
-         */
-        String newWaitFor(String[] orig) {
-            return waitfor == null ? PipedScript.Helpers.join(orig) : waitfor;
+    }
+    @DescriptionFile("PipedExecBuilder.disable.html")
+    @ExamplesFile("PipedExecBuilder.disable.examples.html")
+    public final class Disable extends Special {
+
+        @Override
+        public boolean repipe() {
+            return false;
+        }
+        @Override
+        public boolean disable() {
+            return true;
+        }
+
+        @Override
+        public String getPipeFrom() {
+            return null;
+        }
+        @Override
+        public String getWaitFor() {
+            return null;
         }
     }
 

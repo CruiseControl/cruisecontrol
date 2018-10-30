@@ -45,6 +45,7 @@ import org.jdom2.Element;
 import net.sourceforge.cruisecontrol.Builder.EnvConf;
 import net.sourceforge.cruisecontrol.CruiseControlException;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
+import net.sourceforge.cruisecontrol.gendoc.annotations.Required;
 import net.sourceforge.cruisecontrol.gendoc.annotations.SkipDoc;
 import net.sourceforge.cruisecontrol.util.OSEnvironment;
 import net.sourceforge.cruisecontrol.util.StreamConsumer;
@@ -62,7 +63,8 @@ import net.sourceforge.cruisecontrol.util.ValidationHelper;
  * one with another are started simultaneously.
  */
 @Description("Standard exec builder extended with attributes required for a builder to be piped "
-        + "into the pipedexec builder. ")
+        + "into the pipedexec builder. As it is based on the <a href=\"#exec\">&lt;exec&gt;</a>, "
+        + "it also shares its attributes")
 public final class PipedExecScript extends PipedScriptBase {
 
     /**
@@ -146,41 +148,50 @@ public final class PipedExecScript extends PipedScriptBase {
         return ExecBuilder.LOG;
     }
 
-    /** Just caller of {@link ExecBuilder#setTimeout(long)} */
+    /** {@link ExecBuilder#setTimeout(long)} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
+    @SuppressWarnings("javadoc")
     public void setTimeout(long time) {
         builder.setTimeout(time);
     }
-    /** Just caller of {@link ExecBuilder#getTimeout()} */
+    /** {@link ExecBuilder#getTimeout()} */
     public long getTimeout() {
         return builder.getTimeout();
     }
 
-    /** Just caller of {@link ExecBuilder#setWorkingDir(String)} */
+    /** {@link ExecBuilder#setWorkingDir(String)} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
+    @SuppressWarnings("javadoc")
     public void setWorkingDir(String workingDir) {
         builder.setWorkingDir(workingDir);
     }
-    /** Just caller of {@link ExecBuilder#getWorkingDir()} */
+    /** {@link ExecBuilder#getWorkingDir()} */
     public String getWorkingDir() {
         return builder.getWorkingDir();
     }
 
-    /** Raw caller of {@link ExecBuilder#setCommand(String)} for the script configuration purposes */
+    /** {@link ExecBuilder#setCommand(String)} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
+    @Required
     @SuppressWarnings("javadoc")
     public void setCommand(String cmd) {
         this.builder.setCommand(cmd);
     }
-    /** Raw caller of {@link ExecBuilder#setArgs(String)} for the script configuration purposes */
+    /** {@link ExecBuilder#setArgs(String)} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
     @SuppressWarnings("javadoc")
     public void setArgs(String args) {
         this.builder.setArgs(args);
     }
-    /** Raw caller of {@link ExecBuilder#setErrorStr(String)} for the script configuration purposes. */
+    /** {@link ExecBuilder#setErrorStr(String)} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
     @SuppressWarnings("javadoc")
     public void setErrorStr(String errStr) {
         this.builder.setErrorStr(errStr);
     } // setErrorStr
 
-    /** Raw caller of {@link ExecBuilder#createEnv()} for the script configuration purposes. */
+    /** {@link ExecBuilder#createEnv()} */
+    @Description("The same as for <a href=\"#exec\">&lt;exec&gt;</a>")
     @SuppressWarnings("javadoc")
     public EnvConf createEnv() {
         return builder.createEnv();

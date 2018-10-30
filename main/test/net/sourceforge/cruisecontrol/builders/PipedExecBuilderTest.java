@@ -916,7 +916,7 @@ public final class PipedExecBuilderTest extends TestCase {
         assertNotNull(builder);
         assertNotNull(id);
 
-        final PipedExecBuilder.Special spec;
+        final PipedExecBuilder.Repipe spec;
 
         spec = builder.createRepipe();
         spec.setID(id);
@@ -932,7 +932,7 @@ public final class PipedExecBuilderTest extends TestCase {
         assertNotNull(builder);
         assertNotNull(id);
 
-        final PipedExecBuilder.Special spec;
+        final PipedExecBuilder.Disable spec;
 
         spec = builder.createDisable();
         spec.setID(id);

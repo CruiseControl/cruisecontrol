@@ -187,7 +187,7 @@ public interface PipedScript extends Runnable {
 
     /**
      * Should the output of scripts be kept gzipped within the builder?
-     * See {@link PipedExecBuilder#setGZipStdout(boolean)} for more details.
+     * See {@link PipedScriptBase#setGZipStdout(boolean)} for more details.
      *
      * @param gzip <code>true</code> if script's output is required to be stored gzipped,
      *   <code>false</code> if raw output content is kept.
@@ -200,7 +200,7 @@ public interface PipedScript extends Runnable {
 
     /**
      * Is the output content of the script in binary form?
-     * See {@link PipedExecBuilder#setBinaryStdout(boolean)} for more details.
+     * See {@link PipedScriptBase#setBinaryOutput(boolean)} for more details.
      *
      * @param binary <code>true</code> if script's output is in binary form, <code>false</code>
      *   if STDOUT is text.

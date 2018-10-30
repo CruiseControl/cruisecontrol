@@ -1,0 +1,19 @@
+Let us suppose to have the following <a href="#pipedexec">&lt;pipedexec/&gt;</a> defined as a plugin:
+
+  <pre>&lt;plugin name="generic_pipe" from="pipedexec"&gt;
+    &lt;exec id="1" command="cat" args="file.1.txt"&gt;
+    &lt;exec id="2" command="cat" args="file.2.txt -" pipefrom="1"&gt;
+    &lt;exec id="3" command="cat" args="file.3.txt -" pipefrom="2"&gt;
+    &lt;exec id="O" command="tee" args="output.txt"   pipefrom="3"&gt;
+&lt;/plugin&gt;</pre>
+which makes <tt>output.txt</tt> file containing the join of <tt>file.3.txt,file.2.txt,file.1.txt</tt>.
+But we need to add one more file between 2 and 3 in the real script. So in the final project definition, we use:
+<br/>
+  <pre>&lt;generic_pipe&gt;
+    &lt;exec id="2.2" command="cat" args="special.file.txt -" pipefrom="2"&gt;
+    &lt;repipe id="3" pipefrom="2.2"&gt;
+&lt;/generic_pipe&gt;</pre>
+which joins the 2.2 with 2 and repipes 3 from 2 to 2.2. So the final sequence of files will be <tt>file.3.txt,special.file.txt,file.2.txt,file.1.txt</tt>.
+
+
+See also <a href="#disable">&lt;disable/&gt;</a>.

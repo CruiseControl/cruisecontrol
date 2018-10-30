@@ -1,0 +1,7 @@
+<p>Piped exec builder executes a list of builders (commands or scripts), where the STDIN of any number of the builders may be fed by STDOUT of a builder running under the piped exec builder. All the child builders are started in parallel, and those requiring data on STDIN are blocked by the OS until their STDINs are filled by data. The PipedExecBuilder captures the STDOUTs of the running child  builders, caches the data, and distributes them as soon as possible to the children waiting for them.</p>
+
+<p>To prevent memory exhaustion when several large-memory-consuming builders are running at the same time, the builders may be set to wait for each other. Still, they may be piped from the same builder, even if the builder was already finished (because the data are cached).</p>
+
+<p>The whole piped exec builder finishes when all its child builders are finished. When any of children fails, the piped exec builder terminates all the running commands or scripts, and the piped exec builder reports build failure. Let us note here the scripts used in this builder must be ready for piping - for example: they must use STDERR for state/error reporting.</p>
+
+<p>The child &lt;exec&gt; builders have the same capabilities as the original <a href="#exec">&lt;exec&gt;</a> builders.</p>
