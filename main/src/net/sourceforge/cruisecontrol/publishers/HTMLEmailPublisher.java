@@ -203,7 +203,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private File guessFileForResource(final String relativeResource) {
         File ccDist;
         try {
-            ccDist = CruiseControlSettings.getInstance().getOptionFile(CruiseControlSettings.KEY_DIST_DIR);
+            ccDist = CruiseControlSettings.getInstance().getOptionDir(CruiseControlSettings.KEY_DIST_DIR);
         } catch (CruiseControlException e) {
             LOG.error("Failed to get CC dist directory from config", e);
             ccDist = getCruiseRootDir();
