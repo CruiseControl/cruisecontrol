@@ -134,6 +134,8 @@ public final class Main implements CruiseControlMain {
             if (LOG.isDebugEnabled()) {
                 LOG.fatal("Failure details:", e);
             }
+            System.out.println("Failed to start CruiseControl: " + e.getMessage());
+            System.out.println("See log file for more details");
             printUsage();
             return false;
         }
