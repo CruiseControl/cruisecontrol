@@ -55,15 +55,15 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
+import net.sourceforge.cruisecontrol.CruiseControlSettings;
 import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Optional;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Title;
-import net.sourceforge.cruisecontrol.launch.Launcher;
+import net.sourceforge.cruisecontrol.util.Util;
 import net.sourceforge.cruisecontrol.util.ValidationHelper;
 import net.sourceforge.cruisecontrol.util.XMLLogHelper;
-import net.sourceforge.cruisecontrol.util.Util;
 
 import org.apache.log4j.Logger;
 import org.apache.tools.ant.launch.Locator;
@@ -94,7 +94,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private String xslDir;
     private String css;
     private String logDir;
-    private String messageMimeType = "text/html";
+    private final String messageMimeType = "text/html";
     private String charset;
 
     // Should reflect the same stylesheets as buildresults.jsp in the JSP
@@ -113,6 +113,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
      *
      *  @throws CruiseControlException if there was a configuration error.
      */
+    @Override
     public void validate() throws CruiseControlException {
         super.validate();
 
@@ -193,25 +194,27 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     /**
      * Try some path constellations to see if the relative resource exists somewhere.
-     * First existing resource will be returned. At the moment we use the source-path and
-     * cc.home-property in combination with the source-tree and binary-contribution tree.
+     * First existing resource will be returned. At the moment we use the CruiseControlSettings.KEY_DIST_DIR
+     * config option (preferred) and source-path in combination with the binary-contribution (preferred) and
+     * source-tree.
      * @param relativeResource relative path to look for
      * @return an existing resource as file or null
      */
     private File guessFileForResource(final String relativeResource) {
-        final File ccHome;
-        if (System.getProperty(Launcher.CCHOME_PROPERTY) != null) {
-            ccHome = new File(System.getProperty(Launcher.CCHOME_PROPERTY));
-        } else {
-            ccHome = getCruiseRootDir();
+        File ccDist;
+        try {
+            ccDist = CruiseControlSettings.getInstance().getOptionFile(CruiseControlSettings.KEY_DIST_DIR);
+        } catch (CruiseControlException e) {
+            LOG.error("Failed to get CC dist directory from config", e);
+            ccDist = getCruiseRootDir();
         }
 
         final String cruise = "reporting/jsp/webcontent/";
         final String binaryDistribution = "webapps/cruisecontrol/";
-        final File[] possiblePaths = {new File(getCruiseRootDir(), cruise + relativeResource),
-                new File(getCruiseRootDir(), binaryDistribution + relativeResource),
-                new File(ccHome, cruise + relativeResource),
-                new File(ccHome, binaryDistribution + relativeResource)};
+        final File[] possiblePaths = {new File(ccDist, binaryDistribution + relativeResource),
+                new File(ccDist, cruise + relativeResource),
+                new File(getCruiseRootDir(), cruise + relativeResource),
+                new File(getCruiseRootDir(), binaryDistribution + relativeResource)};
         for (final File possiblePath : possiblePaths) {
             if (possiblePath.exists()) {
                 return possiblePath;
@@ -265,6 +268,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     /**
      * sets the content as an attachment w/proper mime-type
      */
+    @Override
     protected void addContentToMessage(final String htmlContent, final Message msg) throws MessagingException {
         final MimeMultipart attachments = new MimeMultipart();
         final MimeBodyPart textbody = new MimeBodyPart();
@@ -448,6 +452,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     // TODO: address whether this should ever return null;
     // dependent also on transform(File) and createLinkLine()
+    @Override
     protected String createMessage(final XMLLogHelper logHelper) {
         String message = "";
 

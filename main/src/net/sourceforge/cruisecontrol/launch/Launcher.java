@@ -73,12 +73,6 @@ import net.sourceforge.cruisecontrol.launch.util.Locator;
  */
 public class Launcher {
 
-    /** The property containing the CruiseControl home directory.
-     *  This is for backward compatibility of the individual modules. They should use "proj" instead
-     *  of "home" (if they mean main CC projects directory. User's home can be obtained by
-     *  {@link LaunchConfiguration#USER_HOMEDIR})  */
-    public static final String CCHOME_PROPERTY = "cc.home";
-
     /** The startup class that is to be run */
     public static final String MAIN_CLASS = "net.sourceforge.cruisecontrol.Main";
 
@@ -130,9 +124,6 @@ public class Launcher {
         // Otherwise make a guess based upon the location of the launcher jar.
         final File ccDistDir = getCCDistDir(config, firstLogger);
         final File ccProjDir = getCCProjDir(config, firstLogger);
-        // The property is required by other modules. It would be better to use Configuration
-        // directly ... Moreover, the "cc.proj" should be used instead!
-        System.setProperty(CCHOME_PROPERTY, ccProjDir.getAbsolutePath());
 
         // Determine CruiseControl library directory for third party jars, if it was provided.
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
@@ -286,7 +277,7 @@ public class Launcher {
         throw new LaunchException(MSG_BAD_CCDIST);
     }
     /**
-     * Determine and return the CC Home directory, and reset the {@link #CCHOME_PROPERTY} to match if needed.
+     * Determine and return the CC Home directory.
      * @param config the configuration holder
      * @param log the logger
      * @return CruiseControl home directory
