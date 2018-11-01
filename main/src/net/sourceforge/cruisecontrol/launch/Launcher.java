@@ -114,16 +114,18 @@ public class Launcher {
         // First of all read the configuration
         final LogInterface firstLogger = new LogBuffer();
         final LaunchConfiguration config = new LaunchConfiguration(args, firstLogger, this);
+        // Determine the CruiseControl directory for the distribution jars if it was provided,
+        // Otherwise make a guess based upon the location of the launcher jar.
+        // These are the most important directories the other config options may point to. So resolve
+        // them as the very first
+        final File ccDistDir = getCCDistDir(config, firstLogger);
+        final File ccProjDir = getCCProjDir(config, firstLogger);
+
         // Make notice to log4j where is configuration file is
         if (config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG)) {
             final URL log4jcofig = config.getOptionUrl(LaunchConfiguration.KEY_LOG4J_CONFIG);
             System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
         }
-
-        // Determine the CruiseControl directory for the distribution jars if it was provided,
-        // Otherwise make a guess based upon the location of the launcher jar.
-        final File ccDistDir = getCCDistDir(config, firstLogger);
-        final File ccProjDir = getCCProjDir(config, firstLogger);
 
         // Determine CruiseControl library directory for third party jars, if it was provided.
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
