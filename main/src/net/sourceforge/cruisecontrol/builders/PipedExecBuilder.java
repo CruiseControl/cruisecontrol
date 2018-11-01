@@ -173,6 +173,7 @@ public class PipedExecBuilder extends Builder implements PipedScript.EnvGlue {
                            if (auxIDs.size() != p.getWaitFor().length) {
                                p.setWaitFor(PipedScript.Helpers.join(auxIDs));
                            }
+                           auxIDs.clear();
                       }
                       /* Re-assign the iterator (checkstyle suppresses in main/checkstyleSuppressions.xml) */
                       siter = scripts.iterator();

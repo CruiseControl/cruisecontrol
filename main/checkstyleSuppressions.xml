@@ -9,7 +9,7 @@
     <suppress checks="AnonInnerLength" files="NantBuilderTest.java"/>
 
     <suppress checks="ModifiedControlVariable" files="Launcher.java"/>
-    <suppress checks="ModifiedControlVariable" files="PipedExecBuilder.java" lines="178"/>  <!-- iterator re-assignment in for loop within validate() -->
+    <suppress checks="ModifiedControlVariable" files="PipedExecBuilder.java" lines="179"/>  <!-- iterator re-assignment in for loop within validate() -->
 
     <!-- main/src/net/sourceforge/cruisecontrol/builders/PipedScript.java:10:8: Unused import - net.sourceforge.cruisecontrol.Builder
          But the import is required by javadoc ...  -->
