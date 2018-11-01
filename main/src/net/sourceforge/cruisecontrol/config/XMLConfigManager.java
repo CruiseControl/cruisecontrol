@@ -78,7 +78,11 @@ public class XMLConfigManager implements ResolverHolder {
     }
 
     public XMLConfigManager(File file, CruiseControlController controller) throws CruiseControlException {
-        configFile = file;
+        try {
+             configFile = file.getCanonicalFile();
+        } catch (IOException e) {
+             throw new CruiseControlException("Invalid config file: " + file, e);
+        }
         this.controller = controller;
         loadConfig(configFile);
         hash = calculateMD5(configFile);
@@ -187,21 +191,22 @@ public class XMLConfigManager implements ResolverHolder {
         }
 
         private File getPath(final String path) throws CruiseControlException {
-            try {
-              final File file = new File(path);
-              // Accessible from the current working dir (i.e. the path is either absolute
-              // in relative to the working dir
-              if (file.exists()) {
+            File file = new File(path);
+            // Accessible from the current working dir (i.e. the path is either absolute
+            // in relative to the working dir
+            if (file.exists()) {
                 return file;
-                }
-              // Not found ...
-              LOG.debug("file " + file.getCanonicalPath() + " is not accessible; expecting it relative to "
-                + configFile.getParentFile().getCanonicalPath());
-              return new File(configFile.getParentFile(), path);
-
-            } catch (IOException e) {
-                throw new CruiseControlException("Invalid file path " + path, e);
             }
+            // Not found, try relative to parent
+            LOG.debug("file " + file.getAbsolutePath() + " is not accessible; expecting it relative to "
+                + configFile.getParentFile().getAbsolutePath());
+
+            file = new File(configFile.getParentFile(), path);
+            if (file.exists()) {
+                return file;
+            }
+            LOG.error("file " + file.getAbsolutePath() + " is not accessible");
+            throw new CruiseControlException("Invalid file path " + path);
         }
     }
 }
