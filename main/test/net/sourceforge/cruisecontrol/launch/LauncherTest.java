@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.sourceforge.cruisecontrol.CruiseControlSettings;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.PropertiesRestorer;
 
@@ -43,7 +43,7 @@ public class LauncherTest extends TestCase {
 
         // proj is not set explicitly
         try {
-            final LaunchConfiguration conf = new LaunchConfiguration(new String[0], log, launcher);
+            final LaunchOptions conf = new LaunchOptions(new String[0], log, launcher);
             assertEquals(validProjDir.getCanonicalPath(), launcher.getCCProjDir(conf, log).getCanonicalPath());
             assertEquals(validProjDir.getCanonicalPath(), conf.getOptionDir(conf.KEY_PROJ_DIR).getCanonicalPath());
         } finally {
@@ -52,7 +52,7 @@ public class LauncherTest extends TestCase {
 
         // proj is set explicitly and valid
         try {
-            final LaunchConfiguration conf = new LaunchConfiguration(new String[] {"-proj", "./"}, log, launcher);
+            final LaunchOptions conf = new LaunchOptions(new String[] {"-proj", "./"}, log, launcher);
             assertEquals(validProjDir.getCanonicalPath(), launcher.getCCProjDir(conf, log).getCanonicalPath());
             assertEquals(validProjDir.getCanonicalPath(), conf.getOptionDir(conf.KEY_PROJ_DIR).getCanonicalPath());
         } finally {
@@ -61,7 +61,7 @@ public class LauncherTest extends TestCase {
 
         // proj is set explicitly but invalid
         try {
-            final LaunchConfiguration conf = new LaunchConfiguration(new String[] {"-proj", "wrong/path"}, log, launcher);
+            final LaunchOptions conf = new LaunchOptions(new String[] {"-proj", "wrong/path"}, log, launcher);
             launcher.getCCProjDir(conf, log);
             fail("Wrong explicit CCProjDir should have failed.");
         } catch (LaunchException e) {
@@ -76,17 +76,17 @@ public class LauncherTest extends TestCase {
         final File validDistDir = sourceJarDir.getParentFile();
 
         // Dist is not set explicitly
-        final LaunchConfiguration conf1 = new LaunchConfiguration(new String[0], log, launcher);
+        final LaunchOptions conf1 = new LaunchOptions(new String[0], log, launcher);
         assertEquals(validDistDir.getCanonicalPath(), launcher.getCCDistDir(conf1, log).getCanonicalPath());
         assertEquals(validDistDir.getCanonicalPath(), conf1.getOptionDir(conf1.KEY_DIST_DIR).getCanonicalPath());
 
         // Dist is set explicitly and valid
-        final LaunchConfiguration conf2 = new LaunchConfiguration(new String[] {"-dist", validDistDir.getPath()}, log, launcher);
+        final LaunchOptions conf2 = new LaunchOptions(new String[] {"-dist", validDistDir.getPath()}, log, launcher);
         assertEquals(validDistDir.getCanonicalPath(), launcher.getCCDistDir(conf2, log).getCanonicalPath());
         assertEquals(validDistDir.getCanonicalPath(), conf2.getOptionDir(conf2.KEY_DIST_DIR).getCanonicalPath());
 
         // Dist is set explicitly but invalid
-        final LaunchConfiguration conf3 = new LaunchConfiguration(new String[] {"-dist", "wrong/path"}, log, launcher);
+        final LaunchOptions conf3 = new LaunchOptions(new String[] {"-dist", "wrong/path"}, log, launcher);
         try {
             launcher.getCCDistDir(conf3, log);
             fail("Wrong explicit CCDistDir should have failed.");
@@ -109,7 +109,7 @@ public class LauncherTest extends TestCase {
             final FilesToDelete f = new FilesToDelete();
             final File log4jConfig = f.add("log4j.user.config");
 
-            launcher.run(new String[]{ "-" + LaunchConfiguration.KEY_LOG4J_CONFIG, "file://" + log4jConfig.getAbsolutePath()});
+            launcher.run(new String[]{ "-" + LaunchOptions.KEY_LOG4J_CONFIG, "file://" + log4jConfig.getAbsolutePath()});
             assertNotNull("log4j sys prop should be set", System.getProperty(Launcher.PROP_LOG4J_CONFIGURATION));
         } catch (Exception e) {
             // Here the default file was not found ...
@@ -134,7 +134,7 @@ public class LauncherTest extends TestCase {
         // Set the non-URL path - through config
         try {
             final String bogusLog4jConfig = "bogusLog4jConfig";
-            final String[] args = new String[] { "-" + LaunchConfiguration.KEY_LOG4J_CONFIG, bogusLog4jConfig };
+            final String[] args = new String[] { "-" + LaunchOptions.KEY_LOG4J_CONFIG, bogusLog4jConfig };
 
             launcher.run(args);
             fail("Exception was expected, since " + bogusLog4jConfig + " should not exist");
@@ -160,27 +160,27 @@ public class LauncherTest extends TestCase {
         opts.add(new AbstractMap.SimpleEntry<String, String>("user_lib", "lib"));
         opts.add(new AbstractMap.SimpleEntry<String, String>("user_lib", "main/lib"));
         // Make XML cruisecontrol config (containing the <launch> section)
-        LaunchConfigurationTest.storeXML(LaunchConfigurationTest.makeConfigXML(LaunchConfigurationTest.makeLauchXML(opts)), launchConf);
+        LaunchOptionsTest.storeXML(LaunchOptionsTest.makeConfigXML(LaunchOptionsTest.makeLauchXML(opts)), launchConf);
 
 
-        final CruiseControlSettings conf;
+        final CruiseControlOptions conf;
         final LauncherMock launcher = new LauncherMock();
 
         try {
-            launcher.run(new String[] {"-" + LaunchConfiguration.KEY_CONFIG_FILE, launchConf.getAbsolutePath(),
-                                       "-" + CruiseControlSettings.KEY_USER, "DummyUser",  //Some CC-specific options
-                                       "-" + CruiseControlSettings.KEY_CC_NAME,  "CC_Tester"});
+            launcher.run(new String[] {"-" + LaunchOptions.KEY_CONFIG_FILE, launchConf.getAbsolutePath(),
+                                       "-" + CruiseControlOptions.KEY_USER, "DummyUser",  //Some CC-specific options
+                                       "-" + CruiseControlOptions.KEY_CC_NAME,  "CC_Tester"});
             // Launch must be OK
             assertEquals(false, launcher.exitedWithErrorCode());
 
             // Check he configuration
-            conf = CruiseControlSettings.getInstance();
+            conf = CruiseControlOptions.getInstance();
             // And check the arguments
-            assertEquals((new File("./ccHome")).getCanonicalPath(), conf.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR).getCanonicalPath());
-            assertEquals((new File(".")).getCanonicalPath(), conf.getOptionDir(LaunchConfiguration.KEY_DIST_DIR).getCanonicalPath());
+            assertEquals((new File("./ccHome")).getCanonicalPath(), conf.getOptionDir(LaunchOptions.KEY_PROJ_DIR).getCanonicalPath());
+            assertEquals((new File(".")).getCanonicalPath(), conf.getOptionDir(LaunchOptions.KEY_DIST_DIR).getCanonicalPath());
 
-            assertEquals("DummyUser", conf.getOptionStr(CruiseControlSettings.KEY_USER));
-            assertEquals("CC_Tester", conf.getOptionStr(CruiseControlSettings.KEY_CC_NAME));
+            assertEquals("DummyUser", conf.getOptionStr(CruiseControlOptions.KEY_USER));
+            assertEquals("CC_Tester", conf.getOptionStr(CruiseControlOptions.KEY_CC_NAME));
 
         } finally {
             launcher.clearConfig();
@@ -189,10 +189,10 @@ public class LauncherTest extends TestCase {
 
     /** Mock object for {@link Launcher} which disables the System.exit() call on failure */
     private static class LauncherMock extends Launcher {
-        /** Releases the {@link CruiseControlSettings} config it it has been instantiated in {@link #main(String[])}
+        /** Releases the {@link CruiseControlOptions} config it it has been instantiated in {@link #main(String[])}
          *  <b>do not forget to call the method when {@link #run(String[])} or {@link #main(String[])} was called in a test!</b> */
         void clearConfig() {
-            CruiseControlSettings.delInstance(this);
+            CruiseControlOptions.delInstance(this);
         }
         /** Override of {@link Launcher#newConfOwner()} - it returns this instance */
         @Override

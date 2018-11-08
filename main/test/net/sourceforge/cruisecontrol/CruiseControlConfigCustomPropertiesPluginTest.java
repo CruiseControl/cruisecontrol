@@ -16,12 +16,12 @@ public class CruiseControlConfigCustomPropertiesPluginTest {
 
     @Before
     public void setUp() throws Exception {
-        CruiseControlSettings.getInstance(this);
+        CruiseControlOptions.getInstance(this);
     }
 
     @After
     public void tearDown() throws Exception {
-        CruiseControlSettings.delInstance(this);
+        CruiseControlOptions.delInstance(this);
     }
 
     @Test

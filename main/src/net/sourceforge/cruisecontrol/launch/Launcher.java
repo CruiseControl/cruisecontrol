@@ -80,7 +80,7 @@ public class Launcher {
     public static final String PROP_LOG4J_CONFIGURATION = "log4j.configuration";
 
     /** The location of a per-user library directory */
-    public static final File USER_LIBDIR = new File(new File(LaunchConfiguration.USER_HOMEDIR, ".cruisecontrol"),
+    public static final File USER_LIBDIR = new File(new File(LaunchOptions.USER_HOMEDIR, ".cruisecontrol"),
             "lib");
 
     /**
@@ -114,7 +114,7 @@ public class Launcher {
 
         // First of all read the configuration
         final LogInterface firstLogger = new LogBuffer();
-        final LaunchConfiguration config = new LaunchConfiguration(args, firstLogger, this);
+        final LaunchOptions config = new LaunchOptions(args, firstLogger, this);
         // Determine the CruiseControl directory for the distribution jars if it was provided,
         // Otherwise make a guess based upon the location of the launcher jar.
         // These are the most important directories the other config options may point to. So resolve
@@ -123,24 +123,24 @@ public class Launcher {
         final File ccProjDir = getCCProjDir(config, firstLogger);
 
         // Make notice to log4j where is configuration file is
-        if (config.wasOptionSet(LaunchConfiguration.KEY_LOG4J_CONFIG)) {
-            final URL log4jcofig = config.getOptionUrl(LaunchConfiguration.KEY_LOG4J_CONFIG);
+        if (config.wasOptionSet(LaunchOptions.KEY_LOG4J_CONFIG)) {
+            final URL log4jcofig = config.getOptionUrl(LaunchOptions.KEY_LOG4J_CONFIG);
             System.setProperty(PROP_LOG4J_CONFIGURATION, log4jcofig.toString());
         }
 
         // Determine CruiseControl library directory for third party jars, if it was provided.
         // Otherwise make a guess based upon the CruiseControl home dir we found earlier.
-        final File[] ccLibDirs = config.getOptionDirArray(LaunchConfiguration.KEY_LIBRARY_DIRS, ccDistDir);
+        final File[] ccLibDirs = config.getOptionDirArray(LaunchOptions.KEY_LIBRARY_DIRS, ccDistDir);
         final URL[] distJars = collectJars(ccDistDir, firstLogger);
         final URL[] libJars = collectJars(ccLibDirs, firstLogger);
         final URL[] antJars = collectAntLibs(ccLibDirs, firstLogger);
 
         // Locate any jars in the per-user lib directory
-        final boolean noUserLib = config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB);
+        final boolean noUserLib = config.getOptionBool(LaunchOptions.KEY_NO_USER_LIB);
         final URL[] userJars2 = noUserLib ? new URL[0] : collectJars(USER_LIBDIR, firstLogger);
         // Process the user lib dir directories found on the command line
         final File[] userDir1 = noUserLib ? new File[0]
-                : config.getOptionDirArray(LaunchConfiguration.KEY_USER_LIB_DIRS, ccProjDir);
+                : config.getOptionDirArray(LaunchOptions.KEY_USER_LIB_DIRS, ccProjDir);
         final URL[] userJars1 = collectJars(userDir1, firstLogger);
         // Locate the Java tools jar
         final File toolsJar = Locator.getToolsJar();
@@ -197,7 +197,7 @@ public class Launcher {
 
             // Pass the config to main CC process
             final Object confOwner = newConfOwner();
-            final Config confMain = main.confFactory(confOwner);
+            final Options confMain = main.confFactory(confOwner);
 
             for (final String key : config.allOptionKeys()) {
                 if (confMain.knowsOption(key)) {
@@ -244,17 +244,17 @@ public class Launcher {
 
     /**
      * Determine and return the CC dist directory. It is either the value set explicitly by
-     * {@link LaunchConfiguration#KEY_DIST_DIR} option or guessed as the ../../{@link #getClassSource()} path.
+     * {@link LaunchOptions#KEY_DIST_DIR} option or guessed as the ../../{@link #getClassSource()} path.
      * @param config the configuration holder
      * @param log the logger
      * @return CruiseControl dist directory
      * @throws LaunchException if CruiseControl dist is not set or could not be located.
      */
-    File getCCDistDir(LaunchConfiguration config, LogInterface log) throws LaunchException {
+    File getCCDistDir(LaunchOptions config, LogInterface log) throws LaunchException {
         // Check, if the directory was defined in a configuration
-        if (config.wasOptionSet(LaunchConfiguration.KEY_DIST_DIR)) {
+        if (config.wasOptionSet(LaunchOptions.KEY_DIST_DIR)) {
             try {
-                return config.getOptionDir(LaunchConfiguration.KEY_DIST_DIR);
+                return config.getOptionDir(LaunchOptions.KEY_DIST_DIR);
             } catch (IllegalArgumentException e) {
                 throw new LaunchException(MSG_BAD_CCDIST);
             }
@@ -263,7 +263,7 @@ public class Launcher {
         // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the launcher Jar.
         File classSource = getClassSource();
-        log.warn("Trying to guess '" + LaunchConfiguration.KEY_DIST_DIR + "' from '" + classSource.getAbsolutePath());
+        log.warn("Trying to guess '" + LaunchOptions.KEY_DIST_DIR + "' from '" + classSource.getAbsolutePath());
 
         // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the launcher Jar.
@@ -278,7 +278,7 @@ public class Launcher {
         if (classSource.getParentFile() != null) {
             classSource = classSource.getParentFile();
             // Store it and return
-            config.setOption(LaunchConfiguration.KEY_DIST_DIR, classSource.getAbsolutePath(), this);
+            config.setOption(LaunchOptions.KEY_DIST_DIR, classSource.getAbsolutePath(), this);
             return classSource;
         }
         // If none of the above worked, give up.
@@ -291,11 +291,11 @@ public class Launcher {
      * @return CruiseControl home directory
      * @throws LaunchException if CruiseControl home is not set or could not be located.
      */
-    File getCCProjDir(LaunchConfiguration config, LogInterface log) throws LaunchException {
+    File getCCProjDir(LaunchOptions config, LogInterface log) throws LaunchException {
         // Check, if the directory was defined in a configuration
-        if (config.wasOptionSet(LaunchConfiguration.KEY_PROJ_DIR)) {
+        if (config.wasOptionSet(LaunchOptions.KEY_PROJ_DIR)) {
             try {
-                return config.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR);
+                return config.getOptionDir(LaunchOptions.KEY_PROJ_DIR);
             } catch (IllegalArgumentException e) {
                 throw new LaunchException(MSG_BAD_CCPROJ);
             }
@@ -303,19 +303,19 @@ public class Launcher {
         // If the location was not specified, or it does not exist, try to guess
         // the location based upon the location of the working directory.
         File workdir = new File(".");
-        log.warn("Trying to guess '" + LaunchConfiguration.KEY_PROJ_DIR + "' from working dir '"
+        log.warn("Trying to guess '" + LaunchOptions.KEY_PROJ_DIR + "' from working dir '"
                 + workdir.getAbsolutePath() + "'");
 
         if (workdir == null || !workdir.exists()) {
             throw new LaunchException(MSG_BAD_CCPROJ);
         }
         try {
-            workdir =  config.getOptionDir(LaunchConfiguration.KEY_PROJ_DIR, workdir);
+            workdir =  config.getOptionDir(LaunchOptions.KEY_PROJ_DIR, workdir);
         } catch (IllegalArgumentException e) {
             workdir = workdir.getAbsoluteFile();
         }
         // Store it and return
-        config.setOption(LaunchConfiguration.KEY_PROJ_DIR, workdir.getAbsolutePath(), this);
+        config.setOption(LaunchOptions.KEY_PROJ_DIR, workdir.getAbsolutePath(), this);
         return workdir;
 
     }
@@ -375,39 +375,39 @@ public class Launcher {
    private static void printHelp() {
        System.err.println("");
        System.err.println("CruiseControl launch options. The preference orderign is (lowest to highest)");
-       System.err.println(" - config XML file, as set by ${" + LaunchConfiguration.KEY_CONFIG_FILE + "} option");
+       System.err.println(" - config XML file, as set by ${" + LaunchOptions.KEY_CONFIG_FILE + "} option");
        System.err.println(" - system properties, prefixed by cc.");
        System.err.println(" - command line options");
        System.err.println("");
-       System.out.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_CONFIG_FILE));
+       System.out.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_CONFIG_FILE));
        System.out.println("       ... the path to the launch configuration XML. It is an XML file with");
        System.out.println("           either <launch> root element or <cruisecontrol><launch> sub-node, under ");
        System.out.println("           which all the following options can be placed as embedded XML nodes.");
        System.out.println("           When launcher configuration is set in its own file with <launch> root,");
-       System.out.println("           it must contain <" + LaunchConfiguration.KEY_CONFIG_FILE + "> element");
+       System.out.println("           it must contain <" + LaunchOptions.KEY_CONFIG_FILE + "> element");
        System.out.println("           with the path to an external main cruisecontrol configuration file.");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_DIST_DIR));
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_DIST_DIR));
        System.err.println("       ... the path to the directory where the CruiseControl was installed. If not");
        System.err.println("           set, parent to the " + getClassSource().getAbsolutePath());
        System.err.println("           directory is used (i.e. /foo/bar/ for /foo/bar/lib/cruisecontrol-launch.jar).");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_PROJ_DIR));
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_PROJ_DIR));
        System.err.println("       ... the path to the directory where the CruiseControl projects are located.");
        System.err.println("           If not set, working directory is used.");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_LIBRARY_DIRS));
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_LIBRARY_DIRS));
        System.err.println("       ... the path to the directories where the CC libraries are located;");
        System.err.println("           the option may repeat, on each occurence a single directory is added to");
-       System.err.println("           the list. Relative paths use ${" + LaunchConfiguration.KEY_DIST_DIR + "} parent"
+       System.err.println("           the list. Relative paths use ${" + LaunchOptions.KEY_DIST_DIR + "} parent"
                                    + "directory.");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_USER_LIB_DIRS));
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_USER_LIB_DIRS));
        System.err.println("       ... the path to the directories where additional libraries are located;");
        System.err.println("           the option may repeat, on each occurrence a single directory is added to");
-       System.err.println("           the list. Relative paths use ${" + LaunchConfiguration.KEY_PROJ_DIR + "} parent "
+       System.err.println("           the list. Relative paths use ${" + LaunchOptions.KEY_PROJ_DIR + "} parent "
                                    + "directory.");
        System.err.println("           In addition, " + USER_LIBDIR.getAbsolutePath() + " is always added to the");
-       System.err.println("           list, unless ${" + LaunchConfiguration.KEY_NO_USER_LIB + "} is set.");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_NO_USER_LIB));
+       System.err.println("           list, unless ${" + LaunchOptions.KEY_NO_USER_LIB + "} is set.");
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_NO_USER_LIB));
        System.err.println("       ... when set, no user library is used.");
-       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_LOG4J_CONFIG));
+       System.err.println(LaunchOptions.getBaseHelp(LaunchOptions.KEY_LOG4J_CONFIG));
        System.err.println("       ... the URL pointing to the file with log4j cpnfiguration.");
 
        System.err.println("");

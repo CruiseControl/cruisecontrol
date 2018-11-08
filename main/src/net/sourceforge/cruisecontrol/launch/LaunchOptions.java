@@ -57,7 +57,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class LaunchConfiguration implements Config {
+public class LaunchOptions implements Options {
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
     public static final String KEY_LIBRARY_DIRS = "lib";
@@ -122,7 +122,7 @@ public class LaunchConfiguration implements Config {
     }
 
     /**
-     * Constructor initializing an instance of {@link LaunchConfiguration}. First it looks for
+     * Constructor initializing an instance of {@link LaunchOptions}. First it looks for
      * configuration file specified in argument -configfile. It searches the file system in this order:
      * <ol>
      * <li>If the specified path is absolute and file exists then it uses this file.</li>
@@ -144,7 +144,7 @@ public class LaunchConfiguration implements Config {
      *          {@link #setOption(String, String, Object)} method.
      * @throws LaunchException
      */
-    public LaunchConfiguration(final String[] args, LogInterface log, Object confOwner) throws LaunchException {
+    public LaunchOptions(final String[] args, LogInterface log, Object confOwner) throws LaunchException {
         final Map<String, Option> temp = new HashMap<String, Option>(DEFAULT_OPTIONS.length);
 
         // Fills the final attribs
@@ -193,7 +193,7 @@ public class LaunchConfiguration implements Config {
     }
 
     /**
-     * The implementation of {@link Config#knowsOption(String)}. In contary to {@link #wasOptionSet(String)},
+     * The implementation of {@link Options#knowsOption(String)}. In contary to {@link #wasOptionSet(String)},
      * this method returns <code>true</code> for both options which has been set and for options having a
      * default value.
      */

@@ -74,7 +74,7 @@ public class CruiseControlConfigTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         // Fill properties to be tested
-        CruiseControlSettings settings = CruiseControlSettings.getInstance(this);
+        CruiseControlOptions settings = CruiseControlOptions.getInstance(this);
         settings.setOption("user", "value_for_user", this);
         settings.setOption("ccname", "value_for_ccname", this);
 
@@ -117,7 +117,7 @@ public class CruiseControlConfigTest extends TestCase {
         classpathDirectory = null;
         config = null;
 
-        CruiseControlSettings.delInstance(this);
+        CruiseControlOptions.delInstance(this);
     }
 
     public void testUseNonDefaultProjects() throws CruiseControlException {

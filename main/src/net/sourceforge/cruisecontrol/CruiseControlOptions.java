@@ -45,9 +45,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.mortbay.log.Log;
 
-import net.sourceforge.cruisecontrol.launch.Config;
+import net.sourceforge.cruisecontrol.launch.Options;
 
-public class CruiseControlSettings implements Config {
+public class CruiseControlOptions implements Options {
 
     /* All keys used for recognizing settings */
     public static final String KEY_CONFIG_FILE = "configfile";
@@ -72,8 +72,8 @@ public class CruiseControlSettings implements Config {
     public static final String KEY_CC_NAME = "ccname";
     public static final String KEY_JMX_AGENT_UTIL = "agentutil";
 
-    private static CruiseControlSettings config = null; // instance
-    private static final Logger LOG = Logger.getLogger(CruiseControlSettings.class);
+    private static CruiseControlOptions config = null; // instance
+    private static final Logger LOG = Logger.getLogger(CruiseControlOptions.class);
 
     /** Array of default values for all the option keys */
     private static final Option[] DEFAULT_OPTIONS = {
@@ -106,28 +106,28 @@ public class CruiseControlSettings implements Config {
     private final Object owner;
 
     /**
-     * Initializes a singleton instance of {@link CruiseControlSettings} and returns this instance.
+     * Initializes a singleton instance of {@link CruiseControlOptions} and returns this instance.
      *
      * @param owner the object allowing to change the configuration through {@link #setOption(String, String, Object)}
-     * @return the initialized instance of {@link CruiseControlSettings}
+     * @return the initialized instance of {@link CruiseControlOptions}
      * @throws CruiseControlException
      */
-    public static CruiseControlSettings getInstance(final Object owner) throws CruiseControlException {
+    public static CruiseControlOptions getInstance(final Object owner) throws CruiseControlException {
         if (config != null) {
             throw new CruiseControlException("Settings was already initialized. Use getInstance()");
         }
-        config = new CruiseControlSettings(owner);
+        config = new CruiseControlOptions(owner);
         return config;
     }
 
     /**
-     * Returns a singleton instance of {@link CruiseControlSettings}, if initiaized by
+     * Returns a singleton instance of {@link CruiseControlOptions}, if initiaized by
      * {@link #getInstance(Object)}.
      *
-     * @return the instance of {@link CruiseControlSettings}
+     * @return the instance of {@link CruiseControlOptions}
      * @throws CruiseControlException when not initialized
      */
-    public static CruiseControlSettings getInstance() throws CruiseControlException {
+    public static CruiseControlOptions getInstance() throws CruiseControlException {
         if (config == null) {
             throw new CruiseControlException("You must first initialize Settings. Use getInstance(args)");
         }
@@ -362,7 +362,7 @@ public class CruiseControlSettings implements Config {
      * @param owner the object allows to change the configuration through {@link #setOption(String, String, Object)}
      * @throws CruiseControlException
      */
-    protected CruiseControlSettings(final Object owner) throws CruiseControlException {
+    protected CruiseControlOptions(final Object owner) throws CruiseControlException {
         this.owner = owner;
     }
 
@@ -405,7 +405,7 @@ public class CruiseControlSettings implements Config {
     }
 
     /**
-     * Unchangeable option holder "structure". This is similar to LaunchConfiguration#Option, except
+     * Unchangeable option holder "structure". This is similar to LaunchOptions#Option, except
      * it holds object instead of string.
      */
     private static final class Option {

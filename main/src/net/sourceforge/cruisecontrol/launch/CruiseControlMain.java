@@ -58,14 +58,14 @@ package net.sourceforge.cruisecontrol.launch;
  */
 public interface CruiseControlMain {
     /**
-     * Gets the implementation of {@link Config} to be filled with the config values. The method must be
+     * Gets the implementation of {@link Options} to be filled with the config values. The method must be
      * called before {@link #start()} to fill the CruiseControl by options set through the {@link Launcher}
      *
      * @param owner the instance which will be allowed to fill the config, see
-     *          {@link Config#setOption(String, String, Object)}
+     *          {@link Options#setOption(String, String, Object)}
      * @return new instance
      */
-    public Config confFactory(Object owner);
+    public Options confFactory(Object owner);
     /**
      * Start CruiseControl
      * @return

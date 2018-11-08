@@ -156,7 +156,7 @@ public class CruiseControlConfig {
     }
 
     private void parse(final Element ccElement) throws CruiseControlException {
-        // Ignore the <launch>...</launch> section, see LaunchConfiguration
+        // Ignore the <launch>...</launch> section, see LaunchOptions
         ccElement.removeChild("launch");
         // parse properties and plugins first, so their order in the config file
         // doesn't matter
@@ -565,7 +565,7 @@ public class CruiseControlConfig {
      * @throws CruiseControlException
      */
     private void setLaunchProperties() throws CruiseControlException {
-        final CruiseControlSettings conf = CruiseControlSettings.getInstance();
+        final CruiseControlOptions conf = CruiseControlOptions.getInstance();
 
         for (String key : conf.allOptionKeys()) {
             // Must no be set

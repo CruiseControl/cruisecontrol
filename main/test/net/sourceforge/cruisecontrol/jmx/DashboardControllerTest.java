@@ -38,7 +38,7 @@ package net.sourceforge.cruisecontrol.jmx;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.CruiseControlController;
-import net.sourceforge.cruisecontrol.CruiseControlSettings;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
 import net.sourceforge.cruisecontrol.Main;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
@@ -48,7 +48,7 @@ public class DashboardControllerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        CruiseControlSettings.getInstance(this);
+        CruiseControlOptions.getInstance(this);
 
         super.setUp();
         BuildLoopMonitorRepository.cancelPosting();
@@ -56,7 +56,7 @@ public class DashboardControllerTest extends TestCase {
     }
     @Override
     protected void tearDown() throws Exception {
-        CruiseControlSettings.delInstance(this);
+        CruiseControlOptions.delInstance(this);
     }
 
     public void testShouldBeAbleToDisablePosting() throws Exception {

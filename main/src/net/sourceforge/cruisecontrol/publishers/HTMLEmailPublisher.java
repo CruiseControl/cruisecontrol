@@ -55,7 +55,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import net.sourceforge.cruisecontrol.CruiseControlException;
-import net.sourceforge.cruisecontrol.CruiseControlSettings;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
 import net.sourceforge.cruisecontrol.builders.Property;
 import net.sourceforge.cruisecontrol.gendoc.annotations.Description;
 import net.sourceforge.cruisecontrol.gendoc.annotations.ManualChildName;
@@ -194,7 +194,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
 
     /**
      * Try some path constellations to see if the relative resource exists somewhere.
-     * First existing resource will be returned. At the moment we use the CruiseControlSettings.KEY_DIST_DIR
+     * First existing resource will be returned. At the moment we use the CruiseControlOptions.KEY_DIST_DIR
      * config option (preferred) and source-path in combination with the binary-contribution (preferred) and
      * source-tree.
      * @param relativeResource relative path to look for
@@ -203,7 +203,7 @@ public class HTMLEmailPublisher extends EmailPublisher {
     private File guessFileForResource(final String relativeResource) {
         File ccDist;
         try {
-            ccDist = CruiseControlSettings.getInstance().getOptionDir(CruiseControlSettings.KEY_DIST_DIR);
+            ccDist = CruiseControlOptions.getInstance().getOptionDir(CruiseControlOptions.KEY_DIST_DIR);
         } catch (CruiseControlException e) {
             LOG.error("Failed to get CC dist directory from config", e);
             ccDist = getCruiseRootDir();

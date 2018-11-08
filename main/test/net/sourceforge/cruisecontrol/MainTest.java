@@ -48,7 +48,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.jmx.CruiseControlControllerAgent;
-import net.sourceforge.cruisecontrol.launch.Config;
+import net.sourceforge.cruisecontrol.launch.Options;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitorRepository;
 import net.sourceforge.cruisecontrol.testutil.TestUtil.FilesToDelete;
@@ -62,7 +62,7 @@ public class MainTest extends TestCase {
 
     @Override
     public void tearDown() {
-        CruiseControlSettings.delInstance(configOwner);
+        CruiseControlOptions.delInstance(configOwner);
         testFiles.delete();
         // Remove all properties
         for (String p : System.getProperties().stringPropertyNames()) {
@@ -73,30 +73,30 @@ public class MainTest extends TestCase {
     }
 
     public void testParsePassword() throws Exception {
-        fillConfig(null);
+        fillOptions(null);
         assertEquals(null, Main.parsePassword()); // use default value
 
-        fillConfig(new String[] {"password", "password"});
+        fillOptions(new String[] {"password", "password"});
         assertEquals("password", Main.parsePassword());
     }
 
     public void testParseUser() throws Exception {
-        fillConfig(null);
+        fillOptions(null);
         assertEquals(null, Main.parseUser());
 
-        fillConfig(new String[] {"user", "user"});
+        fillOptions(new String[] {"user", "user"});
         assertEquals("user", Main.parseUser());
     }
 
     public void testParseJettyXml() throws Exception {
         StringBuilder fullPath = new StringBuilder();
 
-        fillConfig(new String[] {"jettyxml", makeFile("myJetty.xml", fullPath)});
+        fillOptions(new String[] {"jettyxml", makeFile("myJetty.xml", fullPath)});
         assertEquals(fullPath.toString(), Main.parseJettyXml(new File("ccHome")));
 
         // Default file does not exist
         try {
-            fillConfig(new String[] {});
+            fillOptions(new String[] {});
             Main.parseJettyXml(null);
             fail("Expected IllegalArgumentException on missing jettyxml file");
         } catch (CruiseControlException e) {
@@ -108,7 +108,7 @@ public class MainTest extends TestCase {
         makeDir(new File(new File("ccHome"), "etc"), fullPath);
         makeFile(new File(fullPath.toString(), "jetty.xml"), fullPath);
 
-        fillConfig(new String[] {});
+        fillOptions(new String[] {});
         assertEquals(new File("ccHome/etc/jetty.xml").getAbsolutePath(), Main.parseJettyXml(new File("ccHome")));
 
         makeDir("etc/", fullPath);
@@ -116,49 +116,49 @@ public class MainTest extends TestCase {
     }
 
     public void testParseDashboardUrl() throws Exception {
-        fillConfig(new String[] {"dashboardurl", "http://myserver:1234/dashboard"});
+        fillOptions(new String[] {"dashboardurl", "http://myserver:1234/dashboard"});
         assertEquals("http://myserver:1234/dashboard", Main.parseDashboardUrl());
 
-        fillConfig(null);
+        fillOptions(null);
         assertEquals("http://localhost:8080/dashboard", Main.parseDashboardUrl());
     }
 
     public void testParseDashboardUrlWithWebport() throws Exception {
-        fillConfig(new String[] {"webport", "8585"});
+        fillOptions(new String[] {"webport", "8585"});
         assertEquals("http://localhost:8585/dashboard", Main.parseDashboardUrl());
 
-        fillConfig(new String[] {"webport", "8585", "dashboardurl", "http://myserver:1234/dashboard"});
+        fillOptions(new String[] {"webport", "8585", "dashboardurl", "http://myserver:1234/dashboard"});
         assertEquals("http://myserver:1234/dashboard", Main.parseDashboardUrl());
     }
 
     public void testParseHttpPostingInterval() throws Exception {
-        fillConfig(new String[] {"postinterval", "1234"});
+        fillOptions(new String[] {"postinterval", "1234"});
         assertEquals(1234, Main.parseHttpPostingInterval());
 
-        fillConfig(new String[] {});
+        fillOptions(new String[] {});
         assertEquals(5, Main.parseHttpPostingInterval());
     }
 
     public void testParsePostingEnabled() throws Exception {
-        fillConfig(new String[] {"postenabled", "false"});
+        fillOptions(new String[] {"postenabled", "false"});
         assertFalse(Main.parseHttpPostingEnabled());
 
-        fillConfig(new String[] {});
+        fillOptions(new String[] {});
         assertTrue(Main.parseHttpPostingEnabled());
     }
 
     public void testParseHttpPort() throws Exception {
-        fillConfig(new String[] {"jmxport", "123"});
+        fillOptions(new String[] {"jmxport", "123"});
         assertEquals(123, Main.parseJMXHttpPort());
 
-        fillConfig(new String[] {});
+        fillOptions(new String[] {});
         assertEquals(8000, Main.parseJMXHttpPort());
 
-        fillConfig(new String[] {"port", "123"});
+        fillOptions(new String[] {"port", "123"});
         assertEquals(123, Main.parseJMXHttpPort());
 
         try {
-            fillConfig(new String[] {"jmxport", "ABC"});
+            fillOptions(new String[] {"jmxport", "ABC"});
             Main.parseJMXHttpPort();
             fail("Expected IllegalArgumentException on non-int ABC");
         } catch (IllegalArgumentException e) {
@@ -166,7 +166,7 @@ public class MainTest extends TestCase {
         }
 
         try {
-            fillConfig(new String[] {"-port", "123", "-jmxport", "123"});
+            fillOptions(new String[] {"-port", "123", "-jmxport", "123"});
             Main.parseJMXHttpPort();
             fail("Expected exception");
         } catch (IllegalArgumentException expected) {
@@ -175,14 +175,14 @@ public class MainTest extends TestCase {
     }
 
     public void testParseRmiPort() throws Exception {
-        fillConfig(new String[] {"rmiport", "123"});
+        fillOptions(new String[] {"rmiport", "123"});
         assertEquals(123, Main.parseRmiPort());
 
-        fillConfig(null);
+        fillOptions(null);
         assertEquals(1099, Main.parseRmiPort()); // default value
 
         try {
-            fillConfig(new String[] {"rmiport", "ABC"});
+            fillOptions(new String[] {"rmiport", "ABC"});
             Main.parseRmiPort();
             fail("Expected exception");
         } catch (IllegalArgumentException e) {
@@ -191,14 +191,14 @@ public class MainTest extends TestCase {
     }
 
     public void testParseWebPort() throws Exception {
-        fillConfig(new String[] {"webport", "123"});
+        fillOptions(new String[] {"webport", "123"});
         assertEquals(123, Main.parseWebPort());
 
-        fillConfig(null);
+        fillOptions(null);
         assertEquals(8080, Main.parseWebPort());
 
         try {
-            fillConfig(new String[] {"webport", "ABC"});
+            fillOptions(new String[] {"webport", "ABC"});
             Main.parseWebPort();
             fail("Expected exception");
         } catch (IllegalArgumentException e) {
@@ -207,9 +207,9 @@ public class MainTest extends TestCase {
     }
 
     public void testShouldSetWebPortAsSystemProperty() throws Exception {
-        final File temporaryConfigFile = testFiles.add("temp-config", ".xml");
+        final File temporaryOptionsFile = testFiles.add("temp-config", ".xml");
 
-        Main.setUpSystemPropertiesForDashboard(temporaryConfigFile.getAbsolutePath(), 123, 456, 789);
+        Main.setUpSystemPropertiesForDashboard(temporaryOptionsFile.getAbsolutePath(), 123, 456, 789);
         assertEquals("789", System.getProperty("cc.webport"));
     }
 
@@ -220,13 +220,13 @@ public class MainTest extends TestCase {
 
         makeDir(new File(webappDir, "WEB-INF"), new StringBuilder());
 
-        fillConfig(new String[] {"webapppath", webappDir.getAbsolutePath()});
+        fillOptions(new String[] {"webapppath", webappDir.getAbsolutePath()});
         assertEquals(webappDir.getAbsolutePath(), theMainClass.parseWebappPath());
 
         // invalid path
-        fillConfig(new String[] {});
+        fillOptions(new String[] {});
 
-        final File path = new File(CruiseControlSettings.getInstance().getOptionRaw(CruiseControlSettings.KEY_WEBAPP_PATH));
+        final File path = new File(CruiseControlOptions.getInstance().getOptionRaw(CruiseControlOptions.KEY_WEBAPP_PATH));
         final String msg = "Option 'webapppath' = '" + path.getAbsolutePath() + "' does not represent existing directory!";
 
         assertFalse(path.exists());
@@ -241,7 +241,7 @@ public class MainTest extends TestCase {
         }
 
         try {
-            fillConfig(new String[] {"webapppath", "does_not_exist"});
+            fillOptions(new String[] {"webapppath", "does_not_exist"});
             theMainClass.parseWebappPath();
             fail();
         } catch (IllegalArgumentException expected) {
@@ -253,14 +253,14 @@ public class MainTest extends TestCase {
         final File tempDirName = testFiles.tmpdir().getAbsoluteFile();
         final String invalidXsl = "does_Not_Exist";
 
-        fillConfig(new String[] {"xslpath", tempDirName.getPath()});
+        fillOptions(new String[] {"xslpath", tempDirName.getPath()});
         assertEquals(tempDirName.getAbsolutePath(), Main.parseXslPath());
 
-        fillConfig(null);
+        fillOptions(null);
         assertEquals(new File(".").getAbsolutePath(), Main.parseXslPath()); // use default value
 
         try {
-            fillConfig(new String[] {"xslpath", invalidXsl});
+            fillOptions(new String[] {"xslpath", invalidXsl});
             Main.parseXslPath();
             fail();
         } catch (IllegalArgumentException expected) {
@@ -270,71 +270,71 @@ public class MainTest extends TestCase {
     }
 
     public void testParseEnableJMXAgentUtility() throws Exception {
-        fillConfig(null);
+        fillOptions(null);
         assertEquals("default, if no command line arg present. Not an error if load fails.",
                 CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE,
                 Main.parseEnableJMXAgentUtility());
 
-        fillConfig(new String[] {"agentutil", "true"});
+        fillOptions(new String[] {"agentutil", "true"});
         assertEquals("-agentutil true. Considered an error if load fails.",
                 CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_LOAD,
                 Main.parseEnableJMXAgentUtility());
 
-        fillConfig(new String[] {"agentutil", "false"});
+        fillOptions(new String[] {"agentutil", "false"});
         assertEquals("-agentutil false. Do not attempt to load.",
                 CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_BYPASS,
                 Main.parseEnableJMXAgentUtility());
     }
 
     public void testUsage() throws Exception {
-        fillConfig(new String[] {"?", "true"}); // must pass two args, default is false
+        fillOptions(new String[] {"?", "true"}); // must pass two args, default is false
         assertTrue(Main.shouldPrintUsage());
 
-        fillConfig(new String[] {"port", "8000"});
+        fillOptions(new String[] {"port", "8000"});
         assertFalse(Main.shouldPrintUsage());
 
-        fillConfig(null);
+        fillOptions(null);
         assertFalse(Main.shouldPrintUsage());
     }
 
     public void testshouldStartController() throws Exception {
-        fillConfig(new String[] {"jmxport", "8055", "rmiport", "8056"});
+        fillOptions(new String[] {"jmxport", "8055", "rmiport", "8056"});
         assertTrue(Main.shouldStartJmxAgent());
 
-        fillConfig(new String[] {"port", "8085", "rmiport", "8086"});
+        fillOptions(new String[] {"port", "8085", "rmiport", "8086"});
         assertTrue(Main.shouldStartJmxAgent());
 
-        fillConfig(new String[] {"rmiport", "8086"});
+        fillOptions(new String[] {"rmiport", "8086"});
         assertTrue(Main.shouldStartJmxAgent());
 
-        fillConfig(new String[] {"jmxport", "8085"});
+        fillOptions(new String[] {"jmxport", "8085"});
         assertTrue(Main.shouldStartJmxAgent());
 
-        fillConfig(new String[] {"port", "8085"});
+        fillOptions(new String[] {"port", "8085"});
         assertTrue(Main.shouldStartJmxAgent());
 
-        fillConfig(null);
+        fillOptions(null);
         assertFalse(Main.shouldStartJmxAgent());
     }
 
     public void testShouldStartEmbeddedServer() throws Exception {
         makeFile("/tmp/foo", new StringBuilder());
 
-        fillConfig(new String[] {"webport", "1234", "webapppath", "/tmp/foo"});
+        fillOptions(new String[] {"webport", "1234", "webapppath", "/tmp/foo"});
         assertTrue(Main.shouldStartEmbeddedServer());
 
-        fillConfig(new String[] {"webport", "1234"});
+        fillOptions(new String[] {"webport", "1234"});
         assertTrue(Main.shouldStartEmbeddedServer());
 
-        fillConfig(new String[] {"webapppath", "/tmp/foo"});
+        fillOptions(new String[] {"webapppath", "/tmp/foo"});
         assertTrue(Main.shouldStartEmbeddedServer());
 
-        fillConfig(null);
+        fillOptions(null);
         assertFalse(Main.shouldStartEmbeddedServer());
     }
 
     public void testShouldStartBuildLoopMonitor() throws Exception {
-        fillConfig(null);
+        fillOptions(null);
 
         BuildLoopMonitor buildLoopMonitor = BuildLoopMonitorRepository.getBuildLoopMonitor();
         assertNull(buildLoopMonitor);
@@ -346,7 +346,7 @@ public class MainTest extends TestCase {
     }
 
     public void testShouldNOTRestartBuildLoopMonitorIfItAlreadyExisting() throws Exception {
-        fillConfig(null);
+        fillOptions(null);
 
         assertTrue(Main.shouldPostDataToDashboard());
         new Main().startPostingToDashboard();
@@ -360,7 +360,7 @@ public class MainTest extends TestCase {
         Logger testLogger = Logger.getLogger(Main.class);
         testLogger.addAppender(appender);
 
-        fillConfig(new String[] {"port", "8000"});
+        fillOptions(new String[] {"port", "8000"});
         Main.checkDeprecatedArguments();
 
         assertTrue(appender.toString().indexOf(
@@ -417,9 +417,9 @@ public class MainTest extends TestCase {
      * @param args the even list of key-value strings to be filled into config
      * @throws CruiseControlException
      */
-    private void fillConfig(String[] args) throws CruiseControlException {
-        CruiseControlSettings.delInstance(configOwner);
-        Config cfg = CruiseControlSettings.getInstance(configOwner);
+    private void fillOptions(String[] args) throws CruiseControlException {
+        CruiseControlOptions.delInstance(configOwner);
+        Options cfg = CruiseControlOptions.getInstance(configOwner);
 
         // Leave with clear config when no arguments were set
         if (args == null) {

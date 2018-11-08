@@ -64,7 +64,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        CruiseControlSettings.getInstance(this);
+        CruiseControlOptions.getInstance(this);
 
         URL url = this.getClass().getClassLoader().getResource("net/sourceforge/cruisecontrol/testconfig-preconf.xml");
         configFile = new File(URLDecoder.decode(url.getPath(), "utf-8"));
@@ -84,7 +84,7 @@ public class CruiseControlConfigPreConfTest extends TestCase {
         config = null;
 
         filesToDelete.delete();
-        CruiseControlSettings.delInstance(this);
+        CruiseControlOptions.delInstance(this);
     }
 
     public void testGetProjectNames() {

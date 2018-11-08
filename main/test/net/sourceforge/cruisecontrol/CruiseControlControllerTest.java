@@ -63,7 +63,7 @@ public final class CruiseControlControllerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        CruiseControlSettings.getInstance(this);
+        CruiseControlOptions.getInstance(this);
 
         Util.doMkDirs(dir);
         ccController = new CruiseControlController();
@@ -81,7 +81,7 @@ public final class CruiseControlControllerTest extends TestCase {
         ensureFileDoesntExist(configFile2);
 
         filesToDelete.delete();
-        CruiseControlSettings.delInstance(this);
+        CruiseControlOptions.delInstance(this);
     }
 
     private void ensureFileDoesntExist(File file) {
