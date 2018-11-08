@@ -223,15 +223,21 @@ public class MainTest extends TestCase {
         fillConfig(new String[] {"webapppath", webappDir.getAbsolutePath()});
         assertEquals(webappDir.getAbsolutePath(), theMainClass.parseWebappPath());
 
-        final String msg = "Option 'webapppath' = '/webapps/cruisecontrol' does not represent existing directory!";
+        // invalid path
+        fillConfig(new String[] {});
+
+        final File path = new File(CruiseControlSettings.getInstance().getOptionRaw(CruiseControlSettings.KEY_WEBAPP_PATH));
+        final String msg = "Option 'webapppath' = '" + path.getAbsolutePath() + "' does not represent existing directory!";
+
+        assertFalse(path.exists());
+
         try {
-            fillConfig(new String[] {});
             theMainClass.parseWebappPath();
             fail();
         } catch (IllegalArgumentException expected) {
             assertEquals(msg, expected.getMessage());
         } catch (CruiseControlException expected) {
-            assertEquals("Option 'webapppath' = '/webapps/cruisecontrol' does not represent existing directory!", expected.getMessage());
+            assertEquals(msg, expected.getMessage());
         }
 
         try {
