@@ -39,15 +39,18 @@ package net.sourceforge.cruisecontrol.dashboard.web;
 import net.sourceforge.cruisecontrol.dashboard.service.BuildLoopQueryService;
 import net.sourceforge.cruisecontrol.dashboard.repository.BuildInformationRepository;
 import net.sourceforge.cruisecontrol.BuildLoopInformation;
-import org.jmock.cglib.MockObjectTestCase;
-import org.jmock.Mock;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.ModelAndView;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
+
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 public class ForceBuildControllerTest extends MockObjectTestCase {
 
@@ -60,8 +63,13 @@ public class ForceBuildControllerTest extends MockObjectTestCase {
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
+    @Override
     protected void setUp() throws Exception {
-        System.setProperty("cruisecontrol.rmiport", "9090");
+
+        // Initialize the config (will be used to get config by BuildLoopInformationBuilder)
+        final CruiseControlOptions conf = CruiseControlOptions.getInstance(PROJECT_NAME);
+        conf.setOption(CruiseControlOptions.KEY_RMI_PORT, "9090", PROJECT_NAME);
+
 
         BuildLoopInformation.JmxInfo jmxinfo = new BuildLoopInformation.JmxInfo("cruise.example.com");
         BuildLoopInformation buildLoopInfo = new BuildLoopInformation(new BuildLoopInformation.ProjectInfo[0], jmxinfo,
@@ -79,6 +87,11 @@ public class ForceBuildControllerTest extends MockObjectTestCase {
         request.addParameter("projectName", PROJECT_NAME);
 
         response = new MockHttpServletResponse();
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        CruiseControlOptions.delInstance(PROJECT_NAME);
     }
 
     public void testShouldForceBuildAndReturnMessage() throws Exception {

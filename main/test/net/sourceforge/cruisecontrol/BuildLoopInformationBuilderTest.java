@@ -50,36 +50,22 @@ import org.apache.tools.ant.util.DateUtils;
 public class BuildLoopInformationBuilderTest extends TestCase {
 
     private String[] oldProperties;
-
-    private String[] properties =
-            {BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT,
-                    BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT,
-                    BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME,
-                    BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD};
-
     private BuildLoopInformationBuilder builder;
 
     protected void setUp() throws Exception {
-        oldProperties = new String[properties.length];
-        for (int i = 0; i < properties.length; i++) {
-            oldProperties[i] = System.getProperty(properties[i]);
-        }
-
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT, "1234");
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT, "5678");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME, "Chris");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD, "123asd");
+        // Initialize the config (will be used to get config by BuildLoopInformationBuilder)
+        final CruiseControlOptions conf = CruiseControlOptions.getInstance(this);
+        conf.setOption(CruiseControlOptions.KEY_JMX_PORT, "1234", this);
+        conf.setOption(CruiseControlOptions.KEY_RMI_PORT, "5678", this);
+        conf.setOption(CruiseControlOptions.KEY_USER, "Chris", this);
+        conf.setOption(CruiseControlOptions.KEY_PASSWORD, "123asd", this);
 
         builder = new BuildLoopInformationBuilder(new CruiseControlController());
         buildLoopInformation = builder.buildBuildLoopInformation();
     }
 
     protected void tearDown() throws Exception {
-        for (int i = 0; i < properties.length; i++) {
-            if (oldProperties[i] != null) {
-                System.setProperty(properties[i], oldProperties[i]);
-            }
-        }
+        CruiseControlOptions.delInstance(this);
     }
 
     public void testShouldGetServerName() throws Exception {
@@ -94,11 +80,6 @@ public class BuildLoopInformationBuilderTest extends TestCase {
     }
 
     public void testShouldGetJmxInformation() throws Exception {
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT, "1234");
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT, "5678");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME, "Chris");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD, "123asd");
-        builder = new BuildLoopInformationBuilder(new CruiseControlController());
         BuildLoopInformation.JmxInfo jmxInfo = builder.buildBuildLoopInformation().getJmxInfo();
 
         assertEquals(expectedUrl("http", "1234"), jmxInfo.getHttpAdpatorUrl());
@@ -213,7 +194,7 @@ public class BuildLoopInformationBuilderTest extends TestCase {
             lstProjs.add(p1);
             return lstProjs;
         }
-        
+
         private class ProjectConfigStub extends ProjectConfig {
 
             public String getBuildStartTime() {

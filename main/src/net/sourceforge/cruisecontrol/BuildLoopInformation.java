@@ -36,23 +36,25 @@
  ********************************************************************************/
 package net.sourceforge.cruisecontrol;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import net.sourceforge.cruisecontrol.util.BuildInformationHelper;
 import net.sourceforge.cruisecontrol.util.UniqueBuildloopIdentifier;
 
 public class BuildLoopInformation {
 
-    private String uuid;
+    private final String uuid;
 
-    private JmxInfo jmx;
+    private final JmxInfo jmx;
 
     private String servername = "";
 
     private String timestamp = "";
 
-    private ProjectInfo[] projects;
+    private final ProjectInfo[] projects;
 
     public BuildLoopInformation(ProjectInfo[] projects, JmxInfo jmxinfo, String serverName, String timestamp) {
         this.projects = projects;
@@ -88,33 +90,38 @@ public class BuildLoopInformation {
 
     public static class JmxInfo {
 
-        public static final String CRUISECONTROL_RMIPORT = "cruisecontrol.rmiport";
-
-        public static final String CRUISECONTROL_JMXPORT = "cruisecontrol.jmxport";
-
-        public static final String JMX_HTTP_USERNAME = "jmx.http.username";
-
-        public static final String JMX_HTTP_PASSWORD = "jmx.http.password";
-
         private String httpurl = "";
 
         private String rmiurl = "";
 
-        private String username = System.getProperty(JMX_HTTP_USERNAME);
+        private String username = "";
 
-        private String password = System.getProperty(JMX_HTTP_PASSWORD);
+        private String password = "";
 
         public JmxInfo(String serverName) {
+            CruiseControlOptions conf = null;
 
-            String httpPort = System.getProperty(CRUISECONTROL_JMXPORT);
-            if (httpPort != null) {
-                this.httpurl = "http://" + serverName + ":" + httpPort;
+            try {
+                conf = CruiseControlOptions.getInstance();
+
+                if (conf.wasOptionSet(CruiseControlOptions.KEY_JMX_PORT)) {
+                    final int httpPort = conf.getOptionInt(CruiseControlOptions.KEY_JMX_PORT);
+                    this.httpurl = "http://" + serverName + ":" + httpPort;
+                }
+                if (conf.wasOptionSet(CruiseControlOptions.KEY_RMI_PORT)) {
+                    final int rmiPort = conf.getOptionInt(CruiseControlOptions.KEY_RMI_PORT);
+                    this.rmiurl = "rmi://" + serverName + ":" + rmiPort;
+                }
+
+                username = conf.getOptionStr(CruiseControlOptions.KEY_USER);
+                password = conf.getOptionStr(CruiseControlOptions.KEY_PASSWORD);
+
+            } catch (CruiseControlException e) {
+                // Should not happen ...
+                Logger.getLogger(this.getClass()).error("Failed to initialize Jmx info for Build loop "
+                        + "information", e);
             }
 
-            String rmiPort = System.getProperty(CRUISECONTROL_RMIPORT);
-            if (rmiPort != null) {
-                this.rmiurl = "rmi://" + serverName + ":" + rmiPort;
-            }
         }
 
         public String getHttpAdpatorUrl() {
@@ -133,6 +140,7 @@ public class BuildLoopInformation {
             return password;
         }
 
+        @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
@@ -143,6 +151,7 @@ public class BuildLoopInformation {
             return result;
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
@@ -182,11 +191,11 @@ public class BuildLoopInformation {
     }
 
     public static class ProjectInfo {
-        private String name;
+        private final String name;
 
-        private String status;
+        private final String status;
 
-        private String buildstarttime;
+        private final String buildstarttime;
 
         private List modifications = new ArrayList();
 

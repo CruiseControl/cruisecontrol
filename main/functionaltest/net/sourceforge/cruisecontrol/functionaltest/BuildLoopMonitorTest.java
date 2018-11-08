@@ -54,13 +54,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 import net.sourceforge.cruisecontrol.BuildLoopInformation;
+import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
 import net.sourceforge.cruisecontrol.BuildLoopInformationBuilder;
 import net.sourceforge.cruisecontrol.CruiseControlController;
+import net.sourceforge.cruisecontrol.CruiseControlOptions;
 import net.sourceforge.cruisecontrol.Modification;
 import net.sourceforge.cruisecontrol.ProjectConfig;
-import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.ProjectInterface;
-import net.sourceforge.cruisecontrol.BuildLoopInformation.ProjectInfo;
+import net.sourceforge.cruisecontrol.ProjectState;
 import net.sourceforge.cruisecontrol.report.BuildLoopMonitor;
 import net.sourceforge.cruisecontrol.report.BuildLoopStatusReportTask;
 import net.sourceforge.cruisecontrol.util.BuildInformationHelper;
@@ -79,10 +80,13 @@ public class BuildLoopMonitorTest extends TestCase {
     private ServerSocket serverSocket;
 
     protected void setUp() throws Exception {
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT, "1234");
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT, "5678");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME, "Chris");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD, "123asd");
+        // Initialize the config (will be used to get config by BuildLoopInformationBuilder)
+        final CruiseControlOptions conf = CruiseControlOptions.getInstance(this);
+        conf.setOption(CruiseControlOptions.KEY_JMX_PORT, "1234", this);
+        conf.setOption(CruiseControlOptions.KEY_RMI_PORT, "5678", this);
+        conf.setOption(CruiseControlOptions.KEY_USER, "Chris", this);
+        conf.setOption(CruiseControlOptions.KEY_PASSWORD, "123asd", this);
+
         serverName = InetAddress.getLocalHost().getCanonicalHostName();
         BuildLoopInformationBuilder builder =
                 new BuildLoopInformationBuilder(new CruiseControlControllerStub());
@@ -90,10 +94,7 @@ public class BuildLoopMonitorTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_JMXPORT, "");
-        System.setProperty(BuildLoopInformation.JmxInfo.CRUISECONTROL_RMIPORT, "");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_USERNAME, "");
-        System.setProperty(BuildLoopInformation.JmxInfo.JMX_HTTP_PASSWORD, "");
+        CruiseControlOptions.delInstance(this);
         serverSocket.close();
     }
 
