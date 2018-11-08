@@ -29,4 +29,7 @@
         </publishers>
 
     </project>
+
+    <!-- Use this file to launch the cruisecontrol -->
+    <launch>launch.xml</launch>
 </cruisecontrol>

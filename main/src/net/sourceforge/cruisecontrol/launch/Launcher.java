@@ -94,6 +94,7 @@ public class Launcher {
             launcher.run(args);
         } catch (LaunchException e) {
             System.err.println(e.getMessage());
+            printHelp();
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -184,6 +185,11 @@ public class Launcher {
         final URLClassLoader loader = new URLClassLoader(jars.toArray(new URL[jars.size()]));
         Thread.currentThread().setContextClassLoader(loader);
 
+        // If there is --help option set, print the help (prior to the help of the main CC process
+        if (config.wasOptionSet("help") || config.wasOptionSet("h") || config.wasOptionSet("?")) {
+            printHelp();
+        }
+
         // Launch CruiseControl!
         try {
             final Class< ? > mainClass = loader.loadClass(MAIN_CLASS);
@@ -211,7 +217,7 @@ public class Launcher {
     }
 
     /** @return the path to Jar (or directory) where Launcher.class file is located */
-    File getClassSource() {
+    static File getClassSource() {
         return Locator.getClassSource(Launcher.class);
     }
 
@@ -364,5 +370,46 @@ public class Launcher {
             Collections.addAll(urls, collectJars(d, log));
        }
        return urls.toArray(new URL[urls.size()]);
+   }
+
+   private static void printHelp() {
+       System.err.println("");
+       System.err.println("CruiseControl launch options. The preference orderign is (lowest to highest)");
+       System.err.println(" - config XML file, as set by ${" + LaunchConfiguration.KEY_CONFIG_FILE + "} option");
+       System.err.println(" - system properties, prefixed by cc.");
+       System.err.println(" - command line options");
+       System.err.println("");
+       System.out.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_CONFIG_FILE));
+       System.out.println("       ... the path to the launch configuration XML. It is an XML file with");
+       System.out.println("           either <launch> root element or <cruisecontrol><launch> sub-node, under ");
+       System.out.println("           which all the following options can be placed as embedded XML nodes.");
+       System.out.println("           When launcher configuration is set in its own file with <launch> root,");
+       System.out.println("           it must contain <" + LaunchConfiguration.KEY_CONFIG_FILE + "> element");
+       System.out.println("           with the path to an external main cruisecontrol configuration file.");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_DIST_DIR));
+       System.err.println("       ... the path to the directory where the CruiseControl was installed. If not");
+       System.err.println("           set, parent to the " + getClassSource().getAbsolutePath());
+       System.err.println("           directory is used (i.e. /foo/bar/ for /foo/bar/lib/cruisecontrol-launch.jar).");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_PROJ_DIR));
+       System.err.println("       ... the path to the directory where the CruiseControl projects are located.");
+       System.err.println("           If not set, working directory is used.");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_LIBRARY_DIRS));
+       System.err.println("       ... the path to the directories where the CC libraries are located;");
+       System.err.println("           the option may repeat, on each occurence a single directory is added to");
+       System.err.println("           the list. Relative paths use ${" + LaunchConfiguration.KEY_DIST_DIR + "} parent"
+                                   + "directory.");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_USER_LIB_DIRS));
+       System.err.println("       ... the path to the directories where additional libraries are located;");
+       System.err.println("           the option may repeat, on each occurrence a single directory is added to");
+       System.err.println("           the list. Relative paths use ${" + LaunchConfiguration.KEY_PROJ_DIR + "} parent "
+                                   + "directory.");
+       System.err.println("           In addition, " + USER_LIBDIR.getAbsolutePath() + " is always added to the");
+       System.err.println("           list, unless ${" + LaunchConfiguration.KEY_NO_USER_LIB + "} is set.");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_NO_USER_LIB));
+       System.err.println("       ... when set, no user library is used.");
+       System.err.println(LaunchConfiguration.getBaseHelp(LaunchConfiguration.KEY_LOG4J_CONFIG));
+       System.err.println("       ... the URL pointing to the file with log4j cpnfiguration.");
+
+       System.err.println("");
    }
 }

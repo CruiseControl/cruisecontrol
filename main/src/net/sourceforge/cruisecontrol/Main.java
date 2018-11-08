@@ -69,7 +69,6 @@ public final class Main implements CruiseControlMain {
 
 
 
-    @Override
     public Config confFactory(Object owner) {
         try {
             return CruiseControlSettings.getInstance(owner);
@@ -84,7 +83,6 @@ public final class Main implements CruiseControlMain {
      *
      * @return true indicates normal return/exit.
      */
-    @Override
     public boolean start() {
         CruiseControlSettings config;
 
@@ -216,57 +214,56 @@ public final class Main implements CruiseControlMain {
      */
     static final String SYSPROP_CCMAIN_SKIP_USAGE = "cc.main.skip.usage";
 
-
-    @Override
-    public Iterable<String> confHelp() {
-        return null;
-    }
-
-    public static void printUsage() {
+    public void printUsage() {
         if (Boolean.getBoolean(SYSPROP_CCMAIN_SKIP_USAGE)) {
             return;
         }
 
- // TODO: finish !!!
-
-        System.out.println("");
-        System.out.println("Usage:");
         System.out.println("");
         System.out.println("Starts a continuous integration loop");
-        System.out.println("");
-        System.out.println("cruisecontrol [options]");
-        System.out.println("");
         System.out.println("Build loop options are:");
         System.out.println("");
-        System.out.println("  -configfile file     configuration file; default config.xml");
-        System.out.println("  -" + CruiseControlSettings.KEY_DEBUG + "  set logging level to DEBUG");
-        //System.out.println("  -" + CruiseControlSettings.KEY_LOG4J_CONFIG + " url     URL to a log4j "
-        //        + "config (example: ""\"file:/c:/mylog4j.xml\")");
-        System.out.println("  -" + CruiseControlSettings.KEY_PRINT_HELP1 + " or -"
-                + CruiseControlSettings.KEY_PRINT_HELP2 + "          print this usage message");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_CONFIG_FILE));
+        System.out.println("       ... the main cruisecontrol configuration file. It is the XML file with ");
+        System.out.println("           <cruisecontrol> root element.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_DEBUG));
+        System.out.println("       ... set logging level to DEBUG.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_PRINT_HELP1));
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_PRINT_HELP2));
+        System.out.println("       ... print this usage message.");
         System.out.println("");
         System.out.println("Options when using JMX");
-        System.out.println("  Note: JMX server only started if -jmxport and/or -rmiport specified");
-        System.out.println("  -jmxport [number]       port of the JMX HttpAdapter; default 8000");
-        System.out.println("  -rmiport [number]       RMI port of the Controller; default 1099");
-        System.out.println("  -user username          username for HttpAdapter; default no login required");
-        System.out.println("  -password pwd           password for HttpAdapter; default no login required");
-        System.out.println("  -xslpath directory      location of jmx xsl files; default files in package");
-        System.out.println("  -" + CruiseControlSettings.KEY_JMX_AGENT_UTIL
-                + " [true/false] load JMX Build Agent utility; default is true");
+        System.out.println("  Note: JMX server is only started if -jmxport and/or -rmiport specified.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_JMX_PORT));
+        System.out.println("       ... port of the JMX HttpAdapter.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_RMI_PORT));
+        System.out.println("       ... RMI port of the Controller.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_USER));
+        System.out.println("       ... username for HttpAdapter; when not set, no login is required.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_PASSWORD));
+        System.out.println("       ... password for HttpAdapter; when not set, no login is required.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_XLS_PATH));
+        System.out.println("       ... location of jmx xsl files.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_JMX_AGENT_UTIL));
+        System.out.println("       ... load JMX Build Agent utility.");
         System.out.println("");
         System.out.println("Options when using embedded Jetty");
-        System.out.println("  -webport [number]       port for the Reporting website; default 8080, removing");
-        System.out.println("                          this propery will make cruisecontrol start without Jetty");
-        System.out.println("  -jettyxml file          Jetty configuration xml. Defaults to jetty.xml");
-        System.out.println("  -postenabled enabled    switch of posting current build information to dashboard");
-        System.out.println("                          default is true");
-        System.out.println("  -dashboardurl url       the url for dashboard (used for posting build information)");
-        System.out.println("                          default is http://localhost:8080/dashboard");
-        System.out.println("  -postinterval interval  how frequently build information will be posted to dashboard");
-        System.out.println("                          default is 5 (in seconds).");
-        System.out.println("  -ccname name            A logical name which will be displayed in the");
-        System.out.println("                          Reporting Application's status page.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_WEB_PORT));
+        System.out.println("       ... port for the Reporting website; removing this propery will make ");
+        System.out.println("           cruisecontrol start without Jetty.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_JETTY_XML));
+        System.out.println("       ... Jetty configuration xml.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_POST_ENABLED));
+        System.out.println("       ... switch of posting current build information to dashboard.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_POST_INTERVAL));
+        System.out.println("       ... interval how frequently build information will be posted to dashboard,");
+        System.out.println("           value in seconds.");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_DASHBOARD_URL));
+        System.out.println("       ... the url for dashboard (used for posting build information).");
+        System.out.println(CruiseControlSettings.getBaseHelp(CruiseControlSettings.KEY_CC_NAME));
+        System.out.println("       ... A logical name which will be displayed in the Reporting Application's");
+        System.out.println("           status page.");
+
         System.out.println("");
     }
 
@@ -459,12 +456,12 @@ public final class Main implements CruiseControlMain {
 
     static CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL parseEnableJMXAgentUtility() throws CruiseControlException {
         final CruiseControlSettings config = CruiseControlSettings.getInstance();
-        final String argval = config.getOptionStr(CruiseControlSettings.KEY_JMX_AGENT_UTIL);
-        if (argval.isEmpty()) {
+        final Boolean argval = (Boolean) config.getOptionType(CruiseControlSettings.KEY_JMX_AGENT_UTIL, Boolean.class);
+        if (argval == null) {
             /** default, if no command line arg present. Not an error if load fails. */
             return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.LOAD_IF_AVAILABLE;
         }
-        if (Boolean.parseBoolean(argval)) {
+        if (argval.booleanValue()) {
             /** -agentutil true. Considered an error if load fails. */
             return  CruiseControlControllerAgent.LOAD_JMX_AGENTUTIL.FORCE_LOAD;
         }

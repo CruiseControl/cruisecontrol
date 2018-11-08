@@ -97,6 +97,31 @@ public class LaunchConfiguration implements Config {
     private final Object confOwner;
 
     /**
+     * Gets the base help message for the given option key. The message consists of the option key, type
+     * and its default value formated as a single line string
+     * @param key the name of the option.
+     * @return the help message
+     */
+    public static String getBaseHelp(String key) {
+        // Find under the known options
+        for (final Option o : DEFAULT_OPTIONS) {
+            if (o.key.equals(key)) {
+                String d = o.val;
+                // Default according to the type
+                if (d != null) {
+                    if (o.type.equals(String.class)) {
+                        d = "\"" + d + "\"";
+                    }
+                }
+                // Get the formatted help
+                return "-" + o.key + "[" + o.type.getSimpleName() + "]" + (d != null ? ", default=" + d : "");
+            }
+        }
+        // Not found
+        return "";
+    }
+
+    /**
      * Constructor initializing an instance of {@link LaunchConfiguration}. First it looks for
      * configuration file specified in argument -configfile. It searches the file system in this order:
      * <ol>
@@ -554,7 +579,7 @@ public class LaunchConfiguration implements Config {
         // The root element is <cruisecontrol>, find <launcher>...</launcher> section in it
         // and parse recursively
         if ("cruisecontrol".equals(xmlConfig.getNodeName())) {
-            final Element launch = getChild(xmlConfig, "launcher");
+            final Element launch = getChild(xmlConfig, "launch");
             // Not found!
             if (launch == null) {
                 throw new LaunchException("No launcher configuration found in the XML config");

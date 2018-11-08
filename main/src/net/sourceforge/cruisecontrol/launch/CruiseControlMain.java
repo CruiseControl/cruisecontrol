@@ -67,13 +67,6 @@ public interface CruiseControlMain {
      */
     public Config confFactory(Object owner);
     /**
-     * Gets the iterator through help messages explaining CruiseControl configuration options. Each string
-     * represents option (it is allowed the string be formatted).
-     *
-     * @return the iterator with help to print
-     */
-    public Iterable<String> confHelp();
-    /**
      * Start CruiseControl
      * @return
      */

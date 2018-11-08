@@ -77,56 +77,27 @@ public class CruiseControlSettings implements Config {
 
     /** Array of default values for all the option keys */
     private static final Option[] DEFAULT_OPTIONS = {
-        new Option(KEY_CONFIG_FILE,   new File("config.xml"),  File.class,
-                 "configuration file; default config.xml"),
-        new Option(KEY_DIST_DIR,          null,                File.class,
-                 "The root directory under which the CriseControl was installed. Required to be set."),
-        new Option(KEY_PROJ_DIR,          null,                File.class,
-                 "The root directory where CruiseControl projects are located. Required to be set."),
-        new Option(KEY_PRINT_HELP1,       Boolean.FALSE,              Boolean.class,
-                 "Prints this help message"),
-        new Option(KEY_PRINT_HELP2,       Boolean.FALSE,              Boolean.class,
-                 "Prints this help message"),
-        new Option(KEY_DEBUG,             Boolean.FALSE,              Boolean.class,
-                 "Set logging level to DEBUG"),
-        new Option(KEY_RMI_PORT,      new Integer(1099),               Integer.class,
-                 "RMI port of the Controller; default 1099"),
-        new Option(KEY_PORT,          new Integer(8000),               Integer.class,
-                 "Deprecated. Use -" + KEY_JMX_PORT + " instead"),
-        new Option(KEY_JMX_PORT,      new Integer(8000),               Integer.class,
-                 "Port of the JMX HttpAdapter; default 8000"),
-        new Option(KEY_WEB_PORT,      new Integer(8080),               Integer.class,
-                 "Port for the Reporting website; default 8080, removing this propery will make "
-               + "cruisecontrol start without Jetty"),
-        new Option(KEY_JETTY_XML,     new File("etc/jetty.xml"),      File.class,
-                 "Jetty configuration xml. Defaults to jetty.xml"),
-        new Option(KEY_WEBAPP_PATH,   new File("/webapps/cruisecontrol"),
-                                                             File.class,
-                 ""),
-        new Option(KEY_DASHBOARD,     new File("/webapps/dashboard"), File.class,
-                 ""),
-        new Option(KEY_DASHBOARD_URL,      "http://localhost:8080/dashboard",
-                                                             URL.class, // TODO: URL!!!
-                 "the url for dashboard (used for posting build information),"
-               + "default is http://localhost:8080/dashboard\","),
-        new Option(KEY_XLS_PATH,      new File("."),                  File.class,
-                 "location of jmx xsl files; default files in package,"
-               + "CruiseControlSettings.KEY_JMX_AGENT_UTIL"
-               + "[true/false] load JMX Build Agent utility; default is true."),
-        new Option(KEY_POST_INTERVAL, new Integer(5),                  Integer.class,
-                 "how frequently build information will be posted to dashboard,,"
-               + "default is 5 (in seconds)."),
-        new Option(KEY_POST_ENABLED,      Boolean.TRUE,               Boolean.class,
-                 "TODO"),
-        new Option(KEY_PASSWORD,          null,                 String.class,
-                 "password for HttpAdapter; default no login required"),
-        new Option(KEY_USER,              null,                   String.class,
-                 "username for HttpAdapter; default no login required"),
-        new Option(KEY_CC_NAME,           "",                   String.class,
-                 "A logical name which will be displayed in the "
-               + "reporting Application's status page."),
-        new Option(KEY_JMX_AGENT_UTIL,    "",                   String.class,
-                 "TODO"),
+        new Option(KEY_CONFIG_FILE,   new File("cruisecontrol.xml"),        File.class),
+        new Option(KEY_DIST_DIR,          null,                             File.class),
+        new Option(KEY_PROJ_DIR,          null,                             File.class),
+        new Option(KEY_PRINT_HELP1,       Boolean.FALSE,                    Boolean.class),
+        new Option(KEY_PRINT_HELP2,       Boolean.FALSE,                    Boolean.class),
+        new Option(KEY_DEBUG,             Boolean.FALSE,                    Boolean.class),
+        new Option(KEY_RMI_PORT,      new Integer(1099),                    Integer.class),
+        new Option(KEY_PORT,          new Integer(8000),                    Integer.class),
+        new Option(KEY_JMX_PORT,      new Integer(8000),                    Integer.class),
+        new Option(KEY_WEB_PORT,      new Integer(8080),                    Integer.class),
+        new Option(KEY_JETTY_XML,     new File("etc/jetty.xml"),            File.class),
+        new Option(KEY_WEBAPP_PATH,   new File("webapps/cruisecontrol"),    File.class),
+        new Option(KEY_DASHBOARD,     new File("webapps/dashboard"),        File.class),
+        new Option(KEY_DASHBOARD_URL,    "http://localhost:8080/dashboard", URL.class),
+        new Option(KEY_XLS_PATH,      new File("."),                        File.class),
+        new Option(KEY_POST_INTERVAL, new Integer(5),                       Integer.class),
+        new Option(KEY_POST_ENABLED,      Boolean.TRUE,                     Boolean.class),
+        new Option(KEY_PASSWORD,          null,                             String.class),
+        new Option(KEY_USER,              null,                             String.class),
+        new Option(KEY_CC_NAME,           "",                               String.class),
+        new Option(KEY_JMX_AGENT_UTIL,    null,                             Boolean.class),
     };
 
     /** The holder of options */
@@ -354,6 +325,37 @@ public class CruiseControlSettings implements Config {
     }
 
     /**
+     * Gets the base help message for the given option key. The message consists of the option key, type
+     * and its default value formated as a single line string
+     * @param key the name of the option.
+     * @return the help message
+     */
+    public static String getBaseHelp(String key) {
+        // Find under the known options
+        for (final Option o : DEFAULT_OPTIONS) {
+            if (o.key.equals(key)) {
+                Object d = o.val;
+                // Default according to the type
+                if (d != null) {
+                    if (d instanceof String) {
+                        d = "\"" + d + "\"";
+                    }
+                    if (d instanceof File) {
+                        d = "\"" + ((File) d).getAbsolutePath() + "\"";
+                    }
+                    if (d instanceof Boolean) {
+                        d = null;  // no default value, it is either set or not
+                    }
+                }
+                // Get the formatted help
+                return "-" + o.key + "[" + o.type.getSimpleName() + "]" + (d != null ? ", default=" + d : "");
+            }
+        }
+        // Not found
+        return "";
+    }
+
+    /**
      * Constructor. It is hidden since the class can only be used as singleton, but protected to be
      * overridable for test purposes
      *
@@ -413,10 +415,8 @@ public class CruiseControlSettings implements Config {
         final Object val;
         /** The class the option type belongs to */
         final Class< ? > type;
-        /* The help message */
-        final String help;
 
-        Option(final String key, Object val, final Class< ? > type, final String help) {
+        Option(final String key, Object val, final Class< ? > type) {
             // Special hack for URL type
             if (type == URL.class && val instanceof String) {
                 try {
@@ -433,7 +433,6 @@ public class CruiseControlSettings implements Config {
             this.key = key;
             this.val = val;
             this.type = type;
-            this.help = help;
         }
 
         Option(final Option opt, final Object val) {
@@ -445,7 +444,6 @@ public class CruiseControlSettings implements Config {
             this.key = opt.key;
             this.val = val;
             this.type = opt.type;
-            this.help = opt.help;
         }
     }
 }

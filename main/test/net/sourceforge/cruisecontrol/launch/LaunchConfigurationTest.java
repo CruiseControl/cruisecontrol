@@ -171,7 +171,7 @@ public class LaunchConfigurationTest extends TestCase {
     }
 
 
-    /** Tests if correct path to main config file is returned when the <launcher>...</launcher>
+    /** Tests if correct path to main config file is returned when the <launch>...</launch>
      *  configuration stands on its own and points to an "external" main
      *  <cruisecontrol>...</cruisecontrol> configuration.
      *
@@ -193,7 +193,7 @@ public class LaunchConfigurationTest extends TestCase {
         // Must return path to the main configuration file!
         assertEquals("/home/CC/mainconfig.xml", config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
-    /** Tests if correct path to main config file is returned when the <launcher>...</launcher> configuration
+    /** Tests if correct path to main config file is returned when the <launch>...</launch> configuration
      *  is embedded in the main <cruisecontrol>...</cruisecontrol> configuration.
      *
      *  @throws Exception
@@ -203,7 +203,7 @@ public class LaunchConfigurationTest extends TestCase {
         final Map<String, String> opts = new HashMap<String, String>();
         opts.put(LaunchConfiguration.KEY_CONFIG_FILE,  "/home/CC/mainconfig.xml");  // should be ignored, even if presented!
         final Element launch = makeLauchXML(opts);
-        final Element main = makeConfigXML(launch); // embeds <launcher> to the main config
+        final Element main = makeConfigXML(launch); // embeds <launch> to the main config
         final File xml = storeXML(main, filesToDelete.add("cruisecontrol.xml"));
         // command line options - overrides options from config
         final String[] args = new String[] {
@@ -216,7 +216,7 @@ public class LaunchConfigurationTest extends TestCase {
         assertEquals(xml.getAbsolutePath(), config.getOptionRaw(LaunchConfiguration.KEY_CONFIG_FILE));
     }
 
-    /** Tests if default path to main config file is returned when the <launcher>...</launcher>
+    /** Tests if default path to main config file is returned when the <launch>...</launch>
      *  configuration stands on its own and DOES NOT point to an "external" main
      *  <cruisecontrol>...</cruisecontrol> configuration.
      *
@@ -255,7 +255,7 @@ public class LaunchConfigurationTest extends TestCase {
         assertFalse(config.getOptionBool(LaunchConfiguration.KEY_NO_USER_LIB));
     }
 
-    /** Tests the case where an option can be set multiple times in the <launcher>...</launcher>
+    /** Tests the case where an option can be set multiple times in the <launch>...</launch>
      *  XML element
      */
     public void testMultiOpts() throws Exception {
@@ -464,7 +464,7 @@ public class LaunchConfigurationTest extends TestCase {
     /** From the map, where keys are names of options, creates string with <launch> ... </launch> XML
      *  fragment with values filled according to the map */
     public static Element makeLauchXML(final Collection<Map.Entry<String,String>> opts) {
-       Element root = new Element("launcher");
+       Element root = new Element("launch");
 
        for (Map.Entry<String, String> item : opts) {
            Element conf = new Element(item.getKey());
@@ -495,9 +495,9 @@ public class LaunchConfigurationTest extends TestCase {
     /**
      * Creates the XML file with the following format:
      * <pre>
-     *      <launcher>
+     *      <launch>
      *          <configfile>cruiseconfigFname</configfile>
-     *      <launcher>
+     *      <launch>
      * </pre>
      * and stores it to launchConfigFname
      *

@@ -157,7 +157,7 @@ public class CruiseControlConfig {
 
     private void parse(final Element ccElement) throws CruiseControlException {
         // Ignore the <launch>...</launch> section, see LaunchConfiguration
-        ccElement.removeChild("launcher");
+        ccElement.removeChild("launch");
         // parse properties and plugins first, so their order in the config file
         // doesn't matter
         for (final Object o : ccElement.getChildren("property")) {
@@ -490,10 +490,10 @@ public class CruiseControlConfig {
 
                 if (isCustomPropertiesPlugin(element.getName())) {
                     ProjectXMLHelper.registerCustomProperty(nonFullyResolvedProjectProperties,
-                            (Element) element.clone(), resolvers, FAIL_UPON_MISSING_PROPERTY,
+                            element.clone(), resolvers, FAIL_UPON_MISSING_PROPERTY,
                             PluginRegistry.createRegistry(rootPlugins));
                 } else {
-                    ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, (Element) element.clone(),
+                    ProjectXMLHelper.registerProperty(nonFullyResolvedProjectProperties, element.clone(),
                             resolvers, FAIL_UPON_MISSING_PROPERTY);
                 }
             }

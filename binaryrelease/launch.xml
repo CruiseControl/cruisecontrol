@@ -1,4 +1,8 @@
 <?xml version="1.0"?>
+<!--
+ This is the default file requested by cruisecontol-launch.jar (the launcher of the CruiseControl continuous integration
+ builder).
+ -->
 <launch>
 
   <!-- Set absolute path to directory where cruisecontrol is installed. Does not have to be set if lib/cruisecontrol-launcher.jar
@@ -10,8 +14,11 @@
   <proj>/a/dir/with/projects</proj>
   -->
 
-  <!-- cruisecontrol configuration. If not set as absolute path, is searched under <proj> and $HOME directories -->
+  <!-- cruisecontrol configuration. If not set as absolute path, is searched under <proj> and $HOME directories
+       The option does not have to be set when the <launch>launch.xml</launch> was configured in the main configuration file
+       passed to the cruisecontrol-launcher.jar
   <configfile>config.xml</configfile>
+  -->
 
   <!-- The URL to log4j config. Does not have to be set if log4j.properties file is under <dist> directory
   <log4jconfig>file:///home/dtihelka/temp/cruisecontrol-bin-master/log4j.properties</log4jconfig>
