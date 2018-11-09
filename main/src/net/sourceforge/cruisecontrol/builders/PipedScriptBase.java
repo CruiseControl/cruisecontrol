@@ -237,8 +237,14 @@ public abstract class PipedScriptBase implements PipedScript {
         throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
     }
     /**
-     * @return the instance set through {@link #setInputProvider(InputStream, String)} or empty stream reader
-     *      if no provider has been set through {@link #setInputProvider(InputStream, String)}
+     * Returns the instance set through {@link #setInputProvider(InputStream, String)} or empty stream reader
+     * if no provider has been set through {@link #setInputProvider(InputStream, String)}. Note that the
+     * stream instance is returned only when called for the first time; when called repeatedly with the same
+     * ID, empty stream is returned on 2nd and further calls.
+     *
+     * @param id the ID to get the stream for
+     * @return the {@link InputStream} instance.
+     * @throws CruiseControlException when there is no stream for the given ID
      */
     protected InputStream getInputProvider(final String id) throws CruiseControlException {
         final String[] pipeFr = getPipeFrom();
@@ -248,7 +254,10 @@ public abstract class PipedScriptBase implements PipedScript {
         }
         for (int i = 0; i < Math.min(pipeFr.length, inputProvider.length); i++) {
             if (pipeFr[i].equals(id)) {
-                return inputProvider[i];
+                final InputStream is = inputProvider[i];
+                inputProvider[i] = null;
+
+                return is;
             }
         }
         throw new CruiseControlException("Script ID '" + this.getID() + "': unexpected pipe from ID=" + id);
