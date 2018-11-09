@@ -260,11 +260,11 @@ public class MainTest extends TestCase {
         assertEquals(new File(".").getAbsolutePath(), Main.parseXslPath()); // use default value
 
         try {
-            fillOptions(new String[] {"xslpath", invalidXsl});
+            fillOptions(new String[] {"xslpath", invalidXsl}); // Relative to the current working dir
             Main.parseXslPath();
             fail();
         } catch (IllegalArgumentException expected) {
-            assertEquals("xslpath=" + invalidXsl + ": file does not exist",
+            assertEquals("xslpath=" + new File(invalidXsl).getAbsolutePath() + ": file does not exist",
                     expected.getMessage());
         }
     }
